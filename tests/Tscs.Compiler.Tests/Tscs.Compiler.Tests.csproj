@@ -10,4 +10,7 @@
     <ProjectReference Include="../../src/Tscs.Compiler/Tscs.Compiler.csproj" />
     <ProjectReference Include="../../src/Tscs.Cli/Tscs.Cli.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="TestData/source-decoding.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

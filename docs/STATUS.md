@@ -3,6 +3,22 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Byte decoding foundation — 2026-10-25
+
+- Added C# `SourceDecoder.Decode`: UTF8 BOM stripping and UTF16 LE/BE BOM decoding,
+  odd UTF16 trailing-byte handling, and byte-exact malformed UTF8 preservation.
+  This foundation is not yet wired into the CLI, inventory loader, scanner or VFS.
+- Executed the pinned Go decodeBytes/decodeUtf16 functions to generate 764 golden
+  cases: 756 byte/surrogate/endian boundaries and all eight full non-UTF8 fixture
+  blobs. Repeated generation is byte-identical. No fixture is awarded compiler PASS.
+- Direct xUnit/MTP 825/825 (original60, 764 vectors, buffer-ownership regression);
+  Release zero warnings/errors; Node54/54; frozen29/29. Reference and C# test IDs,
+  exact versions, raw byte vectors and hashes are recorded in
+  [decoder evidence](evidence/source-decoder.json).
+- The generated scope progress remains unchanged/NOT_RUN. Next: use this byte
+  boundary in faithful directive/multi-file loading, preserving raw names/values,
+  links, partial callback results and tsconfig/VFS semantics.
+
 ## Evidence
 
 - Pinned upstream: Microsoft TypeScript 8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f (7.1.0-dev).
