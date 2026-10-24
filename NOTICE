@@ -20,3 +20,7 @@ only as a test oracle; the production compiler does not invoke Go.
 The development-only FixtureDirectives.cs adapts the pinned test_case_parser.go
 ASCII directive/link grammar and Go TrimSpace semantics. Golden-vector adapters
 execute the fixed reference functions only for tests.
+
+FixtureLoader.cs and FixtureTrivia.cs adapt the pinned fixture parser, default
+scanner prelude handling, and tspath basename/root behavior. state_oracle_test.go
+is read-only test instrumentation calling the actual pinned functions.

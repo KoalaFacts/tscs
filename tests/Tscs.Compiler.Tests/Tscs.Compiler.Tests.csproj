@@ -17,4 +17,9 @@
     <Compile Include="../../tools/fixture-harness/FixtureDirectives.cs" Link="Harness/FixtureDirectives.cs" />
     <None Update="TestData/fixture-directives.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../../tools/fixture-harness/FixtureLoader.cs" Link="Harness/FixtureLoader.cs" />
+    <Compile Include="../../tools/fixture-harness/FixtureTrivia.cs" Link="Harness/FixtureTrivia.cs" />
+    <None Update="TestData/fixture-state.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

@@ -40,7 +40,7 @@ public static class FixtureDirectives
         return option.Success?new(option.Groups[1].Value.ToLowerInvariant(),TrimSpace(option.Groups[2].Value),null):null;
     }
 
-    private static byte[] TrimSpace(string projected)
+    internal static byte[] TrimSpace(string projected)
     {
         byte[] bytes=Encoding.Latin1.GetBytes(projected);int start=0,end=bytes.Length;
         while(start<end)

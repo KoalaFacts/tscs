@@ -3,6 +3,26 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Raw multi-file state and callbacks — 2026-10-25
+
+- Added byte-preserving C# raw-unit state: file/global options, currentDirectory,
+  link/symlink ownership, empty/implicit-first files, host-independent basename,
+  discarded-prelude validation using the pinned default scanner behavior.
+- Callback boundaries preserve partial results: a failed mid-file value is omitted
+  and stops subsequent metadata; the EOF callback value is appended even on error.
+  Go nil slices and a list containing a null value remain distinct.
+- Actual pinned generic Go parser/scanner/path/VFS functions produced151 vectors,
+  including8 full raw non-UTF8 fixture sources. Repeated generation is byte-identical.
+  Direct xUnit/MTP1512/1512, Node54/54, frozen29/29, Release zero warnings/errors.
+- Independent review found Unicode localhost folding at file-URL roots; a failing
+  reference vector reproduced it and the fix passed. Nil-result normalization was
+  also removed from the oracle and corrected RED→GREEN. Evidence:
+  [raw state](evidence/fixture-state.json).
+- These are developer-harness units and generic callbacks, not AST parsing or CLI
+  integration. VFS/tsconfig, full-corpus loading comparison and all original compiler
+  acceptance remain NOT_RUN. SDK coordinator still aborts on Unix pipe permission;
+  direct MTP is reported separately. PR5 remains pending remote review.
+
 ## Byte-preserving directive boundary — 2026-10-25
 
 - Added a C# development-harness reader using SourceDecoder. It preserves decoded

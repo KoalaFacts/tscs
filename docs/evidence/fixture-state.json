@@ -1,0 +1,114 @@
+{
+  "date": "2026-10-25",
+  "baseCommit": "9fd27b445a4feb376043e287b72873a9d501a013",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "upstreamFunctions": [
+    "testrunner.ParseTestFilesAndSymlinksWithOptions",
+    "scanner.SkipTriviaEx default options",
+    "scanner.isConflictMarkerTrivia",
+    "tspath.GetBaseFileName and root helpers"
+  ],
+  "scope": "Raw fixture state and callback API only; no AST, tsconfig/VFS construction or original compilation",
+  "implementationFiles": [
+    "tools/fixture-harness/FixtureLoader.cs",
+    "tools/fixture-harness/FixtureTrivia.cs"
+  ],
+  "xunitTests": [
+    "Tscs.Tests.FixtureStateTests.StateAndCallbackResultsMatchPinnedGo(id,json): all151 golden vector IDs"
+  ],
+  "goldenFile": "tests/Tscs.Compiler.Tests/TestData/fixture-state.json",
+  "goldenSha256": "336dee22adddee12f2bad9a130eed534d6b7a3aa5d6540993fd80178b934d4a0",
+  "reference": {
+    "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+    "goVersion": "go version go1.27.3 linux/amd64",
+    "sourceHashes": {
+      "tsc/internal/testrunner/test_case_parser.go": "03578c4d35165ee461f4e0488855ffb534eea9a5c598887b255f60817c07d34f",
+      "tsc/internal/scanner/scanner.go": "48008100fb5a020748651e319c4dcc361c1a81ca06f8c3e0ed94d42dd0d1e6df",
+      "tsc/internal/stringutil/util.go": "e15d8030900518eb0d8bd926751df2f7c7cfda6d49c7a82da36d58daeed22b9e",
+      "tsc/internal/tspath/path.go": "6c5a8537f800a388555289c311dec38a47696ec88619b8d758edaed18d9a3328",
+      "tsc/internal/vfs/internal/internal.go": "2d641c466808f1417e4e20d46aa4beb7f9dcc1bc5fd872a5d134fb3ae56d1def"
+    },
+    "probeSha256": "d82e0d936d8afa9b3a8f65da381b5aa5c645313f8044bbd826089e5f3254928e"
+  },
+  "vectors": 151,
+  "rawFixtureIds": [
+    "fixture:tsc/testdata/tests/cases/compiler/bom-utf16be.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/bom-utf16le.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/collisionCodeGenModuleWithUnicodeNames.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/instanceofOperator.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/promiseTest.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/regexInvalidUtf8WithUnicodeFlag.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/targetTypeBaseCalls.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/unicodeIdentifierNames.ts"
+  ],
+  "sourceSnapshotSha256": {
+    "tools/fixture-harness/FixtureLoader.cs": "4d3f8ee13f29e22659d49b31ac1d7e2b93116b9197c1b3272e280e73d7fbeaf6",
+    "tools/fixture-harness/FixtureTrivia.cs": "3b72c1ea190e84c7fb101e21202e98becf81e9ef4ff254bcd7a22c38b7ce0d77",
+    "tools/generate-fixture-state-vectors.ts": "e44e659bd5d7343cd9d529269830a467212922a2b5eb50be1f2c14b95e031d32",
+    "tools/fixture-harness/state_oracle_test.go": "d82e0d936d8afa9b3a8f65da381b5aa5c645313f8044bbd826089e5f3254928e"
+  },
+  "validation": {
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "directMtp": {
+      "passed": 1512,
+      "failed": 0,
+      "skipped": 0
+    },
+    "node": {
+      "passed": 54,
+      "failed": 0
+    },
+    "frozenCohort": {
+      "matched": 29,
+      "total": 29
+    },
+    "reference": "Actual pinned generic parser, scanner, path and VFS functions executed through read-only Go test overlay",
+    "goldenByteIdenticalRepeat": true,
+    "redPhases": [
+      "Initial148 failed, original1361 passed against stub",
+      "Nil preservation:15 failed/1494 passed after removing oracle normalization",
+      "Unicode localhost and nullable callback output:17 failed/1495 passed; final1512 pass"
+    ],
+    "sdkCoordinator": {
+      "exitCode": 134,
+      "reason": "SocketException13 Unix pipe permission denied before execution; directMtp separate"
+    }
+  },
+  "versions": {
+    "sdk": "10.0.402",
+    "runtime": "10.0.13",
+    "node": "24.22.1",
+    "go": "1.27.3",
+    "xunit": "4.0.2",
+    "mtp": "2.5.1"
+  },
+  "environmentRecovery": "Toolchains had been pruned; redownloaded official SDK and Go, Go archive checked against SHA25665efbc80fdc1fa2cd2631cad5b481777a68e8725f34e89f50fc6ac714e379b40. SDK extracted no-same-owner; NuGet restored with proxy after initial direct attempt stalled. No historical pass used.",
+  "review": {
+    "independent": true,
+    "importantFinding": "UTF8-aware Go folding for localhoſt file-URL root. Reproduced RED and fixed with ASCII-target simple-fold partners while keeping byte offsets.",
+    "selfReview": "Preserve nil units rather than normalize to []. Include nil callback value at EOF vs discarded boundary value.",
+    "remainingImportant": 0,
+    "fixPass": "Red-green fixes plus full green suite; no second review claimed"
+  },
+  "commands": [
+    "node tools/generate-fixture-state-vectors.ts .artifacts/fixture-state-reference tests/Tscs.Compiler.Tests/TestData/fixture-state.json",
+    "node tools/generate-fixture-state-vectors.ts .artifacts/fixture-state-reference /tmp/tscs-fixture-state-repeat.json",
+    "cmp tests/Tscs.Compiler.Tests/TestData/fixture-state.json /tmp/tscs-fixture-state-repeat.json",
+    "dotnet build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false",
+    "dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --minimum-expected-tests 1512 --fail-skips on --progress off",
+    "node --test tools/*.test.ts",
+    "node tools/verify-conformance.ts",
+    "./scripts/verify.sh"
+  ],
+  "originalFixtureCompilation": "NOT_RUN",
+  "notImplemented": [
+    "AST callback parsing",
+    "VFS/tsconfig integration",
+    "Original corpus compilation/baseline assertions",
+    "Full-corpus raw loading comparison"
+  ],
+  "releaseEligible": false
+}

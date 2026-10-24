@@ -1,0 +1,3713 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "goVersion": "go version go1.27.3 linux/amd64",
+  "sourceHashes": {
+    "tsc/internal/testrunner/test_case_parser.go": "03578c4d35165ee461f4e0488855ffb534eea9a5c598887b255f60817c07d34f",
+    "tsc/internal/scanner/scanner.go": "48008100fb5a020748651e319c4dcc361c1a81ca06f8c3e0ed94d42dd0d1e6df",
+    "tsc/internal/stringutil/util.go": "e15d8030900518eb0d8bd926751df2f7c7cfda6d49c7a82da36d58daeed22b9e",
+    "tsc/internal/tspath/path.go": "6c5a8537f800a388555289c311dec38a47696ec88619b8d758edaed18d9a3328",
+    "tsc/internal/vfs/internal/internal.go": "2d641c466808f1417e4e20d46aa4beb7f9dcc1bc5fd872a5d134fb3ae56d1def"
+  },
+  "probeSha256": "d82e0d936d8afa9b3a8f65da381b5aa5c645313f8044bbd826089e5f3254928e",
+  "vectors": [
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "",
+            "name": "dGVzdC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "empty/false/0",
+      "implicit": false,
+      "input": "",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "",
+            "name": "dGVzdC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "empty/false/1",
+      "implicit": false,
+      "input": "",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "",
+            "name": "dGVzdC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "empty/false/2",
+      "implicit": false,
+      "input": "",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "",
+            "name": "dGVzdC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "empty/false/3",
+      "implicit": false,
+      "input": "",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "empty/true/0",
+      "implicit": true,
+      "input": "",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "empty/true/1",
+      "implicit": true,
+      "input": "",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "empty/true/2",
+      "implicit": true,
+      "input": "",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "empty/true/3",
+      "implicit": true,
+      "input": "",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "",
+            "name": "dGVzdC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "blank/false/0",
+      "implicit": false,
+      "input": "Cgo=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "",
+            "name": "dGVzdC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "blank/false/1",
+      "implicit": false,
+      "input": "Cgo=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "",
+            "name": "dGVzdC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "blank/false/2",
+      "implicit": false,
+      "input": "Cgo=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "",
+            "name": "dGVzdC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "blank/false/3",
+      "implicit": false,
+      "input": "Cgo=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "Cgo=",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "blank/true/0",
+      "implicit": true,
+      "input": "Cgo=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "Cgo=",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "blank/true/1",
+      "implicit": true,
+      "input": "Cgo=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "Cgo=",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "blank/true/2",
+      "implicit": true,
+      "input": "Cgo=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "Cgo=",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "blank/true/3",
+      "implicit": true,
+      "input": "Cgo=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDsK",
+            "name": "dGVzdC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "single/false/0",
+      "implicit": false,
+      "input": "Cgp4Ow0K",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDsK",
+            "name": "dGVzdC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "single/false/1",
+      "implicit": false,
+      "input": "Cgp4Ow0K",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDsK",
+            "name": "dGVzdC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "single/false/2",
+      "implicit": false,
+      "input": "Cgp4Ow0K",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDsK",
+            "name": "dGVzdC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "single/false/3",
+      "implicit": false,
+      "input": "Cgp4Ow0K",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "Cgp4Owo=",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "single/true/0",
+      "implicit": true,
+      "input": "Cgp4Ow0K",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "Cgp4Owo=",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "single/true/1",
+      "implicit": true,
+      "input": "Cgp4Ow0K",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "Cgp4Owo=",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "single/true/2",
+      "implicit": true,
+      "input": "Cgp4Ow0K",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "Cgp4Owo=",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "single/true/3",
+      "implicit": true,
+      "input": "Cgp4Ow0K",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "",
+            "name": "YS50cw==",
+            "options": {}
+          },
+          {
+            "content": "",
+            "name": "Yi50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "emptyFiles/false/0",
+      "implicit": false,
+      "input": "Ly8gQGZpbGVuYW1lOiBhLnRzCi8vIEBmaWxlbmFtZTogYi50cwo=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": null
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "emptyFiles/false/1",
+      "implicit": false,
+      "input": "Ly8gQGZpbGVuYW1lOiBhLnRzCi8vIEBmaWxlbmFtZTogYi50cwo=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "",
+            "name": "YS50cw==",
+            "options": {}
+          },
+          {
+            "content": "",
+            "name": "Yi50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "emptyFiles/false/2",
+      "implicit": false,
+      "input": "Ly8gQGZpbGVuYW1lOiBhLnRzCi8vIEBmaWxlbmFtZTogYi50cwo=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "",
+            "name": "YS50cw==",
+            "options": {}
+          },
+          {
+            "content": "",
+            "name": "Yi50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "emptyFiles/false/3",
+      "implicit": false,
+      "input": "Ly8gQGZpbGVuYW1lOiBhLnRzCi8vIEBmaWxlbmFtZTogYi50cwo=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "",
+            "name": "Yi50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "emptyFiles/true/0",
+      "implicit": true,
+      "input": "Ly8gQGZpbGVuYW1lOiBhLnRzCi8vIEBmaWxlbmFtZTogYi50cwo=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "",
+            "name": "Yi50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "emptyFiles/true/1",
+      "implicit": true,
+      "input": "Ly8gQGZpbGVuYW1lOiBhLnRzCi8vIEBmaWxlbmFtZTogYi50cwo=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "",
+            "name": "Yi50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "emptyFiles/true/2",
+      "implicit": true,
+      "input": "Ly8gQGZpbGVuYW1lOiBhLnRzCi8vIEBmaWxlbmFtZTogYi50cwo=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "",
+            "name": "Yi50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "emptyFiles/true/3",
+      "implicit": true,
+      "input": "Ly8gQGZpbGVuYW1lOiBhLnRzCi8vIEBmaWxlbmFtZTogYi50cwo=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {
+          "strict": "dHJ1ZTs="
+        },
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {
+              "noopen": "dHJ1ZQ=="
+            }
+          },
+          {
+            "content": "eTs=",
+            "name": "Yi50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "files/false/0",
+      "implicit": false,
+      "input": "Ly8gQHN0cmljdDogZmFsc2UKLy8gQGZpbGVuYW1lOiBhLnRzCi8vIEBub09wZW46IHRydWUKeDsKLy8gQGZpbGVuYW1lOiBiLnRzCi8vIEBzdHJpY3Q6IHRydWU7Cnk7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {
+          "strict": "ZmFsc2U="
+        },
+        "panic": null,
+        "units": null
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "files/false/1",
+      "implicit": false,
+      "input": "Ly8gQHN0cmljdDogZmFsc2UKLy8gQGZpbGVuYW1lOiBhLnRzCi8vIEBub09wZW46IHRydWUKeDsKLy8gQGZpbGVuYW1lOiBiLnRzCi8vIEBzdHJpY3Q6IHRydWU7Cnk7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {
+          "strict": "dHJ1ZTs="
+        },
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {
+              "noopen": "dHJ1ZQ=="
+            }
+          },
+          {
+            "content": "eTs=",
+            "name": "Yi50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "files/false/2",
+      "implicit": false,
+      "input": "Ly8gQHN0cmljdDogZmFsc2UKLy8gQGZpbGVuYW1lOiBhLnRzCi8vIEBub09wZW46IHRydWUKeDsKLy8gQGZpbGVuYW1lOiBiLnRzCi8vIEBzdHJpY3Q6IHRydWU7Cnk7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {
+          "strict": "dHJ1ZTs="
+        },
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {
+              "noopen": "dHJ1ZQ=="
+            }
+          },
+          {
+            "content": "eTs=",
+            "name": "Yi50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "files/false/3",
+      "implicit": false,
+      "input": "Ly8gQHN0cmljdDogZmFsc2UKLy8gQGZpbGVuYW1lOiBhLnRzCi8vIEBub09wZW46IHRydWUKeDsKLy8gQGZpbGVuYW1lOiBiLnRzCi8vIEBzdHJpY3Q6IHRydWU7Cnk7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {
+          "strict": "dHJ1ZTs="
+        },
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {
+              "noopen": "dHJ1ZQ=="
+            }
+          },
+          {
+            "content": "eTs=",
+            "name": "Yi50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "files/true/0",
+      "implicit": true,
+      "input": "Ly8gQHN0cmljdDogZmFsc2UKLy8gQGZpbGVuYW1lOiBhLnRzCi8vIEBub09wZW46IHRydWUKeDsKLy8gQGZpbGVuYW1lOiBiLnRzCi8vIEBzdHJpY3Q6IHRydWU7Cnk7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {
+          "strict": "ZmFsc2U="
+        },
+        "panic": null,
+        "units": null
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "files/true/1",
+      "implicit": true,
+      "input": "Ly8gQHN0cmljdDogZmFsc2UKLy8gQGZpbGVuYW1lOiBhLnRzCi8vIEBub09wZW46IHRydWUKeDsKLy8gQGZpbGVuYW1lOiBiLnRzCi8vIEBzdHJpY3Q6IHRydWU7Cnk7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {
+          "strict": "dHJ1ZTs="
+        },
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {
+              "noopen": "dHJ1ZQ=="
+            }
+          },
+          {
+            "content": "eTs=",
+            "name": "Yi50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "files/true/2",
+      "implicit": true,
+      "input": "Ly8gQHN0cmljdDogZmFsc2UKLy8gQGZpbGVuYW1lOiBhLnRzCi8vIEBub09wZW46IHRydWUKeDsKLy8gQGZpbGVuYW1lOiBiLnRzCi8vIEBzdHJpY3Q6IHRydWU7Cnk7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {
+          "strict": "dHJ1ZTs="
+        },
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {
+              "noopen": "dHJ1ZQ=="
+            }
+          },
+          {
+            "content": "eTs=",
+            "name": "Yi50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "files/true/3",
+      "implicit": true,
+      "input": "Ly8gQHN0cmljdDogZmFsc2UKLy8gQGZpbGVuYW1lOiBhLnRzCi8vIEBub09wZW46IHRydWUKeDsKLy8gQGZpbGVuYW1lOiBiLnRzCi8vIEBzdHJpY3Q6IHRydWU7Cnk7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "L3A=",
+        "error": null,
+        "links": [
+          {
+            "alias": "YWxpYXM=",
+            "target": "cmVhbA=="
+          },
+          {
+            "alias": "Yi50cw==",
+            "target": "ZC50cw=="
+          },
+          {
+            "alias": "Yy50cw==",
+            "target": "YS50cw=="
+          }
+        ],
+        "options": {
+          "currentdirectory": "L3A=",
+          "symlink": "ZWFybHk="
+        },
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          },
+          {
+            "content": "",
+            "name": "ZC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "links/false/0",
+      "implicit": false,
+      "input": "Ly8gQHN5bWxpbms6IGVhcmx5Ci8vIEBsaW5rOiByZWFsIC0+IGFsaWFzCi8vIEBmaWxlbmFtZTogYS50cwovLyBAc3ltbGluazogYi50cywgYy50cywKeDsKLy8gQGZpbGVuYW1lOiBkLnRzCi8vIEBzeW1saW5rOiBiLnRzCi8vIEBjdXJyZW50RGlyZWN0b3J5OiAvcA==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [
+          {
+            "alias": "YWxpYXM=",
+            "target": "cmVhbA=="
+          },
+          {
+            "alias": "Yi50cw==",
+            "target": "YS50cw=="
+          },
+          {
+            "alias": "Yy50cw==",
+            "target": "YS50cw=="
+          }
+        ],
+        "options": {
+          "symlink": "ZWFybHk="
+        },
+        "panic": null,
+        "units": null
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "links/false/1",
+      "implicit": false,
+      "input": "Ly8gQHN5bWxpbms6IGVhcmx5Ci8vIEBsaW5rOiByZWFsIC0+IGFsaWFzCi8vIEBmaWxlbmFtZTogYS50cwovLyBAc3ltbGluazogYi50cywgYy50cywKeDsKLy8gQGZpbGVuYW1lOiBkLnRzCi8vIEBzeW1saW5rOiBiLnRzCi8vIEBjdXJyZW50RGlyZWN0b3J5OiAvcA==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "L3A=",
+        "error": "callback",
+        "links": [
+          {
+            "alias": "YWxpYXM=",
+            "target": "cmVhbA=="
+          },
+          {
+            "alias": "Yi50cw==",
+            "target": "ZC50cw=="
+          },
+          {
+            "alias": "Yy50cw==",
+            "target": "YS50cw=="
+          }
+        ],
+        "options": {
+          "currentdirectory": "L3A=",
+          "symlink": "ZWFybHk="
+        },
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          },
+          {
+            "content": "",
+            "name": "ZC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "links/false/2",
+      "implicit": false,
+      "input": "Ly8gQHN5bWxpbms6IGVhcmx5Ci8vIEBsaW5rOiByZWFsIC0+IGFsaWFzCi8vIEBmaWxlbmFtZTogYS50cwovLyBAc3ltbGluazogYi50cywgYy50cywKeDsKLy8gQGZpbGVuYW1lOiBkLnRzCi8vIEBzeW1saW5rOiBiLnRzCi8vIEBjdXJyZW50RGlyZWN0b3J5OiAvcA==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "L3A=",
+        "error": null,
+        "links": [
+          {
+            "alias": "YWxpYXM=",
+            "target": "cmVhbA=="
+          },
+          {
+            "alias": "Yi50cw==",
+            "target": "ZC50cw=="
+          },
+          {
+            "alias": "Yy50cw==",
+            "target": "YS50cw=="
+          }
+        ],
+        "options": {
+          "currentdirectory": "L3A=",
+          "symlink": "ZWFybHk="
+        },
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          },
+          {
+            "content": "",
+            "name": "ZC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "links/false/3",
+      "implicit": false,
+      "input": "Ly8gQHN5bWxpbms6IGVhcmx5Ci8vIEBsaW5rOiByZWFsIC0+IGFsaWFzCi8vIEBmaWxlbmFtZTogYS50cwovLyBAc3ltbGluazogYi50cywgYy50cywKeDsKLy8gQGZpbGVuYW1lOiBkLnRzCi8vIEBzeW1saW5rOiBiLnRzCi8vIEBjdXJyZW50RGlyZWN0b3J5OiAvcA==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "L3A=",
+        "error": null,
+        "links": [
+          {
+            "alias": "YWxpYXM=",
+            "target": "cmVhbA=="
+          },
+          {
+            "alias": "Yi50cw==",
+            "target": "ZC50cw=="
+          },
+          {
+            "alias": "Yy50cw==",
+            "target": "YS50cw=="
+          },
+          {
+            "alias": "ZWFybHk=",
+            "target": "Zm9sZGVyL3Rlc3QudHM="
+          }
+        ],
+        "options": {
+          "currentdirectory": "L3A="
+        },
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          },
+          {
+            "content": "",
+            "name": "ZC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "links/true/0",
+      "implicit": true,
+      "input": "Ly8gQHN5bWxpbms6IGVhcmx5Ci8vIEBsaW5rOiByZWFsIC0+IGFsaWFzCi8vIEBmaWxlbmFtZTogYS50cwovLyBAc3ltbGluazogYi50cywgYy50cywKeDsKLy8gQGZpbGVuYW1lOiBkLnRzCi8vIEBzeW1saW5rOiBiLnRzCi8vIEBjdXJyZW50RGlyZWN0b3J5OiAvcA==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [
+          {
+            "alias": "YWxpYXM=",
+            "target": "cmVhbA=="
+          },
+          {
+            "alias": "Yi50cw==",
+            "target": "YS50cw=="
+          },
+          {
+            "alias": "Yy50cw==",
+            "target": "YS50cw=="
+          },
+          {
+            "alias": "ZWFybHk=",
+            "target": "Zm9sZGVyL3Rlc3QudHM="
+          }
+        ],
+        "options": {},
+        "panic": null,
+        "units": null
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "links/true/1",
+      "implicit": true,
+      "input": "Ly8gQHN5bWxpbms6IGVhcmx5Ci8vIEBsaW5rOiByZWFsIC0+IGFsaWFzCi8vIEBmaWxlbmFtZTogYS50cwovLyBAc3ltbGluazogYi50cywgYy50cywKeDsKLy8gQGZpbGVuYW1lOiBkLnRzCi8vIEBzeW1saW5rOiBiLnRzCi8vIEBjdXJyZW50RGlyZWN0b3J5OiAvcA==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "L3A=",
+        "error": "callback",
+        "links": [
+          {
+            "alias": "YWxpYXM=",
+            "target": "cmVhbA=="
+          },
+          {
+            "alias": "Yi50cw==",
+            "target": "ZC50cw=="
+          },
+          {
+            "alias": "Yy50cw==",
+            "target": "YS50cw=="
+          },
+          {
+            "alias": "ZWFybHk=",
+            "target": "Zm9sZGVyL3Rlc3QudHM="
+          }
+        ],
+        "options": {
+          "currentdirectory": "L3A="
+        },
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          },
+          {
+            "content": "",
+            "name": "ZC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "links/true/2",
+      "implicit": true,
+      "input": "Ly8gQHN5bWxpbms6IGVhcmx5Ci8vIEBsaW5rOiByZWFsIC0+IGFsaWFzCi8vIEBmaWxlbmFtZTogYS50cwovLyBAc3ltbGluazogYi50cywgYy50cywKeDsKLy8gQGZpbGVuYW1lOiBkLnRzCi8vIEBzeW1saW5rOiBiLnRzCi8vIEBjdXJyZW50RGlyZWN0b3J5OiAvcA==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "L3A=",
+        "error": null,
+        "links": [
+          {
+            "alias": "YWxpYXM=",
+            "target": "cmVhbA=="
+          },
+          {
+            "alias": "Yi50cw==",
+            "target": "ZC50cw=="
+          },
+          {
+            "alias": "Yy50cw==",
+            "target": "YS50cw=="
+          },
+          {
+            "alias": "ZWFybHk=",
+            "target": "Zm9sZGVyL3Rlc3QudHM="
+          }
+        ],
+        "options": {
+          "currentdirectory": "L3A="
+        },
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          },
+          {
+            "content": "",
+            "name": "ZC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "links/true/3",
+      "implicit": true,
+      "input": "Ly8gQHN5bWxpbms6IGVhcmx5Ci8vIEBsaW5rOiByZWFsIC0+IGFsaWFzCi8vIEBmaWxlbmFtZTogYS50cwovLyBAc3ltbGluazogYi50cywgYy50cywKeDsKLy8gQGZpbGVuYW1lOiBkLnRzCi8vIEBzeW1saW5rOiBiLnRzCi8vIEBjdXJyZW50RGlyZWN0b3J5OiAvcA==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "prelude/false/0",
+      "implicit": false,
+      "input": "Ly8gY29tbWVudAovKiBtb3JlICovCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "prelude/false/1",
+      "implicit": false,
+      "input": "Ly8gY29tbWVudAovKiBtb3JlICovCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "prelude/false/2",
+      "implicit": false,
+      "input": "Ly8gY29tbWVudAovKiBtb3JlICovCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "prelude/false/3",
+      "implicit": false,
+      "input": "Ly8gY29tbWVudAovKiBtb3JlICovCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "Ly8gY29tbWVudAovKiBtb3JlICov",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "prelude/true/0",
+      "implicit": true,
+      "input": "Ly8gY29tbWVudAovKiBtb3JlICovCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": null
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "prelude/true/1",
+      "implicit": true,
+      "input": "Ly8gY29tbWVudAovKiBtb3JlICovCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "Ly8gY29tbWVudAovKiBtb3JlICov",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "prelude/true/2",
+      "implicit": true,
+      "input": "Ly8gY29tbWVudAovKiBtb3JlICovCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "Ly8gY29tbWVudAovKiBtb3JlICov",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "prelude/true/3",
+      "implicit": true,
+      "input": "Ly8gY29tbWVudAovKiBtb3JlICovCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 0,
+        "panic": "Non-comment test content appears before the first '// @Filename' directive"
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "codePrelude/false/0",
+      "implicit": false,
+      "input": "eDsKLy8gQGZpbGVuYW1lOiBhLnRzCnk7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 0,
+        "panic": "Non-comment test content appears before the first '// @Filename' directive"
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "codePrelude/false/1",
+      "implicit": false,
+      "input": "eDsKLy8gQGZpbGVuYW1lOiBhLnRzCnk7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 0,
+        "panic": "Non-comment test content appears before the first '// @Filename' directive"
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "codePrelude/false/2",
+      "implicit": false,
+      "input": "eDsKLy8gQGZpbGVuYW1lOiBhLnRzCnk7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 0,
+        "panic": "Non-comment test content appears before the first '// @Filename' directive"
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "codePrelude/false/3",
+      "implicit": false,
+      "input": "eDsKLy8gQGZpbGVuYW1lOiBhLnRzCnk7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eTs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "codePrelude/true/0",
+      "implicit": true,
+      "input": "eDsKLy8gQGZpbGVuYW1lOiBhLnRzCnk7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": null
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "codePrelude/true/1",
+      "implicit": true,
+      "input": "eDsKLy8gQGZpbGVuYW1lOiBhLnRzCnk7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eTs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "codePrelude/true/2",
+      "implicit": true,
+      "input": "eDsKLy8gQGZpbGVuYW1lOiBhLnRzCnk7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eTs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "codePrelude/true/3",
+      "implicit": true,
+      "input": "eDsKLy8gQGZpbGVuYW1lOiBhLnRzCnk7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "shebang/false/0",
+      "implicit": false,
+      "input": "IyFub2RlCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "shebang/false/1",
+      "implicit": false,
+      "input": "IyFub2RlCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "shebang/false/2",
+      "implicit": false,
+      "input": "IyFub2RlCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "shebang/false/3",
+      "implicit": false,
+      "input": "IyFub2RlCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "IyFub2Rl",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "shebang/true/0",
+      "implicit": true,
+      "input": "IyFub2RlCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": null
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "shebang/true/1",
+      "implicit": true,
+      "input": "IyFub2RlCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "IyFub2Rl",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "shebang/true/2",
+      "implicit": true,
+      "input": "IyFub2RlCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "IyFub2Rl",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "shebang/true/3",
+      "implicit": true,
+      "input": "IyFub2RlCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unterminated/false/0",
+      "implicit": false,
+      "input": "LyoKLy8gQGZpbGVuYW1lOiBhLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unterminated/false/1",
+      "implicit": false,
+      "input": "LyoKLy8gQGZpbGVuYW1lOiBhLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unterminated/false/2",
+      "implicit": false,
+      "input": "LyoKLy8gQGZpbGVuYW1lOiBhLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unterminated/false/3",
+      "implicit": false,
+      "input": "LyoKLy8gQGZpbGVuYW1lOiBhLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "Lyo=",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unterminated/true/0",
+      "implicit": true,
+      "input": "LyoKLy8gQGZpbGVuYW1lOiBhLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": null
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unterminated/true/1",
+      "implicit": true,
+      "input": "LyoKLy8gQGZpbGVuYW1lOiBhLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "Lyo=",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unterminated/true/2",
+      "implicit": true,
+      "input": "LyoKLy8gQGZpbGVuYW1lOiBhLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "Lyo=",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unterminated/true/3",
+      "implicit": true,
+      "input": "LyoKLy8gQGZpbGVuYW1lOiBhLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unicode/false/0",
+      "implicit": false,
+      "input": "woXigIvvu7/igKgKLy8gQGZpbGVuYW1lOiBhLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unicode/false/1",
+      "implicit": false,
+      "input": "woXigIvvu7/igKgKLy8gQGZpbGVuYW1lOiBhLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unicode/false/2",
+      "implicit": false,
+      "input": "woXigIvvu7/igKgKLy8gQGZpbGVuYW1lOiBhLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unicode/false/3",
+      "implicit": false,
+      "input": "woXigIvvu7/igKgKLy8gQGZpbGVuYW1lOiBhLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "woXigIvvu7/igKg=",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unicode/true/0",
+      "implicit": true,
+      "input": "woXigIvvu7/igKgKLy8gQGZpbGVuYW1lOiBhLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": null
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unicode/true/1",
+      "implicit": true,
+      "input": "woXigIvvu7/igKgKLy8gQGZpbGVuYW1lOiBhLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "woXigIvvu7/igKg=",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unicode/true/2",
+      "implicit": true,
+      "input": "woXigIvvu7/igKgKLy8gQGZpbGVuYW1lOiBhLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "woXigIvvu7/igKg=",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unicode/true/3",
+      "implicit": true,
+      "input": "woXigIvvu7/igKgKLy8gQGZpbGVuYW1lOiBhLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "conflict/false/0",
+      "implicit": false,
+      "input": "PDw8PDw8PCBvdXJzCj09PT09PT0KaWdub3JlZAo+Pj4+Pj4+IHRoZWlycwovLyBAZmlsZW5hbWU6IGEudHMKeDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "conflict/false/1",
+      "implicit": false,
+      "input": "PDw8PDw8PCBvdXJzCj09PT09PT0KaWdub3JlZAo+Pj4+Pj4+IHRoZWlycwovLyBAZmlsZW5hbWU6IGEudHMKeDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "conflict/false/2",
+      "implicit": false,
+      "input": "PDw8PDw8PCBvdXJzCj09PT09PT0KaWdub3JlZAo+Pj4+Pj4+IHRoZWlycwovLyBAZmlsZW5hbWU6IGEudHMKeDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "conflict/false/3",
+      "implicit": false,
+      "input": "PDw8PDw8PCBvdXJzCj09PT09PT0KaWdub3JlZAo+Pj4+Pj4+IHRoZWlycwovLyBAZmlsZW5hbWU6IGEudHMKeDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "PDw8PDw8PCBvdXJzCj09PT09PT0KaWdub3JlZAo+Pj4+Pj4+IHRoZWlycw==",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "conflict/true/0",
+      "implicit": true,
+      "input": "PDw8PDw8PCBvdXJzCj09PT09PT0KaWdub3JlZAo+Pj4+Pj4+IHRoZWlycwovLyBAZmlsZW5hbWU6IGEudHMKeDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": null
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "conflict/true/1",
+      "implicit": true,
+      "input": "PDw8PDw8PCBvdXJzCj09PT09PT0KaWdub3JlZAo+Pj4+Pj4+IHRoZWlycwovLyBAZmlsZW5hbWU6IGEudHMKeDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "PDw8PDw8PCBvdXJzCj09PT09PT0KaWdub3JlZAo+Pj4+Pj4+IHRoZWlycw==",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "conflict/true/2",
+      "implicit": true,
+      "input": "PDw8PDw8PCBvdXJzCj09PT09PT0KaWdub3JlZAo+Pj4+Pj4+IHRoZWlycwovLyBAZmlsZW5hbWU6IGEudHMKeDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "PDw8PDw8PCBvdXJzCj09PT09PT0KaWdub3JlZAo+Pj4+Pj4+IHRoZWlycw==",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "conflict/true/3",
+      "implicit": true,
+      "input": "PDw8PDw8PCBvdXJzCj09PT09PT0KaWdub3JlZAo+Pj4+Pj4+IHRoZWlycwovLyBAZmlsZW5hbWU6IGEudHMKeDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "markerLookbehind/false/0",
+      "implicit": false,
+      "input": "Ly8gYwogID09PT09PT0KaWdub3JlZAovLyBAZmlsZW5hbWU6IGEudHMKeDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "markerLookbehind/false/1",
+      "implicit": false,
+      "input": "Ly8gYwogID09PT09PT0KaWdub3JlZAovLyBAZmlsZW5hbWU6IGEudHMKeDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "markerLookbehind/false/2",
+      "implicit": false,
+      "input": "Ly8gYwogID09PT09PT0KaWdub3JlZAovLyBAZmlsZW5hbWU6IGEudHMKeDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "markerLookbehind/false/3",
+      "implicit": false,
+      "input": "Ly8gYwogID09PT09PT0KaWdub3JlZAovLyBAZmlsZW5hbWU6IGEudHMKeDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "Ly8gYwogID09PT09PT0KaWdub3JlZA==",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "markerLookbehind/true/0",
+      "implicit": true,
+      "input": "Ly8gYwogID09PT09PT0KaWdub3JlZAovLyBAZmlsZW5hbWU6IGEudHMKeDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": null
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "markerLookbehind/true/1",
+      "implicit": true,
+      "input": "Ly8gYwogID09PT09PT0KaWdub3JlZAovLyBAZmlsZW5hbWU6IGEudHMKeDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "Ly8gYwogID09PT09PT0KaWdub3JlZA==",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "markerLookbehind/true/2",
+      "implicit": true,
+      "input": "Ly8gYwogID09PT09PT0KaWdub3JlZAovLyBAZmlsZW5hbWU6IGEudHMKeDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "Ly8gYwogID09PT09PT0KaWdub3JlZA==",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "markerLookbehind/true/3",
+      "implicit": true,
+      "input": "Ly8gYwogID09PT09PT0KaWdub3JlZAovLyBAZmlsZW5hbWU6IGEudHMKeDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 0,
+        "panic": "Non-comment test content appears before the first '// @Filename' directive"
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unicodeMarker/false/0",
+      "implicit": false,
+      "input": "4oCoPT09PT09PQppZ25vcmVkCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 0,
+        "panic": "Non-comment test content appears before the first '// @Filename' directive"
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unicodeMarker/false/1",
+      "implicit": false,
+      "input": "4oCoPT09PT09PQppZ25vcmVkCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 0,
+        "panic": "Non-comment test content appears before the first '// @Filename' directive"
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unicodeMarker/false/2",
+      "implicit": false,
+      "input": "4oCoPT09PT09PQppZ25vcmVkCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 0,
+        "panic": "Non-comment test content appears before the first '// @Filename' directive"
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unicodeMarker/false/3",
+      "implicit": false,
+      "input": "4oCoPT09PT09PQppZ25vcmVkCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "4oCoPT09PT09PQppZ25vcmVk",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unicodeMarker/true/0",
+      "implicit": true,
+      "input": "4oCoPT09PT09PQppZ25vcmVkCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": null
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unicodeMarker/true/1",
+      "implicit": true,
+      "input": "4oCoPT09PT09PQppZ25vcmVkCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "4oCoPT09PT09PQppZ25vcmVk",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unicodeMarker/true/2",
+      "implicit": true,
+      "input": "4oCoPT09PT09PQppZ25vcmVkCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "4oCoPT09PT09PQppZ25vcmVk",
+            "name": "Zm9sZGVyL3Rlc3QudHM=",
+            "options": {}
+          },
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "unicodeMarker/true/3",
+      "implicit": true,
+      "input": "4oCoPT09PT09PQppZ25vcmVkCi8vIEBmaWxlbmFtZTogYS50cwp4Ow==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "Yi50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "emptyName/false/0",
+      "implicit": false,
+      "input": "Ly8gQGZpbGVuYW1lOgoKLy8gQGZpbGVuYW1lOiBiLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "Yi50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "emptyName/false/1",
+      "implicit": false,
+      "input": "Ly8gQGZpbGVuYW1lOgoKLy8gQGZpbGVuYW1lOiBiLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "Yi50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "emptyName/false/2",
+      "implicit": false,
+      "input": "Ly8gQGZpbGVuYW1lOgoKLy8gQGZpbGVuYW1lOiBiLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "Yi50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "emptyName/false/3",
+      "implicit": false,
+      "input": "Ly8gQGZpbGVuYW1lOgoKLy8gQGZpbGVuYW1lOiBiLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "Yi50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "emptyName/true/0",
+      "implicit": true,
+      "input": "Ly8gQGZpbGVuYW1lOgoKLy8gQGZpbGVuYW1lOiBiLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "Yi50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "emptyName/true/1",
+      "implicit": true,
+      "input": "Ly8gQGZpbGVuYW1lOgoKLy8gQGZpbGVuYW1lOiBiLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "Yi50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "emptyName/true/2",
+      "implicit": true,
+      "input": "Ly8gQGZpbGVuYW1lOgoKLy8gQGZpbGVuYW1lOiBiLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "Yi50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "emptyName/true/3",
+      "implicit": true,
+      "input": "Ly8gQGZpbGVuYW1lOgoKLy8gQGZpbGVuYW1lOiBiLnRzCng7",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 3,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          },
+          {
+            "content": "eTs=",
+            "name": "Yi50cw==",
+            "options": {}
+          },
+          {
+            "content": "ejs=",
+            "name": "Yy50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "midError/false/0",
+      "implicit": false,
+      "input": "Ly8gQGZpbGVuYW1lOiBhLnRzCng7Ci8vIEBmaWxlbmFtZTogYi50cwp5OwovLyBAZmlsZW5hbWU6IGMudHMKejs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": null
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "midError/false/1",
+      "implicit": false,
+      "input": "Ly8gQGZpbGVuYW1lOiBhLnRzCng7Ci8vIEBmaWxlbmFtZTogYi50cwp5OwovLyBAZmlsZW5hbWU6IGMudHMKejs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "midError/false/2",
+      "implicit": false,
+      "input": "Ly8gQGZpbGVuYW1lOiBhLnRzCng7Ci8vIEBmaWxlbmFtZTogYi50cwp5OwovLyBAZmlsZW5hbWU6IGMudHMKejs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 3,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          },
+          {
+            "content": "eTs=",
+            "name": "Yi50cw==",
+            "options": {}
+          },
+          {
+            "content": "ejs=",
+            "name": "Yy50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "midError/false/3",
+      "implicit": false,
+      "input": "Ly8gQGZpbGVuYW1lOiBhLnRzCng7Ci8vIEBmaWxlbmFtZTogYi50cwp5OwovLyBAZmlsZW5hbWU6IGMudHMKejs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 3,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          },
+          {
+            "content": "eTs=",
+            "name": "Yi50cw==",
+            "options": {}
+          },
+          {
+            "content": "ejs=",
+            "name": "Yy50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "midError/true/0",
+      "implicit": true,
+      "input": "Ly8gQGZpbGVuYW1lOiBhLnRzCng7Ci8vIEBmaWxlbmFtZTogYi50cwp5OwovLyBAZmlsZW5hbWU6IGMudHMKejs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": null
+      },
+      "failAt": 1,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "midError/true/1",
+      "implicit": true,
+      "input": "Ly8gQGZpbGVuYW1lOiBhLnRzCng7Ci8vIEBmaWxlbmFtZTogYi50cwp5OwovLyBAZmlsZW5hbWU6IGMudHMKejs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 2,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 2,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "midError/true/2",
+      "implicit": true,
+      "input": "Ly8gQGZpbGVuYW1lOiBhLnRzCng7Ci8vIEBmaWxlbmFtZTogYi50cwp5OwovLyBAZmlsZW5hbWU6IGMudHMKejs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 3,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          },
+          {
+            "content": "eTs=",
+            "name": "Yi50cw==",
+            "options": {}
+          },
+          {
+            "content": "ejs=",
+            "name": "Yy50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 3,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "midError/true/3",
+      "implicit": true,
+      "input": "Ly8gQGZpbGVuYW1lOiBhLnRzCng7Ci8vIEBmaWxlbmFtZTogYi50cwp5OwovLyBAZmlsZW5hbWU6IGMudHMKejs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "YS50cw==",
+      "id": "basename/a.ts",
+      "implicit": false,
+      "input": "eDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "YS50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "ZGlyL2EudHMv",
+      "id": "basename/dir/a.ts/",
+      "implicit": false,
+      "input": "eDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Lw==",
+      "id": "basename//",
+      "implicit": false,
+      "input": "eDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Qzo=",
+      "id": "basename/C:",
+      "implicit": false,
+      "input": "eDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Qzov",
+      "id": "basename/C:/",
+      "implicit": false,
+      "input": "eDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "QzphYmM=",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "QzphYmM=",
+      "id": "basename/C:abc",
+      "implicit": false,
+      "input": "eDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Ly9zZXJ2ZXI=",
+      "id": "basename///server",
+      "implicit": false,
+      "input": "eDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Ly9zZXJ2ZXIv",
+      "id": "basename///server/",
+      "implicit": false,
+      "input": "eDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "ZmlsZTovLy9jOi8=",
+      "id": "basename/file:///c:/",
+      "implicit": false,
+      "input": "eDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "aHR0cDovL2hvc3Qv",
+      "id": "basename/http://host/",
+      "implicit": false,
+      "input": "eDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "bmFtZQ==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Xi91bnRpdGxlZC90cy1udWwtYXV0aG9yaXR5L25hbWU=",
+      "id": "basename/^/untitled/ts-nul-authority/name",
+      "implicit": false,
+      "input": "eDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "eDs=",
+            "name": "",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "ZmlsZTovL2xvY2FsaG/Fv3QvYzo=",
+      "id": "unicode-localhost",
+      "implicit": false,
+      "input": "eDs=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          null
+        ]
+      },
+      "failAt": 1,
+      "fileName": "YS50cw==",
+      "id": "nil-eof",
+      "implicit": false,
+      "input": "eDs=",
+      "returnNil": true
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": "callback",
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": null
+      },
+      "failAt": 1,
+      "fileName": "YS50cw==",
+      "id": "nil-boundary",
+      "implicit": false,
+      "input": "Ly8gQGZpbGVuYW1lOiBhLnRzCng7Ci8vIEBmaWxlbmFtZTogYi50cw==",
+      "returnNil": true
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "dmFyIHg9MTA7Cg==",
+            "name": "dGVzdC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "fixture:tsc/testdata/tests/cases/compiler/bom-utf16be.ts",
+      "implicit": false,
+      "input": "/v8AdgBhAHIAIAB4AD0AMQAwADsADQAK",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "dmFyIHg9MTA7Cg==",
+            "name": "dGVzdC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "fixture:tsc/testdata/tests/cases/compiler/bom-utf16le.ts",
+      "implicit": false,
+      "input": "//52AGEAcgAgAHgAPQAxADAAOwANAAoA",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "bmFtZXNwYWNlIOaJjeiDveOCvdCr4oWo6JKk6YOz4KSw4KWN4KSV4KWN4KSh4KWN4KSw4KS+w7zEscWfxJ/EsGxp2YrZiNmG2YrZg9mI2K/DtsOEw7zDn+aJjeiDveOCvdCr4oWo6JKk6YOz4KSw4KWN4KSV4KWN4KSh4KWN4KSw4KS+w7zEscWfxJ/EsGxp2YrZiNmG2YrZg9mI2K/DtsOEw7zDn0FiY2QxMjMgewogICAgZXhwb3J0IGNsYXNzIOaJjeiDveOCvdCr4oWo6JKk6YOz4KSw4KWN4KSV4KWN4KSh4KWN4KSw4KS+w7zEscWfxJ/EsGxp2YrZiNmG2YrZg9mI2K/DtsOEw7zDn+aJjeiDveOCvdCr4oWo6JKk6YOz4KSw4KWN4KSV4KWN4KSh4KWN4KSw4KS+w7zEscWfxJ/EsGxp2YrZiNmG2YrZg9mI2K/DtsOEw7zDn0FiY2QxMjMgewogICAgfQp9Cgp2YXIgeCA9IG5ldyDmiY3og73jgr3Qq+KFqOiSpOmDs+CksOCljeCkleCljeCkoeCljeCksOCkvsO8xLHFn8SfxLBsadmK2YjZhtmK2YPZiNivw7bDhMO8w5/miY3og73jgr3Qq+KFqOiSpOmDs+CksOCljeCkleCljeCkoeCljeCksOCkvsO8xLHFn8SfxLBsadmK2YjZhtmK2YPZiNivw7bDhMO8w59BYmNkMTIzLuaJjeiDveOCvdCr4oWo6JKk6YOz4KSw4KWN4KSV4KWN4KSh4KWN4KSw4KS+w7zEscWfxJ/EsGxp2YrZiNmG2YrZg9mI2K/DtsOEw7zDn+aJjeiDveOCvdCr4oWo6JKk6YOz4KSw4KWN4KSV4KWN4KSh4KWN4KSw4KS+w7zEscWfxJ/EsGxp2YrZiNmG2YrZg9mI2K/DtsOEw7zDn0FiY2QxMjMoKTsKCgo=",
+            "name": "dGVzdC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "fixture:tsc/testdata/tests/cases/compiler/collisionCodeGenModuleWithUnicodeNames.ts",
+      "implicit": false,
+      "input": "//5uAGEAbQBlAHMAcABhAGMAZQAgAE1i/YC9MCsEaCGkhPOQMAlNCRUJTQkhCU0JMAk+CfwAMQFfAR8BMAFsAGkASgZIBkYGSgZDBkgGLwb2AMQA/ADfAE1i/YC9MCsEaCGkhPOQMAlNCRUJTQkhCU0JMAk+CfwAMQFfAR8BMAFsAGkASgZIBkYGSgZDBkgGLwb2AMQA/ADfAEEAYgBjAGQAMQAyADMAIAB7AA0ACgAgACAAIAAgAGUAeABwAG8AcgB0ACAAYwBsAGEAcwBzACAATWL9gL0wKwRoIaSE85AwCU0JFQlNCSEJTQkwCT4J/AAxAV8BHwEwAWwAaQBKBkgGRgZKBkMGSAYvBvYAxAD8AN8ATWL9gL0wKwRoIaSE85AwCU0JFQlNCSEJTQkwCT4J/AAxAV8BHwEwAWwAaQBKBkgGRgZKBkMGSAYvBvYAxAD8AN8AQQBiAGMAZAAxADIAMwAgAHsADQAKACAAIAAgACAAfQANAAoAfQANAAoADQAKAHYAYQByACAAeAAgAD0AIABuAGUAdwAgAE1i/YC9MCsEaCGkhPOQMAlNCRUJTQkhCU0JMAk+CfwAMQFfAR8BMAFsAGkASgZIBkYGSgZDBkgGLwb2AMQA/ADfAE1i/YC9MCsEaCGkhPOQMAlNCRUJTQkhCU0JMAk+CfwAMQFfAR8BMAFsAGkASgZIBkYGSgZDBkgGLwb2AMQA/ADfAEEAYgBjAGQAMQAyADMALgBNYv2AvTArBGghpITzkDAJTQkVCU0JIQlNCTAJPgn8ADEBXwEfATABbABpAEoGSAZGBkoGQwZIBi8G9gDEAPwA3wBNYv2AvTArBGghpITzkDAJTQkVCU0JIQlNCTAJPgn8ADEBXwEfATABbABpAEoGSAZGBkoGQwZIBi8G9gDEAPwA3wBBAGIAYwBkADEAMgAzACgAKQA7AA0ACgANAAoADQAKAA==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {
+          "module": "Y29tbW9uanM=",
+          "target": "ZXM1LCBlczIwMTU="
+        },
+        "panic": null,
+        "units": [
+          {
+            "content": "Ly8gU3BlYzoKLy8gVGhlIGluc3RhbmNlb2Ygb3BlcmF0b3IgcmVxdWlyZXMgdGhlIGxlZnQgb3BlcmFuZCB0byBiZSBvZiB0eXBlIEFueSBvciBhbiBvYmplY3QgdHlwZSwgYW5kIHRoZSByaWdodCAKLy8gb3BlcmFuZCB0byBiZSBvZiB0eXBlIEFueSBvciBhIHN1YnR5cGUgb2YgdGhlIOKAmEZ1bmN0aW9u4oCZIGludGVyZmFjZSB0eXBlLiBUaGUgcmVzdWx0IGlzIGFsd2F5cyBvZiB0aGUgCi8vIEJvb2xlYW4gcHJpbWl0aXZlIHR5cGUuCgpuYW1lc3BhY2UgdGVzdCB7CiAgICBjbGFzcyBPYmplY3QgeyB9CiAgICBkZWNsYXJlIHZhciBvYmo6IE9iamVjdDsKCgoKICAgIDQgaW5zdGFuY2VvZiBudWxsOwoKICAgIC8vIEVycm9yIGFuZCBzaG91bGQgYmUgZXJyb3IKICAgIG9iaiBpbnN0YW5jZW9mIDQ7CiAgICBPYmplY3QgaW5zdGFuY2VvZiBvYmo7CgogICAgLy8gRXJyb3Igb24gbGVmdCBoYW5kIHNpZGUKICAgIG51bGwgaW5zdGFuY2VvZiBudWxsOwogICAgb2JqIGluc3RhbmNlb2YgT2JqZWN0OwogICAgdW5kZWZpbmVkIGluc3RhbmNlb2YgdW5kZWZpbmVkOwp9Cgo=",
+            "name": "dGVzdC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "fixture:tsc/testdata/tests/cases/compiler/instanceofOperator.ts",
+      "implicit": false,
+      "input": "//4vAC8AIABAAHQAYQByAGcAZQB0ADoAIABlAHMANQAsACAAZQBzADIAMAAxADUADQAKAC8ALwAgAEAAbQBvAGQAdQBsAGUAOgAgAGMAbwBtAG0AbwBuAGoAcwANAAoALwAvACAAUwBwAGUAYwA6AA0ACgAvAC8AIABUAGgAZQAgAGkAbgBzAHQAYQBuAGMAZQBvAGYAIABvAHAAZQByAGEAdABvAHIAIAByAGUAcQB1AGkAcgBlAHMAIAB0AGgAZQAgAGwAZQBmAHQAIABvAHAAZQByAGEAbgBkACAAdABvACAAYgBlACAAbwBmACAAdAB5AHAAZQAgAEEAbgB5ACAAbwByACAAYQBuACAAbwBiAGoAZQBjAHQAIAB0AHkAcABlACwAIABhAG4AZAAgAHQAaABlACAAcgBpAGcAaAB0ACAADQAKAC8ALwAgAG8AcABlAHIAYQBuAGQAIAB0AG8AIABiAGUAIABvAGYAIAB0AHkAcABlACAAQQBuAHkAIABvAHIAIABhACAAcwB1AGIAdAB5AHAAZQAgAG8AZgAgAHQAaABlACAAGCBGAHUAbgBjAHQAaQBvAG4AGSAgAGkAbgB0AGUAcgBmAGEAYwBlACAAdAB5AHAAZQAuACAAVABoAGUAIAByAGUAcwB1AGwAdAAgAGkAcwAgAGEAbAB3AGEAeQBzACAAbwBmACAAdABoAGUAIAANAAoALwAvACAAQgBvAG8AbABlAGEAbgAgAHAAcgBpAG0AaQB0AGkAdgBlACAAdAB5AHAAZQAuAA0ACgANAAoAbgBhAG0AZQBzAHAAYQBjAGUAIAB0AGUAcwB0ACAAewANAAoAIAAgACAAIABjAGwAYQBzAHMAIABPAGIAagBlAGMAdAAgAHsAIAB9AA0ACgAgACAAIAAgAGQAZQBjAGwAYQByAGUAIAB2AGEAcgAgAG8AYgBqADoAIABPAGIAagBlAGMAdAA7AA0ACgANAAoADQAKAA0ACgAgACAAIAAgADQAIABpAG4AcwB0AGEAbgBjAGUAbwBmACAAbgB1AGwAbAA7AA0ACgANAAoAIAAgACAAIAAvAC8AIABFAHIAcgBvAHIAIABhAG4AZAAgAHMAaABvAHUAbABkACAAYgBlACAAZQByAHIAbwByAA0ACgAgACAAIAAgAG8AYgBqACAAaQBuAHMAdABhAG4AYwBlAG8AZgAgADQAOwANAAoAIAAgACAAIABPAGIAagBlAGMAdAAgAGkAbgBzAHQAYQBuAGMAZQBvAGYAIABvAGIAagA7AA0ACgANAAoAIAAgACAAIAAvAC8AIABFAHIAcgBvAHIAIABvAG4AIABsAGUAZgB0ACAAaABhAG4AZAAgAHMAaQBkAGUADQAKACAAIAAgACAAbgB1AGwAbAAgAGkAbgBzAHQAYQBuAGMAZQBvAGYAIABuAHUAbABsADsADQAKACAAIAAgACAAbwBiAGoAIABpAG4AcwB0AGEAbgBjAGUAbwBmACAATwBiAGoAZQBjAHQAOwANAAoAIAAgACAAIAB1AG4AZABlAGYAaQBuAGUAZAAgAGkAbgBzAHQAYQBuAGMAZQBvAGYAIAB1AG4AZABlAGYAaQBuAGUAZAA7AA0ACgB9AA0ACgANAAoA",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {
+          "target": "ZXMyMDE1"
+        },
+        "panic": null,
+        "units": [
+          {
+            "content": "aW50ZXJmYWNlIFByb21pc2U8VD4gewogICAgdGhlbjxBPihzdWNjZXNzPzogKHZhbHVlOiBUKSA9PiBQcm9taXNlPEE+KTogUHJvbWlzZTxBPjsKICAgIHRoZW48Qj4oc3VjY2Vzcz86ICh2YWx1ZTogVCkgPT4gQik6IFByb21pc2U8Qj47CiAgICBkYXRhOiBUOwp9Cgp2YXIgcDogUHJvbWlzZTxudW1iZXI+ID0gbnVsbDsKdmFyIHAyID0gcC50aGVuKGZ1bmN0aW9uICh4KSB7CiAgICByZXR1cm4gcDsKfSApOwoKdmFyIHggPSBwMi5kYXRhOyAvLyBudW1iZXIKCg==",
+            "name": "dGVzdC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "fixture:tsc/testdata/tests/cases/compiler/promiseTest.ts",
+      "implicit": false,
+      "input": "//4vAC8AIABAAHQAYQByAGcAZQB0ADoAIABlAHMAMgAwADEANQAKAAoAaQBuAHQAZQByAGYAYQBjAGUAIABQAHIAbwBtAGkAcwBlADwAVAA+ACAAewAKACAAIAAgACAAdABoAGUAbgA8AEEAPgAoAHMAdQBjAGMAZQBzAHMAPwA6ACAAKAB2AGEAbAB1AGUAOgAgAFQAKQAgAD0APgAgAFAAcgBvAG0AaQBzAGUAPABBAD4AKQA6ACAAUAByAG8AbQBpAHMAZQA8AEEAPgA7AAoAIAAgACAAIAB0AGgAZQBuADwAQgA+ACgAcwB1AGMAYwBlAHMAcwA/ADoAIAAoAHYAYQBsAHUAZQA6ACAAVAApACAAPQA+ACAAQgApADoAIABQAHIAbwBtAGkAcwBlADwAQgA+ADsACgAgACAAIAAgAGQAYQB0AGEAOgAgAFQAOwAKAH0ACgAKAHYAYQByACAAcAA6ACAAUAByAG8AbQBpAHMAZQA8AG4AdQBtAGIAZQByAD4AIAA9ACAAbgB1AGwAbAA7AAoAdgBhAHIAIABwADIAIAA9ACAAcAAuAHQAaABlAG4AKABmAHUAbgBjAHQAaQBvAG4AIAAoAHgAKQAgAHsACgAgACAAIAAgAHIAZQB0AHUAcgBuACAAcAA7AAoAfQAgACkAOwAKAAoAdgBhAHIAIAB4ACAAPQAgAHAAMgAuAGQAYQB0AGEAOwAgAC8ALwAgAG4AdQBtAGIAZQByAAoACgA=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {
+          "target": "ZXNuZXh0"
+        },
+        "panic": null,
+        "units": [
+          {
+            "content": "L4AvdQo=",
+            "name": "dGVzdC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "fixture:tsc/testdata/tests/cases/compiler/regexInvalidUtf8WithUnicodeFlag.ts",
+      "implicit": false,
+      "input": "Ly8gQHRhcmdldDogZXNuZXh0Ci+AL3UK",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {
+          "target": "ZXMyMDE1"
+        },
+        "panic": null,
+        "units": [
+          {
+            "content": "ZnVuY3Rpb24gZm9vKHg6IChzOiBzdHJpbmcpID0+IHZvaWQpIHsgfQogCiAKIApjbGFzcyBGb28geyBjb25zdHJ1Y3Rvcih4OiAoczogc3RyaW5nKSA9PiB2b2lkKXt9IH0KIAogCiAKZm9vKGZ1bmN0aW9uKHMpIHsgcyA9IDUgfSk7ICAvLyBFcnJvciwgY2Fu4oCZdCBhc3NpZ24gbnVtYmVyIHRvIHN0cmluZwogCiAKIApuZXcgRm9vKGZ1bmN0aW9uKHMpIHsgcyA9IDUgfSk7ICAvLyBlcnJvciwgaWYgdHlwZXMgYXJlIGFwcGxpZWQgY29ycmVjdGx5CiAKIAogCmNsYXNzIEJhciBleHRlbmRzIEZvbyB7IGNvbnN0cnVjdG9yKCkgeyBzdXBlcihmdW5jdGlvbihzKSB7IHMgPSA1IH0pIH0gfSAgLy8gZXJyb3IsIGlmIHR5cGVzIGFyZSBhcHBsaWVkIGNvcnJlY3RseQo=",
+            "name": "dGVzdC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "fixture:tsc/testdata/tests/cases/compiler/targetTypeBaseCalls.ts",
+      "implicit": false,
+      "input": "//4vAC8AIABAAHQAYQByAGcAZQB0ADoAIABlAHMAMgAwADEANQANAAoAZgB1AG4AYwB0AGkAbwBuACAAZgBvAG8AKAB4ADoAIAAoAHMAOgAgAHMAdAByAGkAbgBnACkAIAA9AD4AIAB2AG8AaQBkACkAIAB7ACAAfQANAAoAIAANAAoAIAANAAoAIAANAAoAYwBsAGEAcwBzACAARgBvAG8AIAB7ACAAYwBvAG4AcwB0AHIAdQBjAHQAbwByACgAeAA6ACAAKABzADoAIABzAHQAcgBpAG4AZwApACAAPQA+ACAAdgBvAGkAZAApAHsAfQAgAH0ADQAKACAADQAKACAADQAKACAADQAKAGYAbwBvACgAZgB1AG4AYwB0AGkAbwBuACgAcwApACAAewAgAHMAIAA9ACAANQAgAH0AKQA7ACAAIAAvAC8AIABFAHIAcgBvAHIALAAgAGMAYQBuABkgdAAgAGEAcwBzAGkAZwBuACAAbgB1AG0AYgBlAHIAIAB0AG8AIABzAHQAcgBpAG4AZwANAAoAIAANAAoAIAANAAoAIAANAAoAbgBlAHcAIABGAG8AbwAoAGYAdQBuAGMAdABpAG8AbgAoAHMAKQAgAHsAIABzACAAPQAgADUAIAB9ACkAOwAgACAALwAvACAAZQByAHIAbwByACwAIABpAGYAIAB0AHkAcABlAHMAIABhAHIAZQAgAGEAcABwAGwAaQBlAGQAIABjAG8AcgByAGUAYwB0AGwAeQANAAoAIAANAAoAIAANAAoAIAANAAoAYwBsAGEAcwBzACAAQgBhAHIAIABlAHgAdABlAG4AZABzACAARgBvAG8AIAB7ACAAYwBvAG4AcwB0AHIAdQBjAHQAbwByACgAKQAgAHsAIABzAHUAcABlAHIAKABmAHUAbgBjAHQAaQBvAG4AKABzACkAIAB7ACAAcwAgAD0AIAA1ACAAfQApACAAfQAgAH0AIAAgAC8ALwAgAGUAcgByAG8AcgAsACAAaQBmACAAdAB5AHAAZQBzACAAYQByAGUAIABhAHAAcABsAGkAZQBkACAAYwBvAHIAcgBlAGMAdABsAHkADQAKAA==",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "Ly8gVGhpcyB0ZXN0IGlzIHBhc3NpbmcsIGV4Y2VwdCB0aGF0IG9uIG5vZGUgdGhlIHJlc3VsdGluZyBmaWxlIHdpbGwgbm90IGhhdmUgYSBCT00gYW5kIG9uIENTY3JpcHQgaXQgd2lsbCB3aGljaCBtYWtlcyAKLy8gaW1wb3NzaWJsZSB0byB1c2UgYSBzaW5nbGUgYmFzZWxpbmUgZmlsZSB0byBtYXRjaCB0aGUgcmVzdWx0IG9mIGJvdGguIHRoaXMgdGVzdCBzaG91bGQgYmUgZW5hYmxlZCBvbmNlIHRoaXMgaXNzdWUgaXMgcmVzb2x2ZWQuCnZhciDmiY3og73jgr3Qq+KFqOiSpOmDs+CksOCljeCkleCljeCkoeCljeCksOCkvsO8xLHFn8SfxLBsadmK2YjZhtmK2YPZiNivw7bDhMO8w5/miY3og73jgr3Qq+KFqOiSpOmDs+CksOCljeCkleCljeCkoeCljeCksOCkvsO8xLHFn8SfxLBsadmK2YjZhtmK2YPZiNivw7bDhMO8w59BYmNkMTIzID0gMTsK",
+            "name": "dGVzdC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "fixture:tsc/testdata/tests/cases/compiler/unicodeIdentifierNames.ts",
+      "implicit": false,
+      "input": "//4vAC8AIABUAGgAaQBzACAAdABlAHMAdAAgAGkAcwAgAHAAYQBzAHMAaQBuAGcALAAgAGUAeABjAGUAcAB0ACAAdABoAGEAdAAgAG8AbgAgAG4AbwBkAGUAIAB0AGgAZQAgAHIAZQBzAHUAbAB0AGkAbgBnACAAZgBpAGwAZQAgAHcAaQBsAGwAIABuAG8AdAAgAGgAYQB2AGUAIABhACAAQgBPAE0AIABhAG4AZAAgAG8AbgAgAEMAUwBjAHIAaQBwAHQAIABpAHQAIAB3AGkAbABsACAAdwBoAGkAYwBoACAAbQBhAGsAZQBzACAADQAKAC8ALwAgAGkAbQBwAG8AcwBzAGkAYgBsAGUAIAB0AG8AIAB1AHMAZQAgAGEAIABzAGkAbgBnAGwAZQAgAGIAYQBzAGUAbABpAG4AZQAgAGYAaQBsAGUAIAB0AG8AIABtAGEAdABjAGgAIAB0AGgAZQAgAHIAZQBzAHUAbAB0ACAAbwBmACAAYgBvAHQAaAAuACAAdABoAGkAcwAgAHQAZQBzAHQAIABzAGgAbwB1AGwAZAAgAGIAZQAgAGUAbgBhAGIAbABlAGQAIABvAG4AYwBlACAAdABoAGkAcwAgAGkAcwBzAHUAZQAgAGkAcwAgAHIAZQBzAG8AbAB2AGUAZAAuAA0ACgB2AGEAcgAgAE1i/YC9MCsEaCGkhPOQMAlNCRUJTQkhCU0JMAk+CfwAMQFfAR8BMAFsAGkASgZIBkYGSgZDBkgGLwb2AMQA/ADfAE1i/YC9MCsEaCGkhPOQMAlNCRUJTQkhCU0JMAk+CfwAMQFfAR8BMAFsAGkASgZIBkYGSgZDBkgGLwb2AMQA/ADfAEEAYgBjAGQAMQAyADMAIAA9ACAAMQA7AA0ACgA=",
+      "returnNil": false
+    },
+    {
+      "expected": {
+        "calls": 1,
+        "directory": "",
+        "error": null,
+        "links": [
+          {
+            "alias": "gS50cw==",
+            "target": "gC50cw=="
+          }
+        ],
+        "options": {},
+        "panic": null,
+        "units": [
+          {
+            "content": "L4IvdQo=",
+            "name": "gC50cw==",
+            "options": {}
+          }
+        ]
+      },
+      "failAt": 0,
+      "fileName": "Zm9sZGVyL3Rlc3QudHM=",
+      "id": "raw-names",
+      "implicit": false,
+      "input": "Ly8gQGZpbGVuYW1lOiCALnRzCi8vIEBzeW1saW5rOiCBLnRzCi+CL3UK",
+      "returnNil": false
+    }
+  ]
+}
