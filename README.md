@@ -10,7 +10,7 @@ and optimizing the C# implementation.
 ## Build and check a file
 
 Install the .NET SDK specified in `global.json` (10.0.402). Node 24 is used only by
-test tools. The compiler itself is C# and does not invoke Node, Go or another compiler.
+test tools. Go 1.27.3 is also required for source-inventory tests. The compiler itself is C# and does not invoke Node, Go or another compiler.
 
 ```sh
 dotnet build Tscs.slnx -c Release -m:1
@@ -89,6 +89,22 @@ TSCS_UPSTREAM=/path/to/TypeScript ./scripts/build-oracle.sh
 The script compares the rebuilt reference against frozen results without rewriting
 them. Build hashes may differ across paths/platforms; they are recorded as provenance,
 not used as a cross-platform reproducible-binary guarantee.
+
+## Pinned TS7 test-scope inventory
+
+The [source-scope registry and roadmap](docs/testing/ts7/README.md) inventories all
+tracked upstream assets, Go declarations, JS test sources and fixture metadata:
+
+```sh
+node tools/inventory-ts7.mjs /path/to/pinned-upstream .artifacts/ts7-scope
+```
+
+This is a static inventory, not full conformance: concrete configurations and
+runtime-generated cases remain unexpanded, and all acceptance is NOT_RUN. The
+[domain summary](docs/testing/ts7/inventory-summary.json) keeps assets, declarations,
+fixture inputs and upstream skips separate. The original 29-case cohort remains
+independent. Release still requires complete scope and executable acceptance with
+no missing cases.
 
 See [status](docs/STATUS.md), [source correspondence](docs/PORTING.md), and the
 [approved design](docs/superpowers/specs/2026-10-24-tscs-compiler-design.md).

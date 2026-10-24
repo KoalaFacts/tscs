@@ -1,0 +1,302 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/KoalaFacts/tscs/blob/main/docs/testing/ts7/progress.schema.json",
+  "title": "TS7 static-inventory progress, not a release certificate",
+  "description": "A status records work and evidence, never derives PASS from inventory presence. This first-stage schema cannot assert release eligibility or a complete executable-case denominator.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "upstreamCommit",
+    "releaseEligible",
+    "scopeComplete",
+    "concreteCases",
+    "frozenCohort",
+    "domains",
+    "blockers"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "upstreamCommit": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "releaseEligible": {
+      "const": false
+    },
+    "scopeComplete": {
+      "const": false
+    },
+    "concreteCases": {
+      "type": "null"
+    },
+    "frozenCohort": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "separate",
+        "cases",
+        "mappingToUpstreamInventory",
+        "creditTowardFullScope"
+      ],
+      "properties": {
+        "separate": {
+          "const": true
+        },
+        "cases": {
+          "const": 29
+        },
+        "mappingToUpstreamInventory": {
+          "const": "UNVERIFIED"
+        },
+        "creditTowardFullScope": {
+          "const": 0
+        }
+      }
+    },
+    "domains": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/domain"
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "uri",
+        "sha256",
+        "upstreamCommit"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "compiler",
+            "reference",
+            "acceptance"
+          ]
+        },
+        "uri": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "upstreamCommit": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        }
+      }
+    },
+    "progress": {
+      "type": "object",
+      "required": [
+        "implementation",
+        "compiler",
+        "reference",
+        "acceptance",
+        "evidence"
+      ],
+      "properties": {
+        "implementation": {
+          "enum": [
+            "UNIMPLEMENTED",
+            "IN_PROGRESS",
+            "IMPLEMENTED"
+          ]
+        },
+        "compiler": {
+          "enum": [
+            "NOT_RUN",
+            "BLOCKED",
+            "UNSUPPORTED",
+            "PASS",
+            "FAIL"
+          ]
+        },
+        "reference": {
+          "enum": [
+            "NOT_RUN",
+            "BLOCKED",
+            "UNSUPPORTED",
+            "PASS",
+            "FAIL"
+          ]
+        },
+        "acceptance": {
+          "enum": [
+            "NOT_RUN",
+            "BLOCKED",
+            "UNSUPPORTED",
+            "PASS",
+            "FAIL"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/evidence"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "compiler": {
+                "enum": [
+                  "PASS",
+                  "FAIL"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "evidence": {
+                "contains": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "compiler"
+                    }
+                  },
+                  "required": [
+                    "kind"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "reference": {
+                "enum": [
+                  "PASS",
+                  "FAIL"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "evidence": {
+                "contains": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "reference"
+                    }
+                  },
+                  "required": [
+                    "kind"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "acceptance": {
+                "enum": [
+                  "PASS",
+                  "FAIL"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "evidence": {
+                "contains": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "acceptance"
+                    }
+                  },
+                  "required": [
+                    "kind"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "acceptance": {
+                "const": "PASS"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "implementation": {
+                "const": "IMPLEMENTED"
+              },
+              "compiler": {
+                "const": "PASS"
+              },
+              "reference": {
+                "const": "PASS"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "domain": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/progress"
+        }
+      ],
+      "type": "object",
+      "required": [
+        "id",
+        "sourceAssets",
+        "concreteCases",
+        "expansion"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceAssets": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "concreteCases": {
+          "type": "null"
+        },
+        "expansion": {
+          "const": "UNEXPANDED"
+        }
+      },
+      "unevaluatedProperties": false
+    }
+  }
+}
