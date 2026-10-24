@@ -1,0 +1,236 @@
+{
+  "baseCommit": "5bd1ae81ec29734a412c3ae8457cad0c4052b4b7",
+  "mapping": "Identity of full method name and exact C# argument expressions; Test -> Fact, TestCase -> Theory/InlineData",
+  "casesBefore": 60,
+  "casesAfter": 60,
+  "methods": [
+    {
+      "source": "tests/Tscs.Compiler.Tests/CommandLineTests.cs",
+      "method": "Tscs.Tests.CommandLineTests.MissingInputFails",
+      "kind": "fact",
+      "arguments": [
+        null
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CommandLineTests.cs",
+      "method": "Tscs.Tests.CommandLineTests.UnknownOptionFails",
+      "kind": "fact",
+      "arguments": [
+        null
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CommandLineTests.cs",
+      "method": "Tscs.Tests.CommandLineTests.MissingFileFails",
+      "kind": "fact",
+      "arguments": [
+        null
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CommandLineTests.cs",
+      "method": "Tscs.Tests.CommandLineTests.ValidSourceSucceeds",
+      "kind": "fact",
+      "arguments": [
+        null
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CommandLineTests.cs",
+      "method": "Tscs.Tests.CommandLineTests.ActualTypeErrorHasUpstreamExitStatus",
+      "kind": "fact",
+      "arguments": [
+        null
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CommandLineTests.cs",
+      "method": "Tscs.Tests.CommandLineTests.ProjectPathsAreRelativeToConfig",
+      "kind": "fact",
+      "arguments": [
+        null
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CommandLineTests.cs",
+      "method": "Tscs.Tests.CommandLineTests.InvalidOrUnsupportedConfigFails",
+      "kind": "theory",
+      "arguments": [
+        "\"{broken\"",
+        "\"{\\\"files\\\":[3]}\"",
+        "\"{\\\"files\\\":[],\\\"extends\\\":\\\"./base.json\\\"}\"",
+        "\"{\\\"files\\\":[],\\\"compilerOptions\\\":{\\\"strict\\\":true}}\""
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CommandLineTests.cs",
+      "method": "Tscs.Tests.CommandLineTests.UnsupportedCodeHasNoSuccessExit",
+      "kind": "fact",
+      "arguments": [
+        null
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CommandLineTests.cs",
+      "method": "Tscs.Tests.CommandLineTests.GlobalThisAndMissingNamesHaveCorrectDiagnosticsAndExitStatus",
+      "kind": "theory",
+      "arguments": [
+        "\"globalThis;\", \"TSCS1001\", 1",
+        "\"{ let globalThis = 1; globalThis; globalThis = 2; }\", \"\", 0",
+        "\"{ let globalThis = 1; } globalThis;\", \"TSCS1001\", 1",
+        "\"globalThis = 1;\", \"TSCS1001\", 1",
+        "\"let globalThis = 1;\", \"TS2397\", 2",
+        "\"missing;\", \"TS2304\", 2",
+        "\"globalthis;\", \"TS2304\", 2"
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CommandLineTests.cs",
+      "method": "Tscs.Tests.CommandLineTests.MissingGlobalsAreReported",
+      "kind": "fact",
+      "arguments": [
+        null
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CommandLineTests.cs",
+      "method": "Tscs.Tests.CommandLineTests.UnsupportedAmbientMembersAreRejected",
+      "kind": "fact",
+      "arguments": [
+        null
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CommandLineTests.cs",
+      "method": "Tscs.Tests.CommandLineTests.MissingGlobalsPrecedeCheckerGrammarErrors",
+      "kind": "fact",
+      "arguments": [
+        null
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
+      "method": "Tscs.Tests.CompilationTests.ValidPrimitiveCodeHasNoErrors",
+      "kind": "theory",
+      "arguments": [
+        "\"let n: number = 1;\"",
+        "\"const s: string = \\\"ok\\\";\"",
+        "\"let b: boolean = true;\"",
+        "\"let x: number = 1; { let x: string = \\\"ok\\\"; } x = 2;\""
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
+      "method": "Tscs.Tests.CompilationTests.ReportsActualSourceLocations",
+      "kind": "theory",
+      "arguments": [
+        "\"let n: number = \\\"x\\\";\", \"TS2322\", 4, 1",
+        "\"missing;\", \"TS2304\", 0, 7",
+        "\"const n = 1; n = 2;\", \"TS2588\", 13, 1",
+        "\"{ let x: number = 1; } x;\", \"TS2304\", 23, 1",
+        "\"/* 😀 */ let n: number = \\\"x\\\";\", \"TS2322\", 13, 1",
+        "\"let n = ;\", \"TS1109\", 8, 1",
+        "\"const n: number;\", \"TS1155\", 6, 1"
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
+      "method": "Tscs.Tests.CompilationTests.UnsupportedSyntaxNeverSucceeds",
+      "kind": "theory",
+      "arguments": [
+        "\"let n = 1; function f() {}\"",
+        "\"let n = 1; n++;\"",
+        "\"let n = 1 + 2;\"",
+        "\"// @ts-ignore\\nlet n: number = \\\"x\\\";\"",
+        "\"let n: any = 1;\"",
+        "\"const a = { x: 1 };\""
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
+      "method": "Tscs.Tests.ParserBoundaryTests.UnmatchedClosingBraceTerminates",
+      "kind": "fact",
+      "arguments": [
+        null
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
+      "method": "Tscs.Tests.ParserBoundaryTests.InvalidTokensCannotSucceed",
+      "kind": "theory",
+      "arguments": [
+        "\"const return = 1;\"",
+        "\"const case = 1;\"",
+        "\"const extends = 1;\"",
+        "\"let x\\u0085: number = 1;\""
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
+      "method": "Tscs.Tests.StrictBindingTests.StrictModeInvalidBindingsAreRejected",
+      "kind": "theory",
+      "arguments": [
+        "\"eval\"",
+        "\"arguments\""
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
+      "method": "Tscs.Tests.IntrinsicBindingTests.IntrinsicGlobalThisIsExplicitlyUnsupported",
+      "kind": "theory",
+      "arguments": [
+        "\"globalThis;\", 0",
+        "\"{ globalThis; }\", 2",
+        "\"{ let globalThis = 1; globalThis; } globalThis;\", 36",
+        "\"globalThis = 1;\", 0"
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
+      "method": "Tscs.Tests.IntrinsicBindingTests.BlockLocalGlobalThisResolvesNormally",
+      "kind": "theory",
+      "arguments": [
+        "\"{ let globalThis: number = 1; globalThis; globalThis = 2; }\"",
+        "\"{ let globalThis = 1; { globalThis; } }\""
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
+      "method": "Tscs.Tests.IntrinsicBindingTests.UserBindingsAndMissingNamesKeepTheirDiagnostics",
+      "kind": "theory",
+      "arguments": [
+        "\"{ let globalThis: number = 1; globalThis = \\\"x\\\"; }\", \"TS2322\"",
+        "\"{ const globalThis = 1; globalThis = 2; }\", \"TS2588\"",
+        "\"let globalThis = 1; globalThis;\", \"TS2397\"",
+        "\"missing;\", \"TS2304\"",
+        "\"globalthis;\", \"TS2304\""
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
+      "method": "Tscs.Tests.IntrinsicBindingTests.BlockLocalGlobalThisKeepsInitializationGuards",
+      "kind": "theory",
+      "arguments": [
+        "\"{ globalThis; let globalThis = 1; }\", \"References before declaration are not supported yet.\"",
+        "\"{ let globalThis: number; globalThis; }\", \"Reads before initialization are not supported yet.\""
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
+      "method": "Tscs.Tests.IntrinsicBindingTests.GlobalThisCannotBeShadowedAtRoot",
+      "kind": "fact",
+      "arguments": [
+        null
+      ]
+    },
+    {
+      "source": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
+      "method": "Tscs.Tests.IntrinsicBindingTests.GlobalThisCanBeShadowedInBlock",
+      "kind": "fact",
+      "arguments": [
+        null
+      ]
+    }
+  ]
+}

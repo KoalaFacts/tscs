@@ -51,12 +51,32 @@ TS2397. Truly unresolved names report TS2304 and exit 2.
 ./scripts/verify.sh
 ```
 
-This restores locked dependencies, builds, runs NUnit and harness tests, and compares
+This restores locked dependencies, builds, runs xUnit and harness tests, and compares
 29 frozen cases against independently captured upstream diagnostics, CLI text and
 exit codes. Seven source fixtures are copied unchanged from upstream. They run with
 explicit `noEmit`/`noLib` isolation overrides; these are not full upstream harness runs.
 Results go to `.artifacts/conformance.json`. A passing cohort is not a percentage
 claim about the entire TypeScript language.
+
+The 60 C# tests use xUnit 4.0.2 (the official package is still named
+`xunit.v3.mtp-v2`) with Microsoft.Testing.Platform 2.5.1, not VSTest.
+After building, run just this suite with:
+
+```sh
+dotnet test --solution Tscs.slnx -c Release --no-build --no-restore -- --fail-skips on --minimum-expected-tests 60
+```
+
+The .NET 10 MTP runner is selected in `global.json`. If an execution environment
+cannot launch the SDK's test coordinator, the same built MTP executable can also
+be run directly, without changing permissions or disabling isolation:
+
+```sh
+dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 60
+```
+
+Record direct execution separately from `dotnet test`; a direct pass is not a
+claim that the SDK coordinator ran. The unchanged test inventory is documented
+in [the migration map](docs/evidence/xunit-migration-inventory.json).
 
 To rebuild the independent reference (requires Git and Go 1.27.3):
 

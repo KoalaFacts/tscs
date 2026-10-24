@@ -5,6 +5,6 @@ DOTNET="${DOTNET:-dotnet}"
 export DOTNET
 "$DOTNET" restore Tscs.slnx --locked-mode --disable-parallel -m:1
 "$DOTNET" build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false
-"$DOTNET" test Tscs.slnx -c Release --no-build --no-restore -m:1
+"$DOTNET" test --solution Tscs.slnx -c Release --no-build --no-restore -- --fail-skips on --minimum-expected-tests 60
 node --test tools/*.test.mjs
 node tools/verify-conformance.mjs
