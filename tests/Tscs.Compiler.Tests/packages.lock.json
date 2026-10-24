@@ -129,6 +129,12 @@
       },
       "tscs.compiler": {
         "type": "Project"
+      },
+      "tscs.fixtureharness": {
+        "type": "Project",
+        "dependencies": {
+          "Tscs.Compiler": "[1.0.0, )"
+        }
       }
     }
   }

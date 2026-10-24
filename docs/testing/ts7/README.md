@@ -51,6 +51,25 @@ archive of it with the summary/checksums when recording an acceptance run.
 
 ## What each ledger means
 
+The separate [loading progress](loading-progress.json) now records a complete
+raw-source loading profile:13006 inputs/17804 virtual units independently matched
+to actual pinned Go, including all42 upstream-skipped sources. It does not alter
+the static inventory's historical decoding/expansion fields or award compiler
+acceptance. See [raw evidence](../../evidence/fixture-corpus.json).
+
+```sh
+dotnet restore Tscs.slnx --locked-mode --disable-parallel -m:1
+node tools/compare-fixture-corpus.ts /path/to/clean-pinned-checkout \
+  .artifacts/ts7-scope .artifacts/fixture-corpus
+```
+
+The command builds the C# harness in Release, calls the actual upstream generic
+parser through a read-only Go test overlay, and preserves full byte results and
+per-source IDs. Existing output directories are rejected. It compares raw units,
+file/global metadata, links, directory and callback counts; it does not invoke
+AST/config callbacks or run original compiler assertions. Implicit-first and
+callback failures still have their separate151-vector boundary coverage.
+
 | Artifact | Meaning | Not evidence of |
 | --- | --- | --- |
 | `assets.jsonl` | Every tracked source/support/baseline asset, mode, blob ID, size, SHA-256 and domain | Runnable tests or coverage |

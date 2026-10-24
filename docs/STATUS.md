@@ -3,6 +3,23 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Complete raw fixture loading profile — 2026-10-25
+
+- Added an executable C# developer harness with the same151 reference vectors,
+  plus stream/error regressions. The differential command builds current sources
+  before execution and fails on malformed/missing/duplicate result records.
+- Actual pinned Go and C# runs agree on all13006 source fixtures and17804 raw
+  units/callbacks. All42 upstream-skipped sources are retained. Repeated complete
+  request/result payloads are byte-identical. Source IDs, byte hashes, metadata,
+  versions and raw-output hashes are in [evidence](evidence/fixture-corpus.json)
+  and a separate [loading ledger](testing/ts7/loading-progress.json).
+- One independent review and one RED→GREEN fix pass closed malformed-result and
+  stale-binary evidence gaps. Direct xUnit/MTP1514/1514, Node60/60, frozen29/29;
+  Release zero warnings/errors. SDK test coordinator still aborts134 on Unix pipe.
+- This is raw/default-options/unit-snapshot-callback loading only. AST callbacks,
+  VFS/tsconfig construction, full configuration expansion and original compiler
+  acceptance are NOT_RUN. No full-corpus compiler PASS or release claim.
+
 ## Raw multi-file state and callbacks — 2026-10-25
 
 - Added byte-preserving C# raw-unit state: file/global options, currentDirectory,
