@@ -1,0 +1,110 @@
+{
+  "date": "2026-10-25",
+  "baseCommit": "328a3698ebc26c17ff17c3c2e4e7be7cc74d6a08",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "component": "Byte-preserving lexical line/directive reader only",
+  "functions": [
+    "testrunner.lineDelimiter",
+    "testrunner.optionRegex",
+    "testrunner.linkRegex",
+    "testrunner.parseSymlinkFromTest",
+    "strings.TrimSpace"
+  ],
+  "implementation": "tools/fixture-harness/FixtureDirectives.cs (linked into xUnit test assembly; not compiler CLI)",
+  "xunitTests": [
+    "Tscs.Tests.FixtureDirectiveTests.LexicalBytesAndDirectivesMatchPinnedGo(id,input,expectedJson): one row per 535 golden vector IDs",
+    "Tscs.Tests.FixtureDirectiveTests.ReaderDoesNotAliasCallerBytes"
+  ],
+  "reference": {
+    "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+    "parserPath": "tsc/internal/testrunner/test_case_parser.go",
+    "parserSha256": "03578c4d35165ee461f4e0488855ffb534eea9a5c598887b255f60817c07d34f",
+    "sourcePath": "tsc/internal/vfs/internal/internal.go",
+    "sourceSha256": "2d641c466808f1417e4e20d46aa4beb7f9dcc1bc5fd872a5d134fb3ae56d1def",
+    "functionSourceSha256": "c47c585dbaffa3c791ec7052d200b626648dac22593eb9c20c0e0103b3a6e628",
+    "goVersion": "go version go1.27.3 linux/amd64"
+  },
+  "goldenFile": "tests/Tscs.Compiler.Tests/TestData/fixture-directives.json",
+  "goldenSha256": "6e6da84d3e3dec9183b0bcf34254e17dfcbc9c9d9abba3d7df634ac8c2b3d196",
+  "vectorCount": 535,
+  "rawFixtureSourceIds": [
+    "fixture:tsc/testdata/tests/cases/compiler/bom-utf16be.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/bom-utf16le.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/collisionCodeGenModuleWithUnicodeNames.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/instanceofOperator.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/promiseTest.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/regexInvalidUtf8WithUnicodeFlag.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/targetTypeBaseCalls.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/unicodeIdentifierNames.ts"
+  ],
+  "validation": {
+    "red": {
+      "failed": 535,
+      "passed": 825,
+      "note": "Initial535 new cases failed/original825 passed, then1360 green; later long-link vector timed out against old regex and is included in final1361"
+    },
+    "directMtp": {
+      "passed": 1361,
+      "failed": 0,
+      "skipped": 0
+    },
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "node": {
+      "passed": 54,
+      "failed": 0
+    },
+    "frozenCohort": {
+      "passed": 29,
+      "total": 29
+    },
+    "referenceExecuted": true,
+    "byteIdenticalRepeat": true,
+    "sdkCoordinator": {
+      "exitCode": 134,
+      "reason": "Unix pipe SocketException13; no SDK test execution claimed"
+    },
+    "performanceRed": "Full process timed out after8s against default regex on long-arrowless-link; fixed matching preserves Go result"
+  },
+  "versions": {
+    "sdk": "10.0.402",
+    "xunit": "4.0.2",
+    "mtp": "2.5.1",
+    "node": "24.19.0",
+    "go": "1.27.3"
+  },
+  "commands": [
+    "node tools/generate-fixture-directive-vectors.ts .artifacts/ts7-upstream tests/Tscs.Compiler.Tests/TestData/fixture-directives.json",
+    "node tools/generate-fixture-directive-vectors.ts .artifacts/ts7-upstream /tmp/tscs-directives-repeat.json",
+    "cmp tests/Tscs.Compiler.Tests/TestData/fixture-directives.json /tmp/tscs-directives-repeat.json",
+    "dotnet build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false",
+    "dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --minimum-expected-tests 1361 --fail-skips on --progress off",
+    "node --test tools/*.test.ts",
+    "node tools/verify-conformance.ts",
+    "./scripts/verify.sh"
+  ],
+  "notImplemented": [
+    "File/global directive state",
+    "Multi-file splitting",
+    "Discarded-prelude scanner validation",
+    "Callback errors and partial results",
+    "tsconfig/VFS",
+    "Original corpus compilation/assertions"
+  ],
+  "progress": "Original generated progress remains unchanged NOT_RUN",
+  "compilerExecutedForOriginalFixtures": false,
+  "releaseEligible": false,
+  "review": {
+    "independent": true,
+    "importantFindings": 0,
+    "reviewerRegeneratedVectors": 534,
+    "reviewFollowup": "Potential backtracking observation reproduced on 4096-space arrowless link: old full test process timed out after8s. Added Go golden regression; NonBacktracking fix, full1361 suite green."
+  },
+  "sourceSnapshotSha256": {
+    "tools/fixture-harness/FixtureDirectives.cs": "1c5b6f7ed1a71d165531dd030b685b447e258483d8d95868bd6542d7b3493180",
+    "tools/generate-fixture-directive-vectors.ts": "1a40790f615813f8593688050503cbaf9df70a7aa4428381aca33499a778e222",
+    "tests/Tscs.Compiler.Tests/FixtureDirectiveTests.cs": "eae8486fc3ae879d8d532de94105c946a640bd636d3ee786d76f39531a666cbc"
+  }
+}

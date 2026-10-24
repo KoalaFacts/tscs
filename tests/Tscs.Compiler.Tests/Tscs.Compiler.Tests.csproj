@@ -13,4 +13,8 @@
   <ItemGroup>
     <None Update="TestData/source-decoding.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../../tools/fixture-harness/FixtureDirectives.cs" Link="Harness/FixtureDirectives.cs" />
+    <None Update="TestData/fixture-directives.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

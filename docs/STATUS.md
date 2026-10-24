@@ -3,6 +3,24 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Byte-preserving directive boundary — 2026-10-25
+
+- Added a C# development-harness reader using SourceDecoder. It preserves decoded
+  source bytes, exact line byte offsets, CRLF/empty-line boundaries, ordered raw
+  directives and link alias/target bytes. No decoding of invalid UTF8 is attempted.
+- Actual pinned Go regex/link functions generated 535 vectors, including all 256
+  byte values in values/links and all eight non-UTF8 fixture sources. Repeated Go
+  generation is byte-identical. RED535/825 then direct xUnit/MTP1361/1361; Node54/54,
+  frozen29/29, Release zero warnings/errors. Source versions and exact IDs:
+  [directive evidence](evidence/fixture-directives.json).
+- Independent review found no correctness defect. A long arrowless-link timeout
+  was reproduced and fixed with non-backtracking matching plus a Go golden case.
+- This helper is linked into the test assembly, not the compiler CLI. It is a
+  lexical boundary, not full fixture loading: file/global state, virtual units,
+  prelude validation, callbacks and VFS/tsconfig still need implementation.
+- Source-scope progress, inventory payloads and original acceptance remain unchanged
+  NOT_RUN. PR5 remains pending remote review; prior decoder branch CI passed.
+
 ## Byte decoding foundation — 2026-10-25
 
 - Added C# `SourceDecoder.Decode`: UTF8 BOM stripping and UTF16 LE/BE BOM decoding,

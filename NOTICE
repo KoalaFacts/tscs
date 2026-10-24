@@ -16,3 +16,7 @@ Not affiliated with or endorsed by Microsoft.
 SourceDecoder.cs adapts vfs/internal/internal.go decodeBytes/decodeUtf16 at the
 pinned reference above. The vector generator executes those exact Go functions
 only as a test oracle; the production compiler does not invoke Go.
+
+The development-only FixtureDirectives.cs adapts the pinned test_case_parser.go
+ASCII directive/link grammar and Go TrimSpace semantics. Golden-vector adapters
+execute the fixed reference functions only for tests.

@@ -57,12 +57,12 @@ explicit `noEmit`/`noLib` isolation overrides; these are not full upstream harne
 Results go to `.artifacts/conformance.json`. A passing cohort is not a percentage
 claim about the entire TypeScript language.
 
-The C# suite now has 825 cases (including 764 pinned byte-decoding vectors) and uses xUnit 4.0.2 (the official package is still named
+The C# suite now has 1,361 cases (including 764 byte-decoding and 535 directive vectors) and uses xUnit 4.0.2 (the official package is still named
 `xunit.v3.mtp-v2`) with Microsoft.Testing.Platform 2.5.1, not VSTest.
 After building, run just this suite with:
 
 ```sh
-dotnet test --solution Tscs.slnx -c Release --no-build --no-restore -- --fail-skips on --minimum-expected-tests 825
+dotnet test --solution Tscs.slnx -c Release --no-build --no-restore -- --fail-skips on --minimum-expected-tests 1361
 ```
 
 The .NET 10 MTP runner is selected in `global.json`. If an execution environment
@@ -70,7 +70,7 @@ cannot launch the SDK's test coordinator, the same built MTP executable can also
 be run directly, without changing permissions or disabling isolation:
 
 ```sh
-dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 825
+dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 1361
 ```
 
 Record direct execution separately from `dotnet test`; a direct pass is not a
