@@ -23,8 +23,9 @@ pinned Git tree: 67,951 assets, 13,006 fixture inputs, 6,064 Go AST declarations
 24 JS test sources and 7 JS benchmark sources. These are separate source-level
 measures, not additive test counts. Compiler whole-fixture omissions, byte-invalid
 inputs, analyzer-test fixtures and unevaluated build constraints remain explicit.
-Concrete configurations/runtime cases and executable acceptance are still unknown
-or NOT_RUN. The full-coverage release gate is not satisfied.
+The bounded transpile configuration layer expands 25 fixtures into 28 named
+configurations. The other 12,981 fixture inputs, all runtime cases and executable
+acceptance remain unknown or NOT_RUN. The full-coverage release gate is not satisfied.
 
 The old 12,981-file provisional inventory is retained unchanged because the frozen
 29-case bootstrap evidence binds it. It excludes transpile and other test domains;

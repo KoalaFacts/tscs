@@ -4,6 +4,7 @@ import {resolve,join,dirname,basename} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {createHash} from 'node:crypto';
 import {parseTree,classifyAsset,inspectFixture,initialProgress,stableId,sha256,summarize,validateProgress} from './ts7-scope.mjs';
+import {inventoryConfigurations} from './ts7-configurations.mjs';
 
 const directory=dirname(fileURLToPath(import.meta.url));
 const repository=resolve(directory,'..');
@@ -11,6 +12,7 @@ const decoder=new TextDecoder('utf-8',{fatal:true,ignoreBOM:true});
 const policies=[
   ['compiler-selection','tsc/internal/testrunner/compiler_runner.go'],
   ['compiler-variations','tsc/internal/testrunner/options_generated.go'],
+  ['compiler-option-declarations','tsc/internal/tsoptions/declarations_generated.go'],
   ['fixture-parser','tsc/internal/testrunner/test_case_parser.go'],
   ['configuration-and-option-skips','tsc/internal/testutil/harnessutil/harnessutil.go'],
   ['transpile-selection','tsc/internal/testrunner/transpile_runner.go'],
@@ -124,22 +126,31 @@ export async function generateInventory({upstream,pin,output,goCommand=process.e
       }
     }
   }
+  const configurations=inventoryConfigurations(fixtures,pin,assets);
   const counts=summarize(assets,fixtures,declarations);
+  counts.fixtureConfigurationInventory={
+    expandedFixtures:fixtures.filter(x=>x.configurationExpansion.status==='EXPANDED').length,
+    blockedFixtures:fixtures.filter(x=>x.configurationExpansion.status==='BLOCKED').length,
+    unexpandedFixtures:fixtures.filter(x=>x.configurationExpansion.status==='UNEXPANDED').length,
+    configurations:configurations.length,
+  };
+  if(fixtures.reduce((n,x)=>n+(x.configurationExpansion.configurations??0),0)!==configurations.length || new Set(configurations.map(x=>x.id)).size!==configurations.length)throw Error('Configuration inventory reconciliation failed');
   const registry=policies.map(([id,path])=>({id,path,present:assetByPath.has(path),assetId:assetByPath.get(path)?.id??null,
     sha256:assetByPath.get(path)?.sha256??null,expansion:'UNEXPANDED'}));
   const progress={schemaVersion:1,upstreamCommit:pin,releaseEligible:false,scopeComplete:false,concreteCases:null,
     frozenCohort:{separate:true,cases:29,mappingToUpstreamInventory:'UNVERIFIED',creditTowardFullScope:0},
     domains:counts.domains.map(x=>({id:x.id,sourceAssets:x.assets,concreteCases:null,expansion:'UNEXPANDED',...initialProgress()})),
     blockers:['CANONICAL_CONFIGURATION_EXPANSION','VIRTUAL_FILES_AND_BYTE_DECODING','GO_DYNAMIC_SUBTESTS_AND_FUZZ_SEEDS','JS_GENERATED_TESTS_AND_BENCHMARKS','RUNTIME_SKIP_AND_FAILURE_CLASSIFICATION','OS_ARCH_BUILD_RACE_AND_RUNNER_PROFILES','UNCLASSIFIED_SOURCE_AUDIT','COMPILER_REFERENCE_ACCEPTANCE_NOT_RUN',...(gitlinks.length?['GITLINKS_UNEXPANDED']:[])]};
-  for(const record of [...fixtures,...declarations,...jsSources])validateProgress(record.progress);
+  for(const record of [...fixtures,...declarations,...jsSources,...configurations])validateProgress(record.progress);
   for(const domain of progress.domains)validateProgress(domain);
   // Write only after all source reading/parsing succeeds. Existing destinations are never overwritten.
   mkdirSync(output,{recursive:true});
   const artifacts=[];
   const save=(path,value,jsonl=false)=>{const bytes=Buffer.from(jsonl?value.map(x=>JSON.stringify(x)).join('\n')+(value.length?'\n':''):JSON.stringify(value,null,2)+'\n');writeFileSync(join(output,path),bytes,{flag:'wx'});artifacts.push({path,bytes:bytes.length,sha256:sha256(bytes)});};
+  save('configurations.jsonl',configurations,true);
   save('assets.jsonl',assets,true);save('fixtures.jsonl',fixtures,true);save('go-sources.jsonl',goSources,true);save('declarations.jsonl',declarations,true);save('js-sources.jsonl',jsSources,true);
   save('runner-policies.json',{registry,compilerSkipPolicy:skipPolicy});save('progress.json',progress);
-  const generatorFiles=['tools/inventory-ts7.mjs','tools/ts7-scope.mjs','tools/scope-go/main.go'];
+  const generatorFiles=['tools/inventory-ts7.mjs','tools/ts7-scope.mjs','tools/ts7-configurations.mjs','tools/scope-go/main.go'];
   const summary={schemaVersion:1,kind:'STATIC_SOURCE_AND_DECLARED_METADATA_INVENTORY',
     provenance:{toolchain:{go:goVersion,nodeMajor:24},repository:'https://github.com/microsoft/TypeScript.git',commit:pin,tree,gitlinks,
       source:'Git committed tree/blob objects; working tree and untracked files ignored',
