@@ -40,6 +40,11 @@ Functions, imports, objects, generics, JSX, standard libraries, declaration merg
 reads before initialization and JS output remain unsupported. This is not a sandbox
 for executing TypeScript; no code is executed.
 
+The intrinsic `globalThis` exists even with `--noLib`, but its type is not yet
+implemented here: reading or assigning it reports TSCS1001 and exits 1. Block-local
+variables named `globalThis` resolve normally; top-level declarations still report
+TS2397. Truly unresolved names report TS2304 and exit 2.
+
 ## Verify
 
 ```sh

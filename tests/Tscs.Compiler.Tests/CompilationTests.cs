@@ -57,6 +57,36 @@ public class StrictBindingTests
 
 public class IntrinsicBindingTests
 {
+    [TestCase("globalThis;", 0)]
+    [TestCase("{ globalThis; }", 2)]
+    [TestCase("{ let globalThis = 1; globalThis; } globalThis;", 36)]
+    [TestCase("globalThis = 1;", 0)]
+    public void IntrinsicGlobalThisIsExplicitlyUnsupported(string source,int start)
+    {
+        var d=Compilation.Check("test.ts",source).Single();
+        Assert.Multiple(()=>{
+            Assert.That(d.Code,Is.EqualTo("TSCS1001"));
+            Assert.That(d.Message,Is.EqualTo("The built-in globalThis type is not supported yet."));
+            Assert.That(d.Start,Is.EqualTo(start));
+            Assert.That(d.Length,Is.EqualTo(10));
+        });
+    }
+    [TestCase("{ let globalThis: number = 1; globalThis; globalThis = 2; }")]
+    [TestCase("{ let globalThis = 1; { globalThis; } }")]
+    public void BlockLocalGlobalThisResolvesNormally(string source)=>Assert.That(Compilation.Check("test.ts",source),Is.Empty);
+    [TestCase("{ let globalThis: number = 1; globalThis = \"x\"; }", "TS2322")]
+    [TestCase("{ const globalThis = 1; globalThis = 2; }", "TS2588")]
+    [TestCase("let globalThis = 1; globalThis;", "TS2397")]
+    [TestCase("missing;", "TS2304")]
+    [TestCase("globalthis;", "TS2304")]
+    public void UserBindingsAndMissingNamesKeepTheirDiagnostics(string source,string code)=>Assert.That(Compilation.Check("test.ts",source).Select(d=>d.Code),Is.EqualTo(new[]{code}));
+    [TestCase("{ globalThis; let globalThis = 1; }", "References before declaration are not supported yet.")]
+    [TestCase("{ let globalThis: number; globalThis; }", "Reads before initialization are not supported yet.")]
+    public void BlockLocalGlobalThisKeepsInitializationGuards(string source,string message)
+    {
+        var d=Compilation.Check("test.ts",source).Single();
+        Assert.Multiple(()=>{Assert.That(d.Code,Is.EqualTo("TSCS1001"));Assert.That(d.Message,Is.EqualTo(message));});
+    }
     [Test] public void GlobalThisCannotBeShadowedAtRoot()=>Assert.That(Compilation.Check("test.ts","let globalThis = 1;").Select(d=>d.Code),Does.Contain("TS2397"));
     [Test] public void GlobalThisCanBeShadowedInBlock()=>Assert.That(Compilation.Check("test.ts","{ let globalThis = 1; }"),Is.Empty);
 }

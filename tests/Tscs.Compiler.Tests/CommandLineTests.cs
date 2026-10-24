@@ -30,6 +30,30 @@ public class CommandLineTests
     [TestCase("{\"files\":[],\"compilerOptions\":{\"strict\":true}}")]
     public void InvalidOrUnsupportedConfigFails(string json)=>Assert.That(Run("-p",Write("tsconfig.json",json)).Code,Is.Not.Zero);
     [Test] public void UnsupportedCodeHasNoSuccessExit()=>Assert.That(Run("--noEmit","--noLib",Write("a.ts","let x = 1; x++;"),Lib()).Code,Is.EqualTo(1));
+    [TestCase("globalThis;", "TSCS1001", 1)]
+    [TestCase("{ let globalThis = 1; globalThis; globalThis = 2; }", "", 0)]
+    [TestCase("{ let globalThis = 1; } globalThis;", "TSCS1001", 1)]
+    [TestCase("globalThis = 1;", "TSCS1001", 1)]
+    [TestCase("let globalThis = 1;", "TS2397", 2)]
+    [TestCase("missing;", "TS2304", 2)]
+    [TestCase("globalthis;", "TS2304", 2)]
+    public void GlobalThisAndMissingNamesHaveCorrectDiagnosticsAndExitStatus(string source,string code,int exitCode)
+    {
+        var args=new[]{"--noEmit","--noLib",Write("a.ts",source),Lib()};
+        var text=Run(args);
+        var json=Run(args.Append("--json").ToArray());
+        using var document=System.Text.Json.JsonDocument.Parse(json.Out);
+        var diagnostics=document.RootElement.GetProperty("diagnostics").EnumerateArray().ToArray();
+        Assert.Multiple(()=>{
+            Assert.That(text.Code,Is.EqualTo(exitCode));
+            Assert.That(json.Code,Is.EqualTo(exitCode));
+            Assert.That(document.RootElement.GetProperty("exitCode").GetInt32(),Is.EqualTo(exitCode));
+            Assert.That(diagnostics.Select(d=>d.GetProperty("code").GetString()),Is.EqualTo(code.Length==0?Array.Empty<string>():new[]{code}));
+            if(code.Length==0)Assert.That(text.Out,Is.Empty);
+            else Assert.That(text.Out,Does.Contain($": error {code}:"));
+            if(code=="TSCS1001")Assert.That(text.Out,Does.Contain("The built-in globalThis type is not supported yet.").And.Not.Contain("TS2304"));
+        });
+    }
     [Test] public void MissingGlobalsAreReported()=>Assert.That(Run("--noEmit","--noLib",Write("a.ts","let x = 1;")).Out,Does.Contain("TS2318"));
     [Test] public void UnsupportedAmbientMembersAreRejected()=>Assert.That(Run("--noEmit","--noLib",Write("a.ts","let x = 1;"),Write("bad.d.ts","interface Object { x: number } ")).Code,Is.EqualTo(1));
     [Test] public void MissingGlobalsPrecedeCheckerGrammarErrors()

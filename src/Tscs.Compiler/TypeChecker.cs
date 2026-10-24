@@ -46,6 +46,9 @@ internal sealed class TypeChecker(string file)
     private Symbol? Resolve(Token name,Scope scope)
     {
         var symbol=scope.Find(name.Text);
+        // Lexical declarations take precedence over the intrinsic, including TDZ checks.
+        if(symbol==null&&name.Text=="globalThis")
+            throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001","The built-in globalThis type is not supported yet."));
         if(symbol==null) Error(name,"TS2304",$"Cannot find name '{name.Text}'.");
         else if(name.Start<=symbol.Declaration.Name.Start)throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001","References before declaration are not supported yet."));
         return symbol;
