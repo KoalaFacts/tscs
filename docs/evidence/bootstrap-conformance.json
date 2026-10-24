@@ -1,0 +1,166 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "cohortTotal": 29,
+  "passed": 29,
+  "results": [
+    {
+      "id": "simpleTestSingleFile",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "downlevelLetConst3",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "downlevelLetConst4",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "downlevelLetConst5",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "downlevelLetConst8",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "downlevelLetConst9",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "unicodeLineSeparatorInMultilineComment",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "number-ok",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "string-ok",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "boolean-ok",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "number-mismatch",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "string-mismatch",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "boolean-mismatch",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "missing-name",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "assignment-ok",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "assignment-mismatch",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "const-assignment",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "reference-ok",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "scope-shadow",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "scope-missing",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "unicode",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "crlf",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "astral-comment",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "syntax-initializer",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "syntax-semicolon",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "uninitialized-let",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "empty",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "comment-only",
+      "status": "pass",
+      "textMatches": true
+    },
+    {
+      "id": "assignment-boolean",
+      "status": "pass",
+      "textMatches": true
+    }
+  ],
+  "upstreamInventory": {
+    "commit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+    "files": 12981,
+    "knownVariants": 15174,
+    "unresolvedVariantFiles": 90,
+    "inventorySha256": "ba25c96ca99b4558fc51d647351abfd03d84c8977c2e86ea37372fd7af9aeb20",
+    "note": "Discovery only; variant counts are provisional where unhandled directives are present. Full upstream harness is not implemented."
+  },
+  "coverageNote": "29 isolated source fixtures; not full upstream option/harness conformance.",
+  "compilerAssembliesSha256": {
+    "cli": "08996a4d6775d21873ff01f7940a79f88f5ae85a455dd8d7a344a51335bfb2c9",
+    "core": "ac63a01e33caf886be0f1083e8b2ad01b429b67715ba9abce75fd0cb9c4482ac"
+  },
+  "oracleEvidenceSha256": "f71fafc10ae05e26a4906f0ad6e36a03875469629cb87791bac96a36011ba97b"
+}

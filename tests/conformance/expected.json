@@ -1,0 +1,398 @@
+{
+  "simpleTestSingleFile": {
+    "result": {
+      "diagnostics": [
+        {
+          "code": "TS2322",
+          "category": "error",
+          "file": "simpleTestSingleFile.ts",
+          "start": 6,
+          "length": 1,
+          "message": "Type 'string' is not assignable to type 'number'.",
+          "related": [],
+          "messageChain": []
+        }
+      ],
+      "exitCode": 2
+    },
+    "stdout": "fixtures/upstream/simpleTestSingleFile.ts(1,7): error TS2322: Type 'string' is not assignable to type 'number'.\n",
+    "stderr": ""
+  },
+  "downlevelLetConst3": {
+    "result": {
+      "diagnostics": [],
+      "exitCode": 0
+    },
+    "stdout": "",
+    "stderr": ""
+  },
+  "downlevelLetConst4": {
+    "result": {
+      "diagnostics": [
+        {
+          "code": "TS1155",
+          "category": "error",
+          "file": "downlevelLetConst4.ts",
+          "start": 25,
+          "length": 1,
+          "message": "'const' declarations must be initialized.",
+          "related": [],
+          "messageChain": []
+        }
+      ],
+      "exitCode": 2
+    },
+    "stdout": "fixtures/upstream/downlevelLetConst4.ts(2,7): error TS1155: 'const' declarations must be initialized.\n",
+    "stderr": ""
+  },
+  "downlevelLetConst5": {
+    "result": {
+      "diagnostics": [],
+      "exitCode": 0
+    },
+    "stdout": "",
+    "stderr": ""
+  },
+  "downlevelLetConst8": {
+    "result": {
+      "diagnostics": [],
+      "exitCode": 0
+    },
+    "stdout": "",
+    "stderr": ""
+  },
+  "downlevelLetConst9": {
+    "result": {
+      "diagnostics": [],
+      "exitCode": 0
+    },
+    "stdout": "",
+    "stderr": ""
+  },
+  "unicodeLineSeparatorInMultilineComment": {
+    "result": {
+      "diagnostics": [],
+      "exitCode": 0
+    },
+    "stdout": "",
+    "stderr": ""
+  },
+  "number-ok": {
+    "result": {
+      "diagnostics": [],
+      "exitCode": 0
+    },
+    "stdout": "",
+    "stderr": ""
+  },
+  "string-ok": {
+    "result": {
+      "diagnostics": [],
+      "exitCode": 0
+    },
+    "stdout": "",
+    "stderr": ""
+  },
+  "boolean-ok": {
+    "result": {
+      "diagnostics": [],
+      "exitCode": 0
+    },
+    "stdout": "",
+    "stderr": ""
+  },
+  "number-mismatch": {
+    "result": {
+      "diagnostics": [
+        {
+          "code": "TS2322",
+          "category": "error",
+          "file": "number-mismatch.ts",
+          "start": 4,
+          "length": 5,
+          "message": "Type 'string' is not assignable to type 'number'.",
+          "related": [],
+          "messageChain": []
+        }
+      ],
+      "exitCode": 2
+    },
+    "stdout": "fixtures/local/number-mismatch.ts(1,5): error TS2322: Type 'string' is not assignable to type 'number'.\n",
+    "stderr": ""
+  },
+  "string-mismatch": {
+    "result": {
+      "diagnostics": [
+        {
+          "code": "TS2322",
+          "category": "error",
+          "file": "string-mismatch.ts",
+          "start": 6,
+          "length": 5,
+          "message": "Type 'number' is not assignable to type 'string'.",
+          "related": [],
+          "messageChain": []
+        }
+      ],
+      "exitCode": 2
+    },
+    "stdout": "fixtures/local/string-mismatch.ts(1,7): error TS2322: Type 'number' is not assignable to type 'string'.\n",
+    "stderr": ""
+  },
+  "boolean-mismatch": {
+    "result": {
+      "diagnostics": [
+        {
+          "code": "TS2322",
+          "category": "error",
+          "file": "boolean-mismatch.ts",
+          "start": 4,
+          "length": 5,
+          "message": "Type 'number' is not assignable to type 'boolean'.",
+          "related": [],
+          "messageChain": []
+        }
+      ],
+      "exitCode": 2
+    },
+    "stdout": "fixtures/local/boolean-mismatch.ts(1,5): error TS2322: Type 'number' is not assignable to type 'boolean'.\n",
+    "stderr": ""
+  },
+  "missing-name": {
+    "result": {
+      "diagnostics": [
+        {
+          "code": "TS2304",
+          "category": "error",
+          "file": "missing-name.ts",
+          "start": 0,
+          "length": 7,
+          "message": "Cannot find name 'missing'.",
+          "related": [],
+          "messageChain": []
+        }
+      ],
+      "exitCode": 2
+    },
+    "stdout": "fixtures/local/missing-name.ts(1,1): error TS2304: Cannot find name 'missing'.\n",
+    "stderr": ""
+  },
+  "assignment-ok": {
+    "result": {
+      "diagnostics": [],
+      "exitCode": 0
+    },
+    "stdout": "",
+    "stderr": ""
+  },
+  "assignment-mismatch": {
+    "result": {
+      "diagnostics": [
+        {
+          "code": "TS2322",
+          "category": "error",
+          "file": "assignment-mismatch.ts",
+          "start": 23,
+          "length": 5,
+          "message": "Type 'string' is not assignable to type 'number'.",
+          "related": [],
+          "messageChain": []
+        }
+      ],
+      "exitCode": 2
+    },
+    "stdout": "fixtures/local/assignment-mismatch.ts(1,24): error TS2322: Type 'string' is not assignable to type 'number'.\n",
+    "stderr": ""
+  },
+  "const-assignment": {
+    "result": {
+      "diagnostics": [
+        {
+          "code": "TS2588",
+          "category": "error",
+          "file": "const-assignment.ts",
+          "start": 17,
+          "length": 5,
+          "message": "Cannot assign to 'count' because it is a constant.",
+          "related": [],
+          "messageChain": []
+        }
+      ],
+      "exitCode": 2
+    },
+    "stdout": "fixtures/local/const-assignment.ts(1,18): error TS2588: Cannot assign to 'count' because it is a constant.\n",
+    "stderr": ""
+  },
+  "reference-ok": {
+    "result": {
+      "diagnostics": [],
+      "exitCode": 0
+    },
+    "stdout": "",
+    "stderr": ""
+  },
+  "scope-shadow": {
+    "result": {
+      "diagnostics": [],
+      "exitCode": 0
+    },
+    "stdout": "",
+    "stderr": ""
+  },
+  "scope-missing": {
+    "result": {
+      "diagnostics": [
+        {
+          "code": "TS2304",
+          "category": "error",
+          "file": "scope-missing.ts",
+          "start": 23,
+          "length": 1,
+          "message": "Cannot find name 'x'.",
+          "related": [],
+          "messageChain": []
+        }
+      ],
+      "exitCode": 2
+    },
+    "stdout": "fixtures/local/scope-missing.ts(1,24): error TS2304: Cannot find name 'x'.\n",
+    "stderr": ""
+  },
+  "unicode": {
+    "result": {
+      "diagnostics": [
+        {
+          "code": "TS2322",
+          "category": "error",
+          "file": "unicode.ts",
+          "start": 4,
+          "length": 4,
+          "message": "Type 'string' is not assignable to type 'number'.",
+          "related": [],
+          "messageChain": []
+        }
+      ],
+      "exitCode": 2
+    },
+    "stdout": "fixtures/local/unicode.ts(1,5): error TS2322: Type 'string' is not assignable to type 'number'.\n",
+    "stderr": ""
+  },
+  "crlf": {
+    "result": {
+      "diagnostics": [
+        {
+          "code": "TS2322",
+          "category": "error",
+          "file": "crlf.ts",
+          "start": 24,
+          "length": 1,
+          "message": "Type 'string' is not assignable to type 'boolean'.",
+          "related": [],
+          "messageChain": []
+        }
+      ],
+      "exitCode": 2
+    },
+    "stdout": "fixtures/local/crlf.ts(2,5): error TS2322: Type 'string' is not assignable to type 'boolean'.\n",
+    "stderr": ""
+  },
+  "astral-comment": {
+    "result": {
+      "diagnostics": [
+        {
+          "code": "TS2322",
+          "category": "error",
+          "file": "astral-comment.ts",
+          "start": 13,
+          "length": 1,
+          "message": "Type 'string' is not assignable to type 'number'.",
+          "related": [],
+          "messageChain": []
+        }
+      ],
+      "exitCode": 2
+    },
+    "stdout": "fixtures/local/astral-comment.ts(1,14): error TS2322: Type 'string' is not assignable to type 'number'.\n",
+    "stderr": ""
+  },
+  "syntax-initializer": {
+    "result": {
+      "diagnostics": [
+        {
+          "code": "TS1109",
+          "category": "error",
+          "file": "syntax-initializer.ts",
+          "start": 16,
+          "length": 1,
+          "message": "Expression expected.",
+          "related": [],
+          "messageChain": []
+        }
+      ],
+      "exitCode": 2
+    },
+    "stdout": "fixtures/local/syntax-initializer.ts(1,17): error TS1109: Expression expected.\n",
+    "stderr": ""
+  },
+  "syntax-semicolon": {
+    "result": {
+      "diagnostics": [
+        {
+          "code": "TS1005",
+          "category": "error",
+          "file": "syntax-semicolon.ts",
+          "start": 18,
+          "length": 3,
+          "message": "',' expected.",
+          "related": [],
+          "messageChain": []
+        },
+        {
+          "code": "TS1005",
+          "category": "error",
+          "file": "syntax-semicolon.ts",
+          "start": 22,
+          "length": 1,
+          "message": "',' expected.",
+          "related": [],
+          "messageChain": []
+        }
+      ],
+      "exitCode": 2
+    },
+    "stdout": "fixtures/local/syntax-semicolon.ts(1,19): error TS1005: ',' expected.\nfixtures/local/syntax-semicolon.ts(1,23): error TS1005: ',' expected.\n",
+    "stderr": ""
+  },
+  "uninitialized-let": {
+    "result": {
+      "diagnostics": [],
+      "exitCode": 0
+    },
+    "stdout": "",
+    "stderr": ""
+  },
+  "empty": {
+    "result": {
+      "diagnostics": [],
+      "exitCode": 0
+    },
+    "stdout": "",
+    "stderr": ""
+  },
+  "comment-only": {
+    "result": {
+      "diagnostics": [],
+      "exitCode": 0
+    },
+    "stdout": "",
+    "stderr": ""
+  },
+  "assignment-boolean": {
+    "result": {
+      "diagnostics": [],
+      "exitCode": 0
+    },
+    "stdout": "",
+    "stderr": ""
+  }
+}

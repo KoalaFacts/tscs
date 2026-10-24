@@ -1,0 +1,16 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {classify, validateSelection, execute} from './conformance.mjs';
+const expected={diagnostics:[],exitCode:0};
+test('diagnostic differences fail',()=>assert.equal(classify(expected,{diagnostics:[{code:'TS2322'}],exitCode:1}),'mismatch'));
+test('missing evidence is not a pass',()=>assert.equal(classify(expected,null),'not run'));
+test('unsupported is not success',()=>assert.equal(classify(expected,{diagnostics:[{code:'TSCS1001'}],exitCode:1}),'unsupported'));
+test('empty selection is rejected',()=>assert.throws(()=>validateSelection([]),/empty/));
+test('duplicates are rejected',()=>assert.throws(()=>validateSelection([{id:'x'},{id:'x'}]),/duplicate/));
+test('crash stays a crash',()=>assert.equal(classify(expected,{failure:'crash'}),'crash'));
+test('timeout stays a timeout',()=>assert.equal(classify(expected,{failure:'timeout'}),'timeout'));
+test('real subprocess timeout fails',()=>assert.equal(execute(process.execPath,['-e','setInterval(()=>{},1000)'],30).failure,'timeout'));
+test('malformed output fails',()=>assert.equal(execute(process.execPath,['-e','console.log("bad")']).failure,'crash'));
+test('nonzero exit without diagnostics is a mismatch',()=>assert.equal(classify(expected,{diagnostics:[],exitCode:2}),'mismatch'));
+test('message ordering matters',()=>assert.equal(classify({diagnostics:[1,2],exitCode:2},{diagnostics:[2,1],exitCode:2}),'mismatch'));
+test('a subprocess success cannot hide malformed result fields',()=>assert.equal(execute(process.execPath,['-e','console.log(JSON.stringify({diagnostics:[{}],exitCode:0}))']).failure,'crash'));

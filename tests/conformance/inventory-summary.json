@@ -1,0 +1,8 @@
+{
+  "commit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "files": 12981,
+  "knownVariants": 15174,
+  "unresolvedVariantFiles": 90,
+  "inventorySha256": "ba25c96ca99b4558fc51d647351abfd03d84c8977c2e86ea37372fd7af9aeb20",
+  "note": "Discovery only; variant counts are provisional where unhandled directives are present. Full upstream harness is not implemented."
+}

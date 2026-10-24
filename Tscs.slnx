@@ -1,0 +1,1 @@
+<Solution><Project Path="src/Tscs.Compiler/Tscs.Compiler.csproj"/><Project Path="src/Tscs.Cli/Tscs.Cli.csproj"/><Project Path="tests/Tscs.Compiler.Tests/Tscs.Compiler.Tests.csproj"/></Solution>

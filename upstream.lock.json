@@ -1,0 +1,13 @@
+{
+  "repository": "https://github.com/microsoft/TypeScript.git",
+  "commit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "version": "7.1.0-dev",
+  "goVersion": "go1.27.3",
+  "dotnetSdk": "10.0.402",
+  "oracleBinarySha256": "31d1170231ab84e709e56cf56c8bf8794d8922100c6dd1cda75bbe0b12621313",
+  "referenceBinarySha256": "a406a8d13c4b2b211f4811bd1d9951a60d8059129d2bd114f54a705eedd307b0",
+  "expectedSha256": "f71fafc10ae05e26a4906f0ad6e36a03875469629cb87791bac96a36011ba97b",
+  "minimalLibSha256": "506c10c543e748e25a140e4c90bb0b17de1b47698dd899ca05b6f7e9228014b3",
+  "inventorySummarySha256": "9f83056d7f9886f74b164f0bf5c24db318a271843057d78d8cbb8423599b6b31",
+  "oracleAdapterSha256": "96aeaa446702627bc0eb547b38f09db6fbb1b96bd1b108eae416437a3a5ba55b"
+}

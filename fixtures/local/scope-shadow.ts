@@ -1,0 +1,1 @@
+let x: number = 1; { let x: string = "ok"; x = "yes"; } x = 2;
