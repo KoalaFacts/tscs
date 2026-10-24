@@ -3,6 +3,23 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Rooted fixture files and link projections — 2026-10-25
+
+- Connected byte paths to raw fixture maps: default /.src or currentDirectory,
+  rooted file names, last duplicate file wins, and less restrictive normalized
+  link alias/target paths. Colliding normalized aliases remain separate projections.
+- Full fixed-Go/C# profile:13006 MATCH,17804 units,17799 file entries,57 links;
+  all42 skipped sources retained. Initial/final raw payloads byte-identical, and
+  the original raw profile still13006 MATCH with identical C# output.
+- 55 Go boundary vectors, direct MTP2319/2319, Node62/62, frozen29/29, Release0/0.
+  Independent review had no important findings; three evidence/coverage gaps were
+  addressed. Reference echoes are now bound to actual input/name bytes.
+- [Evidence](evidence/fixture-file-map.json), [profile](testing/ts7/file-map-progress.json).
+  Actual symlink VFS, config/AST and original compiler acceptance remain NOT_RUN.
+  Parent6910398 CI succeeded; latest head needs its own checks. One incomplete
+  execution was excluded after automatic approval review rejected waiting on it
+  due to possible test/build telemetry; completed independent runs supply results.
+
 ## Byte paths for VFS construction — 2026-10-25
 
 - Added byte-preserving encoded-root, normalization, two-path combination and

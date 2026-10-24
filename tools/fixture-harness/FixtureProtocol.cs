@@ -32,7 +32,11 @@ public static class FixtureProtocol
         {
             using var request=JsonDocument.Parse(line);var row=request.RootElement;
             string id=row.GetProperty("id").GetString()??throw new JsonException("Missing identity");
-            output.WriteLine(JsonSerializer.Serialize(new{id,expected=Probe(row)},JsonOptions));
+            object expected;
+            if(!row.TryGetProperty("profile",out var profile))expected=Probe(row);
+            else if(profile.GetString()=="file-map")expected=FixtureFileMap.Probe(row);
+            else throw new JsonException("Unknown fixture profile");
+            output.WriteLine(JsonSerializer.Serialize(new{id,expected},JsonOptions));
         }
     }
 }

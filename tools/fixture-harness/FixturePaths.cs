@@ -83,6 +83,13 @@ public static class FixturePaths
   return Bytes(result);
  }
  public static byte[] Combine(byte[] directory,byte[] path)=>Bytes(CombineText(Text(directory),Text(path)));
+ // GetNormalizedAbsolutePath used by NewVFSWithSymlinks: unlike ToRooted,
+ // this allows empty paths and URL query/fragment bytes.
+ public static byte[] NormalizedAbsolute(byte[] path,byte[] directory)
+ {
+  string p=Text(path),d=Text(directory);
+  return Bytes(AbsoluteNormalized(Root(p)==0&&d.Length>0?CombineText(d,p):Slashes(p)));
+ }
  public static byte[] ToRooted(byte[] path,byte[] directory)
  {
   string p=Text(path),d=Text(directory);

@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {reconcileResults,buildFixtureHarness} from './fixture-corpus.ts';
+import {reconcileResults,buildFixtureHarness,validateReferenceBindings} from './fixture-corpus.ts';
 import {mkdtempSync,writeFileSync,readFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
@@ -53,4 +53,18 @@ test('harness build executes edited sources and fails closed on a compiler error
   writeFileSync(code,'invalid C#');
   assert.throws(()=>buildFixtureHarness(dotnet,project,join(temp,'failed.log')),/build failed/i);
  } finally {rmSync(temp,{recursive:true,force:true});}
+});
+test('file-map profile compares rooted contents and retains raw alias collisions',()=>{
+ const expected={directory:'Ly5zcmM=',files:[{path:'L2E=',content:'eDs='}],links:[{rawAlias:'eA==',rawTarget:'YQ==',alias:'L3g=',target:'L2E='},{rawAlias:'Li94',rawTarget:'Yg==',alias:'L3g=',target:'L2I='}],unitCount:2,panic:null};
+ const rows=[{id:'a',expected}];assert.equal(reconcileResults([{id:'a'}],rows,rows,'file-map')[0].loading,'MATCH');
+ const changed=[{id:'a',expected:{...expected,files:[{path:'L2E=',content:'eTs='}]}}];
+ assert.equal(reconcileResults([{id:'a'}],changed,rows,'file-map')[0].loading,'MISMATCH');
+ for(const invalid of [{}, {...expected,files:null},{...expected,links:[{alias:'L3g='}]}])assert.throws(()=>reconcileResults([{id:'a'}],[{id:'a',expected:invalid}],[{id:'a',expected:invalid}],'file-map'),/payload/i);
+});
+
+test('reference echoes must bind every result to the actual input bytes and file name',()=>{
+ const requests=[{id:'a',input:'eDs=',fileName:'YS50cw=='}];
+ validateReferenceBindings(requests,requests);
+ for(const bad of [[],[...requests,...requests],[{...requests[0],input:'eTs='}],[{...requests[0],fileName:'Yi50cw=='}]])
+  assert.throws(()=>validateReferenceBindings(requests,bad),/binding/i);
 });

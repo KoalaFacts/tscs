@@ -27,7 +27,17 @@ export function canonicalJson(value) {
  if(value&&typeof value==='object')return '{'+Object.keys(value).sort().map(k=>JSON.stringify(k)+':'+canonicalJson(value[k])).join(',')+'}';
  return JSON.stringify(value);
 }
-export function reconcileResults(sources,actual,reference) {
+function validateMap(p) {
+ const obj=x=>x!==null&&typeof x==='object'&&!Array.isArray(x);
+ const keys=(x,want)=>obj(x)&&Object.keys(x).sort().join(',')===[...want].sort().join(',');
+ const bytes=x=>typeof x==='string'&&Buffer.from(x,'base64').toString('base64')===x;
+ if(keys(p,['panic'])&&typeof p.panic==='string')return;
+ if(!keys(p,['directory','files','links','unitCount','panic'])||p.panic!==null||!bytes(p.directory)||!Number.isSafeInteger(p.unitCount)||p.unitCount<0||
+ !Array.isArray(p.files)||!p.files.every(f=>keys(f,['path','content'])&&bytes(f.path)&&bytes(f.content))||
+ !Array.isArray(p.links)||!p.links.every(l=>keys(l,['rawAlias','rawTarget','alias','target'])&&Object.values(l).every(bytes)))throw Error('Malformed file-map payload');
+}
+export function reconcileResults(sources,actual,reference,profile='raw') {
+ if(!['raw','file-map'].includes(profile))throw Error('Unknown comparison profile');
  const index=(rows,label)=>{
   const m=new Map();for(const row of rows){if(typeof row.id!=='string'||!row.id||m.has(row.id))throw Error(`Duplicate or invalid ${label} identity`);m.set(row.id,row);}
   return m;
@@ -37,10 +47,18 @@ export function reconcileResults(sources,actual,reference) {
   if(m.size!==sourceIndex.size||[...m.keys()].some(id=>!sourceIndex.has(id)))throw Error(`Missing or unexpected ${label} result identities`);
  return sources.map(source=>{
   const av=a.get(source.id).expected,rv=r.get(source.id).expected;
-  validatePayload(av);validatePayload(rv);
+  const validate=profile==='file-map'?validateMap:validatePayload;validate(av);validate(rv);
   const same=isDeepStrictEqual(av,rv);
-  const loading=rv.panic!==null&&rv.panic!==undefined?'REFERENCE_PANIC':rv.error!==null?'REFERENCE_ERROR':av.panic!==null?'CRASH':same?'MATCH':'MISMATCH';
+  const loading=rv.panic!==null&&rv.panic!==undefined?'REFERENCE_PANIC':rv.error!==null&&rv.error!==undefined?'REFERENCE_ERROR':av.panic!==null?'CRASH':same?'MATCH':'MISMATCH';
   return {...source,loading,equal:same,actualSha256:sha256(canonicalJson(av)),referenceSha256:sha256(canonicalJson(rv)),
    progress:{compiler:'NOT_RUN',reference:'NOT_RUN',acceptance:'NOT_RUN'}};
  });
+}
+
+export function validateReferenceBindings(requests,reference) {
+ const byId=new Map(requests.map(r=>[r.id,r]));
+ if(byId.size!==requests.length||reference.length!==requests.length)throw Error('Reference binding count mismatch');
+ const seen=new Set();for(const r of reference){const q=byId.get(r.id);
+  if(!q||seen.has(r.id)||r.input!==q.input||r.fileName!==q.fileName)throw Error('Reference input binding mismatch');seen.add(r.id);
+ }
 }
