@@ -1,0 +1,23 @@
+# Execution ledger — docs/superpowers/plans/2026-10-24-compiler-bootstrap.md
+- Design approved by user; implementing inline on feat/compiler-bootstrap.
+- Baseline: repository contained LICENSE and design only; no existing build/tests.
+- Pre-flight: Task 1 diagnostic schema is shared by Task 2 and Task 3; use UTF-16 offsets in JSON, explicit conversion from upstream byte positions.
+- Ruling: scope this execution to the first bootstrap milestone; compiler completion is a multi-milestone effort.
+- Task 1: reference built (Go 1.27.3); adapter and CLI independently captured 29 cases, including 7 untouched upstream files. Harness red 9/9 -> green 9/9.
+- Ruling: upstream noEmit diagnostic exit status is 2, not the plan's assumed 1; preserve upstream 2. TSCS unsupported errors use 1.
+- Ruling: full test directive execution is deferred; inventory records unresolved variant files and the bootstrap cohort applies explicit noLib/noEmit isolation overrides. This is scoped differential coverage, not full upstream conformance.
+- Task 2: core negative tests failed 13/17 against empty implementation, then all 17 passed after scanner/parser/binder/checker implementation.
+- Ruling: initial core is a bounded adaptation of documented upstream branches, not a complete function-for-function checker port. Full checker source correspondence remains future work; no full compatibility claim.
+- Task 3: CLI tests red (11 failures) -> green; then parser boundary regression tests red (4 failures: unmatched brace, reserved names, non-JS whitespace) -> green. Full NUnit suite now 35 passing.
+- Task 4: Release build green with zero warnings; 12 harness tests pass; 29/29 frozen differential cases match diagnostics, text and exit status.
+- Ruling: no general project host or complete upstream directive execution is claimed by this bootstrap; status explicitly marks remaining milestone infrastructure. Risk: later porting must replace these limited adapters before real-project compatibility.
+
+- Final review: independent reviewer identified strict binding names (TS1100), root globalThis conflicts (TS2397), and an unprotected inventory denominator. Four NUnit regressions failed; the inventory tamper test reproduced an incorrect successful exit before fixes.
+- Final: fixed strict binding names and root intrinsic conflict — regression tests RED→GREEN; 5/5 independent oracle probes match, including nested scope.
+- Final: fixed inventory integrity — inventory tampering previously exited 0, now fails before compiler execution; evidence hash and pin checked.
+- Final: fixed diagnostic phase — parser errors are distinguished structurally from checker grammar errors instead of guessing from TS1 codes.
+- Final: minor (deferred): U+2028/U+2029 in quoted strings produce TS1002 instead of being accepted; documented in STATUS.md.
+- Final: Ruling: reviewer-set-aside full semantics, emit, hosting, directive execution and performance remain future milestones, as documented. Cost: this bootstrap cannot replace tsc for real projects.
+- Final: Ruling: hosted CI is separate from verified local results; no hosted pass is claimed without a reported run.
+- Final verification: scripts/verify.sh passed — Release build 0 warnings/errors, NUnit 40/40, Node 17/17, frozen cohort 29/29; oracle rebuild reproduced all 29 frozen cases. Five additional reference regression probes matched.
+- Publishing uses GitHub connector because local git push lacks credentials. The published tree must match the verified local tree.

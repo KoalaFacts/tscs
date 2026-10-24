@@ -1,0 +1,331 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "cases": [
+    {
+      "id": "simpleTestSingleFile",
+      "file": "fixtures/upstream/simpleTestSingleFile.ts",
+      "upstreamPath": "tsc/testdata/tests/cases/compiler/simpleTestSingleFile.ts",
+      "sha256": "813428b51c4bd177d97e6835a969f110d42bbb67f4b15fb0798f1b4b2074f9fc",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "downlevelLetConst3",
+      "file": "fixtures/upstream/downlevelLetConst3.ts",
+      "upstreamPath": "tsc/testdata/tests/cases/compiler/downlevelLetConst3.ts",
+      "sha256": "b990f27cc7fdd6ea5ead25152bb29631a31598bcda0faafea3e1ea9d2e5aad22",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "downlevelLetConst4",
+      "file": "fixtures/upstream/downlevelLetConst4.ts",
+      "upstreamPath": "tsc/testdata/tests/cases/compiler/downlevelLetConst4.ts",
+      "sha256": "ed583634b8895cef39b8d7e60a19a59cf71139a3bd6318c0a55bee32a05c1380",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "downlevelLetConst5",
+      "file": "fixtures/upstream/downlevelLetConst5.ts",
+      "upstreamPath": "tsc/testdata/tests/cases/compiler/downlevelLetConst5.ts",
+      "sha256": "b5538698c195d571964a49bb18ca95bb3cc3db028805b95bc9625aa0fb2001dc",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "downlevelLetConst8",
+      "file": "fixtures/upstream/downlevelLetConst8.ts",
+      "upstreamPath": "tsc/testdata/tests/cases/compiler/downlevelLetConst8.ts",
+      "sha256": "2762cbcd9fb4dbdc4f6fb752ef6d432c233ef1b1166715f349f363b531192803",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "downlevelLetConst9",
+      "file": "fixtures/upstream/downlevelLetConst9.ts",
+      "upstreamPath": "tsc/testdata/tests/cases/compiler/downlevelLetConst9.ts",
+      "sha256": "84f519743b791bf94c41a87538267b646a39f1fadcb5189d2b28a1fa19894edd",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "unicodeLineSeparatorInMultilineComment",
+      "file": "fixtures/upstream/unicodeLineSeparatorInMultilineComment.ts",
+      "upstreamPath": "tsc/testdata/tests/cases/compiler/unicodeLineSeparatorInMultilineComment.ts",
+      "sha256": "3c1da10cde3f114fc52385df5b1659a94339a35200894a96ab20f3bfe9542eee",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "number-ok",
+      "file": "fixtures/local/number-ok.ts",
+      "sha256": "57daf19ca2d2930ce84206360c55d5e13caab3226309e3ac6fc46e66ccb4b95e",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "string-ok",
+      "file": "fixtures/local/string-ok.ts",
+      "sha256": "b6c6fbbb4f7956fdccae4009abc99d63bfa4b29dc9b6db95690cc767ed7a183e",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "boolean-ok",
+      "file": "fixtures/local/boolean-ok.ts",
+      "sha256": "0d12a3ba306e3ce6416a5c07929c687b0f46a3a4dd0698eeef1618c68621e9f3",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "number-mismatch",
+      "file": "fixtures/local/number-mismatch.ts",
+      "sha256": "95783936102a592abafd127fba1a83a2e908f6db4ad2113eba3b5c50fc640cd1",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "string-mismatch",
+      "file": "fixtures/local/string-mismatch.ts",
+      "sha256": "9104355be344cca6f30fd8175ec0dd1457917771b74d80b3b9aca2574279aea6",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "boolean-mismatch",
+      "file": "fixtures/local/boolean-mismatch.ts",
+      "sha256": "42fdb13a6d907216f8469772347130ca4d096208b33fc7219b78906fc463136c",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "missing-name",
+      "file": "fixtures/local/missing-name.ts",
+      "sha256": "fefd330b14fa14908f3f88b352bd82d9da802119ecddc784eecd2405da2df05b",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "assignment-ok",
+      "file": "fixtures/local/assignment-ok.ts",
+      "sha256": "7e1c107ee19cd1bfd87057389b5fb5998c6e477f5b3c0fe24c0f49a2bd5ffc98",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "assignment-mismatch",
+      "file": "fixtures/local/assignment-mismatch.ts",
+      "sha256": "587a2a3eaa603a74cfa8b297b4c63f1f86a992c98e373a257433cb52a6aec5a3",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "const-assignment",
+      "file": "fixtures/local/const-assignment.ts",
+      "sha256": "edbdb376dc3f3e4fca3b7a43a6c92d37343247d949020b2afc5a0f00cc6b0e36",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "reference-ok",
+      "file": "fixtures/local/reference-ok.ts",
+      "sha256": "fdf64afde7b31672b2c819aff04195c1aa793162e3aec7756d0198b5d551092f",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "scope-shadow",
+      "file": "fixtures/local/scope-shadow.ts",
+      "sha256": "06931b2a5ef18c006fd471149c2cccdb6396a6faf9600306635920bc0fd4f89d",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "scope-missing",
+      "file": "fixtures/local/scope-missing.ts",
+      "sha256": "60a390edaeabec147be1b1b34c86bd50005058241ee4147a57ab2ba77460c363",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "unicode",
+      "file": "fixtures/local/unicode.ts",
+      "sha256": "018902d47e9a8a28aae856393c62024ca22826d3682c89022f648b9afd1a810d",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "crlf",
+      "file": "fixtures/local/crlf.ts",
+      "sha256": "21bd8625fedf66548bbabc84e0d56f24dd585f941b98d9d5846db8378370781d",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "astral-comment",
+      "file": "fixtures/local/astral-comment.ts",
+      "sha256": "b3704c547c9e1e4e8adb4fa34ca72d58e4764a01ef5659d6a861b5d8c0dce7e8",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "syntax-initializer",
+      "file": "fixtures/local/syntax-initializer.ts",
+      "sha256": "28542ac5f149c7ef4bffae9cc0672003357cdd8ca16b9db884db99539cf994ec",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "syntax-semicolon",
+      "file": "fixtures/local/syntax-semicolon.ts",
+      "sha256": "a6a4d93eb31245b23b8f5dd6003a55614e29976cbc5a49bef48124199156decd",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "uninitialized-let",
+      "file": "fixtures/local/uninitialized-let.ts",
+      "sha256": "dade7cc2f6f12c70fda5e7cfa5019f959362a0deaa54f2d99f3b0470d3e383df",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "empty",
+      "file": "fixtures/local/empty.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "comment-only",
+      "file": "fixtures/local/comment-only.ts",
+      "sha256": "003632dd97c630dba82467d7bdc278e99cb552da16271f11602acb6690807844",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    },
+    {
+      "id": "assignment-boolean",
+      "file": "fixtures/local/assignment-boolean.ts",
+      "sha256": "98ce6b3f348817b5f9a9b39ec6d49c0f3afd5a917e4eb798d300cdfb556ac2d2",
+      "overrides": {
+        "noEmit": true,
+        "noLib": true,
+        "target": "es2015",
+        "types": []
+      }
+    }
+  ]
+}

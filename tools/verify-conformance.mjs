@@ -1,0 +1,31 @@
+import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {spawnSync} from 'node:child_process';
+import {execute,classify,validateSelection} from './conformance.mjs';
+const read=p=>JSON.parse(readFileSync(p,'utf8'));
+const hash=p=>createHash('sha256').update(readFileSync(p)).digest('hex');
+const manifest=read('tests/conformance/manifest.json'),expected=read('tests/conformance/expected.json'),lock=read('upstream.lock.json');
+if(manifest.upstreamCommit!==lock.commit)throw Error('reference pin mismatch');
+if(hash('tests/conformance/expected.json')!==lock.expectedSha256||hash('fixtures/minimal.d.ts')!==lock.minimalLibSha256)throw Error('oracle evidence hash mismatch');
+if(hash('tests/conformance/inventory-summary.json')!==lock.inventorySummarySha256||read('tests/conformance/inventory-summary.json').commit!==lock.commit)throw Error('inventory evidence hash mismatch');
+validateSelection(manifest.cases);
+if(Object.keys(expected).length!==manifest.cases.length)throw Error('missing or additional oracle cases');
+const dotnet=process.env.DOTNET??'dotnet',dll='src/Tscs.Cli/bin/Release/net10.0/tscs.dll';
+const results=[];
+for(const c of manifest.cases){
+ if(hash(c.file)!==c.sha256)throw Error('fixture hash mismatch: '+c.id);
+ const e=expected[c.id];if(!e)throw Error('missing oracle: '+c.id);
+ const args=['--noEmit','--noLib','--target','es2015','--pretty','false',c.file,'fixtures/minimal.d.ts'];
+ const actual=execute(dotnet,[dll,'--json',...args]);
+ let status=classify(e.result,actual);
+ const cli=spawnSync(dotnet,[dll,...args],{encoding:'utf8',timeout:10000});
+ const textMatches=!cli.error&&!cli.signal&&cli.status===e.result.exitCode&&cli.stdout===e.stdout&&cli.stderr===e.stderr;
+ if(status==='pass'&&!textMatches)status='mismatch';
+ results.push({id:c.id,status,textMatches});
+ if(status!=='pass')console.error(c.id,JSON.stringify({expected:e,actual,stdout:cli.stdout,stderr:cli.stderr}));
+}
+const inventory=read('tests/conformance/inventory-summary.json');
+const report={upstreamCommit:lock.commit,cohortTotal:results.length,passed:results.filter(r=>r.status==='pass').length,results,upstreamInventory:inventory,coverageNote:'29 isolated source fixtures; not full upstream option/harness conformance.',compilerAssembliesSha256:{cli:hash(dll),core:hash('src/Tscs.Compiler/bin/Release/net10.0/Tscs.Compiler.dll')},oracleEvidenceSha256:lock.expectedSha256};
+mkdirSync('.artifacts',{recursive:true});writeFileSync('.artifacts/conformance.json',JSON.stringify(report,null,2)+'\n');
+console.log(`Differential cohort: ${report.passed}/${report.cohortTotal}; inventory ${inventory.files} files (${inventory.unresolvedVariantFiles} unresolved variant files).`);
+if(report.passed!==report.cohortTotal)process.exitCode=1;

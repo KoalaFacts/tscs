@@ -1,0 +1,181 @@
+[
+  {
+    "name": "eval",
+    "source": "let eval = 1;",
+    "withMinimalLib": true,
+    "result": {
+      "diagnostics": [
+        {
+          "code": "TS1100",
+          "category": "error",
+          "file": "eval.ts",
+          "start": 4,
+          "length": 4,
+          "message": "Invalid use of 'eval' in strict mode.",
+          "related": [],
+          "messageChain": []
+        }
+      ],
+      "exitCode": 2
+    }
+  },
+  {
+    "name": "arguments",
+    "source": "{ const arguments = 1; }",
+    "withMinimalLib": true,
+    "result": {
+      "diagnostics": [
+        {
+          "code": "TS1100",
+          "category": "error",
+          "file": "arguments.ts",
+          "start": 8,
+          "length": 9,
+          "message": "Invalid use of 'arguments' in strict mode.",
+          "related": [],
+          "messageChain": []
+        }
+      ],
+      "exitCode": 2
+    }
+  },
+  {
+    "name": "global",
+    "source": "let globalThis = 1;",
+    "withMinimalLib": true,
+    "result": {
+      "diagnostics": [
+        {
+          "code": "TS2397",
+          "category": "error",
+          "file": "global.ts",
+          "start": 4,
+          "length": 10,
+          "message": "Declaration name conflicts with built-in global identifier 'globalThis'.",
+          "related": [],
+          "messageChain": []
+        }
+      ],
+      "exitCode": 2
+    }
+  },
+  {
+    "name": "nested",
+    "source": "{ let globalThis = 1; }",
+    "withMinimalLib": true,
+    "result": {
+      "diagnostics": [],
+      "exitCode": 0
+    }
+  },
+  {
+    "name": "phase",
+    "source": "const n: number;",
+    "withMinimalLib": false,
+    "result": {
+      "diagnostics": [
+        {
+          "code": "TS2318",
+          "category": "error",
+          "file": "",
+          "start": 0,
+          "length": 0,
+          "message": "Cannot find global type 'Array'.",
+          "related": [],
+          "messageChain": []
+        },
+        {
+          "code": "TS2318",
+          "category": "error",
+          "file": "",
+          "start": 0,
+          "length": 0,
+          "message": "Cannot find global type 'Boolean'.",
+          "related": [],
+          "messageChain": []
+        },
+        {
+          "code": "TS2318",
+          "category": "error",
+          "file": "",
+          "start": 0,
+          "length": 0,
+          "message": "Cannot find global type 'CallableFunction'.",
+          "related": [],
+          "messageChain": []
+        },
+        {
+          "code": "TS2318",
+          "category": "error",
+          "file": "",
+          "start": 0,
+          "length": 0,
+          "message": "Cannot find global type 'Function'.",
+          "related": [],
+          "messageChain": []
+        },
+        {
+          "code": "TS2318",
+          "category": "error",
+          "file": "",
+          "start": 0,
+          "length": 0,
+          "message": "Cannot find global type 'IArguments'.",
+          "related": [],
+          "messageChain": []
+        },
+        {
+          "code": "TS2318",
+          "category": "error",
+          "file": "",
+          "start": 0,
+          "length": 0,
+          "message": "Cannot find global type 'NewableFunction'.",
+          "related": [],
+          "messageChain": []
+        },
+        {
+          "code": "TS2318",
+          "category": "error",
+          "file": "",
+          "start": 0,
+          "length": 0,
+          "message": "Cannot find global type 'Number'.",
+          "related": [],
+          "messageChain": []
+        },
+        {
+          "code": "TS2318",
+          "category": "error",
+          "file": "",
+          "start": 0,
+          "length": 0,
+          "message": "Cannot find global type 'Object'.",
+          "related": [],
+          "messageChain": []
+        },
+        {
+          "code": "TS2318",
+          "category": "error",
+          "file": "",
+          "start": 0,
+          "length": 0,
+          "message": "Cannot find global type 'RegExp'.",
+          "related": [],
+          "messageChain": []
+        },
+        {
+          "code": "TS2318",
+          "category": "error",
+          "file": "",
+          "start": 0,
+          "length": 0,
+          "message": "Cannot find global type 'String'.",
+          "related": [],
+          "messageChain": []
+        }
+      ],
+      "exitCode": 2
+    }
+  }
+]

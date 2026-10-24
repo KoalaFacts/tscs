@@ -1,6 +1,6 @@
 # tscs compiler design
 Date: 2026-10-24
-Status: Proposed design; approach approved, implementation not started.
+Status: Approved by the owner on 2026-10-24. Bootstrap implementation underway; see docs/STATUS.md for actual coverage.
 
 ## Intent and agreed scope
 tscs is a TypeScript compiler written in C#. It will read TypeScript and compiler configuration, check types, and emit JavaScript. The user selected compatibility-first porting, followed by C# refactoring and optimization. Language services are a later project. CLR/IL output, a JavaScript runtime, npm runtime compatibility, and .NET interop are outside this compiler effort.
