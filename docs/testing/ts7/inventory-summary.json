@@ -1,0 +1,1181 @@
+{
+  "schemaVersion": 1,
+  "kind": "STATIC_SOURCE_AND_DECLARED_METADATA_INVENTORY",
+  "provenance": {
+    "toolchain": {
+      "go": "go1.27.3",
+      "nodeMajor": 24
+    },
+    "repository": "https://github.com/microsoft/TypeScript.git",
+    "commit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+    "tree": "76db580097168684868ef43674fb554dd3018603",
+    "gitlinks": [],
+    "source": "Git committed tree/blob objects; working tree and untracked files ignored",
+    "generatorFiles": [
+      {
+        "path": "tools/inventory-ts7.mjs",
+        "sha256": "041e933c6e1332d6b3e2d89187a886d92915f6f0334643af19e67b6866aa0b84"
+      },
+      {
+        "path": "tools/ts7-scope.mjs",
+        "sha256": "38899954e2e857391dd8ad827a2e19aeb4719b1f27bb6e31826b49e2acfafb6d"
+      },
+      {
+        "path": "tools/scope-go/main.go",
+        "sha256": "f895879be07d565d64b748f916e1555e28edd9be28a36db66e9b0c05206c3629"
+      }
+    ],
+    "hashAlgorithms": {
+      "object": "git-sha1",
+      "contentAndArtifacts": "sha256"
+    }
+  },
+  "counts": {
+    "trackedAssets": 67951,
+    "fixtureInputs": 13006,
+    "goDeclarations": 6064,
+    "concreteCases": null,
+    "sourceScopeComplete": false,
+    "releaseEligible": false,
+    "invalidUtf8Fixtures": 8,
+    "upstreamSkippedFixtures": 42,
+    "virtualPathDeclarations": 7879,
+    "virtualSymlinkDeclarations": 55,
+    "domains": [
+      {
+        "id": "baseline:api",
+        "assets": 2,
+        "roles": {
+          "baseline": 2
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "baseline:astnav",
+        "assets": 7,
+        "roles": {
+          "baseline": 7
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "baseline:compiler",
+        "assets": 24026,
+        "roles": {
+          "baseline": 24026
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "baseline:config",
+        "assets": 237,
+        "roles": {
+          "baseline": 237
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "baseline:conformance",
+        "assets": 22326,
+        "roles": {
+          "baseline": 22326
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "baseline:fourslash",
+        "assets": 1763,
+        "roles": {
+          "baseline": 1763
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "baseline:lsp",
+        "assets": 3,
+        "roles": {
+          "baseline": 3
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "baseline:project",
+        "assets": 2,
+        "roles": {
+          "baseline": 2
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "baseline:transpile",
+        "assets": 41,
+        "roles": {
+          "baseline": 41
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "baseline:tsbuild",
+        "assets": 193,
+        "roles": {
+          "baseline": 193
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "baseline:tsbuildWatch",
+        "assets": 65,
+        "roles": {
+          "baseline": 65
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "baseline:tsc",
+        "assets": 251,
+        "roles": {
+          "baseline": 251
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "baseline:tscWatch",
+        "assets": 42,
+        "roles": {
+          "baseline": 42
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "baseline:tsoptions",
+        "assets": 70,
+        "roles": {
+          "baseline": 70
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "fixture:compiler",
+        "assets": 7035,
+        "roles": {
+          "fixture-input": 7034,
+          "fixture-support": 1
+        },
+        "fixtureInputs": 7034,
+        "goDeclarations": 0
+      },
+      {
+        "id": "fixture:conformance",
+        "assets": 5948,
+        "roles": {
+          "fixture-input": 5947,
+          "fixture-support": 1
+        },
+        "fixtureInputs": 5947,
+        "goDeclarations": 0
+      },
+      {
+        "id": "fixture:transpile",
+        "assets": 25,
+        "roles": {
+          "fixture-input": 25
+        },
+        "fixtureInputs": 25,
+        "goDeclarations": 0
+      },
+      {
+        "id": "go:tools/cmd/import-localization",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 2
+      },
+      {
+        "id": "go:tools/cmd/machotool",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 2
+      },
+      {
+        "id": "go:tools/customlint",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 1
+      },
+      {
+        "id": "go:tools/gen-preferences",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 2
+      },
+      {
+        "id": "go:tools/gen-proto",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 1
+      },
+      {
+        "id": "go:tsc/cmd/tsc",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 1
+      },
+      {
+        "id": "go:tsc/internal/api",
+        "assets": 15,
+        "roles": {
+          "go-test-source": 15
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 102
+      },
+      {
+        "id": "go:tsc/internal/api/encoder",
+        "assets": 3,
+        "roles": {
+          "go-test-source": 3
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 32
+      },
+      {
+        "id": "go:tsc/internal/api/requestfilesystem",
+        "assets": 3,
+        "roles": {
+          "go-test-source": 3
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 122
+      },
+      {
+        "id": "go:tsc/internal/ast",
+        "assets": 7,
+        "roles": {
+          "go-test-source": 7
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 32
+      },
+      {
+        "id": "go:tsc/internal/astnav",
+        "assets": 2,
+        "roles": {
+          "go-test-source": 2
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 6
+      },
+      {
+        "id": "go:tsc/internal/binder",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 1
+      },
+      {
+        "id": "go:tsc/internal/bundled",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 2
+      },
+      {
+        "id": "go:tsc/internal/checker",
+        "assets": 3,
+        "roles": {
+          "go-test-source": 3
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 29
+      },
+      {
+        "id": "go:tsc/internal/collections",
+        "assets": 3,
+        "roles": {
+          "go-test-source": 3
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 9
+      },
+      {
+        "id": "go:tsc/internal/compiler",
+        "assets": 5,
+        "roles": {
+          "go-test-source": 5
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 24
+      },
+      {
+        "id": "go:tsc/internal/contentmapper",
+        "assets": 2,
+        "roles": {
+          "go-test-source": 2
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 32
+      },
+      {
+        "id": "go:tsc/internal/core",
+        "assets": 3,
+        "roles": {
+          "go-test-source": 3
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 5
+      },
+      {
+        "id": "go:tsc/internal/debug",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 12
+      },
+      {
+        "id": "go:tsc/internal/diagnostics",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 5
+      },
+      {
+        "id": "go:tsc/internal/execute/build",
+        "assets": 3,
+        "roles": {
+          "go-test-source": 3
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 6
+      },
+      {
+        "id": "go:tsc/internal/execute/incremental",
+        "assets": 3,
+        "roles": {
+          "go-test-source": 3
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 16
+      },
+      {
+        "id": "go:tsc/internal/execute/tsc",
+        "assets": 2,
+        "roles": {
+          "go-test-source": 2
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 4
+      },
+      {
+        "id": "go:tsc/internal/execute/tsctests",
+        "assets": 8,
+        "roles": {
+          "go-test-source": 8
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 84
+      },
+      {
+        "id": "go:tsc/internal/execute/watchmanager",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 12
+      },
+      {
+        "id": "go:tsc/internal/format",
+        "assets": 5,
+        "roles": {
+          "go-test-source": 5
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 8
+      },
+      {
+        "id": "go:tsc/internal/fourslash/tests",
+        "assets": 4379,
+        "roles": {
+          "go-test-source": 4379
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 4580
+      },
+      {
+        "id": "go:tsc/internal/fswatch",
+        "assets": 9,
+        "roles": {
+          "go-test-source": 9
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 145
+      },
+      {
+        "id": "go:tsc/internal/ipc",
+        "assets": 5,
+        "roles": {
+          "go-test-source": 5
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 18
+      },
+      {
+        "id": "go:tsc/internal/jsnum",
+        "assets": 4,
+        "roles": {
+          "go-test-source": 4
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 19
+      },
+      {
+        "id": "go:tsc/internal/ls",
+        "assets": 5,
+        "roles": {
+          "go-test-source": 5
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 9
+      },
+      {
+        "id": "go:tsc/internal/ls/autoimport",
+        "assets": 6,
+        "roles": {
+          "go-test-source": 6
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 13
+      },
+      {
+        "id": "go:tsc/internal/ls/change",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 1
+      },
+      {
+        "id": "go:tsc/internal/ls/lsconv",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 6
+      },
+      {
+        "id": "go:tsc/internal/ls/lsutil",
+        "assets": 2,
+        "roles": {
+          "go-test-source": 2
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 13
+      },
+      {
+        "id": "go:tsc/internal/lsp",
+        "assets": 15,
+        "roles": {
+          "go-test-source": 15
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 37
+      },
+      {
+        "id": "go:tsc/internal/lsp/lsproto",
+        "assets": 3,
+        "roles": {
+          "go-test-source": 3
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 32
+      },
+      {
+        "id": "go:tsc/internal/lsp/lspwatcher",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 16
+      },
+      {
+        "id": "go:tsc/internal/module",
+        "assets": 3,
+        "roles": {
+          "go-test-source": 3
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 38
+      },
+      {
+        "id": "go:tsc/internal/modulespecifiers",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 10
+      },
+      {
+        "id": "go:tsc/internal/nativepath",
+        "assets": 3,
+        "roles": {
+          "go-test-source": 3
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 7
+      },
+      {
+        "id": "go:tsc/internal/outputpaths",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 6
+      },
+      {
+        "id": "go:tsc/internal/packagejson",
+        "assets": 4,
+        "roles": {
+          "go-test-source": 4
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 8
+      },
+      {
+        "id": "go:tsc/internal/parser",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 13
+      },
+      {
+        "id": "go:tsc/internal/printer",
+        "assets": 3,
+        "roles": {
+          "go-test-source": 3
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 106
+      },
+      {
+        "id": "go:tsc/internal/project",
+        "assets": 21,
+        "roles": {
+          "go-test-source": 21
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 105
+      },
+      {
+        "id": "go:tsc/internal/project/ata",
+        "assets": 5,
+        "roles": {
+          "go-test-source": 5
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 5
+      },
+      {
+        "id": "go:tsc/internal/project/background",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 1
+      },
+      {
+        "id": "go:tsc/internal/project/dirty",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 1
+      },
+      {
+        "id": "go:tsc/internal/project/logging",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 2
+      },
+      {
+        "id": "go:tsc/internal/scanner",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 5
+      },
+      {
+        "id": "go:tsc/internal/semver",
+        "assets": 2,
+        "roles": {
+          "go-test-source": 2
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 11
+      },
+      {
+        "id": "go:tsc/internal/sourcemap",
+        "assets": 2,
+        "roles": {
+          "go-test-source": 2
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 42
+      },
+      {
+        "id": "go:tsc/internal/spanmap",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 32
+      },
+      {
+        "id": "go:tsc/internal/stringutil",
+        "assets": 2,
+        "roles": {
+          "go-test-source": 2
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 2
+      },
+      {
+        "id": "go:tsc/internal/symlinks",
+        "assets": 2,
+        "roles": {
+          "go-test-source": 2
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 14
+      },
+      {
+        "id": "go:tsc/internal/testrunner",
+        "assets": 5,
+        "roles": {
+          "go-test-source": 5
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 5
+      },
+      {
+        "id": "go:tsc/internal/testutil/contentmappertest",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 2
+      },
+      {
+        "id": "go:tsc/internal/tracing",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 2
+      },
+      {
+        "id": "go:tsc/internal/transformers/tstransforms",
+        "assets": 2,
+        "roles": {
+          "go-test-source": 2
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 2
+      },
+      {
+        "id": "go:tsc/internal/transpile",
+        "assets": 2,
+        "roles": {
+          "go-test-source": 2
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 3
+      },
+      {
+        "id": "go:tsc/internal/tsoptions",
+        "assets": 13,
+        "roles": {
+          "go-test-source": 13
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 64
+      },
+      {
+        "id": "go:tsc/internal/tspath",
+        "assets": 6,
+        "roles": {
+          "go-test-source": 6
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 71
+      },
+      {
+        "id": "go:tsc/internal/vfs",
+        "assets": 2,
+        "roles": {
+          "go-test-source": 2
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 9
+      },
+      {
+        "id": "go:tsc/internal/vfs/cachedvfs",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 9
+      },
+      {
+        "id": "go:tsc/internal/vfs/iovfs",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 1
+      },
+      {
+        "id": "go:tsc/internal/vfs/osvfs",
+        "assets": 3,
+        "roles": {
+          "go-test-source": 3
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 5
+      },
+      {
+        "id": "go:tsc/internal/vfs/vfsmatch",
+        "assets": 2,
+        "roles": {
+          "go-test-source": 2
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 23
+      },
+      {
+        "id": "go:tsc/internal/vfs/vfsmock",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 1
+      },
+      {
+        "id": "go:tsc/internal/vfs/vfstest",
+        "assets": 1,
+        "roles": {
+          "go-test-source": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 18
+      },
+      {
+        "id": "js:packages/typescript",
+        "assets": 23,
+        "roles": {
+          "js-benchmark-source": 7,
+          "js-test-source": 16
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "js:packages/vscode-typescript",
+        "assets": 4,
+        "roles": {
+          "js-test-source": 4
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "js:tools/scripts",
+        "assets": 4,
+        "roles": {
+          "js-test-source": 4
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:.custom-gcl.yml",
+        "assets": 1,
+        "roles": {
+          "upstream-support": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:.devcontainer",
+        "assets": 1,
+        "roles": {
+          "upstream-support": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:.dprint.jsonc",
+        "assets": 1,
+        "roles": {
+          "upstream-support": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:.git-blame-ignore-revs",
+        "assets": 1,
+        "roles": {
+          "upstream-support": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:.gitattributes",
+        "assets": 1,
+        "roles": {
+          "upstream-support": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:.github",
+        "assets": 31,
+        "roles": {
+          "upstream-support": 31
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:.gitignore",
+        "assets": 1,
+        "roles": {
+          "upstream-support": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:.golangci.yml",
+        "assets": 1,
+        "roles": {
+          "upstream-support": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:.vscode",
+        "assets": 4,
+        "roles": {
+          "upstream-support": 4
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:CODE_OF_CONDUCT.md",
+        "assets": 1,
+        "roles": {
+          "upstream-support": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:CONTRIBUTING.md",
+        "assets": 1,
+        "roles": {
+          "upstream-support": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:Herebyfile.mjs",
+        "assets": 1,
+        "roles": {
+          "upstream-support": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:LICENSE.txt",
+        "assets": 1,
+        "roles": {
+          "upstream-support": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:NOTICE.txt",
+        "assets": 1,
+        "roles": {
+          "upstream-support": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:README.md",
+        "assets": 1,
+        "roles": {
+          "upstream-support": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:SECURITY.md",
+        "assets": 1,
+        "roles": {
+          "upstream-support": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:SUPPORT.md",
+        "assets": 1,
+        "roles": {
+          "upstream-support": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:go.work",
+        "assets": 1,
+        "roles": {
+          "upstream-support": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:package-lock.json",
+        "assets": 1,
+        "roles": {
+          "upstream-support": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:package.json",
+        "assets": 1,
+        "roles": {
+          "upstream-support": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:packages",
+        "assets": 226,
+        "roles": {
+          "upstream-support": 226
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:tools",
+        "assets": 91,
+        "roles": {
+          "upstream-support": 91
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:tools/customlint/testdata",
+        "assets": 1,
+        "roles": {
+          "go-test-fixture": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:tsc",
+        "assets": 735,
+        "roles": {
+          "upstream-support": 735
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:tsc/testdata/fixtures",
+        "assets": 166,
+        "roles": {
+          "test-support": 166
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:tsc/testdata/promotedTestCollisions.txt",
+        "assets": 1,
+        "roles": {
+          "test-support": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:tsc/testdata/submoduleAccepted.txt",
+        "assets": 1,
+        "roles": {
+          "test-support": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:tsc/testdata/submoduleTriaged.txt",
+        "assets": 1,
+        "roles": {
+          "test-support": 1
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      },
+      {
+        "id": "support:tsc/testdata/tests",
+        "assets": 4,
+        "roles": {
+          "test-support": 4
+        },
+        "fixtureInputs": 0,
+        "goDeclarations": 0
+      }
+    ],
+    "gitSymlinks": 0,
+    "gitlinks": 0,
+    "goTestSourceFiles": 4605,
+    "goTestFixtureFiles": 1,
+    "goParseErrors": 0,
+    "jsTestSources": 24,
+    "jsBenchmarkSources": 7
+  },
+  "reconciliation": {
+    "gitTreeEntries": 67951,
+    "recordedAssets": 67951,
+    "allTrackedAssetsRecorded": true,
+    "testScopeFullyClassified": false
+  },
+  "artifacts": [
+    {
+      "path": "assets.jsonl",
+      "bytes": 26434441,
+      "sha256": "78a260bc3e2618db0040e9b431291234e03c4b20cb4bc775ae862ebd3213d674"
+    },
+    {
+      "path": "fixtures.jsonl",
+      "bytes": 14343617,
+      "sha256": "5985daad079384fc5de27d0f9c16558b534f38f943803ed54fde565da6e63105"
+    },
+    {
+      "path": "go-sources.jsonl",
+      "bytes": 3317299,
+      "sha256": "82f3898c22b084a5b7ac47a37df35e84087b3e28718e48175ca22226a977de5d"
+    },
+    {
+      "path": "declarations.jsonl",
+      "bytes": 6363810,
+      "sha256": "b6cc8a09fdce06e12f664aeca92a3500b86015e6148c8af1c08728c9baad84f8"
+    },
+    {
+      "path": "js-sources.jsonl",
+      "bytes": 16073,
+      "sha256": "8ba9aac5722b3fc90b0f86c5fa638daa46c186b436419a0c70ec62dfb7466bac"
+    },
+    {
+      "path": "runner-policies.json",
+      "bytes": 6028,
+      "sha256": "1366156029aca26b002f9dcc591061e69dbe68732ae3c808da0e3785847df7fe"
+    },
+    {
+      "path": "progress.json",
+      "bytes": 35424,
+      "sha256": "41daa5abbaf70fe9a7353e43d872bbd8bab4c309055911381b33a76805048357"
+    }
+  ],
+  "limitations": [
+    "CANONICAL_CONFIGURATION_EXPANSION",
+    "VIRTUAL_FILES_AND_BYTE_DECODING",
+    "GO_DYNAMIC_SUBTESTS_AND_FUZZ_SEEDS",
+    "JS_GENERATED_TESTS_AND_BENCHMARKS",
+    "RUNTIME_SKIP_AND_FAILURE_CLASSIFICATION",
+    "OS_ARCH_BUILD_RACE_AND_RUNNER_PROFILES",
+    "UNCLASSIFIED_SOURCE_AUDIT",
+    "COMPILER_REFERENCE_ACCEPTANCE_NOT_RUN"
+  ]
+}
