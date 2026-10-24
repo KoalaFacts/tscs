@@ -18,10 +18,10 @@ git init .artifacts/ts7-upstream
 git -C .artifacts/ts7-upstream fetch --depth=1 \
   https://github.com/microsoft/TypeScript.git \
   8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f
-node tools/inventory-ts7.mjs .artifacts/ts7-upstream .artifacts/ts7-scope
+node tools/inventory-ts7.ts .artifacts/ts7-upstream .artifacts/ts7-scope
 
 # Use a fresh output directory for every run; existing output is never overwritten.
-node tools/inventory-ts7.mjs .artifacts/ts7-upstream .artifacts/ts7-scope-repeat
+node tools/inventory-ts7.ts .artifacts/ts7-upstream .artifacts/ts7-scope-repeat
 cmp .artifacts/ts7-scope/summary.json .artifacts/ts7-scope-repeat/summary.json
 cmp docs/testing/ts7/inventory-summary.json .artifacts/ts7-scope/summary.json
 ```

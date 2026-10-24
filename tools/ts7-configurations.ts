@@ -1,4 +1,4 @@
-import {initialProgress,stableId} from './ts7-scope.mjs';
+import {initialProgress,stableId} from './ts7-scope.ts';
 
 // These committed sources jointly define this deliberately narrow policy.
 // Re-pinning, changing a selector, or extending to compiler enums needs review.

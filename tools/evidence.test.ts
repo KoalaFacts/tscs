@@ -10,7 +10,7 @@ function tamper(change){
  try{
   for(const path of ['fixtures','tests/conformance','upstream.lock.json','src/Tscs.Cli/bin/Release/net10.0','src/Tscs.Compiler/bin/Release/net10.0'])cpSync(join(root,path),join(dir,path),{recursive:true});
   change(dir);
-  return spawnSync(process.execPath,[join(root,'tools/verify-conformance.mjs')],{cwd:dir,encoding:'utf8',timeout:10000});
+  return spawnSync(process.execPath,[join(root,'tools/verify-conformance.ts')],{cwd:dir,encoding:'utf8',timeout:10000});
  }finally{rmSync(dir,{recursive:true,force:true});}
 }
 test('altered expected diagnostics fail before running compiler',()=>{

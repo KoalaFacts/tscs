@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { parseTree, classifyAsset, inspectFixture, initialProgress, validateProgress, stableId, summarize } from './ts7-scope.mjs';
+import { parseTree, classifyAsset, inspectFixture, initialProgress, validateProgress, stableId, summarize } from './ts7-scope.ts';
 
 const oid = 'a'.repeat(40), pin = 'b'.repeat(40);
 const asset = (path = 'tsc/testdata/tests/cases/compiler/a.ts') => ({id: stableId(pin, 'asset', path), path, mode:'100644', oid, sha256:'c'.repeat(64), domain:'fixture:compiler', role:'fixture-input'});

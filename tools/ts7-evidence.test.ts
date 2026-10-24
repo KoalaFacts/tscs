@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {sha256,validateProgress} from './ts7-scope.mjs';
+import {sha256,validateProgress} from './ts7-scope.ts';
 
 const read=path=>JSON.parse(readFileSync(new URL(`../${path}`,import.meta.url)));
 

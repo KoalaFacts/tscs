@@ -1,0 +1,164 @@
+{
+  "date": "2026-10-25",
+  "baseCommit": "55390c8ea07540e3da191e4b59ef1209a449a05a",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "scope": "Native Node24 .ts execution for 13 owned tool modules/tests, no algorithm or compiler behavior change",
+  "runtime": {
+    "node": "24.19.0",
+    "go": "1.27.3",
+    "dotnetSdk": "10.0.402",
+    "xunit": "4.0.2",
+    "mtp": "2.5.1"
+  },
+  "regressions": {
+    "tests": [
+      "owned tool modules and tests use Node native TypeScript entries",
+      "shell verification and reference build run native TypeScript without a loader"
+    ],
+    "red": "2 failed before renaming",
+    "green": "2 passed after renaming"
+  },
+  "results": {
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "node": {
+      "passed": 54,
+      "failed": 0
+    },
+    "directMtp": {
+      "passed": 60,
+      "failed": 0,
+      "skipped": 0
+    },
+    "frozenCohort": {
+      "matched": 29,
+      "total": 29
+    },
+    "goTest": "pass",
+    "goVet": "pass",
+    "sdkMtp": "verify.sh restore/build passed, coordinator aborted opening Unix socket (permission denied); not a test failure or pass"
+  },
+  "inventoryComparison": {
+    "baselineGeneratorFiles": [
+      {
+        "path": "tools/inventory-ts7.mjs",
+        "sha256": "9bd22b0ad681fd91b6e4bac95fcb3d4344077bae4773ba4510bb006045b315fc"
+      },
+      {
+        "path": "tools/ts7-scope.mjs",
+        "sha256": "38899954e2e857391dd8ad827a2e19aeb4719b1f27bb6e31826b49e2acfafb6d"
+      },
+      {
+        "path": "tools/ts7-configurations.mjs",
+        "sha256": "76094f9b10d017c5c5be1e52d7b80cac32437dc476c69e953b3536afd1f2e1d5"
+      },
+      {
+        "path": "tools/scope-go/main.go",
+        "sha256": "f895879be07d565d64b748f916e1555e28edd9be28a36db66e9b0c05206c3629"
+      }
+    ],
+    "nativeGeneratorFiles": [
+      {
+        "path": "tools/inventory-ts7.ts",
+        "sha256": "8592eb1a9d355799dc338059273d417d0e7ceef60786c8f53cd2820c510bb54e"
+      },
+      {
+        "path": "tools/ts7-scope.ts",
+        "sha256": "38899954e2e857391dd8ad827a2e19aeb4719b1f27bb6e31826b49e2acfafb6d"
+      },
+      {
+        "path": "tools/ts7-configurations.ts",
+        "sha256": "083206568994f11316c4c7d566ff27e591300f401f85d4c5390e9db95e47d893"
+      },
+      {
+        "path": "tools/scope-go/main.go",
+        "sha256": "f895879be07d565d64b748f916e1555e28edd9be28a36db66e9b0c05206c3629"
+      }
+    ],
+    "payloadsByteIdentical": true,
+    "repeatIncludingSummaryByteIdentical": true,
+    "artifacts": [
+      {
+        "path": "configurations.jsonl",
+        "bytes": 17820,
+        "sha256": "22babb289a616487faa190f9392d3d82d5955a6ce9404948de8d3b9f479b4912"
+      },
+      {
+        "path": "assets.jsonl",
+        "bytes": 26434441,
+        "sha256": "78a260bc3e2618db0040e9b431291234e03c4b20cb4bc775ae862ebd3213d674"
+      },
+      {
+        "path": "fixtures.jsonl",
+        "bytes": 16080765,
+        "sha256": "b7279f8a0a0740927363d9264b77ddba79ad8b687edd50886997b3b8e339d534"
+      },
+      {
+        "path": "go-sources.jsonl",
+        "bytes": 3317561,
+        "sha256": "8f3e364a5e8772348080a65f01a7919f0c9c08b033bc6a629571efed97689d74"
+      },
+      {
+        "path": "declarations.jsonl",
+        "bytes": 6363810,
+        "sha256": "b6cc8a09fdce06e12f664aeca92a3500b86015e6148c8af1c08728c9baad84f8"
+      },
+      {
+        "path": "js-sources.jsonl",
+        "bytes": 16073,
+        "sha256": "8ba9aac5722b3fc90b0f86c5fa638daa46c186b436419a0c70ec62dfb7466bac"
+      },
+      {
+        "path": "runner-policies.json",
+        "bytes": 6381,
+        "sha256": "01a5538449da7838cafd6f25cf0d0571f6d98ae0061d470b9fd6d0e7cf5369d3"
+      },
+      {
+        "path": "progress.json",
+        "bytes": 35424,
+        "sha256": "41daa5abbaf70fe9a7353e43d872bbd8bab4c309055911381b33a76805048357"
+      }
+    ],
+    "onlySummaryDifference": "generatorFiles paths and hashes",
+    "counts": {
+      "expandedFixtures": 25,
+      "blockedFixtures": 0,
+      "unexpandedFixtures": 12981,
+      "configurations": 28
+    }
+  },
+  "review": {
+    "independent": true,
+    "importantFindings": 0,
+    "focusedTestsPassed": 35,
+    "existingLimitation": "Inventory generator intentionally retains the existing exact Node24 version gate; no Node25 execution claimed"
+  },
+  "unchanged": [
+    "all frozen fixtures and expectations",
+    "upstream.lock.json",
+    "docs/testing/ts7/progress.json",
+    "upstream Herebyfile.mjs identity",
+    "all eight generated payloads"
+  ],
+  "commands": [
+    "node --test tools/native-typescript.test.ts",
+    "node --test tools/*.test.ts",
+    "dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 60",
+    "node tools/verify-conformance.ts",
+    "go test tools/scope-go/main.go tools/scope-go/main_test.go",
+    "go vet tools/scope-go/main.go tools/scope-go/main_test.go",
+    "node .artifacts/native-ts-before/tools/inventory-ts7.mjs .artifacts/ts7-upstream .artifacts/native-ts-baseline-inventory",
+    "node tools/inventory-ts7.ts .artifacts/ts7-upstream .artifacts/native-ts-inventory",
+    "node tools/inventory-ts7.ts .artifacts/ts7-upstream .artifacts/native-ts-inventory-repeat",
+    "./scripts/verify.sh"
+  ],
+  "limitations": [
+    "No new upstream acceptance credit",
+    "No full compiler corpus execution",
+    "Native Node24 verified, other major Node versions not run",
+    "New-head hosted CI and Codex review must be checked after push"
+  ],
+  "releaseEligible": false
+}

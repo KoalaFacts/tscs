@@ -13,16 +13,16 @@
     "source": "Git committed tree/blob objects; working tree and untracked files ignored",
     "generatorFiles": [
       {
-        "path": "tools/inventory-ts7.mjs",
-        "sha256": "9bd22b0ad681fd91b6e4bac95fcb3d4344077bae4773ba4510bb006045b315fc"
+        "path": "tools/inventory-ts7.ts",
+        "sha256": "8592eb1a9d355799dc338059273d417d0e7ceef60786c8f53cd2820c510bb54e"
       },
       {
-        "path": "tools/ts7-scope.mjs",
+        "path": "tools/ts7-scope.ts",
         "sha256": "38899954e2e857391dd8ad827a2e19aeb4719b1f27bb6e31826b49e2acfafb6d"
       },
       {
-        "path": "tools/ts7-configurations.mjs",
-        "sha256": "76094f9b10d017c5c5be1e52d7b80cac32437dc476c69e953b3536afd1f2e1d5"
+        "path": "tools/ts7-configurations.ts",
+        "sha256": "083206568994f11316c4c7d566ff27e591300f401f85d4c5390e9db95e47d893"
       },
       {
         "path": "tools/scope-go/main.go",

@@ -5,7 +5,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {generateInventory} from './inventory-ts7.mjs';
+import {generateInventory} from './inventory-ts7.ts';
 
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const readLines=p=>readFileSync(p,'utf8').trim().split('\n').filter(Boolean).map(x=>JSON.parse(x));

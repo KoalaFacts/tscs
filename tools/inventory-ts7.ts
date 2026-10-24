@@ -3,8 +3,8 @@ import {readFileSync,writeFileSync,mkdirSync,existsSync} from 'node:fs';
 import {resolve,join,dirname,basename} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {createHash} from 'node:crypto';
-import {parseTree,classifyAsset,inspectFixture,initialProgress,stableId,sha256,summarize,validateProgress} from './ts7-scope.mjs';
-import {inventoryConfigurations} from './ts7-configurations.mjs';
+import {parseTree,classifyAsset,inspectFixture,initialProgress,stableId,sha256,summarize,validateProgress} from './ts7-scope.ts';
+import {inventoryConfigurations} from './ts7-configurations.ts';
 
 const directory=dirname(fileURLToPath(import.meta.url));
 const repository=resolve(directory,'..');
@@ -150,7 +150,7 @@ export async function generateInventory({upstream,pin,output,goCommand=process.e
   save('configurations.jsonl',configurations,true);
   save('assets.jsonl',assets,true);save('fixtures.jsonl',fixtures,true);save('go-sources.jsonl',goSources,true);save('declarations.jsonl',declarations,true);save('js-sources.jsonl',jsSources,true);
   save('runner-policies.json',{registry,compilerSkipPolicy:skipPolicy});save('progress.json',progress);
-  const generatorFiles=['tools/inventory-ts7.mjs','tools/ts7-scope.mjs','tools/ts7-configurations.mjs','tools/scope-go/main.go'];
+  const generatorFiles=['tools/inventory-ts7.ts','tools/ts7-scope.ts','tools/ts7-configurations.ts','tools/scope-go/main.go'];
   const summary={schemaVersion:1,kind:'STATIC_SOURCE_AND_DECLARED_METADATA_INVENTORY',
     provenance:{toolchain:{go:goVersion,nodeMajor:24},repository:'https://github.com/microsoft/TypeScript.git',commit:pin,tree,gitlinks,
       source:'Git committed tree/blob objects; working tree and untracked files ignored',
@@ -167,7 +167,7 @@ export async function generateInventory({upstream,pin,output,goCommand=process.e
 
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href) {
   try {
-    if(!process.argv[2]||process.argv.length>4)throw Error('Usage: node tools/inventory-ts7.mjs UPSTREAM [NEW_OUTPUT_DIRECTORY]');
+    if(!process.argv[2]||process.argv.length>4)throw Error('Usage: node tools/inventory-ts7.ts UPSTREAM [NEW_OUTPUT_DIRECTORY]');
     const pin=JSON.parse(readFileSync(join(repository,'upstream.lock.json'))).commit;
     const result=await generateInventory({upstream:process.argv[2],pin,output:process.argv[3]??join(repository,'.artifacts/ts7-scope')});
     console.log(`Recorded ${result.counts.trackedAssets} tracked assets at ${pin}. Expanded case total: unknown. Acceptance: NOT_RUN. Release eligible: false.`);

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {inspectFixture,stableId} from './ts7-scope.mjs';
-import {expandTranspileConfigurations,inventoryConfigurations,transpileConfigurationPolicy} from './ts7-configurations.mjs';
+import {inspectFixture,stableId} from './ts7-scope.ts';
+import {expandTranspileConfigurations,inventoryConfigurations,transpileConfigurationPolicy} from './ts7-configurations.ts';
 
 const directives=rows=>rows.map(([name,value])=>({name,value}));
 const expand=rows=>expandTranspileConfigurations(directives(rows));

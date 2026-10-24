@@ -1,7 +1,7 @@
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {spawnSync} from 'node:child_process';
-import {execute,classify,validateSelection} from './conformance.mjs';
+import {execute,classify,validateSelection} from './conformance.ts';
 const read=p=>JSON.parse(readFileSync(p,'utf8'));
 const hash=p=>createHash('sha256').update(readFileSync(p)).digest('hex');
 const manifest=read('tests/conformance/manifest.json'),expected=read('tests/conformance/expected.json'),lock=read('upstream.lock.json');

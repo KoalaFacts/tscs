@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {classify, validateSelection, execute} from './conformance.mjs';
+import {classify, validateSelection, execute} from './conformance.ts';
 const expected={diagnostics:[],exitCode:0};
 test('diagnostic differences fail',()=>assert.equal(classify(expected,{diagnostics:[{code:'TS2322'}],exitCode:1}),'mismatch'));
 test('missing evidence is not a pass',()=>assert.equal(classify(expected,null),'not run'));

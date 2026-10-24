@@ -3,7 +3,7 @@ import {readFileSync,writeFileSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {isDeepStrictEqual} from 'node:util';
-import {execute,validateSelection} from './conformance.mjs';
+import {execute,validateSelection} from './conformance.ts';
 const read=p=>JSON.parse(readFileSync(p));
 const manifest=read('tests/conformance/manifest.json'),expected=read('tests/conformance/expected.json');
 validateSelection(manifest.cases);
