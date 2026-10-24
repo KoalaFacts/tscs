@@ -3,6 +3,20 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Byte paths for VFS construction — 2026-10-25
+
+- Added byte-preserving encoded-root, normalization, two-path combination and
+  rooted resolution helpers matching the pinned tspath implementation.
+- 750 actual Go vectors include POSIX/DOS/UNC/URL/dynamic roots, directory and
+  URL suffix failures, NUL and retained malformed UTF8. Repeated golden is byte-equal.
+- Independent review found dynamic-root fast-path and trailing-backslash directory
+  differences. Expanded regressions failed22 cases before the one fix pass;
+  direct MTP2264/2264, Node60/60, frozen29/29, Release0 warnings/errors afterward.
+- [Evidence](evidence/fixture-paths.json) and [ledger](progress/fixture-paths.md).
+  This is a development harness foundation; VFS/link maps, tsconfig/AST and original
+  compiler assertions remain pending. Parent5d2c6c5 hosted verify succeeded; latest
+  work requires its own CI. PR5 remote review remains stale and incomplete.
+
 ## Complete raw fixture loading profile — 2026-10-25
 
 - Added an executable C# developer harness with the same151 reference vectors,

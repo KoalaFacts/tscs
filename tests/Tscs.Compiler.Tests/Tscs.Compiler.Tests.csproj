@@ -20,4 +20,5 @@
   <ItemGroup>
     <None Update="TestData/fixture-state.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <ItemGroup><None Update="TestData/paths.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
 </Project>
