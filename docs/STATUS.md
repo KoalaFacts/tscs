@@ -19,7 +19,9 @@ server. No real-project compatibility or performance claim.
 ## Local verification and review
 
 - Release build: zero warnings/errors.
-- NUnit: 40 passed; Node harness/evidence tests: 17 passed.
+- C# suite: 60 cases, migrated from NUnit to xUnit 4.0.2 / MTP 2.5.1.
+  All method names and parameter rows are preserved in the
+  [migration map](evidence/xunit-migration-inventory.json). Node harness/evidence tests: 17 cases.
 - Frozen differential cohort: 29/29 matched; repeated reports were identical.
 - Independent reference rebuild: 29/29 frozen results reproduced.
 - Five additional oracle probes validate review fixes (strict binding names,

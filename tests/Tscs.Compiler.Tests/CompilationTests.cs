@@ -1,92 +1,101 @@
-using NUnit.Framework;
+using Xunit;
 using Tscs;
 namespace Tscs.Tests;
 public class CompilationTests
 {
-    [TestCase("let n: number = 1;")]
-    [TestCase("const s: string = \"ok\";")]
-    [TestCase("let b: boolean = true;")]
-    [TestCase("let x: number = 1; { let x: string = \"ok\"; } x = 2;")]
-    public void ValidPrimitiveCodeHasNoErrors(string source) => Assert.That(Compilation.Check("test.ts", source), Is.Empty);
-    [TestCase("let n: number = \"x\";", "TS2322", 4, 1)]
-    [TestCase("missing;", "TS2304", 0, 7)]
-    [TestCase("const n = 1; n = 2;", "TS2588", 13, 1)]
-    [TestCase("{ let x: number = 1; } x;", "TS2304", 23, 1)]
-    [TestCase("/* 😀 */ let n: number = \"x\";", "TS2322", 13, 1)]
-    [TestCase("let n = ;", "TS1109", 8, 1)]
-    [TestCase("const n: number;", "TS1155", 6, 1)]
+    [Theory]
+    [InlineData("let n: number = 1;")]
+    [InlineData("const s: string = \"ok\";")]
+    [InlineData("let b: boolean = true;")]
+    [InlineData("let x: number = 1; { let x: string = \"ok\"; } x = 2;")]
+    public void ValidPrimitiveCodeHasNoErrors(string source) => Assert.Empty(Compilation.Check("test.ts", source));
+    [Theory]
+    [InlineData("let n: number = \"x\";", "TS2322", 4, 1)]
+    [InlineData("missing;", "TS2304", 0, 7)]
+    [InlineData("const n = 1; n = 2;", "TS2588", 13, 1)]
+    [InlineData("{ let x: number = 1; } x;", "TS2304", 23, 1)]
+    [InlineData("/* 😀 */ let n: number = \"x\";", "TS2322", 13, 1)]
+    [InlineData("let n = ;", "TS1109", 8, 1)]
+    [InlineData("const n: number;", "TS1155", 6, 1)]
     public void ReportsActualSourceLocations(string source,string code,int start,int length)
     {
         var d=Compilation.Check("test.ts",source).Single();
-        Assert.Multiple(()=>{Assert.That(d.Code,Is.EqualTo(code));Assert.That(d.Start,Is.EqualTo(start));Assert.That(d.Length,Is.EqualTo(length));});
+        Assert.Multiple(()=>Assert.Equal(code,d.Code),()=>Assert.Equal(start,d.Start),()=>Assert.Equal(length,d.Length));
     }
-    [TestCase("let n = 1; function f() {}")]
-    [TestCase("let n = 1; n++;")]
-    [TestCase("let n = 1 + 2;")]
-    [TestCase("// @ts-ignore\nlet n: number = \"x\";")]
-    [TestCase("let n: any = 1;")]
-    [TestCase("const a = { x: 1 };")]
-    public void UnsupportedSyntaxNeverSucceeds(string source) => Assert.That(Compilation.Check("test.ts",source).Any(d=>d.Code=="TSCS1001"),Is.True);
+    [Theory]
+    [InlineData("let n = 1; function f() {}")]
+    [InlineData("let n = 1; n++;")]
+    [InlineData("let n = 1 + 2;")]
+    [InlineData("// @ts-ignore\nlet n: number = \"x\";")]
+    [InlineData("let n: any = 1;")]
+    [InlineData("const a = { x: 1 };")]
+    public void UnsupportedSyntaxNeverSucceeds(string source) => Assert.Contains(Compilation.Check("test.ts",source),d=>d.Code=="TSCS1001");
 }
 
 public class ParserBoundaryTests
 {
-    [Test] public void UnmatchedClosingBraceTerminates()
+    [Fact] public async Task UnmatchedClosingBraceTerminates()
     {
-        var task=Task.Run(()=>Compilation.Check("test.ts","}"));
-        Assert.That(task.Wait(TimeSpan.FromMilliseconds(250)),Is.True,"parser must always make progress");
-        Assert.That(task.Result,Is.Not.Empty);
+        var task=Task.Run(()=>Compilation.Check("test.ts","}"),TestContext.Current.CancellationToken);
+        var completed=await Task.WhenAny(task,Task.Delay(TimeSpan.FromMilliseconds(250),TestContext.Current.CancellationToken));
+        Assert.True(completed==task,"parser must always make progress");
+        Assert.NotEmpty(await task);
     }
-    [TestCase("const return = 1;")]
-    [TestCase("const case = 1;")]
-    [TestCase("const extends = 1;")]
-    [TestCase("let x\u0085: number = 1;")]
-    public void InvalidTokensCannotSucceed(string source)=>Assert.That(Compilation.Check("test.ts",source),Is.Not.Empty);
+    [Theory]
+    [InlineData("const return = 1;")]
+    [InlineData("const case = 1;")]
+    [InlineData("const extends = 1;")]
+    [InlineData("let x\u0085: number = 1;")]
+    public void InvalidTokensCannotSucceed(string source)=>Assert.NotEmpty(Compilation.Check("test.ts",source));
 }
 
 public class StrictBindingTests
 {
-    [TestCase("eval")]
-    [TestCase("arguments")]
+    [Theory]
+    [InlineData("eval")]
+    [InlineData("arguments")]
     public void StrictModeInvalidBindingsAreRejected(string name)
     {
         var diagnostics=Compilation.Check("test.ts",$"let {name} = 1;");
-        Assert.That(diagnostics.Select(d=>d.Code),Does.Contain("TS1100"));
+        Assert.Contains("TS1100",diagnostics.Select(d=>d.Code));
     }
 }
 
 public class IntrinsicBindingTests
 {
-    [TestCase("globalThis;", 0)]
-    [TestCase("{ globalThis; }", 2)]
-    [TestCase("{ let globalThis = 1; globalThis; } globalThis;", 36)]
-    [TestCase("globalThis = 1;", 0)]
+    [Theory]
+    [InlineData("globalThis;", 0)]
+    [InlineData("{ globalThis; }", 2)]
+    [InlineData("{ let globalThis = 1; globalThis; } globalThis;", 36)]
+    [InlineData("globalThis = 1;", 0)]
     public void IntrinsicGlobalThisIsExplicitlyUnsupported(string source,int start)
     {
         var d=Compilation.Check("test.ts",source).Single();
-        Assert.Multiple(()=>{
-            Assert.That(d.Code,Is.EqualTo("TSCS1001"));
-            Assert.That(d.Message,Is.EqualTo("The built-in globalThis type is not supported yet."));
-            Assert.That(d.Start,Is.EqualTo(start));
-            Assert.That(d.Length,Is.EqualTo(10));
-        });
+        Assert.Multiple(
+            ()=>Assert.Equal("TSCS1001",d.Code),
+            ()=>Assert.Equal("The built-in globalThis type is not supported yet.",d.Message),
+            ()=>Assert.Equal(start,d.Start),
+            ()=>Assert.Equal(10,d.Length));
     }
-    [TestCase("{ let globalThis: number = 1; globalThis; globalThis = 2; }")]
-    [TestCase("{ let globalThis = 1; { globalThis; } }")]
-    public void BlockLocalGlobalThisResolvesNormally(string source)=>Assert.That(Compilation.Check("test.ts",source),Is.Empty);
-    [TestCase("{ let globalThis: number = 1; globalThis = \"x\"; }", "TS2322")]
-    [TestCase("{ const globalThis = 1; globalThis = 2; }", "TS2588")]
-    [TestCase("let globalThis = 1; globalThis;", "TS2397")]
-    [TestCase("missing;", "TS2304")]
-    [TestCase("globalthis;", "TS2304")]
-    public void UserBindingsAndMissingNamesKeepTheirDiagnostics(string source,string code)=>Assert.That(Compilation.Check("test.ts",source).Select(d=>d.Code),Is.EqualTo(new[]{code}));
-    [TestCase("{ globalThis; let globalThis = 1; }", "References before declaration are not supported yet.")]
-    [TestCase("{ let globalThis: number; globalThis; }", "Reads before initialization are not supported yet.")]
+    [Theory]
+    [InlineData("{ let globalThis: number = 1; globalThis; globalThis = 2; }")]
+    [InlineData("{ let globalThis = 1; { globalThis; } }")]
+    public void BlockLocalGlobalThisResolvesNormally(string source)=>Assert.Empty(Compilation.Check("test.ts",source));
+    [Theory]
+    [InlineData("{ let globalThis: number = 1; globalThis = \"x\"; }", "TS2322")]
+    [InlineData("{ const globalThis = 1; globalThis = 2; }", "TS2588")]
+    [InlineData("let globalThis = 1; globalThis;", "TS2397")]
+    [InlineData("missing;", "TS2304")]
+    [InlineData("globalthis;", "TS2304")]
+    public void UserBindingsAndMissingNamesKeepTheirDiagnostics(string source,string code)=>Assert.Equal(new[]{code},Compilation.Check("test.ts",source).Select(d=>d.Code));
+    [Theory]
+    [InlineData("{ globalThis; let globalThis = 1; }", "References before declaration are not supported yet.")]
+    [InlineData("{ let globalThis: number; globalThis; }", "Reads before initialization are not supported yet.")]
     public void BlockLocalGlobalThisKeepsInitializationGuards(string source,string message)
     {
         var d=Compilation.Check("test.ts",source).Single();
-        Assert.Multiple(()=>{Assert.That(d.Code,Is.EqualTo("TSCS1001"));Assert.That(d.Message,Is.EqualTo(message));});
+        Assert.Multiple(()=>Assert.Equal("TSCS1001",d.Code),()=>Assert.Equal(message,d.Message));
     }
-    [Test] public void GlobalThisCannotBeShadowedAtRoot()=>Assert.That(Compilation.Check("test.ts","let globalThis = 1;").Select(d=>d.Code),Does.Contain("TS2397"));
-    [Test] public void GlobalThisCanBeShadowedInBlock()=>Assert.That(Compilation.Check("test.ts","{ let globalThis = 1; }"),Is.Empty);
+    [Fact] public void GlobalThisCannotBeShadowedAtRoot()=>Assert.Contains("TS2397",Compilation.Check("test.ts","let globalThis = 1;").Select(d=>d.Code));
+    [Fact] public void GlobalThisCanBeShadowedInBlock()=>Assert.Empty(Compilation.Check("test.ts","{ let globalThis = 1; }"));
 }
