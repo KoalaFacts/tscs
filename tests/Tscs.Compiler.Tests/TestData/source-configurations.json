@@ -1,0 +1,1110 @@
+{
+  "compilerVaryBy": [
+    "all",
+    "allowarbitraryextensions",
+    "allowimportingtsextensions",
+    "allowjs",
+    "allowsyntheticdefaultimports",
+    "allowumdglobalaccess",
+    "allowunreachablecode",
+    "allowunusedlabels",
+    "alwaysstrict",
+    "assumechangesonlyaffectdirectdependencies",
+    "checkjs",
+    "composite",
+    "declaration",
+    "declarationmap",
+    "deduplicatepackages",
+    "diagnostics",
+    "disablereferencedprojectload",
+    "disablesizelimit",
+    "disablesolutionsearching",
+    "disablesourceofprojectreferenceredirect",
+    "downleveliteration",
+    "emitbom",
+    "emitdeclarationonly",
+    "emitdecoratormetadata",
+    "erasablesyntaxonly",
+    "esmoduleinterop",
+    "exactoptionalpropertytypes",
+    "experimentaldecorators",
+    "explainfiles",
+    "extendeddiagnostics",
+    "forceconsistentcasinginfilenames",
+    "importhelpers",
+    "incremental",
+    "init",
+    "inlinesourcemap",
+    "inlinesources",
+    "isolateddeclarations",
+    "isolatedmodules",
+    "jsx",
+    "libreplacement",
+    "listemittedfiles",
+    "listfiles",
+    "module",
+    "moduledetection",
+    "moduleresolution",
+    "newline",
+    "nocheck",
+    "noemit",
+    "noemithelpers",
+    "noemitonerror",
+    "noerrortruncation",
+    "nofallthroughcasesinswitch",
+    "noimplicitany",
+    "noimplicitoverride",
+    "noimplicitreturns",
+    "noimplicitthis",
+    "nolib",
+    "nopropertyaccessfromindexsignature",
+    "noresolve",
+    "nouncheckedindexedaccess",
+    "nouncheckedsideeffectimports",
+    "nounusedlocals",
+    "nounusedparameters",
+    "preserveconstenums",
+    "preservesymlinks",
+    "preservewatchoutput",
+    "pretty",
+    "quiet",
+    "removecomments",
+    "resolvejsonmodule",
+    "resolvepackagejsonexports",
+    "resolvepackagejsonimports",
+    "rewriterelativeimportextensions",
+    "singlethreaded",
+    "skipdefaultlibcheck",
+    "skiplibcheck",
+    "sourcemap",
+    "stabletypeordering",
+    "strict",
+    "strictbindcallapply",
+    "strictbuiltiniteratorreturn",
+    "strictfunctiontypes",
+    "strictnullchecks",
+    "strictpropertyinitialization",
+    "stripinternal",
+    "target",
+    "traceresolution",
+    "usedefineforclassfields",
+    "useunknownincatchvariables",
+    "verbatimmodulesyntax",
+    "version"
+  ],
+  "transpileVaryBy": [
+    "declarationmap",
+    "inlinesourcemap",
+    "sourcemap"
+  ],
+  "vectors": [
+    {
+      "expected": {
+        "configurations": [
+          null
+        ],
+        "fatal": false,
+        "helper": null,
+        "panic": null,
+        "settings": {},
+        "unsupported": null
+      },
+      "id": "empty/compiler",
+      "input": "",
+      "runner": "compiler"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {}
+          }
+        ],
+        "fatal": false,
+        "helper": null,
+        "panic": null,
+        "settings": {},
+        "unsupported": null
+      },
+      "id": "empty/transpile",
+      "input": "",
+      "runner": "transpile"
+    },
+    {
+      "expected": {
+        "configurations": null,
+        "fatal": true,
+        "helper": null,
+        "panic": null,
+        "settings": {
+          "strict": "ZmFsc2U7"
+        },
+        "unsupported": null
+      },
+      "id": "duplicate/compiler",
+      "input": "Ly8gQFNUUklDVDogdHJ1ZTsKLy8gQHN0cmljdDogZmFsc2U7OwpsZXQgeD0xOw==",
+      "runner": "compiler"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": "false;"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": "false;"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "strict": "ZmFsc2U7"
+        },
+        "unsupported": null
+      },
+      "id": "duplicate/transpile",
+      "input": "Ly8gQFNUUklDVDogdHJ1ZTsKLy8gQHN0cmljdDogZmFsc2U7OwpsZXQgeD0xOw==",
+      "runner": "transpile"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "target=es2015",
+            "Config": {
+              "filename": "a.ts",
+              "link": "a -> b",
+              "target": "es2015"
+            }
+          },
+          {
+            "Name": "target=esnext",
+            "Config": {
+              "filename": "a.ts",
+              "link": "a -> b",
+              "target": "esnext"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "target=es2015",
+            "Config": {
+              "filename": "a.ts",
+              "link": "a -> b",
+              "target": "es2015"
+            }
+          },
+          {
+            "Name": "target=esnext",
+            "Config": {
+              "filename": "a.ts",
+              "link": "a -> b",
+              "target": "esnext"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "filename": "YS50cw==",
+          "link": "YSAtPiBi",
+          "target": "ZXNuZXh0LGVzMjAxNQ=="
+        },
+        "unsupported": null
+      },
+      "id": "whole/compiler",
+      "input": "Ly8KIEB0YXJnZXQ6IGVzMjAxNSwgZXNuZXh0Ci8vIEBsaW5rOiBhIC0+IGI7Ci8vIEBmaWxlbmFtZTogYS50cwovLyBAdGFyZ2V0OiBlc25leHQsZXMyMDE1Owo=",
+      "runner": "compiler"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {
+              "filename": "a.ts",
+              "link": "a -> b",
+              "target": "esnext,es2015"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "",
+            "Config": {
+              "filename": "a.ts",
+              "link": "a -> b",
+              "target": "esnext,es2015"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "filename": "YS50cw==",
+          "link": "YSAtPiBi",
+          "target": "ZXNuZXh0LGVzMjAxNQ=="
+        },
+        "unsupported": null
+      },
+      "id": "whole/transpile",
+      "input": "Ly8KIEB0YXJnZXQ6IGVzMjAxNSwgZXNuZXh0Ci8vIEBsaW5rOiBhIC0+IGI7Ci8vIEBmaWxlbmFtZTogYS50cwovLyBAdGFyZ2V0OiBlc25leHQsZXMyMDE1Owo=",
+      "runner": "transpile"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {
+              "x": "z ; "
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "",
+            "Config": {
+              "x": "z ; "
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "strict": "",
+          "x": "eiA7IA=="
+        },
+        "unsupported": null
+      },
+      "id": "trailing/compiler",
+      "input": "Ly8gQHg6IMKgIHogOyA7woUKLy8gQHN0cmljdDogOwo=",
+      "runner": "compiler"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": "",
+              "x": "z ; "
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": "",
+              "x": "z ; "
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "strict": "",
+          "x": "eiA7IA=="
+        },
+        "unsupported": null
+      },
+      "id": "trailing/transpile",
+      "input": "Ly8gQHg6IMKgIHogOyA7woUKLy8gQHN0cmljdDogOwo=",
+      "runner": "transpile"
+    },
+    {
+      "expected": {
+        "configurations": [
+          null
+        ],
+        "fatal": false,
+        "helper": null,
+        "panic": null,
+        "settings": {
+          "strict": "LCA="
+        },
+        "unsupported": null
+      },
+      "id": "emptyaxis/compiler",
+      "input": "Ly8gQHN0cmljdDogLCA7Cg==",
+      "runner": "compiler"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": ", "
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": ", "
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "strict": "LCA="
+        },
+        "unsupported": null
+      },
+      "id": "emptyaxis/transpile",
+      "input": "Ly8gQHN0cmljdDogLCA7Cg==",
+      "runner": "transpile"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {
+              "unknown": "a,b"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "",
+            "Config": {
+              "unknown": "a,b"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "unknown": "YSxi"
+        },
+        "unsupported": null
+      },
+      "id": "scalar/compiler",
+      "input": "Ly8gQHVua25vd246IGEsYjsK",
+      "runner": "compiler"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {
+              "unknown": "a,b"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "",
+            "Config": {
+              "unknown": "a,b"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "unknown": "YSxi"
+        },
+        "unsupported": null
+      },
+      "id": "scalar/transpile",
+      "input": "Ly8gQHVua25vd246IGEsYjsK",
+      "runner": "transpile"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": "true"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": "true"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "strict": "KiwgIWZhbHNl"
+        },
+        "unsupported": null
+      },
+      "id": "star/compiler",
+      "input": "Ly8gQHN0cmljdDogKiwgIWZhbHNlOwo=",
+      "runner": "compiler"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": "*, !false"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": "*, !false"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "strict": "KiwgIWZhbHNl"
+        },
+        "unsupported": null
+      },
+      "id": "star/transpile",
+      "input": "Ly8gQHN0cmljdDogKiwgIWZhbHNlOwo=",
+      "runner": "transpile"
+    },
+    {
+      "expected": {
+        "configurations": null,
+        "fatal": true,
+        "helper": null,
+        "panic": null,
+        "settings": {
+          "strict": "aW52YWxpZA=="
+        },
+        "unsupported": null
+      },
+      "id": "error/compiler",
+      "input": "Ly8gQHN0cmljdDogaW52YWxpZDsK",
+      "runner": "compiler"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": "invalid"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": "invalid"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "strict": "aW52YWxpZA=="
+        },
+        "unsupported": null
+      },
+      "id": "error/transpile",
+      "input": "Ly8gQHN0cmljdDogaW52YWxpZDsK",
+      "runner": "transpile"
+    },
+    {
+      "expected": {
+        "configurations": null,
+        "fatal": false,
+        "helper": null,
+        "panic": "Variations in test option '@strict' resulted in an empty set.",
+        "settings": {
+          "strict": "KiwtdHJ1ZSwtZmFsc2U="
+        },
+        "unsupported": null
+      },
+      "id": "panic/compiler",
+      "input": "Ly8gQHN0cmljdDogKiwtdHJ1ZSwtZmFsc2U7Cg==",
+      "runner": "compiler"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": "*,-true,-false"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": "*,-true,-false"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "strict": "KiwtdHJ1ZSwtZmFsc2U="
+        },
+        "unsupported": null
+      },
+      "id": "panic/transpile",
+      "input": "Ly8gQHN0cmljdDogKiwtdHJ1ZSwtZmFsc2U7Cg==",
+      "runner": "transpile"
+    },
+    {
+      "expected": {
+        "configurations": null,
+        "fatal": true,
+        "helper": null,
+        "panic": null,
+        "settings": {
+          "module": "bm9uZSxjb21tb25qcyxhbWQsc3lzdGVtLHVtZA==",
+          "target": "ZXM1LGVzMjAxNSxlczIwMTYsZXMyMDE3LGVzMjAxOCxlczIwMTk="
+        },
+        "unsupported": null
+      },
+      "id": "cap/compiler",
+      "input": "Ly8gQHRhcmdldDogZXM1LGVzMjAxNSxlczIwMTYsZXMyMDE3LGVzMjAxOCxlczIwMTk7Ci8vIEBtb2R1bGU6IG5vbmUsY29tbW9uanMsYW1kLHN5c3RlbSx1bWQ7Cg==",
+      "runner": "compiler"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {
+              "module": "none,commonjs,amd,system,umd",
+              "target": "es5,es2015,es2016,es2017,es2018,es2019"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "",
+            "Config": {
+              "module": "none,commonjs,amd,system,umd",
+              "target": "es5,es2015,es2016,es2017,es2018,es2019"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "module": "bm9uZSxjb21tb25qcyxhbWQsc3lzdGVtLHVtZA==",
+          "target": "ZXM1LGVzMjAxNSxlczIwMTYsZXMyMDE3LGVzMjAxOCxlczIwMTk="
+        },
+        "unsupported": null
+      },
+      "id": "cap/transpile",
+      "input": "Ly8gQHRhcmdldDogZXM1LGVzMjAxNSxlczIwMTYsZXMyMDE3LGVzMjAxOCxlczIwMTk7Ci8vIEBtb2R1bGU6IG5vbmUsY29tbW9uanMsYW1kLHN5c3RlbSx1bWQ7Cg==",
+      "runner": "transpile"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "strict=false",
+            "Config": {
+              "strict": "false"
+            }
+          },
+          {
+            "Name": "strict=true",
+            "Config": {
+              "strict": "true"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "strict=false",
+            "Config": {
+              "strict": "false"
+            }
+          },
+          {
+            "Name": "strict=true",
+            "Config": {
+              "strict": "true"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "strict": "dHJ1ZSxmYWxzZQ=="
+        },
+        "unsupported": null
+      },
+      "id": "ascii/compiler",
+      "input": "IC8vIEBzdHJpY3Q6IHRydWUKLy8vIEB0YXJnZXQ6IGludmFsaWQKLy8gQMW/dHJpY3Q6IGludmFsaWQKLy8LQHRhcmdldDogaW52YWxpZAovLwxAc3RyaWN0OiB0cnVlLGZhbHNlCg==",
+      "runner": "compiler"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": "true,false"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": "true,false"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "strict": "dHJ1ZSxmYWxzZQ=="
+        },
+        "unsupported": null
+      },
+      "id": "ascii/transpile",
+      "input": "IC8vIEBzdHJpY3Q6IHRydWUKLy8vIEB0YXJnZXQ6IGludmFsaWQKLy8gQMW/dHJpY3Q6IGludmFsaWQKLy8LQHRhcmdldDogaW52YWxpZAovLwxAc3RyaWN0OiB0cnVlLGZhbHNlCg==",
+      "runner": "transpile"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {
+              "filename": "​﻿x ",
+              "outdir": "İ,A"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "",
+            "Config": {
+              "filename": "​﻿x ",
+              "outdir": "İ,A"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "filename": "4oCL77u/eMKg",
+          "outdir": "xLAsQQ=="
+        },
+        "unsupported": null
+      },
+      "id": "trim/compiler",
+      "input": "Ly8gQGZpbGVuYW1lOiDigIvvu794wqA7Ci8vIEBvdXREaXI6IMSwLEEK",
+      "runner": "compiler"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {
+              "filename": "​﻿x ",
+              "outdir": "İ,A"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "",
+            "Config": {
+              "filename": "​﻿x ",
+              "outdir": "İ,A"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "filename": "4oCL77u/eMKg",
+          "outdir": "xLAsQQ=="
+        },
+        "unsupported": null
+      },
+      "id": "trim/transpile",
+      "input": "Ly8gQGZpbGVuYW1lOiDigIvvu794wqA7Ci8vIEBvdXREaXI6IMSwLEEK",
+      "runner": "transpile"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": "true"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": "true"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "strict": "dHJ1ZQ=="
+        },
+        "unsupported": null
+      },
+      "id": "invalid-body/compiler",
+      "input": "/wovLyBAc3RyaWN0OnRydWU=",
+      "runner": "compiler"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": "true"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": "true"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "strict": "dHJ1ZQ=="
+        },
+        "unsupported": null
+      },
+      "id": "invalid-body/transpile",
+      "input": "/wovLyBAc3RyaWN0OnRydWU=",
+      "runner": "transpile"
+    },
+    {
+      "expected": {
+        "configurations": [
+          null
+        ],
+        "fatal": false,
+        "helper": null,
+        "panic": null,
+        "settings": {
+          "sourcemap": "LCws"
+        },
+        "unsupported": null
+      },
+      "id": "transpile-empty-axis/compiler",
+      "input": "Ly8gQHNvdXJjZW1hcDogLCwsOwo=",
+      "runner": "compiler"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {
+              "sourcemap": ",,,"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": null,
+        "panic": null,
+        "settings": {
+          "sourcemap": "LCws"
+        },
+        "unsupported": null
+      },
+      "id": "transpile-empty-axis/transpile",
+      "input": "Ly8gQHNvdXJjZW1hcDogLCwsOwo=",
+      "runner": "transpile"
+    },
+    {
+      "expected": {
+        "configurations": null,
+        "fatal": false,
+        "helper": null,
+        "panic": null,
+        "settings": {
+          "filename": "/4Ug"
+        },
+        "unsupported": "INVALID_UTF8_SETTING"
+      },
+      "id": "invalid-setting/compiler",
+      "input": "Ly8gQGZpbGVuYW1lOiD/hSA7Cg==",
+      "runner": "compiler"
+    },
+    {
+      "expected": {
+        "configurations": null,
+        "fatal": false,
+        "helper": null,
+        "panic": null,
+        "settings": {
+          "filename": "/4Ug"
+        },
+        "unsupported": "INVALID_UTF8_SETTING"
+      },
+      "id": "invalid-setting/transpile",
+      "input": "Ly8gQGZpbGVuYW1lOiD/hSA7Cg==",
+      "runner": "transpile"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "strict=false",
+            "Config": {
+              "strict": "false"
+            }
+          },
+          {
+            "Name": "strict=true",
+            "Config": {
+              "strict": "true"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "strict=false",
+            "Config": {
+              "strict": "false"
+            }
+          },
+          {
+            "Name": "strict=true",
+            "Config": {
+              "strict": "true"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "strict": "dHJ1ZSxmYWxzZQ=="
+        },
+        "unsupported": null
+      },
+      "id": "utf8bom/compiler",
+      "input": "77u/Ly8gQHN0cmljdDogdHJ1ZSxmYWxzZTsK",
+      "runner": "compiler"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": "true,false"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "",
+            "Config": {
+              "strict": "true,false"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "strict": "dHJ1ZSxmYWxzZQ=="
+        },
+        "unsupported": null
+      },
+      "id": "utf8bom/transpile",
+      "input": "77u/Ly8gQHN0cmljdDogdHJ1ZSxmYWxzZTsK",
+      "runner": "transpile"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "target=es2015",
+            "Config": {
+              "target": "es2015"
+            }
+          },
+          {
+            "Name": "target=esnext",
+            "Config": {
+              "target": "esnext"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "target=es2015",
+            "Config": {
+              "target": "es2015"
+            }
+          },
+          {
+            "Name": "target=esnext",
+            "Config": {
+              "target": "esnext"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "target": "ZXMyMDE1LGVzbmV4dA=="
+        },
+        "unsupported": null
+      },
+      "id": "utf16le/compiler",
+      "input": "//4vAC8AIABAAHQAYQByAGcAZQB0ADoAIABlAHMAMgAwADEANQAsAGUAcwBuAGUAeAB0ADsACgA=",
+      "runner": "compiler"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {
+              "target": "es2015,esnext"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "",
+            "Config": {
+              "target": "es2015,esnext"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "target": "ZXMyMDE1LGVzbmV4dA=="
+        },
+        "unsupported": null
+      },
+      "id": "utf16le/transpile",
+      "input": "//4vAC8AIABAAHQAYQByAGcAZQB0ADoAIABlAHMAMgAwADEANQAsAGUAcwBuAGUAeAB0ADsACgA=",
+      "runner": "transpile"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "target=es2015",
+            "Config": {
+              "target": "es2015"
+            }
+          },
+          {
+            "Name": "target=esnext",
+            "Config": {
+              "target": "esnext"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "target=es2015",
+            "Config": {
+              "target": "es2015"
+            }
+          },
+          {
+            "Name": "target=esnext",
+            "Config": {
+              "target": "esnext"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "target": "ZXMyMDE1LGVzbmV4dA=="
+        },
+        "unsupported": null
+      },
+      "id": "utf16be/compiler",
+      "input": "/v8ALwAvACAAQAB0AGEAcgBnAGUAdAA6ACAAZQBzADIAMAAxADUALABlAHMAbgBlAHgAdAA7AAo=",
+      "runner": "compiler"
+    },
+    {
+      "expected": {
+        "configurations": [
+          {
+            "Name": "",
+            "Config": {
+              "target": "es2015,esnext"
+            }
+          }
+        ],
+        "fatal": false,
+        "helper": [
+          {
+            "Name": "",
+            "Config": {
+              "target": "es2015,esnext"
+            }
+          }
+        ],
+        "panic": null,
+        "settings": {
+          "target": "ZXMyMDE1LGVzbmV4dA=="
+        },
+        "unsupported": null
+      },
+      "id": "utf16be/transpile",
+      "input": "/v8ALwAvACAAQAB0AGEAcgBnAGUAdAA6ACAAZQBzADIAMAAxADUALABlAHMAbgBlAHgAdAA7AAo=",
+      "runner": "transpile"
+    }
+  ],
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "goVersion": "go version go1.27.3 linux/amd64",
+  "referenceExit": 1,
+  "expectedGoFailuresVerified": true,
+  "probeSha256": "66bfcc465eaf38ba4535a16426f9f655e2ee0ed19debeafc274739bd45bb1d1d",
+  "sourceHashes": {
+    "tsc/internal/testrunner/test_case_parser.go": "03578c4d35165ee461f4e0488855ffb534eea9a5c598887b255f60817c07d34f",
+    "tsc/internal/testrunner/compiler_runner.go": "1d0fe0e64d74bb1993de04851c86e108553ee4bbeb4dcde580e1c1820a89c3fa",
+    "tsc/internal/testrunner/transpile_runner.go": "d273f976c9a84a7796d227ba98f75745ce71530a0262dc6885ea442cfafdaae2",
+    "tsc/internal/testrunner/options_generated.go": "ec1f8e29fc24155d717d717b90089208d771923465f1ff7eb67c80cb2fc89451",
+    "tsc/internal/testutil/harnessutil/harnessutil.go": "170d8cf5fdd5e146113411c4526a2c409a28e78a17ac23912feae581af50271d",
+    "tsc/internal/tsoptions/declarations_generated.go": "8f414711280dc2e88abdb480bf6d823beae435eedb9161199fdf3b08a3ea33ff",
+    "tsc/internal/vfs/internal/internal.go": "2d641c466808f1417e4e20d46aa4beb7f9dcc1bc5fd872a5d134fb3ae56d1def"
+  }
+}

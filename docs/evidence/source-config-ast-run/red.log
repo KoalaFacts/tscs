@@ -1,0 +1,43 @@
+failed Tscs.Tests.FixtureConfigAstTests.SelectedFixtureConfigUsesTheProductAstAndLosslessValues(index: 17) (4ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.Text.Json.JsonException : Unknown fixture profile
+    at Tscs.Conformance.FixtureProtocol.Run(TextReader input, TextWriter output) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureProtocol.cs:40
+    at Tscs.Tests.FixtureConfigAstTests.SelectedFixtureConfigUsesTheProductAstAndLosslessValues(Int32 index) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigAstTests.cs:21
+    at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+    at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+failed Tscs.Tests.FixtureConfigAstTests.SelectedFixtureConfigUsesTheProductAstAndLosslessValues(index: 0) (2ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.Text.Json.JsonException : Unknown fixture profile
+    at Tscs.Conformance.FixtureProtocol.Run(TextReader input, TextWriter output) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureProtocol.cs:40
+    at Tscs.Tests.FixtureConfigAstTests.SelectedFixtureConfigUsesTheProductAstAndLosslessValues(Int32 index) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigAstTests.cs:21
+    at InvokeStub_FixtureConfigAstTests.SelectedFixtureConfigUsesTheProductAstAndLosslessValues(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigAstTests.SelectedFixtureConfigUsesTheProductAstAndLosslessValues(index: 9) (2ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.Text.Json.JsonException : Unknown fixture profile
+    at Tscs.Conformance.FixtureProtocol.Run(TextReader input, TextWriter output) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureProtocol.cs:40
+    at Tscs.Tests.FixtureConfigAstTests.SelectedFixtureConfigUsesTheProductAstAndLosslessValues(Int32 index) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigAstTests.cs:21
+    at InvokeStub_FixtureConfigAstTests.SelectedFixtureConfigUsesTheProductAstAndLosslessValues(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigAstTests.SelectedFixtureConfigUsesTheProductAstAndLosslessValues(index: 21) (2ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.Text.Json.JsonException : Unknown fixture profile
+    at Tscs.Conformance.FixtureProtocol.Run(TextReader input, TextWriter output) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureProtocol.cs:40
+    at Tscs.Tests.FixtureConfigAstTests.SelectedFixtureConfigUsesTheProductAstAndLosslessValues(Int32 index) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigAstTests.cs:21
+    at InvokeStub_FixtureConfigAstTests.SelectedFixtureConfigUsesTheProductAstAndLosslessValues(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigAstTests.SelectedFixtureConfigUsesTheProductAstAndLosslessValues(index: 11) (2ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.Text.Json.JsonException : Unknown fixture profile
+    at Tscs.Conformance.FixtureProtocol.Run(TextReader input, TextWriter output) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureProtocol.cs:40
+    at Tscs.Tests.FixtureConfigAstTests.SelectedFixtureConfigUsesTheProductAstAndLosslessValues(Int32 index) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigAstTests.cs:21
+    at InvokeStub_FixtureConfigAstTests.SelectedFixtureConfigUsesTheProductAstAndLosslessValues(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigAstTests.SelectedFixtureConfigUsesTheProductAstAndLosslessValues(index: 13) (2ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.Text.Json.JsonException : Unknown fixture profile
+    at Tscs.Conformance.FixtureProtocol.Run(TextReader input, TextWriter output) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureProtocol.cs:40
+    at Tscs.Tests.FixtureConfigAstTests.SelectedFixtureConfigUsesTheProductAstAndLosslessValues(Int32 index) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigAstTests.cs:21
+    at InvokeStub_FixtureConfigAstTests.SelectedFixtureConfigUsesTheProductAstAndLosslessValues(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Test run summary: Failed! - /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+  total: 8738
+  failed: 6
+  succeeded: 8732
+  skipped: 0
+  duration: 3s 432ms

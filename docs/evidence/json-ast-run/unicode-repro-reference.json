@@ -1,0 +1,69 @@
+[
+  {
+    "diagnostics": [
+      {
+        "code": 1127,
+        "length": 1,
+        "message": "Invalid character.",
+        "start": 1
+      },
+      {
+        "code": 1136,
+        "length": 1,
+        "message": "Property assignment expected.",
+        "start": 2
+      },
+      {
+        "code": 1005,
+        "length": 1,
+        "message": "':' expected.",
+        "start": 7
+      },
+      {
+        "code": 1327,
+        "length": 4,
+        "message": "String literal with double quotes expected.",
+        "start": 3
+      },
+      {
+        "code": 1328,
+        "length": 0,
+        "message": "Property value can only be string literal, numeric literal, 'true', 'false', 'null', object literal or array literal.",
+        "start": 7
+      }
+    ],
+    "id": "U2E2F",
+    "nodes": [
+      {
+        "end": 8,
+        "kind": "Object",
+        "number": "",
+        "path": "$",
+        "start": 0,
+        "units": []
+      },
+      {
+        "end": 7,
+        "kind": "Identifier",
+        "number": "",
+        "path": "$/p0/name",
+        "start": 3,
+        "units": [
+          116,
+          114,
+          117,
+          101
+        ]
+      },
+      {
+        "end": 7,
+        "kind": "Identifier",
+        "number": "",
+        "path": "$/p0/value",
+        "start": 7,
+        "units": []
+      }
+    ],
+    "source": "{ⸯ:true}"
+  }
+]

@@ -1,0 +1,326 @@
+✔ diagnostic differences fail (1.406158ms)
+✔ missing evidence is not a pass (0.150356ms)
+✔ unsupported is not success (0.150317ms)
+✔ empty selection is rejected (0.402977ms)
+✔ duplicates are rejected (0.176265ms)
+✔ crash stays a crash (0.105188ms)
+✔ timeout stays a timeout (0.085118ms)
+✔ real subprocess timeout fails (46.334252ms)
+✔ malformed output fails (77.919773ms)
+✔ nonzero exit without diagnostics is a mismatch (0.488856ms)
+✔ message ordering matters (0.204888ms)
+✔ a subprocess success cannot hide malformed result fields (95.119906ms)
+✔ altered expected diagnostics fail before running compiler (161.723949ms)
+✔ altered fixture bytes fail before running compiler (166.476889ms)
+✔ an empty manifest cannot produce a passing report (147.943883ms)
+✔ reduced cohort is rejected against frozen evidence (111.542888ms)
+✔ altered corpus denominator cannot pass (133.490882ms)
+✔ raw comparison preserves nil and metadata differences without awarding compiler credit (4.679158ms)
+✔ raw comparison rejects omissions, duplicate identities and extra results (0.840866ms)
+✔ raw comparison ignores object property order but retains panic status (0.436498ms)
+✔ malformed result envelopes and byte fields cannot be accepted as matches (0.721457ms)
+✔ empty panic and error strings retain reference failure classification (0.47155ms)
+✔ harness build executes edited sources and fails closed on a compiler error (5848.301411ms)
+✔ file-map profile compares rooted contents and retains raw alias collisions (1.205465ms)
+✔ reference echoes must bind every result to the actual input bytes and file name (0.331599ms)
+✔ construction distinguishes matches, unsupported, mismatches and reference panic (0.839585ms)
+✔ construction rejects malformed matching payloads and keeps nil distinct (0.719494ms)
+✔ construction unsupported cannot hide opposing runtime panic (0.243146ms)
+✖ generation reconciles committed bytes, skips, dynamic declarations and unexpanded gitlinks (66.497373ms)
+✖ repeated generation yields identical artifacts and verifiable checksums (54.064126ms)
+✖ wrong pins and preexisting output are rejected without overwriting (63.92595ms)
+✖ partial or unparsable skip metadata remains unresolved, not an asserted upstream skip (77.932643ms)
+✖ Go syntax candidates explicitly retain unevaluated selection constraints (49.612128ms)
+✖ toolchain provenance requires pinned Go and is recorded in the result (46.894721ms)
+✖ configuration ledger is separate and an unverified source pin cannot be expanded (69.065526ms)
+✔ owned tool modules and tests use Node native TypeScript entries (1.942496ms)
+✔ shell verification and reference build run native TypeScript without a loader (0.953596ms)
+✔ runner policy is bound to pinned path rather than a mutable inventory label (7.988713ms)
+✔ configuration evidence rejects a helper and runner configuration disagreement (1.157843ms)
+✔ runner fallback evidence preserves compiler nil and transpile original settings (0.407473ms)
+✔ malformed outputs, missing IDs and swapped input cannot earn MATCH (0.791272ms)
+✔ no settings gives the transpile fallback configuration, not zero tests (4.83991ms)
+✔ non-varying commas remain scalar and singleton variations have no suffix (0.534515ms)
+✔ settings use last declaration, Go whitespace, and remove only one final semicolon (0.302236ms)
+✔ boolean products get canonical sorted names while preserving first spelling (1.709955ms)
+✔ wildcards add missing boolean values and exclusions ignore unknown values (0.264809ms)
+✔ empty token lists disappear except when transpile fallback restores raw settings (0.191849ms)
+✔ invalid included values and emptied sets are blockers with no partial configurations (6.363244ms)
+✔ all three boolean axes have eight distinct names, not repeated aliases (0.307764ms)
+✔ inventory expands only source-verified UTF8 transpile configurations with stable IDs and NOT_RUN (5.164069ms)
+✔ unverified pin, missing policy bytes or changed policy never gain expansion credit (0.767186ms)
+✔ full-source extraction retains canonical newline consumption and trailing-space settings (0.455566ms)
+✔ a blocked fixture retains its evidence without removing successful neighboring records (4.735973ms)
+✔ checked-in scope summary binds the actual generator, upstream pin and progress bytes (3.483837ms)
+✔ initial source-scope progress cannot silently become accepted coverage (3.440021ms)
+✔ tree parser preserves byte-exact paths, modes, and gitlinks (2.630042ms)
+✔ tree parser rejects duplicates, traversal, malformed and undecodable paths (0.985394ms)
+✔ IDs bind pin, record kind, and full path rather than basename (4.679048ms)
+✔ classification separates runner input, support, baselines, tools and JS tests (0.81028ms)
+✔ fixture metadata preserves duplicate raw directives and does not invent variants (0.966866ms)
+✔ metadata follows anchored upstream option syntax rather than accepting indentation (0.390969ms)
+✔ invalid UTF8 and UTF16 are byte evidence, never replacement text (0.606964ms)
+✔ NUL-containing source and UTF8 BOM remain distinguishable raw evidence (0.562927ms)
+✔ initial status is independent for each record and never implies acceptance (0.383537ms)
+✔ successful progress requires evidence and acceptance cannot outrun compiler/reference (0.878303ms)
+✔ summary is lossless by domain but refuses to substitute files for executable cases (0.659623ms)
+✔ summary rejects dropped, duplicate and dangling fixture/declaration sources (0.644961ms)
+✔ UTF8 BOM handling and whitespace match the pinned reader/metadata syntax (1.056341ms)
+✔ metadata starts only at LF boundaries, not JS-only line separators (0.402407ms)
+ℹ tests 69
+ℹ suites 0
+ℹ pass 62
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6054.813118
+
+✖ failing tests:
+
+test at tools/inventory-ts7.test.ts:35:1
+✖ generation reconciles committed bytes, skips, dynamic declarations and unexpanded gitlinks (66.497373ms)
+  Error: spawnSync go ENOENT
+      at Object.spawnSync (node:internal/child_process:1191:20)
+      at spawnSync (node:child_process:929:24)
+      at execFileSync (node:child_process:972:15)
+      at generateInventory (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.ts:65:19)
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.test.ts:39:22)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'spawnSync go',
+    path: 'go',
+    spawnargs: [ 'env', 'GOVERSION' ],
+    error: Error: spawnSync go ENOENT
+        at Object.spawnSync (node:internal/child_process:1191:20)
+        at spawnSync (node:child_process:929:24)
+        at execFileSync (node:child_process:972:15)
+        at generateInventory (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.ts:65:19)
+        at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.test.ts:39:22)
+        at Test.runInAsyncScope (node:async_hooks:227:14)
+        at Test.run (node:internal/test_runner/test:1402:25)
+        at Test.start (node:internal/test_runner/test:1262:17)
+        at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17),
+    status: null,
+    signal: null,
+    output: null,
+    pid: 0,
+    stdout: undefined,
+    stderr: undefined
+  }
+
+test at tools/inventory-ts7.test.ts:60:1
+✖ repeated generation yields identical artifacts and verifiable checksums (54.064126ms)
+  Error: spawnSync go ENOENT
+      at Object.spawnSync (node:internal/child_process:1191:20)
+      at spawnSync (node:child_process:929:24)
+      at execFileSync (node:child_process:972:15)
+      at generateInventory (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.ts:65:19)
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.test.ts:62:17)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'spawnSync go',
+    path: 'go',
+    spawnargs: [ 'env', 'GOVERSION' ],
+    error: Error: spawnSync go ENOENT
+        at Object.spawnSync (node:internal/child_process:1191:20)
+        at spawnSync (node:child_process:929:24)
+        at execFileSync (node:child_process:972:15)
+        at generateInventory (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.ts:65:19)
+        at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.test.ts:62:17)
+        at Test.runInAsyncScope (node:async_hooks:227:14)
+        at Test.run (node:internal/test_runner/test:1402:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+        at Test.postRun (node:internal/test_runner/test:1542:19)
+        at Test.run (node:internal/test_runner/test:1467:12),
+    status: null,
+    signal: null,
+    output: null,
+    pid: 0,
+    stdout: undefined,
+    stderr: undefined
+  }
+
+test at tools/inventory-ts7.test.ts:74:1
+✖ wrong pins and preexisting output are rejected without overwriting (63.92595ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /pin|commit|object/i. Input:
+  
+  'Error: spawnSync go ENOENT'
+  
+      at async TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.test.ts:76:3)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: spawnSync go ENOENT
+        at Object.spawnSync (node:internal/child_process:1191:20)
+        at spawnSync (node:child_process:929:24)
+        at execFileSync (node:child_process:972:15)
+        at generateInventory (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.ts:65:19)
+        at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.test.ts:76:24)
+        at Test.runInAsyncScope (node:async_hooks:227:14)
+        at Test.run (node:internal/test_runner/test:1402:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+        at Test.postRun (node:internal/test_runner/test:1542:19)
+        at Test.run (node:internal/test_runner/test:1467:12),
+    expected: /pin|commit|object/i,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at tools/inventory-ts7.test.ts:81:1
+✖ partial or unparsable skip metadata remains unresolved, not an asserted upstream skip (77.932643ms)
+  Error: spawnSync go ENOENT
+      at Object.spawnSync (node:internal/child_process:1191:20)
+      at spawnSync (node:child_process:929:24)
+      at execFileSync (node:child_process:972:15)
+      at generateInventory (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.ts:65:19)
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.test.ts:89:45)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'spawnSync go',
+    path: 'go',
+    spawnargs: [ 'env', 'GOVERSION' ],
+    error: Error: spawnSync go ENOENT
+        at Object.spawnSync (node:internal/child_process:1191:20)
+        at spawnSync (node:child_process:929:24)
+        at execFileSync (node:child_process:972:15)
+        at generateInventory (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.ts:65:19)
+        at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.test.ts:89:45)
+        at Test.runInAsyncScope (node:async_hooks:227:14)
+        at Test.run (node:internal/test_runner/test:1402:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+        at Test.postRun (node:internal/test_runner/test:1542:19)
+        at Test.run (node:internal/test_runner/test:1467:12),
+    status: null,
+    signal: null,
+    output: null,
+    pid: 0,
+    stdout: undefined,
+    stderr: undefined
+  }
+
+test at tools/inventory-ts7.test.ts:95:1
+✖ Go syntax candidates explicitly retain unevaluated selection constraints (49.612128ms)
+  Error: spawnSync go ENOENT
+      at Object.spawnSync (node:internal/child_process:1191:20)
+      at spawnSync (node:child_process:929:24)
+      at execFileSync (node:child_process:972:15)
+      at generateInventory (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.ts:65:19)
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.test.ts:97:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'spawnSync go',
+    path: 'go',
+    spawnargs: [ 'env', 'GOVERSION' ],
+    error: Error: spawnSync go ENOENT
+        at Object.spawnSync (node:internal/child_process:1191:20)
+        at spawnSync (node:child_process:929:24)
+        at execFileSync (node:child_process:972:15)
+        at generateInventory (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.ts:65:19)
+        at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.test.ts:97:9)
+        at Test.runInAsyncScope (node:async_hooks:227:14)
+        at Test.run (node:internal/test_runner/test:1402:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+        at Test.postRun (node:internal/test_runner/test:1542:19)
+        at Test.run (node:internal/test_runner/test:1467:12),
+    status: null,
+    signal: null,
+    output: null,
+    pid: 0,
+    stdout: undefined,
+    stderr: undefined
+  }
+
+test at tools/inventory-ts7.test.ts:102:1
+✖ toolchain provenance requires pinned Go and is recorded in the result (46.894721ms)
+  Error: spawnSync go ENOENT
+      at Object.spawnSync (node:internal/child_process:1191:20)
+      at spawnSync (node:child_process:929:24)
+      at execFileSync (node:child_process:972:15)
+      at generateInventory (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.ts:65:19)
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.test.ts:104:22)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'spawnSync go',
+    path: 'go',
+    spawnargs: [ 'env', 'GOVERSION' ],
+    error: Error: spawnSync go ENOENT
+        at Object.spawnSync (node:internal/child_process:1191:20)
+        at spawnSync (node:child_process:929:24)
+        at execFileSync (node:child_process:972:15)
+        at generateInventory (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.ts:65:19)
+        at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.test.ts:104:22)
+        at Test.runInAsyncScope (node:async_hooks:227:14)
+        at Test.run (node:internal/test_runner/test:1402:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+        at Test.postRun (node:internal/test_runner/test:1542:19)
+        at Test.run (node:internal/test_runner/test:1467:12),
+    status: null,
+    signal: null,
+    output: null,
+    pid: 0,
+    stdout: undefined,
+    stderr: undefined
+  }
+
+test at tools/inventory-ts7.test.ts:108:1
+✖ configuration ledger is separate and an unverified source pin cannot be expanded (69.065526ms)
+  Error: spawnSync go ENOENT
+      at Object.spawnSync (node:internal/child_process:1191:20)
+      at spawnSync (node:child_process:929:24)
+      at execFileSync (node:child_process:972:15)
+      at generateInventory (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.ts:65:19)
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.test.ts:114:23)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'spawnSync go',
+    path: 'go',
+    spawnargs: [ 'env', 'GOVERSION' ],
+    error: Error: spawnSync go ENOENT
+        at Object.spawnSync (node:internal/child_process:1191:20)
+        at spawnSync (node:child_process:929:24)
+        at execFileSync (node:child_process:972:15)
+        at generateInventory (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.ts:65:19)
+        at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/inventory-ts7.test.ts:114:23)
+        at Test.runInAsyncScope (node:async_hooks:227:14)
+        at Test.run (node:internal/test_runner/test:1402:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+        at Test.postRun (node:internal/test_runner/test:1542:19)
+        at Test.run (node:internal/test_runner/test:1467:12),
+    status: null,
+    signal: null,
+    output: null,
+    pid: 0,
+    stdout: undefined,
+    stderr: undefined
+  }

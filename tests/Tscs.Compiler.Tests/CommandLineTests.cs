@@ -8,6 +8,70 @@ public class CommandLineTests : IDisposable
     private (int Code,string Out) Run(params string[] args){using var writer=new StringWriter();var code=CommandLine.Run(args,writer,writer);return(code,writer.ToString());}
     private string Write(string name,string text){var path=Path.Combine(directory,name);File.WriteAllText(path,text);return path;}
     private string Lib()=>Write("minimal.d.ts","interface Array<T> {} interface Boolean {} interface Function {} interface CallableFunction {} interface NewableFunction {} interface IArguments {} interface Number {} interface Object {} interface RegExp {} interface String {}");
+    [Theory]
+    [InlineData("\u2028",0)]
+    [InlineData("\u2029",0)]
+    [InlineData("\r",2)]
+    [InlineData("\n",2)]
+    public void RawStringLineCharactersKeepCorrectExitStatus(string character,int expected)
+    {
+        var r=Run("--noEmit","--noLib",Write("a.ts","let s: string = \"a"+character+"z\";"),Lib());
+        Assert.Equal(expected,r.Code);
+        if(expected==0)Assert.Equal("",r.Out);else Assert.Contains("TS1002",r.Out);
+    }
+    [Theory]
+    [InlineData("\\n",0)]
+    [InlineData("\\uZZZZ",2)]
+    [InlineData("\\u0061",0)]
+    [InlineData("\\x61",0)]
+    [InlineData("\\u{1F600}",0)]
+    public void BoundedStringEscapeSupportHasHonestExitStatus(string escape,int code)
+    {
+        var result=Run("--noEmit","--noLib",Write("a.ts","let s: string = \""+escape+"\";"),Lib());
+        Assert.Equal(code,result.Code);
+        if(code==1)Assert.Contains("TSCS1001",result.Out);else if(code==2)Assert.Contains("TS1125",result.Out);else Assert.Equal("",result.Out);
+    }
+    [Theory]
+    [InlineData("\\xG","TS1125",2,0)]
+    [InlineData("\\u{110000}","TS1198",3,6)]
+    [InlineData("\\u{61G}","TS1199",5,0)]
+    public void MalformedStringEscapesHaveSyntaxExitAndUtf16JsonLocations(string escape,string code,int relativeStart,int length)
+    {
+        string source="let s = \"😀"+escape+"\";";
+        var result=Run("--json","--noEmit","--noLib",Write("a.ts",source));
+        using var d=System.Text.Json.JsonDocument.Parse(result.Out);var diagnostic=Assert.Single(d.RootElement.GetProperty("diagnostics").EnumerateArray());
+        Assert.Equal(2,result.Code);Assert.Equal(2,d.RootElement.GetProperty("exitCode").GetInt32());Assert.Equal(code,diagnostic.GetProperty("code").GetString());
+        Assert.Equal(source.IndexOf(escape,StringComparison.Ordinal)+relativeStart,diagnostic.GetProperty("start").GetInt32());Assert.Equal(length,diagnostic.GetProperty("length").GetInt32());Assert.DoesNotContain("TS2318",result.Out);
+    }
+    [Theory]
+    [InlineData("\\0",0,"")]
+    [InlineData("\\q",0,"")]
+    [InlineData("\\177",2,"TS1487")]
+    [InlineData("\\9",2,"TS1488")]
+    public void NumericAndIdentityStringEscapesKeepCorrectExitStatus(string escape,int exit,string code)
+    {
+        var result=Run("--json","--noEmit","--noLib",Write("a.ts","let s = \"😀"+escape+"\";"),Lib());
+        Assert.Equal(exit,result.Code);using var d=System.Text.Json.JsonDocument.Parse(result.Out);var diagnostics=d.RootElement.GetProperty("diagnostics").EnumerateArray().ToArray();
+        if(exit==0)Assert.Empty(diagnostics);else {var error=Assert.Single(diagnostics);Assert.Equal(code,error.GetProperty("code").GetString());Assert.Equal(11,error.GetProperty("start").GetInt32());Assert.Equal(escape.Length,error.GetProperty("length").GetInt32());}
+    }
+    [Fact]
+    public void ProjectUsesProductJsonStringDecoding()
+    {
+        Write("a.ts","let s = 1;");Lib();
+        var project=Write("tsconfig.json","{\"files\":[\"\\a.ts\",\"minimal.d.ts\"],\"compilerOptions\":{\"noEmit\":true,\"noLib\":true}}");
+        Assert.Equal(0,Run("-p",project).Code);
+    }
+    [Fact]
+    public void ProjectSingleQuotesReportJsonSyntaxDiagnostic()
+    {
+        var result=Run("--json","-p",Write("tsconfig.json","{'files':[]}"));
+        Assert.Equal(2,result.Code);Assert.Contains("TS1327",result.Out);
+    }
+    [Fact]
+    public void UnportedJsonIdentifierClassificationHasUnsupportedExit()
+    {
+        var result=Run("--json","-p",Write("tsconfig.json","{ⸯ:true}"));Assert.Equal(1,result.Code);Assert.Contains("TSCS1001",result.Out);
+    }
     [Fact] public void MissingInputFails()=>Assert.NotEqual(0,Run().Code);
     [Fact] public void UnknownOptionFails()=>Assert.NotEqual(0,Run("--imaginary").Code);
     [Fact] public void MissingFileFails()=>Assert.NotEqual(0,Run("--noEmit","--noLib",Path.Combine(directory,"missing.ts")).Code);
@@ -62,5 +126,23 @@ public class CommandLineTests : IDisposable
     {
         var r=Run("--noEmit","--noLib",Write("a.ts","const n: number;"));
         Assert.Multiple(()=>Assert.Contains("TS2318",r.Out),()=>Assert.DoesNotContain("TS1155",r.Out));
+    }
+    [Fact]
+    public void SourceBackedConfigMissingCommaReportsPinnedSyntaxSpanAndExit()
+    {
+        using var golden=System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,"TestData/source-config-ast-missing-comma.json")));
+        var text=System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(golden.RootElement.GetProperty("expected").GetProperty("selection").GetProperty("configFile").GetProperty("content").GetString()!));
+        var result=Run("--json","-p",Write("tsconfig.json",text));Assert.Equal(2,result.Code);
+        using var json=System.Text.Json.JsonDocument.Parse(result.Out);var diagnostic=Assert.Single(json.RootElement.GetProperty("diagnostics").EnumerateArray());
+        Assert.Equal("TS1005",diagnostic.GetProperty("code").GetString());Assert.Equal(164,diagnostic.GetProperty("start").GetInt32());Assert.Equal(9,diagnostic.GetProperty("length").GetInt32());Assert.Equal("',' expected.",diagnostic.GetProperty("message").GetString());
+    }
+    [Theory]
+    [InlineData("""{"a":1 "b":"\xG"}""","TS1005,TS1125")]
+    [InlineData("""{"a":1 "\xG":"\uZZZZ"}""","TS1125,TS1005,TS1125")]
+    public void ProjectMixedSyntaxDiagnosticsKeepScannerParserEventOrder(string source,string codes)
+    {
+        var result=Run("--json","-p",Write("tsconfig.json",source));Assert.Equal(2,result.Code);
+        using var json=System.Text.Json.JsonDocument.Parse(result.Out);
+        Assert.Equal(codes.Split(','),json.RootElement.GetProperty("diagnostics").EnumerateArray().Select(d=>d.GetProperty("code").GetString()));
     }
 }

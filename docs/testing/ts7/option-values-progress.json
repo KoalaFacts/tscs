@@ -1,0 +1,22 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "declarationRecords": 130,
+  "uniqueOptionNames": 127,
+  "vectors": 1414,
+  "outcomes": {
+    "valuesOrNil": 1024,
+    "expectedPanics": 186,
+    "expectedFatals": 204
+  },
+  "unresolved": [
+    "Named Cartesian products/cap25/description and full compilerVaryBy expansion",
+    "Effective compiler option/default/config parsing and AST callback",
+    "Raw-invalid Unicode transport not covered",
+    "Original full configurations/compiler assertions not run"
+  ],
+  "compiler": "NOT_RUN",
+  "referenceCompiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "releaseEligible": false,
+  "evidence": "../../evidence/option-values.json"
+}

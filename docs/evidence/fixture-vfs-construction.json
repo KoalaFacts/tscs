@@ -1,0 +1,155 @@
+{
+  "date": "2026-10-25",
+  "baseCommit": "51b892c792a9e078bd3ac051b5c239f51be9516d",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "profile": "raw-map/case-sensitive/factory-read-and-entries/boundary",
+  "reference": {
+    "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+    "goVersion": "go version go1.27.3 linux/amd64",
+    "inputVectorsSha256": "bd6a5b89d833f4b6f5c8a2c59e9bfa5e5896afe75e20c75d85127f62f6edf92f",
+    "sourceHashes": {
+      "tsc/internal/vfs/vfstest/vfstest.go": "34379d231ad4339afb5bdb474638324be0bd28b7373f5b73aad2bcf12af9d401",
+      "tsc/internal/vfs/iovfs/iofs.go": "bfedb286488f9a7ecdfceb7c8b933b88b318577dab7bd0d3acf4893ee1341a5b",
+      "tsc/internal/testrunner/compiler_runner.go": "1d0fe0e64d74bb1993de04851c86e108553ee4bbeb4dcde580e1c1820a89c3fa",
+      "tsc/internal/tsoptions/tsoptionstest/vfs.go": "91f188afd6f7e228800d3cf13dd555efaa27948a84b3c23611453d880951dfa4",
+      "tsc/internal/testrunner/test_case_parser.go": "03578c4d35165ee461f4e0488855ffb534eea9a5c598887b255f60817c07d34f",
+      "tsc/internal/scanner/scanner.go": "48008100fb5a020748651e319c4dcc361c1a81ca06f8c3e0ed94d42dd0d1e6df",
+      "tsc/internal/stringutil/util.go": "e15d8030900518eb0d8bd926751df2f7c7cfda6d49c7a82da36d58daeed22b9e",
+      "tsc/internal/tspath/path.go": "6c5a8537f800a388555289c311dec38a47696ec88619b8d758edaed18d9a3328",
+      "tsc/internal/vfs/internal/internal.go": "2d641c466808f1417e4e20d46aa4beb7f9dcc1bc5fd872a5d134fb3ae56d1def"
+    },
+    "mapProbeSha256": "0234b57e4be33f6f2ad4284a51d8727c115994c23931639022840e9e448a0373",
+    "stateProbeSha256": "d82e0d936d8afa9b3a8f65da381b5aa5c645313f8044bbd826089e5f3254928e",
+    "probeSha256": "351f30cb261223ff5c83d6f74260a84945a2f1c393dbb1e68ab28caf5f76498a"
+  },
+  "versions": {
+    "sdk": "10.0.402",
+    "runtime": "10.0.13",
+    "node": "24.22.1",
+    "xunit": "4.0.2",
+    "mtp": "2.5.1"
+  },
+  "test": "Tscs.Tests.FixtureConstructionTests.ConstructionMatchesPinnedFactory",
+  "ids": [
+    "map//a.ts",
+    "map//../a.ts",
+    "map//x/../a.ts",
+    "map///root.ts",
+    "map//C:/root.ts",
+    "map//a?x",
+    "map//project/a.ts",
+    "map//project/../a.ts",
+    "map//project/x/../a.ts",
+    "map//project//root.ts",
+    "map//project/C:/root.ts",
+    "map//project/a?x",
+    "map/C:/src/a.ts",
+    "map/C:/src/../a.ts",
+    "map/C:/src/x/../a.ts",
+    "map/C:/src//root.ts",
+    "map/C:/src/C:/root.ts",
+    "map/C:/src/a?x",
+    "map/file:///c:/src/a.ts",
+    "map/file:///c:/src/../a.ts",
+    "map/file:///c:/src/x/../a.ts",
+    "map/file:///c:/src//root.ts",
+    "map/file:///c:/src/C:/root.ts",
+    "map/file:///c:/src/a?x",
+    "map/http://host/src/a.ts",
+    "map/http://host/src/../a.ts",
+    "map/http://host/src/x/../a.ts",
+    "map/http://host/src//root.ts",
+    "map/http://host/src/C:/root.ts",
+    "map/http://host/src/a?x",
+    "map/^/~ts-uri~/s/auth/dir/a.ts",
+    "map/^/~ts-uri~/s/auth/dir/../a.ts",
+    "map/^/~ts-uri~/s/auth/dir/x/../a.ts",
+    "map/^/~ts-uri~/s/auth/dir//root.ts",
+    "map/^/~ts-uri~/s/auth/dir/C:/root.ts",
+    "map/^/~ts-uri~/s/auth/dir/a?x",
+    "map/../base/a.ts",
+    "map/../base/../a.ts",
+    "map/../base/x/../a.ts",
+    "map/../base//root.ts",
+    "map/../base/C:/root.ts",
+    "map/../base/a?x",
+    "permissive-links",
+    "empty",
+    "duplicates",
+    "link-collision",
+    "fixture:tsc/testdata/tests/cases/compiler/bom-utf16be.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/bom-utf16le.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/collisionCodeGenModuleWithUnicodeNames.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/instanceofOperator.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/promiseTest.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/regexInvalidUtf8WithUnicodeFlag.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/targetTypeBaseCalls.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/unicodeIdentifierNames.ts",
+    "invalid-name"
+  ],
+  "outcomes": {
+    "normalMatches": 36,
+    "expectedPanicMatches": 18,
+    "unsupported": 1,
+    "mismatches": 0,
+    "unsupportedIds": [
+      "link-collision"
+    ]
+  },
+  "tdd": {
+    "stub": {
+      "failed": 55,
+      "passed": 3009
+    },
+    "final": {
+      "failed": 0,
+      "passed": 3064,
+      "skipped": 0
+    }
+  },
+  "validation": {
+    "releaseWarnings": 0,
+    "releaseErrors": 0,
+    "nodePassed": 62,
+    "frozenMatched": 29,
+    "goldenRepeatedByteIdentical": true,
+    "sdkCoordinator": "NOT_RUN"
+  },
+  "commands": {
+    "reference": "node tools/generate-construction-vectors.ts .artifacts/ts7-upstream tests/Tscs.Compiler.Tests/TestData/fixture-vfs.json",
+    "build": "dotnet build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false",
+    "mtp": "dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 3064",
+    "node": "node --test tools/*.test.ts",
+    "frozen": "node tools/verify-conformance.ts"
+  },
+  "environment": "DOTNET_CLI_TELEMETRY_OPTOUT=1; XDG_CONFIG_HOME=/tmp/tscs-offline-config Go telemetry modeoff; GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local; Node child builds RestoreSources=/tmp/tscs-empty-feed NuGetAudit=false",
+  "sourceSha256": {
+    "tools/fixture-harness/FixtureConstruction.cs": "6dc1ee69b9659c6a5862c695d747ded814567dbbc609d47b3af29086c94ee0e1",
+    "tools/fixture-harness/FixtureVfs.cs": "aa71275920227a9149b6cb0818bf228fe3e53d636f94e0b2bc21db7bc562df23",
+    "tools/fixture-harness/FixtureFileMap.cs": "25a42bbaa2f7e5b537d6db52797774c609db9cc0fa4695daa1081c86080759b1",
+    "tools/fixture-harness/FixtureLoader.cs": "4d3f8ee13f29e22659d49b31ac1d7e2b93116b9197c1b3272e280e73d7fbeaf6",
+    "tools/fixture-harness/FixturePaths.cs": "deb8760d91ebf8b6836e126efab6f89d317da2932f597516cb719bf8dbf25729",
+    "tools/fixture-harness/construction_oracle_test.go": "351f30cb261223ff5c83d6f74260a84945a2f1c393dbb1e68ab28caf5f76498a",
+    "tools/fixture-harness/map_oracle_test.go": "0234b57e4be33f6f2ad4284a51d8727c115994c23931639022840e9e448a0373",
+    "tools/fixture-harness/state_oracle_test.go": "d82e0d936d8afa9b3a8f65da381b5aa5c645313f8044bbd826089e5f3254928e",
+    "tools/generate-construction-vectors.ts": "5f118742f42d81aaca66fe6960ba58bfe481ad95af1f68383265f680d5bb932b",
+    "tests/Tscs.Compiler.Tests/FixtureConstructionTests.cs": "e9dacffa3bb66aa1705e30ad95633288bac1769ad5dc37fe0d85dda7e5ee5e29",
+    "tests/Tscs.Compiler.Tests/Tscs.Compiler.Tests.csproj": "2d5eb3545003d9c55bda82eddb2b4cd2c59e38a0a186b6e40f6af8cec4098fab",
+    "tests/Tscs.Compiler.Tests/TestData/fixture-vfs.json": "f8e139b22d6cf0ea07bf401146c35ce9ccdf8349875dd57c792d6cd0b14d66c3"
+  },
+  "assemblySha256": {
+    "tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.FixtureHarness.dll": "1927a181543ac20bfa1618428fbf38d9cd6df82151d7db9f2de0111feb7ab517",
+    "tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll": "9be40e6adc4257e8c41563b57344ebe449f4e240f6e1aede3c557ec686dd2fdb"
+  },
+  "review": "One independent review; raw alias/target oracle input corrected, final golden regenerated and final suite rerun by author. No second independent review. Reviewer failed build excluded.",
+  "compiler": "NOT_RUN",
+  "referenceCompiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "fullFixtureVfsCases": null,
+  "fullFixtureVfsStatus": "NOT_RUN",
+  "releaseEligible": false,
+  "rawLogs": {
+    "libraryFileId": "libfile_fe37ad3890e88191b8d778f0794cd07e",
+    "sha256": "cd05de39c59cdef5ec88123af00f46c0cbbd65bbf389e1f3b9ad707f837bb8fb"
+  }
+}

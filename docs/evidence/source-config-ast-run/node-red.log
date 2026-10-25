@@ -1,0 +1,63 @@
+✖ no config is NOT_APPLICABLE and never compiler acceptance (1.133558ms)
+✖ syntax errors and unsupported grammar cannot earn clean MATCH (0.210748ms)
+✖ AST differences and source/selection bindings remain visible (0.149115ms)
+✖ strict schema rejects malformed bytes, ranges and extra fields (0.403428ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 128.243214
+
+✖ failing tests:
+
+test at tools/source-config-ast.test.ts:8:1
+✖ no config is NOT_APPLICABLE and never compiler acceptance (1.133558ms)
+  Error: not implemented
+      at reconcileConfigAst (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-ast.ts:1:87)
+      at run (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-ast.test.ts:7:46)
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-ast.test.ts:9:29)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+
+test at tools/source-config-ast.test.ts:11:1
+✖ syntax errors and unsupported grammar cannot earn clean MATCH (0.210748ms)
+  Error: not implemented
+      at reconcileConfigAst (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-ast.ts:1:87)
+      at run (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-ast.test.ts:7:46)
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-ast.test.ts:13:15)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+
+test at tools/source-config-ast.test.ts:17:1
+✖ AST differences and source/selection bindings remain visible (0.149115ms)
+  Error: not implemented
+      at reconcileConfigAst (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-ast.ts:1:87)
+      at run (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-ast.test.ts:7:46)
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-ast.test.ts:19:15)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/source-config-ast.test.ts:24:1
+✖ strict schema rejects malformed bytes, ranges and extra fields (0.403428ms)
+  Error: not implemented
+      at validateConfigAst (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-ast.ts:2:44)
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-ast.test.ts:25:2)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)

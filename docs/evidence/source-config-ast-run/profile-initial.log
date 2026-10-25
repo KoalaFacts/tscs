@@ -1,0 +1,14 @@
+file:///workspace/scratch/daf3e6c2e318/tscs/tools/compare-source-config-ast.ts:31
+function runGo(name,pkg,environment,log){const r=spawnSync(go,['test','-overlay',overlay,'-run','^'+name+'$','-count=1',pkg],{cwd:join(upstream,'tsc'),encoding:'utf8',timeout:180000,env:{...process.env,GOWORK:'off',GOTOOLCHAIN:'local',...environment}});save(log,(r.stdout??'')+(r.stderr??''));if(r.error||r.signal||r.status!==0)throw Error('Reference execution failed: '+(r.error??r.stderr));}
+                                                                                                                                                                                                                                                                                                                                              ^
+
+Error: Reference execution failed: # github.com/microsoft/TypeScript/tsc/internal/parser [github.com/microsoft/TypeScript/tsc/internal/parser.test]
+../../../tools/fixture-harness/source_config_ast_oracle_test.go:12:166: cannot use d.Code() (value of type int32) as int value in argument to strconv.Itoa
+
+    at runGo (file:///workspace/scratch/daf3e6c2e318/tscs/tools/compare-source-config-ast.ts:31:335)
+    at file:///workspace/scratch/daf3e6c2e318/tscs/tools/compare-source-config-ast.ts:36:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:561:25)
+    at async node:internal/modules/esm/loader:647:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.22.1

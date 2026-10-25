@@ -1,0 +1,470 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "goVersion": "go version go1.27.3 linux/amd64",
+  "scannerSourceSha256": "48008100fb5a020748651e319c4dcc361c1a81ca06f8c3e0ed94d42dd0d1e6df",
+  "probeSha256": "2b2b971af272c21db79fb45f1d4d151adf3bce32012538541f9ac7a1143d056f",
+  "vectors": [
+    {
+      "id": "single/0/0",
+      "literal": "'a\\bz'",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a\bz"
+    },
+    {
+      "id": "single/0/1",
+      "literal": "'😀\\bz'",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀\bz"
+    },
+    {
+      "id": "single/1/0",
+      "literal": "'a\\tz'",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a\tz"
+    },
+    {
+      "id": "single/1/1",
+      "literal": "'😀\\tz'",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀\tz"
+    },
+    {
+      "id": "single/2/0",
+      "literal": "'a\\nz'",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a\nz"
+    },
+    {
+      "id": "single/2/1",
+      "literal": "'😀\\nz'",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀\nz"
+    },
+    {
+      "id": "single/3/0",
+      "literal": "'a\\vz'",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a\u000bz"
+    },
+    {
+      "id": "single/3/1",
+      "literal": "'😀\\vz'",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀\u000bz"
+    },
+    {
+      "id": "single/4/0",
+      "literal": "'a\\fz'",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a\fz"
+    },
+    {
+      "id": "single/4/1",
+      "literal": "'😀\\fz'",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀\fz"
+    },
+    {
+      "id": "single/5/0",
+      "literal": "'a\\rz'",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a\rz"
+    },
+    {
+      "id": "single/5/1",
+      "literal": "'😀\\rz'",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀\rz"
+    },
+    {
+      "id": "single/6/0",
+      "literal": "'a\\'z'",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a'z"
+    },
+    {
+      "id": "single/6/1",
+      "literal": "'😀\\'z'",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀'z"
+    },
+    {
+      "id": "single/7/0",
+      "literal": "'a\\\"z'",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a\"z"
+    },
+    {
+      "id": "single/7/1",
+      "literal": "'😀\\\"z'",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀\"z"
+    },
+    {
+      "id": "single/8/0",
+      "literal": "'a\\\\z'",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a\\z"
+    },
+    {
+      "id": "single/8/1",
+      "literal": "'😀\\\\z'",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀\\z"
+    },
+    {
+      "id": "single/9/0",
+      "literal": "'a\\/z'",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a/z"
+    },
+    {
+      "id": "single/9/1",
+      "literal": "'😀\\/z'",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀/z"
+    },
+    {
+      "id": "single/10/0",
+      "literal": "'a\\\rz'",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "az"
+    },
+    {
+      "id": "single/10/1",
+      "literal": "'😀\\\rz'",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀z"
+    },
+    {
+      "id": "single/11/0",
+      "literal": "'a\\\nz'",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "az"
+    },
+    {
+      "id": "single/11/1",
+      "literal": "'😀\\\nz'",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀z"
+    },
+    {
+      "id": "single/12/0",
+      "literal": "'a\\\r\nz'",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "az"
+    },
+    {
+      "id": "single/12/1",
+      "literal": "'😀\\\r\nz'",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "value": "😀z"
+    },
+    {
+      "id": "single/13/0",
+      "literal": "'a\\ z'",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "az"
+    },
+    {
+      "id": "single/13/1",
+      "literal": "'😀\\ z'",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀z"
+    },
+    {
+      "id": "single/14/0",
+      "literal": "'a\\ z'",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "az"
+    },
+    {
+      "id": "single/14/1",
+      "literal": "'😀\\ z'",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀z"
+    },
+    {
+      "id": "double/0/0",
+      "literal": "\"a\\bz\"",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a\bz"
+    },
+    {
+      "id": "double/0/1",
+      "literal": "\"😀\\bz\"",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀\bz"
+    },
+    {
+      "id": "double/1/0",
+      "literal": "\"a\\tz\"",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a\tz"
+    },
+    {
+      "id": "double/1/1",
+      "literal": "\"😀\\tz\"",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀\tz"
+    },
+    {
+      "id": "double/2/0",
+      "literal": "\"a\\nz\"",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a\nz"
+    },
+    {
+      "id": "double/2/1",
+      "literal": "\"😀\\nz\"",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀\nz"
+    },
+    {
+      "id": "double/3/0",
+      "literal": "\"a\\vz\"",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a\u000bz"
+    },
+    {
+      "id": "double/3/1",
+      "literal": "\"😀\\vz\"",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀\u000bz"
+    },
+    {
+      "id": "double/4/0",
+      "literal": "\"a\\fz\"",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a\fz"
+    },
+    {
+      "id": "double/4/1",
+      "literal": "\"😀\\fz\"",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀\fz"
+    },
+    {
+      "id": "double/5/0",
+      "literal": "\"a\\rz\"",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a\rz"
+    },
+    {
+      "id": "double/5/1",
+      "literal": "\"😀\\rz\"",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀\rz"
+    },
+    {
+      "id": "double/6/0",
+      "literal": "\"a\\'z\"",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a'z"
+    },
+    {
+      "id": "double/6/1",
+      "literal": "\"😀\\'z\"",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀'z"
+    },
+    {
+      "id": "double/7/0",
+      "literal": "\"a\\\"z\"",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a\"z"
+    },
+    {
+      "id": "double/7/1",
+      "literal": "\"😀\\\"z\"",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀\"z"
+    },
+    {
+      "id": "double/8/0",
+      "literal": "\"a\\\\z\"",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a\\z"
+    },
+    {
+      "id": "double/8/1",
+      "literal": "\"😀\\\\z\"",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀\\z"
+    },
+    {
+      "id": "double/9/0",
+      "literal": "\"a\\/z\"",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a/z"
+    },
+    {
+      "id": "double/9/1",
+      "literal": "\"😀\\/z\"",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀/z"
+    },
+    {
+      "id": "double/10/0",
+      "literal": "\"a\\\rz\"",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "az"
+    },
+    {
+      "id": "double/10/1",
+      "literal": "\"😀\\\rz\"",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀z"
+    },
+    {
+      "id": "double/11/0",
+      "literal": "\"a\\\nz\"",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "az"
+    },
+    {
+      "id": "double/11/1",
+      "literal": "\"😀\\\nz\"",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀z"
+    },
+    {
+      "id": "double/12/0",
+      "literal": "\"a\\\r\nz\"",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "az"
+    },
+    {
+      "id": "double/12/1",
+      "literal": "\"😀\\\r\nz\"",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "value": "😀z"
+    },
+    {
+      "id": "double/13/0",
+      "literal": "\"a\\ z\"",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "az"
+    },
+    {
+      "id": "double/13/1",
+      "literal": "\"😀\\ z\"",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀z"
+    },
+    {
+      "id": "double/14/0",
+      "literal": "\"a\\ z\"",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "az"
+    },
+    {
+      "id": "double/14/1",
+      "literal": "\"😀\\ z\"",
+      "tokenEndUtf16": 7,
+      "unterminated": false,
+      "value": "😀z"
+    },
+    {
+      "id": "mixed/0/0",
+      "literal": "'a\\n\\t\\\\b'",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "value": "a\n\t\\b"
+    },
+    {
+      "id": "mixed/0/1",
+      "literal": "'a\\\r\n\\n\\ z'",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "value": "a\nz"
+    },
+    {
+      "id": "mixed/0/2",
+      "literal": "'\\b\\t\\n\\v\\f\\r'",
+      "tokenEndUtf16": 14,
+      "unterminated": false,
+      "value": "\b\t\n\u000b\f\r"
+    },
+    {
+      "id": "mixed/1/0",
+      "literal": "\"a\\n\\t\\\\b\"",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "value": "a\n\t\\b"
+    },
+    {
+      "id": "mixed/1/1",
+      "literal": "\"a\\\r\n\\n\\ z\"",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "value": "a\nz"
+    },
+    {
+      "id": "mixed/1/2",
+      "literal": "\"\\b\\t\\n\\v\\f\\r\"",
+      "tokenEndUtf16": 14,
+      "unterminated": false,
+      "value": "\b\t\n\u000b\f\r"
+    }
+  ]
+}

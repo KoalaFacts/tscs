@@ -1,0 +1,38 @@
+failed Tscs.Tests.CommandLineTests.UnportedJsonIdentifierClassificationHasUnsupportedExit (1ms)
+  Assert.Equal() Failure: Values differ
+  Expected: 1
+  Actual:   2
+    at Tscs.Tests.CommandLineTests.UnportedJsonIdentifierClassificationHasUnsupportedExit() in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/CommandLineTests.cs:73
+    at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+    at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+failed Tscs.Tests.JsonAstTests.UnportedUnicodeUnquotedNamesStayExplicitlyUnsupported(name: "漢") (1ms)
+  Assert.Contains() Failure: Filter not matched in collection
+  Collection: [Diagnostic { Code = TS1327, Category = error, File = tsconfig.json, Start = 1, Length = 1, Message = String literal with double quotes expected., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }]
+    at Tscs.Tests.JsonAstTests.UnportedUnicodeUnquotedNamesStayExplicitlyUnsupported(String name) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonAstTests.cs:36
+    at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+    at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+failed Tscs.Tests.JsonAstTests.UnportedUnicodeUnquotedNamesStayExplicitlyUnsupported(name: "ⸯ") (0ms)
+  Assert.Contains() Failure: Filter not matched in collection
+  Collection: [Diagnostic { Code = TS1327, Category = error, File = tsconfig.json, Start = 1, Length = 1, Message = String literal with double quotes expected., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }]
+    at Tscs.Tests.JsonAstTests.UnportedUnicodeUnquotedNamesStayExplicitlyUnsupported(String name) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonAstTests.cs:36
+    at InvokeStub_JsonAstTests.UnportedUnicodeUnquotedNamesStayExplicitlyUnsupported(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonAstTests.UnportedUnicodeUnquotedNamesStayExplicitlyUnsupported(name: "aⸯ") (0ms)
+  Assert.Contains() Failure: Filter not matched in collection
+  Collection: [Diagnostic { Code = TS1327, Category = error, File = tsconfig.json, Start = 1, Length = 2, Message = String literal with double quotes expected., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }]
+    at Tscs.Tests.JsonAstTests.UnportedUnicodeUnquotedNamesStayExplicitlyUnsupported(String name) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonAstTests.cs:36
+    at InvokeStub_JsonAstTests.UnportedUnicodeUnquotedNamesStayExplicitlyUnsupported(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonAstTests.UnportedUnicodeUnquotedNamesStayExplicitlyUnsupported(name: "é") (0ms)
+  Assert.Contains() Failure: Filter not matched in collection
+  Collection: [Diagnostic { Code = TS1327, Category = error, File = tsconfig.json, Start = 1, Length = 1, Message = String literal with double quotes expected., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }]
+    at Tscs.Tests.JsonAstTests.UnportedUnicodeUnquotedNamesStayExplicitlyUnsupported(String name) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonAstTests.cs:36
+    at InvokeStub_JsonAstTests.UnportedUnicodeUnquotedNamesStayExplicitlyUnsupported(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Test run summary: Failed! - /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+  total: 8592
+  failed: 5
+  succeeded: 8587
+  skipped: 0
+  duration: 3s 783ms

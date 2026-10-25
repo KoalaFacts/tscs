@@ -1,0 +1,33 @@
+✔ no config is NOT_APPLICABLE and never compiler acceptance (2.890715ms)
+✔ syntax errors and unsupported grammar cannot earn clean MATCH (1.060878ms)
+✔ AST differences and source/selection bindings remain visible (0.885213ms)
+✔ strict schema rejects malformed bytes, ranges and extra fields (0.211859ms)
+✖ malformed envelope and duplicate identities cannot produce accepted evidence (0.72346ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 4
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 157.942927
+
+✖ failing tests:
+
+test at tools/source-config-ast.test.ts:29:1
+✖ malformed envelope and duplicate identities cannot produce accepted evidence (0.72346ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-ast.test.ts:31:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /envelope/,
+    operator: 'throws',
+    diff: 'simple'
+  }

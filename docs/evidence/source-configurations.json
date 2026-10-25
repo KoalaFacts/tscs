@@ -1,0 +1,333 @@
+{
+  "date": "2026-10-25",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "upstreamVersion": "7.1.0-dev",
+  "baseCommit": "a15f82139373981e8827d45db1c2b26b8829b56b",
+  "profile": "source-settings/canonical-configurations/runner-fallback",
+  "counts": {
+    "sources": 13006,
+    "compilerSources": 12981,
+    "transpileSources": 25,
+    "upstreamSkippedSources": 42,
+    "nonRawUtf8Sources": 8,
+    "helperRecords": 15504,
+    "runnerConfigurations": 15523,
+    "nilHelperSources": 19,
+    "unequal": 0,
+    "MATCH": 12999,
+    "MISMATCH": 0,
+    "UNSUPPORTED": 0,
+    "REFERENCE_PANIC": 0,
+    "REFERENCE_FATAL": 7,
+    "CRASH": 0
+  },
+  "boundary": {
+    "inputs": 36,
+    "normal": 30,
+    "panic": 1,
+    "fatal": 3,
+    "unsupported": 2,
+    "testMethod": "Tscs.Tests.FixtureSourceConfigurationTests.SourceSettingsAndRunnerFallbackMatchPinnedGo",
+    "testIds": [
+      "empty/compiler",
+      "empty/transpile",
+      "duplicate/compiler",
+      "duplicate/transpile",
+      "whole/compiler",
+      "whole/transpile",
+      "trailing/compiler",
+      "trailing/transpile",
+      "emptyaxis/compiler",
+      "emptyaxis/transpile",
+      "scalar/compiler",
+      "scalar/transpile",
+      "star/compiler",
+      "star/transpile",
+      "error/compiler",
+      "error/transpile",
+      "panic/compiler",
+      "panic/transpile",
+      "cap/compiler",
+      "cap/transpile",
+      "ascii/compiler",
+      "ascii/transpile",
+      "trim/compiler",
+      "trim/transpile",
+      "invalid-body/compiler",
+      "invalid-body/transpile",
+      "transpile-empty-axis/compiler",
+      "transpile-empty-axis/transpile",
+      "invalid-setting/compiler",
+      "invalid-setting/transpile",
+      "utf8bom/compiler",
+      "utf8bom/transpile",
+      "utf16le/compiler",
+      "utf16le/transpile",
+      "utf16be/compiler",
+      "utf16be/transpile"
+    ]
+  },
+  "blockedSources": [
+    {
+      "id": "source-configuration-profile:35d43ba391709a3e595e4f7899054eb702f66ef3b9adbe12e0b6427965e42368",
+      "sourceId": "fixture:801917939ec326191171e961b0020bd8d16eda596a1e40f7924318e42d0ab5c7",
+      "path": "tsc/testdata/tests/cases/compiler/moduleNoneDynamicImport.ts",
+      "rawSha256": "d3b030b5de5bda148dcd6470cc8c716922aa84fb5697246b1cf6af27435eb927",
+      "status": "REFERENCE_FATAL",
+      "upstreamSelection": {
+        "status": "UPSTREAM_SKIPPED",
+        "policy": {
+          "assetId": "asset:fa054797c12b5ada82dc02bb70c100b92a89bdbc3ae14591ac4053565957f043",
+          "declaration": "skippedTests",
+          "line": 79
+        }
+      },
+      "reason": "Actual pinned helper: Unknown value 'none' for option 'module'"
+    },
+    {
+      "id": "source-configuration-profile:8794bcb86c34b89c77eeb91c52b4a4dbd4f50de2f7fb5a7150e0672e2f2f2027",
+      "sourceId": "fixture:b231cf2b5079b95ce14d59b1386c279c4bc01a7070a9c40446627408d547f3f5",
+      "path": "tsc/testdata/tests/cases/compiler/moduleNoneErrors.ts",
+      "rawSha256": "eb32767bebdccab389e5dd3735402c9554277698abbb310404686368e0d5c6fa",
+      "status": "REFERENCE_FATAL",
+      "upstreamSelection": {
+        "status": "UPSTREAM_SKIPPED",
+        "policy": {
+          "assetId": "asset:fa054797c12b5ada82dc02bb70c100b92a89bdbc3ae14591ac4053565957f043",
+          "declaration": "skippedTests",
+          "line": 79
+        }
+      },
+      "reason": "Actual pinned helper: Unknown value 'none' for option 'module'"
+    },
+    {
+      "id": "source-configuration-profile:dc584cade3f4d0378d220610c5c78c1c95542eb5a880403a38d08184417196c3",
+      "sourceId": "fixture:64c289360aef121013c2622b4ea8d20efbeb715578954fea99e89b5a576408af",
+      "path": "tsc/testdata/tests/cases/compiler/noErrorUsingImportExportModuleAugmentationInDeclarationFile1.ts",
+      "rawSha256": "3d7404eef9e7adf06bb0eab9b2b1546d35af8eabe1b58f8635699b4e9d8704e1",
+      "status": "REFERENCE_FATAL",
+      "upstreamSelection": {
+        "status": "UPSTREAM_SKIPPED",
+        "policy": {
+          "assetId": "asset:fa054797c12b5ada82dc02bb70c100b92a89bdbc3ae14591ac4053565957f043",
+          "declaration": "skippedTests",
+          "line": 79
+        }
+      },
+      "reason": "Actual pinned helper: Unknown value 'none' for option 'module'"
+    },
+    {
+      "id": "source-configuration-profile:b1071881007ab60a132c90cc8a6463ac2eb52d41f345e7e9fd785d7a9034fbcf",
+      "sourceId": "fixture:7dad531a23631b8cd70dca00dba9e3947506ab4b7f8c72cac189385b9f32c17f",
+      "path": "tsc/testdata/tests/cases/compiler/noErrorUsingImportExportModuleAugmentationInDeclarationFile2.ts",
+      "rawSha256": "345f225117e28f99baa29f533d48640d1e9a68e61f31eae2537e121edd40d0fd",
+      "status": "REFERENCE_FATAL",
+      "upstreamSelection": {
+        "status": "UPSTREAM_SKIPPED",
+        "policy": {
+          "assetId": "asset:fa054797c12b5ada82dc02bb70c100b92a89bdbc3ae14591ac4053565957f043",
+          "declaration": "skippedTests",
+          "line": 79
+        }
+      },
+      "reason": "Actual pinned helper: Unknown value 'none' for option 'module'"
+    },
+    {
+      "id": "source-configuration-profile:e4b5924a2363cbafbf98dddddcc0a1fdb702995b69dc3f3d861eb1c22e057a97",
+      "sourceId": "fixture:8257f2eeffe9cd1807cb50c7bd55057619c1c805f17927f1108c8029baa2b308",
+      "path": "tsc/testdata/tests/cases/compiler/noErrorUsingImportExportModuleAugmentationInDeclarationFile3.ts",
+      "rawSha256": "7d2bda3af86c8a3f05be96a56ad406728a73c97a84b0698bec36ca15a3846da8",
+      "status": "REFERENCE_FATAL",
+      "upstreamSelection": {
+        "status": "UPSTREAM_SKIPPED",
+        "policy": {
+          "assetId": "asset:fa054797c12b5ada82dc02bb70c100b92a89bdbc3ae14591ac4053565957f043",
+          "declaration": "skippedTests",
+          "line": 79
+        }
+      },
+      "reason": "Actual pinned helper: Unknown value 'none' for option 'module'"
+    },
+    {
+      "id": "source-configuration-profile:caf7dbf681c3501d6359c2c410f7a9b833a1b263a95478870ba0245a1ae208cd",
+      "sourceId": "fixture:45c946da75ddd9819e931ccd01d1d7f72965ceae06887200feab039cf737279b",
+      "path": "tsc/testdata/tests/cases/compiler/requireOfJsonFileWithModuleEmitNone.ts",
+      "rawSha256": "b6c25a72112bb3e0667f76378b9f64af6d31552901d17b11c66e4d3d5e66ae5b",
+      "status": "REFERENCE_FATAL",
+      "upstreamSelection": {
+        "status": "UPSTREAM_SKIPPED",
+        "policy": {
+          "assetId": "asset:fa054797c12b5ada82dc02bb70c100b92a89bdbc3ae14591ac4053565957f043",
+          "declaration": "skippedTests",
+          "line": 79
+        }
+      },
+      "reason": "Actual pinned helper: Unknown value 'none' for option 'module'"
+    },
+    {
+      "id": "source-configuration-profile:dc33cb5527e5385478f36f752e1b52d4d714205c3f42440cc32db77cde11740c",
+      "sourceId": "fixture:da9d9c71296b8f72440a0b702e7c442248f2a8c648561d6738b2e03d010805ce",
+      "path": "tsc/testdata/tests/cases/compiler/requireOfJsonFileWithModuleNodeResolutionEmitNone.ts",
+      "rawSha256": "a3bb05041e01dde35e919ed6e48fe59104e16bd77f2ab4afec4c93c108e40c88",
+      "status": "REFERENCE_FATAL",
+      "upstreamSelection": {
+        "status": "UPSTREAM_SKIPPED",
+        "policy": {
+          "assetId": "asset:fa054797c12b5ada82dc02bb70c100b92a89bdbc3ae14591ac4053565957f043",
+          "declaration": "skippedTests",
+          "line": 79
+        }
+      },
+      "reason": "Actual pinned helper: Unknown value 'none' for option 'module'"
+    }
+  ],
+  "validation": {
+    "releaseBuild": "PASS: zero warnings/errors",
+    "directXunitMtp": {
+      "passed": 7434,
+      "failed": 0,
+      "skipped": 0
+    },
+    "node": {
+      "passed": 69,
+      "failed": 0
+    },
+    "frozenCohort": {
+      "passed": 29,
+      "changed": false
+    },
+    "goScopeTests": "PASS",
+    "sdkTestOrchestration": "NOT_RUN",
+    "referenceExit": 1,
+    "expectedGoFailuresVerified": true,
+    "fullsourceFailedTestEvents": 8,
+    "boundaryFailedTestEvents": 4,
+    "repeat": "Two final same-source runs: requests/reference/actual/results byte-identical; each of seven artifacts matches its manifest. Golden and embedded policy also byte-identical. Summary/build timing is not compared."
+  },
+  "review": {
+    "scope": "Source extraction/helper, mirrored fallback, strict transport/bindings and complete source evidence; actual full original runners/compiler assertions not executed",
+    "additionalIndependentProfiles": 96,
+    "MATCH": 86,
+    "UNSUPPORTED": 10,
+    "unequal": 0,
+    "finding": "Inventory runner label trusted rather than pinned path; strengthened path/domain binding",
+    "regression": "Node missing rejection RED1/3 -> fixed; full Node69/69",
+    "secondReview": false
+  },
+  "sourceHashes": {
+    "tools/ts7-scope.ts": "38899954e2e857391dd8ad827a2e19aeb4719b1f27bb6e31826b49e2acfafb6d",
+    "tools/fixture-corpus.ts": "8a6481be4d5ee7eed2cba7b1596af21f82bbc1715f3e97b84dcda9ff709db83f",
+    "tools/Tscs.FixtureHarness/Program.cs": "8072b99bf395ccd665fb0741ced3c2ef1aef8c5955aec7969b913da5d6751e82",
+    "tools/compare-source-configurations.ts": "c9f61f2413ff6ceef4bce2124d07abbfedc0b80a802ea3f9fda572e2fa88960f",
+    "tools/source-configurations.ts": "a1cd37fd25aec61b611ea64e02487bfce5a9cd0fb547687ace64a47ac9018efd",
+    "tools/fixture-harness/source_configurations_oracle_test.go": "66bfcc465eaf38ba4535a16426f9f655e2ee0ed19debeafc274739bd45bb1d1d",
+    "tools/fixture-harness/configuration-policy.json": "828c2aae66bdea5e959841eb34f6a10f30ca6bad4a8f2480cdffd44b7e5d377f",
+    "tools/fixture-harness/FixtureSourceConfigurations.cs": "d6eb7dad0eba94152ff02df0c70759174935812d0925fc65e35be541c7724444",
+    "tools/fixture-harness/FixtureConfigurations.cs": "e658072efe8dae52595355dbff00fa4feb0111cd4ad84d3bcbbed03fc152f5e8",
+    "tools/fixture-harness/FixtureOptionValues.cs": "e2d46ae4ed499e0e2257a207c6fbb6c709a4e26512da50dc320c7562844ddda2",
+    "tools/fixture-harness/PinnedGoLowercase.cs": "f2eeee2403d24c0f3b64a00b88d5132f9658973b37da07ea3dc7b2fa65dfa42a",
+    "tools/fixture-harness/go-lowercase.json": "1dfb6b7429ec7ead9adc38f1623f519d843ea6ed13d736361897061d174cc6eb",
+    "tools/fixture-harness/FixtureDirectives.cs": "2b4b7c1203c24902e81b2c5dc76fd7ed47ae13134e97449d634acc436bffe1ee",
+    "tools/fixture-harness/FixtureProtocol.cs": "ad8913b9d867e7d6d6dbfb6c1b0f5e83d19b03ca1b4ed0c2a90de88bdea7ec0d",
+    "src/Tscs.Compiler/SourceDecoder.cs": "953d444e7884bc6293a76a4e4469304e34c7168974d906db5bfa1dcc0f005cf9",
+    "tools/Tscs.FixtureHarness/Tscs.FixtureHarness.csproj": "a7e4b32c777a2612d4868ef552cf9cd4b5ec90aa60eda884c60ef699c4df48a7",
+    "Directory.Build.props": "13732ce9bcf14f2065948951e50572ef87f93d1d4c6726ce1b71b8efd1bbb92d",
+    "global.json": "6cac8ed8559756539f2db0e8cbf6d545ccc81d3d4b1ebbfcf3ee204d218847b4",
+    "tools/generate-source-configurations.ts": "b508e983aed233b303395628ac685b9a38a0ff2633cdd95cde14927b02c974fe",
+    "tests/Tscs.Compiler.Tests/FixtureSourceConfigurationTests.cs": "e76bf8c145d4a861195830d9a8d945697f00eb660c939ae1d078d7288be06e77",
+    "tests/Tscs.Compiler.Tests/TestData/source-configurations.json": "1d8300c1a83e3277d8b0168a8d2cf1c1520d56c2239c74f864abd2451644d59b",
+    "tools/source-configurations.test.ts": "e8b9017c9873a72ebcbd2264104697e49a41a65e96563632fa36aa86d62786be",
+    "tests/Tscs.Compiler.Tests/Tscs.Compiler.Tests.csproj": "cf276bb2544c90489707e5e88cb9fa7471d5c1606c9d04c0eea131204031d8e1"
+  },
+  "referenceHashes": {
+    "tsc/internal/testrunner/test_case_parser.go": "03578c4d35165ee461f4e0488855ffb534eea9a5c598887b255f60817c07d34f",
+    "tsc/internal/testrunner/compiler_runner.go": "1d0fe0e64d74bb1993de04851c86e108553ee4bbeb4dcde580e1c1820a89c3fa",
+    "tsc/internal/testrunner/transpile_runner.go": "d273f976c9a84a7796d227ba98f75745ce71530a0262dc6885ea442cfafdaae2",
+    "tsc/internal/testrunner/options_generated.go": "ec1f8e29fc24155d717d717b90089208d771923465f1ff7eb67c80cb2fc89451",
+    "tsc/internal/testutil/harnessutil/harnessutil.go": "170d8cf5fdd5e146113411c4526a2c409a28e78a17ac23912feae581af50271d",
+    "tsc/internal/tsoptions/declarations_generated.go": "8f414711280dc2e88abdb480bf6d823beae435eedb9161199fdf3b08a3ea33ff",
+    "tsc/internal/vfs/internal/internal.go": "2d641c466808f1417e4e20d46aa4beb7f9dcc1bc5fd872a5d134fb3ae56d1def"
+  },
+  "assemblies": {
+    "Tscs.FixtureHarness.dll": "be49024f2b74b1f196874aae63522b25404852539903fa3be1943bfe3b8219ba",
+    "Tscs.Compiler.dll": "873f108a20b5e32d4849f2935881e4f2cc49e3018cea1875ade3f1964a04afd6"
+  },
+  "versions": {
+    "sdk": "10.0.402",
+    "runtime": "10.0.13",
+    "go": "go version go1.27.3 linux/amd64",
+    "node": "v24.22.1",
+    "xunit": "4.0.2",
+    "mtp": "2.5.1"
+  },
+  "commands": [
+    "DOTNET_CLI_TELEMETRY_OPTOUT=1 dotnet build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false",
+    "dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 7434",
+    "node --test tools/*.test.ts",
+    "node tools/verify-conformance.ts",
+    "go test tools/scope-go/main.go tools/scope-go/main_test.go",
+    "node tools/generate-source-configurations.ts .artifacts/ts7-upstream NEW_OUTPUT",
+    "node tools/compare-source-configurations.ts .artifacts/ts7-upstream .artifacts/ts7-scope NEW_OUTPUT"
+  ],
+  "environment": {
+    "dotnetTelemetry": "DOTNET_CLI_TELEMETRY_OPTOUT=1",
+    "goTelemetry": "XDG_CONFIG_HOME=/tmp/tscs-offline-config with actual go/telemetry/mode=off; go env verified off",
+    "dependencies": "GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local; cached no-restore builds; Node subprocess restore uses local empty feed/NuGetAudit=false"
+  },
+  "rawArchive": {
+    "libraryFileId": "libfile_bc0f70bc02cc8191bb14c3b962ff0072",
+    "file": "tscs-source-configurations-evidence-2026-10-25.tar.gz",
+    "bytes": 10815613,
+    "sha256": "4a11e9a0452607285bb7e453db0276f656c3bfc47bcd84e4daff5d18efae4835",
+    "profileDirectory": "source-config-verified-repeat",
+    "artifacts": [
+      {
+        "path": "requests.json",
+        "sha256": "5e8f18d908b1ab17e8d387d2ed7686a770e74f46204267c8c7641387deb773b3",
+        "bytes": 13923866
+      },
+      {
+        "path": "reference.json",
+        "sha256": "1cec70c16dd3b46d6a88e0a4d238694445d25927f46abab35ee8103145873c90",
+        "bytes": 23484291
+      },
+      {
+        "path": "reference.log",
+        "sha256": "1e8fe381dbfb38d4edd5bc0db0ff9da479a952f63a6d8c1ee2f9626e30328cd0",
+        "bytes": 18792086
+      },
+      {
+        "path": "actual.jsonl",
+        "sha256": "ebbbc070898ced057a0f03998e84630b3c47ff49258b3199f24a143fc386537e",
+        "bytes": 5910260
+      },
+      {
+        "path": "actual.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "results.jsonl",
+        "sha256": "80330365c0f0ef7f123bcffa0ec3fc10c2dc3506b8380955d51dafcfd7b631bb",
+        "bytes": 14217317
+      },
+      {
+        "path": "build.log",
+        "sha256": "66904bdc383440d3550a1b79b12d5ac7a67ec9b249eab34c04fc83eea1a2a5d7",
+        "bytes": 320
+      }
+    ]
+  },
+  "excludedAttempt": "source-config-final-repeat actual.jsonl observed truncated after run: 4875574 bytes/10771 rows versus manifest5910260/13006. This copy is excluded. Final source-config-verified and verified-repeat were completed and manifest-validated, with identical four payloads. Cause unconfirmed.",
+  "compiler": "NOT_RUN",
+  "referenceCompiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "releaseEligible": false,
+  "concreteCases": null,
+  "limitations": [
+    "Runner fallback is mirrored from pinned source; original runners/AST/effective options/compiler assertions not executed",
+    "Settings retain raw bytes; invalid UTF8 setting values remain UNSUPPORTED",
+    "All upstream skipped sources retained; source configuration records are not executable runtime cases",
+    "Go map enumeration normalized; mixed fatal/panic error precedence not deterministic"
+  ]
+}

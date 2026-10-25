@@ -34,6 +34,13 @@ public static class CommandLine
             else foreach(var d in diagnostics)stdout.WriteLine(Format(d,codeFiles[0].Text));
             return exitCode;
         }
+        catch(ConfigSyntaxFailure error)
+        {
+            int exitCode=error.Diagnostics.Any(d=>d.Code.StartsWith("TSCS",StringComparison.Ordinal))?1:2;
+            if(json)stdout.WriteLine(JsonSerializer.Serialize(new{diagnostics=error.Diagnostics.Select(d=>d with{File=Path.GetFileName(d.File)}),exitCode},JsonOptions));
+            else foreach(var d in error.Diagnostics)stdout.WriteLine(Format(d,error.Text));
+            return exitCode;
+        }
         catch(Exception error) when(error is InputFailure or IOException or UnauthorizedAccessException or JsonException or ArgumentException)
         {
             var d=new Diagnostic("TSCS1002","error","",0,0,error.Message,[],[]);

@@ -7,9 +7,9 @@ import {parseTree,classifyAsset,sha256,stableId} from './ts7-scope.ts';
 import {reconcileResults,buildFixtureHarness,validateReferenceBindings} from './fixture-corpus.ts';
 
 const [upstreamArg,inventoryArg,outputArg,profileArg]=process.argv.slice(2);
-if(!upstreamArg||!inventoryArg||!outputArg||process.argv.length>6||profileArg!==undefined&&profileArg!=='file-map')
- throw Error('Usage: node tools/compare-fixture-corpus.ts CLEAN_PINNED_CHECKOUT INVENTORY NEW_OUTPUT [file-map]');
-const mapProfile=profileArg==='file-map';
+if(!upstreamArg||!inventoryArg||!outputArg||process.argv.length>6||profileArg!==undefined&&!['file-map','construction'].includes(profileArg))
+ throw Error('Usage: node tools/compare-fixture-corpus.ts CLEAN_PINNED_CHECKOUT INVENTORY NEW_OUTPUT [file-map|construction]');
+const mapProfile=profileArg==='file-map',constructionProfile=profileArg==='construction',projected=mapProfile||constructionProfile;
 const upstream=resolve(upstreamArg),inventory=resolve(inventoryArg),output=resolve(outputArg);
 const pin=JSON.parse(readFileSync('upstream.lock.json','utf8')).commit;
 if(pin!=='8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f')throw Error('Reference pin needs separate review');
@@ -33,16 +33,16 @@ const requests=tree.map(e=>{
  if(e.type!=='blob'||!['100644','100755'].includes(e.mode)||!lstatSync(path).isFile())throw Error('Unexpected fixture asset mode');
  const bytes=readFileSync(path),oid=createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
  if(oid!==e.oid||sha256(bytes)!==f.rawSha256||f.id!==stableId(stableId(pin,'asset',e.path),'fixture',e.path))throw Error('Source bytes/identity mismatch: '+e.path);
- return {id:f.id,input:bytes.toString('base64'),fileName:Buffer.from(e.path).toString('base64'),implicit:false,failAt:0,returnNil:false,...(mapProfile?{profile:'file-map'}:{})};
+ return {id:f.id,input:bytes.toString('base64'),fileName:Buffer.from(e.path).toString('base64'),implicit:false,failAt:0,returnNil:false,...(projected?{profile:profileArg}:{})};
 });
 mkdirSync(output,{recursive:true});
 const save=(name,bytes)=>writeFileSync(join(output,name),bytes,{flag:'wx'});
 buildFixtureHarness(dotnet,resolve('tools/Tscs.FixtureHarness/Tscs.FixtureHarness.csproj'),join(output,'build.log'));
 save('requests.json',JSON.stringify(requests));
-const probe=resolve(mapProfile?'tools/fixture-harness/map_oracle_test.go':'tools/fixture-harness/state_oracle_test.go'),overlay=join(output,'overlay.json');
-save('overlay.json',JSON.stringify({Replace:{[join(upstream,'tsc/internal/testrunner/tscs_state_oracle_test.go')]:resolve('tools/fixture-harness/state_oracle_test.go'),...(mapProfile?{[join(upstream,'tsc/internal/testrunner/tscs_map_oracle_test.go')]:probe}:{})}}));
+const probe=resolve(constructionProfile?'tools/fixture-harness/construction_oracle_test.go':mapProfile?'tools/fixture-harness/map_oracle_test.go':'tools/fixture-harness/state_oracle_test.go'),overlay=join(output,'overlay.json');
+save('overlay.json',JSON.stringify({Replace:{[join(upstream,'tsc/internal/testrunner/tscs_state_oracle_test.go')]:resolve('tools/fixture-harness/state_oracle_test.go'),...(projected?{[join(upstream,'tsc/internal/testrunner/tscs_map_oracle_test.go')]:resolve('tools/fixture-harness/map_oracle_test.go')}:{ }),...(constructionProfile?{[join(upstream,'tsc/internal/testrunner/tscs_construction_oracle_test.go')]:probe}:{})}}));
 const refPath=join(output,'reference.json');
-const ref=spawnSync(go,['test','-overlay',overlay,'-run',mapProfile?'^TestTscsFileMapOracle$':'^TestTscsFixtureStateOracle$','-count=1','./internal/testrunner'],
+const ref=spawnSync(go,['test','-overlay',overlay,'-run',constructionProfile?'^TestTscsConstructionOracle$':mapProfile?'^TestTscsFileMapOracle$':'^TestTscsFixtureStateOracle$','-count=1','./internal/testrunner'],
  {cwd:join(upstream,'tsc'),encoding:'utf8',timeout:180000,env:{...process.env,GOTOOLCHAIN:'local',GOWORK:'off',TSCS_STATE_INPUT:join(output,'requests.json'),TSCS_STATE_OUTPUT:refPath}});
 save('reference.log',(ref.stdout??'')+(ref.stderr??''));
 if(ref.error||ref.status!==0||ref.signal)throw Error('Go oracle failed: '+(ref.error??ref.stderr));
@@ -53,22 +53,23 @@ finally{closeSync(fd);}
 save('actual.log',actual.stderr??'');
 if(actual.error||actual.status!==0||actual.signal)throw Error('C# runner failed: '+(actual.error??actual.stderr));
 const reference=JSON.parse(readFileSync(refPath,'utf8'));validateReferenceBindings(requests,reference);
-const results=reconcileResults(fixtures.map(f=>({id:f.id,path:f.path,rawSha256:f.rawSha256,upstreamSelection:f.upstreamSelection})),jsonl(actualPath),reference,mapProfile?'file-map':'raw');
+const results=reconcileResults(fixtures.map(f=>({id:f.id,path:f.path,rawSha256:f.rawSha256,upstreamSelection:f.upstreamSelection})),jsonl(actualPath),reference,profileArg??'raw');
 save('results.jsonl',results.map(r=>JSON.stringify(r)).join('\n')+'\n');
 const counts={sources:results.length,rawUnits:0,callbacks:0,upstreamSkippedSources:results.filter(r=>r.upstreamSelection.status==='UPSTREAM_SKIPPED').length};
-for(const row of jsonl(actualPath)){counts.rawUnits+=mapProfile?row.expected.unitCount??0:row.expected.units?.length??0;counts.callbacks+=mapProfile?row.expected.unitCount??0:row.expected.calls??0;}
-for(const status of ['MATCH','MISMATCH','REFERENCE_PANIC','REFERENCE_ERROR','CRASH'])counts[status]=results.filter(r=>r.loading===status).length;
+if(!constructionProfile)for(const row of jsonl(actualPath)){counts.rawUnits+=mapProfile?row.expected.unitCount??0:row.expected.units?.length??0;counts.callbacks+=mapProfile?row.expected.unitCount??0:row.expected.calls??0;}
+for(const status of ['MATCH','MISMATCH','UNSUPPORTED','REFERENCE_PANIC','REFERENCE_ERROR','CRASH'])counts[status]=results.filter(r=>r.loading===status).length;
+if(constructionProfile){counts.rawUnits=null;counts.callbacks=null;counts.queries=jsonl(actualPath).reduce((n,r)=>n+(r.expected.queries?.length??0),0);counts.unequal=results.filter(r=>!r.equal).length;}
 if(mapProfile){const rows=jsonl(actualPath);counts.fileEntries=rows.reduce((n,r)=>n+(r.expected.files?.length??0),0);counts.links=rows.reduce((n,r)=>n+(r.expected.links?.length??0),0);}
 const artifactNames=['requests.json','reference.json','actual.jsonl','results.jsonl','build.log','reference.log','actual.log'];
-const sourceFiles=['tools/compare-fixture-corpus.ts','tools/fixture-corpus.ts','tools/fixture-harness/FixtureFileMap.cs','tools/fixture-harness/FixturePaths.cs','tools/fixture-harness/map_oracle_test.go','tools/fixture-harness/state_oracle_test.go','tools/fixture-harness/FixtureProtocol.cs','tools/fixture-harness/FixtureLoader.cs','tools/fixture-harness/FixtureTrivia.cs','tools/fixture-harness/FixtureDirectives.cs','src/Tscs.Compiler/SourceDecoder.cs','tools/Tscs.FixtureHarness/Program.cs','tools/Tscs.FixtureHarness/Tscs.FixtureHarness.csproj','Directory.Build.props','global.json'];
-const sourcePaths=['tsc/internal/testrunner/compiler_runner.go','tsc/internal/tsoptions/tsoptionstest/vfs.go','tsc/internal/testrunner/test_case_parser.go','tsc/internal/scanner/scanner.go','tsc/internal/tspath/path.go','tsc/internal/vfs/internal/internal.go'];
-const report={upstreamCommit:pin,profile:mapProfile?'file-map/default-options/rooted-files-and-link-projections':'raw/default-options/unit-snapshot-callback',scope:'all selected compiler/conformance/transpile source fixtures including upstream skips',
+const sourceFiles=['tools/fixture-harness/FixtureConstruction.cs','tools/fixture-harness/FixtureVfs.cs','tools/fixture-harness/construction_oracle_test.go','tools/compare-fixture-corpus.ts','tools/fixture-corpus.ts','tools/fixture-harness/FixtureFileMap.cs','tools/fixture-harness/FixturePaths.cs','tools/fixture-harness/map_oracle_test.go','tools/fixture-harness/state_oracle_test.go','tools/fixture-harness/FixtureProtocol.cs','tools/fixture-harness/FixtureLoader.cs','tools/fixture-harness/FixtureTrivia.cs','tools/fixture-harness/FixtureDirectives.cs','src/Tscs.Compiler/SourceDecoder.cs','tools/Tscs.FixtureHarness/Program.cs','tools/Tscs.FixtureHarness/Tscs.FixtureHarness.csproj','Directory.Build.props','global.json'];
+const sourcePaths=['tsc/internal/vfs/vfstest/vfstest.go','tsc/internal/vfs/iovfs/iofs.go','tsc/internal/testrunner/compiler_runner.go','tsc/internal/tsoptions/tsoptionstest/vfs.go','tsc/internal/testrunner/test_case_parser.go','tsc/internal/scanner/scanner.go','tsc/internal/tspath/path.go','tsc/internal/vfs/internal/internal.go'];
+const report={upstreamCommit:pin,profile:constructionProfile?'construction/default-options/case-sensitive/raw-map-factory-queries':mapProfile?'file-map/default-options/rooted-files-and-link-projections':'raw/default-options/unit-snapshot-callback',scope:'all selected compiler/conformance/transpile source fixtures including upstream skips',
  counts,goVersion,nodeVersion:process.version,dotnetSdk:execFileSync(dotnet,['--version'],{encoding:'utf8'}).trim(),
  sourceHashes:Object.fromEntries(sourceFiles.map(p=>[p,sha256(readFileSync(p))])),referenceHashes:Object.fromEntries(sourcePaths.map(p=>[p,sha256(git('show',`${pin}:${p}`))])),
  assemblies:Object.fromEntries([dll,resolve('tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.Compiler.dll')].map(p=>[p.slice(p.lastIndexOf('/')+1),sha256(readFileSync(p))])),
  inventorySummarySha256:sha256(readFileSync(join(inventory,'summary.json'))),fixtureInventorySha256:sha256(fixtureBytes),
  artifacts:artifactNames.map(path=>({path,bytes:readFileSync(join(output,path)).length,sha256:sha256(readFileSync(join(output,path)))})),
  compiler:'NOT_RUN',referenceCompiler:'NOT_RUN',acceptance:'NOT_RUN',releaseEligible:false,
- limitations:['No AST/config/VFS construction; file-map profile includes only pre-VFS paths and files, preserving colliding normalized aliases separately','Implicit-first and callback-error profiles have separate 151 synthetic/boundary vectors, not full-corpus executions','Not all test domains or configuration/runtime variants are expanded']};
+ limitations:['No AST/config/compiler assertions; construction profile is default-options/case-sensitive only; raw/map profiles do not construct VFS','Implicit-first and callback-error profiles have separate 151 synthetic/boundary vectors, not full-corpus executions','Not all test domains or configuration/runtime variants are expanded']};
 save('summary.json',JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(counts));
 if(counts.MATCH!==counts.sources)process.exitCode=1;

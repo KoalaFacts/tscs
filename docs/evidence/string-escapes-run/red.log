@@ -1,0 +1,367 @@
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/7/0", json: "{\n      \"id\": \"single/7/0\",\n      \"literal\": \"'a\\\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+    at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/6/1", json: "{\n      \"id\": \"double/6/1\",\n      \"literal\": \"\\\"😀"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/11/1", json: "{\n      \"id\": \"double/11/1\",\n      \"literal\": \"\\\"\xd83d"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/12/1", json: "{\n      \"id\": \"double/12/1\",\n      \"literal\": \"\\\"\xd83d"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/6/1", json: "{\n      \"id\": \"single/6/1\",\n      \"literal\": \"'😀\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/0/0", json: "{\n      \"id\": \"single/0/0\",\n      \"literal\": \"'a\\\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/1/0", json: "{\n      \"id\": \"single/1/0\",\n      \"literal\": \"'a\\\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/10/0", json: "{\n      \"id\": \"double/10/0\",\n      \"literal\": \"\\\"a"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/3/0", json: "{\n      \"id\": \"single/3/0\",\n      \"literal\": \"'a\\\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/5/1", json: "{\n      \"id\": \"double/5/1\",\n      \"literal\": \"\\\"😀"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/7/1", json: "{\n      \"id\": \"double/7/1\",\n      \"literal\": \"\\\"😀"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/11/0", json: "{\n      \"id\": \"double/11/0\",\n      \"literal\": \"\\\"a"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/2/0", json: "{\n      \"id\": \"double/2/0\",\n      \"literal\": \"\\\"a\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/2/1", json: "{\n      \"id\": \"double/2/1\",\n      \"literal\": \"\\\"😀"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/5/1", json: "{\n      \"id\": \"single/5/1\",\n      \"literal\": \"'😀\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/3/1", json: "{\n      \"id\": \"double/3/1\",\n      \"literal\": \"\\\"😀"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/14/0", json: "{\n      \"id\": \"single/14/0\",\n      \"literal\": \"'a\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/8/1", json: "{\n      \"id\": \"double/8/1\",\n      \"literal\": \"\\\"😀"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/8/0", json: "{\n      \"id\": \"double/8/0\",\n      \"literal\": \"\\\"a\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/8/0", json: "{\n      \"id\": \"single/8/0\",\n      \"literal\": \"'a\\\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/11/1", json: "{\n      \"id\": \"single/11/1\",\n      \"literal\": \"'😀"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/14/1", json: "{\n      \"id\": \"single/14/1\",\n      \"literal\": \"'😀"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/3/1", json: "{\n      \"id\": \"single/3/1\",\n      \"literal\": \"'😀\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/13/1", json: "{\n      \"id\": \"double/13/1\",\n      \"literal\": \"\\\"\xd83d"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/13/0", json: "{\n      \"id\": \"single/13/0\",\n      \"literal\": \"'a\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/12/0", json: "{\n      \"id\": \"double/12/0\",\n      \"literal\": \"\\\"a"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/1/1", json: "{\n      \"id\": \"double/1/1\",\n      \"literal\": \"\\\"😀"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/8/1", json: "{\n      \"id\": \"single/8/1\",\n      \"literal\": \"'😀\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/9/1", json: "{\n      \"id\": \"double/9/1\",\n      \"literal\": \"\\\"😀"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/4/1", json: "{\n      \"id\": \"double/4/1\",\n      \"literal\": \"\\\"😀"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/1/1", json: "{\n      \"id\": \"single/1/1\",\n      \"literal\": \"'😀\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/2/1", json: "{\n      \"id\": \"single/2/1\",\n      \"literal\": \"'😀\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/9/0", json: "{\n      \"id\": \"single/9/0\",\n      \"literal\": \"'a\\\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/3/0", json: "{\n      \"id\": \"double/3/0\",\n      \"literal\": \"\\\"a\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/10/0", json: "{\n      \"id\": \"single/10/0\",\n      \"literal\": \"'a\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/0/1", json: "{\n      \"id\": \"double/0/1\",\n      \"literal\": \"\\\"😀"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/4/0", json: "{\n      \"id\": \"single/4/0\",\n      \"literal\": \"'a\\\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/4/0", json: "{\n      \"id\": \"double/4/0\",\n      \"literal\": \"\\\"a\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/4/1", json: "{\n      \"id\": \"single/4/1\",\n      \"literal\": \"'😀\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/9/0", json: "{\n      \"id\": \"double/9/0\",\n      \"literal\": \"\\\"a\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/10/1", json: "{\n      \"id\": \"single/10/1\",\n      \"literal\": \"'😀"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/11/0", json: "{\n      \"id\": \"single/11/0\",\n      \"literal\": \"'a\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/1/0", json: "{\n      \"id\": \"double/1/0\",\n      \"literal\": \"\\\"a\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/0/1", json: "{\n      \"id\": \"single/0/1\",\n      \"literal\": \"'😀\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/0/0", json: "{\n      \"id\": \"double/0/0\",\n      \"literal\": \"\\\"a\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/7/0", json: "{\n      \"id\": \"double/7/0\",\n      \"literal\": \"\\\"a\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/6/0", json: "{\n      \"id\": \"double/6/0\",\n      \"literal\": \"\\\"a\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/2/0", json: "{\n      \"id\": \"single/2/0\",\n      \"literal\": \"'a\\\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/7/1", json: "{\n      \"id\": \"single/7/1\",\n      \"literal\": \"'😀\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/5/0", json: "{\n      \"id\": \"double/5/0\",\n      \"literal\": \"\\\"a\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/5/0", json: "{\n      \"id\": \"single/5/0\",\n      \"literal\": \"'a\\\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/9/1", json: "{\n      \"id\": \"single/9/1\",\n      \"literal\": \"'😀\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/13/1", json: "{\n      \"id\": \"single/13/1\",\n      \"literal\": \"'😀"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/14/1", json: "{\n      \"id\": \"double/14/1\",\n      \"literal\": \"\\\"\xd83d"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/13/0", json: "{\n      \"id\": \"double/13/0\",\n      \"literal\": \"\\\"a"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/6/0", json: "{\n      \"id\": \"single/6/0\",\n      \"literal\": \"'a\\\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/10/1", json: "{\n      \"id\": \"double/10/1\",\n      \"literal\": \"\\\"\xd83d"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/12/0", json: "{\n      \"id\": \"single/12/0\",\n      \"literal\": \"'a\\"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "single/12/1", json: "{\n      \"id\": \"single/12/1\",\n      \"literal\": \"'😀"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(id: "double/14/0", json: "{\n      \"id\": \"double/14/0\",\n      \"literal\": \"\\\"a"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: Tscs.CompilationFailure : Escaped string literals are not supported yet.
+    at Tscs.Scanner.Scan() in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/Scanner.cs:57
+    at Tscs.Tests.StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:12
+    at InvokeStub_StringEscapeTests.TokenValueAndSpellingMatchActualPinnedGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Test run summary: Failed! - /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+  total: 7673
+  failed: 60
+  succeeded: 7613
+  skipped: 0
+  duration: 2s 943ms

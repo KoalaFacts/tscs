@@ -1,0 +1,414 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "goVersion": "go version go1.27.3 linux/amd64",
+  "scannerSourceSha256": "48008100fb5a020748651e319c4dcc361c1a81ca06f8c3e0ed94d42dd0d1e6df",
+  "probeSha256": "2b2b971af272c21db79fb45f1d4d151adf3bce32012538541f9ac7a1143d056f",
+  "vectors": [
+    {
+      "id": "single/0",
+      "literal": "'a\u0000z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a\u0000z"
+    },
+    {
+      "id": "single/9",
+      "literal": "'a\tz'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a\tz"
+    },
+    {
+      "id": "single/a",
+      "literal": "'a\nz'",
+      "tokenEndUtf16": 2,
+      "unterminated": true,
+      "value": "a"
+    },
+    {
+      "id": "single/b",
+      "literal": "'a\u000bz'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a\u000bz"
+    },
+    {
+      "id": "single/c",
+      "literal": "'a\fz'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a\fz"
+    },
+    {
+      "id": "single/d",
+      "literal": "'a\rz'",
+      "tokenEndUtf16": 2,
+      "unterminated": true,
+      "value": "a"
+    },
+    {
+      "id": "single/20",
+      "literal": "'a z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "single/85",
+      "literal": "'az'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "az"
+    },
+    {
+      "id": "single/a0",
+      "literal": "'a z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "single/1680",
+      "literal": "'a z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "single/2000",
+      "literal": "'a z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "single/2001",
+      "literal": "'a z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "single/2002",
+      "literal": "'a z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "single/2003",
+      "literal": "'a z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "single/2004",
+      "literal": "'a z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "single/2005",
+      "literal": "'a z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "single/2006",
+      "literal": "'a z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "single/2007",
+      "literal": "'a z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "single/2008",
+      "literal": "'a z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "single/2009",
+      "literal": "'a z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "single/200a",
+      "literal": "'a z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "single/200b",
+      "literal": "'a​z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a​z"
+    },
+    {
+      "id": "single/2028",
+      "literal": "'a z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "single/2029",
+      "literal": "'a z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "single/202f",
+      "literal": "'a z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "single/205f",
+      "literal": "'a z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "single/3000",
+      "literal": "'a　z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a　z"
+    },
+    {
+      "id": "single/feff",
+      "literal": "'a﻿z'",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a﻿z"
+    },
+    {
+      "id": "single/1f600",
+      "literal": "'a😀z'",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a😀z"
+    },
+    {
+      "id": "double/0",
+      "literal": "\"a\u0000z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a\u0000z"
+    },
+    {
+      "id": "double/9",
+      "literal": "\"a\tz\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a\tz"
+    },
+    {
+      "id": "double/a",
+      "literal": "\"a\nz\"",
+      "tokenEndUtf16": 2,
+      "unterminated": true,
+      "value": "a"
+    },
+    {
+      "id": "double/b",
+      "literal": "\"a\u000bz\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a\u000bz"
+    },
+    {
+      "id": "double/c",
+      "literal": "\"a\fz\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a\fz"
+    },
+    {
+      "id": "double/d",
+      "literal": "\"a\rz\"",
+      "tokenEndUtf16": 2,
+      "unterminated": true,
+      "value": "a"
+    },
+    {
+      "id": "double/20",
+      "literal": "\"a z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "double/85",
+      "literal": "\"az\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "az"
+    },
+    {
+      "id": "double/a0",
+      "literal": "\"a z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "double/1680",
+      "literal": "\"a z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "double/2000",
+      "literal": "\"a z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "double/2001",
+      "literal": "\"a z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "double/2002",
+      "literal": "\"a z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "double/2003",
+      "literal": "\"a z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "double/2004",
+      "literal": "\"a z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "double/2005",
+      "literal": "\"a z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "double/2006",
+      "literal": "\"a z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "double/2007",
+      "literal": "\"a z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "double/2008",
+      "literal": "\"a z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "double/2009",
+      "literal": "\"a z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "double/200a",
+      "literal": "\"a z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "double/200b",
+      "literal": "\"a​z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a​z"
+    },
+    {
+      "id": "double/2028",
+      "literal": "\"a z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "double/2029",
+      "literal": "\"a z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "double/202f",
+      "literal": "\"a z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "double/205f",
+      "literal": "\"a z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a z"
+    },
+    {
+      "id": "double/3000",
+      "literal": "\"a　z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a　z"
+    },
+    {
+      "id": "double/feff",
+      "literal": "\"a﻿z\"",
+      "tokenEndUtf16": 5,
+      "unterminated": false,
+      "value": "a﻿z"
+    },
+    {
+      "id": "double/1f600",
+      "literal": "\"a😀z\"",
+      "tokenEndUtf16": 6,
+      "unterminated": false,
+      "value": "a😀z"
+    }
+  ]
+}

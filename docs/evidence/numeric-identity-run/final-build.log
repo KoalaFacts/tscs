@@ -1,0 +1,10 @@
+  Tscs.Compiler -> /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/bin/Release/net10.0/Tscs.Compiler.dll
+  Tscs.Cli -> /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Cli/bin/Release/net10.0/tscs.dll
+  Tscs.FixtureHarness -> /workspace/scratch/daf3e6c2e318/tscs/tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.FixtureHarness.dll
+  Tscs.Compiler.Tests -> /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.99

@@ -236,3 +236,56 @@ The frozen 29-case bootstrap cohort remains unchanged and independent. It includ
 synthetic/local cases and seven isolated upstream source copies; there is no
 verified full-runner mapping from that cohort to this inventory. It earns zero
 credit toward complete upstream acceptance until such a mapping is proven.
+
+## Source construction profile
+
+Run the same corpus tool with a fourth `construction` argument. It builds the
+current harness, binds all13006 requests to pinned blobs and calls the real Go
+factory. Query payloads are strictly validated; unsupported, reference panic,
+crash and mismatches remain distinct, with per-side outcomes and unequal counts.
+Current default-options/case-sensitive results match13006 sources/30902 queries.
+This does not run AST/config/compiler assertions or all VFS profiles. See
+[construction evidence](../../evidence/full-construction.json).
+
+## Complete source configuration profile
+
+[Separate source configuration progress](source-configurations-progress.json)
+records all13006 pinned source inputs, including42 upstream skips and8 non-raw-UTF8
+inputs. Whole-byte setting extraction, canonical products and mirrored compiler/
+transpile fallback produce12999 MATCH and7 REFERENCE_FATAL, zero unequal.
+15504 helper records become15523 named/fallback configuration records. The seven
+upstream-skipped module:none failures remain blockers; matching a failure is not
+an accepted compiler case. This does not replace the historical static25→28 ledger.
+
+```sh
+node tools/compare-source-configurations.ts PINNED_CHECKOUT INVENTORY NEW_OUTPUT
+```
+
+The command intentionally exits1 while any source has a reference failure,
+unsupported outcome or mismatch. Go itself exits1 for7 known fatal subtests;
+its failed test identities and root failure are reconciled exactly. Full requests,
+reference/C# results, stable per-configuration IDs and artifacts are preserved.
+Fallback branches are mirrored from pinned source; original runners, effective
+options, AST and compiler assertions remain NOT_RUN. See
+[source configuration evidence](../../evidence/source-configurations.json).
+
+## Source-backed selected config AST profile
+
+```sh
+node tools/compare-source-config-ast.ts PINNED_CHECKOUT INVENTORY NEW_OUTPUT
+```
+
+All13006 source identities/raw blobs are retained, including42 skips and8
+non-raw-UTF8 inputs.172 selected configs yield171 MATCH/1 MATCH_DIAGNOSTICS;
+12834 no-config sources are NOT_APPLICABLE. The command intentionally exits1
+while the original config syntax diagnostic remains. Strict input/context/AST
+bindings and separate outcomes prevent unsupported/error/no-config results
+from earning compiler credit. Actual Go JSON parser, pre-VFS preparation only;
+no effective config or original compiler assertions. See
+[source AST progress](source-config-ast-progress.json) and
+[scope/evidence](../../progress/source-config-ast.md).
+
+The later [mixed diagnostic-order correction](../../progress/json-diagnostic-order.md)
+adds16 actual-Go JSON parser cases and two CLI regressions. It changes event
+ordering within the bounded parser; it does not rerun or upgrade the historical
+full source profile, effective options or original compiler acceptance.

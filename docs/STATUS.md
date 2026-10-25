@@ -3,6 +3,274 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Mixed JSON diagnostic event order — 2026-10-26
+
+- Addressed review P2: JSON parser errors now interleave with lexical errors
+  when tokens are consumed. No global position sort; final quote validation
+  remains last. Ordinary TypeScript scanner results remain unchanged.
+- Added16 actual-Go parser regressions (original162 unchanged): RED12/8746,
+  plus CLI mutation RED14/8746 -> final8760/8760; Node75/75, frozen29/29,
+  Release0 warnings/errors. Independent Go178-vector regeneration byte-identical;
+  independent8758-suite/188-focused tests pass before final two CLI additions.
+- [Evidence and raw logs](evidence/json-diagnostic-order.json). SDK coordinator
+  and original compiler acceptance NOT_RUN; prior full-source evidence remains
+  bound to its original tree. Effective configuration remains incomplete.
+
+## Source-backed config AST and missing-comma recovery — 2026-10-26
+
+- Connected selected raw config units to the product AST with rooted filename/
+  currentDirectory context and strict source/input/schema bindings. Actual Go
+  raw parser/name/path helpers plus a mirrored selection fragment feed actual
+  ParseSourceFile(ScriptKindJSON); this is pre-VFS, not effective options.
+- All13006 source identities/bytes retained:172 config sources,171 MATCH,
+  1 MATCH_DIAGNOSTICS,12834 NOT_APPLICABLE,42 skips/8 non-raw-UTF8 inputs;
+  zero AST differences/unsupported/panics/crashes. No-config sources earn no
+  compiler credit. The source-backed missing-comma case now retains its AST
+  and TS1005; CLI syntax exit2. Full profile command intentionally exits1.
+- RED connection/context/real-source regressions -> MTP8742/8742, Node75/75,
+  frozen29/29, Release0 warnings/errors. SDK orchestration NOT_RUN.
+  Independent reruns reproduce all source/AST results; review caught truncated
+  raw evidence, now excluded and replaced by verified output shards.
+  [Evidence](evidence/source-config-ast.json) and
+  [scope/limits](progress/source-config-ast.md). All original compiler acceptance
+  remains NOT_RUN, seven prior reference fatals retained; release not eligible.
+
+## JSON decimal-integer value correction — 2026-10-26
+
+- Addressed the review finding: JSON numeric values, negative-value projections
+  and numeric property names now canonicalize binary64 values instead of copying
+  raw decimal spelling. Token spelling/ranges stay unchanged. Scientific text
+  uses the pinned1e21 boundary; overflow produces the pinned Infinity value text.
+- Added140 actual-Go parser boundary cases to the original22 (unchanged), now162.
+  RED92fail/8640pass -> MTP8732/8732, Node69/69, frozen29/29, Release0 warnings/
+  errors; golden repeats byte-identically. Independent review compared3845
+  decimal integers against pinned Go with zero differences and ran172 AST tests.
+  [Evidence](evidence/json-numbers.json).
+- This repairs the existing integer subset. Fractions/exponents/nondecimal
+  source grammar, full config/AST/source profiles and original compiler
+  acceptance remain incomplete; no release claim or denominator reduction.
+
+## Product bounded JSON AST and config path — 2026-10-26
+
+- Added an object/array/scalar AST reader over the product scanner's JSON mode.
+  Preserves property/element order and UTF16 spans/values, accepts comments and
+  trailing commas, and performs the pinned recursive TS1327 quote validation.
+  The CLI config path now consumes this AST, replacing System.Text.Json parsing;
+  config lexical/quote diagnostics retain locations and use exit2.
+-22 actual pinned ParseSourceFile(ScriptKindJSON) vectors compare the complete
+  selected tree projection and every diagnostic. RED23fail/8558pass ->8581;
+  guards and one independent review corrective pass ->8592/8592, Node69/69,
+  frozen29/29, Release0 warnings/errors; golden repeated byte-identically.
+- Independent review found the host identifier approximation exposed U+2E2F
+  incorrectly through JSON names. Five new guards RED5/8587 -> GREEN8592.
+  JSON-mode unquoted names are now ASCII-bounded; quoted Unicode remains
+  supported. Raw Go recovery repro retained, not mislabeled as matched support.
+  [Evidence and raw logs](evidence/json-ast.json).
+- This is a bounded parser/config-host integration, not full JSON recovery or
+  effective config. Non-integer numeric forms, unquoted Unicode names, other
+  AST/parser grammar and all original compiler acceptance remain incomplete.
+  Original source profiles, seven reference fatals and unknown denominators
+  are retained; no full corpus rerun or release claim.
+
+## Numeric escape coverage correction — 2026-10-26
+
+- Addressed the review discrepancy: the previous368-vector cohort covered08,
+  but its coverage wording incorrectly included09. Added four actual-Go09
+  vectors; all original368 rows are unchanged. No product source change.
+-372 vectors and8557 MTP tests now pass. Node69/69, frozen29/29, Release0
+  warnings/errors; generation repeats byte-identically.09 reports TS1487 over
+  backslash+0 only, retains the following9, with exact ASCII/emoji offsets.
+  [Evidence](evidence/numeric-09.json). Original compiler acceptance unchanged.
+
+## Product numeric and identity string escapes — 2026-10-26
+
+- Added standalone NUL and identity escapes, including supplementary characters.
+  Legacy octal follows pinned two/three-digit consumption, retains decoded
+  values and reports TS1487 with the actual suggested hexadecimal spelling.
+  Decimal escapes8/9 report TS1488. Invalid numeric escapes are syntax errors,
+  not successful acceptance or unimplemented TSCS errors.
+-368 actual-Go full token streams compare raw spelling, UTF16 values/ranges,
+  flags and all localized diagnostic messages/ranges. Initial RED368fail/8181pass
+  -> MTP8553/8553, Node69/69, frozen29/29, Release0 warnings/errors.
+  Golden repeats byte-identically. Independent review rebuilt, reran8553 tests
+  and regenerated368 Go vectors with identical output; no blocker.
+  [Evidence and raw logs](evidence/numeric-identity.json).
+- Original0/8/q regression inputs remain, with actual-Go outcomes replacing old
+  unsupported assertions. Four CLI rows verify syntax/acceptance exit status and
+  supplementary-prefix offsets. This is ordinary string scanning, not JSON,
+  parser/AST or original compiler acceptance. No full source profile rerun.
+
+## Product string escape recovery — 2026-10-25
+
+- Malformed hex/Unicode strings now recover with TS1125/TS1198/TS1199,
+  retain invalid escape spelling in decoded values, and continue scanning.
+  EOF/backslash and unterminated strings retain all TS1126/TS1002 errors.
+  Tokens carry pinned string flags (quote, invalid, unterminated, hex/Unicode).
+-323 full token streams execute the actual pinned Go scanner; compare every
+  token, raw spelling, UTF16 value/range, line break, string flag and every
+  diagnostic including order/message/range. Includes both quotes, emoji prefixes,
+  overflow, malformed surrogate lookahead, EOF and all58 prior plain literals.
+- Initial RED294fail/7882pass -> final direct MTP8181/8181, Node69/69,
+  frozen29/29, Go scope tests pass, Release0 warnings/errors. Golden repeats
+  byte-identically. Independent review regenerated the323 oracle results and
+  reran the built8181-test suite successfully; no blocking finding.
+  [Evidence and raw logs](evidence/string-recovery.json).
+- Compilation exposes lexical errors before parser/checker work; if unsupported
+  syntax is encountered later, earlier lexical diagnostics remain present.
+  CLI syntax exit2 and UTF16 JSON positions are covered. Numeric/octal/identity
+  escapes remain unsupported; general parser recovery, JSON/config and AST are
+  still incomplete. No original corpus/config/compiler acceptance rerun or
+  release claim. Historical sections below retain their original slice scope.
+
+## Product valid Unicode/hex string escapes — 2026-10-25
+
+- Supports valid x2/u4/braced Unicode escapes in ordinary strings. UTF16 storage
+  preserves lone surrogates and mixed escaped pairs. Per-digit bounds checks
+  prevent overflow while retaining arbitrary valid leading zeroes.
+-164 actual-Go scanner vectors preserve raw base64 and UTF16 arrays using pinned
+  DecodeJSStringRune, avoiding replacement during Go JSON serialization. Tests
+  compare raw spelling, token length, code units and public compilation. Three
+  CLI additions validate supported exit0; malformed inputs remain TSCS1001/exit1.
+- RED164fail/7686pass -> direct MTP7853/7853, Node69/69, frozen29/29,
+  Release0 warnings/errors; golden repeats byte-identically. Independent audit
+  verified all164 raw-to-UTF16 values, token ends and provenance hashes.
+  [Evidence and raw logs](evidence/unicode-escapes.json).
+- Malformed escape diagnostics/recovery, token flags, numeric/other escapes,
+  JSON/config parsing and AST remain incomplete. No original full corpus run or
+  release acceptance is claimed; prior full-source evidence keeps its old tree.
+
+## Product string escape slice — 2026-10-25
+
+- Ordinary strings now decode simple escapes and line continuations, retaining
+  raw Token.Text plus decoded Token.Value for subsequent AST work. Unsupported
+  Unicode/hex/numeric/other escape branches still report TSCS1001/exit1.
+-66 real-Go literal vectors compare decoded values, raw spelling and UTF16 lengths;
+  line-break flags include preceding trivia/following tokens. Existing58 plain
+  literal regressions now check decoded values too. CLI validates supported exit0
+  and unported escape exit1. This is lexical/type-checking support, not execution.
+- RED60fail/7613pass -> direct MTP7682/7682, Node69/69, frozen29/29,
+  Release zero warnings/errors; golden byte-identical on repeat. One independent
+  static review found no blocker; coverage notes addressed in one pass.
+  [Evidence and raw logs](evidence/string-escapes.json).
+- JSON/config parsing, AST/general scanner and full original compiler acceptance
+  remain incomplete. No full source profile rerun or release claim.
+
+## Product scanner string line characters — 2026-10-25
+
+- Fixed ordinary string scanning: U+2028/U+2029 are accepted inside unescaped
+  strings as in pinned scanString; only raw CR/LF terminate. Outside strings,
+  all four still count as line breaks for comments/ASI. Escape support unchanged.
+-58 literal vectors execute the actual fixed Go scanner; product compilation
+  diagnostics/acceptance match this bounded distinction. Two outside-string ASI
+  regressions and four CLI cases verify LS/PS exit0 versus CR/LF TS1002/exit2.
+- Actual RED6fail/7602pass -> direct MTP7608/7608, Node69/69, frozen29/29,
+  Release0 warnings/errors. Golden repeats byte-identically; independent static
+  review has no blocking finding. [Evidence and raw logs](evidence/string-lines.json).
+- No original full source/config/compiler acceptance run. JSON/config parsing
+  and AST porting remain incomplete; complete release gate remains false.
+
+## Config-file selection preparation — 2026-10-25
+
+- Added pre-parse first-config selection using pinned basename/lowercase semantics,
+  preserving later config files and other units in source order. The global
+  runExternalCode gate requires the exact raw value true (not TRUE or true;).
+-110 actual-Go raw-parser/config-name-helper vectors: RED110fail/7434pass,
+  direct MTP7544/7544, Node69/69, frozen29/29, Release0 warnings/errors;
+  golden repeat byte-identical. Raw logs are committed with the evidence.
+- This is a preparation snapshot only. Original makeUnitsFromTest constructs VFS
+  before selection; VFS/JSON/config parsing and external mappers are not invoked
+  by this profile. No complete13006 source rerun or compiler credit.
+  [Evidence](evidence/config-selection.json). Effective configuration and AST remain next.
+
+## Source configurations and runner fallback — 2026-10-25
+
+- Whole decoded-byte extraction now matches the fixed Go regex, duplicate last-wins,
+  Go TrimSpace and one final semicolon. Raw link settings retain arrow text.
+  Invalid UTF8 setting values are explicitly UNSUPPORTED, without replacement.
+- Fixed compiler91/transpile3 varyBy keys feed canonical products. Compiler nil
+  helper fallback is a nil configuration; transpile fallback retains raw settings.
+  Fallback branches are mirrored from pinned runner source, not original runner execution.
+- Complete source profile:13006 sources,12999 MATCH,7 REFERENCE_FATAL,0 unequal;
+  all42 upstream-skipped sources and8 non-raw-UTF8 inputs retained. The7 fatals
+  are upstream-skipped module:none fixtures; actual Go and C# both fail, never PASS.
+  Successful sources produce15504 helper records/15523 runner configuration records,
+  including19 nil-helper fallback sources. These are not executable compiler cases.
+- Direct xUnit/MTP7434/7434, Node69/69, frozen29/29, Go scope tests pass,
+  Release0 warnings/errors.36 boundary rows; independent96 probes86 MATCH and10
+  UNSUPPORTED,0 unequal. Path/domain binding strengthened with a failing regression.
+  Final same-source input/Go/C#/result payloads repeat byte-identically.
+- [Evidence](evidence/source-configurations.json), [separate progress](testing/ts7/source-configurations-progress.json).
+  Static inventory stays historical25→28; effective config/tsconfig, AST, original
+  compiler assertions and full runtime expansion remain NOT_RUN. Release gate false.
+
+## Named configuration products — 2026-10-25
+
+- Ported GetFileBasedTestConfigurations products, exact varyBy key membership,
+  scalar merging, varying-only names, nil return and25-configuration cap.
+- Actual pinned Go helper supplies2920 settings inputs:2526 normal/nil,
+  187 expected panic and207 expected fatal results, producing4328 named records.
+  These are synthetic helper inputs/outputs, not fixture or compiler pass counts.
+- Independent review found host Unicode tables differed from pinned Go17 for55
+  scalars. Generated and embedded all1488 Go simple lowercase mappings; every
+  uppercase/lowercase pair is exercised through the real configuration helper.
+  Config enumeration is normalized by name then UTF8 key/value tuples.
+- RED1432/4478, Unicode regression RED55/7343, final direct MTP7398/7398;
+  Node65/65, frozen29/29, Release0/0. Both golden and lowercase table repeat
+  byte-identically. Go exit1 is intentional and failed subtests reconciled.
+- [Evidence](evidence/configuration-products.json). Source setting extraction,
+  compilerVaryBy expansion across fixtures, compiler/transpile runner fallbacks,
+  effective config/AST/compiler assertions remain NOT_RUN. Go mixed fatal/panic
+  map traversal precedence is unspecified; no deterministic precedence claim.
+
+## Canonical option-value splitting — 2026-10-25
+
+- Ported pinned splitOptionValues in C#: Go whitespace, boolean/enum/string
+  values, alias deduplication retaining first spelling, star and exclusions.
+  Actual Go extraction retains130 declarations/127 unique names; positional IDs
+  preserve duplicate declarations instead of losing36 xUnit rows.
+- 1414 actual-Go vectors match:1024 value/nil results,186 expected empty-set
+  panics,204 intentional fatal outcomes. Go reference intentionally exits1;
+  JSON test events reconcile every failed subtest to its expected fatal row.
+- Independent review found dotted-I lowercasing differences. Four failing
+  regressions now match Go; final MTP4478/4478, Node65/65, frozen29/29,
+  Release0/0. Golden regeneration byte-identical; no second review claimed.
+- [Evidence](evidence/option-values.json). This prerequisite does not expand
+  Cartesian configurations, compute effective options or parse config/AST.
+  Full configuration/compiler acceptance remains NOT_RUN; original inventory,
+  pin and frozen expectations are unchanged. Only valid Unicode string inputs
+  and pinned ASCII declaration/enum keys are covered by this profile.
+
+## Complete source VFS construction profile — 2026-10-25
+
+- JSONL construction transport and strict schema/status validation now connect
+  every selected source to actual pinned Go factory/read/exists/Realpath/entries.
+- Default-options, case-sensitive profile:13006 MATCH/30902 queries; all42
+  upstream-skipped sources retained. Zero differences/panic/error/unsupported/
+  crash. Construction request/reference/actual/per-source results repeat exactly.
+- Independent review found unsupported could hide an opposing panic; a failing
+  regression now preserves failure priority and both side outcomes. Final
+  direct MTP3064/3064, Node65/65, frozen29/29, Release0/0. Original raw and
+  file-map full13006 profiles still match, with unchanged payloads.
+- [Evidence](evidence/full-construction.json), [progress](testing/ts7/construction-progress.json).
+  This is one source-level profile, not all VFS/configuration variants or original
+  compiler assertions. Those remain unrun/unresolved; release eligibility false.
+
+## Raw fixtures to VFS construction — 2026-10-25
+
+- Connected raw fixture maps to the actual case-sensitive snapshot: files then
+  links, directory/file/link query paths, ReadFile/exists/Realpath and entries.
+- Retained all55 map-boundary inputs:36 query results and18 expected upstream
+  panics match;1 normalized alias collision remains explicitly UNSUPPORTED.
+  A passing regression for that guard does not earn compatibility credit.
+- RED55 failures/3009 passes, final direct MTP3064/3064, Node62/62, frozen29/29;
+  Release zero warnings/errors and repeated Go goldens byte-identical. Review
+  corrected oracle inputs to raw links, matching NewVFSWithSymlinks; regenerated
+  and rechecked afterward. No second independent review is claimed.
+- [Evidence](evidence/fixture-vfs-construction.json),
+  [progress](testing/ts7/construction-progress.json). Full13006 fixture VFS,
+  case folding, unresolved link policies, config/AST/compiler acceptance remain
+  NOT_RUN or unsupported. CLI and FixtureProtocol are not wired to this profile.
+
 ## Final PR 6 byte-path validation correction — 2026-10-25
 
 - Independent whole-branch review found that the standard symlink pass could turn

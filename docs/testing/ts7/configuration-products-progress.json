@@ -1,0 +1,23 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "profile": "GetFileBasedTestConfigurations/synthetic-settings-and-Unicode-names",
+  "settingsInputs": 2920,
+  "namedOutputRecords": 4328,
+  "outcomes": {
+    "normalOrNil": 2526,
+    "normalNil": 262,
+    "expectedPanic": 187,
+    "expectedFatal": 207
+  },
+  "unresolved": [
+    "Complete source settings extraction and fixed compilerVaryBy expansion",
+    "Compiler nil and transpile original-settings runner fallback integrations",
+    "Go map-order-dependent mixed fatal/panic failure precedence not compared",
+    "Effective options/config AST and original full compiler assertions"
+  ],
+  "compiler": "NOT_RUN",
+  "referenceCompiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "releaseEligible": false,
+  "evidence": "../../evidence/configuration-products.json"
+}

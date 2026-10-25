@@ -29,3 +29,7 @@ FixtureVfs.cs adapts the pinned TypeScript vfstest/iovfs behavior above and the
 Go standard library testing/fstest/mapfs.go symlink-resolution algorithm,
 Copyright 2020 The Go Authors. The latter is licensed under the BSD-style
 license reproduced in licenses/Go-LICENSE.txt.
+
+PinnedGoLowercase.cs and go-lowercase.json use simple lowercase mappings extracted
+from Go1.27.3 unicode.ToLower (Unicode17). Go standard library copyright belongs
+to The Go Authors; see licenses/Go-LICENSE.txt. No Go runtime is invoked by C#.

@@ -1,0 +1,23 @@
+{
+  "command": "env PATH=/tmp/tscs-go/go/bin:$PATH DOTNET_CLI_TELEMETRY_OPTOUT=1 XDG_CONFIG_HOME=/tmp/tscs-offline-config GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local TSCS_STRING_LOG=/tmp/tscs-json-order-review-go.log node tools/generate-json-ast.ts .artifacts/ts7-upstream /tmp/tscs-json-order-review.json",
+  "cwd": "/workspace/scratch/daf3e6c2e318/tscs",
+  "probeSha256": "55623382fa996346b83f820618221dedddeb2c3651b72a1fd8234d07fb633145",
+  "outputSha256": "3324c88766ad031f4b92a2efcb664d2883ed7ddf4aeb5d1524d5a0937e24de51",
+  "byteIdenticalToCheckedInGolden": true,
+  "vectors": 178,
+  "upstreamHead": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "upstreamTrackedClean": true,
+  "independentTests": {
+    "JsonAstTests": {
+      "total": 188,
+      "passed": 188
+    },
+    "fullSuiteBeforeCliAdditions": {
+      "total": 8758,
+      "passed": 8758
+    }
+  },
+  "findings": [],
+  "sdkCoordinator": "NOT_RUN",
+  "originalFullCompilerAcceptance": "NOT_RUN"
+}

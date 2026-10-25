@@ -68,3 +68,28 @@ test('reference echoes must bind every result to the actual input bytes and file
  for(const bad of [[],[...requests,...requests],[{...requests[0],input:'eTs='}],[{...requests[0],fileName:'Yi50cw=='}]])
   assert.throws(()=>validateReferenceBindings(requests,bad),/binding/i);
 });
+
+test('construction distinguishes matches, unsupported, mismatches and reference panic',()=>{
+ const good={queries:[{path:'Lw==',content:'',readOk:false,fileExists:false,directoryExists:true,realpath:'Lw==',files:null,directories:[],symlinks:[]}],panic:null};
+ const rows=[good,{unsupported:'alias collision'},{panic:'bad'},good];
+ const actual=rows.map((expected,i)=>({id:String(i),expected:i===3?{panic:'unexpected'}:expected}));
+ const reference=rows.map((expected,i)=>({id:String(i),expected}));
+ const result=reconcileResults(rows.map((_,i)=>({id:String(i)})),actual,reference,'construction');
+ assert.deepEqual(result.map(r=>r.loading),['MATCH','UNSUPPORTED','REFERENCE_PANIC','CRASH']);
+ assert.equal(result[1].equal,true);
+ const mismatch=reconcileResults([{id:'x'}],[{id:'x',expected:{...good,queries:[]}}],[{id:'x',expected:good}],'construction');
+ assert.equal(mismatch[0].loading,'MISMATCH');
+});
+test('construction rejects malformed matching payloads and keeps nil distinct',()=>{
+ const good={queries:[],panic:null};
+ for(const expected of [{},{...good,queries:null},{unsupported:7},{panic:'' ,extra:true},{queries:[{path:'bad'}],panic:null}])
+  assert.throws(()=>reconcileResults([{id:'x'}],[{id:'x',expected}],[{id:'x',expected}],'construction'),/payload/i);
+});
+test('construction unsupported cannot hide opposing runtime panic',()=>{
+ for(const [actual,reference,loading,ao,ro] of [
+  [{unsupported:'policy'},{panic:'reference failed'},'REFERENCE_PANIC','UNSUPPORTED','PANIC'],
+  [{panic:'implementation failed'},{unsupported:'policy'},'CRASH','PANIC','UNSUPPORTED']]){
+  const r=reconcileResults([{id:'x'}],[{id:'x',expected:actual}],[{id:'x',expected:reference}],'construction')[0];
+  assert.equal(r.loading,loading);assert.equal(r.equal,false);assert.equal(r.actualOutcome,ao);assert.equal(r.referenceOutcome,ro);
+ }
+});

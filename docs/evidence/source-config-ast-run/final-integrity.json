@@ -1,0 +1,35 @@
+{
+  "artifactsVerifiedEachRun": 62,
+  "actualShards": 51,
+  "actualRows": 13006,
+  "actualBytes": 15436139,
+  "concatenatedActualSha256": "9836344c2618d5bd6668fdc2e6859396bbcdf8b521df707059b8af879d29d524",
+  "byteIdenticalPayloads": [
+    "requests",
+    "selection",
+    "parse-requests",
+    "reference",
+    "results",
+    "configs",
+    "actual-calls",
+    "all51actual-shards"
+  ],
+  "sourceHashesVerified": 26,
+  "counts": {
+    "sources": 13006,
+    "selectedConfigSources": 172,
+    "upstreamSkippedSources": 42,
+    "nonRawUtf8Sources": 8,
+    "referenceProjectedNodes": 2091,
+    "referenceDiagnostics": 1,
+    "referenceErrorSources": 1,
+    "MATCH": 171,
+    "MATCH_DIAGNOSTICS": 1,
+    "NOT_APPLICABLE": 12834,
+    "UNSUPPORTED": 0,
+    "MISMATCH": 0,
+    "REFERENCE_PANIC": 0,
+    "CRASH": 0
+  },
+  "independentActualSha256": "9836344c2618d5bd6668fdc2e6859396bbcdf8b521df707059b8af879d29d524"
+}

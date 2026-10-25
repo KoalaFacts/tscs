@@ -1,0 +1,7 @@
+
+Test run summary: Passed! - /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+  total: 7850
+  failed: 0
+  succeeded: 7850
+  skipped: 0
+  duration: 2s 736ms

@@ -1,0 +1,26 @@
+failed Tscs.Tests.StringEscapeTests.EscapeBranchesReportSupportedDiagnosticsOrExplicitUnsupported(escape: "\\0", code: "TSCS1001") (1ms)
+  Assert.Single() Failure: The collection was empty
+    at Tscs.Tests.StringEscapeTests.EscapeBranchesReportSupportedDiagnosticsOrExplicitUnsupported(String escape, String code) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:27
+    at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+    at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+failed Tscs.Tests.StringEscapeTests.EscapeBranchesReportSupportedDiagnosticsOrExplicitUnsupported(escape: "\\q", code: "TSCS1001") (0ms)
+  Assert.Single() Failure: The collection was empty
+    at Tscs.Tests.StringEscapeTests.EscapeBranchesReportSupportedDiagnosticsOrExplicitUnsupported(String escape, String code) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:27
+    at InvokeStub_StringEscapeTests.EscapeBranchesReportSupportedDiagnosticsOrExplicitUnsupported(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.EscapeBranchesReportSupportedDiagnosticsOrExplicitUnsupported(escape: "\\8", code: "TSCS1001") (2ms)
+  Assert.Equal() Failure: Strings differ
+               ↓ (pos 2)
+  Expected: "TSCS1001"
+  Actual:   "TS1488"
+               ↑ (pos 2)
+    at Tscs.Tests.StringEscapeTests.EscapeBranchesReportSupportedDiagnosticsOrExplicitUnsupported(String escape, String code) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:27
+    at InvokeStub_StringEscapeTests.EscapeBranchesReportSupportedDiagnosticsOrExplicitUnsupported(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Test run summary: Failed! - /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+  total: 8549
+  failed: 3
+  succeeded: 8546
+  skipped: 0
+  duration: 3s 374ms
