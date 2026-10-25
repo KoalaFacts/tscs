@@ -3,6 +3,21 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## JSON decimal-integer value correction — 2026-10-26
+
+- Addressed the review finding: JSON numeric values, negative-value projections
+  and numeric property names now canonicalize binary64 values instead of copying
+  raw decimal spelling. Token spelling/ranges stay unchanged. Scientific text
+  uses the pinned1e21 boundary; overflow produces the pinned Infinity value text.
+- Added140 actual-Go parser boundary cases to the original22 (unchanged), now162.
+  RED92fail/8640pass -> MTP8732/8732, Node69/69, frozen29/29, Release0 warnings/
+  errors; golden repeats byte-identically. Independent review compared3845
+  decimal integers against pinned Go with zero differences and ran172 AST tests.
+  [Evidence](evidence/json-numbers.json).
+- This repairs the existing integer subset. Fractions/exponents/nondecimal
+  source grammar, full config/AST/source profiles and original compiler
+  acceptance remain incomplete; no release claim or denominator reduction.
+
 ## Product bounded JSON AST and config path — 2026-10-26
 
 - Added an object/array/scalar AST reader over the product scanner's JSON mode.

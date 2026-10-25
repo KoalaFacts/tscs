@@ -40,7 +40,7 @@ internal static class JsonSyntax
                 {
                     if(Current.Kind is not (TokenKind.String or TokenKind.Identifier or TokenKind.Number or TokenKind.True or TokenKind.False or TokenKind.Null))Unsupported();
                     var name=Take();string kind=name.Kind==TokenKind.String?"String":name.Kind==TokenKind.Number?"Number":"Identifier";
-                    var key=new JsonSyntaxNode(kind,name with {Value=kind=="Number"?null:name.Value??name.Text},[],[],kind=="Number"?name.Text:"");
+                    var key=new JsonSyntaxNode(kind,name with {Value=kind=="Number"?null:name.Value??name.Text},[],[],kind=="Number"?JsonNumbers.CanonicalInteger(name.Text):"");
                     if(!Eat(TokenKind.Colon))Unsupported();properties.Add(new(key,Value(depth+1)));
                     if(!Eat(TokenKind.Comma))break;
                 }
@@ -57,10 +57,10 @@ internal static class JsonSyntax
             if(Eat(TokenKind.Minus))
             {
                 if(Current.Kind!=TokenKind.Number)Unsupported();var number=Take();
-                return new("Number",first with {Length=number.Start+number.Length-first.Start},[],[],"-"+number.Text);
+                return new("Number",first with {Length=number.Start+number.Length-first.Start},[],[],"-"+JsonNumbers.CanonicalInteger(number.Text));
             }
             if(Current.Kind is not (TokenKind.String or TokenKind.Number or TokenKind.True or TokenKind.False or TokenKind.Null))Unsupported();
-            var token=Take();return new(token.Kind.ToString(),token,[],[],token.Kind==TokenKind.Number?token.Text:"");
+            var token=Take();return new(token.Kind.ToString(),token,[],[],token.Kind==TokenKind.Number?JsonNumbers.CanonicalInteger(token.Text):"");
         }
         private void QuoteError(JsonSyntaxNode n)=>Diagnostics.Add(Diagnostic.Error(file,n.Token,"TS1327","String literal with double quotes expected."));
         private void Validate(JsonSyntaxNode node)

@@ -47,3 +47,10 @@ and depth guard are own policy tests, not Go compatibility credit. No original
 unknown case denominators and compiler/referenceCompiler/acceptance NOT_RUN
 remain; releaseEligible=false. Next: actual source-backed config AST profiles
 and missing JSON numeric/recovery branches, then effective config/AST mainline.
+
+## Integer value follow-up
+
+The initial22-case tree projection did not expose large-integer canonical text.
+That reviewed defect is fixed separately with140 additional actual-Go boundary
+cases and an independent3845-value differential; see [number evidence](../evidence/json-numbers.json).
+The original22 rows and historical evidence remain unchanged at their original tree.

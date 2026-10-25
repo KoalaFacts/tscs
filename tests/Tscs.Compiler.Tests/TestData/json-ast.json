@@ -1,6 +1,7 @@
 {
   "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
   "goVersion": "go version go1.27.3 linux/amd64",
+  "jsNumberSourceSha256": "79cba5294aa96796c280169b6d3d5ed1b62da2b2aad312c8d9d06dc0a563d62b",
   "parserSourceSha256": "18fbeb9644a2c642d2757188107f2a802e8084cf1ed56a24c78bab1933328c2e",
   "scannerSourceSha256": "48008100fb5a020748651e319c4dcc361c1a81ca06f8c3e0ed94d42dd0d1e6df",
   "probeSha256": "55623382fa996346b83f820618221dedddeb2c3651b72a1fd8234d07fb633145",
@@ -964,6 +965,4381 @@
         }
       ],
       "source": "{\"a\":\"\\u{1f600}\",\"b\":\"\\uD800\\uDC00\"}"
+    },
+    {
+      "diagnostics": [],
+      "id": "22",
+      "nodes": [
+        {
+          "end": 1,
+          "kind": "Number",
+          "number": "0",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "0"
+    },
+    {
+      "diagnostics": [],
+      "id": "23",
+      "nodes": [
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "-0",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-0"
+    },
+    {
+      "diagnostics": [],
+      "id": "24",
+      "nodes": [
+        {
+          "end": 14,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 10,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 9,
+          "kind": "Number",
+          "number": "0",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 13,
+          "kind": "Number",
+          "number": "-0",
+          "path": "$/e2",
+          "start": 11,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":0},-0]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 1,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "25",
+      "nodes": [
+        {
+          "end": 8,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "0",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 3,
+          "units": []
+        }
+      ],
+      "source": "{0:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "26",
+      "nodes": [
+        {
+          "end": 1,
+          "kind": "Number",
+          "number": "1",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "1"
+    },
+    {
+      "diagnostics": [],
+      "id": "27",
+      "nodes": [
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "-1",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-1"
+    },
+    {
+      "diagnostics": [],
+      "id": "28",
+      "nodes": [
+        {
+          "end": 14,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 10,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 9,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 13,
+          "kind": "Number",
+          "number": "-1",
+          "path": "$/e2",
+          "start": 11,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":1},-1]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 1,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "29",
+      "nodes": [
+        {
+          "end": 8,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 3,
+          "units": []
+        }
+      ],
+      "source": "{1:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "30",
+      "nodes": [
+        {
+          "end": 19,
+          "kind": "Number",
+          "number": "1000000000000000100",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "1000000000000000128"
+    },
+    {
+      "diagnostics": [],
+      "id": "31",
+      "nodes": [
+        {
+          "end": 20,
+          "kind": "Number",
+          "number": "-1000000000000000100",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-1000000000000000128"
+    },
+    {
+      "diagnostics": [],
+      "id": "32",
+      "nodes": [
+        {
+          "end": 50,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 28,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 27,
+          "kind": "Number",
+          "number": "1000000000000000100",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 49,
+          "kind": "Number",
+          "number": "-1000000000000000100",
+          "path": "$/e2",
+          "start": 29,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":1000000000000000128},-1000000000000000128]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 19,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "33",
+      "nodes": [
+        {
+          "end": 26,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 20,
+          "kind": "Number",
+          "number": "1000000000000000100",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 25,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 21,
+          "units": []
+        }
+      ],
+      "source": "{1000000000000000128:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "34",
+      "nodes": [
+        {
+          "end": 20,
+          "kind": "Number",
+          "number": "19686109595169230000",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "19686109595169230000"
+    },
+    {
+      "diagnostics": [],
+      "id": "35",
+      "nodes": [
+        {
+          "end": 21,
+          "kind": "Number",
+          "number": "-19686109595169230000",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-19686109595169230000"
+    },
+    {
+      "diagnostics": [],
+      "id": "36",
+      "nodes": [
+        {
+          "end": 52,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 29,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 28,
+          "kind": "Number",
+          "number": "19686109595169230000",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 51,
+          "kind": "Number",
+          "number": "-19686109595169230000",
+          "path": "$/e2",
+          "start": 30,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":19686109595169230000},-19686109595169230000]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 20,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "37",
+      "nodes": [
+        {
+          "end": 27,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 21,
+          "kind": "Number",
+          "number": "19686109595169230000",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 26,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 22,
+          "units": []
+        }
+      ],
+      "source": "{19686109595169230000:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "38",
+      "nodes": [
+        {
+          "end": 400,
+          "kind": "Number",
+          "number": "Infinity",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
+    },
+    {
+      "diagnostics": [],
+      "id": "39",
+      "nodes": [
+        {
+          "end": 401,
+          "kind": "Number",
+          "number": "-Infinity",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
+    },
+    {
+      "diagnostics": [],
+      "id": "40",
+      "nodes": [
+        {
+          "end": 812,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 409,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 408,
+          "kind": "Number",
+          "number": "Infinity",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 811,
+          "kind": "Number",
+          "number": "-Infinity",
+          "path": "$/e2",
+          "start": 410,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999},-9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 400,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "41",
+      "nodes": [
+        {
+          "end": 407,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 401,
+          "kind": "Number",
+          "number": "Infinity",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 406,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 402,
+          "units": []
+        }
+      ],
+      "source": "{9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "42",
+      "nodes": [
+        {
+          "end": 16,
+          "kind": "Number",
+          "number": "9007199254740988",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "9007199254740988"
+    },
+    {
+      "diagnostics": [],
+      "id": "43",
+      "nodes": [
+        {
+          "end": 17,
+          "kind": "Number",
+          "number": "-9007199254740988",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-9007199254740988"
+    },
+    {
+      "diagnostics": [],
+      "id": "44",
+      "nodes": [
+        {
+          "end": 44,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 25,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 24,
+          "kind": "Number",
+          "number": "9007199254740988",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 43,
+          "kind": "Number",
+          "number": "-9007199254740988",
+          "path": "$/e2",
+          "start": 26,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":9007199254740988},-9007199254740988]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 16,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "45",
+      "nodes": [
+        {
+          "end": 23,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 17,
+          "kind": "Number",
+          "number": "9007199254740988",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 22,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 18,
+          "units": []
+        }
+      ],
+      "source": "{9007199254740988:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "46",
+      "nodes": [
+        {
+          "end": 16,
+          "kind": "Number",
+          "number": "9007199254740989",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "9007199254740989"
+    },
+    {
+      "diagnostics": [],
+      "id": "47",
+      "nodes": [
+        {
+          "end": 17,
+          "kind": "Number",
+          "number": "-9007199254740989",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-9007199254740989"
+    },
+    {
+      "diagnostics": [],
+      "id": "48",
+      "nodes": [
+        {
+          "end": 44,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 25,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 24,
+          "kind": "Number",
+          "number": "9007199254740989",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 43,
+          "kind": "Number",
+          "number": "-9007199254740989",
+          "path": "$/e2",
+          "start": 26,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":9007199254740989},-9007199254740989]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 16,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "49",
+      "nodes": [
+        {
+          "end": 23,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 17,
+          "kind": "Number",
+          "number": "9007199254740989",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 22,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 18,
+          "units": []
+        }
+      ],
+      "source": "{9007199254740989:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "50",
+      "nodes": [
+        {
+          "end": 16,
+          "kind": "Number",
+          "number": "9007199254740990",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "9007199254740990"
+    },
+    {
+      "diagnostics": [],
+      "id": "51",
+      "nodes": [
+        {
+          "end": 17,
+          "kind": "Number",
+          "number": "-9007199254740990",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-9007199254740990"
+    },
+    {
+      "diagnostics": [],
+      "id": "52",
+      "nodes": [
+        {
+          "end": 44,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 25,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 24,
+          "kind": "Number",
+          "number": "9007199254740990",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 43,
+          "kind": "Number",
+          "number": "-9007199254740990",
+          "path": "$/e2",
+          "start": 26,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":9007199254740990},-9007199254740990]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 16,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "53",
+      "nodes": [
+        {
+          "end": 23,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 17,
+          "kind": "Number",
+          "number": "9007199254740990",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 22,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 18,
+          "units": []
+        }
+      ],
+      "source": "{9007199254740990:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "54",
+      "nodes": [
+        {
+          "end": 16,
+          "kind": "Number",
+          "number": "9007199254740991",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "9007199254740991"
+    },
+    {
+      "diagnostics": [],
+      "id": "55",
+      "nodes": [
+        {
+          "end": 17,
+          "kind": "Number",
+          "number": "-9007199254740991",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-9007199254740991"
+    },
+    {
+      "diagnostics": [],
+      "id": "56",
+      "nodes": [
+        {
+          "end": 44,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 25,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 24,
+          "kind": "Number",
+          "number": "9007199254740991",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 43,
+          "kind": "Number",
+          "number": "-9007199254740991",
+          "path": "$/e2",
+          "start": 26,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":9007199254740991},-9007199254740991]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 16,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "57",
+      "nodes": [
+        {
+          "end": 23,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 17,
+          "kind": "Number",
+          "number": "9007199254740991",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 22,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 18,
+          "units": []
+        }
+      ],
+      "source": "{9007199254740991:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "58",
+      "nodes": [
+        {
+          "end": 16,
+          "kind": "Number",
+          "number": "9007199254740992",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "9007199254740992"
+    },
+    {
+      "diagnostics": [],
+      "id": "59",
+      "nodes": [
+        {
+          "end": 17,
+          "kind": "Number",
+          "number": "-9007199254740992",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-9007199254740992"
+    },
+    {
+      "diagnostics": [],
+      "id": "60",
+      "nodes": [
+        {
+          "end": 44,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 25,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 24,
+          "kind": "Number",
+          "number": "9007199254740992",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 43,
+          "kind": "Number",
+          "number": "-9007199254740992",
+          "path": "$/e2",
+          "start": 26,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":9007199254740992},-9007199254740992]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 16,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "61",
+      "nodes": [
+        {
+          "end": 23,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 17,
+          "kind": "Number",
+          "number": "9007199254740992",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 22,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 18,
+          "units": []
+        }
+      ],
+      "source": "{9007199254740992:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "62",
+      "nodes": [
+        {
+          "end": 16,
+          "kind": "Number",
+          "number": "9007199254740992",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "9007199254740993"
+    },
+    {
+      "diagnostics": [],
+      "id": "63",
+      "nodes": [
+        {
+          "end": 17,
+          "kind": "Number",
+          "number": "-9007199254740992",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-9007199254740993"
+    },
+    {
+      "diagnostics": [],
+      "id": "64",
+      "nodes": [
+        {
+          "end": 44,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 25,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 24,
+          "kind": "Number",
+          "number": "9007199254740992",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 43,
+          "kind": "Number",
+          "number": "-9007199254740992",
+          "path": "$/e2",
+          "start": 26,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":9007199254740993},-9007199254740993]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 16,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "65",
+      "nodes": [
+        {
+          "end": 23,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 17,
+          "kind": "Number",
+          "number": "9007199254740992",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 22,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 18,
+          "units": []
+        }
+      ],
+      "source": "{9007199254740993:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "66",
+      "nodes": [
+        {
+          "end": 16,
+          "kind": "Number",
+          "number": "9007199254740994",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "9007199254740994"
+    },
+    {
+      "diagnostics": [],
+      "id": "67",
+      "nodes": [
+        {
+          "end": 17,
+          "kind": "Number",
+          "number": "-9007199254740994",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-9007199254740994"
+    },
+    {
+      "diagnostics": [],
+      "id": "68",
+      "nodes": [
+        {
+          "end": 44,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 25,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 24,
+          "kind": "Number",
+          "number": "9007199254740994",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 43,
+          "kind": "Number",
+          "number": "-9007199254740994",
+          "path": "$/e2",
+          "start": 26,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":9007199254740994},-9007199254740994]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 16,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "69",
+      "nodes": [
+        {
+          "end": 23,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 17,
+          "kind": "Number",
+          "number": "9007199254740994",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 22,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 18,
+          "units": []
+        }
+      ],
+      "source": "{9007199254740994:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "70",
+      "nodes": [
+        {
+          "end": 16,
+          "kind": "Number",
+          "number": "9007199254740996",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "9007199254740995"
+    },
+    {
+      "diagnostics": [],
+      "id": "71",
+      "nodes": [
+        {
+          "end": 17,
+          "kind": "Number",
+          "number": "-9007199254740996",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-9007199254740995"
+    },
+    {
+      "diagnostics": [],
+      "id": "72",
+      "nodes": [
+        {
+          "end": 44,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 25,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 24,
+          "kind": "Number",
+          "number": "9007199254740996",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 43,
+          "kind": "Number",
+          "number": "-9007199254740996",
+          "path": "$/e2",
+          "start": 26,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":9007199254740995},-9007199254740995]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 16,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "73",
+      "nodes": [
+        {
+          "end": 23,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 17,
+          "kind": "Number",
+          "number": "9007199254740996",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 22,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 18,
+          "units": []
+        }
+      ],
+      "source": "{9007199254740995:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "74",
+      "nodes": [
+        {
+          "end": 16,
+          "kind": "Number",
+          "number": "9007199254740996",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "9007199254740996"
+    },
+    {
+      "diagnostics": [],
+      "id": "75",
+      "nodes": [
+        {
+          "end": 17,
+          "kind": "Number",
+          "number": "-9007199254740996",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-9007199254740996"
+    },
+    {
+      "diagnostics": [],
+      "id": "76",
+      "nodes": [
+        {
+          "end": 44,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 25,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 24,
+          "kind": "Number",
+          "number": "9007199254740996",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 43,
+          "kind": "Number",
+          "number": "-9007199254740996",
+          "path": "$/e2",
+          "start": 26,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":9007199254740996},-9007199254740996]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 16,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "77",
+      "nodes": [
+        {
+          "end": 23,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 17,
+          "kind": "Number",
+          "number": "9007199254740996",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 22,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 18,
+          "units": []
+        }
+      ],
+      "source": "{9007199254740996:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "78",
+      "nodes": [
+        {
+          "end": 19,
+          "kind": "Number",
+          "number": "10000000000000000000",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "9999999999999999999"
+    },
+    {
+      "diagnostics": [],
+      "id": "79",
+      "nodes": [
+        {
+          "end": 20,
+          "kind": "Number",
+          "number": "-10000000000000000000",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-9999999999999999999"
+    },
+    {
+      "diagnostics": [],
+      "id": "80",
+      "nodes": [
+        {
+          "end": 50,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 28,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 27,
+          "kind": "Number",
+          "number": "10000000000000000000",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 49,
+          "kind": "Number",
+          "number": "-10000000000000000000",
+          "path": "$/e2",
+          "start": 29,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":9999999999999999999},-9999999999999999999]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 19,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "81",
+      "nodes": [
+        {
+          "end": 26,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 20,
+          "kind": "Number",
+          "number": "10000000000000000000",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 25,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 21,
+          "units": []
+        }
+      ],
+      "source": "{9999999999999999999:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "82",
+      "nodes": [
+        {
+          "end": 20,
+          "kind": "Number",
+          "number": "10000000000000000000",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "10000000000000000000"
+    },
+    {
+      "diagnostics": [],
+      "id": "83",
+      "nodes": [
+        {
+          "end": 21,
+          "kind": "Number",
+          "number": "-10000000000000000000",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-10000000000000000000"
+    },
+    {
+      "diagnostics": [],
+      "id": "84",
+      "nodes": [
+        {
+          "end": 52,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 29,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 28,
+          "kind": "Number",
+          "number": "10000000000000000000",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 51,
+          "kind": "Number",
+          "number": "-10000000000000000000",
+          "path": "$/e2",
+          "start": 30,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":10000000000000000000},-10000000000000000000]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 20,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "85",
+      "nodes": [
+        {
+          "end": 27,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 21,
+          "kind": "Number",
+          "number": "10000000000000000000",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 26,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 22,
+          "units": []
+        }
+      ],
+      "source": "{10000000000000000000:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "86",
+      "nodes": [
+        {
+          "end": 20,
+          "kind": "Number",
+          "number": "10000000000000000000",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "10000000000000000001"
+    },
+    {
+      "diagnostics": [],
+      "id": "87",
+      "nodes": [
+        {
+          "end": 21,
+          "kind": "Number",
+          "number": "-10000000000000000000",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-10000000000000000001"
+    },
+    {
+      "diagnostics": [],
+      "id": "88",
+      "nodes": [
+        {
+          "end": 52,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 29,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 28,
+          "kind": "Number",
+          "number": "10000000000000000000",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 51,
+          "kind": "Number",
+          "number": "-10000000000000000000",
+          "path": "$/e2",
+          "start": 30,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":10000000000000000001},-10000000000000000001]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 20,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "89",
+      "nodes": [
+        {
+          "end": 27,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 21,
+          "kind": "Number",
+          "number": "10000000000000000000",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 26,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 22,
+          "units": []
+        }
+      ],
+      "source": "{10000000000000000001:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "90",
+      "nodes": [
+        {
+          "end": 20,
+          "kind": "Number",
+          "number": "100000000000000000000",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "99999999999999999999"
+    },
+    {
+      "diagnostics": [],
+      "id": "91",
+      "nodes": [
+        {
+          "end": 21,
+          "kind": "Number",
+          "number": "-100000000000000000000",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-99999999999999999999"
+    },
+    {
+      "diagnostics": [],
+      "id": "92",
+      "nodes": [
+        {
+          "end": 52,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 29,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 28,
+          "kind": "Number",
+          "number": "100000000000000000000",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 51,
+          "kind": "Number",
+          "number": "-100000000000000000000",
+          "path": "$/e2",
+          "start": 30,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":99999999999999999999},-99999999999999999999]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 20,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "93",
+      "nodes": [
+        {
+          "end": 27,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 21,
+          "kind": "Number",
+          "number": "100000000000000000000",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 26,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 22,
+          "units": []
+        }
+      ],
+      "source": "{99999999999999999999:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "94",
+      "nodes": [
+        {
+          "end": 21,
+          "kind": "Number",
+          "number": "100000000000000000000",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "100000000000000000000"
+    },
+    {
+      "diagnostics": [],
+      "id": "95",
+      "nodes": [
+        {
+          "end": 22,
+          "kind": "Number",
+          "number": "-100000000000000000000",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-100000000000000000000"
+    },
+    {
+      "diagnostics": [],
+      "id": "96",
+      "nodes": [
+        {
+          "end": 54,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 30,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 29,
+          "kind": "Number",
+          "number": "100000000000000000000",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 53,
+          "kind": "Number",
+          "number": "-100000000000000000000",
+          "path": "$/e2",
+          "start": 31,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":100000000000000000000},-100000000000000000000]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 21,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "97",
+      "nodes": [
+        {
+          "end": 28,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 22,
+          "kind": "Number",
+          "number": "100000000000000000000",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 27,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 23,
+          "units": []
+        }
+      ],
+      "source": "{100000000000000000000:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "98",
+      "nodes": [
+        {
+          "end": 21,
+          "kind": "Number",
+          "number": "100000000000000000000",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "100000000000000000001"
+    },
+    {
+      "diagnostics": [],
+      "id": "99",
+      "nodes": [
+        {
+          "end": 22,
+          "kind": "Number",
+          "number": "-100000000000000000000",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-100000000000000000001"
+    },
+    {
+      "diagnostics": [],
+      "id": "100",
+      "nodes": [
+        {
+          "end": 54,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 30,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 29,
+          "kind": "Number",
+          "number": "100000000000000000000",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 53,
+          "kind": "Number",
+          "number": "-100000000000000000000",
+          "path": "$/e2",
+          "start": 31,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":100000000000000000001},-100000000000000000001]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 21,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "101",
+      "nodes": [
+        {
+          "end": 28,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 22,
+          "kind": "Number",
+          "number": "100000000000000000000",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 27,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 23,
+          "units": []
+        }
+      ],
+      "source": "{100000000000000000001:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "102",
+      "nodes": [
+        {
+          "end": 21,
+          "kind": "Number",
+          "number": "1e+21",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "999999999999999999999"
+    },
+    {
+      "diagnostics": [],
+      "id": "103",
+      "nodes": [
+        {
+          "end": 22,
+          "kind": "Number",
+          "number": "-1e+21",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-999999999999999999999"
+    },
+    {
+      "diagnostics": [],
+      "id": "104",
+      "nodes": [
+        {
+          "end": 54,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 30,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 29,
+          "kind": "Number",
+          "number": "1e+21",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 53,
+          "kind": "Number",
+          "number": "-1e+21",
+          "path": "$/e2",
+          "start": 31,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":999999999999999999999},-999999999999999999999]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 21,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "105",
+      "nodes": [
+        {
+          "end": 28,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 22,
+          "kind": "Number",
+          "number": "1e+21",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 27,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 23,
+          "units": []
+        }
+      ],
+      "source": "{999999999999999999999:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "106",
+      "nodes": [
+        {
+          "end": 22,
+          "kind": "Number",
+          "number": "1e+21",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "1000000000000000000000"
+    },
+    {
+      "diagnostics": [],
+      "id": "107",
+      "nodes": [
+        {
+          "end": 23,
+          "kind": "Number",
+          "number": "-1e+21",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-1000000000000000000000"
+    },
+    {
+      "diagnostics": [],
+      "id": "108",
+      "nodes": [
+        {
+          "end": 56,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 31,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 30,
+          "kind": "Number",
+          "number": "1e+21",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 55,
+          "kind": "Number",
+          "number": "-1e+21",
+          "path": "$/e2",
+          "start": 32,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":1000000000000000000000},-1000000000000000000000]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 22,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "109",
+      "nodes": [
+        {
+          "end": 29,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 23,
+          "kind": "Number",
+          "number": "1e+21",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 28,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 24,
+          "units": []
+        }
+      ],
+      "source": "{1000000000000000000000:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "110",
+      "nodes": [
+        {
+          "end": 22,
+          "kind": "Number",
+          "number": "1e+21",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "1000000000000000000001"
+    },
+    {
+      "diagnostics": [],
+      "id": "111",
+      "nodes": [
+        {
+          "end": 23,
+          "kind": "Number",
+          "number": "-1e+21",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-1000000000000000000001"
+    },
+    {
+      "diagnostics": [],
+      "id": "112",
+      "nodes": [
+        {
+          "end": 56,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 31,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 30,
+          "kind": "Number",
+          "number": "1e+21",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 55,
+          "kind": "Number",
+          "number": "-1e+21",
+          "path": "$/e2",
+          "start": 32,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":1000000000000000000001},-1000000000000000000001]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 22,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "113",
+      "nodes": [
+        {
+          "end": 29,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 23,
+          "kind": "Number",
+          "number": "1e+21",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 28,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 24,
+          "units": []
+        }
+      ],
+      "source": "{1000000000000000000001:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "114",
+      "nodes": [
+        {
+          "end": 22,
+          "kind": "Number",
+          "number": "1e+22",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "9999999999999999999999"
+    },
+    {
+      "diagnostics": [],
+      "id": "115",
+      "nodes": [
+        {
+          "end": 23,
+          "kind": "Number",
+          "number": "-1e+22",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-9999999999999999999999"
+    },
+    {
+      "diagnostics": [],
+      "id": "116",
+      "nodes": [
+        {
+          "end": 56,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 31,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 30,
+          "kind": "Number",
+          "number": "1e+22",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 55,
+          "kind": "Number",
+          "number": "-1e+22",
+          "path": "$/e2",
+          "start": 32,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":9999999999999999999999},-9999999999999999999999]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 22,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "117",
+      "nodes": [
+        {
+          "end": 29,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 23,
+          "kind": "Number",
+          "number": "1e+22",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 28,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 24,
+          "units": []
+        }
+      ],
+      "source": "{9999999999999999999999:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "118",
+      "nodes": [
+        {
+          "end": 23,
+          "kind": "Number",
+          "number": "1e+22",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "10000000000000000000000"
+    },
+    {
+      "diagnostics": [],
+      "id": "119",
+      "nodes": [
+        {
+          "end": 24,
+          "kind": "Number",
+          "number": "-1e+22",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-10000000000000000000000"
+    },
+    {
+      "diagnostics": [],
+      "id": "120",
+      "nodes": [
+        {
+          "end": 58,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 32,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 31,
+          "kind": "Number",
+          "number": "1e+22",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 57,
+          "kind": "Number",
+          "number": "-1e+22",
+          "path": "$/e2",
+          "start": 33,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":10000000000000000000000},-10000000000000000000000]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 23,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "121",
+      "nodes": [
+        {
+          "end": 30,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 24,
+          "kind": "Number",
+          "number": "1e+22",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 29,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 25,
+          "units": []
+        }
+      ],
+      "source": "{10000000000000000000000:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "122",
+      "nodes": [
+        {
+          "end": 23,
+          "kind": "Number",
+          "number": "1e+22",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "10000000000000000000001"
+    },
+    {
+      "diagnostics": [],
+      "id": "123",
+      "nodes": [
+        {
+          "end": 24,
+          "kind": "Number",
+          "number": "-1e+22",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-10000000000000000000001"
+    },
+    {
+      "diagnostics": [],
+      "id": "124",
+      "nodes": [
+        {
+          "end": 58,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 32,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 31,
+          "kind": "Number",
+          "number": "1e+22",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 57,
+          "kind": "Number",
+          "number": "-1e+22",
+          "path": "$/e2",
+          "start": 33,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":10000000000000000000001},-10000000000000000000001]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 23,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "125",
+      "nodes": [
+        {
+          "end": 30,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 24,
+          "kind": "Number",
+          "number": "1e+22",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 29,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 25,
+          "units": []
+        }
+      ],
+      "source": "{10000000000000000000001:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "126",
+      "nodes": [
+        {
+          "end": 100,
+          "kind": "Number",
+          "number": "1e+100",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
+    },
+    {
+      "diagnostics": [],
+      "id": "127",
+      "nodes": [
+        {
+          "end": 101,
+          "kind": "Number",
+          "number": "-1e+100",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
+    },
+    {
+      "diagnostics": [],
+      "id": "128",
+      "nodes": [
+        {
+          "end": 212,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 109,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 108,
+          "kind": "Number",
+          "number": "1e+100",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 211,
+          "kind": "Number",
+          "number": "-1e+100",
+          "path": "$/e2",
+          "start": 110,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999},-9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 100,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "129",
+      "nodes": [
+        {
+          "end": 107,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 101,
+          "kind": "Number",
+          "number": "1e+100",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 106,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 102,
+          "units": []
+        }
+      ],
+      "source": "{9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "130",
+      "nodes": [
+        {
+          "end": 101,
+          "kind": "Number",
+          "number": "1e+100",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "diagnostics": [],
+      "id": "131",
+      "nodes": [
+        {
+          "end": 102,
+          "kind": "Number",
+          "number": "-1e+100",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "diagnostics": [],
+      "id": "132",
+      "nodes": [
+        {
+          "end": 214,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 110,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 109,
+          "kind": "Number",
+          "number": "1e+100",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 213,
+          "kind": "Number",
+          "number": "-1e+100",
+          "path": "$/e2",
+          "start": 111,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000},-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 101,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "133",
+      "nodes": [
+        {
+          "end": 108,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 102,
+          "kind": "Number",
+          "number": "1e+100",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 107,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 103,
+          "units": []
+        }
+      ],
+      "source": "{10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "134",
+      "nodes": [
+        {
+          "end": 101,
+          "kind": "Number",
+          "number": "1e+100",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001"
+    },
+    {
+      "diagnostics": [],
+      "id": "135",
+      "nodes": [
+        {
+          "end": 102,
+          "kind": "Number",
+          "number": "-1e+100",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001"
+    },
+    {
+      "diagnostics": [],
+      "id": "136",
+      "nodes": [
+        {
+          "end": 214,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 110,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 109,
+          "kind": "Number",
+          "number": "1e+100",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 213,
+          "kind": "Number",
+          "number": "-1e+100",
+          "path": "$/e2",
+          "start": 111,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001},-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 101,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "137",
+      "nodes": [
+        {
+          "end": 108,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 102,
+          "kind": "Number",
+          "number": "1e+100",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 107,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 103,
+          "units": []
+        }
+      ],
+      "source": "{10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "138",
+      "nodes": [
+        {
+          "end": 308,
+          "kind": "Number",
+          "number": "1e+308",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
+    },
+    {
+      "diagnostics": [],
+      "id": "139",
+      "nodes": [
+        {
+          "end": 309,
+          "kind": "Number",
+          "number": "-1e+308",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
+    },
+    {
+      "diagnostics": [],
+      "id": "140",
+      "nodes": [
+        {
+          "end": 628,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 317,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 316,
+          "kind": "Number",
+          "number": "1e+308",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 627,
+          "kind": "Number",
+          "number": "-1e+308",
+          "path": "$/e2",
+          "start": 318,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999},-99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 308,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "141",
+      "nodes": [
+        {
+          "end": 315,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 309,
+          "kind": "Number",
+          "number": "1e+308",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 314,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 310,
+          "units": []
+        }
+      ],
+      "source": "{99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "142",
+      "nodes": [
+        {
+          "end": 309,
+          "kind": "Number",
+          "number": "1e+308",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "diagnostics": [],
+      "id": "143",
+      "nodes": [
+        {
+          "end": 310,
+          "kind": "Number",
+          "number": "-1e+308",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "diagnostics": [],
+      "id": "144",
+      "nodes": [
+        {
+          "end": 630,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 318,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 317,
+          "kind": "Number",
+          "number": "1e+308",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 629,
+          "kind": "Number",
+          "number": "-1e+308",
+          "path": "$/e2",
+          "start": 319,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000},-100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 309,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "145",
+      "nodes": [
+        {
+          "end": 316,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 310,
+          "kind": "Number",
+          "number": "1e+308",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 315,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 311,
+          "units": []
+        }
+      ],
+      "source": "{100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "146",
+      "nodes": [
+        {
+          "end": 309,
+          "kind": "Number",
+          "number": "1e+308",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001"
+    },
+    {
+      "diagnostics": [],
+      "id": "147",
+      "nodes": [
+        {
+          "end": 310,
+          "kind": "Number",
+          "number": "-1e+308",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001"
+    },
+    {
+      "diagnostics": [],
+      "id": "148",
+      "nodes": [
+        {
+          "end": 630,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 318,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 317,
+          "kind": "Number",
+          "number": "1e+308",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 629,
+          "kind": "Number",
+          "number": "-1e+308",
+          "path": "$/e2",
+          "start": 319,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001},-100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 309,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "149",
+      "nodes": [
+        {
+          "end": 316,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 310,
+          "kind": "Number",
+          "number": "1e+308",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 315,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 311,
+          "units": []
+        }
+      ],
+      "source": "{100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "150",
+      "nodes": [
+        {
+          "end": 309,
+          "kind": "Number",
+          "number": "Infinity",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
+    },
+    {
+      "diagnostics": [],
+      "id": "151",
+      "nodes": [
+        {
+          "end": 310,
+          "kind": "Number",
+          "number": "-Infinity",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
+    },
+    {
+      "diagnostics": [],
+      "id": "152",
+      "nodes": [
+        {
+          "end": 630,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 318,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 317,
+          "kind": "Number",
+          "number": "Infinity",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 629,
+          "kind": "Number",
+          "number": "-Infinity",
+          "path": "$/e2",
+          "start": 319,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999},-999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 309,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "153",
+      "nodes": [
+        {
+          "end": 316,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 310,
+          "kind": "Number",
+          "number": "Infinity",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 315,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 311,
+          "units": []
+        }
+      ],
+      "source": "{999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "154",
+      "nodes": [
+        {
+          "end": 310,
+          "kind": "Number",
+          "number": "Infinity",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "diagnostics": [],
+      "id": "155",
+      "nodes": [
+        {
+          "end": 311,
+          "kind": "Number",
+          "number": "-Infinity",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "diagnostics": [],
+      "id": "156",
+      "nodes": [
+        {
+          "end": 632,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 319,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 318,
+          "kind": "Number",
+          "number": "Infinity",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 631,
+          "kind": "Number",
+          "number": "-Infinity",
+          "path": "$/e2",
+          "start": 320,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000},-1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 310,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "157",
+      "nodes": [
+        {
+          "end": 317,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 311,
+          "kind": "Number",
+          "number": "Infinity",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 316,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 312,
+          "units": []
+        }
+      ],
+      "source": "{1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000:true}"
+    },
+    {
+      "diagnostics": [],
+      "id": "158",
+      "nodes": [
+        {
+          "end": 310,
+          "kind": "Number",
+          "number": "Infinity",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001"
+    },
+    {
+      "diagnostics": [],
+      "id": "159",
+      "nodes": [
+        {
+          "end": 311,
+          "kind": "Number",
+          "number": "-Infinity",
+          "path": "$",
+          "start": 0,
+          "units": []
+        }
+      ],
+      "source": "-1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001"
+    },
+    {
+      "diagnostics": [],
+      "id": "160",
+      "nodes": [
+        {
+          "end": 632,
+          "kind": "Array",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 2,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/e0",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 319,
+          "kind": "Object",
+          "number": "",
+          "path": "$/e1",
+          "start": 3,
+          "units": []
+        },
+        {
+          "end": 7,
+          "kind": "String",
+          "number": "",
+          "path": "$/e1/p0/name",
+          "start": 4,
+          "units": [
+            110
+          ]
+        },
+        {
+          "end": 318,
+          "kind": "Number",
+          "number": "Infinity",
+          "path": "$/e1/p0/value",
+          "start": 8,
+          "units": []
+        },
+        {
+          "end": 631,
+          "kind": "Number",
+          "number": "-Infinity",
+          "path": "$/e2",
+          "start": 320,
+          "units": []
+        }
+      ],
+      "source": "[1,{\"n\":1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001},-1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001]"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1327,
+          "length": 310,
+          "message": "String literal with double quotes expected.",
+          "start": 1
+        }
+      ],
+      "id": "161",
+      "nodes": [
+        {
+          "end": 317,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 311,
+          "kind": "Number",
+          "number": "Infinity",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": []
+        },
+        {
+          "end": 316,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 312,
+          "units": []
+        }
+      ],
+      "source": "{1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001:true}"
     }
   ]
 }
