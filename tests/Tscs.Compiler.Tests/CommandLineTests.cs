@@ -8,6 +8,17 @@ public class CommandLineTests : IDisposable
     private (int Code,string Out) Run(params string[] args){using var writer=new StringWriter();var code=CommandLine.Run(args,writer,writer);return(code,writer.ToString());}
     private string Write(string name,string text){var path=Path.Combine(directory,name);File.WriteAllText(path,text);return path;}
     private string Lib()=>Write("minimal.d.ts","interface Array<T> {} interface Boolean {} interface Function {} interface CallableFunction {} interface NewableFunction {} interface IArguments {} interface Number {} interface Object {} interface RegExp {} interface String {}");
+    [Theory]
+    [InlineData("\u2028",0)]
+    [InlineData("\u2029",0)]
+    [InlineData("\r",2)]
+    [InlineData("\n",2)]
+    public void RawStringLineCharactersKeepCorrectExitStatus(string character,int expected)
+    {
+        var r=Run("--noEmit","--noLib",Write("a.ts","let s: string = \"a"+character+"z\";"),Lib());
+        Assert.Equal(expected,r.Code);
+        if(expected==0)Assert.Equal("",r.Out);else Assert.Contains("TS1002",r.Out);
+    }
     [Fact] public void MissingInputFails()=>Assert.NotEqual(0,Run().Code);
     [Fact] public void UnknownOptionFails()=>Assert.NotEqual(0,Run("--imaginary").Code);
     [Fact] public void MissingFileFails()=>Assert.NotEqual(0,Run("--noEmit","--noLib",Path.Combine(directory,"missing.ts")).Code);

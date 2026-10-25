@@ -3,6 +3,20 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Product scanner string line characters — 2026-10-25
+
+- Fixed ordinary string scanning: U+2028/U+2029 are accepted inside unescaped
+  strings as in pinned scanString; only raw CR/LF terminate. Outside strings,
+  all four still count as line breaks for comments/ASI. Escape support unchanged.
+-58 literal vectors execute the actual fixed Go scanner; product compilation
+  diagnostics/acceptance match this bounded distinction. Two outside-string ASI
+  regressions and four CLI cases verify LS/PS exit0 versus CR/LF TS1002/exit2.
+- Actual RED6fail/7602pass -> direct MTP7608/7608, Node69/69, frozen29/29,
+  Release0 warnings/errors. Golden repeats byte-identically; independent static
+  review has no blocking finding. [Evidence and raw logs](evidence/string-lines.json).
+- No original full source/config/compiler acceptance run. JSON/config parsing
+  and AST porting remain incomplete; complete release gate remains false.
+
 ## Config-file selection preparation — 2026-10-25
 
 - Added pre-parse first-config selection using pinned basename/lowercase semantics,

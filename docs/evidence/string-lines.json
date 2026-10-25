@@ -1,0 +1,140 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "profile": "unescaped-string/line-characters/product-scanner",
+  "vectors": 58,
+  "ids": [
+    "single/0",
+    "single/9",
+    "single/a",
+    "single/b",
+    "single/c",
+    "single/d",
+    "single/20",
+    "single/85",
+    "single/a0",
+    "single/1680",
+    "single/2000",
+    "single/2001",
+    "single/2002",
+    "single/2003",
+    "single/2004",
+    "single/2005",
+    "single/2006",
+    "single/2007",
+    "single/2008",
+    "single/2009",
+    "single/200a",
+    "single/200b",
+    "single/2028",
+    "single/2029",
+    "single/202f",
+    "single/205f",
+    "single/3000",
+    "single/feff",
+    "single/1f600",
+    "double/0",
+    "double/9",
+    "double/a",
+    "double/b",
+    "double/c",
+    "double/d",
+    "double/20",
+    "double/85",
+    "double/a0",
+    "double/1680",
+    "double/2000",
+    "double/2001",
+    "double/2002",
+    "double/2003",
+    "double/2004",
+    "double/2005",
+    "double/2006",
+    "double/2007",
+    "double/2008",
+    "double/2009",
+    "double/200a",
+    "double/200b",
+    "double/2028",
+    "double/2029",
+    "double/202f",
+    "double/205f",
+    "double/3000",
+    "double/feff",
+    "double/1f600"
+  ],
+  "testMethod": "Tscs.Tests.StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner",
+  "additionalTests": [
+    "UnicodeLineSeparatorOutsideStringStillSeparatesStatements:2",
+    "RawStringLineCharactersKeepCorrectExitStatus:4"
+  ],
+  "sourceHashes": {
+    "src/Tscs.Compiler/Scanner.cs": "fe1e97e5feb9fc6de868c1f02ee26c7e0a5632d553724c1f398e194ddb93aaa6",
+    "tests/Tscs.Compiler.Tests/StringLineTests.cs": "b3873f2a0b11feccca599e75ff67fd60ebf1a72dd572ffe210e871aff3e6a808",
+    "tests/Tscs.Compiler.Tests/CommandLineTests.cs": "57d99d541158cae44667dbaf7cba6fa5d288bb30965534daa22f29806852db6a",
+    "tests/Tscs.Compiler.Tests/TestData/string-lines.json": "63f0705df7e59c354d3b0241fbdfd84d25f5c93317c46de26570cc04a3adedd8",
+    "tools/generate-string-lines.ts": "b2eb1795994e4a6405f8b99598158cdbe0100fa15ffd82d4b71070add7880e5a",
+    "tools/fixture-harness/string_lines_oracle_test.go": "2b2b971af272c21db79fb45f1d4d151adf3bce32012538541f9ac7a1143d056f"
+  },
+  "oracle": {
+    "go": "go version go1.27.3 linux/amd64",
+    "sourceSha256": "48008100fb5a020748651e319c4dcc361c1a81ca06f8c3e0ed94d42dd0d1e6df",
+    "probeSha256": "2b2b971af272c21db79fb45f1d4d151adf3bce32012538541f9ac7a1143d056f",
+    "executes": "Actual pinned scanner.Scan/scanString; not whole reference compiler"
+  },
+  "versions": {
+    "sdk": "10.0.402",
+    "runtime": "10.0.13",
+    "node": "24.22.1",
+    "xunit": "4.0.2",
+    "mtp": "2.5.1"
+  },
+  "validation": {
+    "initialAttempt": "Build rejected unused xUnit id; old7544 DLL triggered minimum7604 violation; excluded as RED proof",
+    "actualRed": {
+      "failed": 6,
+      "passed": 7602
+    },
+    "directMTP": {
+      "passed": 7608,
+      "failed": 0,
+      "skipped": 0
+    },
+    "releaseBuild": "0 warnings/errors",
+    "node": 69,
+    "frozen": 29,
+    "repeat": "58-vector golden byte identical",
+    "sdkOrchestration": "NOT_RUN"
+  },
+  "review": {
+    "independentStatic": "No blocking findings; reviewer did not execute tests",
+    "limits": [
+      "Accepted cases assert compilation diagnostics, not decoded token value",
+      "CR/LF location cases have ASCII prefixes; supplementary-before-error offsets not tested",
+      "No complete compiler-equivalence claim"
+    ]
+  },
+  "commands": [
+    "node tools/generate-string-lines.ts .artifacts/ts7-upstream OUTPUT",
+    "dotnet build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false",
+    "dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 7608",
+    "node --test tools/*.test.ts",
+    "node tools/verify-conformance.ts"
+  ],
+  "logs": {
+    "docs/evidence/string-lines-run/repeat.log": "3de9584823bd243fb17652a84a683ac199b9937baacbef1bbdfb2ed8ec99fd54",
+    "docs/evidence/string-lines-run/node.log": "553d90093a18e037349b6c9b8b85e347d7fe806031f5ab96f83ff91e78ead8b5",
+    "docs/evidence/string-lines-run/go.log": "38aa11b552f7ccc64e0f91f3ac0004b4d9f54d6b7152e397ba30c0b38c51da2f",
+    "docs/evidence/string-lines-run/red-build-fixed.log": "60b9417b9c8a2864417409c36c7934b39676359d5f3090844fff0000b4c07ba0",
+    "docs/evidence/string-lines-run/red-build.log": "6d396f7b7aec38833afbbceb5a27c99ea6ba153aa2914fb0c58aafadd55a6bcf",
+    "docs/evidence/string-lines-run/go-repeat.log": "38aa11b552f7ccc64e0f91f3ac0004b4d9f54d6b7152e397ba30c0b38c51da2f",
+    "docs/evidence/string-lines-run/frozen.log": "441c7bad381ac65cb1890aaf8424ec7b8999b55ef7574e9836a3516c151bc4b9",
+    "docs/evidence/string-lines-run/generate.log": "3de9584823bd243fb17652a84a683ac199b9937baacbef1bbdfb2ed8ec99fd54",
+    "docs/evidence/string-lines-run/build.log": "a106dec9ee8338707eff440cc23fb814988e93e16fe4807ecd61049a363eeb40",
+    "docs/evidence/string-lines-run/red.log": "7a9842d964a6ad28f190573fd57eda57eeefe807e8e23ba4f57b4679c6f8a63d",
+    "docs/evidence/string-lines-run/red-actual.log": "282cdbd72ba0976f318ac1c43b29c58fe9284b16473335bb20eccf6e489c1981",
+    "docs/evidence/string-lines-run/green.log": "14d2e069153199d1f09a7217f02167f516541f776b5e4c977497f37ce7a22c76"
+  },
+  "originalCompilerAcceptance": "NOT_RUN",
+  "fullSourceProfilesThisRun": "NOT_RUN",
+  "releaseEligible": false
+}

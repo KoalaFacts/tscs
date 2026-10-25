@@ -52,7 +52,7 @@ internal sealed class Scanner(string file, string text)
             else if (first is '\'' or '"')
             {
                 kind = TokenKind.String;
-                while (position < text.Length && text[position] != first && !IsLineBreak(text[position]))
+                while (position < text.Length && text[position] != first && text[position] is not ('\r' or '\n'))
                 {
                     if (text[position] == '\\') throw Error(new(TokenKind.Unsupported,"\\",position,1),"TSCS1001","Escaped string literals are not supported yet.");
                     position++;

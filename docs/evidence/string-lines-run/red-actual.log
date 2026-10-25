@@ -1,0 +1,45 @@
+failed Tscs.Tests.CommandLineTests.RawStringLineCharactersKeepCorrectExitStatus(character: " ", expected: 0) (1ms)
+  Assert.Equal() Failure: Values differ
+  Expected: 0
+  Actual:   2
+    at Tscs.Tests.CommandLineTests.RawStringLineCharactersKeepCorrectExitStatus(String character, Int32 expected) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/CommandLineTests.cs:19
+    at InvokeStub_CommandLineTests.RawStringLineCharactersKeepCorrectExitStatus(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.CommandLineTests.RawStringLineCharactersKeepCorrectExitStatus(character: " ", expected: 0) (0ms)
+  Assert.Equal() Failure: Values differ
+  Expected: 0
+  Actual:   2
+    at Tscs.Tests.CommandLineTests.RawStringLineCharactersKeepCorrectExitStatus(String character, Int32 expected) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/CommandLineTests.cs:19
+    at InvokeStub_CommandLineTests.RawStringLineCharactersKeepCorrectExitStatus(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(id: "double/2029", json: "{\n      \"id\": \"double/2029\",\n      \"literal\": \"\\\"a"···) (1ms)
+  Assert.Empty() Failure: Collection was not empty
+  Collection: [Diagnostic { Code = TS1002, Category = error, File = case.ts, Start = 18, Length = 0, Message = Unterminated string literal., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }]
+    at Tscs.Tests.StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringLineTests.cs:14
+    at InvokeStub_StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(id: "single/2029", json: "{\n      \"id\": \"single/2029\",\n      \"literal\": \"'a "···) (0ms)
+  Assert.Empty() Failure: Collection was not empty
+  Collection: [Diagnostic { Code = TS1002, Category = error, File = case.ts, Start = 18, Length = 0, Message = Unterminated string literal., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }]
+    at Tscs.Tests.StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringLineTests.cs:14
+    at InvokeStub_StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(id: "single/2028", json: "{\n      \"id\": \"single/2028\",\n      \"literal\": \"'a "···) (0ms)
+  Assert.Empty() Failure: Collection was not empty
+  Collection: [Diagnostic { Code = TS1002, Category = error, File = case.ts, Start = 18, Length = 0, Message = Unterminated string literal., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }]
+    at Tscs.Tests.StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringLineTests.cs:14
+    at InvokeStub_StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(id: "double/2028", json: "{\n      \"id\": \"double/2028\",\n      \"literal\": \"\\\"a"···) (0ms)
+  Assert.Empty() Failure: Collection was not empty
+  Collection: [Diagnostic { Code = TS1002, Category = error, File = case.ts, Start = 18, Length = 0, Message = Unterminated string literal., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }]
+    at Tscs.Tests.StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringLineTests.cs:14
+    at InvokeStub_StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Test run summary: Failed! - /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+  total: 7608
+  failed: 6
+  succeeded: 7602
+  skipped: 0
+  duration: 2s 877ms
