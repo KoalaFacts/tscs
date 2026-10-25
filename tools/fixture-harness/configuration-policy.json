@@ -1,0 +1,1813 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "sourceHashes": {
+    "tsc/internal/testrunner/test_case_parser.go": "03578c4d35165ee461f4e0488855ffb534eea9a5c598887b255f60817c07d34f",
+    "tsc/internal/testrunner/compiler_runner.go": "1d0fe0e64d74bb1993de04851c86e108553ee4bbeb4dcde580e1c1820a89c3fa",
+    "tsc/internal/testrunner/transpile_runner.go": "d273f976c9a84a7796d227ba98f75745ce71530a0262dc6885ea442cfafdaae2",
+    "tsc/internal/testrunner/options_generated.go": "ec1f8e29fc24155d717d717b90089208d771923465f1ff7eb67c80cb2fc89451",
+    "tsc/internal/testutil/harnessutil/harnessutil.go": "170d8cf5fdd5e146113411c4526a2c409a28e78a17ac23912feae581af50271d",
+    "tsc/internal/tsoptions/declarations_generated.go": "8f414711280dc2e88abdb480bf6d823beae435eedb9161199fdf3b08a3ea33ff",
+    "tsc/internal/vfs/internal/internal.go": "2d641c466808f1417e4e20d46aa4beb7f9dcc1bc5fd872a5d134fb3ae56d1def"
+  },
+  "optionMetadataSha256": "f3f4022fac860a0ee006ac1a1922e02ffcc1cdcd77dd2d2a488bffbb8487d507",
+  "compilerVaryBy": [
+    "all",
+    "allowarbitraryextensions",
+    "allowimportingtsextensions",
+    "allowjs",
+    "allowsyntheticdefaultimports",
+    "allowumdglobalaccess",
+    "allowunreachablecode",
+    "allowunusedlabels",
+    "alwaysstrict",
+    "assumechangesonlyaffectdirectdependencies",
+    "checkjs",
+    "composite",
+    "declaration",
+    "declarationmap",
+    "deduplicatepackages",
+    "diagnostics",
+    "disablereferencedprojectload",
+    "disablesizelimit",
+    "disablesolutionsearching",
+    "disablesourceofprojectreferenceredirect",
+    "downleveliteration",
+    "emitbom",
+    "emitdeclarationonly",
+    "emitdecoratormetadata",
+    "erasablesyntaxonly",
+    "esmoduleinterop",
+    "exactoptionalpropertytypes",
+    "experimentaldecorators",
+    "explainfiles",
+    "extendeddiagnostics",
+    "forceconsistentcasinginfilenames",
+    "importhelpers",
+    "incremental",
+    "init",
+    "inlinesourcemap",
+    "inlinesources",
+    "isolateddeclarations",
+    "isolatedmodules",
+    "jsx",
+    "libreplacement",
+    "listemittedfiles",
+    "listfiles",
+    "module",
+    "moduledetection",
+    "moduleresolution",
+    "newline",
+    "nocheck",
+    "noemit",
+    "noemithelpers",
+    "noemitonerror",
+    "noerrortruncation",
+    "nofallthroughcasesinswitch",
+    "noimplicitany",
+    "noimplicitoverride",
+    "noimplicitreturns",
+    "noimplicitthis",
+    "nolib",
+    "nopropertyaccessfromindexsignature",
+    "noresolve",
+    "nouncheckedindexedaccess",
+    "nouncheckedsideeffectimports",
+    "nounusedlocals",
+    "nounusedparameters",
+    "preserveconstenums",
+    "preservesymlinks",
+    "preservewatchoutput",
+    "pretty",
+    "quiet",
+    "removecomments",
+    "resolvejsonmodule",
+    "resolvepackagejsonexports",
+    "resolvepackagejsonimports",
+    "rewriterelativeimportextensions",
+    "singlethreaded",
+    "skipdefaultlibcheck",
+    "skiplibcheck",
+    "sourcemap",
+    "stabletypeordering",
+    "strict",
+    "strictbindcallapply",
+    "strictbuiltiniteratorreturn",
+    "strictfunctiontypes",
+    "strictnullchecks",
+    "strictpropertyinitialization",
+    "stripinternal",
+    "target",
+    "traceresolution",
+    "usedefineforclassfields",
+    "useunknownincatchvariables",
+    "verbatimmodulesyntax",
+    "version"
+  ],
+  "transpileVaryBy": [
+    "declarationmap",
+    "inlinesourcemap",
+    "sourcemap"
+  ],
+  "options": [
+    {
+      "kind": "boolean",
+      "name": "help",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "help",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "watch",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "preserveWatchOutput",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "listFiles",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "explainFiles",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "listEmittedFiles",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "pretty",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "traceResolution",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "diagnostics",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "extendedDiagnostics",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "other",
+      "name": "generateCpuProfile",
+      "values": []
+    },
+    {
+      "kind": "other",
+      "name": "generateTrace",
+      "values": []
+    },
+    {
+      "kind": "boolean",
+      "name": "incremental",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "declaration",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "declarationMap",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "emitDeclarationOnly",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "sourceMap",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "inlineSourceMap",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "noCheck",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "deduplicatePackages",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "noEmit",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "assumeChangesOnlyAffectDirectDependencies",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "other",
+      "name": "locale",
+      "values": []
+    },
+    {
+      "kind": "boolean",
+      "name": "quiet",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "singleThreaded",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "other",
+      "name": "pprofDir",
+      "values": []
+    },
+    {
+      "kind": "other",
+      "name": "checkers",
+      "values": []
+    },
+    {
+      "kind": "boolean",
+      "name": "runExternalCode",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "all",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "version",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "init",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "other",
+      "name": "project",
+      "values": []
+    },
+    {
+      "kind": "boolean",
+      "name": "showConfig",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "listFilesOnly",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "ignoreConfig",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "enum",
+      "name": "target",
+      "values": [
+        {
+          "canonical": "core.ScriptTarget:1",
+          "key": "es5"
+        },
+        {
+          "canonical": "core.ScriptTarget:2",
+          "key": "es6"
+        },
+        {
+          "canonical": "core.ScriptTarget:2",
+          "key": "es2015"
+        },
+        {
+          "canonical": "core.ScriptTarget:3",
+          "key": "es2016"
+        },
+        {
+          "canonical": "core.ScriptTarget:4",
+          "key": "es2017"
+        },
+        {
+          "canonical": "core.ScriptTarget:5",
+          "key": "es2018"
+        },
+        {
+          "canonical": "core.ScriptTarget:6",
+          "key": "es2019"
+        },
+        {
+          "canonical": "core.ScriptTarget:7",
+          "key": "es2020"
+        },
+        {
+          "canonical": "core.ScriptTarget:8",
+          "key": "es2021"
+        },
+        {
+          "canonical": "core.ScriptTarget:9",
+          "key": "es2022"
+        },
+        {
+          "canonical": "core.ScriptTarget:10",
+          "key": "es2023"
+        },
+        {
+          "canonical": "core.ScriptTarget:11",
+          "key": "es2024"
+        },
+        {
+          "canonical": "core.ScriptTarget:12",
+          "key": "es2025"
+        },
+        {
+          "canonical": "core.ScriptTarget:13",
+          "key": "es2026"
+        },
+        {
+          "canonical": "core.ScriptTarget:99",
+          "key": "esnext"
+        }
+      ]
+    },
+    {
+      "kind": "enum",
+      "name": "module",
+      "values": [
+        {
+          "canonical": "core.ModuleKind:1",
+          "key": "commonjs"
+        },
+        {
+          "canonical": "core.ModuleKind:2",
+          "key": "amd"
+        },
+        {
+          "canonical": "core.ModuleKind:4",
+          "key": "system"
+        },
+        {
+          "canonical": "core.ModuleKind:3",
+          "key": "umd"
+        },
+        {
+          "canonical": "core.ModuleKind:5",
+          "key": "es6"
+        },
+        {
+          "canonical": "core.ModuleKind:5",
+          "key": "es2015"
+        },
+        {
+          "canonical": "core.ModuleKind:6",
+          "key": "es2020"
+        },
+        {
+          "canonical": "core.ModuleKind:7",
+          "key": "es2022"
+        },
+        {
+          "canonical": "core.ModuleKind:99",
+          "key": "esnext"
+        },
+        {
+          "canonical": "core.ModuleKind:100",
+          "key": "node16"
+        },
+        {
+          "canonical": "core.ModuleKind:101",
+          "key": "node18"
+        },
+        {
+          "canonical": "core.ModuleKind:102",
+          "key": "node20"
+        },
+        {
+          "canonical": "core.ModuleKind:199",
+          "key": "nodenext"
+        },
+        {
+          "canonical": "core.ModuleKind:200",
+          "key": "preserve"
+        }
+      ]
+    },
+    {
+      "kind": "other",
+      "name": "lib",
+      "values": []
+    },
+    {
+      "kind": "boolean",
+      "name": "allowJs",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "checkJs",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "enum",
+      "name": "jsx",
+      "values": [
+        {
+          "canonical": "core.JsxEmit:1",
+          "key": "preserve"
+        },
+        {
+          "canonical": "core.JsxEmit:3",
+          "key": "react-native"
+        },
+        {
+          "canonical": "core.JsxEmit:4",
+          "key": "react-jsx"
+        },
+        {
+          "canonical": "core.JsxEmit:5",
+          "key": "react-jsxdev"
+        },
+        {
+          "canonical": "core.JsxEmit:2",
+          "key": "react"
+        }
+      ]
+    },
+    {
+      "kind": "other",
+      "name": "outFile",
+      "values": []
+    },
+    {
+      "kind": "other",
+      "name": "outDir",
+      "values": []
+    },
+    {
+      "kind": "other",
+      "name": "rootDir",
+      "values": []
+    },
+    {
+      "kind": "boolean",
+      "name": "composite",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "other",
+      "name": "tsBuildInfoFile",
+      "values": []
+    },
+    {
+      "kind": "boolean",
+      "name": "removeComments",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "importHelpers",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "downlevelIteration",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "isolatedModules",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "verbatimModuleSyntax",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "isolatedDeclarations",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "erasableSyntaxOnly",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "libReplacement",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "strict",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "noImplicitAny",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "strictNullChecks",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "strictFunctionTypes",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "strictBindCallApply",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "strictPropertyInitialization",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "strictBuiltinIteratorReturn",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "noImplicitThis",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "useUnknownInCatchVariables",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "alwaysStrict",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "stableTypeOrdering",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "noUnusedLocals",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "noUnusedParameters",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "exactOptionalPropertyTypes",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "noImplicitReturns",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "noFallthroughCasesInSwitch",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "noUncheckedIndexedAccess",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "noImplicitOverride",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "noPropertyAccessFromIndexSignature",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "enum",
+      "name": "moduleResolution",
+      "values": [
+        {
+          "canonical": "core.ModuleResolutionKind:3",
+          "key": "node16"
+        },
+        {
+          "canonical": "core.ModuleResolutionKind:99",
+          "key": "nodenext"
+        },
+        {
+          "canonical": "core.ModuleResolutionKind:100",
+          "key": "bundler"
+        },
+        {
+          "canonical": "core.ModuleResolutionKind:1",
+          "key": "classic"
+        },
+        {
+          "canonical": "core.ModuleResolutionKind:2",
+          "key": "node"
+        },
+        {
+          "canonical": "core.ModuleResolutionKind:2",
+          "key": "node10"
+        }
+      ]
+    },
+    {
+      "kind": "other",
+      "name": "baseUrl",
+      "values": []
+    },
+    {
+      "kind": "other",
+      "name": "paths",
+      "values": []
+    },
+    {
+      "kind": "other",
+      "name": "rootDirs",
+      "values": []
+    },
+    {
+      "kind": "other",
+      "name": "typeRoots",
+      "values": []
+    },
+    {
+      "kind": "other",
+      "name": "types",
+      "values": []
+    },
+    {
+      "kind": "boolean",
+      "name": "allowSyntheticDefaultImports",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "esModuleInterop",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "preserveSymlinks",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "allowUmdGlobalAccess",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "other",
+      "name": "moduleSuffixes",
+      "values": []
+    },
+    {
+      "kind": "boolean",
+      "name": "allowImportingTsExtensions",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "rewriteRelativeImportExtensions",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "resolvePackageJsonExports",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "resolvePackageJsonImports",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "other",
+      "name": "customConditions",
+      "values": []
+    },
+    {
+      "kind": "boolean",
+      "name": "noUncheckedSideEffectImports",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "other",
+      "name": "sourceRoot",
+      "values": []
+    },
+    {
+      "kind": "other",
+      "name": "mapRoot",
+      "values": []
+    },
+    {
+      "kind": "boolean",
+      "name": "inlineSources",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "experimentalDecorators",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "emitDecoratorMetadata",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "other",
+      "name": "jsxFactory",
+      "values": []
+    },
+    {
+      "kind": "other",
+      "name": "jsxFragmentFactory",
+      "values": []
+    },
+    {
+      "kind": "other",
+      "name": "jsxImportSource",
+      "values": []
+    },
+    {
+      "kind": "boolean",
+      "name": "resolveJsonModule",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "allowArbitraryExtensions",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "other",
+      "name": "reactNamespace",
+      "values": []
+    },
+    {
+      "kind": "boolean",
+      "name": "skipDefaultLibCheck",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "emitBOM",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "enum",
+      "name": "newLine",
+      "values": [
+        {
+          "canonical": "core.NewLineKind:1",
+          "key": "crlf"
+        },
+        {
+          "canonical": "core.NewLineKind:2",
+          "key": "lf"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "noErrorTruncation",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "noLib",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "noResolve",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "stripInternal",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "disableSizeLimit",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "disableSourceOfProjectReferenceRedirect",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "disableSolutionSearching",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "disableReferencedProjectLoad",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "noEmitHelpers",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "noEmitOnError",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "preserveConstEnums",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "other",
+      "name": "declarationDir",
+      "values": []
+    },
+    {
+      "kind": "boolean",
+      "name": "skipLibCheck",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "allowUnusedLabels",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "allowUnreachableCode",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "forceConsistentCasingInFileNames",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "other",
+      "name": "maxNodeModuleJsDepth",
+      "values": []
+    },
+    {
+      "kind": "boolean",
+      "name": "useDefineForClassFields",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "other",
+      "name": "plugins",
+      "values": []
+    },
+    {
+      "kind": "enum",
+      "name": "moduleDetection",
+      "values": [
+        {
+          "canonical": "core.ModuleDetectionKind:1",
+          "key": "auto"
+        },
+        {
+          "canonical": "core.ModuleDetectionKind:2",
+          "key": "legacy"
+        },
+        {
+          "canonical": "core.ModuleDetectionKind:3",
+          "key": "force"
+        }
+      ]
+    },
+    {
+      "kind": "other",
+      "name": "ignoreDeprecations",
+      "values": []
+    },
+    {
+      "kind": "boolean",
+      "name": "allowNonTsExtensions",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "noErrorTruncation",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "suppressOutputPathCheck",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    },
+    {
+      "kind": "boolean",
+      "name": "noCheck",
+      "values": [
+        {
+          "canonical": "bool:true",
+          "key": "true"
+        },
+        {
+          "canonical": "bool:false",
+          "key": "false"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+// Source configuration enumeration only. No effective options/compiler acceptance.
+import {readFileSync,writeFileSync,mkdirSync,existsSync,lstatSync,openSync,closeSync} from 'node:fs';
+import {resolve,join} from 'node:path';
+import {execFileSync,spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {parseTree,classifyAsset,sha256,stableId} from './ts7-scope.ts';
+import {sourceConfigPin,sourceConfigOracle,reconcileSourceConfigurations,sourceConfigurationRunner} from './source-configurations.ts';
+import {buildFixtureHarness} from './fixture-corpus.ts';
+const [up,inv,out]=process.argv.slice(2);if(!up||!inv||!out||process.argv.length!==5||existsSync(out))throw Error('Usage: node tools/compare-source-configurations.ts PINNED_CHECKOUT INVENTORY NEW_OUTPUT');
+if(Number(process.versions.node.split('.')[0])!==24)throw Error('Node24 required');
+const upstream=resolve(up),inventory=resolve(inv),output=resolve(out),dotnet=process.env.DOTNET??'dotnet';
+const git=(...args)=>execFileSync('git',['-C',upstream,...args],{env:{...process.env,GIT_NO_REPLACE_OBJECTS:'1'},maxBuffer:64*1024*1024});
+const summary=JSON.parse(readFileSync(join(inventory,'summary.json'),'utf8')),fixtureBytes=readFileSync(join(inventory,'fixtures.jsonl'));
+if(summary.provenance.commit!==sourceConfigPin||summary.artifacts.find(a=>a.path==='fixtures.jsonl')?.sha256!==sha256(fixtureBytes))throw Error('Inventory identity/hash mismatch');
+const fixtures=fixtureBytes.toString('utf8').trimEnd().split('\n').map(l=>JSON.parse(l)),byPath=new Map(fixtures.map(f=>[f.path,f]));
+const tree=parseTree(git('ls-tree','-r','-z','--full-tree',sourceConfigPin)).filter(e=>classifyAsset(e.path).role==='fixture-input');
+if(byPath.size!==fixtures.length||tree.length!==fixtures.length||tree.some(e=>!byPath.has(e.path)))throw Error('Fixture omission/duplicate');
+const sources=[],requests=tree.map(e=>{
+ const f=byPath.get(e.path),path=join(upstream,e.path);if(e.type!=='blob'||!['100644','100755'].includes(e.mode)||!lstatSync(path).isFile())throw Error('Unexpected fixture mode');
+ const bytes=readFileSync(path),oid=createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
+ if(oid!==e.oid||sha256(bytes)!==f.rawSha256||f.id!==stableId(stableId(sourceConfigPin,'asset',e.path),'fixture',e.path))throw Error('Source identity/bytes mismatch');
+ sources.push({sourceId:f.id,path:f.path,rawSha256:f.rawSha256,upstreamSelection:f.upstreamSelection});
+ const runner=sourceConfigurationRunner(e.path,f.domain);
+ return {id:stableId(f.id,'source-configuration-profile',runner),input:bytes.toString('base64'),runner,profile:'source-configurations'};
+});
+mkdirSync(output,{recursive:true});const save=(p,v)=>writeFileSync(join(output,p),v,{flag:'wx'});
+const reference=sourceConfigOracle(upstream,requests,output);
+const policy=JSON.parse(readFileSync('tools/fixture-harness/configuration-policy.json','utf8'));
+if(policy.upstreamCommit!==sourceConfigPin||policy.optionMetadataSha256!==sha256(readFileSync('tests/Tscs.Compiler.Tests/TestData/option-values.json'))||JSON.stringify(policy.compilerVaryBy)!==JSON.stringify(reference.compilerVaryBy)||JSON.stringify(policy.transpileVaryBy)!==JSON.stringify(reference.transpileVaryBy)||JSON.stringify(policy.sourceHashes)!==JSON.stringify(reference.sourceHashes))throw Error('Embedded configuration policy differs from actual pin');
+buildFixtureHarness(dotnet,resolve('tools/Tscs.FixtureHarness/Tscs.FixtureHarness.csproj'),join(output,'build.log'));
+const actualPath=join(output,'actual.jsonl'),fd=openSync(actualPath,'wx');let run;
+try{run=spawnSync(dotnet,[resolve('tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.FixtureHarness.dll')],{input:requests.map(r=>JSON.stringify(r)).join('\n')+'\n',stdio:['pipe',fd,'pipe'],encoding:'utf8',timeout:180000});}finally{closeSync(fd);}
+save('actual.log',run.stderr??'');if(run.error||run.signal||run.status!==0)throw Error('C# source configurations runner failed: '+(run.error??run.stderr));
+const actual=readFileSync(actualPath,'utf8').trimEnd().split('\n').map(l=>JSON.parse(l));
+const results=reconcileSourceConfigurations(sources,requests,actual,reference.vectors);
+save('results.jsonl',results.map(r=>JSON.stringify(r)).join('\n')+'\n');
+const counts={sources:requests.length,compilerSources:requests.filter(r=>r.runner==='compiler').length,transpileSources:requests.filter(r=>r.runner==='transpile').length,upstreamSkippedSources:sources.filter(r=>r.upstreamSelection.status==='UPSTREAM_SKIPPED').length,nonRawUtf8Sources:fixtures.filter(f=>f.decoding!=='UTF8').length,helperRecords:actual.reduce((n,r)=>n+(r.expected.helper?.length??0),0),runnerConfigurations:results.reduce((n,r)=>n+(r.configurations?.length??0),0),nilHelperSources:actual.filter(r=>r.expected.helper===null&&!r.expected.fatal&&r.expected.panic===null&&r.expected.unsupported===null).length,unequal:results.filter(r=>!r.equal).length};
+for(const status of ['MATCH','MISMATCH','UNSUPPORTED','REFERENCE_PANIC','REFERENCE_FATAL','CRASH'])counts[status]=results.filter(r=>r.status===status).length;
+const sourceFiles=['tools/ts7-scope.ts','tools/fixture-corpus.ts','tools/Tscs.FixtureHarness/Program.cs','tools/compare-source-configurations.ts','tools/source-configurations.ts','tools/fixture-harness/source_configurations_oracle_test.go','tools/fixture-harness/configuration-policy.json','tools/fixture-harness/FixtureSourceConfigurations.cs','tools/fixture-harness/FixtureConfigurations.cs','tools/fixture-harness/FixtureOptionValues.cs','tools/fixture-harness/PinnedGoLowercase.cs','tools/fixture-harness/go-lowercase.json','tools/fixture-harness/FixtureDirectives.cs','tools/fixture-harness/FixtureProtocol.cs','src/Tscs.Compiler/SourceDecoder.cs','tools/Tscs.FixtureHarness/Tscs.FixtureHarness.csproj','Directory.Build.props','global.json'];
+const artifactNames=['requests.json','reference.json','reference.log','actual.jsonl','actual.log','results.jsonl','build.log'];
+const report={upstreamCommit:sourceConfigPin,profile:'source-settings/canonical-configurations/runner-fallback',counts,compilerVaryBy:reference.compilerVaryBy,transpileVaryBy:reference.transpileVaryBy,referenceExit:reference.referenceExit,expectedGoFailuresVerified:reference.expectedGoFailuresVerified,goVersion:reference.goVersion,nodeVersion:process.version,dotnetSdk:execFileSync(dotnet,['--version'],{encoding:'utf8'}).trim(),sourceHashes:Object.fromEntries(sourceFiles.map(p=>[p,sha256(readFileSync(p))])),referenceHashes:reference.sourceHashes,assemblies:Object.fromEntries(['Tscs.FixtureHarness.dll','Tscs.Compiler.dll'].map(p=>[p,sha256(readFileSync('tools/Tscs.FixtureHarness/bin/Release/net10.0/'+p))])),fixtureInventorySha256:sha256(fixtureBytes),artifacts:artifactNames.map(path=>({path,sha256:sha256(readFileSync(join(output,path))),bytes:readFileSync(join(output,path)).length})),compiler:'NOT_RUN',referenceCompiler:'NOT_RUN',acceptance:'NOT_RUN',concreteCases:null,releaseEligible:false,limitations:['Runner fallback is mirrored from pinned source; original runners/AST/effective options/compiler assertions not executed','Settings retain raw bytes; invalid UTF8 setting values remain UNSUPPORTED','All upstream skipped sources retained; source configuration records are not executable runtime cases','Go map enumeration normalized; mixed fatal/panic error precedence not deterministic']};
+save('summary.json',JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(counts));if(counts.MATCH!==counts.sources)process.exitCode=1;

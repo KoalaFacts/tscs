@@ -3,6 +3,27 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Source configurations and runner fallback — 2026-10-25
+
+- Whole decoded-byte extraction now matches the fixed Go regex, duplicate last-wins,
+  Go TrimSpace and one final semicolon. Raw link settings retain arrow text.
+  Invalid UTF8 setting values are explicitly UNSUPPORTED, without replacement.
+- Fixed compiler91/transpile3 varyBy keys feed canonical products. Compiler nil
+  helper fallback is a nil configuration; transpile fallback retains raw settings.
+  Fallback branches are mirrored from pinned runner source, not original runner execution.
+- Complete source profile:13006 sources,12999 MATCH,7 REFERENCE_FATAL,0 unequal;
+  all42 upstream-skipped sources and8 non-raw-UTF8 inputs retained. The7 fatals
+  are upstream-skipped module:none fixtures; actual Go and C# both fail, never PASS.
+  Successful sources produce15504 helper records/15523 runner configuration records,
+  including19 nil-helper fallback sources. These are not executable compiler cases.
+- Direct xUnit/MTP7434/7434, Node69/69, frozen29/29, Go scope tests pass,
+  Release0 warnings/errors.36 boundary rows; independent96 probes86 MATCH and10
+  UNSUPPORTED,0 unequal. Path/domain binding strengthened with a failing regression.
+  Final same-source input/Go/C#/result payloads repeat byte-identically.
+- [Evidence](evidence/source-configurations.json), [separate progress](testing/ts7/source-configurations-progress.json).
+  Static inventory stays historical25→28; effective config/tsconfig, AST, original
+  compiler assertions and full runtime expansion remain NOT_RUN. Release gate false.
+
 ## Named configuration products — 2026-10-25
 
 - Ported GetFileBasedTestConfigurations products, exact varyBy key membership,

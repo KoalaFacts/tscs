@@ -5,4 +5,5 @@
     <Compile Include="../fixture-harness/*.cs" Link="Harness/%(Filename)%(Extension)" />
   </ItemGroup>
 <ItemGroup><EmbeddedResource Include="../fixture-harness/go-lowercase.json" LogicalName="Tscs.Conformance.GoLowercase" /></ItemGroup>
+<ItemGroup><EmbeddedResource Include="../fixture-harness/configuration-policy.json" LogicalName="Tscs.Conformance.ConfigurationPolicy" /></ItemGroup>
 </Project>

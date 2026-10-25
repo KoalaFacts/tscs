@@ -246,3 +246,25 @@ crash and mismatches remain distinct, with per-side outcomes and unequal counts.
 Current default-options/case-sensitive results match13006 sources/30902 queries.
 This does not run AST/config/compiler assertions or all VFS profiles. See
 [construction evidence](../../evidence/full-construction.json).
+
+## Complete source configuration profile
+
+[Separate source configuration progress](source-configurations-progress.json)
+records all13006 pinned source inputs, including42 upstream skips and8 non-raw-UTF8
+inputs. Whole-byte setting extraction, canonical products and mirrored compiler/
+transpile fallback produce12999 MATCH and7 REFERENCE_FATAL, zero unequal.
+15504 helper records become15523 named/fallback configuration records. The seven
+upstream-skipped module:none failures remain blockers; matching a failure is not
+an accepted compiler case. This does not replace the historical static25→28 ledger.
+
+```sh
+node tools/compare-source-configurations.ts PINNED_CHECKOUT INVENTORY NEW_OUTPUT
+```
+
+The command intentionally exits1 while any source has a reference failure,
+unsupported outcome or mismatch. Go itself exits1 for7 known fatal subtests;
+its failed test identities and root failure are reconciled exactly. Full requests,
+reference/C# results, stable per-configuration IDs and artifacts are preserved.
+Fallback branches are mirrored from pinned source; original runners, effective
+options, AST and compiler assertions remain NOT_RUN. See
+[source configuration evidence](../../evidence/source-configurations.json).

@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "profile": "source-settings/canonical-configurations/runner-fallback",
+  "sourceStatus": "COMPLETE_WITH_REFERENCE_FATALS",
+  "counts": {
+    "sources": 13006,
+    "compilerSources": 12981,
+    "transpileSources": 25,
+    "upstreamSkippedSources": 42,
+    "nonRawUtf8Sources": 8,
+    "helperRecords": 15504,
+    "runnerConfigurations": 15523,
+    "nilHelperSources": 19,
+    "unequal": 0,
+    "MATCH": 12999,
+    "MISMATCH": 0,
+    "UNSUPPORTED": 0,
+    "REFERENCE_PANIC": 0,
+    "REFERENCE_FATAL": 7,
+    "CRASH": 0
+  },
+  "sourceResults": "library:libfile_bc0f70bc02cc8191bb14c3b962ff0072/source-config-verified-repeat/results.jsonl",
+  "sourceResultsSha256": "80330365c0f0ef7f123bcffa0ec3fc10c2dc3506b8380955d51dafcfd7b631bb",
+  "configurations": "15523 source-bound named/fallback records, each with stable ID and compiler/referenceCompiler/acceptance NOT_RUN",
+  "blockedSourceIds": [
+    "source-configuration-profile:35d43ba391709a3e595e4f7899054eb702f66ef3b9adbe12e0b6427965e42368",
+    "source-configuration-profile:8794bcb86c34b89c77eeb91c52b4a4dbd4f50de2f7fb5a7150e0672e2f2f2027",
+    "source-configuration-profile:dc584cade3f4d0378d220610c5c78c1c95542eb5a880403a38d08184417196c3",
+    "source-configuration-profile:b1071881007ab60a132c90cc8a6463ac2eb52d41f345e7e9fd785d7a9034fbcf",
+    "source-configuration-profile:e4b5924a2363cbafbf98dddddcc0a1fdb702995b69dc3f3d861eb1c22e057a97",
+    "source-configuration-profile:caf7dbf681c3501d6359c2c410f7a9b833a1b263a95478870ba0245a1ae208cd",
+    "source-configuration-profile:dc33cb5527e5385478f36f752e1b52d4d714205c3f42440cc32db77cde11740c"
+  ],
+  "compiler": "NOT_RUN",
+  "referenceCompiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "concreteCases": null,
+  "releaseEligible": false,
+  "otherDomainsAndRuntimeProfiles": "UNEXPANDED_OR_NOT_RUN",
+  "evidence": "docs/evidence/source-configurations.json"
+}
