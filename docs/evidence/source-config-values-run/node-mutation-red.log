@@ -1,0 +1,55 @@
+✖ a real config syntax error remains MATCH_DIAGNOSTICS and never clean MATCH (2.682029ms)
+✔ selected content and rooted context mismatches cannot earn value matches (1.024581ms)
+✔ changed converted values or extra conversion errors remain mismatches (0.542962ms)
+✔ absent, unsupported and panic outcomes cannot earn matches (0.344442ms)
+✔ missing, repeated or reordered actual identities reject the profile (0.286274ms)
+✖ post-completion truncation of a value shard is rejected (1.517887ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 4
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 162.265475
+
+✖ failing tests:
+
+test at tools/source-config-values.test.ts:5:1
+✖ a real config syntax error remains MATCH_DIAGNOSTICS and never clean MATCH (2.682029ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'MATCH_DIAGNOSTICS'
+  - 'MISMATCH'
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:5:292)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'MATCH_DIAGNOSTICS',
+    expected: 'MISMATCH',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/source-config-values.test.ts:10:1
+✖ post-completion truncation of a value shard is rejected (1.517887ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:10:460)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /integrity/,
+    operator: 'throws',
+    diff: 'simple'
+  }

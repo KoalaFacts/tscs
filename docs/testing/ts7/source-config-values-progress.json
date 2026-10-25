@@ -1,0 +1,42 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "profile": "selected-config-values/default-options/pre-vfs/no-notifier",
+  "counts": {
+    "sources": 13006,
+    "selectedConfigs": 172,
+    "noConfigSources": 12834,
+    "upstreamSkippedSources": 42,
+    "nonRawUtf8Sources": 8,
+    "selectedUpstreamSkipped": 3,
+    "parserErrorConfigs": 1,
+    "parserDiagnostics": 1,
+    "conversionDiagnostics": 0,
+    "actualValueConfigs": 172,
+    "MATCH": 171,
+    "MATCH_DIAGNOSTICS": 1,
+    "MISMATCH": 0,
+    "UNSUPPORTED": 0,
+    "CRASH": 0
+  },
+  "notApplicable": {
+    "sources": 12834,
+    "selection": "actual Go preparation",
+    "csharpValueExecution": "NOT_RUN",
+    "compilerCredit": 0
+  },
+  "configIdentityLedger": "source-config-values-configs.jsonl",
+  "goldenSha256": "a42df34c1b72c3e42f12f19c7e6894f375afdf63f72c34429f02dbd59e492ae9",
+  "originalCompiler": "NOT_RUN",
+  "referenceCompiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "concreteCases": null,
+  "releaseEligible": false,
+  "remaining": [
+    "option declarations/notifier",
+    "config host and effective options",
+    "existingOptions and external-code gate execution",
+    "VFS/extends/globs",
+    "other configured/runtime profiles and full executable denominator",
+    "all original compiler assertions and all remaining test domains"
+  ]
+}

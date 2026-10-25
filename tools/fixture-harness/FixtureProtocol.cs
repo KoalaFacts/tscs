@@ -38,6 +38,7 @@ public static class FixtureProtocol
             else if(profile.GetString()=="construction")expected=FixtureConstruction.Probe(row);
             else if(profile.GetString()=="source-configurations")expected=FixtureSourceConfigurations.Probe(row);
             else if(profile.GetString()=="config-ast")expected=FixtureConfigAst.Probe(row);
+            else if(profile.GetString()=="config-values")expected=FixtureConfigValues.Probe(row);
             else throw new JsonException("Unknown fixture profile");
             output.WriteLine(JsonSerializer.Serialize(new{id,expected},JsonOptions));
         }

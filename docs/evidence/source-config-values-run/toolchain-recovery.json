@@ -1,0 +1,22 @@
+{
+  "go": {
+    "version": "1.27.3",
+    "url": "https://go.dev/dl/go1.27.3.linux-amd64.tar.gz",
+    "sha256": "65efbc80fdc1fa2cd2631cad5b481777a68e8725f34e89f50fc6ac714e379b40"
+  },
+  "dotnet": {
+    "sdk": "10.0.402",
+    "runtime": "10.0.13",
+    "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.402/dotnet-sdk-10.0.402-linux-x64.tar.gz",
+    "sha512": "1904a98dda2db34ba78ba3c4fb1b224455329af91c341d83547843c1839e112b04ae699ee92fa2449a8f62249196a938723078c0c60b9f65c88539d5687729c2",
+    "extract": "tar --no-same-owner"
+  },
+  "notes": [
+    "Temporary toolchain and dependency caches were absent; restored exact versions, no lock or pin upgrades",
+    "Initial generator ENOENT and SDK command-not-found were not test RED",
+    "Initial Python whole-nupkg SHA512 comparison was not NuGet content hashing (signature excluded); unchanged locked NuGet restore validates package content hashes",
+    "Initial restore with incomplete local feed failed NU1101; excluded, complete verified locked restore subsequently succeeded",
+    "Go dependencies provisioned once with telemetry off; all reference/test execution then GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local",
+    "No SDK coordinator or end-to-end verify.sh execution claimed"
+  ]
+}

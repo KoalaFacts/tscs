@@ -293,3 +293,19 @@ full source profile, effective options or original compiler acceptance.
 The [config value conversion slice](../../progress/config-values.md) adds189
 actual-Go convertToObject vectors. It does not expand original compiler acceptance
 or rerun the full source profiles; option callbacks/effective config remain unrun.
+
+## Source-backed config values
+
+```sh
+node tools/compare-source-config-values.ts PINNED_CHECKOUT INVENTORY NEW_OUTPUT
+```
+
+Fresh actual Go raw selection retains all13006 source identities; selected172
+configs pass through actual Go ParseSourceFile/convertToObject and the product
+C# parser/converter JSONL.171 MATCH and1 MATCH_DIAGNOSTICS; the original TS1005
+forces tool exit1.12834 no-config sources receive no C# value/compiler credit.
+All42 skips/8 non-raw-UTF8 sources and3 selected skips remain recorded. This is
+pre-VFS/no-notifier only, not effective options or compiler acceptance. See
+[source value progress](source-config-values-progress.json), the172-record
+[source/config ledger](source-config-values-configs.jsonl), and
+[scope/evidence](../../progress/source-config-values.md).

@@ -1,0 +1,6 @@
+/workspace/scratch/daf3e6c2e318/tscs/.artifacts/source-config-values-verified: 24 manifest entries and 30 source hashes valid
+/workspace/scratch/daf3e6c2e318/tscs/.artifacts/source-config-values-verified-repeat: 24 manifest entries and 30 source hashes valid
+/tmp/tscs-source-values-review/profile: 24 manifest entries and 30 source hashes valid
+All 72 artifact entries valid; 13 nonlog payloads identical across all three runs; committed golden identical a42df34c1b72c3e42f12f19c7e6894f375afdf63f72c34429f02dbd59e492ae9
+{"sources":13006,"selectedConfigs":172,"noConfigSources":12834,"upstreamSkippedSources":42,"nonRawUtf8Sources":8,"selectedUpstreamSkipped":3,"parserErrorConfigs":1,"parserDiagnostics":1,"conversionDiagnostics":0}
+Syntax-error source: tsc/testdata/tests/cases/compiler/tsconfigRootdirInclude.ts

@@ -3,6 +3,21 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Source-backed config values — 2026-10-26
+
+- Connected selected raw config units to the existing product converter through
+  JSONL, sharing one parsed AST. Actual Go selection retains13006 sources,
+ 42 upstream skips/8 non-raw-UTF8 blobs;172 selected config values executed on
+  both sides:171 MATCH/1 MATCH_DIAGNOSTICS, no mismatch/unsupported/crash.
+- The original TS1005 remains;12834 no-config sources receive no C# value or
+  compiler credit.3 selected configs retain upstream-skipped metadata.
+- Genuine missing-profile RED177/8949 ->9126/9126; Release0 warnings/errors,
+  Node81/81, frozen29/29, locked offline restore and Go scope pass. Full profile
+  intentionally exits1 for the retained syntax error. SDK coordinator NOT_RUN.
+- [Scope and evidence](progress/source-config-values.md). No option notifier,
+  host/effective options or original compiler acceptance. All domains/seven prior
+  reference fatals/unknown executable denominator remain; releasefalse.
+
 ## Config AST to values — 2026-10-26
 
 - Added bounded convertToObject/convertToJson semantics: ordered last-wins

@@ -1,0 +1,114 @@
+[
+  {
+    "name": "xunit.v3.mtp-v2",
+    "version": "4.0.2",
+    "url": "https://api.nuget.org/v3-flatcontainer/xunit.v3.mtp-v2/4.0.2/xunit.v3.mtp-v2.4.0.2.nupkg",
+    "archiveSha256": "e8d378854775e4787114eb9a411b55f2a3e4020792d7c633113e26d9438cbfa5",
+    "lockContentHash": "XLV32FhkuvheBStvX0DvjfPEtI+4SOVcIhnlTS+549r8VfVwsjpWdkJtQmQ7D23PA+Zoaqo+sTjBkRSkidC6Tw=="
+  },
+  {
+    "name": "microsoft.applicationinsights",
+    "version": "2.23.0",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.applicationinsights/2.23.0/microsoft.applicationinsights.2.23.0.nupkg",
+    "archiveSha256": "e6c7f76e0ec26598c7b1e2be1777e839c84486655e8a878fc4c655bd2e918dbd",
+    "lockContentHash": "nWArUZTdU7iqZLycLKWe0TDms48KKGE6pONH2terYNa8REXiqixrMOkf1sk5DHGMaUTqONU2YkS4SAXBhLStgw=="
+  },
+  {
+    "name": "microsoft.bcl.asyncinterfaces",
+    "version": "6.0.0",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.bcl.asyncinterfaces/6.0.0/microsoft.bcl.asyncinterfaces.6.0.0.nupkg",
+    "archiveSha256": "e3df87fe2170a7e01f0880af59caa8f6eb380b3c40a4f282dfb43912aaf0f895",
+    "lockContentHash": "UcSjPsst+DfAdJGVDsu346FX0ci0ah+lw3WRtn18NUwEqRt70HaOQ7lI72vy3+1LxtqI3T5GWwV39rQSrCzAeg=="
+  },
+  {
+    "name": "microsoft.testing.extensions.telemetry",
+    "version": "2.5.1",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.testing.extensions.telemetry/2.5.1/microsoft.testing.extensions.telemetry.2.5.1.nupkg",
+    "archiveSha256": "a147dea733de14c70e2127ad993a563ca352cad5c8e930aba727fe4c04f38d94",
+    "lockContentHash": "mu2iyoHovwl0q1mGeeRU0h8+LALXC7HqbxniLa1shTKYdJGl+KPoCEgjWIQ8MLzk1tlTGPOfg1JsxdH3RxhMCA=="
+  },
+  {
+    "name": "microsoft.testing.extensions.trxreport.abstractions",
+    "version": "2.5.1",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.testing.extensions.trxreport.abstractions/2.5.1/microsoft.testing.extensions.trxreport.abstractions.2.5.1.nupkg",
+    "archiveSha256": "4523b0a92743a53399cdbd54a46dd7b441fb802e514b32313b778db0c1d074bb",
+    "lockContentHash": "DYTZAguaHz0wNJdHDTTGYOXtnlDoLoIbTMDKSApNNcytm55DJcnwpwELfQGLk5DB5QlgaEjNhnGo1Pu5QvL5VA=="
+  },
+  {
+    "name": "microsoft.testing.platform",
+    "version": "2.5.1",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.testing.platform/2.5.1/microsoft.testing.platform.2.5.1.nupkg",
+    "archiveSha256": "7d35092c70b86599314adf05bf4a7061da03fc08c8e493f029da6bd4da6ef369",
+    "lockContentHash": "FAMaFFWnULW+hDHMb40Qzhcgz9cAU2/EtgRCBNX/DdQoKo0sPG2EiY+w7bQdl/BgHnf/DbpXLbf5Xy0o15M8NA=="
+  },
+  {
+    "name": "microsoft.testing.platform.msbuild",
+    "version": "2.5.1",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.testing.platform.msbuild/2.5.1/microsoft.testing.platform.msbuild.2.5.1.nupkg",
+    "archiveSha256": "335136824e7f9bc8bc77f6700ddf536a264f2b27a307c32143bdfbac12a98f69",
+    "lockContentHash": "lYawcAwY+h76rQmpma2n0HaL8zkOFbbKapso0Eb+uOAUQn7333pIByLftEuiO67csAoZufHNMwi6PqhNemWQXA=="
+  },
+  {
+    "name": "microsoft.win32.registry",
+    "version": "5.0.0",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.win32.registry/5.0.0/microsoft.win32.registry.5.0.0.nupkg",
+    "archiveSha256": "f64ca53c67ca65ce7cc85a8d29aefbb2da2672836731e1115e8cd62730dc5080",
+    "lockContentHash": "dDoKi0PnDz31yAyETfRntsLArTlVAVzUzCIvvEDsDsucrl33Dl8pIJG06ePTJTI3tGpeyHS9Cq7Foc/s4EeKcg=="
+  },
+  {
+    "name": "system.security.accesscontrol",
+    "version": "6.0.1",
+    "url": "https://api.nuget.org/v3-flatcontainer/system.security.accesscontrol/6.0.1/system.security.accesscontrol.6.0.1.nupkg",
+    "archiveSha256": "462e26f796417e8a4350655a85bbd4233b94cbd0f7150c1c5e9acfd88e885141",
+    "lockContentHash": "IQ4NXP/B3Ayzvw0rDQzVTYsCKyy0Jp9KI6aYcK7UnGVlR9+Awz++TIPCQtPYfLJfOpm8ajowMR09V7quD3sEHw=="
+  },
+  {
+    "name": "xunit.analyzers",
+    "version": "2.2.0",
+    "url": "https://api.nuget.org/v3-flatcontainer/xunit.analyzers/2.2.0/xunit.analyzers.2.2.0.nupkg",
+    "archiveSha256": "66d3c3b642e1f1ceaa702c0e1d8901d918268bf177690bc270a34d680b23d225",
+    "lockContentHash": "dXMIIztipcAyL3a19gtUrih/RLrE33/4VJdICoinYqIXXo1KLtsMPsaQ9dO2pE8xajDguwE2kqVbBqE5/EoJ0Q=="
+  },
+  {
+    "name": "xunit.v3.assert",
+    "version": "4.0.2",
+    "url": "https://api.nuget.org/v3-flatcontainer/xunit.v3.assert/4.0.2/xunit.v3.assert.4.0.2.nupkg",
+    "archiveSha256": "f82e735f8fd36464a979ca954bd67ac231bc6788c68f72e60c0c8fd1442f1648",
+    "lockContentHash": "5PKRexYlvufWFdXenRcRGKqvaJBBZFJZpqUGlUs9p13eKEgVdOrLpkPknjzUvLY5kEUicK9871DIUDcCPA6AXA=="
+  },
+  {
+    "name": "xunit.v3.common",
+    "version": "4.0.2",
+    "url": "https://api.nuget.org/v3-flatcontainer/xunit.v3.common/4.0.2/xunit.v3.common.4.0.2.nupkg",
+    "archiveSha256": "16796161ae73e4fcae92fc255cccfea7e4253d36a8776711cd237bb96f8d2179",
+    "lockContentHash": "++CtT8daIf6qfieQev/8V88U3zViIDWou5cj+oWps1/Hf73UoaY/L0hKyi3v7Zlt3BmbU0pUc73zCB1GiB4nYA=="
+  },
+  {
+    "name": "xunit.v3.core.mtp-v2",
+    "version": "4.0.2",
+    "url": "https://api.nuget.org/v3-flatcontainer/xunit.v3.core.mtp-v2/4.0.2/xunit.v3.core.mtp-v2.4.0.2.nupkg",
+    "archiveSha256": "784ed0c6555880636dc3dcf84b27559bcd27f150242c7eff79e6a50d19913d72",
+    "lockContentHash": "XyPMcQRsnUQLhmBBRRgYWsuPc8TyiANzcXtqfzyWfDpPuyh3Q0K4oWozZYQKZRNGnqJ97ifD6qUDWhsEEe32uw=="
+  },
+  {
+    "name": "xunit.v3.extensibility.core",
+    "version": "4.0.2",
+    "url": "https://api.nuget.org/v3-flatcontainer/xunit.v3.extensibility.core/4.0.2/xunit.v3.extensibility.core.4.0.2.nupkg",
+    "archiveSha256": "d48b164079004ca0507e16bae2756de9239f803999ac723957d377d49e319b7b",
+    "lockContentHash": "ARTt+pGyd86mdtiFBkKpyBQvRC3u0rr8oidBlII2GsAg7D6TfOsDFCsoQtFij83V5pE57m3whUIqT4xjiARXbQ=="
+  },
+  {
+    "name": "xunit.v3.runner.common",
+    "version": "4.0.2",
+    "url": "https://api.nuget.org/v3-flatcontainer/xunit.v3.runner.common/4.0.2/xunit.v3.runner.common.4.0.2.nupkg",
+    "archiveSha256": "d4e4d47314f4a7b8f5690ae3cb3b2e36899443f097173c40764a97bd072d80e3",
+    "lockContentHash": "YlYKVhTJVcwEgJ6rm59Pjf71lQqKwKxEHqVRxWUuwrwm/nxB/mNFP/lP4vlntDO3GclNnLT9BjYOpJH9gViGQg=="
+  },
+  {
+    "name": "xunit.v3.runner.inproc.console",
+    "version": "4.0.2",
+    "url": "https://api.nuget.org/v3-flatcontainer/xunit.v3.runner.inproc.console/4.0.2/xunit.v3.runner.inproc.console.4.0.2.nupkg",
+    "archiveSha256": "240090d90d5229d9782185425f889307edcabfe683c589d1e7856fd630c076cd",
+    "lockContentHash": "cg4XNpCN4Ry9nswutknpreN3ckSUBwtjMRmEQSNK/sIKPo6KN5tDGGGCaHDm5HGA4yFVVtTJX65tLCsZArUNfQ=="
+  }
+]

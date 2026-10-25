@@ -1,0 +1,19 @@
+{
+  "allArtifactHashesVerified": 48,
+  "identicalPayloads": [
+    "golden.json",
+    "actual-calls.json",
+    "results.jsonl",
+    "actual-000.jsonl",
+    "actual-001.jsonl",
+    "actual-002.jsonl",
+    "actual-003.jsonl",
+    "actual-004.jsonl",
+    "actual-005.jsonl",
+    "oracle/requests.json",
+    "oracle/selection.json",
+    "oracle/parse-requests.json",
+    "oracle/reference.json"
+  ],
+  "logsAndReportsNotClaimedIdentical": true
+}

@@ -1,0 +1,14 @@
+✔ a real config syntax error remains MATCH_DIAGNOSTICS and never clean MATCH (2.147357ms)
+✔ selected content and rooted context mismatches cannot earn value matches (0.710465ms)
+✔ changed converted values or extra conversion errors remain mismatches (0.384051ms)
+✔ absent, unsupported and panic outcomes cannot earn matches (0.256228ms)
+✔ missing, repeated or reordered actual identities reject the profile (0.376269ms)
+✔ post-completion truncation of a value shard is rejected (1.119934ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 155.060506
