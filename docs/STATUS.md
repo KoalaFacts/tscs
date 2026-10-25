@@ -3,6 +3,19 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Config-file selection preparation — 2026-10-25
+
+- Added pre-parse first-config selection using pinned basename/lowercase semantics,
+  preserving later config files and other units in source order. The global
+  runExternalCode gate requires the exact raw value true (not TRUE or true;).
+-110 actual-Go raw-parser/config-name-helper vectors: RED110fail/7434pass,
+  direct MTP7544/7544, Node69/69, frozen29/29, Release0 warnings/errors;
+  golden repeat byte-identical. Raw logs are committed with the evidence.
+- This is a preparation snapshot only. Original makeUnitsFromTest constructs VFS
+  before selection; VFS/JSON/config parsing and external mappers are not invoked
+  by this profile. No complete13006 source rerun or compiler credit.
+  [Evidence](evidence/config-selection.json). Effective configuration and AST remain next.
+
 ## Source configurations and runner fallback — 2026-10-25
 
 - Whole decoded-byte extraction now matches the fixed Go regex, duplicate last-wins,

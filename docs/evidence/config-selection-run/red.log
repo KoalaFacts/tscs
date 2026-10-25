@@ -1,0 +1,667 @@
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/C:/src/C:/root.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+    at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/^/~ts-uri~/s/auth/dir/x/../a.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/C:/src/a.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/http://host/src/../a.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/^/~ts-uri~/s/auth/dir/a?x", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/^/~ts-uri~/s/auth/dir/../a.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/9/gate/0", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/duplicates", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/^/~ts-uri~/s/auth/dir/a.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/6/gate/3", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/12/gate/3", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/5/gate/1", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/7/gate/2", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/5/gate/0", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/permissive-links", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/2/gate/2", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/11/gate/3", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/http://host/src/a?x", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/fixture:tsc/testdata/tests/cases/compiler/prom"···, json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/http://host/src/C:/root.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/9/gate/1", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/fixture:tsc/testdata/tests/cases/compiler/bom-"···, json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/file:///c:/src/x/../a.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/8/gate/2", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/../base/C:/root.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/../base/a?x", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/11/gate/2", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map//project/x/../a.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/6/gate/2", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/file:///c:/src//root.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/1/gate/2", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/2/gate/3", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/fixture:tsc/testdata/tests/cases/compiler/unic"···, json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/6/gate/1", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/link-collision", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/1/gate/1", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/C:/src/../a.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/3/gate/1", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "duplicate-first", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/fixture:tsc/testdata/tests/cases/compiler/coll"···, json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/2/gate/1", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/4/gate/2", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/7/gate/3", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/10/gate/0", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/http://host/src/x/../a.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/8/gate/0", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/^/~ts-uri~/s/auth/dir/C:/root.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/http://host/src//root.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/file:///c:/src/a.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/5/gate/3", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/12/gate/0", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map//project/C:/root.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/../base//root.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map//project/a?x", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/7/gate/1", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "gate-last-wins", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map///root.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/^/~ts-uri~/s/auth/dir//root.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/0/gate/2", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/file:///c:/src/a?x", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "empty", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/6/gate/0", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/12/gate/2", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/3/gate/2", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/4/gate/0", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/7/gate/0", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/8/gate/3", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/0/gate/3", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map//a?x", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (2ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/10/gate/3", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/10/gate/2", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/fixture:tsc/testdata/tests/cases/compiler/inst"···, json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/../base/x/../a.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/fixture:tsc/testdata/tests/cases/compiler/rege"···, json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/fixture:tsc/testdata/tests/cases/compiler/targ"···, json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map//a.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/1/gate/3", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/3/gate/3", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map//C:/root.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/3/gate/0", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/10/gate/1", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/4/gate/3", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/invalid-name", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/8/gate/1", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map//x/../a.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/1/gate/0", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/0/gate/0", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/fixture:tsc/testdata/tests/cases/compiler/bom-"···, json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/C:/src/x/../a.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/http://host/src/a.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/C:/src//root.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map//project/a.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/empty", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/11/gate/0", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/C:/src/a?x", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/11/gate/1", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/0/gate/1", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/2/gate/0", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/9/gate/2", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/9/gate/3", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/12/gate/1", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/../base/../a.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/file:///c:/src/C:/root.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/../base/a.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map/file:///c:/src/../a.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map//../a.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map//project//root.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/5/gate/2", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "map/map//project/../a.ts", json: "{\n      \"expected\": {\n        \"configFile\": null,\n"···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(id: "name/4/gate/1", json: "{\n      \"expected\": {\n        \"configFile\": {\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.Conformance.FixtureConfigSelection.Probe(JsonElement request) in /workspace/scratch/daf3e6c2e318/tscs/tools/fixture-harness/FixtureConfigSelection.cs:6
+    at Tscs.Tests.FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigSelectionTests.cs:10
+    at InvokeStub_FixtureConfigSelectionTests.SelectsFirstConfigAndPreservesOtherUnits(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Test run summary: Failed! - /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+  total: 7544
+  failed: 110
+  succeeded: 7434
+  skipped: 0
+  duration: 2s 887ms
