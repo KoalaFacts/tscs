@@ -55,6 +55,13 @@ public class CommandLineTests : IDisposable
         if(exit==0)Assert.Empty(diagnostics);else {var error=Assert.Single(diagnostics);Assert.Equal(code,error.GetProperty("code").GetString());Assert.Equal(11,error.GetProperty("start").GetInt32());Assert.Equal(escape.Length,error.GetProperty("length").GetInt32());}
     }
     [Fact]
+    public void NullConfigBooleansAllowExplicitCommandLineOverrides()
+    {
+        Write("a.ts","let n = 1;");Lib();
+        var project=Write("tsconfig.json","{\"files\":[\"a.ts\",\"minimal.d.ts\"],\"compilerOptions\":{\"noEmit\":null,\"noLib\":null}}");
+        Assert.Equal(0,Run("-p",project,"--noEmit","--noLib").Code);
+    }
+    [Fact]
     public void ProjectUsesProductJsonStringDecoding()
     {
         Write("a.ts","let s = 1;");Lib();

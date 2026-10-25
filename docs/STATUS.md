@@ -3,6 +3,19 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Config option value type admission — 2026-10-26
+
+- Added the pinned isCompilerOptionsValue shape predicate in the product:
+  nullable declarations, exact primitive/object kinds, list outer shape and
+  listOrElement scalar recursion. List element/enum membership/path validation
+  remains a later conversion step; acceptance here is not effective options.
+- Actual Go private helper:126 compiler declarations + extends + nil option +
+  missing-element case, each over14 parser/converter inputs =1806 rows.
+- CLI noEmit/noLib null values now mean unset/default false, allowing explicit
+  supported CLI flags to override them. Existing bootstrap restrictions remain.
+- Genuine RED412fail/10521pass ->10933/10933; [scope/evidence](progress/json-option-types.md).
+  No full source config profile or original compiler acceptance rerun/claim.
+
 ## Config value evidence omission P2 — 2026-10-26
 
 - Fixed the fail-open artifact verifier: empty manifests or omitted required

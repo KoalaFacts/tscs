@@ -314,3 +314,7 @@ The [config-value evidence omission correction](../../progress/config-value-inte
 requires complete artifacts, bound reference echoes and reconciled counters.
 This strengthens historical verification without rerunning or upgrading its
 compiler acceptance scope.
+
+The [product option shape predicate](../../progress/json-option-types.md) adds
+1806 actual-Go helper rows and a CLI null-boolean override regression. These
+are not complete option conversion, effective configuration or compiler passes.

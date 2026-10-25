@@ -1,0 +1,12 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "profile": "isCompilerOptionsValue/product-shape-predicate/CLI-null-booleans",
+  "helperVectors": 1806,
+  "cliRegressions": 1,
+  "compiler": "NOT_RUN",
+  "referenceCompiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "concreteCases": null,
+  "releaseEligible": false,
+  "evidence": "../../evidence/json-option-types.json"
+}

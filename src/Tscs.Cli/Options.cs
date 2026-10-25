@@ -81,7 +81,14 @@ internal sealed class Options
             }
         }
     }
-    private static bool Boolean(JsonSyntaxNode value)=>JsonConfigValues.Convert(value).Kind switch{"True"=>true,"False"=>false,_=>throw new InputFailure("Expected a boolean compiler option.")};
+    private static bool Boolean(JsonSyntaxNode value)
+    {
+        var converted=JsonConfigValues.Convert(value);
+        if(!JsonCompilerOptionTypes.Accepts(new("boolean",false),converted))throw new InputFailure("Expected a boolean compiler option.");
+        // Both supported boolean declarations allow null: unset uses the
+        // existing false bootstrap default, then explicit CLI flags override.
+        return converted.Kind=="True";
+    }
     private static void ValidateTarget(string target)
     {if(!target.Equals("es2015",StringComparison.OrdinalIgnoreCase)&&!target.Equals("es6",StringComparison.OrdinalIgnoreCase))throw new InputFailure("Only target es2015/es6 is supported by the bootstrap.");}
 }
