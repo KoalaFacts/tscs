@@ -1,0 +1,14 @@
+failed Tscs.Tests.FixtureConfigAstTests.MissingPropertyCommaRetainsTheActualPinnedSourceConfigTreeAndDiagnostic (6ms)
+  Assert.True() Failure
+  Expected: True
+  Actual:   False
+    at Tscs.Tests.FixtureConfigAstTests.MissingPropertyCommaRetainsTheActualPinnedSourceConfigTreeAndDiagnostic() in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigAstTests.cs:43
+    at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+    at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Test run summary: Failed! - /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+  total: 8741
+  failed: 1
+  succeeded: 8740
+  skipped: 0
+  duration: 3s 483ms

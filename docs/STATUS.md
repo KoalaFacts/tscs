@@ -3,6 +3,25 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Source-backed config AST and missing-comma recovery — 2026-10-26
+
+- Connected selected raw config units to the product AST with rooted filename/
+  currentDirectory context and strict source/input/schema bindings. Actual Go
+  raw parser/name/path helpers plus a mirrored selection fragment feed actual
+  ParseSourceFile(ScriptKindJSON); this is pre-VFS, not effective options.
+- All13006 source identities/bytes retained:172 config sources,171 MATCH,
+  1 MATCH_DIAGNOSTICS,12834 NOT_APPLICABLE,42 skips/8 non-raw-UTF8 inputs;
+  zero AST differences/unsupported/panics/crashes. No-config sources earn no
+  compiler credit. The source-backed missing-comma case now retains its AST
+  and TS1005; CLI syntax exit2. Full profile command intentionally exits1.
+- RED connection/context/real-source regressions -> MTP8742/8742, Node75/75,
+  frozen29/29, Release0 warnings/errors. SDK orchestration NOT_RUN.
+  Independent reruns reproduce all source/AST results; review caught truncated
+  raw evidence, now excluded and replaced by verified output shards.
+  [Evidence](evidence/source-config-ast.json) and
+  [scope/limits](progress/source-config-ast.md). All original compiler acceptance
+  remains NOT_RUN, seven prior reference fatals retained; release not eligible.
+
 ## JSON decimal-integer value correction — 2026-10-26
 
 - Addressed the review finding: JSON numeric values, negative-value projections

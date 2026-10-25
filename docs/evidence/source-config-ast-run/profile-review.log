@@ -1,0 +1,20 @@
+node:fs:621
+  return binding.open(
+                 ^
+
+Error: ENOENT: no such file or directory, open 'src/Tscs.Compiler/Token.cs'
+    at Object.openSync (node:fs:621:18)
+    at readFileSync (node:fs:487:35)
+    at file:///workspace/scratch/daf3e6c2e318/tscs/tools/compare-source-config-ast.ts:49:281
+    at Array.map (<anonymous>)
+    at file:///workspace/scratch/daf3e6c2e318/tscs/tools/compare-source-config-ast.ts:49:264
+    at ModuleJob.run (node:internal/modules/esm/module_job:561:25)
+    at async node:internal/modules/esm/loader:647:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'src/Tscs.Compiler/Token.cs'
+}
+
+Node.js v24.22.1

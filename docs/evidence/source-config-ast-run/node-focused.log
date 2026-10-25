@@ -1,0 +1,14 @@
+✔ no config is NOT_APPLICABLE and never compiler acceptance (2.044282ms)
+✔ syntax errors and unsupported grammar cannot earn clean MATCH (0.907228ms)
+✔ AST differences and source/selection bindings remain visible (0.874678ms)
+✔ strict schema rejects malformed bytes, ranges and extra fields (0.203647ms)
+✔ malformed envelope and duplicate identities cannot produce accepted evidence (0.232871ms)
+✔ post-completion truncation cannot reuse a previously valid summary (1.229213ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 132.070641

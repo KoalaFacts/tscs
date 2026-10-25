@@ -67,12 +67,12 @@ explicit `noEmit`/`noLib` isolation overrides; these are not full upstream harne
 Results go to `.artifacts/conformance.json`. A passing cohort is not a percentage
 claim about the entire TypeScript language.
 
-The C# suite now has 8,732 cases (including 764 byte-decoding, 535 directive, 151 state and 750 path and 55 file-map and 154 VFS read plus 534 accessible-entry and 1,414 option-value and 2,920 configuration-product and 36 source-configuration vectors) and uses xUnit 4.0.2 (the official package is still named
+The C# suite now has 8,742 cases (including 764 byte-decoding, 535 directive, 151 state and 750 path and 55 file-map and 154 VFS read plus 534 accessible-entry and 1,414 option-value and 2,920 configuration-product and 36 source-configuration vectors) and uses xUnit 4.0.2 (the official package is still named
 `xunit.v3.mtp-v2`) with Microsoft.Testing.Platform 2.5.1, not VSTest.
 After building, run just this suite with:
 
 ```sh
-dotnet test --solution Tscs.slnx -c Release --no-build --no-restore -- --fail-skips on --minimum-expected-tests 8732
+dotnet test --solution Tscs.slnx -c Release --no-build --no-restore -- --fail-skips on --minimum-expected-tests 8742
 ```
 
 The .NET 10 MTP runner is selected in `global.json`. If an execution environment
@@ -80,7 +80,7 @@ cannot launch the SDK's test coordinator, the same built MTP executable can also
 be run directly, without changing permissions or disabling isolation:
 
 ```sh
-dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 8732
+dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 8742
 ```
 
 Record direct execution separately from `dotnet test`; a direct pass is not a
@@ -108,9 +108,15 @@ tracked upstream assets, Go declarations, JS test sources and fixture metadata:
 node tools/inventory-ts7.ts /path/to/pinned-upstream .artifacts/ts7-scope
 ```
 
-This is an inventory, not full conformance: the 25 transpile inputs have 28
-source-bound named configurations. Compiler/conformance configurations and all
-runtime-generated cases remain unexpanded, and all acceptance is NOT_RUN. The
+This static inventory is not full conformance: its original25 transpile inputs
+have28 source-bound named configurations. The separate complete source
+configuration profile records15523 runner configurations with12999 MATCH and
+7 reference fatals; effective options and runtime cases remain unresolved.
+The selected-config AST profile retains172 config sources (171 MATCH and one
+MATCH_DIAGNOSTICS), while12834 no-config sources are NOT_APPLICABLE. It is pre-VFS
+syntax preparation, not effective configuration or compiler acceptance. See the
+[source AST ledger](docs/testing/ts7/source-config-ast-progress.json).
+All original-scope compiler acceptance remains NOT_RUN. The
 [domain summary](docs/testing/ts7/inventory-summary.json) keeps assets, declarations,
 fixture inputs and upstream skips separate. The original 29-case cohort remains
 independent. Release still requires complete scope and executable acceptance with

@@ -1,0 +1,19 @@
+failed Tscs.Tests.FixtureConfigAstTests.ParserFilenameUsesTheRootedConfigContext(prefix: "", expected: "/.src/pkg/tsconfig.json") (8ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.Collections.Generic.KeyNotFoundException : The given key was not present in the dictionary.
+    at System.Text.Json.JsonElement.GetProperty(String propertyName)
+    at Tscs.Tests.FixtureConfigAstTests.ParserFilenameUsesTheRootedConfigContext(String prefix, String expected) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigAstTests.cs:36
+    at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+    at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+failed Tscs.Tests.FixtureConfigAstTests.ParserFilenameUsesTheRootedConfigContext(prefix: "// @currentDirectory: /project\n", expected: "/project/pkg/tsconfig.json") (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.Collections.Generic.KeyNotFoundException : The given key was not present in the dictionary.
+    at System.Text.Json.JsonElement.GetProperty(String propertyName)
+    at Tscs.Tests.FixtureConfigAstTests.ParserFilenameUsesTheRootedConfigContext(String prefix, String expected) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/FixtureConfigAstTests.cs:36
+    at InvokeStub_FixtureConfigAstTests.ParserFilenameUsesTheRootedConfigContext(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Test run summary: Failed! - /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+  total: 8740
+  failed: 2
+  succeeded: 8738
+  skipped: 0
+  duration: 3s 417ms

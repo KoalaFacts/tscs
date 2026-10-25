@@ -268,3 +268,19 @@ reference/C# results, stable per-configuration IDs and artifacts are preserved.
 Fallback branches are mirrored from pinned source; original runners, effective
 options, AST and compiler assertions remain NOT_RUN. See
 [source configuration evidence](../../evidence/source-configurations.json).
+
+## Source-backed selected config AST profile
+
+```sh
+node tools/compare-source-config-ast.ts PINNED_CHECKOUT INVENTORY NEW_OUTPUT
+```
+
+All13006 source identities/raw blobs are retained, including42 skips and8
+non-raw-UTF8 inputs.172 selected configs yield171 MATCH/1 MATCH_DIAGNOSTICS;
+12834 no-config sources are NOT_APPLICABLE. The command intentionally exits1
+while the original config syntax diagnostic remains. Strict input/context/AST
+bindings and separate outcomes prevent unsupported/error/no-config results
+from earning compiler credit. Actual Go JSON parser, pre-VFS preparation only;
+no effective config or original compiler assertions. See
+[source AST progress](source-config-ast-progress.json) and
+[scope/evidence](../../progress/source-config-ast.md).

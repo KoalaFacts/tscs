@@ -1,0 +1,1084 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "baseCommit": "70661d399f82c5a2b3e7ec9a6884216f41a9e6ec",
+  "baseTree": "43110d31b2521ecc472ab4ccc804f96ed129fb13",
+  "profile": "all-sources/default-options/pre-vfs/selected-config-json-ast",
+  "counts": {
+    "sources": 13006,
+    "selectedConfigSources": 172,
+    "upstreamSkippedSources": 42,
+    "nonRawUtf8Sources": 8,
+    "referenceProjectedNodes": 2091,
+    "referenceDiagnostics": 1,
+    "referenceErrorSources": 1,
+    "MATCH": 171,
+    "MATCH_DIAGNOSTICS": 1,
+    "NOT_APPLICABLE": 12834,
+    "UNSUPPORTED": 0,
+    "MISMATCH": 0,
+    "REFERENCE_PANIC": 0,
+    "CRASH": 0
+  },
+  "referenceExecution": "Actual raw parser/GetConfigName/path helpers; mirrored selection/removal/rooting fragment, then actual ParseSourceFile(ScriptKindJSON). Not whole makeUnitsFromTest/VFS/effective options.",
+  "sourceHashes": {
+    "tools/compare-source-config-ast.ts": "8b5fb0ecc99933201ee5450b8f6b7946524e7cb74b48f910de17140494533e43",
+    "tools/source-config-ast.ts": "084adc9f52d5399ac6151d20ab0fc3b3d06c961c4173bb2c0a5fed51922c82d8",
+    "tools/ts7-scope.ts": "38899954e2e857391dd8ad827a2e19aeb4719b1f27bb6e31826b49e2acfafb6d",
+    "tools/fixture-corpus.ts": "8a6481be4d5ee7eed2cba7b1596af21f82bbc1715f3e97b84dcda9ff709db83f",
+    "tools/Tscs.FixtureHarness/Program.cs": "8072b99bf395ccd665fb0741ced3c2ef1aef8c5955aec7969b913da5d6751e82",
+    "tools/Tscs.FixtureHarness/Tscs.FixtureHarness.csproj": "a7e4b32c777a2612d4868ef552cf9cd4b5ec90aa60eda884c60ef699c4df48a7",
+    "tools/fixture-harness/FixtureConfigAst.cs": "dd9c5e15f3edd22180cc11a4d12191e04c7feb24ddf3bd94a2a6809507d15ea6",
+    "tools/fixture-harness/FixtureConfigSelection.cs": "57b733f120313c249a37b8f72908800620272361b3002c949b7f3765f8cad74b",
+    "tools/fixture-harness/FixtureProtocol.cs": "bc5ff88c0a47efbfcd4f9cc9b768db1c25c52e9b51b4dcee374b27bf52868dab",
+    "tools/fixture-harness/FixtureLoader.cs": "4d3f8ee13f29e22659d49b31ac1d7e2b93116b9197c1b3272e280e73d7fbeaf6",
+    "tools/fixture-harness/FixtureDirectives.cs": "2b4b7c1203c24902e81b2c5dc76fd7ed47ae13134e97449d634acc436bffe1ee",
+    "tools/fixture-harness/FixtureTrivia.cs": "3b72c1ea190e84c7fb101e21202e98becf81e9ef4ff254bcd7a22c38b7ce0d77",
+    "tools/fixture-harness/FixturePaths.cs": "deb8760d91ebf8b6836e126efab6f89d317da2932f597516cb719bf8dbf25729",
+    "tools/fixture-harness/PinnedGoLowercase.cs": "f2eeee2403d24c0f3b64a00b88d5132f9658973b37da07ea3dc7b2fa65dfa42a",
+    "tools/fixture-harness/go-lowercase.json": "1dfb6b7429ec7ead9adc38f1623f519d843ea6ed13d736361897061d174cc6eb",
+    "tools/fixture-harness/state_oracle_test.go": "d82e0d936d8afa9b3a8f65da381b5aa5c645313f8044bbd826089e5f3254928e",
+    "tools/fixture-harness/config_ast_selection_oracle_test.go": "3a64a8795faf814dde23ebabc79d799500618c02723ecd4d64907989462248a4",
+    "tools/fixture-harness/source_config_ast_oracle_test.go": "e8a5e0978e22dd3085da4ae25d8c4ac31b09224507cd389c68b6f82d74909723",
+    "src/Tscs.Compiler/SourceDecoder.cs": "953d444e7884bc6293a76a4e4469304e34c7168974d906db5bfa1dcc0f005cf9",
+    "src/Tscs.Compiler/JsonSyntax.cs": "598a77c1104dea1edc3480642fb3af7e754abe1a1a79453c4d0e0388e4782e12",
+    "src/Tscs.Compiler/JsonNumbers.cs": "caef8ab106c8b8f2990fce14294ee99004e9a2a1d966d1cbf5a7a370b7bbe5bc",
+    "src/Tscs.Compiler/Scanner.cs": "1f1b8a495dd01db1e582da7c3401355834d222f0a47a189880e3bf9076faa918",
+    "src/Tscs.Compiler/Syntax.cs": "47e3c8219bf904b2d4535e9a767e30b08020e5b37166fbe5e892e8c6b2717e08",
+    "src/Tscs.Compiler/AssemblyInfo.cs": "b37f473a04589b4fc783f51f66c335eb10a9fb4539462b61041b6f1a526b6228",
+    "Directory.Build.props": "13732ce9bcf14f2065948951e50572ef87f93d1d4c6726ce1b71b8efd1bbb92d",
+    "global.json": "6cac8ed8559756539f2db0e8cbf6d545ccc81d3d4b1ebbfcf3ee204d218847b4"
+  },
+  "referenceHashes": {
+    "tsc/internal/testrunner/test_case_parser.go": "03578c4d35165ee461f4e0488855ffb534eea9a5c598887b255f60817c07d34f",
+    "tsc/internal/testutil/harnessutil/harnessutil.go": "170d8cf5fdd5e146113411c4526a2c409a28e78a17ac23912feae581af50271d",
+    "tsc/internal/parser/parser.go": "18fbeb9644a2c642d2757188107f2a802e8084cf1ed56a24c78bab1933328c2e",
+    "tsc/internal/scanner/scanner.go": "48008100fb5a020748651e319c4dcc361c1a81ca06f8c3e0ed94d42dd0d1e6df",
+    "tsc/internal/stringutil/util.go": "e15d8030900518eb0d8bd926751df2f7c7cfda6d49c7a82da36d58daeed22b9e",
+    "tsc/internal/jsnum/string.go": "79cba5294aa96796c280169b6d3d5ed1b62da2b2aad312c8d9d06dc0a563d62b",
+    "tsc/internal/diagnostics/diagnostics_generated.go": "a0ca35f6d8bc101541dc9c91ce85b2962d97e5f26e59cbed184efb81d16255e9",
+    "tsc/internal/ast/tokenflags.go": "98f7010c7113b1ac781205175de9fe0c9c9c5854b10744d03e32127eb72f2b29",
+    "tsc/internal/vfs/osvfs/os.go": "2a37a91803bab7a047af788a278a38f9875b1b95495ed611e441d50472d479d5",
+    "tsc/internal/tspath/path.go": "6c5a8537f800a388555289c311dec38a47696ec88619b8d758edaed18d9a3328",
+    "tsc/internal/tspath/rooted_path.go": "03a97967ebe7bd5d44bcdb7d33243b331bb918752c7ca61f8e3ced124155c646"
+  },
+  "assemblies": {
+    "Tscs.FixtureHarness.dll": "9b3b3482d4cb04886faae3643072a89f9cc29349ec342897eeda85fd984f56ed",
+    "Tscs.Compiler.dll": "9d4efaf1fd1135193b5684be3f094c1c09279f1b945409acafcca1c1c592a91a"
+  },
+  "testAndToolHashes": {
+    "tests/Tscs.Compiler.Tests/FixtureConfigAstTests.cs": "cef90583c6dece8f3d657f82ec79646d0211318c87cfffdc67c525e40d7ada87",
+    "tests/Tscs.Compiler.Tests/CommandLineTests.cs": "16e6fb0956d53fa2c32d5fd9de9c7d7aa13b921b9856fab06722d29b9d03c80d",
+    "tests/Tscs.Compiler.Tests/Tscs.Compiler.Tests.csproj": "b844ee2ecc90bc115f06cb1808cb3e1b60c2d4301aae1675ce31f496f8c0c0d5",
+    "tests/Tscs.Compiler.Tests/TestData/source-config-ast-missing-comma.json": "97f1639da4a30d9655d3e0991a6490b67d11f8267dfcbb2dbe841e6899eb7d59",
+    "tools/source-config-ast.test.ts": "605efeb42495b6c7621a5d2b8c9ad6f6d5f1a241b9b3d05ad86573b020a7140c",
+    "tools/select-config-ast-regression.ts": "30932ba7acc1b5dd3a32f4fa63b87af724c85e1410f199f37f4bc8aa58fe7ee7",
+    "tools/verify-source-config-ast-artifacts.ts": "4c7fe7045ecdb53590a726f8a3730f0213af3ac03e9fe5b14c77f195555e0491"
+  },
+  "versions": {
+    "go": "go version go1.27.3 linux/amd64",
+    "node": "v24.22.1",
+    "dotnetSdk": "10.0.402",
+    "runtime": "10.0.13",
+    "xunit": "4.0.2",
+    "mtp": "2.5.1"
+  },
+  "caseIndex": {
+    "path": "docs/testing/ts7/source-config-ast-configs.jsonl",
+    "sha256": "1f203fe81789e1771d5accd5421a36f4a7e96cd2b2887045a0112e155b3ba2c9",
+    "records": 172,
+    "ids": [
+      "config-ast:f2cbf2de82c0a79a3d8ac77a3c3e028b5bda73fe2c8e97b72e85d006619c7030",
+      "config-ast:6d4c5e202102c2a6126e6ce3a76a93110adb872b2bf687ff698fdd6f7e9ea4a7",
+      "config-ast:1817fcb2344f7c1c74f4a59732fe95331822a113b3b0d9c571c1e4c20bf08fb2",
+      "config-ast:a82c6b458bec172c46c8cd7bf30021ca8535be9cf9c562be1ba2062c0f786519",
+      "config-ast:acc9cb82b447c1f7c045c5ee1d491eb9caa0c192d4dded708ebf10f8ca58003e",
+      "config-ast:00613f9415c8ef3ea647e9edaa8ae671f0af50ae491d7072a7a1c223bb3f03c2",
+      "config-ast:9e76d3c953e7a749a37ffb70b53eb6d5161ad33cb08505a03baabaa4bab8d93e",
+      "config-ast:c7392882e3c77f2684237bb8ce0949ecfb28fb23f7030d236f1e4de9f56486c5",
+      "config-ast:cc56c40ec7a0c625b66f21710b1bc53b59ddfea78c89eb6137ee4d749daacff3",
+      "config-ast:556ca0470369c2a54a13c6545b17e1f57e7cce77004439a6a34918b0adf65ffb",
+      "config-ast:d047456f9f6218ebee13a17f23d99f8e5b3cf7083af2aded8570ae7f1d4b1806",
+      "config-ast:001648d1e826444e135646362abbe7d6261b3fb3694f2a3a98794398d732fc02",
+      "config-ast:e60f5e558e8f6e749d7d55e260a191faa7271e2c4ba94a0991e6b55cb6b2ba3f",
+      "config-ast:54247a83a584392099d82c9d97e694c14b2d1a69074732de8852f2442b7be118",
+      "config-ast:b64f162390a169aea885c82fddc640252a89013fad065663d16e2efbb6fd2f9c",
+      "config-ast:9dcb9ee498a1d207be09a548ad3831474768686e04e6902656194933875837af",
+      "config-ast:c83f41d1919afbb00a0e25424e7aee5a240d63f0fe94e4121f6c7ca569af81b4",
+      "config-ast:561f9815d297e1dc4a7aebdd404505e4274c8790c1e3e82360f76931aa36082b",
+      "config-ast:2e0ac5509bad7069e8df7edcab1c39e55282d0eca6a026eff610279ce7f36734",
+      "config-ast:be535737760dbda7547aa178c3a5c3c69f5e5ac661050f7d57771da1590ec1c1",
+      "config-ast:caaa6846a5cc6b9ab22465dfcbee0cd7df0ce64153e1e85b2d49d6ca77c871d4",
+      "config-ast:759b57b7547eaaaf095e9e0bb3dea6e611d5b9648d4ea318db7c5f5a63bd8b64",
+      "config-ast:af98e7541a3f65623e46ee5d8442d0950f5c4e38aa77164846e12a29f0af14da",
+      "config-ast:f7aa52821db8a8bb6042313c7378081320d108bf525e3485b93aa0286e7a3262",
+      "config-ast:a2e81ef0283a65750a59b277ecb78ecbaaea760aea7ac8c37811ea747a3e5375",
+      "config-ast:f7b6ea48023fc0ac05df66ee73a2e377d8784b871fa7c57bab9a6c71b9e4a589",
+      "config-ast:068282a0c4664f34d4a9fa31c9d0c83fc2c1ad9a0f637b4606279b5e7e1d7ecc",
+      "config-ast:35ebb2008c830b7e57f3f6f6fad6af6d931b8217e4c2fd3e351ee719bfd64c43",
+      "config-ast:c8b49a07299a6351758f0b1261e217019c14f61cb61309ab88f59bada7a39d36",
+      "config-ast:214728f17569ac807d2d7e903f90cbf611bf8b938e64504172b8eaf922786f67",
+      "config-ast:127856d5c70fc89355768f7d2e18bc27500c61edfdf673ccf9cadf20df6a66d3",
+      "config-ast:be2b3cf8fa21654cf839b7d912a5f0f77f286888edd6783ac1b47844da9b0e96",
+      "config-ast:f1aa64cd84fd3a8ac4baf9ff91bd9c0d9c6f9515d142d4791ebb0ced3ba05a33",
+      "config-ast:741c7c456cd652f676c63f2d9ae934468dabb96287185ae4daa50a38e43450ba",
+      "config-ast:803af21a45599adef3fa61d44fb867d0ab02c80e8e9fbff5e8aff497c5f5022f",
+      "config-ast:c49e831a9db83880984d5027a683be1b2c0048cc41b6c82283da63535be58aa3",
+      "config-ast:6133ed1a8023749a6f2130e402d89151ae1ca4562279bd880c103580d074cb73",
+      "config-ast:e77039399108df52d07b0f21ebf044543a85a4c82cb67abd89746948918a8986",
+      "config-ast:56ddc7cf55aa3e1b4fe5330b059c864eef5d0698b776143b3f0eed436a060d36",
+      "config-ast:3e5f1a6759405df65726708bf62099204c7bf514cea49f6e78026247e839b42f",
+      "config-ast:79911907ffdb001386ce4c48062c33c8345637ef2f26dc66ec8683b962c431c1",
+      "config-ast:8f89628192aae111a9f170638b0734cfe20f954bd931f7e2f7a2a020d9aebcda",
+      "config-ast:5dcb8c01b46938284e47ae36b1325fc99d602bd19adc71a919c7540d1f5d1548",
+      "config-ast:a8ad5b01731896fcbc228afd9acad460f45abc606c764082e979bc51bd5210c5",
+      "config-ast:fd04f49e700c8be74bbfc91678fdb262f80e8f2f4ae129708ade22d6a16be818",
+      "config-ast:4cf96dd3ff4b377e6c76bb26fb492def5aad273bd3f37303ca5899baf52db93b",
+      "config-ast:b8d822cf68b41797afb5c687059370b63e1b4b05a74d62431b5d33d0a9c4c9cb",
+      "config-ast:547a851dd0baaeb285144337d00ac4af4d09b4ab9a01775e1344d5ab263bfc99",
+      "config-ast:352772fe5c5722c9e2a24c47015eef67e4d7cc5323b5b3c98e691176200c197d",
+      "config-ast:fd773ad837c91c97398233687da53ff40e127088aee74db8f120c2f453e60813",
+      "config-ast:9d341f8aed346d5eb8f373553c6294b71272870aace2ff9f2c2461c88d8d65a0",
+      "config-ast:21a63536e4bbf10df10212c8b5f2c691f871ed170f6455e018a2021328f6eafb",
+      "config-ast:d657e880f1a08a95e6f3c73999c9ea011f5d4d138085c4b4d1930d882fa58f9e",
+      "config-ast:34bb70166c3700bfd21ca78f01c49780d4b45acbd5ef3962ba23f3779d758c5a",
+      "config-ast:ef4e427d5fff11944c5f28062688f67e82aa1444b310a65fce6633c54e8bc5cf",
+      "config-ast:77276b2191f327845577ccb70784c229a2790895c8e3fd4f68f3eb928d3b6f97",
+      "config-ast:d7e1370a94cf41141d9098dc55872926185d9ae1b93546dec14564d26e34ed96",
+      "config-ast:9da55237dcf3cc5e0c5d074b718d30dcad281899380aafb80ffacda908b6eab7",
+      "config-ast:8f8d3ad3bd51d2605e071118eb96c2707d2b2ab275e154a30591b3f81e2a6b9f",
+      "config-ast:4aa4318e236fe0c451473b3156b88f9d13ac10190fa7926cb6935f63895c8618",
+      "config-ast:ddbf8ccc7dce06d3e321354332dcd2de0eb332c7d0869475e59e9a3c3598d041",
+      "config-ast:7f124407ffe855cb5e341406d78b158b4bef1c69ba8fd38b8bb9e528bfa9ddf1",
+      "config-ast:d4d028910be0e835c02b4569733ca1b3ee65c5389907d7a139bd4fd8413e4f73",
+      "config-ast:e215621c33887bb3b795b98b4eabdf55987f46e41657800d6b258d18915256a0",
+      "config-ast:284c82b63bbe6dcc1660fbb245acf223edafd7d7f371b4123638e011c6d10a95",
+      "config-ast:b32b5a729fdc40951b00f0fe3e15ae4f915ec995675800ffa11ff7b861d3ab26",
+      "config-ast:5f005fdb7e8b97f014c1ef6633d59dec263479972625d6095b93fed4f57a8575",
+      "config-ast:5f0e43235a894f08d73c583c213c048d7cb0c0b254071cb9062e75f6ad26b17f",
+      "config-ast:459620457021942f162143e594a9d00aad2ad78568b8dc16d3762a4c9b9d0e1f",
+      "config-ast:24e4708c16a896f391c86f9310b940a297de0a680cd643f6d0873676ffd84ef5",
+      "config-ast:0579379f35aa31451ed2145109c9b9724f0416b97c5c083ae3a97ba4337e9995",
+      "config-ast:9c8e1e85d3601a45e8dfe0cb5e6639730817eba133733651adc151a502c02801",
+      "config-ast:0e1ba3f21a5059df691a302f346087f21a994f56e8f169e4f86a18a6105868ae",
+      "config-ast:23b861b7ab92fdf04604d58ba09a2b7a4574e9d593a64aed82a5c2cc3bb6f4b0",
+      "config-ast:b36dbedacd9afe2b08d3ca984df7fc8f2b30312233829ad83301ba3a02a7283f",
+      "config-ast:5b318ba27a12f480b2058a4b11301361458c01f5231e6cdb4fe8c60520c03f30",
+      "config-ast:aced8d72f14b95a6b67e5e1f0542511f2498ee84e5630de4af271ee5620b6730",
+      "config-ast:fe31be6d76de78afb40ecc11b90be72566c105d44b6f58da40095affcaa373a3",
+      "config-ast:99141822ec9dfafaa8840d5d6292bbc628d3f6a39b136151d710c0ab6aefbcfc",
+      "config-ast:56bca0eb855ba0c0e61a4d606458013417292dedf45221e84a9cc38a7d29365a",
+      "config-ast:4bba5bf79b7d57b30da268b68428a2852642429c65eafd29061e027e93f2fb4a",
+      "config-ast:982b31f14996f9d3f4a762d4c902abc5ac6bd502064661669e5499145a891d93",
+      "config-ast:de1f769394ac2988480f745b0f66ca9eb41b0763d2a783a71bdc5e82612f475f",
+      "config-ast:1261d0e97963ae6a2e6a6eca35907c4ff00fd166c56f8c429e42134022260467",
+      "config-ast:ec055f4481ca85343a3787104da8960795f870431bf178af0468f88d5d84ebca",
+      "config-ast:26188db70f5a8ff7b981f43ddfee79f27023606872cc0102aa9d672f67d900c2",
+      "config-ast:48158d548c893a881fdcd031c49876f2be4a9e5d31dc8b1c46c48e142a8c71b5",
+      "config-ast:e41cb9c66c45fae49e0c33e07a60608b317be3727d3c0ad6820450bd8dffda10",
+      "config-ast:0fd202fc0d9faf0bd59e7e5f1c44169f01714158fcb1862fddaf9161ab305baa",
+      "config-ast:7327635399606368bd047173073df1a44cbb3f291be9765830b748d8db1462c6",
+      "config-ast:df3f51ba76e666e506b65ff6966011cbf0c2e210e258b42b006fd442a7251d03",
+      "config-ast:14e56c03922536d2ca394de227f64386fbacb03003e0e2cf26ffad27822ab6ea",
+      "config-ast:edd03bf1caa2e88175ee0e66cebfd83528ae173404a07f6e353d6ebe0a335574",
+      "config-ast:9e5c7c0fa1dfb52ccb54892229369a5ffe7a619ebe4664f54f79b87e6876401f",
+      "config-ast:8f458d66b1bef69f5b3f015fb3d6ee617d7f498fb3b41bd5765affa5ed47118d",
+      "config-ast:c98e4007bf422e7456eac3c091e58b2097f0746bcf15af6ca68cb80198fecd1a",
+      "config-ast:da9b8ab65f1f6c62f6863bfe5beeb56b94aa127eb9a8ea6ae0d1fdcc5af6a6df",
+      "config-ast:6481e969af546b010f2b7c99afcd3ee09a0ccc541a872d0d34b8f680bb650635",
+      "config-ast:660719acfc04aa399b8f3f4600a62d1618ebb6d9cb01106146ba0674a61fb01c",
+      "config-ast:d435b09dd4589ffebf64456a8d9d7c0179f1bdaf0c693d3084701f766c53b4ae",
+      "config-ast:ce01057848a7d1ab3a3c2203892f54232a8e44de6635124cccec066dbe29d343",
+      "config-ast:7de45a48dc6e1025cc07e57bde79397c45725cacb304c02e2d0a765d6f0d71a1",
+      "config-ast:fb8a00c1b26f8a230e6bacc69356a5411f01a5e74ad1dc0597ae48806d2c95e8",
+      "config-ast:47476502fdd2d129e430b827083d9a48c283ed5ae991b7700b8fd95df7591486",
+      "config-ast:c0aed9cbb968688043047218d47bf7ac66b860fae01f422b9abb3b48736a73c2",
+      "config-ast:e5ddec2b6566415044ded555cebca868509d7b7f5f494a1da8421f133a6046d2",
+      "config-ast:a5740b1646ff7462388d11c8eabc7a06dc71ef3507569a20de8c362c51b3f0f4",
+      "config-ast:2e224557886cc2d0593faa758db27f9ebc32ccc0e82dd1612e150c3bc61d88d6",
+      "config-ast:ce80f1b226cc7587a3c0216d24369a4e17cb9ba2ebd37bb9133e75a3488e8198",
+      "config-ast:0562269a92b2ff9e614471da6e399b5e9dae8afcf234f8ee769e88144eee4584",
+      "config-ast:4f9c21aa4bbd7e9e233cbdfdfde7661d30c628f34cc82bd96964e1925d7d5bb3",
+      "config-ast:47a436e35ed88552fdbd84cc33136f9c2cc4c09da886ce189d2e32189679dd4e",
+      "config-ast:6fa94b908cf4e07ead29dc5eebd36f7291f338285a956282c8b9639898b3c8a5",
+      "config-ast:e553d13d09771499190ff5373f6ff129e4870e17a658e0a949bcedcfa70d679d",
+      "config-ast:47a0d327336bd00aa4fdde63363132179bdd772f15da7bc73deaea8645935bfb",
+      "config-ast:90401bca4280cd1b82bac622d00de9e47647d9d13f3c4d20e5b8691c793739d3",
+      "config-ast:5926990b9ab7e5f72142dd92b8d26418f264500027b1d4baa331dcd03b0740dd",
+      "config-ast:7fad069d665da0e2199e9f23c599bc79435c4fdde96560d38978fcc5447c471a",
+      "config-ast:e544b93581721f228bb86176c3ec80aaf8781f29847d87a40de5ea31685a2d03",
+      "config-ast:924639a57a004cc71174b3203182b6266373bd4d64021dc9b872006762ff4f3a",
+      "config-ast:f74d5b5206cfe2d6268eca1e546b3d0624776276f6d0e5b10ebe9db61ea4a200",
+      "config-ast:9a63ced5bb6780169d2d3d49b47e40e0a10ed70a123c41f2b367f6336cfe757e",
+      "config-ast:98aafe6357b37f882278507b681cc570709b33b8e8fd3bef98bd24d30f100e02",
+      "config-ast:f649b329c37ab586d3cf81488c1ec230bb53b9f8250f083e7a5c6cabeb33bf3c",
+      "config-ast:69a5f9a66f82247b3d6462cb17f49d7f2d03e0f1621d6434eb2cb2af918adfdc",
+      "config-ast:279ae103fdc7a44cf638d531dab1b1ff81256757f3ed9c590d30e76453ddb307",
+      "config-ast:07037e1deb46084f4461d4ca68544f6155b3065f55e11b40dd329c6b30e8b00a",
+      "config-ast:1b5de2c45a91b7af6fede9247fa2c12189b1e622056346ec3259e09d170f4fca",
+      "config-ast:8e39014da778772e091f4b39c3621f2bc2e4e27d5f122cc643bdca61c8a72cda",
+      "config-ast:cd187cee7c835400c0775672aecc2d48e7d21f0c213ec777bd372b3cd77a1ae8",
+      "config-ast:922560fd6092d99003a2860da6b9cdff1a7ed542410668612c1016d22ad3e0d5",
+      "config-ast:f2d3d0a9dc4fa9b36f73a9b1f3910fa8c0cf1fc0104bbd927117d39cf08314b3",
+      "config-ast:6478d18a0a9f1286759226400b143a20a5f363f58ea966d3563e3833067c9f2b",
+      "config-ast:a2b7a523ef4ec95c1978b1a6dcb9268c0ea0d53929b30a4016220184046d1051",
+      "config-ast:64b5afe86ee7f0cf0512ae9e5e7d081569717ebc1051ed68ee0a0e6e4ec74fb7",
+      "config-ast:9b226dcce85a94da15b66c7e596f7077e11a97f1260827f79cd172fe1fbabf81",
+      "config-ast:95d3d97a6d4fe5d37eaee2bb8c3731b3caf7ec677395a3958faf48029ccfbbc4",
+      "config-ast:0e8f49c1994e72b8a47641705b34002d75a30d9c470bbc184c90a2b14a6c4c21",
+      "config-ast:95324128544029c98f55982eb4e04ba0158570dfdf554fb187c8314ca6a6570a",
+      "config-ast:cab4d370079cb4ae69a99b5c145996bacddb0b35d46d2b004711b3a8cab1203f",
+      "config-ast:c9b14bd4f67abe7df1cb9753e798c6e437c04878d8103d1544fc5c872b47ea0e",
+      "config-ast:cd0e93932202c18778fe7d16e7b6e5ddd6a5af49730ce361c313eb57317f6112",
+      "config-ast:5954b09c15954002c5a8784a358a1ca0751914739b39dd9aeff8bae7566b3e3f",
+      "config-ast:0f7455e6f630b788bacab6ca49df7bd63f22cfc58d7e71a02a8de8d1738a0ed8",
+      "config-ast:8216dd141496c84dd54f0f0bab057f7fcf076826f8514790625544a64103484a",
+      "config-ast:ca1dcaa8b34d3f5dc9872e0a02dbaf0a88baadaf8515b417f8ef65e130e7a829",
+      "config-ast:7346f265d3193235feb3e935f480eb2345e511215f0a2f6ea7b24f7fa4d00039",
+      "config-ast:47d7ef66cb5a2852aeda33368a94314f89a95ba2511d8f7165637b055300eca5",
+      "config-ast:fb564f614bad9c6752e2e960ef35039506bd0f187aad5d31c56c79e01c682937",
+      "config-ast:1686e8621c046a2b876e4ce584dbb41a6f9deda5aabd51e3aaed874a3ebd64c3",
+      "config-ast:bafc7819081ff119ee7ad7a0c80f659721c1f6ae2b13466a2de8d3bd7580823a",
+      "config-ast:759af02cd63829a60edfc55f1d257b3f3904eb87ddb0276bf04a84cb99a36388",
+      "config-ast:60369f5f64640005f4552419272cb19260a406f3a52e0c302c6c9cabd98260b0",
+      "config-ast:79e9b10afd9d9dd66caf649bf4822e7f4957cb952d037a94fdd1ed254620f9c5",
+      "config-ast:843da1eecb22a9c71ba153b042210b5b8dda085d5a9ed441527d9afeef712aba",
+      "config-ast:e27d674de7c6977d23941c82c6df54e181a6388a5082908cc0f567ca652be477",
+      "config-ast:0c0af6537a1a34cd6e8d60ef030b50eaef6d7301668c865d398d86fdbf53cbe4",
+      "config-ast:3de4fbd54babe74be19211e7eafa2f45f364f88754ef9f6b1a4baf2d1e01cd3a",
+      "config-ast:47286f9a333b74a372d493db13f5567663652bd3113af124d16cfd9f2908f82f",
+      "config-ast:386c56a62360a73183315d385374d386d89de8c67c1880abb7de6bf8d4f29dbf",
+      "config-ast:6a1513132fac3e17dd2dfb5202a70f59c2dcdfcd048a75140884722f267c15de",
+      "config-ast:61c04095235d01820427e2587a93451d6b066bf703cac74808bcff8f570709a8",
+      "config-ast:a079999aa9b2495629b1278121cdf1946355ddef2f6fb7051e270502c75e9aa4",
+      "config-ast:e24a63069abd3d47056956b4a382e65e2274f58006525ef8c54405d3efc944c3",
+      "config-ast:a64614e72ec12049b7f6e36df303cd22d21e1cf15c8fde19c76ac2ba35ce8e7f",
+      "config-ast:1bfb0de7aea5cc374bd93c6a3ef7d1c612b33a7ed695dde8e3ecec1d40beb157",
+      "config-ast:d3084daafa91c8646f0c6cc5a7b1e3ddd7e6c8699df0e854d72a08d0ebdaa037",
+      "config-ast:c1291c38b0efa03efea20eb0b900893ab32bcfff4378a75e5f88dff0e3a29394",
+      "config-ast:27eb038acf29c647dd46c26ebebcfd4572cfbcc967e2c6f087fbc189a15d34f7",
+      "config-ast:ecb95d771116bb55f7aca6ba2fb62ef538b47afbdbf692d4b257ca315ff42d14",
+      "config-ast:e369a367200cd5a55f55f37a8bb91285ad7e57071e840cd8e50d8cb199e5b87b",
+      "config-ast:0eeb41959b9a83108cec99c21fcc57dab4e641c22c067005b0587d6f14faddd6"
+    ]
+  },
+  "recoveredOriginalSource": {
+    "sourceId": "fixture:e0d6b83430ab3ef31b78ce3f7de69640e43ae38415a7e901383cca305b038eca",
+    "path": "tsc/testdata/tests/cases/compiler/tsconfigRootdirInclude.ts",
+    "rawSha256": "51d5b534e02965a87c6c4775b0fd2c155ccb38cf62fdade491ee382193a4c7d3",
+    "decoding": "UTF8",
+    "upstreamSelection": {
+      "status": "SELECTED_BY_EXTENSION",
+      "policy": {
+        "assetId": "asset:fa054797c12b5ada82dc02bb70c100b92a89bdbc3ae14591ac4053565957f043",
+        "declaration": "skippedTests",
+        "line": 79
+      }
+    },
+    "id": "selected-config-ast-profile:88f62d8d5e4d07c901a2bc719fd40e9181b87e27c5b57cbf695952e693ffc776",
+    "profile": "pre-vfs/selected-config/json-ast",
+    "status": "MATCH_DIAGNOSTICS",
+    "equal": true,
+    "selectionEqual": true,
+    "actualOutcome": "DIAGNOSTICS",
+    "referenceOutcome": "DIAGNOSTICS",
+    "config": {
+      "id": "config-ast:0e8f49c1994e72b8a47641705b34002d75a30d9c470bbc184c90a2b14a6c4c21",
+      "name": "dHNjb25maWcuanNvbg==",
+      "contentSha256": "2f507e4ed2c9c8c7595a8bef81ba2f8b24bb6efee1e68eefa4c68d1dd75c6849",
+      "bytes": 187,
+      "index": 0,
+      "directory": "Ly5zcmM=",
+      "configPath": "Ly5zcmMvdHNjb25maWcuanNvbg=="
+    },
+    "actualSha256": "99cc7f4a58585a48b537046b858043659f7f18a0cd0429fa945937702068e8e9",
+    "referenceSha256": "6a0ede7fbd86097161cfb9659b86ffd4c45e5d856181133226e3f5ca987db75c",
+    "compiler": "NOT_RUN",
+    "referenceCompiler": "NOT_RUN",
+    "acceptance": "NOT_RUN"
+  },
+  "redGreen": {
+    "missingTransport": "6fail/8732pass ->8738/8738",
+    "rootedContext": "2fail/8738pass ->8740/8740",
+    "originalMissingComma": "1fail/8740pass ->8741/8741",
+    "cliAndOriginalSourceMutation": "2fail/8740pass ->8742/8742",
+    "schema": "4fail/0pass ->4/4",
+    "envelope": "1fail/4pass ->5/5",
+    "postCompletionArtifactIntegrity": "1fail/5pass ->6/6"
+  },
+  "validation": {
+    "releaseBuild": "0warnings/0errors",
+    "directMTP": {
+      "passed": 8742,
+      "failed": 0,
+      "skipped": 0
+    },
+    "node": {
+      "passed": 75,
+      "failed": 0
+    },
+    "frozen": {
+      "passed": 29,
+      "failed": 0
+    },
+    "goScope": "PASS",
+    "sdkCoordinator": "NOT_RUN",
+    "fullComparisonExit": 1,
+    "goSelectionExit": 0,
+    "goParserExit": 0,
+    "exitExplanation": "One preserved original TS1005 yields MATCH_DIAGNOSTICS, not clean acceptance; full comparison intentionally exits1."
+  },
+  "integrity": {
+    "artifactsVerifiedEachRun": 62,
+    "actualShards": 51,
+    "actualRows": 13006,
+    "actualBytes": 15436139,
+    "concatenatedActualSha256": "9836344c2618d5bd6668fdc2e6859396bbcdf8b521df707059b8af879d29d524",
+    "byteIdenticalPayloads": [
+      "requests",
+      "selection",
+      "parse-requests",
+      "reference",
+      "results",
+      "configs",
+      "actual-calls",
+      "all51actual-shards"
+    ],
+    "sourceHashesVerified": 26,
+    "counts": {
+      "sources": 13006,
+      "selectedConfigSources": 172,
+      "upstreamSkippedSources": 42,
+      "nonRawUtf8Sources": 8,
+      "referenceProjectedNodes": 2091,
+      "referenceDiagnostics": 1,
+      "referenceErrorSources": 1,
+      "MATCH": 171,
+      "MATCH_DIAGNOSTICS": 1,
+      "NOT_APPLICABLE": 12834,
+      "UNSUPPORTED": 0,
+      "MISMATCH": 0,
+      "REFERENCE_PANIC": 0,
+      "CRASH": 0
+    },
+    "independentActualSha256": "9836344c2618d5bd6668fdc2e6859396bbcdf8b521df707059b8af879d29d524"
+  },
+  "profileSummaries": [
+    {
+      "path": ".artifacts/source-config-ast-sharded-verified/summary.json",
+      "sha256": "f01d997e860e5728d9ae10a7eba3b9ba8ce3f283501d86c40d22e79fca9ce135",
+      "artifacts": [
+        {
+          "path": "requests.json",
+          "sha256": "cf9296e27e9fc969b7163487f8ae6a00f3b4ae0fc9fc8e53b0624936eb6f4580",
+          "bytes": 15677673
+        },
+        {
+          "path": "selection.json",
+          "sha256": "bd30f752f3aff96ab25d1c58574e77cb53072dc3a92b3126a60269836eb6829b",
+          "bytes": 30161805
+        },
+        {
+          "path": "selection.log",
+          "sha256": "021f84e15fc5b61141442509f2d20d25ca7e25442d226a64197f9e005edd0fa3",
+          "bytes": 68
+        },
+        {
+          "path": "parse-requests.json",
+          "sha256": "c49d37332833725de891054cb9e0756fc1a1537e6d85adba142a7a91bd73bf44",
+          "bytes": 64929
+        },
+        {
+          "path": "reference.json",
+          "sha256": "76c2cc3b7b52f3933292ea2d937208d894de26ca792868ef2339007c82243744",
+          "bytes": 615744
+        },
+        {
+          "path": "reference.log",
+          "sha256": "79f790a2616b183546096cc2c3e548651b2919ceaebbbfd710b4274d5350ab2c",
+          "bytes": 64
+        },
+        {
+          "path": "actual-000.jsonl",
+          "sha256": "eebcf4eefe77e65b27b099cdc3f9e3deda44d00de156f0fd1cba3869be4d0c98",
+          "bytes": 214407
+        },
+        {
+          "path": "actual-001.jsonl",
+          "sha256": "bc9430520cd8d3008a5ae2d073755c66e799d775fd0d7b6b99572655036d1176",
+          "bytes": 396293
+        },
+        {
+          "path": "actual-002.jsonl",
+          "sha256": "28d07996806d6eb762c510fa6d1bd33340736dd28ebe2123e994055d718eed92",
+          "bytes": 271642
+        },
+        {
+          "path": "actual-003.jsonl",
+          "sha256": "a5b89d5153d16dfbe64b98c8174c3c31997e3855f262d4222e280edad5372eeb",
+          "bytes": 313708
+        },
+        {
+          "path": "actual-004.jsonl",
+          "sha256": "ffaf387bb32c9990010c648be61b225f0ec34307fca2fadef6f439e4b7732ac9",
+          "bytes": 580308
+        },
+        {
+          "path": "actual-005.jsonl",
+          "sha256": "0c96aa99d1ad255e31a381430b3216bd4fd28da2fa3b0ee88718e9fb5ca6001b",
+          "bytes": 294691
+        },
+        {
+          "path": "actual-006.jsonl",
+          "sha256": "685f79c11867a2ec9e150852cec54784000f8a79a0f6adce835ac2484ce94e77",
+          "bytes": 241761
+        },
+        {
+          "path": "actual-007.jsonl",
+          "sha256": "8fac390abc40e02f96e7d55fe01336d195270994c389c41888058b3e1a2deb57",
+          "bytes": 297809
+        },
+        {
+          "path": "actual-008.jsonl",
+          "sha256": "4328405510ef553a0b52702d9576ee2110e1551452fa1b5d1ed05ad012c9344a",
+          "bytes": 268152
+        },
+        {
+          "path": "actual-009.jsonl",
+          "sha256": "c8e236d7d262034514cc2104c01a39f0f182303d691f0a6c0135f0adce6f1b53",
+          "bytes": 260046
+        },
+        {
+          "path": "actual-010.jsonl",
+          "sha256": "9984cec56fab0158fa39fbfabf931530b0ab4436172172103e56274331b29df7",
+          "bytes": 208057
+        },
+        {
+          "path": "actual-011.jsonl",
+          "sha256": "18f3fae8aac6cd0e4f43a8850bcc083009ce07251264b301b2e8fb6d4c8afdd6",
+          "bytes": 177886
+        },
+        {
+          "path": "actual-012.jsonl",
+          "sha256": "9b83a65239804e44c3f362f4ff1ac1b98f24c54e5d4674610149116b73464f0b",
+          "bytes": 274251
+        },
+        {
+          "path": "actual-013.jsonl",
+          "sha256": "9208f3267a78f4e6cc5dfe15723adda132d536ab2f8c56d6d58da605cad8475b",
+          "bytes": 262896
+        },
+        {
+          "path": "actual-014.jsonl",
+          "sha256": "a5c5a9c6c260b6ccacbc8ceb8ef468e7887d7837f34fa091f7f7edf0970d2557",
+          "bytes": 239813
+        },
+        {
+          "path": "actual-015.jsonl",
+          "sha256": "66bfddbc1123c88213479e4f4eef92f1cedeec238140f901362952d85a3d3340",
+          "bytes": 224247
+        },
+        {
+          "path": "actual-016.jsonl",
+          "sha256": "b3f9fcabad15f358776f2f22727e06911755781aa8a4933543590783787e3e6e",
+          "bytes": 647264
+        },
+        {
+          "path": "actual-017.jsonl",
+          "sha256": "7d2f85144027c11ad5a80d72422c924e58f7be0bd0d64aa67427c208e7d87248",
+          "bytes": 214892
+        },
+        {
+          "path": "actual-018.jsonl",
+          "sha256": "de139dd4355bcded64a92e4cccd08edcf5fa13223285a33777b2c8a36d8f5288",
+          "bytes": 290471
+        },
+        {
+          "path": "actual-019.jsonl",
+          "sha256": "13f4f334666411671f538e40dd93162124b9de4a13ca5f7f49e9f84cbef49d91",
+          "bytes": 221348
+        },
+        {
+          "path": "actual-020.jsonl",
+          "sha256": "954ce05b5ae2596853adf67393d03917b941a68d61b1b30baebf682e641ca888",
+          "bytes": 272886
+        },
+        {
+          "path": "actual-021.jsonl",
+          "sha256": "96da16ed629a042980b7bebdeda4970d5f99ed4f616c0df5fa0910180c92f19e",
+          "bytes": 684389
+        },
+        {
+          "path": "actual-022.jsonl",
+          "sha256": "1880052ff154098c3b9424dc62f75d10389bca5ee10db080e36dc26ee4fa08a0",
+          "bytes": 394052
+        },
+        {
+          "path": "actual-023.jsonl",
+          "sha256": "3d32e25239fb78fa5d0770ac2affad0e6a706bde14840e54d4f920557fbbf1fd",
+          "bytes": 298054
+        },
+        {
+          "path": "actual-024.jsonl",
+          "sha256": "67b120979859ec795573bbb3922ed196aa20b0ba7dc303b0652d6639619d506a",
+          "bytes": 324217
+        },
+        {
+          "path": "actual-025.jsonl",
+          "sha256": "6e89b6439a1a4ee39224601b5ccfc09c379d84973856a396677f6b55906a3224",
+          "bytes": 262949
+        },
+        {
+          "path": "actual-026.jsonl",
+          "sha256": "5edb318fdf47058f525eda86ef5a3ad640d6a365975f244f991a25fcd5f7e4a0",
+          "bytes": 399494
+        },
+        {
+          "path": "actual-027.jsonl",
+          "sha256": "69cfb06d6de6f841d53fa2f6e91e2f69b41439c6cb69f41dad72d0624eb45f70",
+          "bytes": 221649
+        },
+        {
+          "path": "actual-028.jsonl",
+          "sha256": "cb2f0a41d19be6cd3fc5bcb1b44bca6749eaba62092c43708146ba9ee532359c",
+          "bytes": 206379
+        },
+        {
+          "path": "actual-029.jsonl",
+          "sha256": "38fdeadf31b053a56d0cf213abcdb88778f70d4902dd021f8b3bb0b51ffa9ca5",
+          "bytes": 281798
+        },
+        {
+          "path": "actual-030.jsonl",
+          "sha256": "56c7302fd4ec6a45111355ef957df484687ab1b8b925a1166bfcf57f924102c1",
+          "bytes": 293454
+        },
+        {
+          "path": "actual-031.jsonl",
+          "sha256": "5a4825eff6e61b4cc1d53a17ffbb1002d12c32a924e9daf112e723fc206af5a5",
+          "bytes": 188850
+        },
+        {
+          "path": "actual-032.jsonl",
+          "sha256": "10354d4ae974586d329fffa966c5bfa95db810630cbdad3e4562a5438350d31b",
+          "bytes": 200040
+        },
+        {
+          "path": "actual-033.jsonl",
+          "sha256": "6a3d76ef2894958db0f804e5ed8085fe6dfa16b1eaca776d1b11b90b74233e13",
+          "bytes": 184096
+        },
+        {
+          "path": "actual-034.jsonl",
+          "sha256": "4613a2c651b4d0038a1af8284051718e347cad781f54e5e630452d0a0e416c91",
+          "bytes": 167842
+        },
+        {
+          "path": "actual-035.jsonl",
+          "sha256": "216dcd4975fe3cbf3e38a7ab4764b70e093e718b0a1a7d377e2540823b29f8a8",
+          "bytes": 167394
+        },
+        {
+          "path": "actual-036.jsonl",
+          "sha256": "e7058da16de6b22ccb349e5469774d9bd235b4af1aa8537767aa56d149f7dd22",
+          "bytes": 481319
+        },
+        {
+          "path": "actual-037.jsonl",
+          "sha256": "d7b9b1c65fdab9bd4d540621c3753cb432457100911dd4fb0911481b48698884",
+          "bytes": 337888
+        },
+        {
+          "path": "actual-038.jsonl",
+          "sha256": "6cd9a9734ec29bfb3b16a27212ee2210596fb87127533c223746a36bf26b0b86",
+          "bytes": 318305
+        },
+        {
+          "path": "actual-039.jsonl",
+          "sha256": "850a79294f1bd3cf2fac77883f60eabcd5537a2b5f7d387c58b3ec2d9ae40755",
+          "bytes": 246614
+        },
+        {
+          "path": "actual-040.jsonl",
+          "sha256": "ea5de5e6f63d0a8214e77a67199daa4d178636e448d4226e1a227d0fb91c7180",
+          "bytes": 223914
+        },
+        {
+          "path": "actual-041.jsonl",
+          "sha256": "84990ae0c29f2b39699747a726b23cac0bc1bdfb5ee67d9e6cd5a1f4dc494015",
+          "bytes": 302729
+        },
+        {
+          "path": "actual-042.jsonl",
+          "sha256": "54e351c0d30c1944a3e662ce261dc02d1685369b9230844fcf7ea496cb7a765e",
+          "bytes": 218528
+        },
+        {
+          "path": "actual-043.jsonl",
+          "sha256": "f59fc6b73c1ac2dda76baf5fb7aa1e9ec3f91bfd05b4fcd12324969397099158",
+          "bytes": 109790
+        },
+        {
+          "path": "actual-044.jsonl",
+          "sha256": "404aaee82619aa1f8e365d9fe8f8e456c80522fb2a4e489b5ea6af477727c4eb",
+          "bytes": 260922
+        },
+        {
+          "path": "actual-045.jsonl",
+          "sha256": "76700bf9d5f72cfe83e030fb3fb78333c56f4fe5b8db3344309a487ec72e0941",
+          "bytes": 554912
+        },
+        {
+          "path": "actual-046.jsonl",
+          "sha256": "528cdf52195f7641ac8b2516ac29eea9ab9119feaea714f0adc9f68fa75a67c5",
+          "bytes": 190472
+        },
+        {
+          "path": "actual-047.jsonl",
+          "sha256": "12249df848917529bd0600b3f5a9565c048dbc67e907dd1a515e6f2305405de1",
+          "bytes": 455112
+        },
+        {
+          "path": "actual-048.jsonl",
+          "sha256": "0949cbe112104ff68e490f2cf16bcd246b9e62a456583bea3317964e41a5c4d6",
+          "bytes": 295027
+        },
+        {
+          "path": "actual-049.jsonl",
+          "sha256": "c11bd7811fa9a66e8a7b32410b5f6465599f3fdee604aa7b7f2366c58e8821bc",
+          "bytes": 504139
+        },
+        {
+          "path": "actual-050.jsonl",
+          "sha256": "101d7df542971269a9289da4f61c445a2d5e96a542be4ae01267d50ab2dc84c0",
+          "bytes": 488983
+        },
+        {
+          "path": "actual-calls.json",
+          "sha256": "675e17f5b2327ab3fdfcf9922a48b2779fff38b6efca0c3a996a8956ea5f0b06",
+          "bytes": 15563
+        },
+        {
+          "path": "actual.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "results.jsonl",
+          "sha256": "321fae210a325fa1c90f7ee04efa808dad1de90f48015d8dab7295c46f43d375",
+          "bytes": 12148998
+        },
+        {
+          "path": "configs.jsonl",
+          "sha256": "1f203fe81789e1771d5accd5421a36f4a7e96cd2b2887045a0112e155b3ba2c9",
+          "bytes": 214061
+        },
+        {
+          "path": "build.log",
+          "sha256": "8c5b16d8d480b5d364dcd93f8431c98c7fc3e972de58d4c003dff9e3cd218284",
+          "bytes": 320
+        }
+      ]
+    },
+    {
+      "path": ".artifacts/source-config-ast-sharded-verified-repeat/summary.json",
+      "sha256": "2ab6985147040dfcd16c9cdc1473405d04b3953bbd39e771e5bca89903ace4ae",
+      "artifacts": [
+        {
+          "path": "requests.json",
+          "sha256": "cf9296e27e9fc969b7163487f8ae6a00f3b4ae0fc9fc8e53b0624936eb6f4580",
+          "bytes": 15677673
+        },
+        {
+          "path": "selection.json",
+          "sha256": "bd30f752f3aff96ab25d1c58574e77cb53072dc3a92b3126a60269836eb6829b",
+          "bytes": 30161805
+        },
+        {
+          "path": "selection.log",
+          "sha256": "cf870d32d864d2abc3a4007f874ba7cd30efeb85ecd88989b7299aee358c58af",
+          "bytes": 68
+        },
+        {
+          "path": "parse-requests.json",
+          "sha256": "c49d37332833725de891054cb9e0756fc1a1537e6d85adba142a7a91bd73bf44",
+          "bytes": 64929
+        },
+        {
+          "path": "reference.json",
+          "sha256": "76c2cc3b7b52f3933292ea2d937208d894de26ca792868ef2339007c82243744",
+          "bytes": 615744
+        },
+        {
+          "path": "reference.log",
+          "sha256": "82320ce0aa5c184efe1da44583cefa77d58f3ef2c6ffd040b3cbe7cae8ad0be2",
+          "bytes": 64
+        },
+        {
+          "path": "actual-000.jsonl",
+          "sha256": "eebcf4eefe77e65b27b099cdc3f9e3deda44d00de156f0fd1cba3869be4d0c98",
+          "bytes": 214407
+        },
+        {
+          "path": "actual-001.jsonl",
+          "sha256": "bc9430520cd8d3008a5ae2d073755c66e799d775fd0d7b6b99572655036d1176",
+          "bytes": 396293
+        },
+        {
+          "path": "actual-002.jsonl",
+          "sha256": "28d07996806d6eb762c510fa6d1bd33340736dd28ebe2123e994055d718eed92",
+          "bytes": 271642
+        },
+        {
+          "path": "actual-003.jsonl",
+          "sha256": "a5b89d5153d16dfbe64b98c8174c3c31997e3855f262d4222e280edad5372eeb",
+          "bytes": 313708
+        },
+        {
+          "path": "actual-004.jsonl",
+          "sha256": "ffaf387bb32c9990010c648be61b225f0ec34307fca2fadef6f439e4b7732ac9",
+          "bytes": 580308
+        },
+        {
+          "path": "actual-005.jsonl",
+          "sha256": "0c96aa99d1ad255e31a381430b3216bd4fd28da2fa3b0ee88718e9fb5ca6001b",
+          "bytes": 294691
+        },
+        {
+          "path": "actual-006.jsonl",
+          "sha256": "685f79c11867a2ec9e150852cec54784000f8a79a0f6adce835ac2484ce94e77",
+          "bytes": 241761
+        },
+        {
+          "path": "actual-007.jsonl",
+          "sha256": "8fac390abc40e02f96e7d55fe01336d195270994c389c41888058b3e1a2deb57",
+          "bytes": 297809
+        },
+        {
+          "path": "actual-008.jsonl",
+          "sha256": "4328405510ef553a0b52702d9576ee2110e1551452fa1b5d1ed05ad012c9344a",
+          "bytes": 268152
+        },
+        {
+          "path": "actual-009.jsonl",
+          "sha256": "c8e236d7d262034514cc2104c01a39f0f182303d691f0a6c0135f0adce6f1b53",
+          "bytes": 260046
+        },
+        {
+          "path": "actual-010.jsonl",
+          "sha256": "9984cec56fab0158fa39fbfabf931530b0ab4436172172103e56274331b29df7",
+          "bytes": 208057
+        },
+        {
+          "path": "actual-011.jsonl",
+          "sha256": "18f3fae8aac6cd0e4f43a8850bcc083009ce07251264b301b2e8fb6d4c8afdd6",
+          "bytes": 177886
+        },
+        {
+          "path": "actual-012.jsonl",
+          "sha256": "9b83a65239804e44c3f362f4ff1ac1b98f24c54e5d4674610149116b73464f0b",
+          "bytes": 274251
+        },
+        {
+          "path": "actual-013.jsonl",
+          "sha256": "9208f3267a78f4e6cc5dfe15723adda132d536ab2f8c56d6d58da605cad8475b",
+          "bytes": 262896
+        },
+        {
+          "path": "actual-014.jsonl",
+          "sha256": "a5c5a9c6c260b6ccacbc8ceb8ef468e7887d7837f34fa091f7f7edf0970d2557",
+          "bytes": 239813
+        },
+        {
+          "path": "actual-015.jsonl",
+          "sha256": "66bfddbc1123c88213479e4f4eef92f1cedeec238140f901362952d85a3d3340",
+          "bytes": 224247
+        },
+        {
+          "path": "actual-016.jsonl",
+          "sha256": "b3f9fcabad15f358776f2f22727e06911755781aa8a4933543590783787e3e6e",
+          "bytes": 647264
+        },
+        {
+          "path": "actual-017.jsonl",
+          "sha256": "7d2f85144027c11ad5a80d72422c924e58f7be0bd0d64aa67427c208e7d87248",
+          "bytes": 214892
+        },
+        {
+          "path": "actual-018.jsonl",
+          "sha256": "de139dd4355bcded64a92e4cccd08edcf5fa13223285a33777b2c8a36d8f5288",
+          "bytes": 290471
+        },
+        {
+          "path": "actual-019.jsonl",
+          "sha256": "13f4f334666411671f538e40dd93162124b9de4a13ca5f7f49e9f84cbef49d91",
+          "bytes": 221348
+        },
+        {
+          "path": "actual-020.jsonl",
+          "sha256": "954ce05b5ae2596853adf67393d03917b941a68d61b1b30baebf682e641ca888",
+          "bytes": 272886
+        },
+        {
+          "path": "actual-021.jsonl",
+          "sha256": "96da16ed629a042980b7bebdeda4970d5f99ed4f616c0df5fa0910180c92f19e",
+          "bytes": 684389
+        },
+        {
+          "path": "actual-022.jsonl",
+          "sha256": "1880052ff154098c3b9424dc62f75d10389bca5ee10db080e36dc26ee4fa08a0",
+          "bytes": 394052
+        },
+        {
+          "path": "actual-023.jsonl",
+          "sha256": "3d32e25239fb78fa5d0770ac2affad0e6a706bde14840e54d4f920557fbbf1fd",
+          "bytes": 298054
+        },
+        {
+          "path": "actual-024.jsonl",
+          "sha256": "67b120979859ec795573bbb3922ed196aa20b0ba7dc303b0652d6639619d506a",
+          "bytes": 324217
+        },
+        {
+          "path": "actual-025.jsonl",
+          "sha256": "6e89b6439a1a4ee39224601b5ccfc09c379d84973856a396677f6b55906a3224",
+          "bytes": 262949
+        },
+        {
+          "path": "actual-026.jsonl",
+          "sha256": "5edb318fdf47058f525eda86ef5a3ad640d6a365975f244f991a25fcd5f7e4a0",
+          "bytes": 399494
+        },
+        {
+          "path": "actual-027.jsonl",
+          "sha256": "69cfb06d6de6f841d53fa2f6e91e2f69b41439c6cb69f41dad72d0624eb45f70",
+          "bytes": 221649
+        },
+        {
+          "path": "actual-028.jsonl",
+          "sha256": "cb2f0a41d19be6cd3fc5bcb1b44bca6749eaba62092c43708146ba9ee532359c",
+          "bytes": 206379
+        },
+        {
+          "path": "actual-029.jsonl",
+          "sha256": "38fdeadf31b053a56d0cf213abcdb88778f70d4902dd021f8b3bb0b51ffa9ca5",
+          "bytes": 281798
+        },
+        {
+          "path": "actual-030.jsonl",
+          "sha256": "56c7302fd4ec6a45111355ef957df484687ab1b8b925a1166bfcf57f924102c1",
+          "bytes": 293454
+        },
+        {
+          "path": "actual-031.jsonl",
+          "sha256": "5a4825eff6e61b4cc1d53a17ffbb1002d12c32a924e9daf112e723fc206af5a5",
+          "bytes": 188850
+        },
+        {
+          "path": "actual-032.jsonl",
+          "sha256": "10354d4ae974586d329fffa966c5bfa95db810630cbdad3e4562a5438350d31b",
+          "bytes": 200040
+        },
+        {
+          "path": "actual-033.jsonl",
+          "sha256": "6a3d76ef2894958db0f804e5ed8085fe6dfa16b1eaca776d1b11b90b74233e13",
+          "bytes": 184096
+        },
+        {
+          "path": "actual-034.jsonl",
+          "sha256": "4613a2c651b4d0038a1af8284051718e347cad781f54e5e630452d0a0e416c91",
+          "bytes": 167842
+        },
+        {
+          "path": "actual-035.jsonl",
+          "sha256": "216dcd4975fe3cbf3e38a7ab4764b70e093e718b0a1a7d377e2540823b29f8a8",
+          "bytes": 167394
+        },
+        {
+          "path": "actual-036.jsonl",
+          "sha256": "e7058da16de6b22ccb349e5469774d9bd235b4af1aa8537767aa56d149f7dd22",
+          "bytes": 481319
+        },
+        {
+          "path": "actual-037.jsonl",
+          "sha256": "d7b9b1c65fdab9bd4d540621c3753cb432457100911dd4fb0911481b48698884",
+          "bytes": 337888
+        },
+        {
+          "path": "actual-038.jsonl",
+          "sha256": "6cd9a9734ec29bfb3b16a27212ee2210596fb87127533c223746a36bf26b0b86",
+          "bytes": 318305
+        },
+        {
+          "path": "actual-039.jsonl",
+          "sha256": "850a79294f1bd3cf2fac77883f60eabcd5537a2b5f7d387c58b3ec2d9ae40755",
+          "bytes": 246614
+        },
+        {
+          "path": "actual-040.jsonl",
+          "sha256": "ea5de5e6f63d0a8214e77a67199daa4d178636e448d4226e1a227d0fb91c7180",
+          "bytes": 223914
+        },
+        {
+          "path": "actual-041.jsonl",
+          "sha256": "84990ae0c29f2b39699747a726b23cac0bc1bdfb5ee67d9e6cd5a1f4dc494015",
+          "bytes": 302729
+        },
+        {
+          "path": "actual-042.jsonl",
+          "sha256": "54e351c0d30c1944a3e662ce261dc02d1685369b9230844fcf7ea496cb7a765e",
+          "bytes": 218528
+        },
+        {
+          "path": "actual-043.jsonl",
+          "sha256": "f59fc6b73c1ac2dda76baf5fb7aa1e9ec3f91bfd05b4fcd12324969397099158",
+          "bytes": 109790
+        },
+        {
+          "path": "actual-044.jsonl",
+          "sha256": "404aaee82619aa1f8e365d9fe8f8e456c80522fb2a4e489b5ea6af477727c4eb",
+          "bytes": 260922
+        },
+        {
+          "path": "actual-045.jsonl",
+          "sha256": "76700bf9d5f72cfe83e030fb3fb78333c56f4fe5b8db3344309a487ec72e0941",
+          "bytes": 554912
+        },
+        {
+          "path": "actual-046.jsonl",
+          "sha256": "528cdf52195f7641ac8b2516ac29eea9ab9119feaea714f0adc9f68fa75a67c5",
+          "bytes": 190472
+        },
+        {
+          "path": "actual-047.jsonl",
+          "sha256": "12249df848917529bd0600b3f5a9565c048dbc67e907dd1a515e6f2305405de1",
+          "bytes": 455112
+        },
+        {
+          "path": "actual-048.jsonl",
+          "sha256": "0949cbe112104ff68e490f2cf16bcd246b9e62a456583bea3317964e41a5c4d6",
+          "bytes": 295027
+        },
+        {
+          "path": "actual-049.jsonl",
+          "sha256": "c11bd7811fa9a66e8a7b32410b5f6465599f3fdee604aa7b7f2366c58e8821bc",
+          "bytes": 504139
+        },
+        {
+          "path": "actual-050.jsonl",
+          "sha256": "101d7df542971269a9289da4f61c445a2d5e96a542be4ae01267d50ab2dc84c0",
+          "bytes": 488983
+        },
+        {
+          "path": "actual-calls.json",
+          "sha256": "675e17f5b2327ab3fdfcf9922a48b2779fff38b6efca0c3a996a8956ea5f0b06",
+          "bytes": 15563
+        },
+        {
+          "path": "actual.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "results.jsonl",
+          "sha256": "321fae210a325fa1c90f7ee04efa808dad1de90f48015d8dab7295c46f43d375",
+          "bytes": 12148998
+        },
+        {
+          "path": "configs.jsonl",
+          "sha256": "1f203fe81789e1771d5accd5421a36f4a7e96cd2b2887045a0112e155b3ba2c9",
+          "bytes": 214061
+        },
+        {
+          "path": "build.log",
+          "sha256": "7ae5e3947ec088decf396bc02b692d30d8317023c1570a8d21d1b7cefccd7509",
+          "bytes": 320
+        }
+      ]
+    }
+  ],
+  "independentReview": {
+    "importantFinding": "Monolithic final actual.jsonl truncated after completion:12785/13006 rows and14889176/15436139bytes; that raw artifact set is excluded. Root cause unknown.",
+    "otherImportantFindings": [],
+    "executed": [
+      "All13006 source/blob/inventory/skip/input bindings and26 source/11 reference/2 assembly hashes before author correction",
+      "Actual pinned Go selection and parser reruns, exit0 with identical outputs",
+      "Fresh built C#13006-row replay and complete reconciliation, intended actual SHA9836344c2618d5bd6668fdc2e6859396bbcdf8b521df707059b8af879d29d524",
+      "Focused Node5/5, MTP config-AST9/9 and CLI41/41"
+    ],
+    "authorCorrectivePass": "Captured256-request batches via stdout pipe then51 immutable Node-written/fsynced shards (max684389bytes), per-batch hashes/IDs/counts, later artifact verification plus truncation regression. Two final verified runs retained.",
+    "noSecondIndependentReview": true,
+    "rawIndex": "independent/INDEX.json",
+    "manifestSha256": "ca4d2d8dd9158c082c7ebcb18fdb3d5460ed7faae757f0905fa79f8d698a472a"
+  },
+  "commands": {
+    "environment": "DOTNET_CLI_TELEMETRY_OPTOUT=1 XDG_CONFIG_HOME=/tmp/tscs-offline-config GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local PATH=/tmp/tscs-go/go/bin:$PATH DOTNET=/tmp/tscs-dotnet/dotnet",
+    "build": "/tmp/tscs-dotnet/dotnet build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false",
+    "directMTP": "/tmp/tscs-dotnet/dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --minimum-expected-tests 8742 --fail-skips on",
+    "profile": [
+      "node tools/compare-source-config-ast.ts .artifacts/ts7-upstream .artifacts/ts7-scope .artifacts/source-config-ast-sharded-verified",
+      "node tools/compare-source-config-ast.ts .artifacts/ts7-upstream .artifacts/ts7-scope .artifacts/source-config-ast-sharded-verified-repeat"
+    ],
+    "postCompletion": "node tools/verify-source-config-ast-artifacts.ts PROFILE",
+    "node": "node --test tools/*.test.ts",
+    "frozen": "node tools/verify-conformance.ts",
+    "goScope": "go test tools/scope-go/main.go tools/scope-go/main_test.go",
+    "regression": "node tools/select-config-ast-regression.ts PROFILE tsc/testdata/tests/cases/compiler/tsconfigRootdirInclude.ts NEW_OUTPUT"
+  },
+  "archive": {
+    "file": "tscs-source-config-ast-evidence-2026-10-26.tar.gz",
+    "bytes": 24176097,
+    "sha256": "0b0d7789cca78b689cb3b736312f1a282d693dd5771a5dad238acff76c4120be",
+    "archiveIndexSha256": "c697edf9425235e1600b8505380bed5ff83c381f564553dc41516c69c41889d8",
+    "files": 169,
+    "hardlinkDuplicates": 76,
+    "independentManifestSha256": "ca4d2d8dd9158c082c7ebcb18fdb3d5460ed7faae757f0905fa79f8d698a472a",
+    "libraryFileId": "libfile_c9371fa5bad4819197419fddf667b42f"
+  },
+  "limitations": [
+    "Pre-VFS only: actual raw parser/config-name helper plus mirrored selection/removal; not whole makeUnitsFromTest or effective options",
+    "Actual Go ParseSourceFile(ScriptKindJSON) consumes selected content bytes; unknown projection kinds explicitly UNSUPPORTED, complete diagnostics retained",
+    "No-config sources are NOT_APPLICABLE, never compiler passes; upstream skip metadata retained",
+    "Single default-options syntax profile; configured/runtime variants and full test-domain denominator remain unresolved",
+    "Bounded missing-property-comma recovery requires a supported name followed by colon; no general JSON/parser recovery claim",
+    "Full effective config, extends/globs/external mappers and original compiler assertions NOT_RUN",
+    "All original domains/profiles, unknown concrete-case denominator and seven prior module:none reference fatals retained"
+  ],
+  "compiler": "NOT_RUN",
+  "referenceCompiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "concreteCases": null,
+  "releaseEligible": false,
+  "rawOwnLogs": {
+    "docs/evidence/source-config-ast-run/build.log": "68d9378d8c087b88d15933582bdfecf30a212f545a19b115a89069f19bc7bd0e",
+    "docs/evidence/source-config-ast-run/cli-red-build.log": "babb7a13ab9bc001396061db7cc153b812e98190070a0b5715285d19d789e1ef",
+    "docs/evidence/source-config-ast-run/cli-red.log": "83bd69733cbcb37509e9aa7666ba07eae1db5d712d119c94439f2e273c532a9c",
+    "docs/evidence/source-config-ast-run/comma-red-build.log": "0a5eccc941e3942d9d511b8fffcd88f9c94a7277152442f7901bd177c515ae44",
+    "docs/evidence/source-config-ast-run/comma-red.log": "332ae1638af23d81fa049fb9874dbdea6a15dbf6cc477a96b69835c78c307aea",
+    "docs/evidence/source-config-ast-run/context-red-build.log": "74fafa8d0a4ab03de2e086535e8fa2f6eee50f0b18a9d6111ef3aad37c8a17eb",
+    "docs/evidence/source-config-ast-run/context-red.log": "1850166e747c7e6bdc2fd9cbf26605ba8182c2e3242a7cfa4fd1ab5078711a1b",
+    "docs/evidence/source-config-ast-run/final-integrity.json": "61a4078a2cdc59888189731eed5797738f2c8c71f51eeddc48f2af37e1b7b68c",
+    "docs/evidence/source-config-ast-run/frozen.log": "441c7bad381ac65cb1890aaf8424ec7b8999b55ef7574e9836a3516c151bc4b9",
+    "docs/evidence/source-config-ast-run/go-scope.log": "d0824a6fb2ad0663ba24b323858d653f5369581adb2676e0f355dbe5f81f6d2a",
+    "docs/evidence/source-config-ast-run/green.log": "9888d2752b7ea9f93a5531e05489a46ed05d6d911e303b21511894aa8941156c",
+    "docs/evidence/source-config-ast-run/node-artifact-red.log": "a3df8469c399448982e95de1fd9e5f3be01d44b3448c63cdb8067c4917c53f43",
+    "docs/evidence/source-config-ast-run/node-envelope-red.log": "3af538ae974420f40496d4cfa2c578413b5536f7c911ccccb2c9356fd6565a88",
+    "docs/evidence/source-config-ast-run/node-focused.log": "d1e05a360037c22108c93a1ab173c8252287a839c8c4a0d7d6af134cd164f61b",
+    "docs/evidence/source-config-ast-run/node-red.log": "e992d5cd1838c43d4725143836983e88339fcd918c48e0c4f10330609a4fb356",
+    "docs/evidence/source-config-ast-run/node.log": "ff92839b79899438ffc61b3f4c875ad8b79c4b2bafe48ee95a85e26f7c709e19",
+    "docs/evidence/source-config-ast-run/profile-context.log": "87262919b5e187731a08d5d7ec66aeee8a63bf94f2c62e76bb007c1ea9858343",
+    "docs/evidence/source-config-ast-run/profile-final-repeat.log": "b59de4ffbaf8a581aadbfd5c4cac62e61963987336bd3c8100b7e9050ebfb9c2",
+    "docs/evidence/source-config-ast-run/profile-final.log": "b59de4ffbaf8a581aadbfd5c4cac62e61963987336bd3c8100b7e9050ebfb9c2",
+    "docs/evidence/source-config-ast-run/profile-initial.log": "2b9b387a0a6a407c8b262af9e4a0320e2514170a1d8178bffe1ef9d45512ebb4",
+    "docs/evidence/source-config-ast-run/profile-review.log": "804a77ebe88296917fa192b905fd0a7f4a124be245f1eec60683109d2de5ea5c",
+    "docs/evidence/source-config-ast-run/profile-sharded-verified-repeat.log": "b59de4ffbaf8a581aadbfd5c4cac62e61963987336bd3c8100b7e9050ebfb9c2",
+    "docs/evidence/source-config-ast-run/profile-sharded-verified.log": "b59de4ffbaf8a581aadbfd5c4cac62e61963987336bd3c8100b7e9050ebfb9c2",
+    "docs/evidence/source-config-ast-run/profile-sharded.log": "b59de4ffbaf8a581aadbfd5c4cac62e61963987336bd3c8100b7e9050ebfb9c2",
+    "docs/evidence/source-config-ast-run/red-build.log": "a2a1fd52a8ff794f9a8a2fe8dcd7bed92f953e875f39ff5d97ea02a2bec1440c",
+    "docs/evidence/source-config-ast-run/red.log": "8458c7fb6b2314327bb9a04621d8a4e00e9fc2046174f1c6e986f6a5f9213186",
+    "docs/evidence/source-config-ast-run/repeat-post-check.log": "b59de4ffbaf8a581aadbfd5c4cac62e61963987336bd3c8100b7e9050ebfb9c2",
+    "docs/evidence/source-config-ast-run/reserved-keyword-build.log": "90b853ece06fb8d2e8beabe7ef457ee35fd18c388bdd2d71a876e64b2a11ab87",
+    "docs/evidence/source-config-ast-run/shard-post-check.log": "b59de4ffbaf8a581aadbfd5c4cac62e61963987336bd3c8100b7e9050ebfb9c2",
+    "docs/evidence/source-config-ast-run/sharded-verified-post-check.log": "b59de4ffbaf8a581aadbfd5c4cac62e61963987336bd3c8100b7e9050ebfb9c2",
+    "docs/evidence/source-config-ast-run/verified-post-check.log": "b59de4ffbaf8a581aadbfd5c4cac62e61963987336bd3c8100b7e9050ebfb9c2"
+  }
+}

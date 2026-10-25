@@ -1,0 +1,277 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "path": "tsc/testdata/tests/cases/compiler/tsconfigRootdirInclude.ts",
+  "sourceId": "fixture:e0d6b83430ab3ef31b78ce3f7de69640e43ae38415a7e901383cca305b038eca",
+  "rawSha256": "51d5b534e02965a87c6c4775b0fd2c155ccb38cf62fdade491ee382193a4c7d3",
+  "request": {
+    "id": "selected-config-ast-profile:88f62d8d5e4d07c901a2bc719fd40e9181b87e27c5b57cbf695952e693ffc776",
+    "input": "Ly8gQGZpbGVuYW1lOiB0c2NvbmZpZy5qc29uDQp7DQogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsNCiAgICAgICAgInRhcmdldCI6ICJlczIwMjAiLA0KICAgICAgICAic3RyaWN0TnVsbENoZWNrcyI6IHRydWUsDQogICAgICAgICJzdGFibGVUeXBlT3JkZXJpbmciOiB0cnVlLA0KICAgICAgICAicm9vdERpciI6ICIuL3NyYzIiLA0KICAgIH0NCiAgICAiaW5jbHVkZSI6IFsic3JjMS8qIl0NCn0NCi8vIEBmaWxlbmFtZTogc3JjMS9tYWluLnRzDQoNCg0K",
+    "fileName": "dHNjL3Rlc3RkYXRhL3Rlc3RzL2Nhc2VzL2NvbXBpbGVyL3RzY29uZmlnUm9vdGRpckluY2x1ZGUudHM=",
+    "implicit": false,
+    "failAt": 0,
+    "returnNil": false,
+    "profile": "config-ast"
+  },
+  "expected": {
+    "selection": {
+      "configFile": {
+        "content": "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAidGFyZ2V0IjogImVzMjAyMCIsCiAgICAgICAgInN0cmljdE51bGxDaGVja3MiOiB0cnVlLAogICAgICAgICJzdGFibGVUeXBlT3JkZXJpbmciOiB0cnVlLAogICAgICAgICJyb290RGlyIjogIi4vc3JjMiIsCiAgICB9CiAgICAiaW5jbHVkZSI6IFsic3JjMS8qIl0KfQ==",
+        "name": "dHNjb25maWcuanNvbg=="
+      },
+      "configIndex": 0,
+      "panic": null,
+      "runExternalCode": false,
+      "units": [
+        {
+          "content": "",
+          "name": "c3JjMS9tYWluLnRz"
+        }
+      ]
+    },
+    "context": {
+      "configPath": "Ly5zcmMvdHNjb25maWcuanNvbg==",
+      "directory": "Ly5zcmM="
+    },
+    "ast": {
+      "nodes": [
+        {
+          "end": 187,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 23,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/name",
+          "start": 6,
+          "units": [
+            99,
+            111,
+            109,
+            112,
+            105,
+            108,
+            101,
+            114,
+            79,
+            112,
+            116,
+            105,
+            111,
+            110,
+            115
+          ]
+        },
+        {
+          "end": 159,
+          "kind": "Object",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 25,
+          "units": []
+        },
+        {
+          "end": 43,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/value/p0/name",
+          "start": 35,
+          "units": [
+            116,
+            97,
+            114,
+            103,
+            101,
+            116
+          ]
+        },
+        {
+          "end": 53,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/value/p0/value",
+          "start": 45,
+          "units": [
+            101,
+            115,
+            50,
+            48,
+            50,
+            48
+          ]
+        },
+        {
+          "end": 81,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/value/p1/name",
+          "start": 63,
+          "units": [
+            115,
+            116,
+            114,
+            105,
+            99,
+            116,
+            78,
+            117,
+            108,
+            108,
+            67,
+            104,
+            101,
+            99,
+            107,
+            115
+          ]
+        },
+        {
+          "end": 87,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value/p1/value",
+          "start": 83,
+          "units": []
+        },
+        {
+          "end": 117,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/value/p2/name",
+          "start": 97,
+          "units": [
+            115,
+            116,
+            97,
+            98,
+            108,
+            101,
+            84,
+            121,
+            112,
+            101,
+            79,
+            114,
+            100,
+            101,
+            114,
+            105,
+            110,
+            103
+          ]
+        },
+        {
+          "end": 123,
+          "kind": "True",
+          "number": "",
+          "path": "$/p0/value/p2/value",
+          "start": 119,
+          "units": []
+        },
+        {
+          "end": 142,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/value/p3/name",
+          "start": 133,
+          "units": [
+            114,
+            111,
+            111,
+            116,
+            68,
+            105,
+            114
+          ]
+        },
+        {
+          "end": 152,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/value/p3/value",
+          "start": 144,
+          "units": [
+            46,
+            47,
+            115,
+            114,
+            99,
+            50
+          ]
+        },
+        {
+          "end": 173,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/name",
+          "start": 164,
+          "units": [
+            105,
+            110,
+            99,
+            108,
+            117,
+            100,
+            101
+          ]
+        },
+        {
+          "end": 185,
+          "kind": "Array",
+          "number": "",
+          "path": "$/p1/value",
+          "start": 175,
+          "units": []
+        },
+        {
+          "end": 184,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/value/e0",
+          "start": 176,
+          "units": [
+            115,
+            114,
+            99,
+            49,
+            47,
+            42
+          ]
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "TS1005",
+          "length": 9,
+          "message": "',' expected.",
+          "start": 164
+        }
+      ],
+      "unsupported": null,
+      "panic": null
+    },
+    "unsupported": null
+  },
+  "referenceHashes": {
+    "tsc/internal/testrunner/test_case_parser.go": "03578c4d35165ee461f4e0488855ffb534eea9a5c598887b255f60817c07d34f",
+    "tsc/internal/testutil/harnessutil/harnessutil.go": "170d8cf5fdd5e146113411c4526a2c409a28e78a17ac23912feae581af50271d",
+    "tsc/internal/parser/parser.go": "18fbeb9644a2c642d2757188107f2a802e8084cf1ed56a24c78bab1933328c2e",
+    "tsc/internal/scanner/scanner.go": "48008100fb5a020748651e319c4dcc361c1a81ca06f8c3e0ed94d42dd0d1e6df",
+    "tsc/internal/stringutil/util.go": "e15d8030900518eb0d8bd926751df2f7c7cfda6d49c7a82da36d58daeed22b9e",
+    "tsc/internal/jsnum/string.go": "79cba5294aa96796c280169b6d3d5ed1b62da2b2aad312c8d9d06dc0a563d62b",
+    "tsc/internal/diagnostics/diagnostics_generated.go": "a0ca35f6d8bc101541dc9c91ce85b2962d97e5f26e59cbed184efb81d16255e9",
+    "tsc/internal/ast/tokenflags.go": "98f7010c7113b1ac781205175de9fe0c9c9c5854b10744d03e32127eb72f2b29",
+    "tsc/internal/vfs/osvfs/os.go": "2a37a91803bab7a047af788a278a38f9875b1b95495ed611e441d50472d479d5",
+    "tsc/internal/tspath/path.go": "6c5a8537f800a388555289c311dec38a47696ec88619b8d758edaed18d9a3328",
+    "tsc/internal/tspath/rooted_path.go": "03a97967ebe7bd5d44bcdb7d33243b331bb918752c7ca61f8e3ced124155c646"
+  },
+  "probeHashes": {
+    "tools/fixture-harness/state_oracle_test.go": "d82e0d936d8afa9b3a8f65da381b5aa5c645313f8044bbd826089e5f3254928e",
+    "tools/fixture-harness/config_ast_selection_oracle_test.go": "3a64a8795faf814dde23ebabc79d799500618c02723ecd4d64907989462248a4",
+    "tools/fixture-harness/source_config_ast_oracle_test.go": "e8a5e0978e22dd3085da4ae25d8c4ac31b09224507cd389c68b6f82d74909723"
+  }
+}

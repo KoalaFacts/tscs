@@ -127,4 +127,13 @@ public class CommandLineTests : IDisposable
         var r=Run("--noEmit","--noLib",Write("a.ts","const n: number;"));
         Assert.Multiple(()=>Assert.Contains("TS2318",r.Out),()=>Assert.DoesNotContain("TS1155",r.Out));
     }
+    [Fact]
+    public void SourceBackedConfigMissingCommaReportsPinnedSyntaxSpanAndExit()
+    {
+        using var golden=System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,"TestData/source-config-ast-missing-comma.json")));
+        var text=System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(golden.RootElement.GetProperty("expected").GetProperty("selection").GetProperty("configFile").GetProperty("content").GetString()!));
+        var result=Run("--json","-p",Write("tsconfig.json",text));Assert.Equal(2,result.Code);
+        using var json=System.Text.Json.JsonDocument.Parse(result.Out);var diagnostic=Assert.Single(json.RootElement.GetProperty("diagnostics").EnumerateArray());
+        Assert.Equal("TS1005",diagnostic.GetProperty("code").GetString());Assert.Equal(164,diagnostic.GetProperty("start").GetInt32());Assert.Equal(9,diagnostic.GetProperty("length").GetInt32());Assert.Equal("',' expected.",diagnostic.GetProperty("message").GetString());
+    }
 }

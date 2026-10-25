@@ -42,7 +42,15 @@ internal static class JsonSyntax
                     var name=Take();string kind=name.Kind==TokenKind.String?"String":name.Kind==TokenKind.Number?"Number":"Identifier";
                     var key=new JsonSyntaxNode(kind,name with {Value=kind=="Number"?null:name.Value??name.Text},[],[],kind=="Number"?JsonNumbers.CanonicalInteger(name.Text):"");
                     if(!Eat(TokenKind.Colon))Unsupported();properties.Add(new(key,Value(depth+1)));
-                    if(!Eat(TokenKind.Comma))break;
+                    if(!Eat(TokenKind.Comma))
+                    {
+                        if(Current.Kind==TokenKind.Close)break;
+                        // Bounded parseDelimitedList recovery: retain a following
+                        // property when its name and colon are already present.
+                        if(Current.Kind is (TokenKind.String or TokenKind.Identifier or TokenKind.Number or TokenKind.True or TokenKind.False or TokenKind.Null) && position+1<tokens.Count && tokens[position+1].Kind==TokenKind.Colon)
+                            Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","',' expected."));
+                        else Unsupported();
+                    }
                 }
                 if(Current.Kind!=TokenKind.Close)Unsupported();var end=Take();
                 return new("Object",first with {Length=end.Start+end.Length-first.Start},properties,[]);
