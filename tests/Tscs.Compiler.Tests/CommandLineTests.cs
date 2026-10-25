@@ -61,6 +61,39 @@ public class CommandLineTests : IDisposable
         var project=Write("tsconfig.json","{\"files\":[\"a.ts\",\"minimal.d.ts\"],\"compilerOptions\":{\"noEmit\":null,\"noLib\":null}}");
         Assert.Equal(0,Run("-p",project,"--noEmit","--noLib").Code);
     }
+    [Theory]
+    [InlineData("noEmit","0")]
+    [InlineData("noEmit","\"true\"")]
+    [InlineData("noEmit","{}")]
+    [InlineData("noEmit","[]")]
+    [InlineData("noLib","-0")]
+    [InlineData("noLib","\"false\"")]
+    [InlineData("noLib","{\"x\":false}")]
+    [InlineData("noLib","[null]")]
+    public void InvalidConfigBooleanReportsPinnedOptionDiagnostic(string name,string value)
+    {
+        string source="/*😀*/ {\"compilerOptions\": {\""+name+"\": /*value*/ "+value+"}}";
+        var project=Write("tsconfig.json",source);var result=Run("--json","-p",project,"--noEmit","--noLib");
+        Assert.Equal(2,result.Code);using var document=System.Text.Json.JsonDocument.Parse(result.Out);
+        var diagnostic=Assert.Single(document.RootElement.GetProperty("diagnostics").EnumerateArray());
+        Assert.Equal("TS5024",diagnostic.GetProperty("code").GetString());Assert.Equal("tsconfig.json",diagnostic.GetProperty("file").GetString());
+        Assert.Equal(source.IndexOf(value,StringComparison.Ordinal),diagnostic.GetProperty("start").GetInt32());
+        Assert.Equal(value.Length,diagnostic.GetProperty("length").GetInt32());
+        Assert.Equal("Compiler option '"+name+"' requires a value of type boolean.",diagnostic.GetProperty("message").GetString());
+    }
+    [Theory]
+    [InlineData("")]
+    [InlineData("--noEmit")]
+    [InlineData("--noLib")]
+    [InlineData("--noEmit false --noLib")]
+    [InlineData("--noEmit --noLib false")]
+    public void NullConfigBooleansKeepUnspecifiedBootstrapRequirements(string flags)
+    {
+        Write("a.ts","let n = 1;");Lib();
+        var project=Write("tsconfig.json","{\"files\":[\"a.ts\",\"minimal.d.ts\"],\"compilerOptions\":{\"noEmit\":null,\"noLib\":null}}");
+        var result=Run(new[]{"-p",project}.Concat(flags.Split(' ',StringSplitOptions.RemoveEmptyEntries)).ToArray());
+        Assert.Equal(1,result.Code);Assert.Contains("bootstrap requires",result.Out);
+    }
     [Fact]
     public void ProjectUsesProductJsonStringDecoding()
     {

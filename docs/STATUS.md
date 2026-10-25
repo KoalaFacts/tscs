@@ -3,6 +3,20 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Primitive config option conversion — 2026-10-26
+
+- Added actual convertJsonOption primitive/object conversion for declarations
+  without path/extra validation: command-line-only rejection precedes nullable
+  type validation; values retain UTF16, binary64 bits and ordered/nil semantics.
+- Actual Go private converter:100 of126 declarations ×15 values ×2 source
+  contexts =3000 rows; all126 declaration identities retained,26 excluded from
+  this bounded branch.2214 TS5024 /210 TS6266 /576 value outcomes matched.
+- CLI noEmit/noLib invalid types now report config TS5024/exit2. Null defaults
+  remain false with explicit CLI overrides; five default/false cases now locked.
+- RED2822fail/11124pass ->13946/13946; Node89/89, frozen29/29.
+  [Scope/evidence](progress/json-scalar-options.md). Full source profiles and
+  original compiler acceptance not rerun; releasefalse and all domains retained.
+
 ## Config option value type admission — 2026-10-26
 
 - Added the pinned isCompilerOptionsValue shape predicate in the product:

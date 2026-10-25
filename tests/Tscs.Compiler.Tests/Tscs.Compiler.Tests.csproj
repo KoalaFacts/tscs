@@ -39,4 +39,5 @@
 <ItemGroup><None Update="TestData/config-values.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
 <ItemGroup><None Update="TestData/source-config-values.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
 <ItemGroup><None Update="TestData/json-option-types.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
+<ItemGroup><None Update="TestData/json-scalar-options.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
 </Project>

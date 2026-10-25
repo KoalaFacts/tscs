@@ -70,8 +70,8 @@ internal sealed class Options
                         if(!optionKeys.Add((option.Name.Token.Value??option.Name.Token.Text)))throw new InputFailure("Duplicate compiler options are not supported.");
                         switch((option.Name.Token.Value??option.Name.Token.Text))
                         {
-                            case "noEmit":noEmit=Boolean(option.Value);break;
-                            case "noLib":noLib=Boolean(option.Value);break;
+                            case "noEmit":noEmit=Boolean("noEmit",option.Value,file,text);break;
+                            case "noLib":noLib=Boolean("noLib",option.Value,file,text);break;
                             case "target":if(option.Value.Kind!="String")throw new InputFailure("target must be a string.");ValidateTarget(JsonConfigValues.Convert(option.Value).Text);break;
                             default:throw new InputFailure($"Unsupported compiler option '{(option.Name.Token.Value??option.Name.Token.Text)}'.");
                         }
@@ -81,13 +81,12 @@ internal sealed class Options
             }
         }
     }
-    private static bool Boolean(JsonSyntaxNode value)
+    private static bool Boolean(string name,JsonSyntaxNode value,string file,string text)
     {
-        var converted=JsonConfigValues.Convert(value);
-        if(!JsonCompilerOptionTypes.Accepts(new("boolean",false),converted))throw new InputFailure("Expected a boolean compiler option.");
-        // Both supported boolean declarations allow null: unset uses the
-        // existing false bootstrap default, then explicit CLI flags override.
-        return converted.Kind=="True";
+        var result=JsonScalarOptions.Convert(new(name,new("boolean",false)),JsonConfigValues.Convert(value),file,expression:value.Token);
+        if(result.Diagnostics.Count>0)throw new ConfigSyntaxFailure(text,result.Diagnostics);
+        // Null remains unset/default false, then explicit CLI flags override.
+        return result.Value.Kind=="True";
     }
     private static void ValidateTarget(string target)
     {if(!target.Equals("es2015",StringComparison.OrdinalIgnoreCase)&&!target.Equals("es6",StringComparison.OrdinalIgnoreCase))throw new InputFailure("Only target es2015/es6 is supported by the bootstrap.");}

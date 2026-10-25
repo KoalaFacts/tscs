@@ -1,0 +1,72 @@
+failed Tscs.Tests.CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(name: "noEmit", value: "[]") (2ms)
+  Assert.Equal() Failure: Values differ
+  Expected: 2
+  Actual:   1
+    at Tscs.Tests.CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(String name, String value) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/CommandLineTests.cs:77
+    at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+    at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+failed Tscs.Tests.CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(name: "noEmit", value: "{}") (0ms)
+  Assert.Equal() Failure: Values differ
+  Expected: 2
+  Actual:   1
+    at Tscs.Tests.CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(String name, String value) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/CommandLineTests.cs:77
+    at InvokeStub_CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(name: "noLib", value: "{\"x\":false}") (0ms)
+  Assert.Equal() Failure: Values differ
+  Expected: 2
+  Actual:   1
+    at Tscs.Tests.CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(String name, String value) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/CommandLineTests.cs:77
+    at InvokeStub_CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(name: "noEmit", value: "0") (0ms)
+  Assert.Equal() Failure: Values differ
+  Expected: 2
+  Actual:   1
+    at Tscs.Tests.CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(String name, String value) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/CommandLineTests.cs:77
+    at InvokeStub_CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(name: "noEmit", value: "\"true\"") (0ms)
+  Assert.Equal() Failure: Values differ
+  Expected: 2
+  Actual:   1
+    at Tscs.Tests.CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(String name, String value) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/CommandLineTests.cs:77
+    at InvokeStub_CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(name: "noLib", value: "[null]") (0ms)
+  Assert.Equal() Failure: Values differ
+  Expected: 2
+  Actual:   1
+    at Tscs.Tests.CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(String name, String value) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/CommandLineTests.cs:77
+    at InvokeStub_CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(name: "noLib", value: "\"false\"") (0ms)
+  Assert.Equal() Failure: Values differ
+  Expected: 2
+  Actual:   1
+    at Tscs.Tests.CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(String name, String value) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/CommandLineTests.cs:77
+    at InvokeStub_CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(name: "noLib", value: "-0") (0ms)
+  Assert.Equal() Failure: Values differ
+  Expected: 2
+  Actual:   1
+    at Tscs.Tests.CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(String name, String value) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/CommandLineTests.cs:77
+    at InvokeStub_CommandLineTests.InvalidConfigBooleanReportsPinnedOptionDiagnostic(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonScalarOptionTests.ScalarConversionAndDiagnosticsMatchActualPrivateGo (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.IO.FileNotFoundException : Could not find file '/workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/TestData/json-scalar-options.json'.
+    at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+    at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+    at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+    at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+    at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Int32 bufferSize)
+    at System.IO.File.ReadAllText(String path, Encoding encoding)
+    at Tscs.Tests.JsonScalarOptionTests.Rows()+MoveNext() in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonScalarOptionTests.cs:7
+
+Test run summary: Minimum expected tests policy violation, tests ran 10947, minimum expected 13946 - /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+  total: 10947
+  failed: 9
+  succeeded: 10938
+  skipped: 0
+  duration: 3s 567ms

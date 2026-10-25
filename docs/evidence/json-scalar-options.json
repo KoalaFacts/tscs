@@ -1,0 +1,191 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "upstreamVersion": "7.1.0-dev",
+  "baseCommit": "55c3bb83039f8b0e035c73a8142724563da7895a",
+  "reviewedImplementationCommit": "12b041584a5d03a4b47fcaa208c15928d6140661",
+  "profile": "private-convertJsonOption/primitive-no-path-no-extra/compiler-and-file-node",
+  "commands": {
+    "oracle": "node tools/generate-json-scalar-options.ts .artifacts/ts7-upstream tests/Tscs.Compiler.Tests/TestData/json-scalar-options.json",
+    "build": "dotnet build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false",
+    "mtp": "dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 13946",
+    "node": "node --test tools/*.test.ts",
+    "frozen": "node tools/verify-conformance.ts"
+  },
+  "tools": {
+    "go": "go version go1.27.3 linux/amd64",
+    "sdk": "10.0.402",
+    "runtime": "10.0.13",
+    "node": "24.22.1",
+    "xunit": "4.0.2",
+    "mtp": "2.5.1",
+    "telemetry": "Go env confirmed off; DOTNET_CLI_TELEMETRY_OPTOUT=1",
+    "network": "GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local, no-restore builds"
+  },
+  "counts": {
+    "declarationsRetained": 126,
+    "supportedDeclarations": 100,
+    "excludedDeclarations": 26,
+    "inputs": 15,
+    "contexts": 2,
+    "executedHelperCases": 3000,
+    "matchedHelperCases": 3000,
+    "valueResults": 576,
+    "TS5024": 2214,
+    "TS6266": 210,
+    "genuineRed": {
+      "fail": 2822,
+      "pass": 11124
+    },
+    "directMtp": {
+      "pass": 13946,
+      "fail": 0,
+      "skip": 0
+    },
+    "node": {
+      "pass": 89,
+      "fail": 0
+    },
+    "frozen": {
+      "pass": 29,
+      "fail": 0
+    }
+  },
+  "golden": {
+    "path": "tests/Tscs.Compiler.Tests/TestData/json-scalar-options.json",
+    "bytes": 1388120,
+    "sha256": "79bfc0854897d5304048b80505adbac0e3c103710faf7a50b8d6405daf718da2"
+  },
+  "referenceHashes": {
+    "tsc/internal/tsoptions/tsconfigparsing.go": "2f42a124c6d16054a263cd8b34a23dc188421f5db69923d52e56886d349f0c71",
+    "tsc/internal/tsoptions/commandlineoption.go": "3c15653631c1cb32e54e40ca0d8b4e336635f551a9f206851e69228efb060d1e",
+    "tsc/internal/tsoptions/declarations_generated.go": "8f414711280dc2e88abdb480bf6d823beae435eedb9161199fdf3b08a3ea33ff",
+    "tsc/internal/tsoptions/errors.go": "f63da5973b822776dfce424105e4f4adbcbde73cca9d7cb60badac17bd6879cc",
+    "tsc/internal/parser/parser.go": "18fbeb9644a2c642d2757188107f2a802e8084cf1ed56a24c78bab1933328c2e"
+  },
+  "sourceHashes": {
+    "src/Tscs.Compiler/JsonScalarOptions.cs": "8d920d61dd902987a18dc0128bb10104a022df3a21e4ebdaf4d95ebf0ace61c3",
+    "src/Tscs.Compiler/JsonCompilerOptionTypes.cs": "7c795eba7e7a6dd305d229c7bcaccdddc08aa0bc49eaaaee35782faa33d508e0",
+    "src/Tscs.Compiler/JsonConfigValues.cs": "1f8f67746cb0db46d07314c0a3b72479e41b02eb25c17d11ff7cce91af44dc86",
+    "src/Tscs.Compiler/JsonSyntax.cs": "f4023d9a1911d29bfa2af41aeda41b76788eb531daa067b1d345f1c80a4ee95a",
+    "src/Tscs.Compiler/Scanner.cs": "2c28e821d487f50e6ee677d4ca2191da6299c2da613362c5d124b5db7025fbe4",
+    "src/Tscs.Compiler/Diagnostic.cs": "c89a1b1510322b8a6df53c32b3339eba3d7fe444004e7df5f43d799e34124897",
+    "src/Tscs.Cli/Options.cs": "3e40024a9d8b92fe88d59cdfcfbb2261a9d168471e3614f8d625cb548b490276",
+    "src/Tscs.Cli/CommandLine.cs": "392c8bb4d11f9d913bece0c48f2a143faeee6e5b85f23231e47b1ae099d09656",
+    "tests/Tscs.Compiler.Tests/JsonScalarOptionTests.cs": "ccc628c8fe1a056c3f01c7b9df3ae9e043d789085940a38b295c2f3701bff4d7",
+    "tests/Tscs.Compiler.Tests/CommandLineTests.cs": "07a180d94af0172f2f9b420d93c3b5501a94f38b5c844780ad2acf74711effef",
+    "tests/Tscs.Compiler.Tests/Tscs.Compiler.Tests.csproj": "ed8ae12d78831b4484655a4859cbcb2d781a5752f76308a6bc2539db40653920",
+    "tools/generate-json-scalar-options.ts": "351de7d83ce042a6bb5e81f5da5a5310a84f6585359d37741abe367b6b009eca",
+    "tools/fixture-harness/json_scalar_options_oracle_test.go": "eacd120da9a68482e69a08f78743e574735bd37f0c0a7e9e31a1f69998401cb7",
+    "tools/fixture-harness/config_values_oracle_test.go": "f8b81a281d3151f37c0bd29396cb421c13dc9196670658c86ea5032fb814938a",
+    "upstream.lock.json": "10a729f8b1e5674995cec0346a31f3642788901070a1c343084efcffd2080b2e",
+    "global.json": "6cac8ed8559756539f2db0e8cbf6d545ccc81d3d4b1ebbfcf3ee204d218847b4",
+    "Directory.Build.props": "13732ce9bcf14f2065948951e50572ef87f93d1d4c6726ce1b71b8efd1bbb92d"
+  },
+  "rawArtifacts": {
+    "docs/evidence/json-scalar-options-run/excluded-adapter-compile.log": {
+      "bytes": 911,
+      "sha256": "cbb380df0d4041f118b2b6ce0b8c7289a64dd8afcdacc855f7161dcbe0f0142f"
+    },
+    "docs/evidence/json-scalar-options-run/excluded-go-compile.log": {
+      "bytes": 379,
+      "sha256": "36cfad0b0c2f17b4d6c3356549bf360793b50366c5a8891bca9db11f80f9fe5b"
+    },
+    "docs/evidence/json-scalar-options-run/excluded-missing-copy-build.log": {
+      "bytes": 545,
+      "sha256": "2940a5832f1df9b9cb602ab7f2d20515305746bff44efb01ad2fae2d20cb02cb"
+    },
+    "docs/evidence/json-scalar-options-run/excluded-missing-copy-test.log": {
+      "bytes": 6852,
+      "sha256": "bbfaf35b3e3e5960aa8902b3a87b443f595b69a9a850475a34b6140aabe4c130"
+    },
+    "docs/evidence/json-scalar-options-run/frozen.log": {
+      "bytes": 81,
+      "sha256": "441c7bad381ac65cb1890aaf8424ec7b8999b55ef7574e9836a3516c151bc4b9"
+    },
+    "docs/evidence/json-scalar-options-run/generate.log": {
+      "bytes": 52,
+      "sha256": "035cd671718740255427f96bf7f90c93451c55efe9d6b0bc8948996c15e460ad"
+    },
+    "docs/evidence/json-scalar-options-run/go-repeat.log": {
+      "bytes": 67,
+      "sha256": "1ec4c8a11d9f0f6b4c7dd9f1a5a68909f2d3283f824d4de84481ff13281639c4"
+    },
+    "docs/evidence/json-scalar-options-run/go.log": {
+      "bytes": 67,
+      "sha256": "3802c82a052815672f1146f621a994b8173cf580de080bfc80e7c2c0bd1e4db0"
+    },
+    "docs/evidence/json-scalar-options-run/green-build.log": {
+      "bytes": 545,
+      "sha256": "92433dae52a8ac45dd1e7f40a001d39ecaf5c65ef0dc6e43ee65f27cf48424ba"
+    },
+    "docs/evidence/json-scalar-options-run/green.log": {
+      "bytes": 230,
+      "sha256": "d1a65ee3700fc9d2dab72b02f267ad1e9c090f5ae1e9cdd035219048ed1c2fbd"
+    },
+    "docs/evidence/json-scalar-options-run/independent-build.log": {
+      "bytes": 545,
+      "sha256": "44cb955b953ac8873027047c846457534c203a17e81858a997aa165d51a633c6"
+    },
+    "docs/evidence/json-scalar-options-run/independent-generator.log": {
+      "bytes": 52,
+      "sha256": "035cd671718740255427f96bf7f90c93451c55efe9d6b0bc8948996c15e460ad"
+    },
+    "docs/evidence/json-scalar-options-run/independent-go.log": {
+      "bytes": 67,
+      "sha256": "41926e42377f3b9b8ab7211dacf1d49b50067250bb5ce0840c71a6eb9cfc4668"
+    },
+    "docs/evidence/json-scalar-options-run/independent-mtp.log": {
+      "bytes": 230,
+      "sha256": "faf2a2c6300816f47c8fa3a14d37af68e29481e796c29d00afdf94333300885f"
+    },
+    "docs/evidence/json-scalar-options-run/independent-review.md": {
+      "bytes": 2957,
+      "sha256": "8c057053f6584ae664468218a8921aadfd749ae8487b2e73d74f2aeb09d06ba1"
+    },
+    "docs/evidence/json-scalar-options-run/node.log": {
+      "bytes": 7535,
+      "sha256": "d87c38c5e4cc57c138d71376f866e3a4d402c2a9d2073b9355b23e669581c7d0"
+    },
+    "docs/evidence/json-scalar-options-run/red-build.log": {
+      "bytes": 545,
+      "sha256": "60acae630e8bdccf7f2e5402dd91edbed0facbb9d45cdb6e31e7b3ba1ec18eca"
+    },
+    "docs/evidence/json-scalar-options-run/red.log": {
+      "bytes": 2038994,
+      "sha256": "9c7203d4b3755214ce7f61b040ed1bcf31098e95bd6670965217b116de159f12"
+    },
+    "docs/evidence/json-scalar-options-run/repeat.log": {
+      "bytes": 52,
+      "sha256": "035cd671718740255427f96bf7f90c93451c55efe9d6b0bc8948996c15e460ad"
+    }
+  },
+  "independentReview": {
+    "critical": 0,
+    "important": 0,
+    "oracleCases": 3000,
+    "byteIdenticalGolden": true,
+    "serialBuildWarnings": 0,
+    "serialBuildErrors": 0,
+    "directMtp": 13946,
+    "minor": "Earlier progress wording now marked historical/superseded; product unchanged after review",
+    "limits": "No independent Node/frozen/RED rerun; mixed missing-node/source paths inspected, not exercised; no second review/formal GitHub approval"
+  },
+  "assemblies": {
+    "tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll": "ddb318269ff98ba040e51c8ade4ec87b603112905310a1601867ce02c332e6a5",
+    "src/Tscs.Compiler/bin/Release/net10.0/Tscs.Compiler.dll": "1799242c2e6cf49711efacee579ff0a32a304bce1e1a15ba2fd0ec08a3f4f65f",
+    "src/Tscs.Cli/bin/Release/net10.0/tscs.dll": "47a6e14eae4404b3950f70916a723732feb734e092ccf63898d6d72c23be6a5d"
+  },
+  "excludedAttempts": [
+    "Go adapter compile typo before execution (retained excluded-adapter-compile/excluded-go-compile)",
+    "Golden missing CopyToOutput metadata caused 10947 tests / minimum13946 violation; excluded-missing-copy logs not counted as genuine RED"
+  ],
+  "limits": [
+    "No enum/list/path/locale/extra validation/notifier/host/effective configuration",
+    "CLI only supported noEmit/noLib options use converter; first failed option stops bootstrap processing",
+    "No full13006/172/source/VFS profiles rerun; historical source binding unchanged",
+    "SDK coordinator and whole scripts/verify.sh NOT_RUN",
+    "All original compiler/referenceCompiler/acceptance NOT_RUN; seven reference fatals and all test domains retained"
+  ],
+  "concreteCases": null,
+  "releaseEligible": false
+}

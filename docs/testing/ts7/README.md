@@ -318,3 +318,9 @@ compiler acceptance scope.
 The [product option shape predicate](../../progress/json-option-types.md) adds
 1806 actual-Go helper rows and a CLI null-boolean override regression. These
 are not complete option conversion, effective configuration or compiler passes.
+
+The [primitive config option converter](../../progress/json-scalar-options.md)
+runs3000 actual-Go conversion cases across100 declarations; all126 are retained
+in its inventory and26 path/locale/list/enum branches are explicitly outside this
+slice. This is not effective options or original compiler acceptance. CLI boolean
+errors now use config diagnostics, retaining the bootstrap runtime limitations.

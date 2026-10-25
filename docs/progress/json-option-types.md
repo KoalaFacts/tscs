@@ -38,3 +38,5 @@ skipped. Its CLI exploration confirmed no flags/one flag/explicit false remain
 exit1 and both true flags exit0. Minor deferred: only the both-flag override is
 a new locked CLI regression; the other default-value boundaries are recorded
 exploratory checks. No second review or original compiler acceptance claim.
+
+This section records its original stage. The later [primitive conversion](json-scalar-options.md) supersedes the invalid-boolean input-error policy with TS5024 / exit2; the original evidence keeps its historical binding.
