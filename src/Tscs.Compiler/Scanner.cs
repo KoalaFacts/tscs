@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 
 namespace Tscs;
 
@@ -35,7 +36,7 @@ internal sealed class Scanner(string file, string text)
                 break;
             }
             if (position == text.Length) { tokens.Add(new(TokenKind.End,"",position,0,lineBreak)); return tokens; }
-            int begin = position++; char first = text[begin]; TokenKind kind;
+            int begin = position++; char first = text[begin]; TokenKind kind;string? decodedValue=null;
             if (IsIdentifierStart(first))
             {
                 while (position < text.Length && IsIdentifierPart(text[position])) position++;
@@ -52,17 +53,34 @@ internal sealed class Scanner(string file, string text)
             else if (first is '\'' or '"')
             {
                 kind = TokenKind.String;
+                var decoded=new StringBuilder();
                 while (position < text.Length && text[position] != first && text[position] is not ('\r' or '\n'))
                 {
-                    if (text[position] == '\\') throw Error(new(TokenKind.Unsupported,"\\",position,1),"TSCS1001","Escaped string literals are not supported yet.");
-                    position++;
+                    if(text[position]!='\\'){decoded.Append(text[position++]);continue;}
+                    int escapeStart=position++;
+                    if(position==text.Length)throw Error(new(TokenKind.Unsupported,"\\",escapeStart,1),"TSCS1001","This string escape is not supported yet.");
+                    char escaped=text[position++];
+                    switch(escaped)
+                    {
+                        case 'b':decoded.Append('\b');break;
+                        case 't':decoded.Append('\t');break;
+                        case 'n':decoded.Append('\n');break;
+                        case 'v':decoded.Append('\v');break;
+                        case 'f':decoded.Append('\f');break;
+                        case 'r':decoded.Append('\r');break;
+                        case '\'':case '"':case '\\':case '/':decoded.Append(escaped);break;
+                        case '\r':if(position<text.Length&&text[position]=='\n')position++;break;
+                        case '\n':case '\u2028':case '\u2029':break;
+                        default:throw Error(new(TokenKind.Unsupported,"\\",escapeStart,1),"TSCS1001","This string escape is not supported yet.");
+                    }
                 }
                 if (position == text.Length || text[position] != first)
                     throw Error(new(TokenKind.String,text[begin..position],position,0),"TS1002","Unterminated string literal.");
                 position++;
+                decodedValue=decoded.ToString();
             }
             else kind = first switch { '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,_=>TokenKind.Unsupported };
-            var token = new Token(kind,text[begin..position],begin,position-begin,lineBreak);
+            var token = new Token(kind,text[begin..position],begin,position-begin,lineBreak,decodedValue);
             if (kind == TokenKind.Unsupported) throw Error(token,"TSCS1001",$"Unsupported syntax '{token.Text}'.");
             tokens.Add(token);
         }

@@ -19,6 +19,15 @@ public class CommandLineTests : IDisposable
         Assert.Equal(expected,r.Code);
         if(expected==0)Assert.Equal("",r.Out);else Assert.Contains("TS1002",r.Out);
     }
+    [Theory]
+    [InlineData("\\n",0)]
+    [InlineData("\\u0061",1)]
+    public void BoundedStringEscapeSupportHasHonestExitStatus(string escape,int code)
+    {
+        var result=Run("--noEmit","--noLib",Write("a.ts","let s: string = \""+escape+"\";"),Lib());
+        Assert.Equal(code,result.Code);
+        if(code==1)Assert.Contains("TSCS1001",result.Out);else Assert.Equal("",result.Out);
+    }
     [Fact] public void MissingInputFails()=>Assert.NotEqual(0,Run().Code);
     [Fact] public void UnknownOptionFails()=>Assert.NotEqual(0,Run("--imaginary").Code);
     [Fact] public void MissingFileFails()=>Assert.NotEqual(0,Run("--noEmit","--noLib",Path.Combine(directory,"missing.ts")).Code);

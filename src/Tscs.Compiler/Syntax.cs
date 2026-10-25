@@ -1,7 +1,7 @@
 namespace Tscs;
 
 internal enum TokenKind { End, Identifier, Number, String, Let, Const, True, False, Open, Close, Colon, Semi, Equal, Comma, Unsupported }
-internal readonly record struct Token(TokenKind Kind, string Text, int Start, int Length, bool LineBreak = false);
+internal readonly record struct Token(TokenKind Kind, string Text, int Start, int Length, bool LineBreak = false,string? Value = null);
 internal abstract record Statement;
 internal sealed record Block(List<Statement> Statements) : Statement;
 internal sealed record Variable(Token Name, bool Constant, string? Annotation, Token? Initializer) : Statement;

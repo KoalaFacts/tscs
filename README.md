@@ -24,7 +24,7 @@ for isolated compiler tests**, not a usable standard library.
 
 Supported initially: single-file `let`/`const` declarations, primitive annotations,
 primitive literal initializers, identifier references, simple assignments and
-nested lexical scopes. Integer decimal literals and unescaped quoted strings only.
+nested lexical scopes. Integer decimal literals and quoted strings with simple escapes/line continuations are supported. Unicode, hexadecimal, numeric and other escape branches remain explicitly unsupported.
 Both `--noEmit` and `--noLib` are required. `--pretty false`, `--target es2015/es6`
 and a tscs-only `--json` diagnostic mode are available.
 
@@ -57,12 +57,12 @@ explicit `noEmit`/`noLib` isolation overrides; these are not full upstream harne
 Results go to `.artifacts/conformance.json`. A passing cohort is not a percentage
 claim about the entire TypeScript language.
 
-The C# suite now has 7,608 cases (including 764 byte-decoding, 535 directive, 151 state and 750 path and 55 file-map and 154 VFS read plus 534 accessible-entry and 1,414 option-value and 2,920 configuration-product and 36 source-configuration vectors) and uses xUnit 4.0.2 (the official package is still named
+The C# suite now has 7,682 cases (including 764 byte-decoding, 535 directive, 151 state and 750 path and 55 file-map and 154 VFS read plus 534 accessible-entry and 1,414 option-value and 2,920 configuration-product and 36 source-configuration vectors) and uses xUnit 4.0.2 (the official package is still named
 `xunit.v3.mtp-v2`) with Microsoft.Testing.Platform 2.5.1, not VSTest.
 After building, run just this suite with:
 
 ```sh
-dotnet test --solution Tscs.slnx -c Release --no-build --no-restore -- --fail-skips on --minimum-expected-tests 7608
+dotnet test --solution Tscs.slnx -c Release --no-build --no-restore -- --fail-skips on --minimum-expected-tests 7682
 ```
 
 The .NET 10 MTP runner is selected in `global.json`. If an execution environment
@@ -70,7 +70,7 @@ cannot launch the SDK's test coordinator, the same built MTP executable can also
 be run directly, without changing permissions or disabling isolation:
 
 ```sh
-dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 7608
+dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 7682
 ```
 
 Record direct execution separately from `dotnet test`; a direct pass is not a

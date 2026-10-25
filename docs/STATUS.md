@@ -3,6 +3,22 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Product string escape slice — 2026-10-25
+
+- Ordinary strings now decode simple escapes and line continuations, retaining
+  raw Token.Text plus decoded Token.Value for subsequent AST work. Unsupported
+  Unicode/hex/numeric/other escape branches still report TSCS1001/exit1.
+-66 real-Go literal vectors compare decoded values, raw spelling and UTF16 lengths;
+  line-break flags include preceding trivia/following tokens. Existing58 plain
+  literal regressions now check decoded values too. CLI validates supported exit0
+  and unported escape exit1. This is lexical/type-checking support, not execution.
+- RED60fail/7613pass -> direct MTP7682/7682, Node69/69, frozen29/29,
+  Release zero warnings/errors; golden byte-identical on repeat. One independent
+  static review found no blocker; coverage notes addressed in one pass.
+  [Evidence and raw logs](evidence/string-escapes.json).
+- JSON/config parsing, AST/general scanner and full original compiler acceptance
+  remain incomplete. No full source profile rerun or release claim.
+
 ## Product scanner string line characters — 2026-10-25
 
 - Fixed ordinary string scanning: U+2028/U+2029 are accepted inside unescaped

@@ -11,7 +11,7 @@ public class StringLineTests
   using var data=JsonDocument.Parse(json);var r=data.RootElement;Assert.Equal(id,r.GetProperty("id").GetString());const string prefix="let s: string = ";
   var diagnostics=Compilation.Check("case.ts",prefix+r.GetProperty("literal").GetString()+";");
   if(r.GetProperty("unterminated").GetBoolean()){var d=Assert.Single(diagnostics);Assert.Equal("TS1002",d.Code);Assert.Equal(prefix.Length+r.GetProperty("tokenEndUtf16").GetInt32(),d.Start);}
-  else Assert.Empty(diagnostics);
+  else { Assert.Empty(diagnostics);Assert.Equal(r.GetProperty("value").GetString(),new Scanner("case.ts",r.GetProperty("literal").GetString()!).Scan()[0].Value); }
  }
  [Theory]
  [InlineData("\u2028")]
