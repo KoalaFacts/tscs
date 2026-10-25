@@ -23272,6 +23272,265 @@
       ]
     },
     {
+      "diagnostics": [
+        {
+          "code": 1487,
+          "length": 2,
+          "message": "Octal escape sequences are not allowed. Use the syntax '\\x00'.",
+          "start": 10
+        }
+      ],
+      "id": "0/92/0",
+      "source": "let s = 'a\\09z'; let after = 1;",
+      "tokens": [
+        {
+          "end": 3,
+          "flags": 0,
+          "kind": "Let",
+          "lineBreak": false,
+          "start": 0,
+          "text": "let",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 5,
+          "flags": 0,
+          "kind": "Identifier",
+          "lineBreak": false,
+          "start": 4,
+          "text": "s",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 7,
+          "flags": 0,
+          "kind": "Equal",
+          "lineBreak": false,
+          "start": 6,
+          "text": "=",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 15,
+          "flags": 67584,
+          "kind": "String",
+          "lineBreak": false,
+          "start": 8,
+          "text": "'a\\09z'",
+          "valueBytes": "YQA5eg==",
+          "valueUnits": [
+            97,
+            0,
+            57,
+            122
+          ]
+        },
+        {
+          "end": 16,
+          "flags": 0,
+          "kind": "Semi",
+          "lineBreak": false,
+          "start": 15,
+          "text": ";",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 20,
+          "flags": 0,
+          "kind": "Let",
+          "lineBreak": false,
+          "start": 17,
+          "text": "let",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 26,
+          "flags": 0,
+          "kind": "Identifier",
+          "lineBreak": false,
+          "start": 21,
+          "text": "after",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 28,
+          "flags": 0,
+          "kind": "Equal",
+          "lineBreak": false,
+          "start": 27,
+          "text": "=",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 30,
+          "flags": 0,
+          "kind": "Number",
+          "lineBreak": false,
+          "start": 29,
+          "text": "1",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 31,
+          "flags": 0,
+          "kind": "Semi",
+          "lineBreak": false,
+          "start": 30,
+          "text": ";",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 31,
+          "flags": 0,
+          "kind": "End",
+          "lineBreak": false,
+          "start": 31,
+          "text": "",
+          "valueBytes": "",
+          "valueUnits": []
+        }
+      ]
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1487,
+          "length": 2,
+          "message": "Octal escape sequences are not allowed. Use the syntax '\\x00'.",
+          "start": 11
+        }
+      ],
+      "id": "0/92/1",
+      "source": "let s = '😀\\09z'; let after = 1;",
+      "tokens": [
+        {
+          "end": 3,
+          "flags": 0,
+          "kind": "Let",
+          "lineBreak": false,
+          "start": 0,
+          "text": "let",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 5,
+          "flags": 0,
+          "kind": "Identifier",
+          "lineBreak": false,
+          "start": 4,
+          "text": "s",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 7,
+          "flags": 0,
+          "kind": "Equal",
+          "lineBreak": false,
+          "start": 6,
+          "text": "=",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 16,
+          "flags": 67584,
+          "kind": "String",
+          "lineBreak": false,
+          "start": 8,
+          "text": "'😀\\09z'",
+          "valueBytes": "8J+YgAA5eg==",
+          "valueUnits": [
+            55357,
+            56832,
+            0,
+            57,
+            122
+          ]
+        },
+        {
+          "end": 17,
+          "flags": 0,
+          "kind": "Semi",
+          "lineBreak": false,
+          "start": 16,
+          "text": ";",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 21,
+          "flags": 0,
+          "kind": "Let",
+          "lineBreak": false,
+          "start": 18,
+          "text": "let",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 27,
+          "flags": 0,
+          "kind": "Identifier",
+          "lineBreak": false,
+          "start": 22,
+          "text": "after",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 29,
+          "flags": 0,
+          "kind": "Equal",
+          "lineBreak": false,
+          "start": 28,
+          "text": "=",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 31,
+          "flags": 0,
+          "kind": "Number",
+          "lineBreak": false,
+          "start": 30,
+          "text": "1",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 32,
+          "flags": 0,
+          "kind": "Semi",
+          "lineBreak": false,
+          "start": 31,
+          "text": ";",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 32,
+          "flags": 0,
+          "kind": "End",
+          "lineBreak": false,
+          "start": 32,
+          "text": "",
+          "valueBytes": "",
+          "valueUnits": []
+        }
+      ]
+    },
+    {
       "diagnostics": [],
       "id": "1/0/0",
       "source": "let s = \"a\\0z\"; let after = 1;",
@@ -46529,6 +46788,265 @@
           "kind": "End",
           "lineBreak": false,
           "start": 31,
+          "text": "",
+          "valueBytes": "",
+          "valueUnits": []
+        }
+      ]
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1487,
+          "length": 2,
+          "message": "Octal escape sequences are not allowed. Use the syntax '\\x00'.",
+          "start": 10
+        }
+      ],
+      "id": "1/92/0",
+      "source": "let s = \"a\\09z\"; let after = 1;",
+      "tokens": [
+        {
+          "end": 3,
+          "flags": 0,
+          "kind": "Let",
+          "lineBreak": false,
+          "start": 0,
+          "text": "let",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 5,
+          "flags": 0,
+          "kind": "Identifier",
+          "lineBreak": false,
+          "start": 4,
+          "text": "s",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 7,
+          "flags": 0,
+          "kind": "Equal",
+          "lineBreak": false,
+          "start": 6,
+          "text": "=",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 15,
+          "flags": 2048,
+          "kind": "String",
+          "lineBreak": false,
+          "start": 8,
+          "text": "\"a\\09z\"",
+          "valueBytes": "YQA5eg==",
+          "valueUnits": [
+            97,
+            0,
+            57,
+            122
+          ]
+        },
+        {
+          "end": 16,
+          "flags": 0,
+          "kind": "Semi",
+          "lineBreak": false,
+          "start": 15,
+          "text": ";",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 20,
+          "flags": 0,
+          "kind": "Let",
+          "lineBreak": false,
+          "start": 17,
+          "text": "let",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 26,
+          "flags": 0,
+          "kind": "Identifier",
+          "lineBreak": false,
+          "start": 21,
+          "text": "after",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 28,
+          "flags": 0,
+          "kind": "Equal",
+          "lineBreak": false,
+          "start": 27,
+          "text": "=",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 30,
+          "flags": 0,
+          "kind": "Number",
+          "lineBreak": false,
+          "start": 29,
+          "text": "1",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 31,
+          "flags": 0,
+          "kind": "Semi",
+          "lineBreak": false,
+          "start": 30,
+          "text": ";",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 31,
+          "flags": 0,
+          "kind": "End",
+          "lineBreak": false,
+          "start": 31,
+          "text": "",
+          "valueBytes": "",
+          "valueUnits": []
+        }
+      ]
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1487,
+          "length": 2,
+          "message": "Octal escape sequences are not allowed. Use the syntax '\\x00'.",
+          "start": 11
+        }
+      ],
+      "id": "1/92/1",
+      "source": "let s = \"😀\\09z\"; let after = 1;",
+      "tokens": [
+        {
+          "end": 3,
+          "flags": 0,
+          "kind": "Let",
+          "lineBreak": false,
+          "start": 0,
+          "text": "let",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 5,
+          "flags": 0,
+          "kind": "Identifier",
+          "lineBreak": false,
+          "start": 4,
+          "text": "s",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 7,
+          "flags": 0,
+          "kind": "Equal",
+          "lineBreak": false,
+          "start": 6,
+          "text": "=",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 16,
+          "flags": 2048,
+          "kind": "String",
+          "lineBreak": false,
+          "start": 8,
+          "text": "\"😀\\09z\"",
+          "valueBytes": "8J+YgAA5eg==",
+          "valueUnits": [
+            55357,
+            56832,
+            0,
+            57,
+            122
+          ]
+        },
+        {
+          "end": 17,
+          "flags": 0,
+          "kind": "Semi",
+          "lineBreak": false,
+          "start": 16,
+          "text": ";",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 21,
+          "flags": 0,
+          "kind": "Let",
+          "lineBreak": false,
+          "start": 18,
+          "text": "let",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 27,
+          "flags": 0,
+          "kind": "Identifier",
+          "lineBreak": false,
+          "start": 22,
+          "text": "after",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 29,
+          "flags": 0,
+          "kind": "Equal",
+          "lineBreak": false,
+          "start": 28,
+          "text": "=",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 31,
+          "flags": 0,
+          "kind": "Number",
+          "lineBreak": false,
+          "start": 30,
+          "text": "1",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 32,
+          "flags": 0,
+          "kind": "Semi",
+          "lineBreak": false,
+          "start": 31,
+          "text": ";",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 32,
+          "flags": 0,
+          "kind": "End",
+          "lineBreak": false,
+          "start": 32,
           "text": "",
           "valueBytes": "",
           "valueUnits": []

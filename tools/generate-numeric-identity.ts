@@ -7,6 +7,7 @@ const version=execFileSync('go',['version'],{encoding:'utf8'}).trim();if(!versio
 const bodies=[];
 for(let n=0;n<=9;n++)for(const tail of ['', '0','7','8','77','777'])bodies.push('\\'+n+tail);
 for(const c of ['a','c','d','e','g','h','i','j','k','l','m','o','p','q','s','w','y','z','A','Z',' ','!','{','}',']','[','é','İ','中','😀','\u0085','\u200d'])bodies.push('\\'+c);
+bodies.push(String.raw`\09`);
 const rows=[];
 for(const [q,quote] of ["'",'"'].entries())for(const [i,body] of bodies.entries())for(const [p,prefix] of ['a','😀'].entries())rows.push({id:`${q}/${i}/${p}`,source:'let s = '+quote+prefix+body+'z'+quote+'; let after = 1;'});
 const temp=mkdtempSync(join(tmpdir(),'tscs-strings-'));try{

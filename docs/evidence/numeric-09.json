@@ -1,0 +1,614 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "baseCommit": "450403aafa0fadc040cfe535e01bb9db94c6dfe5",
+  "profile": "numeric-identity/explicit-09-coverage-correction",
+  "reviewFinding": "P3: prior368 cohort was described as covering08/09 but covered08 only; generator tails lacked9. Existing scanner behavior was not defective.",
+  "before": {
+    "vectors": 368,
+    "explicit09Sources": 0,
+    "goldenSha256": "ed14b6580b1b561fba08561571bc5b2a4619de5f5fc10ef4764cc6fa5a2e7997"
+  },
+  "after": {
+    "vectors": 372,
+    "explicit09Sources": 4,
+    "addedIds": [
+      "0/92/0",
+      "0/92/1",
+      "1/92/0",
+      "1/92/1"
+    ],
+    "original368": "Deep equality by originalID and order; metadata unchanged"
+  },
+  "newVectors": [
+    {
+      "diagnostics": [
+        {
+          "code": 1487,
+          "length": 2,
+          "message": "Octal escape sequences are not allowed. Use the syntax '\\x00'.",
+          "start": 10
+        }
+      ],
+      "id": "0/92/0",
+      "source": "let s = 'a\\09z'; let after = 1;",
+      "tokens": [
+        {
+          "end": 3,
+          "flags": 0,
+          "kind": "Let",
+          "lineBreak": false,
+          "start": 0,
+          "text": "let",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 5,
+          "flags": 0,
+          "kind": "Identifier",
+          "lineBreak": false,
+          "start": 4,
+          "text": "s",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 7,
+          "flags": 0,
+          "kind": "Equal",
+          "lineBreak": false,
+          "start": 6,
+          "text": "=",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 15,
+          "flags": 67584,
+          "kind": "String",
+          "lineBreak": false,
+          "start": 8,
+          "text": "'a\\09z'",
+          "valueBytes": "YQA5eg==",
+          "valueUnits": [
+            97,
+            0,
+            57,
+            122
+          ]
+        },
+        {
+          "end": 16,
+          "flags": 0,
+          "kind": "Semi",
+          "lineBreak": false,
+          "start": 15,
+          "text": ";",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 20,
+          "flags": 0,
+          "kind": "Let",
+          "lineBreak": false,
+          "start": 17,
+          "text": "let",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 26,
+          "flags": 0,
+          "kind": "Identifier",
+          "lineBreak": false,
+          "start": 21,
+          "text": "after",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 28,
+          "flags": 0,
+          "kind": "Equal",
+          "lineBreak": false,
+          "start": 27,
+          "text": "=",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 30,
+          "flags": 0,
+          "kind": "Number",
+          "lineBreak": false,
+          "start": 29,
+          "text": "1",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 31,
+          "flags": 0,
+          "kind": "Semi",
+          "lineBreak": false,
+          "start": 30,
+          "text": ";",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 31,
+          "flags": 0,
+          "kind": "End",
+          "lineBreak": false,
+          "start": 31,
+          "text": "",
+          "valueBytes": "",
+          "valueUnits": []
+        }
+      ]
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1487,
+          "length": 2,
+          "message": "Octal escape sequences are not allowed. Use the syntax '\\x00'.",
+          "start": 11
+        }
+      ],
+      "id": "0/92/1",
+      "source": "let s = '\ud83d\ude00\\09z'; let after = 1;",
+      "tokens": [
+        {
+          "end": 3,
+          "flags": 0,
+          "kind": "Let",
+          "lineBreak": false,
+          "start": 0,
+          "text": "let",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 5,
+          "flags": 0,
+          "kind": "Identifier",
+          "lineBreak": false,
+          "start": 4,
+          "text": "s",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 7,
+          "flags": 0,
+          "kind": "Equal",
+          "lineBreak": false,
+          "start": 6,
+          "text": "=",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 16,
+          "flags": 67584,
+          "kind": "String",
+          "lineBreak": false,
+          "start": 8,
+          "text": "'\ud83d\ude00\\09z'",
+          "valueBytes": "8J+YgAA5eg==",
+          "valueUnits": [
+            55357,
+            56832,
+            0,
+            57,
+            122
+          ]
+        },
+        {
+          "end": 17,
+          "flags": 0,
+          "kind": "Semi",
+          "lineBreak": false,
+          "start": 16,
+          "text": ";",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 21,
+          "flags": 0,
+          "kind": "Let",
+          "lineBreak": false,
+          "start": 18,
+          "text": "let",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 27,
+          "flags": 0,
+          "kind": "Identifier",
+          "lineBreak": false,
+          "start": 22,
+          "text": "after",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 29,
+          "flags": 0,
+          "kind": "Equal",
+          "lineBreak": false,
+          "start": 28,
+          "text": "=",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 31,
+          "flags": 0,
+          "kind": "Number",
+          "lineBreak": false,
+          "start": 30,
+          "text": "1",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 32,
+          "flags": 0,
+          "kind": "Semi",
+          "lineBreak": false,
+          "start": 31,
+          "text": ";",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 32,
+          "flags": 0,
+          "kind": "End",
+          "lineBreak": false,
+          "start": 32,
+          "text": "",
+          "valueBytes": "",
+          "valueUnits": []
+        }
+      ]
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1487,
+          "length": 2,
+          "message": "Octal escape sequences are not allowed. Use the syntax '\\x00'.",
+          "start": 10
+        }
+      ],
+      "id": "1/92/0",
+      "source": "let s = \"a\\09z\"; let after = 1;",
+      "tokens": [
+        {
+          "end": 3,
+          "flags": 0,
+          "kind": "Let",
+          "lineBreak": false,
+          "start": 0,
+          "text": "let",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 5,
+          "flags": 0,
+          "kind": "Identifier",
+          "lineBreak": false,
+          "start": 4,
+          "text": "s",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 7,
+          "flags": 0,
+          "kind": "Equal",
+          "lineBreak": false,
+          "start": 6,
+          "text": "=",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 15,
+          "flags": 2048,
+          "kind": "String",
+          "lineBreak": false,
+          "start": 8,
+          "text": "\"a\\09z\"",
+          "valueBytes": "YQA5eg==",
+          "valueUnits": [
+            97,
+            0,
+            57,
+            122
+          ]
+        },
+        {
+          "end": 16,
+          "flags": 0,
+          "kind": "Semi",
+          "lineBreak": false,
+          "start": 15,
+          "text": ";",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 20,
+          "flags": 0,
+          "kind": "Let",
+          "lineBreak": false,
+          "start": 17,
+          "text": "let",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 26,
+          "flags": 0,
+          "kind": "Identifier",
+          "lineBreak": false,
+          "start": 21,
+          "text": "after",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 28,
+          "flags": 0,
+          "kind": "Equal",
+          "lineBreak": false,
+          "start": 27,
+          "text": "=",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 30,
+          "flags": 0,
+          "kind": "Number",
+          "lineBreak": false,
+          "start": 29,
+          "text": "1",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 31,
+          "flags": 0,
+          "kind": "Semi",
+          "lineBreak": false,
+          "start": 30,
+          "text": ";",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 31,
+          "flags": 0,
+          "kind": "End",
+          "lineBreak": false,
+          "start": 31,
+          "text": "",
+          "valueBytes": "",
+          "valueUnits": []
+        }
+      ]
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1487,
+          "length": 2,
+          "message": "Octal escape sequences are not allowed. Use the syntax '\\x00'.",
+          "start": 11
+        }
+      ],
+      "id": "1/92/1",
+      "source": "let s = \"\ud83d\ude00\\09z\"; let after = 1;",
+      "tokens": [
+        {
+          "end": 3,
+          "flags": 0,
+          "kind": "Let",
+          "lineBreak": false,
+          "start": 0,
+          "text": "let",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 5,
+          "flags": 0,
+          "kind": "Identifier",
+          "lineBreak": false,
+          "start": 4,
+          "text": "s",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 7,
+          "flags": 0,
+          "kind": "Equal",
+          "lineBreak": false,
+          "start": 6,
+          "text": "=",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 16,
+          "flags": 2048,
+          "kind": "String",
+          "lineBreak": false,
+          "start": 8,
+          "text": "\"\ud83d\ude00\\09z\"",
+          "valueBytes": "8J+YgAA5eg==",
+          "valueUnits": [
+            55357,
+            56832,
+            0,
+            57,
+            122
+          ]
+        },
+        {
+          "end": 17,
+          "flags": 0,
+          "kind": "Semi",
+          "lineBreak": false,
+          "start": 16,
+          "text": ";",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 21,
+          "flags": 0,
+          "kind": "Let",
+          "lineBreak": false,
+          "start": 18,
+          "text": "let",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 27,
+          "flags": 0,
+          "kind": "Identifier",
+          "lineBreak": false,
+          "start": 22,
+          "text": "after",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 29,
+          "flags": 0,
+          "kind": "Equal",
+          "lineBreak": false,
+          "start": 28,
+          "text": "=",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 31,
+          "flags": 0,
+          "kind": "Number",
+          "lineBreak": false,
+          "start": 30,
+          "text": "1",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 32,
+          "flags": 0,
+          "kind": "Semi",
+          "lineBreak": false,
+          "start": 31,
+          "text": ";",
+          "valueBytes": "",
+          "valueUnits": []
+        },
+        {
+          "end": 32,
+          "flags": 0,
+          "kind": "End",
+          "lineBreak": false,
+          "start": 32,
+          "text": "",
+          "valueBytes": "",
+          "valueUnits": []
+        }
+      ]
+    }
+  ],
+  "sourceHashes": {
+    "tools/generate-numeric-identity.ts": "b3bda057e8c165e5505d55945574852815ecd67acd95cec5c82aad9fef146764",
+    "tools/fixture-harness/numeric_identity_oracle_test.go": "98b5b0e29b9b217f698bb531bee7ac5644588e2b59d7490bfbc7ccfae932deb7",
+    "tests/Tscs.Compiler.Tests/TestData/numeric-identity.json": "da520190236bd67721b1a655afa322f2e401db3d8610f07c8d89edb0cf3c3ec0",
+    "tests/Tscs.Compiler.Tests/NumericIdentityTests.cs": "5413e9970fc5cd4199e511224ddd6dd5772fa861898de18adea99e52f4766015",
+    "docs/progress/numeric-identity.md": "4916ac74f65111c1f86934c53fee80588716c96de8bb2d721e73d3218a77e3e3"
+  },
+  "oracle": {
+    "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+    "goVersion": "go version go1.27.3 linux/amd64",
+    "scannerSourceSha256": "48008100fb5a020748651e319c4dcc361c1a81ca06f8c3e0ed94d42dd0d1e6df",
+    "probeSha256": "98b5b0e29b9b217f698bb531bee7ac5644588e2b59d7490bfbc7ccfae932deb7",
+    "tokenFlagsSha256": "98f7010c7113b1ac781205175de9fe0c9c9c5854b10744d03e32127eb72f2b29",
+    "diagnosticsSha256": "a0ca35f6d8bc101541dc9c91ce85b2962d97e5f26e59cbed184efb81d16255e9",
+    "stringUtilSha256": "e15d8030900518eb0d8bd926751df2f7c7cfda6d49c7a82da36d58daeed22b9e"
+  },
+  "results": {
+    "directMTP": {
+      "passed": 8557,
+      "failed": 0,
+      "skipped": 0
+    },
+    "node": {
+      "passed": 69,
+      "failed": 0
+    },
+    "frozen": {
+      "passed": 29,
+      "failed": 0
+    },
+    "build": "0 warnings/errors",
+    "repeat": "372-vector byte-identical",
+    "productDefectRed": "NOT_APPLICABLE: coverage discrepancy reproduced from old generator/golden; existing product passes newly added cases",
+    "sdkOrchestration": "NOT_RUN"
+  },
+  "review": {
+    "independent": "No blocker; independently reran actual offline pinned-Go372 generation cmp identical, checked5source/probe hashes, exact old368/metadata identity and new4 expected behavior. Read author8557 log; no independent C# rebuild/rerun.",
+    "secondReview": false
+  },
+  "versions": {
+    "go": "1.27.3",
+    "sdk": "10.0.402",
+    "node": "24.22.1",
+    "xunit": "4.0.2",
+    "mtp": "2.5.1"
+  },
+  "commands": [
+    "node tools/generate-numeric-identity.ts .artifacts/ts7-upstream OUTPUT",
+    "dotnet build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false",
+    "dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --minimum-expected-tests 8557 --fail-skips on",
+    "node --test tools/*.test.ts",
+    "node tools/verify-conformance.ts"
+  ],
+  "logs": {
+    "docs/evidence/numeric-09-run/build.log": "0eb25e2d3da994e131bb9dff7b261573ab85564b743b87acc446c724881fc46b",
+    "docs/evidence/numeric-09-run/frozen.log": "441c7bad381ac65cb1890aaf8424ec7b8999b55ef7574e9836a3516c151bc4b9",
+    "docs/evidence/numeric-09-run/generate.log": "cbbaaf864c4c31c96ec314b7d8ee388e1ec8c8272ef7e24d92bd66eb8784d6fc",
+    "docs/evidence/numeric-09-run/go-repeat.log": "ead936ac01aa1ce2ee2189cc31481b2a9f291ebdd75da0eabeb734d645d4e726",
+    "docs/evidence/numeric-09-run/go.log": "ead936ac01aa1ce2ee2189cc31481b2a9f291ebdd75da0eabeb734d645d4e726",
+    "docs/evidence/numeric-09-run/node.log": "de9bdb23997d81122ed1918327e294f9730b96126b7c5f6a46520e7603f686fb",
+    "docs/evidence/numeric-09-run/repeat.log": "cbbaaf864c4c31c96ec314b7d8ee388e1ec8c8272ef7e24d92bd66eb8784d6fc",
+    "docs/evidence/numeric-09-run/test.log": "ee16287b7162ddc84a4733f47108e5b5ee72f2cba3e9c066a4c3ef88f94d87e0"
+  },
+  "limitations": [
+    "Coverage correction only; no product source changed",
+    "No actual JSON/parser/config-host implementation this run: fixed ParseSourceFile(ScriptKindJSON), parseJSONText, validateJsonValue/validateJsonObjectLiteral entry points were inspected",
+    "No13006fullprofile rerun/original compiler/referenceCompiler/acceptance; all prior gaps/7referencefatals/unknown denominators retained"
+  ],
+  "compiler": "NOT_RUN",
+  "referenceCompiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "releaseEligible": false
+}

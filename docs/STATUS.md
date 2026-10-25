@@ -3,6 +3,16 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Numeric escape coverage correction — 2026-10-26
+
+- Addressed the review discrepancy: the previous368-vector cohort covered08,
+  but its coverage wording incorrectly included09. Added four actual-Go09
+  vectors; all original368 rows are unchanged. No product source change.
+-372 vectors and8557 MTP tests now pass. Node69/69, frozen29/29, Release0
+  warnings/errors; generation repeats byte-identically.09 reports TS1487 over
+  backslash+0 only, retains the following9, with exact ASCII/emoji offsets.
+  [Evidence](evidence/numeric-09.json). Original compiler acceptance unchanged.
+
 ## Product numeric and identity string escapes — 2026-10-26
 
 - Added standalone NUL and identity escapes, including supplementary characters.
