@@ -1,0 +1,30 @@
+import {readFileSync,writeFileSync,mkdtempSync,rmSync} from 'node:fs';
+import {resolve,join} from 'node:path';
+import {tmpdir} from 'node:os';
+import {execFileSync,spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+const [up,output]=process.argv.slice(2),pin='8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f';
+if(!up||!output)throw Error('Usage: node tools/generate-option-values.ts PINNED_CHECKOUT OUTPUT');
+const upstream=resolve(up),git=(...args)=>execFileSync('git',['-C',upstream,...args]);
+if(git('rev-parse','HEAD').toString().trim()!==pin||git('status','--porcelain','--untracked-files=no').length||JSON.parse(readFileSync('upstream.lock.json','utf8')).commit!==pin)throw Error('Exact clean pin required');
+const version=execFileSync('go',['version'],{encoding:'utf8'}).trim();if(!version.startsWith('go version go1.27.3 '))throw Error('Pinned Go required');
+const temp=mkdtempSync(join(tmpdir(),'tscs-options-'));try{
+ const probe=resolve('tools/fixture-harness/options_oracle_test.go'),result=join(temp,'result.json'),overlay=join(temp,'overlay.json');
+ writeFileSync(overlay,JSON.stringify({Replace:{[join(upstream,'tsc/internal/testutil/harnessutil/tscs_options_test.go')]:probe}}));
+ const run=spawnSync('go',['test','-json','-overlay',overlay,'-run','^TestTscsOptionValuesOracle$','-count=1','./internal/testutil/harnessutil'],{cwd:join(upstream,'tsc'),encoding:'utf8',timeout:180000,maxBuffer:32*1024*1024,env:{...process.env,GOWORK:'off',GOTOOLCHAIN:'local',TSCS_OPTIONS_OUTPUT:result}});
+ if(run.error||run.signal||![0,1].includes(run.status))throw Error(run.error??run.stderr);
+ const data=JSON.parse(readFileSync(result,'utf8')),fatal=data.vectors.filter(r=>r.expected.fatal).length;
+ if((run.status===1)!==(fatal>0))throw Error('Go exit does not reconcile to intentional fatal vectors');
+ const events=run.stdout.trim().split('\n').filter(Boolean).map(line=>JSON.parse(line));
+ const expectedFailures=new Set(data.vectors.filter(r=>r.expected.fatal).map(r=>'TestTscsOptionValuesOracle/'+r.id));
+ if(fatal)expectedFailures.add('TestTscsOptionValuesOracle');
+ const failed=new Set(events.filter(e=>e.Action==='fail'&&e.Test).map(e=>e.Test));
+ if(failed.size!==expectedFailures.size||[...failed].some(t=>!expectedFailures.has(t)))throw Error('Unexpected Go test failure');
+ if(process.env.TSCS_OPTIONS_LOG)writeFileSync(process.env.TSCS_OPTIONS_LOG,run.stdout+run.stderr);
+ if(new Set(data.vectors.map(r=>r.id)).size!==data.vectors.length)throw Error('Duplicate vector identities');
+ if(data.options.some(o=>/[^\x00-\x7f]/.test(o.name)||o.values.some(v=>/[^\x00-\x7f]/.test(v.key))))throw Error('Non-ASCII declaration name/key needs casing review');
+ const sources=['tsc/internal/testutil/harnessutil/harnessutil.go','tsc/internal/tsoptions/declarations_generated.go'];
+ const sha=b=>createHash('sha256').update(b).digest('hex');
+ writeFileSync(output,JSON.stringify({upstreamCommit:pin,goVersion:version,referenceExit:run.status,expectedFatalVectors:fatal,expectedGoFailuresVerified:true,sourceHashes:Object.fromEntries(sources.map(p=>[p,sha(git('show',`${pin}:${p}`))])),probeSha256:sha(readFileSync(probe)),...data},null,2)+'\n');
+ console.log(JSON.stringify({options:data.options.length,vectors:data.vectors.length,intentionalFatalVectors:fatal,referenceExit:run.status}));
+}finally{rmSync(temp,{recursive:true,force:true});}

@@ -3,6 +3,24 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Canonical option-value splitting — 2026-10-25
+
+- Ported pinned splitOptionValues in C#: Go whitespace, boolean/enum/string
+  values, alias deduplication retaining first spelling, star and exclusions.
+  Actual Go extraction retains130 declarations/127 unique names; positional IDs
+  preserve duplicate declarations instead of losing36 xUnit rows.
+- 1414 actual-Go vectors match:1024 value/nil results,186 expected empty-set
+  panics,204 intentional fatal outcomes. Go reference intentionally exits1;
+  JSON test events reconcile every failed subtest to its expected fatal row.
+- Independent review found dotted-I lowercasing differences. Four failing
+  regressions now match Go; final MTP4478/4478, Node65/65, frozen29/29,
+  Release0/0. Golden regeneration byte-identical; no second review claimed.
+- [Evidence](evidence/option-values.json). This prerequisite does not expand
+  Cartesian configurations, compute effective options or parse config/AST.
+  Full configuration/compiler acceptance remains NOT_RUN; original inventory,
+  pin and frozen expectations are unchanged. Only valid Unicode string inputs
+  and pinned ASCII declaration/enum keys are covered by this profile.
+
 ## Complete source VFS construction profile — 2026-10-25
 
 - JSONL construction transport and strict schema/status validation now connect
