@@ -21,7 +21,10 @@ public class CommandLineTests : IDisposable
     }
     [Theory]
     [InlineData("\\n",0)]
-    [InlineData("\\u0061",1)]
+    [InlineData("\\uZZZZ",1)]
+    [InlineData("\\u0061",0)]
+    [InlineData("\\x61",0)]
+    [InlineData("\\u{1F600}",0)]
     public void BoundedStringEscapeSupportHasHonestExitStatus(string escape,int code)
     {
         var result=Run("--noEmit","--noLib",Write("a.ts","let s: string = \""+escape+"\";"),Lib());

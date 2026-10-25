@@ -69,6 +69,25 @@ internal sealed class Scanner(string file, string text)
                         case 'f':decoded.Append('\f');break;
                         case 'r':decoded.Append('\r');break;
                         case '\'':case '"':case '\\':case '/':decoded.Append(escaped);break;
+                        case 'x':case 'u':
+                            bool extended=escaped=='u'&&position<text.Length&&text[position]=='{';
+                            if(extended)position++;
+                            int digits=0,codePoint=0,required=escaped=='x'?2:4;
+                            while(position<text.Length&&(extended||digits<required))
+                            {
+                                char h=text[position];int digit=h is >= '0' and <= '9'?h-'0':h is >= 'a' and <= 'f'?h-'a'+10:h is >= 'A' and <= 'F'?h-'A'+10:-1;
+                                if(digit<0)break;
+                                position++;digits++;codePoint=codePoint*16+digit;
+                                if(codePoint>0x10FFFF)throw Error(new(TokenKind.Unsupported,"\\",escapeStart,1),"TSCS1001","Malformed string escape diagnostics are not supported yet.");
+                            }
+                            if(extended?(digits==0||position==text.Length||text[position]!='}'):(digits!=required))
+                                throw Error(new(TokenKind.Unsupported,"\\",escapeStart,1),"TSCS1001","Malformed string escape diagnostics are not supported yet.");
+                            if(extended)position++;
+                            // A JavaScript string is UTF16: preserve lone surrogate
+                            // code units; adjacent halves naturally form a pair.
+                            if(codePoint<=0xFFFF)decoded.Append((char)codePoint);
+                            else decoded.Append(char.ConvertFromUtf32(codePoint));
+                            break;
                         case '\r':if(position<text.Length&&text[position]=='\n')position++;break;
                         case '\n':case '\u2028':case '\u2029':break;
                         default:throw Error(new(TokenKind.Unsupported,"\\",escapeStart,1),"TSCS1001","This string escape is not supported yet.");

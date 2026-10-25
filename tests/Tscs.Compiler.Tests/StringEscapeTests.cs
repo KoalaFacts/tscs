@@ -19,8 +19,8 @@ public class StringEscapeTests
  [Fact]
  public void TrailingBackslashRemainsExplicitlyUnsupported()=>Assert.Equal("TSCS1001",Assert.Single(Compilation.Check("case.ts","let s = \"a\\")).Code);
  [Theory]
- [InlineData("\\u0061")]
- [InlineData("\\x61")]
+ [InlineData("\\uZZZZ")]
+ [InlineData("\\xZZ")]
  [InlineData("\\0")]
  [InlineData("\\8")]
  [InlineData("\\q")]

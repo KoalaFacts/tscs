@@ -3,6 +3,23 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Product valid Unicode/hex string escapes — 2026-10-25
+
+- Supports valid x2/u4/braced Unicode escapes in ordinary strings. UTF16 storage
+  preserves lone surrogates and mixed escaped pairs. Per-digit bounds checks
+  prevent overflow while retaining arbitrary valid leading zeroes.
+-164 actual-Go scanner vectors preserve raw base64 and UTF16 arrays using pinned
+  DecodeJSStringRune, avoiding replacement during Go JSON serialization. Tests
+  compare raw spelling, token length, code units and public compilation. Three
+  CLI additions validate supported exit0; malformed inputs remain TSCS1001/exit1.
+- RED164fail/7686pass -> direct MTP7853/7853, Node69/69, frozen29/29,
+  Release0 warnings/errors; golden repeats byte-identically. Independent audit
+  verified all164 raw-to-UTF16 values, token ends and provenance hashes.
+  [Evidence and raw logs](evidence/unicode-escapes.json).
+- Malformed escape diagnostics/recovery, token flags, numeric/other escapes,
+  JSON/config parsing and AST remain incomplete. No original full corpus run or
+  release acceptance is claimed; prior full-source evidence keeps its old tree.
+
 ## Product string escape slice — 2026-10-25
 
 - Ordinary strings now decode simple escapes and line continuations, retaining

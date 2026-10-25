@@ -1,0 +1,2111 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "goVersion": "go version go1.27.3 linux/amd64",
+  "scannerSourceSha256": "48008100fb5a020748651e319c4dcc361c1a81ca06f8c3e0ed94d42dd0d1e6df",
+  "probeSha256": "aa3c3bc30263a4d98d1f29044212c63b9d19319e0b6fa954eed29370ba79acd4",
+  "stringUtilSha256": "e15d8030900518eb0d8bd926751df2f7c7cfda6d49c7a82da36d58daeed22b9e",
+  "vectors": [
+    {
+      "id": "0/0/0",
+      "literal": "'a\\x00z'",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YQB6",
+      "valueUnits": [
+        97,
+        0,
+        122
+      ]
+    },
+    {
+      "id": "0/0/1",
+      "literal": "'😀\\x00z'",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgAB6",
+      "valueUnits": [
+        55357,
+        56832,
+        0,
+        122
+      ]
+    },
+    {
+      "id": "0/1/0",
+      "literal": "'a\\x01z'",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YQF6",
+      "valueUnits": [
+        97,
+        1,
+        122
+      ]
+    },
+    {
+      "id": "0/1/1",
+      "literal": "'😀\\x01z'",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgAF6",
+      "valueUnits": [
+        55357,
+        56832,
+        1,
+        122
+      ]
+    },
+    {
+      "id": "0/2/0",
+      "literal": "'a\\x09z'",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YQl6",
+      "valueUnits": [
+        97,
+        9,
+        122
+      ]
+    },
+    {
+      "id": "0/2/1",
+      "literal": "'😀\\x09z'",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgAl6",
+      "valueUnits": [
+        55357,
+        56832,
+        9,
+        122
+      ]
+    },
+    {
+      "id": "0/3/0",
+      "literal": "'a\\x0az'",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YQp6",
+      "valueUnits": [
+        97,
+        10,
+        122
+      ]
+    },
+    {
+      "id": "0/3/1",
+      "literal": "'😀\\x0az'",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgAp6",
+      "valueUnits": [
+        55357,
+        56832,
+        10,
+        122
+      ]
+    },
+    {
+      "id": "0/4/0",
+      "literal": "'a\\x0dz'",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YQ16",
+      "valueUnits": [
+        97,
+        13,
+        122
+      ]
+    },
+    {
+      "id": "0/4/1",
+      "literal": "'😀\\x0dz'",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgA16",
+      "valueUnits": [
+        55357,
+        56832,
+        13,
+        122
+      ]
+    },
+    {
+      "id": "0/5/0",
+      "literal": "'a\\x22z'",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YSJ6",
+      "valueUnits": [
+        97,
+        34,
+        122
+      ]
+    },
+    {
+      "id": "0/5/1",
+      "literal": "'😀\\x22z'",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgCJ6",
+      "valueUnits": [
+        55357,
+        56832,
+        34,
+        122
+      ]
+    },
+    {
+      "id": "0/6/0",
+      "literal": "'a\\x27z'",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YSd6",
+      "valueUnits": [
+        97,
+        39,
+        122
+      ]
+    },
+    {
+      "id": "0/6/1",
+      "literal": "'😀\\x27z'",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgCd6",
+      "valueUnits": [
+        55357,
+        56832,
+        39,
+        122
+      ]
+    },
+    {
+      "id": "0/7/0",
+      "literal": "'a\\x5cz'",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YVx6",
+      "valueUnits": [
+        97,
+        92,
+        122
+      ]
+    },
+    {
+      "id": "0/7/1",
+      "literal": "'😀\\x5cz'",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgFx6",
+      "valueUnits": [
+        55357,
+        56832,
+        92,
+        122
+      ]
+    },
+    {
+      "id": "0/8/0",
+      "literal": "'a\\x7fz'",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YX96",
+      "valueUnits": [
+        97,
+        127,
+        122
+      ]
+    },
+    {
+      "id": "0/8/1",
+      "literal": "'😀\\x7fz'",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgH96",
+      "valueUnits": [
+        55357,
+        56832,
+        127,
+        122
+      ]
+    },
+    {
+      "id": "0/9/0",
+      "literal": "'a\\x80z'",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YcKAeg==",
+      "valueUnits": [
+        97,
+        128,
+        122
+      ]
+    },
+    {
+      "id": "0/9/1",
+      "literal": "'😀\\x80z'",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgMKAeg==",
+      "valueUnits": [
+        55357,
+        56832,
+        128,
+        122
+      ]
+    },
+    {
+      "id": "0/10/0",
+      "literal": "'a\\xffz'",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YcO/eg==",
+      "valueUnits": [
+        97,
+        255,
+        122
+      ]
+    },
+    {
+      "id": "0/10/1",
+      "literal": "'😀\\xffz'",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgMO/eg==",
+      "valueUnits": [
+        55357,
+        56832,
+        255,
+        122
+      ]
+    },
+    {
+      "id": "0/11/0",
+      "literal": "'a\\u0000z'",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "YQB6",
+      "valueUnits": [
+        97,
+        0,
+        122
+      ]
+    },
+    {
+      "id": "0/11/1",
+      "literal": "'😀\\u0000z'",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgAB6",
+      "valueUnits": [
+        55357,
+        56832,
+        0,
+        122
+      ]
+    },
+    {
+      "id": "0/12/0",
+      "literal": "'a\\u0001z'",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "YQF6",
+      "valueUnits": [
+        97,
+        1,
+        122
+      ]
+    },
+    {
+      "id": "0/12/1",
+      "literal": "'😀\\u0001z'",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgAF6",
+      "valueUnits": [
+        55357,
+        56832,
+        1,
+        122
+      ]
+    },
+    {
+      "id": "0/13/0",
+      "literal": "'a\\u007fz'",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "YX96",
+      "valueUnits": [
+        97,
+        127,
+        122
+      ]
+    },
+    {
+      "id": "0/13/1",
+      "literal": "'😀\\u007fz'",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgH96",
+      "valueUnits": [
+        55357,
+        56832,
+        127,
+        122
+      ]
+    },
+    {
+      "id": "0/14/0",
+      "literal": "'a\\u00ffz'",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "YcO/eg==",
+      "valueUnits": [
+        97,
+        255,
+        122
+      ]
+    },
+    {
+      "id": "0/14/1",
+      "literal": "'😀\\u00ffz'",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgMO/eg==",
+      "valueUnits": [
+        55357,
+        56832,
+        255,
+        122
+      ]
+    },
+    {
+      "id": "0/15/0",
+      "literal": "'a\\u0100z'",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "YcSAeg==",
+      "valueUnits": [
+        97,
+        256,
+        122
+      ]
+    },
+    {
+      "id": "0/15/1",
+      "literal": "'😀\\u0100z'",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgMSAeg==",
+      "valueUnits": [
+        55357,
+        56832,
+        256,
+        122
+      ]
+    },
+    {
+      "id": "0/16/0",
+      "literal": "'a\\u2028z'",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "YeKAqHo=",
+      "valueUnits": [
+        97,
+        8232,
+        122
+      ]
+    },
+    {
+      "id": "0/16/1",
+      "literal": "'😀\\u2028z'",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgOKAqHo=",
+      "valueUnits": [
+        55357,
+        56832,
+        8232,
+        122
+      ]
+    },
+    {
+      "id": "0/17/0",
+      "literal": "'a\\ud7ffz'",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "Ye2fv3o=",
+      "valueUnits": [
+        97,
+        55295,
+        122
+      ]
+    },
+    {
+      "id": "0/17/1",
+      "literal": "'😀\\ud7ffz'",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2fv3o=",
+      "valueUnits": [
+        55357,
+        56832,
+        55295,
+        122
+      ]
+    },
+    {
+      "id": "0/18/0",
+      "literal": "'a\\ud800z'",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "Ye2ggHo=",
+      "valueUnits": [
+        97,
+        55296,
+        122
+      ]
+    },
+    {
+      "id": "0/18/1",
+      "literal": "'😀\\ud800z'",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2ggHo=",
+      "valueUnits": [
+        55357,
+        56832,
+        55296,
+        122
+      ]
+    },
+    {
+      "id": "0/19/0",
+      "literal": "'a\\udbffz'",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "Ye2vv3o=",
+      "valueUnits": [
+        97,
+        56319,
+        122
+      ]
+    },
+    {
+      "id": "0/19/1",
+      "literal": "'😀\\udbffz'",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2vv3o=",
+      "valueUnits": [
+        55357,
+        56832,
+        56319,
+        122
+      ]
+    },
+    {
+      "id": "0/20/0",
+      "literal": "'a\\udc00z'",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "Ye2wgHo=",
+      "valueUnits": [
+        97,
+        56320,
+        122
+      ]
+    },
+    {
+      "id": "0/20/1",
+      "literal": "'😀\\udc00z'",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2wgHo=",
+      "valueUnits": [
+        55357,
+        56832,
+        56320,
+        122
+      ]
+    },
+    {
+      "id": "0/21/0",
+      "literal": "'a\\udfffz'",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "Ye2/v3o=",
+      "valueUnits": [
+        97,
+        57343,
+        122
+      ]
+    },
+    {
+      "id": "0/21/1",
+      "literal": "'😀\\udfffz'",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2/v3o=",
+      "valueUnits": [
+        55357,
+        56832,
+        57343,
+        122
+      ]
+    },
+    {
+      "id": "0/22/0",
+      "literal": "'a\\ue000z'",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "Ye6AgHo=",
+      "valueUnits": [
+        97,
+        57344,
+        122
+      ]
+    },
+    {
+      "id": "0/22/1",
+      "literal": "'😀\\ue000z'",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgO6AgHo=",
+      "valueUnits": [
+        55357,
+        56832,
+        57344,
+        122
+      ]
+    },
+    {
+      "id": "0/23/0",
+      "literal": "'a\\uffffz'",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "Ye+/v3o=",
+      "valueUnits": [
+        97,
+        65535,
+        122
+      ]
+    },
+    {
+      "id": "0/23/1",
+      "literal": "'😀\\uffffz'",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgO+/v3o=",
+      "valueUnits": [
+        55357,
+        56832,
+        65535,
+        122
+      ]
+    },
+    {
+      "id": "0/24/0",
+      "literal": "'a\\u{0}z'",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "YQB6",
+      "valueUnits": [
+        97,
+        0,
+        122
+      ]
+    },
+    {
+      "id": "0/24/1",
+      "literal": "'😀\\u{0}z'",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "8J+YgAB6",
+      "valueUnits": [
+        55357,
+        56832,
+        0,
+        122
+      ]
+    },
+    {
+      "id": "0/25/0",
+      "literal": "'a\\u{61}z'",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "YWF6",
+      "valueUnits": [
+        97,
+        97,
+        122
+      ]
+    },
+    {
+      "id": "0/25/1",
+      "literal": "'😀\\u{61}z'",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgGF6",
+      "valueUnits": [
+        55357,
+        56832,
+        97,
+        122
+      ]
+    },
+    {
+      "id": "0/26/0",
+      "literal": "'a\\u{ffff}z'",
+      "tokenEndUtf16": 12,
+      "unterminated": false,
+      "valueBytes": "Ye+/v3o=",
+      "valueUnits": [
+        97,
+        65535,
+        122
+      ]
+    },
+    {
+      "id": "0/26/1",
+      "literal": "'😀\\u{ffff}z'",
+      "tokenEndUtf16": 13,
+      "unterminated": false,
+      "valueBytes": "8J+YgO+/v3o=",
+      "valueUnits": [
+        55357,
+        56832,
+        65535,
+        122
+      ]
+    },
+    {
+      "id": "0/27/0",
+      "literal": "'a\\u{10000}z'",
+      "tokenEndUtf16": 13,
+      "unterminated": false,
+      "valueBytes": "YfCQgIB6",
+      "valueUnits": [
+        97,
+        55296,
+        56320,
+        122
+      ]
+    },
+    {
+      "id": "0/27/1",
+      "literal": "'😀\\u{10000}z'",
+      "tokenEndUtf16": 14,
+      "unterminated": false,
+      "valueBytes": "8J+YgPCQgIB6",
+      "valueUnits": [
+        55357,
+        56832,
+        55296,
+        56320,
+        122
+      ]
+    },
+    {
+      "id": "0/28/0",
+      "literal": "'a\\u{10ffff}z'",
+      "tokenEndUtf16": 14,
+      "unterminated": false,
+      "valueBytes": "YfSPv796",
+      "valueUnits": [
+        97,
+        56319,
+        57343,
+        122
+      ]
+    },
+    {
+      "id": "0/28/1",
+      "literal": "'😀\\u{10ffff}z'",
+      "tokenEndUtf16": 15,
+      "unterminated": false,
+      "valueBytes": "8J+YgPSPv796",
+      "valueUnits": [
+        55357,
+        56832,
+        56319,
+        57343,
+        122
+      ]
+    },
+    {
+      "id": "0/29/0",
+      "literal": "'a\\u{d800}z'",
+      "tokenEndUtf16": 12,
+      "unterminated": false,
+      "valueBytes": "Ye2ggHo=",
+      "valueUnits": [
+        97,
+        55296,
+        122
+      ]
+    },
+    {
+      "id": "0/29/1",
+      "literal": "'😀\\u{d800}z'",
+      "tokenEndUtf16": 13,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2ggHo=",
+      "valueUnits": [
+        55357,
+        56832,
+        55296,
+        122
+      ]
+    },
+    {
+      "id": "0/30/0",
+      "literal": "'a\\u{dc00}z'",
+      "tokenEndUtf16": 12,
+      "unterminated": false,
+      "valueBytes": "Ye2wgHo=",
+      "valueUnits": [
+        97,
+        56320,
+        122
+      ]
+    },
+    {
+      "id": "0/30/1",
+      "literal": "'😀\\u{dc00}z'",
+      "tokenEndUtf16": 13,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2wgHo=",
+      "valueUnits": [
+        55357,
+        56832,
+        56320,
+        122
+      ]
+    },
+    {
+      "id": "0/31/0",
+      "literal": "'a\\ud83d\\ude00z'",
+      "tokenEndUtf16": 16,
+      "unterminated": false,
+      "valueBytes": "YfCfmIB6",
+      "valueUnits": [
+        97,
+        55357,
+        56832,
+        122
+      ]
+    },
+    {
+      "id": "0/31/1",
+      "literal": "'😀\\ud83d\\ude00z'",
+      "tokenEndUtf16": 17,
+      "unterminated": false,
+      "valueBytes": "8J+YgPCfmIB6",
+      "valueUnits": [
+        55357,
+        56832,
+        55357,
+        56832,
+        122
+      ]
+    },
+    {
+      "id": "0/32/0",
+      "literal": "'a\\ud83d\\u{de00}z'",
+      "tokenEndUtf16": 18,
+      "unterminated": false,
+      "valueBytes": "YfCfmIB6",
+      "valueUnits": [
+        97,
+        55357,
+        56832,
+        122
+      ]
+    },
+    {
+      "id": "0/32/1",
+      "literal": "'😀\\ud83d\\u{de00}z'",
+      "tokenEndUtf16": 19,
+      "unterminated": false,
+      "valueBytes": "8J+YgPCfmIB6",
+      "valueUnits": [
+        55357,
+        56832,
+        55357,
+        56832,
+        122
+      ]
+    },
+    {
+      "id": "0/33/0",
+      "literal": "'a\\u{d83d}\\ude00z'",
+      "tokenEndUtf16": 18,
+      "unterminated": false,
+      "valueBytes": "YfCfmIB6",
+      "valueUnits": [
+        97,
+        55357,
+        56832,
+        122
+      ]
+    },
+    {
+      "id": "0/33/1",
+      "literal": "'😀\\u{d83d}\\ude00z'",
+      "tokenEndUtf16": 19,
+      "unterminated": false,
+      "valueBytes": "8J+YgPCfmIB6",
+      "valueUnits": [
+        55357,
+        56832,
+        55357,
+        56832,
+        122
+      ]
+    },
+    {
+      "id": "0/34/0",
+      "literal": "'a\\u{d83d}\\u{de00}z'",
+      "tokenEndUtf16": 20,
+      "unterminated": false,
+      "valueBytes": "YfCfmIB6",
+      "valueUnits": [
+        97,
+        55357,
+        56832,
+        122
+      ]
+    },
+    {
+      "id": "0/34/1",
+      "literal": "'😀\\u{d83d}\\u{de00}z'",
+      "tokenEndUtf16": 21,
+      "unterminated": false,
+      "valueBytes": "8J+YgPCfmIB6",
+      "valueUnits": [
+        55357,
+        56832,
+        55357,
+        56832,
+        122
+      ]
+    },
+    {
+      "id": "0/35/0",
+      "literal": "'a\\uD800x\\uDC00z'",
+      "tokenEndUtf16": 17,
+      "unterminated": false,
+      "valueBytes": "Ye2ggHjtsIB6",
+      "valueUnits": [
+        97,
+        55296,
+        120,
+        56320,
+        122
+      ]
+    },
+    {
+      "id": "0/35/1",
+      "literal": "'😀\\uD800x\\uDC00z'",
+      "tokenEndUtf16": 18,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2ggHjtsIB6",
+      "valueUnits": [
+        55357,
+        56832,
+        55296,
+        120,
+        56320,
+        122
+      ]
+    },
+    {
+      "id": "0/36/0",
+      "literal": "'a\\uD800\\uD800z'",
+      "tokenEndUtf16": 16,
+      "unterminated": false,
+      "valueBytes": "Ye2ggO2ggHo=",
+      "valueUnits": [
+        97,
+        55296,
+        55296,
+        122
+      ]
+    },
+    {
+      "id": "0/36/1",
+      "literal": "'😀\\uD800\\uD800z'",
+      "tokenEndUtf16": 17,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2ggO2ggHo=",
+      "valueUnits": [
+        55357,
+        56832,
+        55296,
+        55296,
+        122
+      ]
+    },
+    {
+      "id": "0/37/0",
+      "literal": "'a\\uDC00\\uD800z'",
+      "tokenEndUtf16": 16,
+      "unterminated": false,
+      "valueBytes": "Ye2wgO2ggHo=",
+      "valueUnits": [
+        97,
+        56320,
+        55296,
+        122
+      ]
+    },
+    {
+      "id": "0/37/1",
+      "literal": "'😀\\uDC00\\uD800z'",
+      "tokenEndUtf16": 17,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2wgO2ggHo=",
+      "valueUnits": [
+        55357,
+        56832,
+        56320,
+        55296,
+        122
+      ]
+    },
+    {
+      "id": "0/38/0",
+      "literal": "'a\\uD800\\nz'",
+      "tokenEndUtf16": 12,
+      "unterminated": false,
+      "valueBytes": "Ye2ggAp6",
+      "valueUnits": [
+        97,
+        55296,
+        10,
+        122
+      ]
+    },
+    {
+      "id": "0/38/1",
+      "literal": "'😀\\uD800\\nz'",
+      "tokenEndUtf16": 13,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2ggAp6",
+      "valueUnits": [
+        55357,
+        56832,
+        55296,
+        10,
+        122
+      ]
+    },
+    {
+      "id": "0/39/0",
+      "literal": "'a\\x41\\u0042\\u{43}z'",
+      "tokenEndUtf16": 20,
+      "unterminated": false,
+      "valueBytes": "YUFCQ3o=",
+      "valueUnits": [
+        97,
+        65,
+        66,
+        67,
+        122
+      ]
+    },
+    {
+      "id": "0/39/1",
+      "literal": "'😀\\x41\\u0042\\u{43}z'",
+      "tokenEndUtf16": 21,
+      "unterminated": false,
+      "valueBytes": "8J+YgEFCQ3o=",
+      "valueUnits": [
+        55357,
+        56832,
+        65,
+        66,
+        67,
+        122
+      ]
+    },
+    {
+      "id": "0/40/0",
+      "literal": "'a\\u{0000000000000000000000000000000061}z'",
+      "tokenEndUtf16": 42,
+      "unterminated": false,
+      "valueBytes": "YWF6",
+      "valueUnits": [
+        97,
+        97,
+        122
+      ]
+    },
+    {
+      "id": "0/40/1",
+      "literal": "'😀\\u{0000000000000000000000000000000061}z'",
+      "tokenEndUtf16": 43,
+      "unterminated": false,
+      "valueBytes": "8J+YgGF6",
+      "valueUnits": [
+        55357,
+        56832,
+        97,
+        122
+      ]
+    },
+    {
+      "id": "1/0/0",
+      "literal": "\"a\\x00z\"",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YQB6",
+      "valueUnits": [
+        97,
+        0,
+        122
+      ]
+    },
+    {
+      "id": "1/0/1",
+      "literal": "\"😀\\x00z\"",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgAB6",
+      "valueUnits": [
+        55357,
+        56832,
+        0,
+        122
+      ]
+    },
+    {
+      "id": "1/1/0",
+      "literal": "\"a\\x01z\"",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YQF6",
+      "valueUnits": [
+        97,
+        1,
+        122
+      ]
+    },
+    {
+      "id": "1/1/1",
+      "literal": "\"😀\\x01z\"",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgAF6",
+      "valueUnits": [
+        55357,
+        56832,
+        1,
+        122
+      ]
+    },
+    {
+      "id": "1/2/0",
+      "literal": "\"a\\x09z\"",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YQl6",
+      "valueUnits": [
+        97,
+        9,
+        122
+      ]
+    },
+    {
+      "id": "1/2/1",
+      "literal": "\"😀\\x09z\"",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgAl6",
+      "valueUnits": [
+        55357,
+        56832,
+        9,
+        122
+      ]
+    },
+    {
+      "id": "1/3/0",
+      "literal": "\"a\\x0az\"",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YQp6",
+      "valueUnits": [
+        97,
+        10,
+        122
+      ]
+    },
+    {
+      "id": "1/3/1",
+      "literal": "\"😀\\x0az\"",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgAp6",
+      "valueUnits": [
+        55357,
+        56832,
+        10,
+        122
+      ]
+    },
+    {
+      "id": "1/4/0",
+      "literal": "\"a\\x0dz\"",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YQ16",
+      "valueUnits": [
+        97,
+        13,
+        122
+      ]
+    },
+    {
+      "id": "1/4/1",
+      "literal": "\"😀\\x0dz\"",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgA16",
+      "valueUnits": [
+        55357,
+        56832,
+        13,
+        122
+      ]
+    },
+    {
+      "id": "1/5/0",
+      "literal": "\"a\\x22z\"",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YSJ6",
+      "valueUnits": [
+        97,
+        34,
+        122
+      ]
+    },
+    {
+      "id": "1/5/1",
+      "literal": "\"😀\\x22z\"",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgCJ6",
+      "valueUnits": [
+        55357,
+        56832,
+        34,
+        122
+      ]
+    },
+    {
+      "id": "1/6/0",
+      "literal": "\"a\\x27z\"",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YSd6",
+      "valueUnits": [
+        97,
+        39,
+        122
+      ]
+    },
+    {
+      "id": "1/6/1",
+      "literal": "\"😀\\x27z\"",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgCd6",
+      "valueUnits": [
+        55357,
+        56832,
+        39,
+        122
+      ]
+    },
+    {
+      "id": "1/7/0",
+      "literal": "\"a\\x5cz\"",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YVx6",
+      "valueUnits": [
+        97,
+        92,
+        122
+      ]
+    },
+    {
+      "id": "1/7/1",
+      "literal": "\"😀\\x5cz\"",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgFx6",
+      "valueUnits": [
+        55357,
+        56832,
+        92,
+        122
+      ]
+    },
+    {
+      "id": "1/8/0",
+      "literal": "\"a\\x7fz\"",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YX96",
+      "valueUnits": [
+        97,
+        127,
+        122
+      ]
+    },
+    {
+      "id": "1/8/1",
+      "literal": "\"😀\\x7fz\"",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgH96",
+      "valueUnits": [
+        55357,
+        56832,
+        127,
+        122
+      ]
+    },
+    {
+      "id": "1/9/0",
+      "literal": "\"a\\x80z\"",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YcKAeg==",
+      "valueUnits": [
+        97,
+        128,
+        122
+      ]
+    },
+    {
+      "id": "1/9/1",
+      "literal": "\"😀\\x80z\"",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgMKAeg==",
+      "valueUnits": [
+        55357,
+        56832,
+        128,
+        122
+      ]
+    },
+    {
+      "id": "1/10/0",
+      "literal": "\"a\\xffz\"",
+      "tokenEndUtf16": 8,
+      "unterminated": false,
+      "valueBytes": "YcO/eg==",
+      "valueUnits": [
+        97,
+        255,
+        122
+      ]
+    },
+    {
+      "id": "1/10/1",
+      "literal": "\"😀\\xffz\"",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "8J+YgMO/eg==",
+      "valueUnits": [
+        55357,
+        56832,
+        255,
+        122
+      ]
+    },
+    {
+      "id": "1/11/0",
+      "literal": "\"a\\u0000z\"",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "YQB6",
+      "valueUnits": [
+        97,
+        0,
+        122
+      ]
+    },
+    {
+      "id": "1/11/1",
+      "literal": "\"😀\\u0000z\"",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgAB6",
+      "valueUnits": [
+        55357,
+        56832,
+        0,
+        122
+      ]
+    },
+    {
+      "id": "1/12/0",
+      "literal": "\"a\\u0001z\"",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "YQF6",
+      "valueUnits": [
+        97,
+        1,
+        122
+      ]
+    },
+    {
+      "id": "1/12/1",
+      "literal": "\"😀\\u0001z\"",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgAF6",
+      "valueUnits": [
+        55357,
+        56832,
+        1,
+        122
+      ]
+    },
+    {
+      "id": "1/13/0",
+      "literal": "\"a\\u007fz\"",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "YX96",
+      "valueUnits": [
+        97,
+        127,
+        122
+      ]
+    },
+    {
+      "id": "1/13/1",
+      "literal": "\"😀\\u007fz\"",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgH96",
+      "valueUnits": [
+        55357,
+        56832,
+        127,
+        122
+      ]
+    },
+    {
+      "id": "1/14/0",
+      "literal": "\"a\\u00ffz\"",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "YcO/eg==",
+      "valueUnits": [
+        97,
+        255,
+        122
+      ]
+    },
+    {
+      "id": "1/14/1",
+      "literal": "\"😀\\u00ffz\"",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgMO/eg==",
+      "valueUnits": [
+        55357,
+        56832,
+        255,
+        122
+      ]
+    },
+    {
+      "id": "1/15/0",
+      "literal": "\"a\\u0100z\"",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "YcSAeg==",
+      "valueUnits": [
+        97,
+        256,
+        122
+      ]
+    },
+    {
+      "id": "1/15/1",
+      "literal": "\"😀\\u0100z\"",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgMSAeg==",
+      "valueUnits": [
+        55357,
+        56832,
+        256,
+        122
+      ]
+    },
+    {
+      "id": "1/16/0",
+      "literal": "\"a\\u2028z\"",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "YeKAqHo=",
+      "valueUnits": [
+        97,
+        8232,
+        122
+      ]
+    },
+    {
+      "id": "1/16/1",
+      "literal": "\"😀\\u2028z\"",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgOKAqHo=",
+      "valueUnits": [
+        55357,
+        56832,
+        8232,
+        122
+      ]
+    },
+    {
+      "id": "1/17/0",
+      "literal": "\"a\\ud7ffz\"",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "Ye2fv3o=",
+      "valueUnits": [
+        97,
+        55295,
+        122
+      ]
+    },
+    {
+      "id": "1/17/1",
+      "literal": "\"😀\\ud7ffz\"",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2fv3o=",
+      "valueUnits": [
+        55357,
+        56832,
+        55295,
+        122
+      ]
+    },
+    {
+      "id": "1/18/0",
+      "literal": "\"a\\ud800z\"",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "Ye2ggHo=",
+      "valueUnits": [
+        97,
+        55296,
+        122
+      ]
+    },
+    {
+      "id": "1/18/1",
+      "literal": "\"😀\\ud800z\"",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2ggHo=",
+      "valueUnits": [
+        55357,
+        56832,
+        55296,
+        122
+      ]
+    },
+    {
+      "id": "1/19/0",
+      "literal": "\"a\\udbffz\"",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "Ye2vv3o=",
+      "valueUnits": [
+        97,
+        56319,
+        122
+      ]
+    },
+    {
+      "id": "1/19/1",
+      "literal": "\"😀\\udbffz\"",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2vv3o=",
+      "valueUnits": [
+        55357,
+        56832,
+        56319,
+        122
+      ]
+    },
+    {
+      "id": "1/20/0",
+      "literal": "\"a\\udc00z\"",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "Ye2wgHo=",
+      "valueUnits": [
+        97,
+        56320,
+        122
+      ]
+    },
+    {
+      "id": "1/20/1",
+      "literal": "\"😀\\udc00z\"",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2wgHo=",
+      "valueUnits": [
+        55357,
+        56832,
+        56320,
+        122
+      ]
+    },
+    {
+      "id": "1/21/0",
+      "literal": "\"a\\udfffz\"",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "Ye2/v3o=",
+      "valueUnits": [
+        97,
+        57343,
+        122
+      ]
+    },
+    {
+      "id": "1/21/1",
+      "literal": "\"😀\\udfffz\"",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2/v3o=",
+      "valueUnits": [
+        55357,
+        56832,
+        57343,
+        122
+      ]
+    },
+    {
+      "id": "1/22/0",
+      "literal": "\"a\\ue000z\"",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "Ye6AgHo=",
+      "valueUnits": [
+        97,
+        57344,
+        122
+      ]
+    },
+    {
+      "id": "1/22/1",
+      "literal": "\"😀\\ue000z\"",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgO6AgHo=",
+      "valueUnits": [
+        55357,
+        56832,
+        57344,
+        122
+      ]
+    },
+    {
+      "id": "1/23/0",
+      "literal": "\"a\\uffffz\"",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "Ye+/v3o=",
+      "valueUnits": [
+        97,
+        65535,
+        122
+      ]
+    },
+    {
+      "id": "1/23/1",
+      "literal": "\"😀\\uffffz\"",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgO+/v3o=",
+      "valueUnits": [
+        55357,
+        56832,
+        65535,
+        122
+      ]
+    },
+    {
+      "id": "1/24/0",
+      "literal": "\"a\\u{0}z\"",
+      "tokenEndUtf16": 9,
+      "unterminated": false,
+      "valueBytes": "YQB6",
+      "valueUnits": [
+        97,
+        0,
+        122
+      ]
+    },
+    {
+      "id": "1/24/1",
+      "literal": "\"😀\\u{0}z\"",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "8J+YgAB6",
+      "valueUnits": [
+        55357,
+        56832,
+        0,
+        122
+      ]
+    },
+    {
+      "id": "1/25/0",
+      "literal": "\"a\\u{61}z\"",
+      "tokenEndUtf16": 10,
+      "unterminated": false,
+      "valueBytes": "YWF6",
+      "valueUnits": [
+        97,
+        97,
+        122
+      ]
+    },
+    {
+      "id": "1/25/1",
+      "literal": "\"😀\\u{61}z\"",
+      "tokenEndUtf16": 11,
+      "unterminated": false,
+      "valueBytes": "8J+YgGF6",
+      "valueUnits": [
+        55357,
+        56832,
+        97,
+        122
+      ]
+    },
+    {
+      "id": "1/26/0",
+      "literal": "\"a\\u{ffff}z\"",
+      "tokenEndUtf16": 12,
+      "unterminated": false,
+      "valueBytes": "Ye+/v3o=",
+      "valueUnits": [
+        97,
+        65535,
+        122
+      ]
+    },
+    {
+      "id": "1/26/1",
+      "literal": "\"😀\\u{ffff}z\"",
+      "tokenEndUtf16": 13,
+      "unterminated": false,
+      "valueBytes": "8J+YgO+/v3o=",
+      "valueUnits": [
+        55357,
+        56832,
+        65535,
+        122
+      ]
+    },
+    {
+      "id": "1/27/0",
+      "literal": "\"a\\u{10000}z\"",
+      "tokenEndUtf16": 13,
+      "unterminated": false,
+      "valueBytes": "YfCQgIB6",
+      "valueUnits": [
+        97,
+        55296,
+        56320,
+        122
+      ]
+    },
+    {
+      "id": "1/27/1",
+      "literal": "\"😀\\u{10000}z\"",
+      "tokenEndUtf16": 14,
+      "unterminated": false,
+      "valueBytes": "8J+YgPCQgIB6",
+      "valueUnits": [
+        55357,
+        56832,
+        55296,
+        56320,
+        122
+      ]
+    },
+    {
+      "id": "1/28/0",
+      "literal": "\"a\\u{10ffff}z\"",
+      "tokenEndUtf16": 14,
+      "unterminated": false,
+      "valueBytes": "YfSPv796",
+      "valueUnits": [
+        97,
+        56319,
+        57343,
+        122
+      ]
+    },
+    {
+      "id": "1/28/1",
+      "literal": "\"😀\\u{10ffff}z\"",
+      "tokenEndUtf16": 15,
+      "unterminated": false,
+      "valueBytes": "8J+YgPSPv796",
+      "valueUnits": [
+        55357,
+        56832,
+        56319,
+        57343,
+        122
+      ]
+    },
+    {
+      "id": "1/29/0",
+      "literal": "\"a\\u{d800}z\"",
+      "tokenEndUtf16": 12,
+      "unterminated": false,
+      "valueBytes": "Ye2ggHo=",
+      "valueUnits": [
+        97,
+        55296,
+        122
+      ]
+    },
+    {
+      "id": "1/29/1",
+      "literal": "\"😀\\u{d800}z\"",
+      "tokenEndUtf16": 13,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2ggHo=",
+      "valueUnits": [
+        55357,
+        56832,
+        55296,
+        122
+      ]
+    },
+    {
+      "id": "1/30/0",
+      "literal": "\"a\\u{dc00}z\"",
+      "tokenEndUtf16": 12,
+      "unterminated": false,
+      "valueBytes": "Ye2wgHo=",
+      "valueUnits": [
+        97,
+        56320,
+        122
+      ]
+    },
+    {
+      "id": "1/30/1",
+      "literal": "\"😀\\u{dc00}z\"",
+      "tokenEndUtf16": 13,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2wgHo=",
+      "valueUnits": [
+        55357,
+        56832,
+        56320,
+        122
+      ]
+    },
+    {
+      "id": "1/31/0",
+      "literal": "\"a\\ud83d\\ude00z\"",
+      "tokenEndUtf16": 16,
+      "unterminated": false,
+      "valueBytes": "YfCfmIB6",
+      "valueUnits": [
+        97,
+        55357,
+        56832,
+        122
+      ]
+    },
+    {
+      "id": "1/31/1",
+      "literal": "\"😀\\ud83d\\ude00z\"",
+      "tokenEndUtf16": 17,
+      "unterminated": false,
+      "valueBytes": "8J+YgPCfmIB6",
+      "valueUnits": [
+        55357,
+        56832,
+        55357,
+        56832,
+        122
+      ]
+    },
+    {
+      "id": "1/32/0",
+      "literal": "\"a\\ud83d\\u{de00}z\"",
+      "tokenEndUtf16": 18,
+      "unterminated": false,
+      "valueBytes": "YfCfmIB6",
+      "valueUnits": [
+        97,
+        55357,
+        56832,
+        122
+      ]
+    },
+    {
+      "id": "1/32/1",
+      "literal": "\"😀\\ud83d\\u{de00}z\"",
+      "tokenEndUtf16": 19,
+      "unterminated": false,
+      "valueBytes": "8J+YgPCfmIB6",
+      "valueUnits": [
+        55357,
+        56832,
+        55357,
+        56832,
+        122
+      ]
+    },
+    {
+      "id": "1/33/0",
+      "literal": "\"a\\u{d83d}\\ude00z\"",
+      "tokenEndUtf16": 18,
+      "unterminated": false,
+      "valueBytes": "YfCfmIB6",
+      "valueUnits": [
+        97,
+        55357,
+        56832,
+        122
+      ]
+    },
+    {
+      "id": "1/33/1",
+      "literal": "\"😀\\u{d83d}\\ude00z\"",
+      "tokenEndUtf16": 19,
+      "unterminated": false,
+      "valueBytes": "8J+YgPCfmIB6",
+      "valueUnits": [
+        55357,
+        56832,
+        55357,
+        56832,
+        122
+      ]
+    },
+    {
+      "id": "1/34/0",
+      "literal": "\"a\\u{d83d}\\u{de00}z\"",
+      "tokenEndUtf16": 20,
+      "unterminated": false,
+      "valueBytes": "YfCfmIB6",
+      "valueUnits": [
+        97,
+        55357,
+        56832,
+        122
+      ]
+    },
+    {
+      "id": "1/34/1",
+      "literal": "\"😀\\u{d83d}\\u{de00}z\"",
+      "tokenEndUtf16": 21,
+      "unterminated": false,
+      "valueBytes": "8J+YgPCfmIB6",
+      "valueUnits": [
+        55357,
+        56832,
+        55357,
+        56832,
+        122
+      ]
+    },
+    {
+      "id": "1/35/0",
+      "literal": "\"a\\uD800x\\uDC00z\"",
+      "tokenEndUtf16": 17,
+      "unterminated": false,
+      "valueBytes": "Ye2ggHjtsIB6",
+      "valueUnits": [
+        97,
+        55296,
+        120,
+        56320,
+        122
+      ]
+    },
+    {
+      "id": "1/35/1",
+      "literal": "\"😀\\uD800x\\uDC00z\"",
+      "tokenEndUtf16": 18,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2ggHjtsIB6",
+      "valueUnits": [
+        55357,
+        56832,
+        55296,
+        120,
+        56320,
+        122
+      ]
+    },
+    {
+      "id": "1/36/0",
+      "literal": "\"a\\uD800\\uD800z\"",
+      "tokenEndUtf16": 16,
+      "unterminated": false,
+      "valueBytes": "Ye2ggO2ggHo=",
+      "valueUnits": [
+        97,
+        55296,
+        55296,
+        122
+      ]
+    },
+    {
+      "id": "1/36/1",
+      "literal": "\"😀\\uD800\\uD800z\"",
+      "tokenEndUtf16": 17,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2ggO2ggHo=",
+      "valueUnits": [
+        55357,
+        56832,
+        55296,
+        55296,
+        122
+      ]
+    },
+    {
+      "id": "1/37/0",
+      "literal": "\"a\\uDC00\\uD800z\"",
+      "tokenEndUtf16": 16,
+      "unterminated": false,
+      "valueBytes": "Ye2wgO2ggHo=",
+      "valueUnits": [
+        97,
+        56320,
+        55296,
+        122
+      ]
+    },
+    {
+      "id": "1/37/1",
+      "literal": "\"😀\\uDC00\\uD800z\"",
+      "tokenEndUtf16": 17,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2wgO2ggHo=",
+      "valueUnits": [
+        55357,
+        56832,
+        56320,
+        55296,
+        122
+      ]
+    },
+    {
+      "id": "1/38/0",
+      "literal": "\"a\\uD800\\nz\"",
+      "tokenEndUtf16": 12,
+      "unterminated": false,
+      "valueBytes": "Ye2ggAp6",
+      "valueUnits": [
+        97,
+        55296,
+        10,
+        122
+      ]
+    },
+    {
+      "id": "1/38/1",
+      "literal": "\"😀\\uD800\\nz\"",
+      "tokenEndUtf16": 13,
+      "unterminated": false,
+      "valueBytes": "8J+YgO2ggAp6",
+      "valueUnits": [
+        55357,
+        56832,
+        55296,
+        10,
+        122
+      ]
+    },
+    {
+      "id": "1/39/0",
+      "literal": "\"a\\x41\\u0042\\u{43}z\"",
+      "tokenEndUtf16": 20,
+      "unterminated": false,
+      "valueBytes": "YUFCQ3o=",
+      "valueUnits": [
+        97,
+        65,
+        66,
+        67,
+        122
+      ]
+    },
+    {
+      "id": "1/39/1",
+      "literal": "\"😀\\x41\\u0042\\u{43}z\"",
+      "tokenEndUtf16": 21,
+      "unterminated": false,
+      "valueBytes": "8J+YgEFCQ3o=",
+      "valueUnits": [
+        55357,
+        56832,
+        65,
+        66,
+        67,
+        122
+      ]
+    },
+    {
+      "id": "1/40/0",
+      "literal": "\"a\\u{0000000000000000000000000000000061}z\"",
+      "tokenEndUtf16": 42,
+      "unterminated": false,
+      "valueBytes": "YWF6",
+      "valueUnits": [
+        97,
+        97,
+        122
+      ]
+    },
+    {
+      "id": "1/40/1",
+      "literal": "\"😀\\u{0000000000000000000000000000000061}z\"",
+      "tokenEndUtf16": 43,
+      "unterminated": false,
+      "valueBytes": "8J+YgGF6",
+      "valueUnits": [
+        55357,
+        56832,
+        97,
+        122
+      ]
+    }
+  ]
+}

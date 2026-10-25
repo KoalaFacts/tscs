@@ -31,4 +31,5 @@
 <ItemGroup><None Update="TestData/config-selection.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
 <ItemGroup><None Update="TestData/string-lines.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
 <ItemGroup><None Update="TestData/string-escapes.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
+<ItemGroup><None Update="TestData/unicode-escapes.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
 </Project>
