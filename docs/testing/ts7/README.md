@@ -2,8 +2,8 @@
 
 The release goal is unchanged: **every test in the pinned TS7 scope must be accounted
 for and accepted, with no missing cases**. This first slice does not meet that goal.
-It records source assets and declarations, exposes unknown expansion, and creates
-an initial progress model. It neither implements compiler features nor runs the
+It records source assets and declarations, expands the bounded transpile
+configuration layer, and exposes the remaining unknown expansion. It neither implements compiler features nor runs the
 upstream tests.
 
 ## Reproduce
@@ -18,10 +18,10 @@ git init .artifacts/ts7-upstream
 git -C .artifacts/ts7-upstream fetch --depth=1 \
   https://github.com/microsoft/TypeScript.git \
   8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f
-node tools/inventory-ts7.mjs .artifacts/ts7-upstream .artifacts/ts7-scope
+node tools/inventory-ts7.ts .artifacts/ts7-upstream .artifacts/ts7-scope
 
 # Use a fresh output directory for every run; existing output is never overwritten.
-node tools/inventory-ts7.mjs .artifacts/ts7-upstream .artifacts/ts7-scope-repeat
+node tools/inventory-ts7.ts .artifacts/ts7-upstream .artifacts/ts7-scope-repeat
 cmp .artifacts/ts7-scope/summary.json .artifacts/ts7-scope-repeat/summary.json
 cmp docs/testing/ts7/inventory-summary.json .artifacts/ts7-scope/summary.json
 ```
@@ -54,7 +54,8 @@ archive of it with the summary/checksums when recording an acceptance run.
 | Artifact | Meaning | Not evidence of |
 | --- | --- | --- |
 | `assets.jsonl` | Every tracked source/support/baseline asset, mode, blob ID, size, SHA-256 and domain | Runnable tests or coverage |
-| `fixtures.jsonl` | Selected compiler/conformance/transpile source inputs; raw metadata, encoding evidence and static skip-list membership | Effective options, virtual units, concrete configurations or executed tests |
+| `fixtures.jsonl` | Selected compiler/conformance/transpile source inputs; raw metadata, encoding evidence, static skips and separate configuration-expansion status | Effective options, virtual units or executed tests |
+| `configurations.jsonl` | Source-bound named configurations for the verified transpile policy only; raw settings and NOT_RUN progress | Runtime transpile kinds, emitted units, successful option parsing or conformance |
 | `go-sources.jsonl` | AST declarations, support functions, build constraints, string lists and parse errors | Host package/test discovery |
 | `declarations.jsonl` | Top-level Go test/benchmark/fuzz/setup candidates, source coordinates, Run/Skip syntax and initial progress | Evaluated subtests, skips, seeds, build constraints or successful execution |
 | `js-sources.jsonl` | JS/TS test and benchmark source files | Expanded imported/generated/dynamic test cases |
@@ -65,8 +66,9 @@ IDs derive from the exact source commit, record kind and full path/coordinate,
 not basenames. Different commits intentionally have different IDs; future progress
 migration must explicitly re-verify mappings. Duplicate fixture directives and raw
 values remain visible. No comma-list multiplication is presented as an exact case
-total: libraries, wildcards, exclusions, aliases, defaults, embedded configs and
-runner-generated combinations need the canonical semantics first.
+total. The bounded configuration layer below models its canonical boolean rules;
+compiler enums, defaults, embedded configs and runtime-generated combinations
+still need their corresponding semantics.
 
 Go discovery uses `go/parser` and syntax checks corresponding to Go's loader, not
 regex matching or `go test -list`. Methods are support functions, not top-level
@@ -96,7 +98,10 @@ Conditions, helper calls, loops and runtime outcomes are not evaluated.
 - 8 fixture blobs are not raw UTF-8: 7 have UTF-16 BOMs, 1 intentionally contains
   malformed UTF-8. They retain base64 bytes and hashes; UTF-16/invalid-byte loading
   is explicitly unimplemented here. UTF-8 BOMs and NULs are recorded separately.
-- Exact concrete configurations, runtime-expanded cases, skips by environment,
+- Transpile configuration layer: 25 expanded fixtures, 28 named configurations,
+  no blocked transpile expansions at this pin. The 12,981 compiler/conformance
+  inputs remain unexpanded. These are configuration records, not executed cases.
+- Full concrete-test count, runtime-expanded cases, skips by environment,
   accepted cases and total upstream coverage: **unknown / NOT_RUN**.
 
 An older manifest reported one invalid-UTF8 **unit**, not one invalid raw source
@@ -105,6 +110,46 @@ source hashes: its seven UTF-16-BOM inputs have `validUtf8: true` unit records,
 while its deliberately malformed fixture has `validUtf8: false`. This explains the
 counting boundary without recovering or asserting correctness of the old loader.
 The historical configuration/virtual-unit totals are not current acceptance data.
+
+## Bounded transpile configuration expansion
+
+`fixtureConfigurationInventory` reports expanded, blocked and unexpanded fixture
+counts separately from recorded configurations. Fixture statuses and configuration
+counts reconcile to their respective ledger records. `concreteCases` stays null and every compiler/reference/
+acceptance status stays NOT_RUN. A fixture's full `expansion` remains UNEXPANDED,
+even when its separate `configurationExpansion` is EXPANDED.
+
+The implementation is guarded by the exact upstream pin and SHA-256 of the
+transpile runner, metadata parser, configuration helper, option declarations and
+byte reader. Missing or changed policy sources yield CONFIGURATION_POLICY_UNVERIFIED,
+not speculative expansion. Raw invalid UTF-8/UTF-16 inputs remain unexpanded with
+their base64 bytes; none of the 25 pinned transpile inputs needs that decoding.
+
+The runner varies only `declarationmap`, `sourcemap` and `inlinesourcemap`, which
+are boolean declarations. Settings are extracted across the whole source with the
+existing anchored regex. Last duplicate wins; Go whitespace and exactly one final
+semicolon are removed. Unknown/non-varying settings remain scalar, even with commas.
+This preserves settings such as the final `filename` declaration; it does not turn
+them into effective compiler options.
+
+Included boolean values deduplicate case-insensitively and retain the first
+spelling. `*` adds missing true/false values; `-` and `!` remove recognized values.
+Unknown exclusions are ignored, unknown inclusions or an emptied set block the
+fixture rather than inventing zero cases. Single values get no name suffix. Empty
+lists omit their option unless the entire helper result is empty, in which case
+the transpile runner's original-settings fallback is preserved. The three boolean
+axes permit at most eight configurations, below the upstream maximum of 25.
+
+Names here are `NamedTestConfiguration.Name` from the canonical helper, with
+lowercase sorted varying keys. They are not the later camel-cased transpile test
+names. Records are sorted deterministically; Go map iteration order is not claimed.
+IDs bind the upstream pin, fixture ID, name and settings. Virtual files, effective
+options, `runKind`, JS/declaration branching and output units remain unresolved.
+
+The 28 records are independently reconcilable: 22 fixtures have one configuration;
+`declarationBasicSyntax.ts`, `jsWithSourceMapBasic.ts` and
+`jsWithInlineSourceMapBasic.ts` each have a true/false pair. This does not award
+compiler coverage, waive upstream skips or change the frozen 29-case cohort.
 
 ## Domain and runner map
 

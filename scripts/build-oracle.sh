@@ -22,5 +22,5 @@ fi
 mkdir -p "$upstream/tsc/cmd/tscs-oracle"
 cp tools/oracle/main.go "$upstream/tsc/cmd/tscs-oracle/main.go"
 (cd "$upstream/tsc"; go build -o "$root/.artifacts/tsgo" ./cmd/tsc; go build -o "$root/.artifacts/tscs-oracle" ./cmd/tscs-oracle)
-node tools/check-oracle.mjs
-node tools/inventory.mjs "$upstream"
+node tools/check-oracle.ts
+node tools/inventory.ts "$upstream"

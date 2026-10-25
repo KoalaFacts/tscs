@@ -9,8 +9,7 @@ and optimizing the C# implementation.
 
 ## Build and check a file
 
-Install the .NET SDK specified in `global.json` (10.0.402). Node 24 is used only by
-test tools. Go 1.27.3 is also required for source-inventory tests. The compiler itself is C# and does not invoke Node, Go or another compiler.
+Install the .NET SDK specified in `global.json` (10.0.402). Node 24 runs the native `.ts` test tools directly, without a transpiler. Go 1.27.3 is also required for source-inventory tests. The compiler itself is C# and does not invoke Node, Go or another compiler.
 
 ```sh
 dotnet build Tscs.slnx -c Release -m:1
@@ -96,10 +95,11 @@ The [source-scope registry and roadmap](docs/testing/ts7/README.md) inventories 
 tracked upstream assets, Go declarations, JS test sources and fixture metadata:
 
 ```sh
-node tools/inventory-ts7.mjs /path/to/pinned-upstream .artifacts/ts7-scope
+node tools/inventory-ts7.ts /path/to/pinned-upstream .artifacts/ts7-scope
 ```
 
-This is a static inventory, not full conformance: concrete configurations and
+This is an inventory, not full conformance: the 25 transpile inputs have 28
+source-bound named configurations. Compiler/conformance configurations and all
 runtime-generated cases remain unexpanded, and all acceptance is NOT_RUN. The
 [domain summary](docs/testing/ts7/inventory-summary.json) keeps assets, declarations,
 fixture inputs and upstream skips separate. The original 29-case cohort remains

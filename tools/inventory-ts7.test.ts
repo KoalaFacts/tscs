@@ -5,7 +5,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {generateInventory} from './inventory-ts7.mjs';
+import {generateInventory} from './inventory-ts7.ts';
 
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const readLines=p=>readFileSync(p,'utf8').trim().split('\n').filter(Boolean).map(x=>JSON.parse(x));
@@ -103,4 +103,20 @@ test('toolchain provenance requires pinned Go and is recorded in the result',asy
   const ctx=repository(t), output=join(ctx.root,'toolchain');
   const result=await generateInventory({upstream:ctx.upstream,pin:ctx.pin,output});
   assert.deepEqual(result.provenance.toolchain,{go:'go1.27.3',nodeMajor:24});
+});
+
+test('configuration ledger is separate and an unverified source pin cannot be expanded',async t=>{
+  const ctx=repository(t), output=join(ctx.root,'configurations');
+  const path='tsc/testdata/tests/cases/transpile/options.ts';
+  mkdirSync(join(ctx.upstream,path,'..'),{recursive:true});
+  writeFileSync(join(ctx.upstream,path),'// @sourceMap: true, false\n// @target: es5, esnext\n');
+  ctx.git('add','.');ctx.git('commit','-qm','transpile source');
+  const summary=await generateInventory({upstream:ctx.upstream,pin:ctx.git('rev-parse','HEAD'),output});
+  const f=readLines(join(output,'fixtures.jsonl')).find(x=>x.path===path);
+  assert.equal(f.configurationExpansion?.status,'UNEXPANDED');
+  assert.ok(f.configurationExpansion.blockers.includes('CONFIGURATION_POLICY_UNVERIFIED'));
+  assert.deepEqual(readLines(join(output,'configurations.jsonl')),[]);
+  assert.deepEqual(summary.counts.fixtureConfigurationInventory,{expandedFixtures:0,blockedFixtures:0,unexpandedFixtures:5,configurations:0});
+  assert.equal(summary.counts.concreteCases,null);
+  assert.equal(f.progress.acceptance,'NOT_RUN');
 });

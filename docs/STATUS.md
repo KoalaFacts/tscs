@@ -23,12 +23,30 @@ pinned Git tree: 67,951 assets, 13,006 fixture inputs, 6,064 Go AST declarations
 24 JS test sources and 7 JS benchmark sources. These are separate source-level
 measures, not additive test counts. Compiler whole-fixture omissions, byte-invalid
 inputs, analyzer-test fixtures and unevaluated build constraints remain explicit.
-Concrete configurations/runtime cases and executable acceptance are still unknown
-or NOT_RUN. The full-coverage release gate is not satisfied.
+The bounded transpile configuration layer expands 25 fixtures into 28 named
+configurations. The other 12,981 fixture inputs, all runtime cases and executable
+acceptance remain unknown or NOT_RUN. The full-coverage release gate is not satisfied.
 
 The old 12,981-file provisional inventory is retained unchanged because the frozen
 29-case bootstrap evidence binds it. It excludes transpile and other test domains;
 it is not the denominator for TS7-wide coverage.
+
+## Native TypeScript tools — 2026-10-25
+
+- Migrated all 13 owned `.mjs` modules/tests to native `.ts`; updated imports,
+  shell commands and current documentation. No loader, transpiler or new dependency.
+  Upstream Herebyfile.mjs and frozen inputs remain unchanged.
+- Release build zero warnings/errors; Node 54/54 (52 existing plus two native-entry
+  guards), direct xUnit/MTP 60/60, Go tests/vet pass, frozen differential 29/29.
+- All eight complete inventory payloads are byte-identical before/after; only the
+  summary's generator path/hash provenance changes. Repeated native generation,
+  including summary, is byte-identical. Transpile remains 25 inputs/28 configs;
+  no original compiler/reference/acceptance record is promoted.
+- Full verify.sh attempted; SDK coordinator still aborts on Unix pipe permission.
+  Direct MTP is a separate successful run. Independent review: no important findings.
+- Evidence: [native tools](evidence/native-typescript-tools.json). The migration
+  preserves the recorded inventory payloads and the bounded transpile configuration
+  set; complete upstream fixture/configuration acceptance remains NOT_RUN.
 
 ## Local verification and review
 

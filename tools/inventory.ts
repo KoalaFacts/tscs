@@ -1,7 +1,7 @@
 import {readdirSync,readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {join,relative} from 'node:path';
 import {createHash} from 'node:crypto';
-const root=process.argv[2];if(!root)throw Error('usage: node tools/inventory.mjs UPSTREAM');
+const root=process.argv[2];if(!root)throw Error('usage: node tools/inventory.ts UPSTREAM');
 const variants=new Set(['target','module','moduleresolution','strict','strictnullchecks','noimplicitany','usedefineforclassfields','declaration','verbatimmodulesyntax','jsx','noemit','isolatedmodules','esmoduleinterop','allowjs','checkjs','exactoptionalpropertytypes','noindexedaccess','noemitonerror']);
 const list=new Set(['lib','types','typeroots','rootdirs','customconditions']);
 function walk(p){return readdirSync(p,{withFileTypes:true}).flatMap(d=>d.isDirectory()?walk(join(p,d.name)):[join(p,d.name)]);}

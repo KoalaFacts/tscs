@@ -7,5 +7,5 @@ export DOTNET
 "$DOTNET" build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false
 "$DOTNET" test --solution Tscs.slnx -c Release --no-build --no-restore -- --fail-skips on --minimum-expected-tests 60
 go test tools/scope-go/main.go tools/scope-go/main_test.go
-node --test tools/*.test.mjs
-node tools/verify-conformance.mjs
+node --test tools/*.test.ts
+node tools/verify-conformance.ts
