@@ -289,3 +289,7 @@ The later [mixed diagnostic-order correction](../../progress/json-diagnostic-ord
 adds16 actual-Go JSON parser cases and two CLI regressions. It changes event
 ordering within the bounded parser; it does not rerun or upgrade the historical
 full source profile, effective options or original compiler acceptance.
+
+The [config value conversion slice](../../progress/config-values.md) adds189
+actual-Go convertToObject vectors. It does not expand original compiler acceptance
+or rerun the full source profiles; option callbacks/effective config remain unrun.

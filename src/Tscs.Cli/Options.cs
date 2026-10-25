@@ -72,7 +72,7 @@ internal sealed class Options
                         {
                             case "noEmit":noEmit=Boolean(option.Value);break;
                             case "noLib":noLib=Boolean(option.Value);break;
-                            case "target":if(option.Value.Kind!="String")throw new InputFailure("target must be a string.");ValidateTarget(option.Value.Token.Value!);break;
+                            case "target":if(option.Value.Kind!="String")throw new InputFailure("target must be a string.");ValidateTarget(JsonConfigValues.Convert(option.Value).Text);break;
                             default:throw new InputFailure($"Unsupported compiler option '{(option.Name.Token.Value??option.Name.Token.Text)}'.");
                         }
                     }
@@ -81,7 +81,7 @@ internal sealed class Options
             }
         }
     }
-    private static bool Boolean(JsonSyntaxNode value)=>value.Kind switch{"True"=>true,"False"=>false,_=>throw new InputFailure("Expected a boolean compiler option.")};
+    private static bool Boolean(JsonSyntaxNode value)=>JsonConfigValues.Convert(value).Kind switch{"True"=>true,"False"=>false,_=>throw new InputFailure("Expected a boolean compiler option.")};
     private static void ValidateTarget(string target)
     {if(!target.Equals("es2015",StringComparison.OrdinalIgnoreCase)&&!target.Equals("es6",StringComparison.OrdinalIgnoreCase))throw new InputFailure("Only target es2015/es6 is supported by the bootstrap.");}
 }

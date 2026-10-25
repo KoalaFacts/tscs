@@ -1,0 +1,19 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "profile": "config-ast/convertToObject/returnValue-true/no-notifier",
+  "inventoryAssets": 67951,
+  "inventoryFixtures": 13006,
+  "componentVectors": 189,
+  "differentialResults": {
+    "MATCH": 189,
+    "MISMATCH": 0
+  },
+  "fullSourceConfigProfile": "NOT_RUN_THIS_CHANGE",
+  "effectiveConfiguration": "NOT_RUN",
+  "compiler": "NOT_RUN",
+  "referenceCompiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "concreteCases": null,
+  "releaseEligible": false,
+  "evidence": "../../evidence/config-values.json"
+}

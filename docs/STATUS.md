@@ -3,6 +3,17 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Config AST to values — 2026-10-26
+
+- Added bounded convertToObject/convertToJson semantics: ordered last-wins
+  objects, omitted empty keys, scalar-null filtering and nil/empty array
+  distinction, lossless UTF16 strings/keys and exact binary64 values.
+- CLI uses the converter for supported boolean/target options; this is not the
+  whole config host, option callbacks or effective config.189 actual-Go vectors
+  RED189/8760 ->8949/8949; Node75/75, frozen29/29, Release0 warnings/errors.
+- [Scope and evidence](progress/config-values.md). Original compiler/reference/
+  acceptance NOT_RUN, all domains/seven reference fatals retained, releasefalse.
+
 ## Mixed JSON diagnostic event order — 2026-10-26
 
 - Addressed review P2: JSON parser errors now interleave with lexical errors

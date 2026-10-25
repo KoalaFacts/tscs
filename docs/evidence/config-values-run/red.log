@@ -1,0 +1,1141 @@
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "39", json: "{\n      \"diagnostics\": [],\n      \"id\": \"39\",\n     "···) (1ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+    at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "140", json: "{\n      \"diagnostics\": [],\n      \"id\": \"140\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "99", json: "{\n      \"diagnostics\": [],\n      \"id\": \"99\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "40", json: "{\n      \"diagnostics\": [],\n      \"id\": \"40\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "100", json: "{\n      \"diagnostics\": [],\n      \"id\": \"100\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "44", json: "{\n      \"diagnostics\": [],\n      \"id\": \"44\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "84", json: "{\n      \"diagnostics\": [],\n      \"id\": \"84\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "163", json: "{\n      \"diagnostics\": [],\n      \"id\": \"163\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "119", json: "{\n      \"diagnostics\": [],\n      \"id\": \"119\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "172", json: "{\n      \"diagnostics\": [],\n      \"id\": \"172\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "96", json: "{\n      \"diagnostics\": [],\n      \"id\": \"96\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "185", json: "{\n      \"diagnostics\": [],\n      \"id\": \"185\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "92", json: "{\n      \"diagnostics\": [],\n      \"id\": \"92\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "68", json: "{\n      \"diagnostics\": [],\n      \"id\": \"68\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "133", json: "{\n      \"diagnostics\": [],\n      \"id\": \"133\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "132", json: "{\n      \"diagnostics\": [],\n      \"id\": \"132\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "90", json: "{\n      \"diagnostics\": [],\n      \"id\": \"90\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "71", json: "{\n      \"diagnostics\": [],\n      \"id\": \"71\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "103", json: "{\n      \"diagnostics\": [],\n      \"id\": \"103\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "148", json: "{\n      \"diagnostics\": [],\n      \"id\": \"148\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "91", json: "{\n      \"diagnostics\": [],\n      \"id\": \"91\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "136", json: "{\n      \"diagnostics\": [],\n      \"id\": \"136\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "61", json: "{\n      \"diagnostics\": [],\n      \"id\": \"61\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "176", json: "{\n      \"diagnostics\": [],\n      \"id\": \"176\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "135", json: "{\n      \"diagnostics\": [],\n      \"id\": \"135\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "174", json: "{\n      \"diagnostics\": [],\n      \"id\": \"174\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "106", json: "{\n      \"diagnostics\": [],\n      \"id\": \"106\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "120", json: "{\n      \"diagnostics\": [],\n      \"id\": \"120\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "3", json: "{\n      \"diagnostics\": [],\n      \"id\": \"3\",\n      "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "182", json: "{\n      \"diagnostics\": [],\n      \"id\": \"182\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "32", json: "{\n      \"diagnostics\": [],\n      \"id\": \"32\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "35", json: "{\n      \"diagnostics\": [],\n      \"id\": \"35\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "7", json: "{\n      \"diagnostics\": [],\n      \"id\": \"7\",\n      "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "63", json: "{\n      \"diagnostics\": [],\n      \"id\": \"63\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "59", json: "{\n      \"diagnostics\": [],\n      \"id\": \"59\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "124", json: "{\n      \"diagnostics\": [],\n      \"id\": \"124\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "72", json: "{\n      \"diagnostics\": [],\n      \"id\": \"72\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "141", json: "{\n      \"diagnostics\": [],\n      \"id\": \"141\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "118", json: "{\n      \"diagnostics\": [],\n      \"id\": \"118\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "111", json: "{\n      \"diagnostics\": [],\n      \"id\": \"111\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "60", json: "{\n      \"diagnostics\": [],\n      \"id\": \"60\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "51", json: "{\n      \"diagnostics\": [],\n      \"id\": \"51\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "187", json: "{\n      \"diagnostics\": [],\n      \"id\": \"187\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "101", json: "{\n      \"diagnostics\": [],\n      \"id\": \"101\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "121", json: "{\n      \"diagnostics\": [],\n      \"id\": \"121\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "5", json: "{\n      \"diagnostics\": [],\n      \"id\": \"5\",\n      "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "134", json: "{\n      \"diagnostics\": [],\n      \"id\": \"134\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "177", json: "{\n      \"diagnostics\": [],\n      \"id\": \"177\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "173", json: "{\n      \"diagnostics\": [],\n      \"id\": \"173\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "149", json: "{\n      \"diagnostics\": [],\n      \"id\": \"149\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "94", json: "{\n      \"diagnostics\": [],\n      \"id\": \"94\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "9", json: "{\n      \"diagnostics\": [],\n      \"id\": \"9\",\n      "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "178", json: "{\n      \"diagnostics\": [],\n      \"id\": \"178\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "179", json: "{\n      \"diagnostics\": [],\n      \"id\": \"179\",\n    "···) (1ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "142", json: "{\n      \"diagnostics\": [],\n      \"id\": \"142\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "162", json: "{\n      \"diagnostics\": [],\n      \"id\": \"162\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "67", json: "{\n      \"diagnostics\": [],\n      \"id\": \"67\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "52", json: "{\n      \"diagnostics\": [],\n      \"id\": \"52\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "27", json: "{\n      \"diagnostics\": [],\n      \"id\": \"27\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "13", json: "{\n      \"diagnostics\": [],\n      \"id\": \"13\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "144", json: "{\n      \"diagnostics\": [],\n      \"id\": \"144\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "154", json: "{\n      \"diagnostics\": [],\n      \"id\": \"154\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "42", json: "{\n      \"diagnostics\": [],\n      \"id\": \"42\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "26", json: "{\n      \"diagnostics\": [],\n      \"id\": \"26\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "131", json: "{\n      \"diagnostics\": [],\n      \"id\": \"131\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "89", json: "{\n      \"diagnostics\": [],\n      \"id\": \"89\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "18", json: "{\n      \"diagnostics\": [],\n      \"id\": \"18\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "167", json: "{\n      \"diagnostics\": [],\n      \"id\": \"167\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "33", json: "{\n      \"diagnostics\": [],\n      \"id\": \"33\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "19", json: "{\n      \"diagnostics\": [],\n      \"id\": \"19\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "47", json: "{\n      \"diagnostics\": [],\n      \"id\": \"47\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "146", json: "{\n      \"diagnostics\": [],\n      \"id\": \"146\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "83", json: "{\n      \"diagnostics\": [],\n      \"id\": \"83\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "55", json: "{\n      \"diagnostics\": [],\n      \"id\": \"55\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "88", json: "{\n      \"diagnostics\": [],\n      \"id\": \"88\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "78", json: "{\n      \"diagnostics\": [],\n      \"id\": \"78\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "73", json: "{\n      \"diagnostics\": [],\n      \"id\": \"73\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "143", json: "{\n      \"diagnostics\": [],\n      \"id\": \"143\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "97", json: "{\n      \"diagnostics\": [],\n      \"id\": \"97\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "98", json: "{\n      \"diagnostics\": [],\n      \"id\": \"98\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "77", json: "{\n      \"diagnostics\": [],\n      \"id\": \"77\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "156", json: "{\n      \"diagnostics\": [],\n      \"id\": \"156\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "129", json: "{\n      \"diagnostics\": [],\n      \"id\": \"129\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "57", json: "{\n      \"diagnostics\": [],\n      \"id\": \"57\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "175", json: "{\n      \"diagnostics\": [],\n      \"id\": \"175\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "150", json: "{\n      \"diagnostics\": [],\n      \"id\": \"150\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "184", json: "{\n      \"diagnostics\": [],\n      \"id\": \"184\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "186", json: "{\n      \"diagnostics\": [],\n      \"id\": \"186\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "180", json: "{\n      \"diagnostics\": [],\n      \"id\": \"180\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "30", json: "{\n      \"diagnostics\": [],\n      \"id\": \"30\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "168", json: "{\n      \"diagnostics\": [],\n      \"id\": \"168\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "65", json: "{\n      \"diagnostics\": [],\n      \"id\": \"65\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "66", json: "{\n      \"diagnostics\": [],\n      \"id\": \"66\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "128", json: "{\n      \"diagnostics\": [],\n      \"id\": \"128\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "11", json: "{\n      \"diagnostics\": [],\n      \"id\": \"11\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "161", json: "{\n      \"diagnostics\": [],\n      \"id\": \"161\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "122", json: "{\n      \"diagnostics\": [],\n      \"id\": \"122\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "36", json: "{\n      \"diagnostics\": [],\n      \"id\": \"36\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "171", json: "{\n      \"diagnostics\": [],\n      \"id\": \"171\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "56", json: "{\n      \"diagnostics\": [],\n      \"id\": \"56\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "115", json: "{\n      \"diagnostics\": [],\n      \"id\": \"115\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "169", json: "{\n      \"diagnostics\": [],\n      \"id\": \"169\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "159", json: "{\n      \"diagnostics\": [],\n      \"id\": \"159\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "38", json: "{\n      \"diagnostics\": [],\n      \"id\": \"38\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "69", json: "{\n      \"diagnostics\": [],\n      \"id\": \"69\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "139", json: "{\n      \"diagnostics\": [],\n      \"id\": \"139\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "152", json: "{\n      \"diagnostics\": [],\n      \"id\": \"152\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "4", json: "{\n      \"diagnostics\": [],\n      \"id\": \"4\",\n      "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "10", json: "{\n      \"diagnostics\": [],\n      \"id\": \"10\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "6", json: "{\n      \"diagnostics\": [],\n      \"id\": \"6\",\n      "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "165", json: "{\n      \"diagnostics\": [],\n      \"id\": \"165\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "31", json: "{\n      \"diagnostics\": [],\n      \"id\": \"31\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "114", json: "{\n      \"diagnostics\": [],\n      \"id\": \"114\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "62", json: "{\n      \"diagnostics\": [],\n      \"id\": \"62\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "50", json: "{\n      \"diagnostics\": [],\n      \"id\": \"50\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "137", json: "{\n      \"diagnostics\": [],\n      \"id\": \"137\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "110", json: "{\n      \"diagnostics\": [],\n      \"id\": \"110\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "34", json: "{\n      \"diagnostics\": [],\n      \"id\": \"34\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "181", json: "{\n      \"diagnostics\": [],\n      \"id\": \"181\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "116", json: "{\n      \"diagnostics\": [],\n      \"id\": \"116\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "2", json: "{\n      \"diagnostics\": [],\n      \"id\": \"2\",\n      "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "80", json: "{\n      \"diagnostics\": [],\n      \"id\": \"80\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "21", json: "{\n      \"diagnostics\": [],\n      \"id\": \"21\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "147", json: "{\n      \"diagnostics\": [],\n      \"id\": \"147\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "29", json: "{\n      \"diagnostics\": [],\n      \"id\": \"29\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "155", json: "{\n      \"diagnostics\": [],\n      \"id\": \"155\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "153", json: "{\n      \"diagnostics\": [],\n      \"id\": \"153\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "102", json: "{\n      \"diagnostics\": [],\n      \"id\": \"102\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "28", json: "{\n      \"diagnostics\": [],\n      \"id\": \"28\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "166", json: "{\n      \"diagnostics\": [],\n      \"id\": \"166\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "126", json: "{\n      \"diagnostics\": [],\n      \"id\": \"126\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "125", json: "{\n      \"diagnostics\": [],\n      \"id\": \"125\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "74", json: "{\n      \"diagnostics\": [],\n      \"id\": \"74\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "151", json: "{\n      \"diagnostics\": [],\n      \"id\": \"151\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "138", json: "{\n      \"diagnostics\": [],\n      \"id\": \"138\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "93", json: "{\n      \"diagnostics\": [],\n      \"id\": \"93\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "76", json: "{\n      \"diagnostics\": [],\n      \"id\": \"76\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "87", json: "{\n      \"diagnostics\": [],\n      \"id\": \"87\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "45", json: "{\n      \"diagnostics\": [],\n      \"id\": \"45\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "158", json: "{\n      \"diagnostics\": [],\n      \"id\": \"158\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "20", json: "{\n      \"diagnostics\": [],\n      \"id\": \"20\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "64", json: "{\n      \"diagnostics\": [],\n      \"id\": \"64\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "16", json: "{\n      \"diagnostics\": [],\n      \"id\": \"16\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "54", json: "{\n      \"diagnostics\": [],\n      \"id\": \"54\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "105", json: "{\n      \"diagnostics\": [],\n      \"id\": \"105\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "1", json: "{\n      \"diagnostics\": [],\n      \"id\": \"1\",\n      "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "15", json: "{\n      \"diagnostics\": [],\n      \"id\": \"15\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "22", json: "{\n      \"diagnostics\": [],\n      \"id\": \"22\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "17", json: "{\n      \"diagnostics\": [],\n      \"id\": \"17\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "104", json: "{\n      \"diagnostics\": [],\n      \"id\": \"104\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "70", json: "{\n      \"diagnostics\": [],\n      \"id\": \"70\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "25", json: "{\n      \"diagnostics\": [],\n      \"id\": \"25\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "81", json: "{\n      \"diagnostics\": [],\n      \"id\": \"81\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "46", json: "{\n      \"diagnostics\": [],\n      \"id\": \"46\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "37", json: "{\n      \"diagnostics\": [],\n      \"id\": \"37\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "188", json: "{\n      \"diagnostics\": [],\n      \"id\": \"188\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "95", json: "{\n      \"diagnostics\": [],\n      \"id\": \"95\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "183", json: "{\n      \"diagnostics\": [],\n      \"id\": \"183\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "12", json: "{\n      \"diagnostics\": [],\n      \"id\": \"12\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "113", json: "{\n      \"diagnostics\": [],\n      \"id\": \"113\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "86", json: "{\n      \"diagnostics\": [],\n      \"id\": \"86\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "123", json: "{\n      \"diagnostics\": [],\n      \"id\": \"123\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "130", json: "{\n      \"diagnostics\": [],\n      \"id\": \"130\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "160", json: "{\n      \"diagnostics\": [],\n      \"id\": \"160\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "48", json: "{\n      \"diagnostics\": [],\n      \"id\": \"48\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "79", json: "{\n      \"diagnostics\": [],\n      \"id\": \"79\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "58", json: "{\n      \"diagnostics\": [],\n      \"id\": \"58\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "14", json: "{\n      \"diagnostics\": [],\n      \"id\": \"14\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "170", json: "{\n      \"diagnostics\": [],\n      \"id\": \"170\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "43", json: "{\n      \"diagnostics\": [],\n      \"id\": \"43\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "85", json: "{\n      \"diagnostics\": [],\n      \"id\": \"85\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "82", json: "{\n      \"diagnostics\": [],\n      \"id\": \"82\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "24", json: "{\n      \"diagnostics\": [],\n      \"id\": \"24\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "109", json: "{\n      \"diagnostics\": [],\n      \"id\": \"109\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "117", json: "{\n      \"diagnostics\": [],\n      \"id\": \"117\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "127", json: "{\n      \"diagnostics\": [],\n      \"id\": \"127\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "108", json: "{\n      \"diagnostics\": [],\n      \"id\": \"108\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "23", json: "{\n      \"diagnostics\": [],\n      \"id\": \"23\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "0", json: "{\n      \"diagnostics\": [],\n      \"id\": \"0\",\n      "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "145", json: "{\n      \"diagnostics\": [],\n      \"id\": \"145\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "164", json: "{\n      \"diagnostics\": [],\n      \"id\": \"164\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "107", json: "{\n      \"diagnostics\": [],\n      \"id\": \"107\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "49", json: "{\n      \"diagnostics\": [],\n      \"id\": \"49\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "41", json: "{\n      \"diagnostics\": [],\n      \"id\": \"41\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "8", json: "{\n      \"diagnostics\": [],\n      \"id\": \"8\",\n      "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "157", json: "{\n      \"diagnostics\": [],\n      \"id\": \"157\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "75", json: "{\n      \"diagnostics\": [],\n      \"id\": \"75\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "53", json: "{\n      \"diagnostics\": [],\n      \"id\": \"53\",\n     "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(id: "112", json: "{\n      \"diagnostics\": [],\n      \"id\": \"112\",\n    "···) (0ms)
+  Xunit.MicrosoftTestingPlatform.XunitException: System.NotImplementedException : The method or operation is not implemented.
+    at Tscs.JsonConfigValues.Convert(JsonSyntaxNode node) in /workspace/scratch/daf3e6c2e318/tscs/src/Tscs.Compiler/JsonConfigValues.cs:6
+    at Tscs.Tests.ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/ConfigValueTests.cs:13
+    at InvokeStub_ConfigValueTests.ConvertsSupportedAstLikeActualPinnedConvertToObject(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Test run summary: Failed! - /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+  total: 8949
+  failed: 189
+  succeeded: 8760
+  skipped: 0
+  duration: 3s 397ms
