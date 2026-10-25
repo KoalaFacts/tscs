@@ -46,3 +46,18 @@ libfile_471260f46c7c81918324c3e18c3acbf9, with SHA256 in the evidence JSON.
 Next: bind rooted fixture maps to actual VFS construction and queries, then
 makeUnitsFromTest/config/canonical options and AST. No full acceptance promoted. SDK coordinator NOT_RUN; new commands disable telemetry; dependency restore
 uses only a local empty feed and cached packages; builds and direct MTP are separate evidence.
+
+## Independent final PR verification
+
+Whole-branch review of 976925f found one additional P2: Open validated only after
+standard parent-link traversal, allowing malformed UTF8 custom-resolved paths to
+become readable targets and linked-child entries. Four real-Go regression failures
+(plus four passing controls) preceded the one-line validation-order correction.
+Final direct MTP is 3009/3009; Node 62/62; frozen 29/29; Release 0/0; Go test/vet pass.
+Original 530/150 rows are unchanged; new totals 534/154 regenerate byte-identically.
+A separate reviewer reran its exact 4 read and 4 entry requests against the final
+assembly, plus all original 1601 exploratory inputs: zero differences. Both full
+13006-input raw/file-map profiles were independently rerun, without compiler credit.
+See [final evidence](../evidence/pr6-vfs-open-validation.json). The local SDK
+coordinator remains NOT_RUN after the Unix-pipe permission failure; no retry or
+permission change was used. Current upstream pin and release boundaries are unchanged.

@@ -31,6 +31,12 @@ add('nested-broken-shadow-file',[entry('/dir/link','/missing',true),entry('/dir/
 add('nested-broken-shadow-directory',[entry('/dir/link','/missing',true),entry('/dir/missing/child','shadow')],['/dir','/dir/link']);
 add('intermediate-file-link',[entry('/a/file','x'),entry('/z','/a/file',true),entry('/z/shadow/file','y')],['/z']);
 add('nested-intermediate-file-link',[entry('/a/file','x'),entry('/dir/z','/a/file',true),entry('/dir/z/shadow/file','y')],['/dir/z']);
+// MapFS.Open validates the custom-resolved byte path before its parent-link pass.
+// Direct children under an invalid UTF8 alias must not become readable via that pass.
+for(const [id,alias] of [['invalid-80',Buffer.from([47,128])],['invalid-ff',Buffer.from([47,255])],['valid-utf8',Buffer.from([47,194,128])],['ascii',Buffer.from('/z-alias')]]){
+ const child=Buffer.concat([alias,Buffer.from('/file')]);
+ add(`open-validation/${id}`,[entry('/real/file','target'),entry(alias,'/real',true),entry(child,'shadow'),entry('/zz-link',child,true)],[child,alias,'/real/file','/zz-link','/']);
+}
 const temp=mkdtempSync(join(tmpdir(),'tscs-state-'));
 try{
  const input=join(temp,'input.json'),result=join(temp,'output.json'),overlay=join(temp,'overlay.json');writeFileSync(input,JSON.stringify(rows));

@@ -18317,6 +18317,308 @@
       "queries": [
         "L2Rpci96"
       ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L3JlYWwvZmlsZQ==",
+          "data": "dGFyZ2V0",
+          "link": false
+        },
+        {
+          "path": "L4A=",
+          "data": "L3JlYWw=",
+          "link": true
+        },
+        {
+          "path": "L4AvZmlsZQ==",
+          "data": "c2hhZG93",
+          "link": false
+        },
+        {
+          "path": "L3p6LWxpbms=",
+          "data": "L4AvZmlsZQ==",
+          "link": true
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "directories": null,
+            "files": null,
+            "path": "L4AvZmlsZQ==",
+            "symlinks": []
+          },
+          {
+            "directories": null,
+            "files": [
+              "ZmlsZQ=="
+            ],
+            "path": "L4A=",
+            "symlinks": []
+          },
+          {
+            "directories": null,
+            "files": null,
+            "path": "L3JlYWwvZmlsZQ==",
+            "symlinks": []
+          },
+          {
+            "directories": null,
+            "files": null,
+            "path": "L3p6LWxpbms=",
+            "symlinks": []
+          },
+          {
+            "directories": [
+              "cmVhbA==",
+              "gA=="
+            ],
+            "files": null,
+            "path": "Lw==",
+            "symlinks": [
+              "gA=="
+            ]
+          }
+        ]
+      },
+      "id": "open-validation/invalid-80",
+      "queries": [
+        "L4AvZmlsZQ==",
+        "L4A=",
+        "L3JlYWwvZmlsZQ==",
+        "L3p6LWxpbms=",
+        "Lw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L3JlYWwvZmlsZQ==",
+          "data": "dGFyZ2V0",
+          "link": false
+        },
+        {
+          "path": "L/8=",
+          "data": "L3JlYWw=",
+          "link": true
+        },
+        {
+          "path": "L/8vZmlsZQ==",
+          "data": "c2hhZG93",
+          "link": false
+        },
+        {
+          "path": "L3p6LWxpbms=",
+          "data": "L/8vZmlsZQ==",
+          "link": true
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "directories": null,
+            "files": null,
+            "path": "L/8vZmlsZQ==",
+            "symlinks": []
+          },
+          {
+            "directories": null,
+            "files": [
+              "ZmlsZQ=="
+            ],
+            "path": "L/8=",
+            "symlinks": []
+          },
+          {
+            "directories": null,
+            "files": null,
+            "path": "L3JlYWwvZmlsZQ==",
+            "symlinks": []
+          },
+          {
+            "directories": null,
+            "files": null,
+            "path": "L3p6LWxpbms=",
+            "symlinks": []
+          },
+          {
+            "directories": [
+              "cmVhbA==",
+              "/w=="
+            ],
+            "files": null,
+            "path": "Lw==",
+            "symlinks": [
+              "/w=="
+            ]
+          }
+        ]
+      },
+      "id": "open-validation/invalid-ff",
+      "queries": [
+        "L/8vZmlsZQ==",
+        "L/8=",
+        "L3JlYWwvZmlsZQ==",
+        "L3p6LWxpbms=",
+        "Lw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L3JlYWwvZmlsZQ==",
+          "data": "dGFyZ2V0",
+          "link": false
+        },
+        {
+          "path": "L8KA",
+          "data": "L3JlYWw=",
+          "link": true
+        },
+        {
+          "path": "L8KAL2ZpbGU=",
+          "data": "c2hhZG93",
+          "link": false
+        },
+        {
+          "path": "L3p6LWxpbms=",
+          "data": "L8KAL2ZpbGU=",
+          "link": true
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "directories": null,
+            "files": null,
+            "path": "L8KAL2ZpbGU=",
+            "symlinks": []
+          },
+          {
+            "directories": null,
+            "files": [
+              "ZmlsZQ=="
+            ],
+            "path": "L8KA",
+            "symlinks": []
+          },
+          {
+            "directories": null,
+            "files": null,
+            "path": "L3JlYWwvZmlsZQ==",
+            "symlinks": []
+          },
+          {
+            "directories": null,
+            "files": null,
+            "path": "L3p6LWxpbms=",
+            "symlinks": []
+          },
+          {
+            "directories": [
+              "cmVhbA==",
+              "woA="
+            ],
+            "files": [
+              "enotbGluaw=="
+            ],
+            "path": "Lw==",
+            "symlinks": [
+              "enotbGluaw==",
+              "woA="
+            ]
+          }
+        ]
+      },
+      "id": "open-validation/valid-utf8",
+      "queries": [
+        "L8KAL2ZpbGU=",
+        "L8KA",
+        "L3JlYWwvZmlsZQ==",
+        "L3p6LWxpbms=",
+        "Lw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L3JlYWwvZmlsZQ==",
+          "data": "dGFyZ2V0",
+          "link": false
+        },
+        {
+          "path": "L3otYWxpYXM=",
+          "data": "L3JlYWw=",
+          "link": true
+        },
+        {
+          "path": "L3otYWxpYXMvZmlsZQ==",
+          "data": "c2hhZG93",
+          "link": false
+        },
+        {
+          "path": "L3p6LWxpbms=",
+          "data": "L3otYWxpYXMvZmlsZQ==",
+          "link": true
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "directories": null,
+            "files": null,
+            "path": "L3otYWxpYXMvZmlsZQ==",
+            "symlinks": []
+          },
+          {
+            "directories": null,
+            "files": [
+              "ZmlsZQ=="
+            ],
+            "path": "L3otYWxpYXM=",
+            "symlinks": []
+          },
+          {
+            "directories": null,
+            "files": null,
+            "path": "L3JlYWwvZmlsZQ==",
+            "symlinks": []
+          },
+          {
+            "directories": null,
+            "files": null,
+            "path": "L3p6LWxpbms=",
+            "symlinks": []
+          },
+          {
+            "directories": [
+              "cmVhbA==",
+              "ei1hbGlhcw=="
+            ],
+            "files": [
+              "enotbGluaw=="
+            ],
+            "path": "Lw==",
+            "symlinks": [
+              "ei1hbGlhcw==",
+              "enotbGluaw=="
+            ]
+          }
+        ]
+      },
+      "id": "open-validation/ascii",
+      "queries": [
+        "L3otYWxpYXMvZmlsZQ==",
+        "L3otYWxpYXM=",
+        "L3JlYWwvZmlsZQ==",
+        "L3p6LWxpbms=",
+        "Lw=="
+      ]
     }
   ]
 }

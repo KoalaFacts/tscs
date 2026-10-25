@@ -4314,6 +4314,314 @@
       "queries": [
         "L2Rpci96"
       ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L3JlYWwvZmlsZQ==",
+          "data": "dGFyZ2V0",
+          "link": false
+        },
+        {
+          "path": "L4A=",
+          "data": "L3JlYWw=",
+          "link": true
+        },
+        {
+          "path": "L4AvZmlsZQ==",
+          "data": "c2hhZG93",
+          "link": false
+        },
+        {
+          "path": "L3p6LWxpbms=",
+          "data": "L4AvZmlsZQ==",
+          "link": true
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L4AvZmlsZQ==",
+            "readOk": false,
+            "realpath": "L4AvZmlsZQ=="
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "L4A=",
+            "readOk": false,
+            "realpath": "L3JlYWw="
+          },
+          {
+            "content": "dGFyZ2V0",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L3JlYWwvZmlsZQ==",
+            "readOk": true,
+            "realpath": "L3JlYWwvZmlsZQ=="
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L3p6LWxpbms=",
+            "readOk": false,
+            "realpath": "L4AvZmlsZQ=="
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "Lw==",
+            "readOk": false,
+            "realpath": "Lw=="
+          }
+        ]
+      },
+      "id": "open-validation/invalid-80",
+      "queries": [
+        "L4AvZmlsZQ==",
+        "L4A=",
+        "L3JlYWwvZmlsZQ==",
+        "L3p6LWxpbms=",
+        "Lw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L3JlYWwvZmlsZQ==",
+          "data": "dGFyZ2V0",
+          "link": false
+        },
+        {
+          "path": "L/8=",
+          "data": "L3JlYWw=",
+          "link": true
+        },
+        {
+          "path": "L/8vZmlsZQ==",
+          "data": "c2hhZG93",
+          "link": false
+        },
+        {
+          "path": "L3p6LWxpbms=",
+          "data": "L/8vZmlsZQ==",
+          "link": true
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L/8vZmlsZQ==",
+            "readOk": false,
+            "realpath": "L/8vZmlsZQ=="
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "L/8=",
+            "readOk": false,
+            "realpath": "L3JlYWw="
+          },
+          {
+            "content": "dGFyZ2V0",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L3JlYWwvZmlsZQ==",
+            "readOk": true,
+            "realpath": "L3JlYWwvZmlsZQ=="
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L3p6LWxpbms=",
+            "readOk": false,
+            "realpath": "L/8vZmlsZQ=="
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "Lw==",
+            "readOk": false,
+            "realpath": "Lw=="
+          }
+        ]
+      },
+      "id": "open-validation/invalid-ff",
+      "queries": [
+        "L/8vZmlsZQ==",
+        "L/8=",
+        "L3JlYWwvZmlsZQ==",
+        "L3p6LWxpbms=",
+        "Lw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L3JlYWwvZmlsZQ==",
+          "data": "dGFyZ2V0",
+          "link": false
+        },
+        {
+          "path": "L8KA",
+          "data": "L3JlYWw=",
+          "link": true
+        },
+        {
+          "path": "L8KAL2ZpbGU=",
+          "data": "c2hhZG93",
+          "link": false
+        },
+        {
+          "path": "L3p6LWxpbms=",
+          "data": "L8KAL2ZpbGU=",
+          "link": true
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "dGFyZ2V0",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L8KAL2ZpbGU=",
+            "readOk": true,
+            "realpath": "L8KAL2ZpbGU="
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "L8KA",
+            "readOk": false,
+            "realpath": "L3JlYWw="
+          },
+          {
+            "content": "dGFyZ2V0",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L3JlYWwvZmlsZQ==",
+            "readOk": true,
+            "realpath": "L3JlYWwvZmlsZQ=="
+          },
+          {
+            "content": "dGFyZ2V0",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L3p6LWxpbms=",
+            "readOk": true,
+            "realpath": "L8KAL2ZpbGU="
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "Lw==",
+            "readOk": false,
+            "realpath": "Lw=="
+          }
+        ]
+      },
+      "id": "open-validation/valid-utf8",
+      "queries": [
+        "L8KAL2ZpbGU=",
+        "L8KA",
+        "L3JlYWwvZmlsZQ==",
+        "L3p6LWxpbms=",
+        "Lw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L3JlYWwvZmlsZQ==",
+          "data": "dGFyZ2V0",
+          "link": false
+        },
+        {
+          "path": "L3otYWxpYXM=",
+          "data": "L3JlYWw=",
+          "link": true
+        },
+        {
+          "path": "L3otYWxpYXMvZmlsZQ==",
+          "data": "c2hhZG93",
+          "link": false
+        },
+        {
+          "path": "L3p6LWxpbms=",
+          "data": "L3otYWxpYXMvZmlsZQ==",
+          "link": true
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "dGFyZ2V0",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L3otYWxpYXMvZmlsZQ==",
+            "readOk": true,
+            "realpath": "L3otYWxpYXMvZmlsZQ=="
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "L3otYWxpYXM=",
+            "readOk": false,
+            "realpath": "L3JlYWw="
+          },
+          {
+            "content": "dGFyZ2V0",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L3JlYWwvZmlsZQ==",
+            "readOk": true,
+            "realpath": "L3JlYWwvZmlsZQ=="
+          },
+          {
+            "content": "dGFyZ2V0",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L3p6LWxpbms=",
+            "readOk": true,
+            "realpath": "L3otYWxpYXMvZmlsZQ=="
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "Lw==",
+            "readOk": false,
+            "realpath": "Lw=="
+          }
+        ]
+      },
+      "id": "open-validation/ascii",
+      "queries": [
+        "L3otYWxpYXMvZmlsZQ==",
+        "L3otYWxpYXM=",
+        "L3JlYWwvZmlsZQ==",
+        "L3p6LWxpbms=",
+        "Lw=="
+      ]
     }
   ]
 }

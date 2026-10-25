@@ -102,7 +102,9 @@ public static class FixtureVfs
    // Upstream Open keeps cp even when getFollowingSymlinks returns an error.
    // Reusing the alias would follow the stripped absolute target as relative.
    Resolve(open,new(StringComparer.Ordinal),out _,out string resolved);
-   return StandardResolve(resolved,new(StringComparer.Ordinal));
+   // fstest.MapFS.Open rejects invalid cp before following parent symlinks.
+   // A second pass must not turn a malformed byte path into a valid target.
+   return Valid(resolved)?StandardResolve(resolved,new(StringComparer.Ordinal)):resolved;
   }
   private int Kind(byte[] path)
   {
