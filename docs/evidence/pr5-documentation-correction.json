@@ -1,0 +1,123 @@
+{
+  "date": "2026-10-25",
+  "baseCommit": "1d6ebec99da14e6f230e61b5a999703eb0e8d7bc",
+  "scope": "PR5 P2 documentation correction only; runtime/tools/test data unchanged",
+  "correctedSourceHashes": {
+    "docs/progress/native-typescript-tools.md": "2312956bb481080bcf7e27f0dabcbac5632f95f41e112ae20de30e83b577673c",
+    "docs/STATUS.md": "5f69ef687081a83f1e16b560e52d35d2fc2f63bdb441d57245c9809fb6b89b61"
+  },
+  "independentReview": "No findings on the corrected two-document scope; no formal GitHub approval claimed",
+  "toolchain": {
+    "dotnetSdk": "10.0.402",
+    "node": "24.22.1",
+    "go": "1.27.3",
+    "xunit": "4.0.2",
+    "mtp": "2.5.1"
+  },
+  "validation": {
+    "ReleaseWarnings": 0,
+    "ReleaseErrors": 0,
+    "directMtp": {
+      "passed": 60,
+      "total": 60,
+      "skipped": 0
+    },
+    "Node": {
+      "passed": 54,
+      "total": 54,
+      "skipped": 0
+    },
+    "frozen": {
+      "passed": 29,
+      "total": 29
+    },
+    "goTest": "PASS",
+    "goVet": "PASS",
+    "inventoryPayloads": 8,
+    "inventoryRepeatByteEqual": true,
+    "inventorySummaryMatchesRecordedByteForByte": true,
+    "inventorySummarySha256": "4d6ac90f47e17dbd6031787c338be1fe0bd7703e6b65cc610815601c4c9d6922",
+    "SDKCoordinator": "NOT_RUN this doc correction; previous Unix-pipe limitation unchanged"
+  },
+  "privacyControls": {
+    "dotnet": "DOTNET_CLI_TELEMETRY_OPTOUT=1; restore used clear-only local empty feed, locked mode and NuGetAudit=false; build --no-restore",
+    "go": "Isolated XDG_CONFIG_HOME telemetry/mode=off, verified go env GOTELEMETRY=off; GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local",
+    "sources": [
+      "https://learn.microsoft.com/dotnet/core/tools/telemetry",
+      "https://go.dev/doc/telemetry"
+    ]
+  },
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "inventory": {
+    "assets": 67951,
+    "fixtures": 13006,
+    "transpileFixtures": 25,
+    "transpileConfigurations": 28,
+    "fixtureConfigurationAcceptanceNotRun": 13034
+  },
+  "compiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "releaseEligible": false,
+  "rawValidationLogs": {
+    "uri": "https://chatgpt.com/library?file_id=libfile_b837393695408191bce7d849a5111dce&account_id=personal",
+    "archiveSha256": "bddd1d24a7955fef1659679acad6a3952342a8e95942b806db178a907f62119f",
+    "files": {
+      "tscs-pr5-doc-mtp.log": "dca8c344f7ae6a8a17c60a7aa14494c0862cf318b36776d611be39f034df4c97",
+      "tscs-pr5-doc-vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tscs-pr5-doc-inventory-repeat.log": "9aabcf435242ca9beddbf75b96475adea3e05f693a87dcb7ec9555da678c180e",
+      "tscs-pr5-doc-restore.log": "6cc2137a7548a1fc0c113e522bfda18c60f422d1dd2dbee143d3b148cbcb2e15",
+      "tscs-pr5-doc-frozen.log": "441c7bad381ac65cb1890aaf8424ec7b8999b55ef7574e9836a3516c151bc4b9",
+      "tscs-pr5-doc-node.log": "128e7d089b975111bd3d3585b7fec08c6f7711a3cdcf8b6243b056d9c94e7b2c",
+      "tscs-pr5-doc-inventory.log": "9aabcf435242ca9beddbf75b96475adea3e05f693a87dcb7ec9555da678c180e",
+      "tscs-pr5-doc-build.log": "f6ce31076e93b4f806649bc0e4fa1f455f4a2318c056b58a1259c1030fc87b33",
+      "tscs-pr5-doc-go.log": "154d7457c3cb4c8cb9070f4ba934047eaa0a80b6cb3ba88d8fc860b66d1f4e4f"
+    }
+  },
+  "testedRuntimeInputs": {
+    "Directory.Build.props": "13732ce9bcf14f2065948951e50572ef87f93d1d4c6726ce1b71b8efd1bbb92d",
+    "Tscs.slnx": "9545b7aad283aabc2a99bc74ef5143618e7d9ea1e3d492b5937a9e925472e1ed",
+    "global.json": "6cac8ed8559756539f2db0e8cbf6d545ccc81d3d4b1ebbfcf3ee204d218847b4",
+    "scripts/build-oracle.sh": "fd819db85e9b5ea702e27bbad6f4e6822b8ca42d7bc80208bb1a54f9f40e375d",
+    "scripts/verify.sh": "7c58b3265807b4946ff43b59ffb8b052b43d07d1bdeebe3a1177677118fbf114",
+    "src/Tscs.Cli/CommandLine.cs": "557e7913117dc7d2bf5b401abe57bfda16e6e4ddc324677426da86a02e7615de",
+    "src/Tscs.Cli/Options.cs": "a15963626d507ba037948d0e63545a394545f2291c9fb50c09e01d13f53d327d",
+    "src/Tscs.Cli/Program.cs": "c4fa5bf861163eed73409d362d0dc8323c98cf07d87aa85d2c72b3029072f7f5",
+    "src/Tscs.Cli/Tscs.Cli.csproj": "6395cb972484f2adf1821e6a136cd6710eafe2541898339c73d44a5d7c8d6e74",
+    "src/Tscs.Cli/packages.lock.json": "43c993d9ad3c87c8f5615e774d4c48a92d6550a4524826c8f9ff88634794c953",
+    "src/Tscs.Compiler/Binder.cs": "1d2b85fbe143e7c62c667760ba7e48b71b3592a41f3d2373c9a63a47cb14ade8",
+    "src/Tscs.Compiler/Compilation.cs": "b4558aaa2b509212435ac69a8d37d4dc80f1ac26318637c13dfc8528dcdc3446",
+    "src/Tscs.Compiler/Diagnostic.cs": "c89a1b1510322b8a6df53c32b3339eba3d7fe444004e7df5f43d799e34124897",
+    "src/Tscs.Compiler/Parser.cs": "cd9455ba8ed0708726669c2ca2637e1d06e026a8f72e837659535abadaad5aa7",
+    "src/Tscs.Compiler/Scanner.cs": "63c96afe6107cc2a7ca5c518562ade301acb5f138d36b4900925e380d4fa26fb",
+    "src/Tscs.Compiler/Syntax.cs": "c549434fb27880afb7d08320edca8f17d01d20f93d49e31d57f73f5a48b558d1",
+    "src/Tscs.Compiler/Tscs.Compiler.csproj": "8d654c44b7bebb6b31a9f2f606927f45b5072193adc4eef8cce3f3cf3b278df3",
+    "src/Tscs.Compiler/TypeChecker.cs": "6464f851e824e26219e288d82d6d761642f9aea352e915834057a408e9936df7",
+    "src/Tscs.Compiler/packages.lock.json": "a29c6aa8cfb81874ff8bb78dc369d7416f28c9b8cc47e99592bfc019b20c41eb",
+    "tests/Tscs.Compiler.Tests/AssemblyInfo.cs": "a29cc75b7a0f7222352a519b15c2f7973d61e52995d95d3200ae1599800f14c7",
+    "tests/Tscs.Compiler.Tests/CommandLineTests.cs": "34e362cc480acc5f77e5c647baae21ea5de8e74a908d7d1fd09d0be9e7a6fa0a",
+    "tests/Tscs.Compiler.Tests/CompilationTests.cs": "370564cd2b7b5d58c38b16b2d51152249dc3e9140d5dadc85d85e3a879219755",
+    "tests/Tscs.Compiler.Tests/Tscs.Compiler.Tests.csproj": "05114466208e831d6f58d482c00f77b10a4cabd0fcee8f5247771cf89456120a",
+    "tests/Tscs.Compiler.Tests/packages.lock.json": "7d87cad7d35d0c3a1b76a8fe3fb2ef7c052809ad248dcda044cab2876f701706",
+    "tests/conformance/expected.json": "f71fafc10ae05e26a4906f0ad6e36a03875469629cb87791bac96a36011ba97b",
+    "tests/conformance/inventory-summary.json": "9f83056d7f9886f74b164f0bf5c24db318a271843057d78d8cbb8423599b6b31",
+    "tests/conformance/manifest.json": "7d7c5b25da926b5d83343c5270dd007d61b9b0b3e6af2e21e69cdb05461043cf",
+    "tools/check-oracle.ts": "ab60bbf16e92ecd34b16480781d0019904ce99c99cab04ba4e10e23a44d2c7f2",
+    "tools/conformance.test.ts": "0802859454763fc714fce12abe28f113bd2b1237cdd5a8d682236ef480dc57df",
+    "tools/conformance.ts": "0863472d42a71698242b3c69069f7ec11d217dd9eb8c511a7a04bf436a6ecf64",
+    "tools/evidence.test.ts": "8ba8e9051085d097844de05ce5bb5a1ad5a2c621f41944bdf9f2ccb12fd73cdf",
+    "tools/inventory-ts7.test.ts": "d315316d37661ad62738e119bc7666c0bef28716e6622778df8d0e69e6cbe28b",
+    "tools/inventory-ts7.ts": "8592eb1a9d355799dc338059273d417d0e7ceef60786c8f53cd2820c510bb54e",
+    "tools/inventory.ts": "f183a30c9d0feee84e4ed9f43f0e42804aeae96a196e956ad6497ef2a20e058c",
+    "tools/native-typescript.test.ts": "1762766c4628c5a5332577cc8abe40553f7d6f053bf34ab7af09c6a7ffde0c43",
+    "tools/oracle/main.go": "96aeaa446702627bc0eb547b38f09db6fbb1b96bd1b108eae416437a3a5ba55b",
+    "tools/scope-go/main.go": "f895879be07d565d64b748f916e1555e28edd9be28a36db66e9b0c05206c3629",
+    "tools/scope-go/main_test.go": "409b843dfc245799dfd617bf0d9c23cb9e2ca9614e61163aa33b94145bc79c8e",
+    "tools/ts7-configurations.test.ts": "09f50e8b3b32fae2f95e3ea9921dfcc9c30f2f8c6fcd76424a60b9d1eb967de6",
+    "tools/ts7-configurations.ts": "083206568994f11316c4c7d566ff27e591300f401f85d4c5390e9db95e47d893",
+    "tools/ts7-evidence.test.ts": "7146a8dd58893d356660a7f2d85cbe6d88a7c6c814980755de4f7ac049d0d1f5",
+    "tools/ts7-scope.test.ts": "d11a3440f9e4993cfe3fa77bdbc2f4377ddad1535135555105b58f1d15a7d212",
+    "tools/ts7-scope.ts": "38899954e2e857391dd8ad827a2e19aeb4719b1f27bb6e31826b49e2acfafb6d",
+    "tools/verify-conformance.ts": "4fb862a2e0479ccd09cb5fe0db7713566315a1076513d499fb05abf1e6673f9f",
+    "upstream.lock.json": "10a729f8b1e5674995cec0346a31f3642788901070a1c343084efcffd2080b2e"
+  }
+}

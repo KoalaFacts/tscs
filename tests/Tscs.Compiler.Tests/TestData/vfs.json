@@ -4182,6 +4182,138 @@
       "queries": [
         "L2IveA=="
       ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Rpci9saW5r",
+          "data": "L21pc3Npbmc=",
+          "link": true
+        },
+        {
+          "path": "L2Rpci9taXNzaW5n",
+          "data": "c2hhZG93",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "L2Rpcg==",
+            "readOk": false,
+            "realpath": "L2Rpcg=="
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Rpci9saW5r",
+            "readOk": false,
+            "realpath": "L2Rpci9saW5r"
+          }
+        ]
+      },
+      "id": "nested-broken-shadow-file",
+      "queries": [
+        "L2Rpcg==",
+        "L2Rpci9saW5r"
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Rpci9saW5r",
+          "data": "L21pc3Npbmc=",
+          "link": true
+        },
+        {
+          "path": "L2Rpci9taXNzaW5nL2NoaWxk",
+          "data": "c2hhZG93",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "L2Rpcg==",
+            "readOk": false,
+            "realpath": "L2Rpcg=="
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Rpci9saW5r",
+            "readOk": false,
+            "realpath": "L2Rpci9saW5r"
+          }
+        ]
+      },
+      "id": "nested-broken-shadow-directory",
+      "queries": [
+        "L2Rpcg==",
+        "L2Rpci9saW5r"
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvZmlsZQ==",
+          "data": "eA==",
+          "link": false
+        },
+        {
+          "path": "L3o=",
+          "data": "L2EvZmlsZQ==",
+          "link": true
+        },
+        {
+          "path": "L3ovc2hhZG93L2ZpbGU=",
+          "data": "eQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": "failed to create intermediate directories for \"z/shadow/file\": mkdir \"a/file\": path exists but is not a directory"
+      },
+      "id": "intermediate-file-link",
+      "queries": [
+        "L3o="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvZmlsZQ==",
+          "data": "eA==",
+          "link": false
+        },
+        {
+          "path": "L2Rpci96",
+          "data": "L2EvZmlsZQ==",
+          "link": true
+        },
+        {
+          "path": "L2Rpci96L3NoYWRvdy9maWxl",
+          "data": "eQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": "failed to create intermediate directories for \"dir/z/shadow/file\": mkdir \"a/file\": path exists but is not a directory"
+      },
+      "id": "nested-intermediate-file-link",
+      "queries": [
+        "L2Rpci96"
+      ]
     }
   ]
 }

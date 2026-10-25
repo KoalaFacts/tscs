@@ -51,6 +51,12 @@ archive of it with the summary/checksums when recording an acceptance run.
 
 ## What each ledger means
 
+[VFS entries progress](vfs-entries-progress.json) records a separate case-sensitive
+boundary:530 actual-Go golden rows and a1601-case synthetic exploratory profile,
+with150 read-operation rows retaining the prior146 inputs/expectations. These
+results do not run original compiler fixtures or complete VFS/configuration
+profiles. See [evidence](../../evidence/vfs-entries.json).
+
 The separate [loading progress](loading-progress.json) now records a complete
 raw-source loading profile:13006 inputs/17804 virtual units independently matched
 to actual pinned Go, including all42 upstream-skipped sources. It does not alter

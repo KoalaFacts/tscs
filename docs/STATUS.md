@@ -3,6 +3,26 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Accessible VFS entries — 2026-10-25
+
+- Added case-sensitive directory enumeration with byte-preserved names, sorted
+  files/directories, nil slices and linked-child classification; broken links are
+  omitted. Actual pinned Go supplies530 complete input/output goldens.
+- Independent review exposed a broken-target fallback that could read an unrelated
+  nested file. Four actual-Go regressions reproduced it in reads and entries;
+  preserving the terminal unresolved path fixes both. The review's41 constructor
+  error-text differences reduce to intermediate requested/resolved path selection;
+  four more failing regressions now match. Existing146 read vectors are unchanged,
+  with four additions bringing that boundary to150.
+- Direct MTP3001/3001, Node62/62, frozen29/29, Release zero warnings/errors.
+  Repeated530/150 Go artifacts are byte-identical. The initial exploratory1601
+  profile had91 mismatches; author reruns after fixes matched1601/1601. This is a
+  separate synthetic profile, not a second independent review or original corpus.
+- [Evidence](evidence/vfs-entries.json), [progress](testing/ts7/vfs-entries-progress.json).
+  Product CLI/FixtureProtocol wiring, case folding, mutations, cycles/deep/ambiguous
+  links, full constructor/path families, full fixture VFS/config and compiler
+  acceptance remain unresolved or NOT_RUN. No full-release credit is added.
+
 ## Read-only VFS boundary — 2026-10-25
 
 - Added a case-sensitive in-memory snapshot for entry creation, implicit parents,

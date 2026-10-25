@@ -27,6 +27,10 @@ add('invalid-target',[entry('/alias',Buffer.from([47,128]),true),entry(Buffer.fr
 add('invalid-alias',[entry(Buffer.from([47,128]),'/target',true),entry('/target','x')],[Buffer.from([47,128])]);
 add('relative-query',[entry('/a','x')],['a']);
 add('file-link-parent',[entry('/a','x'),entry('/b','/a',true),entry('/b/x','y')],['/b/x']);
+add('nested-broken-shadow-file',[entry('/dir/link','/missing',true),entry('/dir/missing','shadow')],['/dir','/dir/link']);
+add('nested-broken-shadow-directory',[entry('/dir/link','/missing',true),entry('/dir/missing/child','shadow')],['/dir','/dir/link']);
+add('intermediate-file-link',[entry('/a/file','x'),entry('/z','/a/file',true),entry('/z/shadow/file','y')],['/z']);
+add('nested-intermediate-file-link',[entry('/a/file','x'),entry('/dir/z','/a/file',true),entry('/dir/z/shadow/file','y')],['/dir/z']);
 const temp=mkdtempSync(join(tmpdir(),'tscs-state-'));
 try{
  const input=join(temp,'input.json'),result=join(temp,'output.json'),overlay=join(temp,'overlay.json');writeFileSync(input,JSON.stringify(rows));
