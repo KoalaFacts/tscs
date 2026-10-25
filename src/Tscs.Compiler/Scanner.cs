@@ -88,6 +88,18 @@ internal sealed class Scanner(string file, string text)
         char escaped=text[position++];
         switch(escaped)
         {
+            case '0' when position==text.Length || text[position] is < '0' or > '9':return "\0";
+            case >= '0' and <= '7':
+                int limit=escaped<='3'?3:2;
+                while(position<text.Length && position-start-1<limit && text[position] is >= '0' and <= '7')position++;
+                int octal=Convert.ToInt32(text[(start+1)..position],8);
+                flags|=StringTokenFlags.ContainsInvalidEscape;
+                Report("TS1487",$"Octal escape sequences are not allowed. Use the syntax '\\x{octal.ToString("x2",CultureInfo.InvariantCulture)}'.",start,position-start);
+                return ((char)octal).ToString();
+            case '8':case '9':
+                flags|=StringTokenFlags.ContainsInvalidEscape;
+                Report("TS1488",$"Escape sequence '{text[start..position]}' is not allowed.",start,position-start);
+                return escaped.ToString();
             case 'b':return "\b";
             case 't':return "\t";
             case 'n':return "\n";
@@ -129,7 +141,12 @@ internal sealed class Scanner(string file, string text)
                 else if(escaped=='x')flags|=StringTokenFlags.HexEscape;
                 // UTF16 storage preserves lone surrogates and mixed escaped pairs.
                 return codePoint<=0xFFFF?((char)codePoint).ToString():char.ConvertFromUtf32(codePoint);
-            default:throw Error(new(TokenKind.Unsupported,"\\",start,1),"TSCS1001","This string escape is not supported yet.");
+            default:
+                // Identity escapes consume a whole source character. Preserve
+                // supplementary UTF16 pairs instead of replacing either half.
+                if(char.IsHighSurrogate(escaped) && position<text.Length && char.IsLowSurrogate(text[position]))
+                {position++;return text[(position-2)..position];}
+                return escaped.ToString();
         }
     }
     private static int HexDigit(char c)=>c is >= '0' and <= '9'?c-'0':c is >= 'a' and <= 'f'?c-'a'+10:c is >= 'A' and <= 'F'?c-'A'+10:-1;

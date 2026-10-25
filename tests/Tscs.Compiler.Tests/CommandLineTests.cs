@@ -43,6 +43,17 @@ public class CommandLineTests : IDisposable
         Assert.Equal(2,result.Code);Assert.Equal(2,d.RootElement.GetProperty("exitCode").GetInt32());Assert.Equal(code,diagnostic.GetProperty("code").GetString());
         Assert.Equal(source.IndexOf(escape,StringComparison.Ordinal)+relativeStart,diagnostic.GetProperty("start").GetInt32());Assert.Equal(length,diagnostic.GetProperty("length").GetInt32());Assert.DoesNotContain("TS2318",result.Out);
     }
+    [Theory]
+    [InlineData("\\0",0,"")]
+    [InlineData("\\q",0,"")]
+    [InlineData("\\177",2,"TS1487")]
+    [InlineData("\\9",2,"TS1488")]
+    public void NumericAndIdentityStringEscapesKeepCorrectExitStatus(string escape,int exit,string code)
+    {
+        var result=Run("--json","--noEmit","--noLib",Write("a.ts","let s = \"😀"+escape+"\";"),Lib());
+        Assert.Equal(exit,result.Code);using var d=System.Text.Json.JsonDocument.Parse(result.Out);var diagnostics=d.RootElement.GetProperty("diagnostics").EnumerateArray().ToArray();
+        if(exit==0)Assert.Empty(diagnostics);else {var error=Assert.Single(diagnostics);Assert.Equal(code,error.GetProperty("code").GetString());Assert.Equal(11,error.GetProperty("start").GetInt32());Assert.Equal(escape.Length,error.GetProperty("length").GetInt32());}
+    }
     [Fact] public void MissingInputFails()=>Assert.NotEqual(0,Run().Code);
     [Fact] public void UnknownOptionFails()=>Assert.NotEqual(0,Run("--imaginary").Code);
     [Fact] public void MissingFileFails()=>Assert.NotEqual(0,Run("--noEmit","--noLib",Path.Combine(directory,"missing.ts")).Code);

@@ -3,6 +3,24 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Product numeric and identity string escapes — 2026-10-26
+
+- Added standalone NUL and identity escapes, including supplementary characters.
+  Legacy octal follows pinned two/three-digit consumption, retains decoded
+  values and reports TS1487 with the actual suggested hexadecimal spelling.
+  Decimal escapes8/9 report TS1488. Invalid numeric escapes are syntax errors,
+  not successful acceptance or unimplemented TSCS errors.
+-368 actual-Go full token streams compare raw spelling, UTF16 values/ranges,
+  flags and all localized diagnostic messages/ranges. Initial RED368fail/8181pass
+  -> MTP8553/8553, Node69/69, frozen29/29, Release0 warnings/errors.
+  Golden repeats byte-identically. Independent review rebuilt, reran8553 tests
+  and regenerated368 Go vectors with identical output; no blocker.
+  [Evidence and raw logs](evidence/numeric-identity.json).
+- Original0/8/q regression inputs remain, with actual-Go outcomes replacing old
+  unsupported assertions. Four CLI rows verify syntax/acceptance exit status and
+  supplementary-prefix offsets. This is ordinary string scanning, not JSON,
+  parser/AST or original compiler acceptance. No full source profile rerun.
+
 ## Product string escape recovery — 2026-10-25
 
 - Malformed hex/Unicode strings now recover with TS1125/TS1198/TS1199,

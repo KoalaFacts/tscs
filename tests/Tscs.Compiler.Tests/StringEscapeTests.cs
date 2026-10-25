@@ -21,8 +21,8 @@ public class StringEscapeTests
  [Theory]
  [InlineData("\\uZZZZ","TS1125")]
  [InlineData("\\xZZ","TS1125")]
- [InlineData("\\0","TSCS1001")]
- [InlineData("\\8","TSCS1001")]
- [InlineData("\\q","TSCS1001")]
- public void EscapeBranchesReportSupportedDiagnosticsOrExplicitUnsupported(string escape,string code)=>Assert.Equal(code,Assert.Single(Compilation.Check("case.ts","let s = \""+escape+"\";")).Code);
+ [InlineData("\\0","")]
+ [InlineData("\\8","TS1488")]
+ [InlineData("\\q","")]
+ public void EscapeBranchesReportSupportedDiagnosticsOrAcceptance(string escape,string code){var diagnostics=Compilation.Check("case.ts","let s = \""+escape+"\";");if(code.Length==0)Assert.Empty(diagnostics);else Assert.Equal(code,Assert.Single(diagnostics).Code);}
 }

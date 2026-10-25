@@ -33,4 +33,5 @@
 <ItemGroup><None Update="TestData/string-escapes.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
 <ItemGroup><None Update="TestData/unicode-escapes.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
 <ItemGroup><None Update="TestData/string-recovery.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
+<ItemGroup><None Update="TestData/numeric-identity.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
 </Project>
