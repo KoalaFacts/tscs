@@ -1,0 +1,20 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "profile": "raw-map/case-sensitive/factory-read-and-entries/boundary",
+  "outcomes": {
+    "normalMatches": 36,
+    "expectedPanicMatches": 18,
+    "unsupported": 1,
+    "mismatches": 0,
+    "unsupportedIds": [
+      "link-collision"
+    ]
+  },
+  "compiler": "NOT_RUN",
+  "referenceCompiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "fullFixtureVfsCases": null,
+  "fullFixtureVfsStatus": "NOT_RUN",
+  "releaseEligible": false,
+  "evidence": "../../evidence/fixture-vfs-construction.json"
+}

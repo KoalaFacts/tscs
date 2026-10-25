@@ -3,6 +3,22 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Raw fixtures to VFS construction — 2026-10-25
+
+- Connected raw fixture maps to the actual case-sensitive snapshot: files then
+  links, directory/file/link query paths, ReadFile/exists/Realpath and entries.
+- Retained all55 map-boundary inputs:36 query results and18 expected upstream
+  panics match;1 normalized alias collision remains explicitly UNSUPPORTED.
+  A passing regression for that guard does not earn compatibility credit.
+- RED55 failures/3009 passes, final direct MTP3064/3064, Node62/62, frozen29/29;
+  Release zero warnings/errors and repeated Go goldens byte-identical. Review
+  corrected oracle inputs to raw links, matching NewVFSWithSymlinks; regenerated
+  and rechecked afterward. No second independent review is claimed.
+- [Evidence](evidence/fixture-vfs-construction.json),
+  [progress](testing/ts7/construction-progress.json). Full13006 fixture VFS,
+  case folding, unresolved link policies, config/AST/compiler acceptance remain
+  NOT_RUN or unsupported. CLI and FixtureProtocol are not wired to this profile.
+
 ## Final PR 6 byte-path validation correction — 2026-10-25
 
 - Independent whole-branch review found that the standard symlink pass could turn

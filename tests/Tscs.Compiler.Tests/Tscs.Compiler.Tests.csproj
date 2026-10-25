@@ -24,4 +24,5 @@
   <ItemGroup><None Update="TestData/fixture-map.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
   <ItemGroup><None Update="TestData/vfs.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
   <ItemGroup><None Update="TestData/vfs-entries.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
+<ItemGroup><None Update="TestData/fixture-vfs.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
 </Project>

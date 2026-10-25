@@ -7,7 +7,7 @@ namespace Tscs.Conformance;
 public static class FixtureVfs
 {
  private sealed record Node(string Path,byte[] Data,bool Directory,string? Target=null);
- private sealed class Snapshot
+ internal sealed class Snapshot
  {
   private readonly Dictionary<string,Node> nodes=new(StringComparer.Ordinal);
   private static string Text(byte[] p)=>Encoding.Latin1.GetString(p);
