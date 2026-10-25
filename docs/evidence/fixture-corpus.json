@@ -1,0 +1,186 @@
+{
+  "date": "2026-10-25",
+  "baseCommit": "43574d893cf23c503b4a0e0e0eb7fff6247906b0",
+  "scope": "Raw generic callback loading for the complete source fixture inventory, not compiler acceptance",
+  "execution": {
+    "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+    "profile": "raw/default-options/unit-snapshot-callback",
+    "scope": "all selected compiler/conformance/transpile source fixtures including upstream skips",
+    "counts": {
+      "sources": 13006,
+      "rawUnits": 17804,
+      "callbacks": 17804,
+      "upstreamSkippedSources": 42,
+      "MATCH": 13006,
+      "MISMATCH": 0,
+      "REFERENCE_PANIC": 0,
+      "REFERENCE_ERROR": 0,
+      "CRASH": 0
+    },
+    "goVersion": "go version go1.27.3 linux/amd64",
+    "nodeVersion": "v24.22.1",
+    "dotnetSdk": "10.0.402",
+    "sourceHashes": {
+      "tools/compare-fixture-corpus.ts": "a21948d4607eab20dfac491309fb291660f3ea52adae654ae5671a96a07d0bf3",
+      "tools/fixture-corpus.ts": "5a490388ba5276fc1c6197a54f004d9595421d3826a82686cc52cf9edd80707d",
+      "tools/fixture-harness/state_oracle_test.go": "d82e0d936d8afa9b3a8f65da381b5aa5c645313f8044bbd826089e5f3254928e",
+      "tools/fixture-harness/FixtureProtocol.cs": "6fc00ccec86469d7608509c0b07fd34f61f6d9de04a738df0c800d3121d9bbdf",
+      "tools/fixture-harness/FixtureLoader.cs": "4d3f8ee13f29e22659d49b31ac1d7e2b93116b9197c1b3272e280e73d7fbeaf6",
+      "tools/fixture-harness/FixtureTrivia.cs": "3b72c1ea190e84c7fb101e21202e98becf81e9ef4ff254bcd7a22c38b7ce0d77",
+      "tools/fixture-harness/FixtureDirectives.cs": "2b4b7c1203c24902e81b2c5dc76fd7ed47ae13134e97449d634acc436bffe1ee",
+      "src/Tscs.Compiler/SourceDecoder.cs": "953d444e7884bc6293a76a4e4469304e34c7168974d906db5bfa1dcc0f005cf9",
+      "tools/Tscs.FixtureHarness/Program.cs": "8072b99bf395ccd665fb0741ced3c2ef1aef8c5955aec7969b913da5d6751e82",
+      "tools/Tscs.FixtureHarness/Tscs.FixtureHarness.csproj": "738281417ec0ad9d6db9843025a94b0225de4dc2c9fd138928f559e99417026b",
+      "Directory.Build.props": "13732ce9bcf14f2065948951e50572ef87f93d1d4c6726ce1b71b8efd1bbb92d",
+      "global.json": "6cac8ed8559756539f2db0e8cbf6d545ccc81d3d4b1ebbfcf3ee204d218847b4"
+    },
+    "referenceHashes": {
+      "tsc/internal/testrunner/test_case_parser.go": "03578c4d35165ee461f4e0488855ffb534eea9a5c598887b255f60817c07d34f",
+      "tsc/internal/scanner/scanner.go": "48008100fb5a020748651e319c4dcc361c1a81ca06f8c3e0ed94d42dd0d1e6df",
+      "tsc/internal/tspath/path.go": "6c5a8537f800a388555289c311dec38a47696ec88619b8d758edaed18d9a3328",
+      "tsc/internal/vfs/internal/internal.go": "2d641c466808f1417e4e20d46aa4beb7f9dcc1bc5fd872a5d134fb3ae56d1def"
+    },
+    "assemblies": {
+      "Tscs.FixtureHarness.dll": "6de455740f3b013d2e5498cb6b2670f5b3ffc70b42d68164e6aeba76d721c76a",
+      "Tscs.Compiler.dll": "1f62b536b00335e0f0abfd4ab36348efaa9c209a3277f8b264711e83586f8f9b"
+    },
+    "inventorySummarySha256": "4d6ac90f47e17dbd6031787c338be1fe0bd7703e6b65cc610815601c4c9d6922",
+    "fixtureInventorySha256": "b7279f8a0a0740927363d9264b77ddba79ad8b687edd50886997b3b8e339d534",
+    "artifacts": [
+      {
+        "path": "requests.json",
+        "bytes": 15118415,
+        "sha256": "869c0e8e7e80d1f514f830c7e8244ee5af6ca6f8ea51d94f3be3ccb5d7df189a"
+      },
+      {
+        "path": "reference.json",
+        "bytes": 31415321,
+        "sha256": "8c9ae0929c402a8ad020fc6457e4b0269d8edce5cbe5c69b53765f502fb18a1c"
+      },
+      {
+        "path": "actual.jsonl",
+        "bytes": 14511625,
+        "sha256": "e191ac21ceae97e8c32d052b4fdc000b74ddbb12fd0a9f3db6da8d80b4bd8d84"
+      },
+      {
+        "path": "results.jsonl",
+        "bytes": 9297829,
+        "sha256": "1db934c9b4908ffcb4566bf16d860e919c42ea2cf942e26c019dcd0661c4c479"
+      },
+      {
+        "path": "build.log",
+        "bytes": 320,
+        "sha256": "c1684c96b5a09e38ce326bfafcb969c1a0ce348fb621cf31e17a766ea7f781d5"
+      },
+      {
+        "path": "reference.log",
+        "bytes": 68,
+        "sha256": "4663a435beed42f8151884fc379ac4f2cb8e1aa7128c67eb65219720b9265f1f"
+      },
+      {
+        "path": "actual.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "compiler": "NOT_RUN",
+    "referenceCompiler": "NOT_RUN",
+    "acceptance": "NOT_RUN",
+    "releaseEligible": false,
+    "limitations": [
+      "Raw generic callback only; not AST parsing or makeUnitsFromTest/config/VFS construction",
+      "Implicit-first and callback-error profiles have separate 151 synthetic/boundary vectors, not full-corpus executions",
+      "Not all test domains or configuration/runtime variants are expanded"
+    ]
+  },
+  "repeatPayloadByteEquality": {
+    "requests.json": true,
+    "reference.json": true,
+    "actual.jsonl": true,
+    "results.jsonl": true
+  },
+  "repeatNote": "Build logs may differ in elapsed times; no general byte-identical summary/build claim.",
+  "commands": [
+    "PATH=/tmp/tscs-go/go/bin:$PATH node tools/inventory-ts7.ts .artifacts/ts7-upstream .artifacts/ts7-scope",
+    "PATH=/tmp/tscs-go/go/bin:$PATH DOTNET=/tmp/tscs-dotnet/dotnet node tools/compare-fixture-corpus.ts .artifacts/ts7-upstream .artifacts/ts7-scope .artifacts/fixture-corpus-final",
+    "PATH=/tmp/tscs-go/go/bin:$PATH DOTNET=/tmp/tscs-dotnet/dotnet node tools/compare-fixture-corpus.ts .artifacts/ts7-upstream .artifacts/ts7-scope .artifacts/fixture-corpus-repeat",
+    "/tmp/tscs-dotnet/dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --minimum-expected-tests 1514 --fail-skips on --progress off",
+    "PATH=/tmp/tscs-go/go/bin:$PATH DOTNET=/tmp/tscs-dotnet/dotnet node --test tools/*.test.ts",
+    "DOTNET=/tmp/tscs-dotnet/dotnet node tools/verify-conformance.ts"
+  ],
+  "xunitTests": [
+    "Tscs.Tests.FixtureStateTests.StateAndCallbackResultsMatchPinnedGo: all151 unchanged golden IDs now via shared protocol",
+    "Tscs.Tests.FixtureStateTests.StreamContinuesAfterPreludePanicAndPreservesNullCallbackValue",
+    "Tscs.Tests.FixtureStateTests.MalformedProtocolInputFailsInsteadOfLosingARequest"
+  ],
+  "nodeTests": [
+    "raw comparison preserves nil and metadata differences without awarding compiler credit",
+    "raw comparison rejects omissions, duplicate identities and extra results",
+    "raw comparison ignores object property order but retains panic status",
+    "malformed result envelopes and byte fields cannot be accepted as matches",
+    "empty panic and error strings retain reference failure classification",
+    "harness build executes edited sources and fails closed on a compiler error"
+  ],
+  "validation": {
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "directMtp": {
+      "passed": 1514,
+      "total": 1514,
+      "skipped": 0
+    },
+    "node": {
+      "passed": 60,
+      "total": 60,
+      "skipped": 0
+    },
+    "frozenCohort": {
+      "passed": 29,
+      "total": 29
+    },
+    "sdkCoordinator": {
+      "command": "scripts/verify.sh",
+      "exitCode": 134,
+      "result": "ABORTED: SocketException13 Unix pipe; direct MTP was run separately"
+    }
+  },
+  "redGreen": [
+    "Protocol stub:153 failed /1361 passed, then1514/1514. Corrected two test authoring errors (literal input newline and JsonException subtype assertion) before final run.",
+    "Comparator stub:3 failing new tests, then3/3.",
+    "Independent review malformed-payload and empty-error regressions:2 failed /3 passed, then final suite60/60.",
+    "Independent review stale-build regression:1 failed (build helper stub), then real edited-source execution and compiler-error rejection passed in final suite."
+  ],
+  "independentReview": {
+    "findings": [
+      {
+        "severity": "P2",
+        "issue": "Malformed/empty output objects could count MATCH",
+        "resolution": "Complete normal/panic/byte schema validation, non-null failure classification; RED to GREEN"
+      },
+      {
+        "severity": "P2",
+        "issue": "Stale Release binary could be labeled with current source hashes",
+        "resolution": "CLI now builds current Release harness before execution and saves build log; actual stale-source regression RED to GREEN"
+      }
+    ],
+    "fixPasses": 1,
+    "reReviewClaimed": false
+  },
+  "unchanged": [
+    "upstream.lock.json",
+    "tests/conformance/manifest.json",
+    "tests/conformance/expected.json",
+    "fixtures",
+    "docs/testing/ts7/progress.json",
+    "docs/testing/ts7/inventory-summary.json"
+  ],
+  "next": "Port rooted virtual paths/symlink VFS and makeUnitsFromTest/config construction; full configuration and AST/compiler acceptance remain pending.",
+  "rawEvidenceArchive": {
+    "libraryFileId": "libfile_4650861594e881919d835e6f3c5792e4",
+    "filename": "tscs-fixture-corpus-evidence-2026-10-25.tar.gz",
+    "sha256": "57e04a2167d19fc79daa227d827ce9edc89f1e467b02049d8ed2aacc4416ea6b",
+    "contents": "All full-corpus requests, original Go results, C# results, per-source reconciliation, summary, build and execution logs; source code remains in Git"
+  }
+}

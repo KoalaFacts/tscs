@@ -1,0 +1,4627 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "goVersion": "go version go1.27.3 linux/amd64",
+  "sourceHashes": {
+    "tsc/internal/vfs/vfstest/vfstest.go": "34379d231ad4339afb5bdb474638324be0bd28b7373f5b73aad2bcf12af9d401",
+    "tsc/internal/vfs/iovfs/iofs.go": "bfedb286488f9a7ecdfceb7c8b933b88b318577dab7bd0d3acf4893ee1341a5b",
+    "tsc/internal/vfs/internal/internal.go": "2d641c466808f1417e4e20d46aa4beb7f9dcc1bc5fd872a5d134fb3ae56d1def",
+    "tsc/internal/testrunner/compiler_runner.go": "1d0fe0e64d74bb1993de04851c86e108553ee4bbeb4dcde580e1c1820a89c3fa",
+    "tsc/internal/tsoptions/tsoptionstest/vfs.go": "91f188afd6f7e228800d3cf13dd555efaa27948a84b3c23611453d880951dfa4",
+    "tsc/internal/testrunner/test_case_parser.go": "03578c4d35165ee461f4e0488855ffb534eea9a5c598887b255f60817c07d34f",
+    "tsc/internal/scanner/scanner.go": "48008100fb5a020748651e319c4dcc361c1a81ca06f8c3e0ed94d42dd0d1e6df",
+    "tsc/internal/stringutil/util.go": "e15d8030900518eb0d8bd926751df2f7c7cfda6d49c7a82da36d58daeed22b9e",
+    "tsc/internal/tspath/path.go": "6c5a8537f800a388555289c311dec38a47696ec88619b8d758edaed18d9a3328"
+  },
+  "stateProbeSha256": "d82e0d936d8afa9b3a8f65da381b5aa5c645313f8044bbd826089e5f3254928e",
+  "probeSha256": "2a8fd4b5503a252e2d9f9b38ec4cc59eb8ba93794ca1cce4f9a3afcd796b910e",
+  "vectors": [
+    {
+      "entries": [
+        {
+          "path": "L2EvZmlsZS50cw==",
+          "data": "eDs=",
+          "link": false
+        },
+        {
+          "path": "L2IudHM=",
+          "data": "",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "Lw==",
+            "readOk": false,
+            "realpath": "Lw=="
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "L2E=",
+            "readOk": false,
+            "realpath": "L2E="
+          },
+          {
+            "content": "eDs=",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L2EvZmlsZS50cw==",
+            "readOk": true,
+            "realpath": "L2EvZmlsZS50cw=="
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvbWlzc2luZw==",
+            "readOk": false,
+            "realpath": "L2EvbWlzc2luZw=="
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvZmlsZS50cy9jaGlsZA==",
+            "readOk": false,
+            "realpath": "L2EvZmlsZS50cy9jaGlsZA=="
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L2IudHM=",
+            "readOk": true,
+            "realpath": "L2IudHM="
+          }
+        ]
+      },
+      "id": "basic//",
+      "queries": [
+        "Lw==",
+        "L2E=",
+        "L2EvZmlsZS50cw==",
+        "L2EvbWlzc2luZw==",
+        "L2EvZmlsZS50cy9jaGlsZA==",
+        "L2IudHM="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvZmlsZS50cw==",
+          "data": "eDs=",
+          "link": false
+        },
+        {
+          "path": "L3otZmlsZQ==",
+          "data": "L2EvZmlsZS50cw==",
+          "link": true
+        },
+        {
+          "path": "L3otZGly",
+          "data": "L2E=",
+          "link": true
+        },
+        {
+          "path": "L3otY2hhaW4=",
+          "data": "L3otZmlsZQ==",
+          "link": true
+        },
+        {
+          "path": "L3otYnJva2Vu",
+          "data": "L21pc3Npbmc=",
+          "link": true
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "eDs=",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L3otZmlsZQ==",
+            "readOk": true,
+            "realpath": "L2EvZmlsZS50cw=="
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "L3otZGly",
+            "readOk": false,
+            "realpath": "L2E="
+          },
+          {
+            "content": "eDs=",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L3otZGlyL2ZpbGUudHM=",
+            "readOk": true,
+            "realpath": "L2EvZmlsZS50cw=="
+          },
+          {
+            "content": "eDs=",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L3otY2hhaW4=",
+            "readOk": true,
+            "realpath": "L2EvZmlsZS50cw=="
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L3otYnJva2Vu",
+            "readOk": false,
+            "realpath": "L3otYnJva2Vu"
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L3otZGlyL21pc3Npbmc=",
+            "readOk": false,
+            "realpath": "L3otZGlyL21pc3Npbmc="
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L3otZGlyeC9maWxlLnRz",
+            "readOk": false,
+            "realpath": "L3otZGlyeC9maWxlLnRz"
+          }
+        ]
+      },
+      "id": "links//",
+      "queries": [
+        "L3otZmlsZQ==",
+        "L3otZGly",
+        "L3otZGlyL2ZpbGUudHM=",
+        "L3otY2hhaW4=",
+        "L3otYnJva2Vu",
+        "L3otZGlyL21pc3Npbmc=",
+        "L3otZGlyeC9maWxlLnRz"
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EudHM=",
+          "data": "//54ADsAAQ==",
+          "link": false
+        },
+        {
+          "path": "L2IudHM=",
+          "data": "77u/77u/eA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "eDs=",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L2EudHM=",
+            "readOk": true,
+            "realpath": "L2EudHM="
+          },
+          {
+            "content": "77u/eA==",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L2IudHM=",
+            "readOk": true,
+            "realpath": "L2IudHM="
+          }
+        ]
+      },
+      "id": "decode//",
+      "queries": [
+        "L2EudHM=",
+        "L2IudHM="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L0EudHM=",
+          "data": "dXBwZXI=",
+          "link": false
+        },
+        {
+          "path": "L2EudHM=",
+          "data": "bG93ZXI=",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "dXBwZXI=",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L0EudHM=",
+            "readOk": true,
+            "realpath": "L0EudHM="
+          },
+          {
+            "content": "bG93ZXI=",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L2EudHM=",
+            "readOk": true,
+            "realpath": "L2EudHM="
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L21pc3Npbmc=",
+            "readOk": false,
+            "realpath": "L21pc3Npbmc="
+          }
+        ]
+      },
+      "id": "case//",
+      "queries": [
+        "L0EudHM=",
+        "L2EudHM=",
+        "L21pc3Npbmc="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2E=",
+          "data": "eA==",
+          "link": false
+        },
+        {
+          "path": "L2EveA==",
+          "data": "eQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": "failed to create intermediate directories for \"a/x\": mkdir \"a\": path exists but is not a directory"
+      },
+      "id": "file-parent//",
+      "queries": [
+        "L2E="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "QzovYS9maWxlLnRz",
+          "data": "eDs=",
+          "link": false
+        },
+        {
+          "path": "QzovYi50cw==",
+          "data": "",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "Qzov",
+            "readOk": false,
+            "realpath": "Qzov"
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "QzovYQ==",
+            "readOk": false,
+            "realpath": "QzovYQ=="
+          },
+          {
+            "content": "eDs=",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "QzovYS9maWxlLnRz",
+            "readOk": true,
+            "realpath": "QzovYS9maWxlLnRz"
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "QzovYS9taXNzaW5n",
+            "readOk": false,
+            "realpath": "QzovYS9taXNzaW5n"
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "QzovYS9maWxlLnRzL2NoaWxk",
+            "readOk": false,
+            "realpath": "QzovYS9maWxlLnRzL2NoaWxk"
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "QzovYi50cw==",
+            "readOk": true,
+            "realpath": "QzovYi50cw=="
+          }
+        ]
+      },
+      "id": "basic/C:/",
+      "queries": [
+        "Qzov",
+        "QzovYQ==",
+        "QzovYS9maWxlLnRz",
+        "QzovYS9taXNzaW5n",
+        "QzovYS9maWxlLnRzL2NoaWxk",
+        "QzovYi50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "QzovYS9maWxlLnRz",
+          "data": "eDs=",
+          "link": false
+        },
+        {
+          "path": "Qzovei1maWxl",
+          "data": "QzovYS9maWxlLnRz",
+          "link": true
+        },
+        {
+          "path": "Qzovei1kaXI=",
+          "data": "QzovYQ==",
+          "link": true
+        },
+        {
+          "path": "Qzovei1jaGFpbg==",
+          "data": "Qzovei1maWxl",
+          "link": true
+        },
+        {
+          "path": "Qzovei1icm9rZW4=",
+          "data": "QzovbWlzc2luZw==",
+          "link": true
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "eDs=",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "Qzovei1maWxl",
+            "readOk": true,
+            "realpath": "QzovYS9maWxlLnRz"
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "Qzovei1kaXI=",
+            "readOk": false,
+            "realpath": "QzovYQ=="
+          },
+          {
+            "content": "eDs=",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "Qzovei1kaXIvZmlsZS50cw==",
+            "readOk": true,
+            "realpath": "QzovYS9maWxlLnRz"
+          },
+          {
+            "content": "eDs=",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "Qzovei1jaGFpbg==",
+            "readOk": true,
+            "realpath": "QzovYS9maWxlLnRz"
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "Qzovei1icm9rZW4=",
+            "readOk": false,
+            "realpath": "Qzovei1icm9rZW4="
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "Qzovei1kaXIvbWlzc2luZw==",
+            "readOk": false,
+            "realpath": "Qzovei1kaXIvbWlzc2luZw=="
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "Qzovei1kaXJ4L2ZpbGUudHM=",
+            "readOk": false,
+            "realpath": "Qzovei1kaXJ4L2ZpbGUudHM="
+          }
+        ]
+      },
+      "id": "links/C:/",
+      "queries": [
+        "Qzovei1maWxl",
+        "Qzovei1kaXI=",
+        "Qzovei1kaXIvZmlsZS50cw==",
+        "Qzovei1jaGFpbg==",
+        "Qzovei1icm9rZW4=",
+        "Qzovei1kaXIvbWlzc2luZw==",
+        "Qzovei1kaXJ4L2ZpbGUudHM="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "QzovYS50cw==",
+          "data": "//54ADsAAQ==",
+          "link": false
+        },
+        {
+          "path": "QzovYi50cw==",
+          "data": "77u/77u/eA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "eDs=",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "QzovYS50cw==",
+            "readOk": true,
+            "realpath": "QzovYS50cw=="
+          },
+          {
+            "content": "77u/eA==",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "QzovYi50cw==",
+            "readOk": true,
+            "realpath": "QzovYi50cw=="
+          }
+        ]
+      },
+      "id": "decode/C:/",
+      "queries": [
+        "QzovYS50cw==",
+        "QzovYi50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "QzovQS50cw==",
+          "data": "dXBwZXI=",
+          "link": false
+        },
+        {
+          "path": "QzovYS50cw==",
+          "data": "bG93ZXI=",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "dXBwZXI=",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "QzovQS50cw==",
+            "readOk": true,
+            "realpath": "QzovQS50cw=="
+          },
+          {
+            "content": "bG93ZXI=",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "QzovYS50cw==",
+            "readOk": true,
+            "realpath": "QzovYS50cw=="
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "QzovbWlzc2luZw==",
+            "readOk": false,
+            "realpath": "QzovbWlzc2luZw=="
+          }
+        ]
+      },
+      "id": "case/C:/",
+      "queries": [
+        "QzovQS50cw==",
+        "QzovYS50cw==",
+        "QzovbWlzc2luZw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "QzovYQ==",
+          "data": "eA==",
+          "link": false
+        },
+        {
+          "path": "QzovYS94",
+          "data": "eQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": "failed to create intermediate directories for \"C:/a/x\": mkdir \"C:/a\": path exists but is not a directory"
+      },
+      "id": "file-parent/C:/",
+      "queries": [
+        "QzovYQ=="
+      ]
+    },
+    {
+      "entries": [],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "Lw==",
+            "readOk": false,
+            "realpath": "Lw=="
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L21pc3Npbmc=",
+            "readOk": false,
+            "realpath": "L21pc3Npbmc="
+          }
+        ]
+      },
+      "id": "empty",
+      "queries": [
+        "Lw==",
+        "L21pc3Npbmc="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2E=",
+          "data": "cmVhbA==",
+          "link": false
+        },
+        {
+          "path": "L2E=",
+          "data": "L2I=",
+          "link": true
+        },
+        {
+          "path": "L2I=",
+          "data": "dGFyZ2V0",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "dGFyZ2V0",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L2E=",
+            "readOk": true,
+            "realpath": "L2I="
+          }
+        ]
+      },
+      "id": "file-over-link",
+      "queries": [
+        "L2E="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EtcmVhbC9maWxl",
+          "data": "eA==",
+          "link": false
+        },
+        {
+          "path": "L3otYWxpYXM=",
+          "data": "L2EtcmVhbA==",
+          "link": true
+        },
+        {
+          "path": "L3otYWxpYXMvc3ViL2ZpbGU=",
+          "data": "c2hhZG93",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "eA==",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L3otYWxpYXMvZmlsZQ==",
+            "readOk": true,
+            "realpath": "L2EtcmVhbC9maWxl"
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "L3otYWxpYXMvc3Vi",
+            "readOk": false,
+            "realpath": "L2EtcmVhbC9zdWI="
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "L2EtcmVhbC9zdWI=",
+            "readOk": false,
+            "realpath": "L2EtcmVhbC9zdWI="
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L3otYWxpYXMvc3ViL2ZpbGU=",
+            "readOk": false,
+            "realpath": "L3otYWxpYXMvc3ViL2ZpbGU="
+          }
+        ]
+      },
+      "id": "linked-parent",
+      "queries": [
+        "L3otYWxpYXMvZmlsZQ==",
+        "L3otYWxpYXMvc3Vi",
+        "L2EtcmVhbC9zdWI=",
+        "L3otYWxpYXMvc3ViL2ZpbGU="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvgC50cw==",
+          "data": "gA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvgC50cw==",
+            "readOk": false,
+            "realpath": "L2EvgC50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/128",
+      "queries": [
+        "L2EvgC50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvgS50cw==",
+          "data": "gQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvgS50cw==",
+            "readOk": false,
+            "realpath": "L2EvgS50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/129",
+      "queries": [
+        "L2EvgS50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evgi50cw==",
+          "data": "gg==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evgi50cw==",
+            "readOk": false,
+            "realpath": "L2Evgi50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/130",
+      "queries": [
+        "L2Evgi50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evgy50cw==",
+          "data": "gw==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evgy50cw==",
+            "readOk": false,
+            "realpath": "L2Evgy50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/131",
+      "queries": [
+        "L2Evgy50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvhC50cw==",
+          "data": "hA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvhC50cw==",
+            "readOk": false,
+            "realpath": "L2EvhC50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/132",
+      "queries": [
+        "L2EvhC50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvhS50cw==",
+          "data": "hQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvhS50cw==",
+            "readOk": false,
+            "realpath": "L2EvhS50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/133",
+      "queries": [
+        "L2EvhS50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evhi50cw==",
+          "data": "hg==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evhi50cw==",
+            "readOk": false,
+            "realpath": "L2Evhi50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/134",
+      "queries": [
+        "L2Evhi50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evhy50cw==",
+          "data": "hw==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evhy50cw==",
+            "readOk": false,
+            "realpath": "L2Evhy50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/135",
+      "queries": [
+        "L2Evhy50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EviC50cw==",
+          "data": "iA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EviC50cw==",
+            "readOk": false,
+            "realpath": "L2EviC50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/136",
+      "queries": [
+        "L2EviC50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EviS50cw==",
+          "data": "iQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EviS50cw==",
+            "readOk": false,
+            "realpath": "L2EviS50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/137",
+      "queries": [
+        "L2EviS50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evii50cw==",
+          "data": "ig==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evii50cw==",
+            "readOk": false,
+            "realpath": "L2Evii50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/138",
+      "queries": [
+        "L2Evii50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Eviy50cw==",
+          "data": "iw==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Eviy50cw==",
+            "readOk": false,
+            "realpath": "L2Eviy50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/139",
+      "queries": [
+        "L2Eviy50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvjC50cw==",
+          "data": "jA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvjC50cw==",
+            "readOk": false,
+            "realpath": "L2EvjC50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/140",
+      "queries": [
+        "L2EvjC50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvjS50cw==",
+          "data": "jQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvjS50cw==",
+            "readOk": false,
+            "realpath": "L2EvjS50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/141",
+      "queries": [
+        "L2EvjS50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evji50cw==",
+          "data": "jg==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evji50cw==",
+            "readOk": false,
+            "realpath": "L2Evji50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/142",
+      "queries": [
+        "L2Evji50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evjy50cw==",
+          "data": "jw==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evjy50cw==",
+            "readOk": false,
+            "realpath": "L2Evjy50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/143",
+      "queries": [
+        "L2Evjy50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvkC50cw==",
+          "data": "kA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvkC50cw==",
+            "readOk": false,
+            "realpath": "L2EvkC50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/144",
+      "queries": [
+        "L2EvkC50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvkS50cw==",
+          "data": "kQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvkS50cw==",
+            "readOk": false,
+            "realpath": "L2EvkS50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/145",
+      "queries": [
+        "L2EvkS50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evki50cw==",
+          "data": "kg==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evki50cw==",
+            "readOk": false,
+            "realpath": "L2Evki50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/146",
+      "queries": [
+        "L2Evki50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evky50cw==",
+          "data": "kw==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evky50cw==",
+            "readOk": false,
+            "realpath": "L2Evky50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/147",
+      "queries": [
+        "L2Evky50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvlC50cw==",
+          "data": "lA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvlC50cw==",
+            "readOk": false,
+            "realpath": "L2EvlC50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/148",
+      "queries": [
+        "L2EvlC50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvlS50cw==",
+          "data": "lQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvlS50cw==",
+            "readOk": false,
+            "realpath": "L2EvlS50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/149",
+      "queries": [
+        "L2EvlS50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evli50cw==",
+          "data": "lg==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evli50cw==",
+            "readOk": false,
+            "realpath": "L2Evli50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/150",
+      "queries": [
+        "L2Evli50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evly50cw==",
+          "data": "lw==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evly50cw==",
+            "readOk": false,
+            "realpath": "L2Evly50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/151",
+      "queries": [
+        "L2Evly50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvmC50cw==",
+          "data": "mA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvmC50cw==",
+            "readOk": false,
+            "realpath": "L2EvmC50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/152",
+      "queries": [
+        "L2EvmC50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvmS50cw==",
+          "data": "mQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvmS50cw==",
+            "readOk": false,
+            "realpath": "L2EvmS50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/153",
+      "queries": [
+        "L2EvmS50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evmi50cw==",
+          "data": "mg==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evmi50cw==",
+            "readOk": false,
+            "realpath": "L2Evmi50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/154",
+      "queries": [
+        "L2Evmi50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evmy50cw==",
+          "data": "mw==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evmy50cw==",
+            "readOk": false,
+            "realpath": "L2Evmy50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/155",
+      "queries": [
+        "L2Evmy50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvnC50cw==",
+          "data": "nA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvnC50cw==",
+            "readOk": false,
+            "realpath": "L2EvnC50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/156",
+      "queries": [
+        "L2EvnC50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvnS50cw==",
+          "data": "nQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvnS50cw==",
+            "readOk": false,
+            "realpath": "L2EvnS50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/157",
+      "queries": [
+        "L2EvnS50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evni50cw==",
+          "data": "ng==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evni50cw==",
+            "readOk": false,
+            "realpath": "L2Evni50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/158",
+      "queries": [
+        "L2Evni50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evny50cw==",
+          "data": "nw==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evny50cw==",
+            "readOk": false,
+            "realpath": "L2Evny50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/159",
+      "queries": [
+        "L2Evny50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvoC50cw==",
+          "data": "oA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvoC50cw==",
+            "readOk": false,
+            "realpath": "L2EvoC50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/160",
+      "queries": [
+        "L2EvoC50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvoS50cw==",
+          "data": "oQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvoS50cw==",
+            "readOk": false,
+            "realpath": "L2EvoS50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/161",
+      "queries": [
+        "L2EvoS50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evoi50cw==",
+          "data": "og==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evoi50cw==",
+            "readOk": false,
+            "realpath": "L2Evoi50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/162",
+      "queries": [
+        "L2Evoi50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evoy50cw==",
+          "data": "ow==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evoy50cw==",
+            "readOk": false,
+            "realpath": "L2Evoy50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/163",
+      "queries": [
+        "L2Evoy50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvpC50cw==",
+          "data": "pA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvpC50cw==",
+            "readOk": false,
+            "realpath": "L2EvpC50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/164",
+      "queries": [
+        "L2EvpC50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvpS50cw==",
+          "data": "pQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvpS50cw==",
+            "readOk": false,
+            "realpath": "L2EvpS50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/165",
+      "queries": [
+        "L2EvpS50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evpi50cw==",
+          "data": "pg==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evpi50cw==",
+            "readOk": false,
+            "realpath": "L2Evpi50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/166",
+      "queries": [
+        "L2Evpi50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evpy50cw==",
+          "data": "pw==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evpy50cw==",
+            "readOk": false,
+            "realpath": "L2Evpy50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/167",
+      "queries": [
+        "L2Evpy50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvqC50cw==",
+          "data": "qA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvqC50cw==",
+            "readOk": false,
+            "realpath": "L2EvqC50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/168",
+      "queries": [
+        "L2EvqC50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvqS50cw==",
+          "data": "qQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvqS50cw==",
+            "readOk": false,
+            "realpath": "L2EvqS50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/169",
+      "queries": [
+        "L2EvqS50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evqi50cw==",
+          "data": "qg==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evqi50cw==",
+            "readOk": false,
+            "realpath": "L2Evqi50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/170",
+      "queries": [
+        "L2Evqi50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evqy50cw==",
+          "data": "qw==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evqy50cw==",
+            "readOk": false,
+            "realpath": "L2Evqy50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/171",
+      "queries": [
+        "L2Evqy50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvrC50cw==",
+          "data": "rA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvrC50cw==",
+            "readOk": false,
+            "realpath": "L2EvrC50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/172",
+      "queries": [
+        "L2EvrC50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvrS50cw==",
+          "data": "rQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvrS50cw==",
+            "readOk": false,
+            "realpath": "L2EvrS50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/173",
+      "queries": [
+        "L2EvrS50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evri50cw==",
+          "data": "rg==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evri50cw==",
+            "readOk": false,
+            "realpath": "L2Evri50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/174",
+      "queries": [
+        "L2Evri50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evry50cw==",
+          "data": "rw==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evry50cw==",
+            "readOk": false,
+            "realpath": "L2Evry50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/175",
+      "queries": [
+        "L2Evry50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvsC50cw==",
+          "data": "sA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvsC50cw==",
+            "readOk": false,
+            "realpath": "L2EvsC50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/176",
+      "queries": [
+        "L2EvsC50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvsS50cw==",
+          "data": "sQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvsS50cw==",
+            "readOk": false,
+            "realpath": "L2EvsS50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/177",
+      "queries": [
+        "L2EvsS50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evsi50cw==",
+          "data": "sg==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evsi50cw==",
+            "readOk": false,
+            "realpath": "L2Evsi50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/178",
+      "queries": [
+        "L2Evsi50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evsy50cw==",
+          "data": "sw==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evsy50cw==",
+            "readOk": false,
+            "realpath": "L2Evsy50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/179",
+      "queries": [
+        "L2Evsy50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvtC50cw==",
+          "data": "tA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvtC50cw==",
+            "readOk": false,
+            "realpath": "L2EvtC50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/180",
+      "queries": [
+        "L2EvtC50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvtS50cw==",
+          "data": "tQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvtS50cw==",
+            "readOk": false,
+            "realpath": "L2EvtS50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/181",
+      "queries": [
+        "L2EvtS50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evti50cw==",
+          "data": "tg==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evti50cw==",
+            "readOk": false,
+            "realpath": "L2Evti50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/182",
+      "queries": [
+        "L2Evti50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evty50cw==",
+          "data": "tw==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evty50cw==",
+            "readOk": false,
+            "realpath": "L2Evty50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/183",
+      "queries": [
+        "L2Evty50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvuC50cw==",
+          "data": "uA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvuC50cw==",
+            "readOk": false,
+            "realpath": "L2EvuC50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/184",
+      "queries": [
+        "L2EvuC50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvuS50cw==",
+          "data": "uQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvuS50cw==",
+            "readOk": false,
+            "realpath": "L2EvuS50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/185",
+      "queries": [
+        "L2EvuS50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evui50cw==",
+          "data": "ug==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evui50cw==",
+            "readOk": false,
+            "realpath": "L2Evui50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/186",
+      "queries": [
+        "L2Evui50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evuy50cw==",
+          "data": "uw==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evuy50cw==",
+            "readOk": false,
+            "realpath": "L2Evuy50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/187",
+      "queries": [
+        "L2Evuy50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvvC50cw==",
+          "data": "vA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvvC50cw==",
+            "readOk": false,
+            "realpath": "L2EvvC50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/188",
+      "queries": [
+        "L2EvvC50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvvS50cw==",
+          "data": "vQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvvS50cw==",
+            "readOk": false,
+            "realpath": "L2EvvS50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/189",
+      "queries": [
+        "L2EvvS50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evvi50cw==",
+          "data": "vg==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evvi50cw==",
+            "readOk": false,
+            "realpath": "L2Evvi50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/190",
+      "queries": [
+        "L2Evvi50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evvy50cw==",
+          "data": "vw==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evvy50cw==",
+            "readOk": false,
+            "realpath": "L2Evvy50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/191",
+      "queries": [
+        "L2Evvy50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvwC50cw==",
+          "data": "wA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvwC50cw==",
+            "readOk": false,
+            "realpath": "L2EvwC50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/192",
+      "queries": [
+        "L2EvwC50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvwS50cw==",
+          "data": "wQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvwS50cw==",
+            "readOk": false,
+            "realpath": "L2EvwS50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/193",
+      "queries": [
+        "L2EvwS50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evwi50cw==",
+          "data": "wg==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evwi50cw==",
+            "readOk": false,
+            "realpath": "L2Evwi50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/194",
+      "queries": [
+        "L2Evwi50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evwy50cw==",
+          "data": "ww==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evwy50cw==",
+            "readOk": false,
+            "realpath": "L2Evwy50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/195",
+      "queries": [
+        "L2Evwy50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvxC50cw==",
+          "data": "xA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvxC50cw==",
+            "readOk": false,
+            "realpath": "L2EvxC50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/196",
+      "queries": [
+        "L2EvxC50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvxS50cw==",
+          "data": "xQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvxS50cw==",
+            "readOk": false,
+            "realpath": "L2EvxS50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/197",
+      "queries": [
+        "L2EvxS50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evxi50cw==",
+          "data": "xg==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evxi50cw==",
+            "readOk": false,
+            "realpath": "L2Evxi50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/198",
+      "queries": [
+        "L2Evxi50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evxy50cw==",
+          "data": "xw==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evxy50cw==",
+            "readOk": false,
+            "realpath": "L2Evxy50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/199",
+      "queries": [
+        "L2Evxy50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvyC50cw==",
+          "data": "yA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvyC50cw==",
+            "readOk": false,
+            "realpath": "L2EvyC50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/200",
+      "queries": [
+        "L2EvyC50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvyS50cw==",
+          "data": "yQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvyS50cw==",
+            "readOk": false,
+            "realpath": "L2EvyS50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/201",
+      "queries": [
+        "L2EvyS50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evyi50cw==",
+          "data": "yg==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evyi50cw==",
+            "readOk": false,
+            "realpath": "L2Evyi50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/202",
+      "queries": [
+        "L2Evyi50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evyy50cw==",
+          "data": "yw==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evyy50cw==",
+            "readOk": false,
+            "realpath": "L2Evyy50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/203",
+      "queries": [
+        "L2Evyy50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvzC50cw==",
+          "data": "zA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvzC50cw==",
+            "readOk": false,
+            "realpath": "L2EvzC50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/204",
+      "queries": [
+        "L2EvzC50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvzS50cw==",
+          "data": "zQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2EvzS50cw==",
+            "readOk": false,
+            "realpath": "L2EvzS50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/205",
+      "queries": [
+        "L2EvzS50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evzi50cw==",
+          "data": "zg==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evzi50cw==",
+            "readOk": false,
+            "realpath": "L2Evzi50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/206",
+      "queries": [
+        "L2Evzi50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Evzy50cw==",
+          "data": "zw==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Evzy50cw==",
+            "readOk": false,
+            "realpath": "L2Evzy50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/207",
+      "queries": [
+        "L2Evzy50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev0C50cw==",
+          "data": "0A==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev0C50cw==",
+            "readOk": false,
+            "realpath": "L2Ev0C50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/208",
+      "queries": [
+        "L2Ev0C50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev0S50cw==",
+          "data": "0Q==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev0S50cw==",
+            "readOk": false,
+            "realpath": "L2Ev0S50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/209",
+      "queries": [
+        "L2Ev0S50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev0i50cw==",
+          "data": "0g==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev0i50cw==",
+            "readOk": false,
+            "realpath": "L2Ev0i50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/210",
+      "queries": [
+        "L2Ev0i50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev0y50cw==",
+          "data": "0w==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev0y50cw==",
+            "readOk": false,
+            "realpath": "L2Ev0y50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/211",
+      "queries": [
+        "L2Ev0y50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev1C50cw==",
+          "data": "1A==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev1C50cw==",
+            "readOk": false,
+            "realpath": "L2Ev1C50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/212",
+      "queries": [
+        "L2Ev1C50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev1S50cw==",
+          "data": "1Q==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev1S50cw==",
+            "readOk": false,
+            "realpath": "L2Ev1S50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/213",
+      "queries": [
+        "L2Ev1S50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev1i50cw==",
+          "data": "1g==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev1i50cw==",
+            "readOk": false,
+            "realpath": "L2Ev1i50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/214",
+      "queries": [
+        "L2Ev1i50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev1y50cw==",
+          "data": "1w==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev1y50cw==",
+            "readOk": false,
+            "realpath": "L2Ev1y50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/215",
+      "queries": [
+        "L2Ev1y50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev2C50cw==",
+          "data": "2A==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev2C50cw==",
+            "readOk": false,
+            "realpath": "L2Ev2C50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/216",
+      "queries": [
+        "L2Ev2C50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev2S50cw==",
+          "data": "2Q==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev2S50cw==",
+            "readOk": false,
+            "realpath": "L2Ev2S50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/217",
+      "queries": [
+        "L2Ev2S50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev2i50cw==",
+          "data": "2g==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev2i50cw==",
+            "readOk": false,
+            "realpath": "L2Ev2i50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/218",
+      "queries": [
+        "L2Ev2i50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev2y50cw==",
+          "data": "2w==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev2y50cw==",
+            "readOk": false,
+            "realpath": "L2Ev2y50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/219",
+      "queries": [
+        "L2Ev2y50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev3C50cw==",
+          "data": "3A==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev3C50cw==",
+            "readOk": false,
+            "realpath": "L2Ev3C50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/220",
+      "queries": [
+        "L2Ev3C50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev3S50cw==",
+          "data": "3Q==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev3S50cw==",
+            "readOk": false,
+            "realpath": "L2Ev3S50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/221",
+      "queries": [
+        "L2Ev3S50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev3i50cw==",
+          "data": "3g==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev3i50cw==",
+            "readOk": false,
+            "realpath": "L2Ev3i50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/222",
+      "queries": [
+        "L2Ev3i50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev3y50cw==",
+          "data": "3w==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev3y50cw==",
+            "readOk": false,
+            "realpath": "L2Ev3y50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/223",
+      "queries": [
+        "L2Ev3y50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev4C50cw==",
+          "data": "4A==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev4C50cw==",
+            "readOk": false,
+            "realpath": "L2Ev4C50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/224",
+      "queries": [
+        "L2Ev4C50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev4S50cw==",
+          "data": "4Q==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev4S50cw==",
+            "readOk": false,
+            "realpath": "L2Ev4S50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/225",
+      "queries": [
+        "L2Ev4S50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev4i50cw==",
+          "data": "4g==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev4i50cw==",
+            "readOk": false,
+            "realpath": "L2Ev4i50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/226",
+      "queries": [
+        "L2Ev4i50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev4y50cw==",
+          "data": "4w==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev4y50cw==",
+            "readOk": false,
+            "realpath": "L2Ev4y50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/227",
+      "queries": [
+        "L2Ev4y50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev5C50cw==",
+          "data": "5A==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev5C50cw==",
+            "readOk": false,
+            "realpath": "L2Ev5C50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/228",
+      "queries": [
+        "L2Ev5C50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev5S50cw==",
+          "data": "5Q==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev5S50cw==",
+            "readOk": false,
+            "realpath": "L2Ev5S50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/229",
+      "queries": [
+        "L2Ev5S50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev5i50cw==",
+          "data": "5g==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev5i50cw==",
+            "readOk": false,
+            "realpath": "L2Ev5i50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/230",
+      "queries": [
+        "L2Ev5i50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev5y50cw==",
+          "data": "5w==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev5y50cw==",
+            "readOk": false,
+            "realpath": "L2Ev5y50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/231",
+      "queries": [
+        "L2Ev5y50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev6C50cw==",
+          "data": "6A==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev6C50cw==",
+            "readOk": false,
+            "realpath": "L2Ev6C50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/232",
+      "queries": [
+        "L2Ev6C50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev6S50cw==",
+          "data": "6Q==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev6S50cw==",
+            "readOk": false,
+            "realpath": "L2Ev6S50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/233",
+      "queries": [
+        "L2Ev6S50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev6i50cw==",
+          "data": "6g==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev6i50cw==",
+            "readOk": false,
+            "realpath": "L2Ev6i50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/234",
+      "queries": [
+        "L2Ev6i50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev6y50cw==",
+          "data": "6w==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev6y50cw==",
+            "readOk": false,
+            "realpath": "L2Ev6y50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/235",
+      "queries": [
+        "L2Ev6y50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev7C50cw==",
+          "data": "7A==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev7C50cw==",
+            "readOk": false,
+            "realpath": "L2Ev7C50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/236",
+      "queries": [
+        "L2Ev7C50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev7S50cw==",
+          "data": "7Q==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev7S50cw==",
+            "readOk": false,
+            "realpath": "L2Ev7S50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/237",
+      "queries": [
+        "L2Ev7S50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev7i50cw==",
+          "data": "7g==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev7i50cw==",
+            "readOk": false,
+            "realpath": "L2Ev7i50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/238",
+      "queries": [
+        "L2Ev7i50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev7y50cw==",
+          "data": "7w==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev7y50cw==",
+            "readOk": false,
+            "realpath": "L2Ev7y50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/239",
+      "queries": [
+        "L2Ev7y50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev8C50cw==",
+          "data": "8A==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev8C50cw==",
+            "readOk": false,
+            "realpath": "L2Ev8C50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/240",
+      "queries": [
+        "L2Ev8C50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev8S50cw==",
+          "data": "8Q==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev8S50cw==",
+            "readOk": false,
+            "realpath": "L2Ev8S50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/241",
+      "queries": [
+        "L2Ev8S50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev8i50cw==",
+          "data": "8g==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev8i50cw==",
+            "readOk": false,
+            "realpath": "L2Ev8i50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/242",
+      "queries": [
+        "L2Ev8i50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev8y50cw==",
+          "data": "8w==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev8y50cw==",
+            "readOk": false,
+            "realpath": "L2Ev8y50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/243",
+      "queries": [
+        "L2Ev8y50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev9C50cw==",
+          "data": "9A==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev9C50cw==",
+            "readOk": false,
+            "realpath": "L2Ev9C50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/244",
+      "queries": [
+        "L2Ev9C50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev9S50cw==",
+          "data": "9Q==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev9S50cw==",
+            "readOk": false,
+            "realpath": "L2Ev9S50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/245",
+      "queries": [
+        "L2Ev9S50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev9i50cw==",
+          "data": "9g==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev9i50cw==",
+            "readOk": false,
+            "realpath": "L2Ev9i50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/246",
+      "queries": [
+        "L2Ev9i50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev9y50cw==",
+          "data": "9w==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev9y50cw==",
+            "readOk": false,
+            "realpath": "L2Ev9y50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/247",
+      "queries": [
+        "L2Ev9y50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev+C50cw==",
+          "data": "+A==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev+C50cw==",
+            "readOk": false,
+            "realpath": "L2Ev+C50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/248",
+      "queries": [
+        "L2Ev+C50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev+S50cw==",
+          "data": "+Q==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev+S50cw==",
+            "readOk": false,
+            "realpath": "L2Ev+S50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/249",
+      "queries": [
+        "L2Ev+S50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev+i50cw==",
+          "data": "+g==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev+i50cw==",
+            "readOk": false,
+            "realpath": "L2Ev+i50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/250",
+      "queries": [
+        "L2Ev+i50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev+y50cw==",
+          "data": "+w==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev+y50cw==",
+            "readOk": false,
+            "realpath": "L2Ev+y50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/251",
+      "queries": [
+        "L2Ev+y50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev/C50cw==",
+          "data": "/A==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev/C50cw==",
+            "readOk": false,
+            "realpath": "L2Ev/C50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/252",
+      "queries": [
+        "L2Ev/C50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev/S50cw==",
+          "data": "/Q==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev/S50cw==",
+            "readOk": false,
+            "realpath": "L2Ev/S50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/253",
+      "queries": [
+        "L2Ev/S50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev/i50cw==",
+          "data": "/g==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev/i50cw==",
+            "readOk": false,
+            "realpath": "L2Ev/i50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/254",
+      "queries": [
+        "L2Ev/i50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Ev/y50cw==",
+          "data": "/w==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Ev/y50cw==",
+            "readOk": false,
+            "realpath": "L2Ev/y50cw=="
+          }
+        ]
+      },
+      "id": "raw-name/255",
+      "queries": [
+        "L2Ev/y50cw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EtYg==",
+          "data": "L2E=",
+          "link": true
+        },
+        {
+          "path": "L2EtYi9maWxl",
+          "data": "c2hhZG93",
+          "link": false
+        },
+        {
+          "path": "L2EvZmlsZQ==",
+          "data": "dGFyZ2V0",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "dGFyZ2V0",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L2EtYi9maWxl",
+            "readOk": true,
+            "realpath": "L2EtYi9maWxl"
+          }
+        ]
+      },
+      "id": "part-order",
+      "queries": [
+        "L2EtYi9maWxl"
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2FsaWFz",
+          "data": "L4A=",
+          "link": true
+        },
+        {
+          "path": "L4A=",
+          "data": "eA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2FsaWFz",
+            "readOk": false,
+            "realpath": "L4A="
+          }
+        ]
+      },
+      "id": "invalid-target",
+      "queries": [
+        "L2FsaWFz"
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L4A=",
+          "data": "L3RhcmdldA==",
+          "link": true
+        },
+        {
+          "path": "L3RhcmdldA==",
+          "data": "eA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "eA==",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L4A=",
+            "readOk": true,
+            "realpath": "L3RhcmdldA=="
+          }
+        ]
+      },
+      "id": "invalid-alias",
+      "queries": [
+        "L4A="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2E=",
+          "data": "eA==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": "path must be absolute"
+      },
+      "id": "relative-query",
+      "queries": [
+        "YQ=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2E=",
+          "data": "eA==",
+          "link": false
+        },
+        {
+          "path": "L2I=",
+          "data": "L2E=",
+          "link": true
+        },
+        {
+          "path": "L2IveA==",
+          "data": "eQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": "failed to create intermediate directories for \"b/x\": mkdir \"b\": path exists but is not a directory"
+      },
+      "id": "file-link-parent",
+      "queries": [
+        "L2IveA=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Rpci9saW5r",
+          "data": "L21pc3Npbmc=",
+          "link": true
+        },
+        {
+          "path": "L2Rpci9taXNzaW5n",
+          "data": "c2hhZG93",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "L2Rpcg==",
+            "readOk": false,
+            "realpath": "L2Rpcg=="
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Rpci9saW5r",
+            "readOk": false,
+            "realpath": "L2Rpci9saW5r"
+          }
+        ]
+      },
+      "id": "nested-broken-shadow-file",
+      "queries": [
+        "L2Rpcg==",
+        "L2Rpci9saW5r"
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2Rpci9saW5r",
+          "data": "L21pc3Npbmc=",
+          "link": true
+        },
+        {
+          "path": "L2Rpci9taXNzaW5nL2NoaWxk",
+          "data": "c2hhZG93",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "L2Rpcg==",
+            "readOk": false,
+            "realpath": "L2Rpcg=="
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L2Rpci9saW5r",
+            "readOk": false,
+            "realpath": "L2Rpci9saW5r"
+          }
+        ]
+      },
+      "id": "nested-broken-shadow-directory",
+      "queries": [
+        "L2Rpcg==",
+        "L2Rpci9saW5r"
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvZmlsZQ==",
+          "data": "eA==",
+          "link": false
+        },
+        {
+          "path": "L3o=",
+          "data": "L2EvZmlsZQ==",
+          "link": true
+        },
+        {
+          "path": "L3ovc2hhZG93L2ZpbGU=",
+          "data": "eQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": "failed to create intermediate directories for \"z/shadow/file\": mkdir \"a/file\": path exists but is not a directory"
+      },
+      "id": "intermediate-file-link",
+      "queries": [
+        "L3o="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L2EvZmlsZQ==",
+          "data": "eA==",
+          "link": false
+        },
+        {
+          "path": "L2Rpci96",
+          "data": "L2EvZmlsZQ==",
+          "link": true
+        },
+        {
+          "path": "L2Rpci96L3NoYWRvdy9maWxl",
+          "data": "eQ==",
+          "link": false
+        }
+      ],
+      "expected": {
+        "panic": "failed to create intermediate directories for \"dir/z/shadow/file\": mkdir \"a/file\": path exists but is not a directory"
+      },
+      "id": "nested-intermediate-file-link",
+      "queries": [
+        "L2Rpci96"
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L3JlYWwvZmlsZQ==",
+          "data": "dGFyZ2V0",
+          "link": false
+        },
+        {
+          "path": "L4A=",
+          "data": "L3JlYWw=",
+          "link": true
+        },
+        {
+          "path": "L4AvZmlsZQ==",
+          "data": "c2hhZG93",
+          "link": false
+        },
+        {
+          "path": "L3p6LWxpbms=",
+          "data": "L4AvZmlsZQ==",
+          "link": true
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L4AvZmlsZQ==",
+            "readOk": false,
+            "realpath": "L4AvZmlsZQ=="
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "L4A=",
+            "readOk": false,
+            "realpath": "L3JlYWw="
+          },
+          {
+            "content": "dGFyZ2V0",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L3JlYWwvZmlsZQ==",
+            "readOk": true,
+            "realpath": "L3JlYWwvZmlsZQ=="
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L3p6LWxpbms=",
+            "readOk": false,
+            "realpath": "L4AvZmlsZQ=="
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "Lw==",
+            "readOk": false,
+            "realpath": "Lw=="
+          }
+        ]
+      },
+      "id": "open-validation/invalid-80",
+      "queries": [
+        "L4AvZmlsZQ==",
+        "L4A=",
+        "L3JlYWwvZmlsZQ==",
+        "L3p6LWxpbms=",
+        "Lw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L3JlYWwvZmlsZQ==",
+          "data": "dGFyZ2V0",
+          "link": false
+        },
+        {
+          "path": "L/8=",
+          "data": "L3JlYWw=",
+          "link": true
+        },
+        {
+          "path": "L/8vZmlsZQ==",
+          "data": "c2hhZG93",
+          "link": false
+        },
+        {
+          "path": "L3p6LWxpbms=",
+          "data": "L/8vZmlsZQ==",
+          "link": true
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L/8vZmlsZQ==",
+            "readOk": false,
+            "realpath": "L/8vZmlsZQ=="
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "L/8=",
+            "readOk": false,
+            "realpath": "L3JlYWw="
+          },
+          {
+            "content": "dGFyZ2V0",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L3JlYWwvZmlsZQ==",
+            "readOk": true,
+            "realpath": "L3JlYWwvZmlsZQ=="
+          },
+          {
+            "content": "",
+            "directoryExists": false,
+            "fileExists": false,
+            "path": "L3p6LWxpbms=",
+            "readOk": false,
+            "realpath": "L/8vZmlsZQ=="
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "Lw==",
+            "readOk": false,
+            "realpath": "Lw=="
+          }
+        ]
+      },
+      "id": "open-validation/invalid-ff",
+      "queries": [
+        "L/8vZmlsZQ==",
+        "L/8=",
+        "L3JlYWwvZmlsZQ==",
+        "L3p6LWxpbms=",
+        "Lw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L3JlYWwvZmlsZQ==",
+          "data": "dGFyZ2V0",
+          "link": false
+        },
+        {
+          "path": "L8KA",
+          "data": "L3JlYWw=",
+          "link": true
+        },
+        {
+          "path": "L8KAL2ZpbGU=",
+          "data": "c2hhZG93",
+          "link": false
+        },
+        {
+          "path": "L3p6LWxpbms=",
+          "data": "L8KAL2ZpbGU=",
+          "link": true
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "dGFyZ2V0",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L8KAL2ZpbGU=",
+            "readOk": true,
+            "realpath": "L8KAL2ZpbGU="
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "L8KA",
+            "readOk": false,
+            "realpath": "L3JlYWw="
+          },
+          {
+            "content": "dGFyZ2V0",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L3JlYWwvZmlsZQ==",
+            "readOk": true,
+            "realpath": "L3JlYWwvZmlsZQ=="
+          },
+          {
+            "content": "dGFyZ2V0",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L3p6LWxpbms=",
+            "readOk": true,
+            "realpath": "L8KAL2ZpbGU="
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "Lw==",
+            "readOk": false,
+            "realpath": "Lw=="
+          }
+        ]
+      },
+      "id": "open-validation/valid-utf8",
+      "queries": [
+        "L8KAL2ZpbGU=",
+        "L8KA",
+        "L3JlYWwvZmlsZQ==",
+        "L3p6LWxpbms=",
+        "Lw=="
+      ]
+    },
+    {
+      "entries": [
+        {
+          "path": "L3JlYWwvZmlsZQ==",
+          "data": "dGFyZ2V0",
+          "link": false
+        },
+        {
+          "path": "L3otYWxpYXM=",
+          "data": "L3JlYWw=",
+          "link": true
+        },
+        {
+          "path": "L3otYWxpYXMvZmlsZQ==",
+          "data": "c2hhZG93",
+          "link": false
+        },
+        {
+          "path": "L3p6LWxpbms=",
+          "data": "L3otYWxpYXMvZmlsZQ==",
+          "link": true
+        }
+      ],
+      "expected": {
+        "panic": null,
+        "queries": [
+          {
+            "content": "dGFyZ2V0",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L3otYWxpYXMvZmlsZQ==",
+            "readOk": true,
+            "realpath": "L3otYWxpYXMvZmlsZQ=="
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "L3otYWxpYXM=",
+            "readOk": false,
+            "realpath": "L3JlYWw="
+          },
+          {
+            "content": "dGFyZ2V0",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L3JlYWwvZmlsZQ==",
+            "readOk": true,
+            "realpath": "L3JlYWwvZmlsZQ=="
+          },
+          {
+            "content": "dGFyZ2V0",
+            "directoryExists": false,
+            "fileExists": true,
+            "path": "L3p6LWxpbms=",
+            "readOk": true,
+            "realpath": "L3otYWxpYXMvZmlsZQ=="
+          },
+          {
+            "content": "",
+            "directoryExists": true,
+            "fileExists": false,
+            "path": "Lw==",
+            "readOk": false,
+            "realpath": "Lw=="
+          }
+        ]
+      },
+      "id": "open-validation/ascii",
+      "queries": [
+        "L3otYWxpYXMvZmlsZQ==",
+        "L3otYWxpYXM=",
+        "L3JlYWwvZmlsZQ==",
+        "L3p6LWxpbms=",
+        "Lw=="
+      ]
+    }
+  ]
+}

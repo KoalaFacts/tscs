@@ -1,0 +1,95 @@
+{
+  "date": "2026-10-25",
+  "baseCommit": "1d6ebec99da14e6f230e61b5a999703eb0e8d7bc",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "upstreamFunctions": [
+    "vfs/internal.decodeBytes",
+    "vfs/internal.decodeUtf16"
+  ],
+  "scope": "Byte-boundary foundation only; not connected to CLI, inventory fixture expansion, scanner or full VFS",
+  "csharpFiles": [
+    "src/Tscs.Compiler/SourceDecoder.cs"
+  ],
+  "reference": {
+    "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+    "sourcePath": "tsc/internal/vfs/internal/internal.go",
+    "sourceSha256": "2d641c466808f1417e4e20d46aa4beb7f9dcc1bc5fd872a5d134fb3ae56d1def",
+    "functionSourceSha256": "c47c585dbaffa3c791ec7052d200b626648dac22593eb9c20c0e0103b3a6e628",
+    "goVersion": "go version go1.27.3 linux/amd64"
+  },
+  "goldenFile": "tests/Tscs.Compiler.Tests/TestData/source-decoding.json",
+  "goldenSha256": "917d018ec4aea78883bdb3a7be0f95e2aa2f42cba5c561f4826fff7e624538ae",
+  "vectorCount": 764,
+  "fixtureSourceIds": [
+    "fixture:tsc/testdata/tests/cases/compiler/bom-utf16be.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/bom-utf16le.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/collisionCodeGenModuleWithUnicodeNames.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/instanceofOperator.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/promiseTest.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/regexInvalidUtf8WithUnicodeFlag.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/targetTypeBaseCalls.ts",
+    "fixture:tsc/testdata/tests/cases/compiler/unicodeIdentifierNames.ts"
+  ],
+  "xunitTests": [
+    "Tscs.Tests.SourceDecoderTests.DecodedBytesMatchPinnedGo(id, input, expected): one case per golden vector id",
+    "Tscs.Tests.SourceDecoderTests.ReturnedBytesDoNotAliasInput"
+  ],
+  "versions": {
+    "dotnetSdk": "10.0.402",
+    "xunit": "4.0.2",
+    "mtp": "2.5.1",
+    "node": "24.19.0",
+    "go": "1.27.3"
+  },
+  "validation": {
+    "red": "757 failed, original60 passed against decoder stub",
+    "directMtp": {
+      "passed": 825,
+      "failed": 0,
+      "skipped": 0
+    },
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "node": {
+      "passed": 54,
+      "failed": 0
+    },
+    "frozen": {
+      "matched": 29,
+      "total": 29
+    },
+    "goldenGeneration": "Actual pinned Go functions executed twice, outputs byte-identical",
+    "notFullCorpus": true,
+    "sdkCoordinator": {
+      "exitCode": 134,
+      "reason": "SocketException(13) Permission denied before test execution",
+      "directMtpSeparate": true
+    }
+  },
+  "commands": [
+    "node tools/generate-source-decoding-vectors.ts .artifacts/ts7-upstream tests/Tscs.Compiler.Tests/TestData/source-decoding.json",
+    "node tools/generate-source-decoding-vectors.ts .artifacts/ts7-upstream /tmp/tscs-source-decoding-repeat.json",
+    "cmp tests/Tscs.Compiler.Tests/TestData/source-decoding.json /tmp/tscs-source-decoding-repeat.json",
+    "dotnet build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false",
+    "dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --minimum-expected-tests 825 --fail-skips on --progress off",
+    "node --test tools/*.test.ts",
+    "node tools/verify-conformance.ts",
+    "./scripts/verify.sh"
+  ],
+  "compilerExecutedForOriginalFixtures": false,
+  "acceptance": "NOT_RUN",
+  "releaseEligible": false,
+  "review": {
+    "independent": true,
+    "importantFindings": 0,
+    "reviewerRegeneratedVectors": 764,
+    "byteIdentical": true
+  },
+  "sourceSnapshotSha256": {
+    "src/Tscs.Compiler/SourceDecoder.cs": "953d444e7884bc6293a76a4e4469304e34c7168974d906db5bfa1dcc0f005cf9",
+    "tests/Tscs.Compiler.Tests/SourceDecoderTests.cs": "45df10bc7d24e55ddb61dc690fa8a0552826503ec9ff19f2af14d6db0b7f2afa",
+    "tools/generate-source-decoding-vectors.ts": "c5d8bc1e760ead4b193b225928d6331f048c0c6991cd82e236eee3418fbe1106"
+  }
+}

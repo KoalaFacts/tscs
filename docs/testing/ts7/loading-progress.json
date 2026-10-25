@@ -1,0 +1,29 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "profile": "raw/default-options/unit-snapshot-callback",
+  "fixtureSources": 13006,
+  "rawVirtualUnits": 17804,
+  "callbackInvocations": 17804,
+  "upstreamSkippedSourcesRetained": 42,
+  "loading": {
+    "MATCH": 13006,
+    "MISMATCH": 0,
+    "REFERENCE_PANIC": 0,
+    "REFERENCE_ERROR": 0,
+    "CRASH": 0,
+    "TIMEOUT": 0,
+    "NOT_RUN": 0
+  },
+  "evidence": "../../evidence/fixture-corpus.json",
+  "resultsArtifact": {
+    "path": "results.jsonl",
+    "bytes": 9297829,
+    "sha256": "1db934c9b4908ffcb4566bf16d860e919c42ea2cf942e26c019dcd0661c4c479"
+  },
+  "compiler": "NOT_RUN",
+  "referenceCompiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "releaseEligible": false,
+  "concreteUpstreamTestCases": null,
+  "note": "Loading profile only. Upstream skips remain unresolved acceptance obligations. Other domains, configuration and execution variants are not this denominator."
+}

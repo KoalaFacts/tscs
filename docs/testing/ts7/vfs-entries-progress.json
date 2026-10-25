@@ -1,0 +1,26 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "profile": "readonly-vfs/case-sensitive/accessible-entries-boundary",
+  "referenceVectors": 534,
+  "matchedVectors": 534,
+  "readBoundaryVectors": 154,
+  "matchedReadVectors": 154,
+  "exploratorySyntheticCases": 1601,
+  "exploratoryMatches": 1601,
+  "exploratoryMismatches": 0,
+  "evidence": "../../evidence/pr6-vfs-open-validation.json",
+  "fullFixtureVfsCases": null,
+  "fullFixtureVfsStatus": "NOT_RUN",
+  "unresolved": [
+    "Product CLI and FixtureProtocol entries/VFS profile integration",
+    "Case folding, writes, clocks, permissions and mode variants",
+    "Cycles, deep chains and ambiguous overlapping link prefixes remain explicitly unsupported",
+    "Complete constructor/query/path error families and all execution profiles",
+    "Full13006 fixture actual VFS/config/makeUnitsFromTest/AST/compiler assertions"
+  ],
+  "compiler": "NOT_RUN",
+  "referenceCompiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "releaseEligible": false,
+  "historicalEvidence": "../../evidence/vfs-entries.json"
+}

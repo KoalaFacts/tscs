@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><IsPackable>false</IsPackable></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/Tscs.Compiler/Tscs.Compiler.csproj" />
+    <Compile Include="../fixture-harness/*.cs" Link="Harness/%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>

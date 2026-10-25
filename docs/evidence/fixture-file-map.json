@@ -1,0 +1,252 @@
+{
+  "date": "2026-10-25",
+  "baseCommit": "69103984e8a537a16afb5511b73092663ff80500",
+  "scope": "Pre-VFS rooted file map and link path projection, not symlink filesystem behavior or config/AST",
+  "execution": {
+    "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+    "profile": "file-map/default-options/rooted-files-and-link-projections",
+    "scope": "all selected compiler/conformance/transpile source fixtures including upstream skips",
+    "counts": {
+      "sources": 13006,
+      "rawUnits": 17804,
+      "callbacks": 17804,
+      "upstreamSkippedSources": 42,
+      "MATCH": 13006,
+      "MISMATCH": 0,
+      "REFERENCE_PANIC": 0,
+      "REFERENCE_ERROR": 0,
+      "CRASH": 0,
+      "fileEntries": 17799,
+      "links": 57
+    },
+    "goVersion": "go version go1.27.3 linux/amd64",
+    "nodeVersion": "v24.22.1",
+    "dotnetSdk": "10.0.402",
+    "sourceHashes": {
+      "tools/compare-fixture-corpus.ts": "97af91da00214355e399539e3f45725a2a33760033f8f0375cec7dfb3297b720",
+      "tools/fixture-corpus.ts": "15520b7cd79c6fda63ced1d2598ee0ad07bfefe67203c35ccd9167d543e07e2b",
+      "tools/fixture-harness/FixtureFileMap.cs": "25a42bbaa2f7e5b537d6db52797774c609db9cc0fa4695daa1081c86080759b1",
+      "tools/fixture-harness/FixturePaths.cs": "deb8760d91ebf8b6836e126efab6f89d317da2932f597516cb719bf8dbf25729",
+      "tools/fixture-harness/map_oracle_test.go": "0234b57e4be33f6f2ad4284a51d8727c115994c23931639022840e9e448a0373",
+      "tools/fixture-harness/state_oracle_test.go": "d82e0d936d8afa9b3a8f65da381b5aa5c645313f8044bbd826089e5f3254928e",
+      "tools/fixture-harness/FixtureProtocol.cs": "3b7710b8296ad23203ca0c574a9f58438c30d2752e83a0bc7513606de2710a9c",
+      "tools/fixture-harness/FixtureLoader.cs": "4d3f8ee13f29e22659d49b31ac1d7e2b93116b9197c1b3272e280e73d7fbeaf6",
+      "tools/fixture-harness/FixtureTrivia.cs": "3b72c1ea190e84c7fb101e21202e98becf81e9ef4ff254bcd7a22c38b7ce0d77",
+      "tools/fixture-harness/FixtureDirectives.cs": "2b4b7c1203c24902e81b2c5dc76fd7ed47ae13134e97449d634acc436bffe1ee",
+      "src/Tscs.Compiler/SourceDecoder.cs": "953d444e7884bc6293a76a4e4469304e34c7168974d906db5bfa1dcc0f005cf9",
+      "tools/Tscs.FixtureHarness/Program.cs": "8072b99bf395ccd665fb0741ced3c2ef1aef8c5955aec7969b913da5d6751e82",
+      "tools/Tscs.FixtureHarness/Tscs.FixtureHarness.csproj": "738281417ec0ad9d6db9843025a94b0225de4dc2c9fd138928f559e99417026b",
+      "Directory.Build.props": "13732ce9bcf14f2065948951e50572ef87f93d1d4c6726ce1b71b8efd1bbb92d",
+      "global.json": "6cac8ed8559756539f2db0e8cbf6d545ccc81d3d4b1ebbfcf3ee204d218847b4"
+    },
+    "referenceHashes": {
+      "tsc/internal/testrunner/compiler_runner.go": "1d0fe0e64d74bb1993de04851c86e108553ee4bbeb4dcde580e1c1820a89c3fa",
+      "tsc/internal/tsoptions/tsoptionstest/vfs.go": "91f188afd6f7e228800d3cf13dd555efaa27948a84b3c23611453d880951dfa4",
+      "tsc/internal/testrunner/test_case_parser.go": "03578c4d35165ee461f4e0488855ffb534eea9a5c598887b255f60817c07d34f",
+      "tsc/internal/scanner/scanner.go": "48008100fb5a020748651e319c4dcc361c1a81ca06f8c3e0ed94d42dd0d1e6df",
+      "tsc/internal/tspath/path.go": "6c5a8537f800a388555289c311dec38a47696ec88619b8d758edaed18d9a3328",
+      "tsc/internal/vfs/internal/internal.go": "2d641c466808f1417e4e20d46aa4beb7f9dcc1bc5fd872a5d134fb3ae56d1def"
+    },
+    "assemblies": {
+      "Tscs.FixtureHarness.dll": "35e078049ca1af9fed458d1f856619291526456f57d479fcfdd706c67fe519bf",
+      "Tscs.Compiler.dll": "126a89cf3ab85710fe8a905518d1335b53a99ef8b041df2c2a0c2759ed65a17d"
+    },
+    "inventorySummarySha256": "4d6ac90f47e17dbd6031787c338be1fe0bd7703e6b65cc610815601c4c9d6922",
+    "fixtureInventorySha256": "b7279f8a0a0740927363d9264b77ddba79ad8b687edd50886997b3b8e339d534",
+    "artifacts": [
+      {
+        "path": "requests.json",
+        "bytes": 15391541,
+        "sha256": "2267575376823fbca627d5fced91f14614fb7361b75d35b40bb6c2e341ccf745"
+      },
+      {
+        "path": "reference.json",
+        "bytes": 28859247,
+        "sha256": "4a679992636be650ab2c42dd27dc5c3a872c1a9c7684b4861f290aacd585f98d"
+      },
+      {
+        "path": "actual.jsonl",
+        "bytes": 13587598,
+        "sha256": "63cd07abf6bf2807374bda0903d4a5802b4556bf350cb6cf2848ad3e589bb68e"
+      },
+      {
+        "path": "results.jsonl",
+        "bytes": 9297829,
+        "sha256": "1cd960e762f7947121188654ade86264ab9dd8ea604590c857e91303446e7111"
+      },
+      {
+        "path": "build.log",
+        "bytes": 320,
+        "sha256": "48df41192847a304a10ce3f29e2db94ef91a7f9462be5d21746e5aab9aeeabd6"
+      },
+      {
+        "path": "reference.log",
+        "bytes": 68,
+        "sha256": "35a95b82d50b78223b5755990c66aae9d9b6775e1c88bdbdd6908043b74624e8"
+      },
+      {
+        "path": "actual.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "compiler": "NOT_RUN",
+    "referenceCompiler": "NOT_RUN",
+    "acceptance": "NOT_RUN",
+    "releaseEligible": false,
+    "limitations": [
+      "No AST/config/VFS construction; file-map profile includes only pre-VFS paths and files, preserving colliding normalized aliases separately",
+      "Implicit-first and callback-error profiles have separate 151 synthetic/boundary vectors, not full-corpus executions",
+      "Not all test domains or configuration/runtime variants are expanded"
+    ]
+  },
+  "golden": {
+    "path": "tests/Tscs.Compiler.Tests/TestData/fixture-map.json",
+    "sha256": "bd6a5b89d833f4b6f5c8a2c59e9bfa5e5896afe75e20c75d85127f62f6edf92f",
+    "vectors": 55,
+    "ids": [
+      "map//a.ts",
+      "map//../a.ts",
+      "map//x/../a.ts",
+      "map///root.ts",
+      "map//C:/root.ts",
+      "map//a?x",
+      "map//project/a.ts",
+      "map//project/../a.ts",
+      "map//project/x/../a.ts",
+      "map//project//root.ts",
+      "map//project/C:/root.ts",
+      "map//project/a?x",
+      "map/C:/src/a.ts",
+      "map/C:/src/../a.ts",
+      "map/C:/src/x/../a.ts",
+      "map/C:/src//root.ts",
+      "map/C:/src/C:/root.ts",
+      "map/C:/src/a?x",
+      "map/file:///c:/src/a.ts",
+      "map/file:///c:/src/../a.ts",
+      "map/file:///c:/src/x/../a.ts",
+      "map/file:///c:/src//root.ts",
+      "map/file:///c:/src/C:/root.ts",
+      "map/file:///c:/src/a?x",
+      "map/http://host/src/a.ts",
+      "map/http://host/src/../a.ts",
+      "map/http://host/src/x/../a.ts",
+      "map/http://host/src//root.ts",
+      "map/http://host/src/C:/root.ts",
+      "map/http://host/src/a?x",
+      "map/^/~ts-uri~/s/auth/dir/a.ts",
+      "map/^/~ts-uri~/s/auth/dir/../a.ts",
+      "map/^/~ts-uri~/s/auth/dir/x/../a.ts",
+      "map/^/~ts-uri~/s/auth/dir//root.ts",
+      "map/^/~ts-uri~/s/auth/dir/C:/root.ts",
+      "map/^/~ts-uri~/s/auth/dir/a?x",
+      "map/../base/a.ts",
+      "map/../base/../a.ts",
+      "map/../base/x/../a.ts",
+      "map/../base//root.ts",
+      "map/../base/C:/root.ts",
+      "map/../base/a?x",
+      "permissive-links",
+      "empty",
+      "duplicates",
+      "link-collision",
+      "fixture:tsc/testdata/tests/cases/compiler/bom-utf16be.ts",
+      "fixture:tsc/testdata/tests/cases/compiler/bom-utf16le.ts",
+      "fixture:tsc/testdata/tests/cases/compiler/collisionCodeGenModuleWithUnicodeNames.ts",
+      "fixture:tsc/testdata/tests/cases/compiler/instanceofOperator.ts",
+      "fixture:tsc/testdata/tests/cases/compiler/promiseTest.ts",
+      "fixture:tsc/testdata/tests/cases/compiler/regexInvalidUtf8WithUnicodeFlag.ts",
+      "fixture:tsc/testdata/tests/cases/compiler/targetTypeBaseCalls.ts",
+      "fixture:tsc/testdata/tests/cases/compiler/unicodeIdentifierNames.ts",
+      "invalid-name"
+    ],
+    "provenance": {
+      "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+      "goVersion": "go version go1.27.3 linux/amd64",
+      "sourceHashes": {
+        "tsc/internal/testrunner/compiler_runner.go": "1d0fe0e64d74bb1993de04851c86e108553ee4bbeb4dcde580e1c1820a89c3fa",
+        "tsc/internal/tsoptions/tsoptionstest/vfs.go": "91f188afd6f7e228800d3cf13dd555efaa27948a84b3c23611453d880951dfa4",
+        "tsc/internal/testrunner/test_case_parser.go": "03578c4d35165ee461f4e0488855ffb534eea9a5c598887b255f60817c07d34f",
+        "tsc/internal/scanner/scanner.go": "48008100fb5a020748651e319c4dcc361c1a81ca06f8c3e0ed94d42dd0d1e6df",
+        "tsc/internal/stringutil/util.go": "e15d8030900518eb0d8bd926751df2f7c7cfda6d49c7a82da36d58daeed22b9e",
+        "tsc/internal/tspath/path.go": "6c5a8537f800a388555289c311dec38a47696ec88619b8d758edaed18d9a3328",
+        "tsc/internal/vfs/internal/internal.go": "2d641c466808f1417e4e20d46aa4beb7f9dcc1bc5fd872a5d134fb3ae56d1def"
+      },
+      "stateProbeSha256": "d82e0d936d8afa9b3a8f65da381b5aa5c645313f8044bbd826089e5f3254928e",
+      "probeSha256": "0234b57e4be33f6f2ad4284a51d8727c115994c23931639022840e9e448a0373"
+    }
+  },
+  "tests": [
+    "Tscs.Tests.FixtureFileMapTests.RootedFileAndLinkMapsMatchPinnedGo: all55 IDs",
+    "file-map profile compares rooted contents and retains raw alias collisions",
+    "reference echoes must bind every result to the actual input bytes and file name"
+  ],
+  "results": {
+    "red": {
+      "failed": 54,
+      "passed": 2264
+    },
+    "green": {
+      "passed": 2319,
+      "failed": 0,
+      "skipped": 0
+    },
+    "node": {
+      "passed": 62,
+      "total": 62,
+      "skipped": 0
+    },
+    "frozen": {
+      "passed": 29,
+      "total": 29
+    },
+    "release": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "sdkCoordinator": {
+      "exitCode": 134,
+      "actualMinimumArgument": 2264,
+      "reason": "SocketException13 Unix pipe; no tests dispatched"
+    },
+    "repeatPayloads": "Initial and completed final execution requests/reference/actual/results byte-identical; pipeline added reference binding validation between them; summary/build logs not asserted equal",
+    "rawRegression": "All13006 MATCH; C# raw output byte-identical to prior complete raw profile",
+    "goldenRepeat": "All55 Go vectors regenerated byte-identical"
+  },
+  "review": {
+    "importantFindings": 0,
+    "minorFindingsAddressed": [
+      "Hash dependent state_oracle_test.go in generator provenance",
+      "Direct permissive URL-link empty/query/fragment regression",
+      "Reference input/fileName binding enforced; new test RED then GREEN"
+    ],
+    "secondReviewClaimed": false
+  },
+  "commands": [
+    "PATH=/tmp/tscs-go/go/bin:$PATH node tools/generate-fixture-map-vectors.ts .artifacts/ts7-upstream tests/Tscs.Compiler.Tests/TestData/fixture-map.json",
+    "PATH=/tmp/tscs-go/go/bin:$PATH DOTNET=/tmp/tscs-dotnet/dotnet node tools/compare-fixture-corpus.ts .artifacts/ts7-upstream .artifacts/ts7-scope .artifacts/fixture-map-final-repeat file-map",
+    "PATH=/tmp/tscs-go/go/bin:$PATH DOTNET=/tmp/tscs-dotnet/dotnet node tools/compare-fixture-corpus.ts .artifacts/ts7-upstream .artifacts/ts7-scope .artifacts/fixture-raw-map-regression",
+    "dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --progress off",
+    "PATH=/tmp/tscs-go/go/bin:$PATH DOTNET=/tmp/tscs-dotnet/dotnet node --test tools/*.test.ts",
+    "DOTNET=/tmp/tscs-dotnet/dotnet node tools/verify-conformance.ts"
+  ],
+  "excludedExecution": {
+    "path": ".artifacts/fixture-map-final",
+    "reason": "Waiting on this incomplete attempt was rejected by automatic approval review due to possible test/build telemetry. No retry; excluded from all pass claims. Completed independent final-repeat run supplies evidence."
+  },
+  "compiler": "NOT_RUN",
+  "referenceCompiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "releaseEligible": false,
+  "notRun": [
+    "Actual VFS entries/symlink traversal or collision behavior",
+    "Config JSON parsing/makeUnitsFromTest completion",
+    "AST/compiler configurations and baselines"
+  ],
+  "rawArchive": {
+    "libraryFileId": "libfile_18bfc03d02808191b6f308d6f7734e37",
+    "filename": "tscs-file-map-evidence-2026-10-25.tar.gz",
+    "sha256": "953d0e5642021039af073a4251c75cf9920d099f0dbca0a95d9a292b94d14304"
+  }
+}
