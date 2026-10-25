@@ -9,7 +9,7 @@ public static class FixtureOptionValues
  // Pinned declaration names are ASCII. Go EqualFold additionally recognizes these
  // two non-ASCII members of ASCII simple-fold cycles; no culture-sensitive casing.
  private static string FoldName(string s)=>new(s.Select(c=>c=='\u017f'?'s':c=='\u212a'?'k':c is >= 'A' and <= 'Z'?(char)(c+32):c).ToArray());
- private static string Lower(string s)=>s.Replace('\u0130','i').ToLowerInvariant();
+ internal static string Lower(string s)=>PinnedGoLowercase.Lower(s);
  public static object Split(string option,string value,JsonElement declarations)
  {
   object Result(string[]? values=null,string? panic=null,bool fatal=false)=>new{values,panic,fatal};

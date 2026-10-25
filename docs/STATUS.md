@@ -3,6 +3,25 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Named configuration products — 2026-10-25
+
+- Ported GetFileBasedTestConfigurations products, exact varyBy key membership,
+  scalar merging, varying-only names, nil return and25-configuration cap.
+- Actual pinned Go helper supplies2920 settings inputs:2526 normal/nil,
+  187 expected panic and207 expected fatal results, producing4328 named records.
+  These are synthetic helper inputs/outputs, not fixture or compiler pass counts.
+- Independent review found host Unicode tables differed from pinned Go17 for55
+  scalars. Generated and embedded all1488 Go simple lowercase mappings; every
+  uppercase/lowercase pair is exercised through the real configuration helper.
+  Config enumeration is normalized by name then UTF8 key/value tuples.
+- RED1432/4478, Unicode regression RED55/7343, final direct MTP7398/7398;
+  Node65/65, frozen29/29, Release0/0. Both golden and lowercase table repeat
+  byte-identically. Go exit1 is intentional and failed subtests reconciled.
+- [Evidence](evidence/configuration-products.json). Source setting extraction,
+  compilerVaryBy expansion across fixtures, compiler/transpile runner fallbacks,
+  effective config/AST/compiler assertions remain NOT_RUN. Go mixed fatal/panic
+  map traversal precedence is unspecified; no deterministic precedence claim.
+
 ## Canonical option-value splitting — 2026-10-25
 
 - Ported pinned splitOptionValues in C#: Go whitespace, boolean/enum/string
