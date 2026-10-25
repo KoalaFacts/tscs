@@ -30,6 +30,14 @@ and a tscs-only `--json` diagnostic mode are available.
 
 A minimal `tsconfig.json` may specify `files` and `compilerOptions.noEmit`, `noLib`,
 and `target`. File paths resolve relative to the config. Run it with `-p path/to/tsconfig.json`.
+The config path now uses the C# scanner and a bounded JSON AST reader for objects,
+arrays, strings, booleans/null and decimal integers (including unary minus).
+Comments/trailing commas are supported; names and string values get TS1327 quote
+validation. Other numeric forms, non-ASCII unquoted names, general syntax recovery
+and effective TypeScript configuration expansion remain unsupported. This is not
+full TS7 JSONC/config compatibility. System.Text.Json is used for diagnostic output,
+not configuration parsing.
+
 Exactly one non-declaration `.ts` file is supported, with optional minimal global
 `.d.ts` files. Those files may only contain the empty global interfaces shown in the example.
 
@@ -62,7 +70,7 @@ The C# suite now has 7,853 cases (including 764 byte-decoding, 535 directive, 15
 After building, run just this suite with:
 
 ```sh
-dotnet test --solution Tscs.slnx -c Release --no-build --no-restore -- --fail-skips on --minimum-expected-tests 8557
+dotnet test --solution Tscs.slnx -c Release --no-build --no-restore -- --fail-skips on --minimum-expected-tests 8592
 ```
 
 The .NET 10 MTP runner is selected in `global.json`. If an execution environment
@@ -70,7 +78,7 @@ cannot launch the SDK's test coordinator, the same built MTP executable can also
 be run directly, without changing permissions or disabling isolation:
 
 ```sh
-dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 8557
+dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 8592
 ```
 
 Record direct execution separately from `dotnet test`; a direct pass is not a

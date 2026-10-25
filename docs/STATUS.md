@@ -3,6 +3,28 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Product bounded JSON AST and config path — 2026-10-26
+
+- Added an object/array/scalar AST reader over the product scanner's JSON mode.
+  Preserves property/element order and UTF16 spans/values, accepts comments and
+  trailing commas, and performs the pinned recursive TS1327 quote validation.
+  The CLI config path now consumes this AST, replacing System.Text.Json parsing;
+  config lexical/quote diagnostics retain locations and use exit2.
+-22 actual pinned ParseSourceFile(ScriptKindJSON) vectors compare the complete
+  selected tree projection and every diagnostic. RED23fail/8558pass ->8581;
+  guards and one independent review corrective pass ->8592/8592, Node69/69,
+  frozen29/29, Release0 warnings/errors; golden repeated byte-identically.
+- Independent review found the host identifier approximation exposed U+2E2F
+  incorrectly through JSON names. Five new guards RED5/8587 -> GREEN8592.
+  JSON-mode unquoted names are now ASCII-bounded; quoted Unicode remains
+  supported. Raw Go recovery repro retained, not mislabeled as matched support.
+  [Evidence and raw logs](evidence/json-ast.json).
+- This is a bounded parser/config-host integration, not full JSON recovery or
+  effective config. Non-integer numeric forms, unquoted Unicode names, other
+  AST/parser grammar and all original compiler acceptance remain incomplete.
+  Original source profiles, seven reference fatals and unknown denominators
+  are retained; no full corpus rerun or release claim.
+
 ## Numeric escape coverage correction — 2026-10-26
 
 - Addressed the review discrepancy: the previous368-vector cohort covered08,

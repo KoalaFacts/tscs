@@ -1,4 +1,4 @@
-using System.Text.Json;
+
 
 namespace Tscs;
 
@@ -47,40 +47,43 @@ internal sealed class Options
     {
         if(Directory.Exists(file))file=Path.Combine(file,"tsconfig.json");
         file=Path.GetFullPath(file);
-        using var doc=JsonDocument.Parse(File.ReadAllText(file),new JsonDocumentOptions{CommentHandling=JsonCommentHandling.Skip,AllowTrailingCommas=true});
-        var root=doc.RootElement;
-        if(root.ValueKind!=JsonValueKind.Object)throw new InputFailure("Configuration must be an object.");
+        var text=File.ReadAllText(file);var parsed=JsonSyntax.Parse(file,text);
+        if(parsed.Diagnostics.Count>0)throw new ConfigSyntaxFailure(text,parsed.Diagnostics);
+        var root=parsed.Root;
+        if(root?.Kind!="Object")throw new InputFailure("Configuration must be an object.");
         var keys=new HashSet<string>(StringComparer.Ordinal);
-        foreach(var p in root.EnumerateObject())
+        foreach(var p in root!.Properties)
         {
-            if(!keys.Add(p.Name))throw new InputFailure("Duplicate configuration keys are not supported.");
-            switch(p.Name)
+            if(!keys.Add((p.Name.Token.Value??p.Name.Token.Text)))throw new InputFailure("Duplicate configuration keys are not supported.");
+            switch((p.Name.Token.Value??p.Name.Token.Text))
             {
                 case "files":
-                    if(p.Value.ValueKind!=JsonValueKind.Array)throw new InputFailure("files must be an array.");
-                    foreach(var item in p.Value.EnumerateArray())
-                    {if(item.ValueKind!=JsonValueKind.String||string.IsNullOrEmpty(item.GetString()))throw new InputFailure("File paths must be nonempty strings.");Files.Add(Path.GetFullPath(item.GetString()!,Path.GetDirectoryName(file)!));}
+                    if(p.Value.Kind!="Array")throw new InputFailure("files must be an array.");
+                    foreach(var item in p.Value.Elements)
+                    {if(item.Kind!="String"||string.IsNullOrEmpty(item.Token.Value))throw new InputFailure("File paths must be nonempty strings.");Files.Add(Path.GetFullPath(item.Token.Value!,Path.GetDirectoryName(file)!));}
                     break;
                 case "compilerOptions":
-                    if(p.Value.ValueKind!=JsonValueKind.Object)throw new InputFailure("compilerOptions must be an object.");
+                    if(p.Value.Kind!="Object")throw new InputFailure("compilerOptions must be an object.");
                     var optionKeys=new HashSet<string>(StringComparer.Ordinal);
-                    foreach(var option in p.Value.EnumerateObject())
+                    foreach(var option in p.Value.Properties)
                     {
-                        if(!optionKeys.Add(option.Name))throw new InputFailure("Duplicate compiler options are not supported.");
-                        switch(option.Name)
+                        if(!optionKeys.Add((option.Name.Token.Value??option.Name.Token.Text)))throw new InputFailure("Duplicate compiler options are not supported.");
+                        switch((option.Name.Token.Value??option.Name.Token.Text))
                         {
                             case "noEmit":noEmit=Boolean(option.Value);break;
                             case "noLib":noLib=Boolean(option.Value);break;
-                            case "target":if(option.Value.ValueKind!=JsonValueKind.String)throw new InputFailure("target must be a string.");ValidateTarget(option.Value.GetString()!);break;
-                            default:throw new InputFailure($"Unsupported compiler option '{option.Name}'.");
+                            case "target":if(option.Value.Kind!="String")throw new InputFailure("target must be a string.");ValidateTarget(option.Value.Token.Value!);break;
+                            default:throw new InputFailure($"Unsupported compiler option '{(option.Name.Token.Value??option.Name.Token.Text)}'.");
                         }
                     }
                     break;
-                default:throw new InputFailure($"Unsupported configuration property '{p.Name}'.");
+                default:throw new InputFailure($"Unsupported configuration property '{(p.Name.Token.Value??p.Name.Token.Text)}'.");
             }
         }
     }
-    private static bool Boolean(JsonElement value)=>value.ValueKind switch{JsonValueKind.True=>true,JsonValueKind.False=>false,_=>throw new InputFailure("Expected a boolean compiler option.")};
+    private static bool Boolean(JsonSyntaxNode value)=>value.Kind switch{"True"=>true,"False"=>false,_=>throw new InputFailure("Expected a boolean compiler option.")};
     private static void ValidateTarget(string target)
     {if(!target.Equals("es2015",StringComparison.OrdinalIgnoreCase)&&!target.Equals("es6",StringComparison.OrdinalIgnoreCase))throw new InputFailure("Only target es2015/es6 is supported by the bootstrap.");}
 }
+
+internal sealed class ConfigSyntaxFailure(string text,IReadOnlyList<Diagnostic> diagnostics):Exception("Configuration syntax failed."){public string Text {get;}=text;public IReadOnlyList<Diagnostic> Diagnostics {get;}=diagnostics;}

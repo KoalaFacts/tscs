@@ -54,6 +54,24 @@ public class CommandLineTests : IDisposable
         Assert.Equal(exit,result.Code);using var d=System.Text.Json.JsonDocument.Parse(result.Out);var diagnostics=d.RootElement.GetProperty("diagnostics").EnumerateArray().ToArray();
         if(exit==0)Assert.Empty(diagnostics);else {var error=Assert.Single(diagnostics);Assert.Equal(code,error.GetProperty("code").GetString());Assert.Equal(11,error.GetProperty("start").GetInt32());Assert.Equal(escape.Length,error.GetProperty("length").GetInt32());}
     }
+    [Fact]
+    public void ProjectUsesProductJsonStringDecoding()
+    {
+        Write("a.ts","let s = 1;");Lib();
+        var project=Write("tsconfig.json","{\"files\":[\"\\a.ts\",\"minimal.d.ts\"],\"compilerOptions\":{\"noEmit\":true,\"noLib\":true}}");
+        Assert.Equal(0,Run("-p",project).Code);
+    }
+    [Fact]
+    public void ProjectSingleQuotesReportJsonSyntaxDiagnostic()
+    {
+        var result=Run("--json","-p",Write("tsconfig.json","{'files':[]}"));
+        Assert.Equal(2,result.Code);Assert.Contains("TS1327",result.Out);
+    }
+    [Fact]
+    public void UnportedJsonIdentifierClassificationHasUnsupportedExit()
+    {
+        var result=Run("--json","-p",Write("tsconfig.json","{ⸯ:true}"));Assert.Equal(1,result.Code);Assert.Contains("TSCS1001",result.Out);
+    }
     [Fact] public void MissingInputFails()=>Assert.NotEqual(0,Run().Code);
     [Fact] public void UnknownOptionFails()=>Assert.NotEqual(0,Run("--imaginary").Code);
     [Fact] public void MissingFileFails()=>Assert.NotEqual(0,Run("--noEmit","--noLib",Path.Combine(directory,"missing.ts")).Code);

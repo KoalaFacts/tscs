@@ -1,0 +1,147 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "profile": "product-json-ast/bounded-containers-scalars-quote-validation",
+  "vectors": 22,
+  "ids": [
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20",
+    "21"
+  ],
+  "counts": {
+    "projectedNodes": 76,
+    "diagnostics": 8,
+    "errorBearingSources": 6,
+    "originalCompilerAcceptances": 0
+  },
+  "oracle": {
+    "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+    "goVersion": "go version go1.27.3 linux/amd64",
+    "parserSourceSha256": "18fbeb9644a2c642d2757188107f2a802e8084cf1ed56a24c78bab1933328c2e",
+    "scannerSourceSha256": "48008100fb5a020748651e319c4dcc361c1a81ca06f8c3e0ed94d42dd0d1e6df",
+    "probeSha256": "55623382fa996346b83f820618221dedddeb2c3651b72a1fd8234d07fb633145",
+    "tokenFlagsSha256": "98f7010c7113b1ac781205175de9fe0c9c9c5854b10744d03e32127eb72f2b29",
+    "diagnosticsSha256": "a0ca35f6d8bc101541dc9c91ce85b2962d97e5f26e59cbed184efb81d16255e9",
+    "stringUtilSha256": "e15d8030900518eb0d8bd926751df2f7c7cfda6d49c7a82da36d58daeed22b9e"
+  },
+  "oracleScope": "Actual pinned parser.ParseSourceFile(ScriptKindJSON) including recursive quote validation and shared scanner; no own mirror factory. Ordered property/array paths, UTF16 spans/values and diagnostics compared. Unary-minus Go PrefixUnaryExpression is deliberately projected to a Number leaf with signed number text, not a full GoAST clone. String values transported as UTF16 arrays via DecodeJSStringRune, never lossy JSON string values.",
+  "sourceHashes": {
+    "src/Tscs.Compiler/JsonSyntax.cs": "4c79f455f53f2068eb774dfb8f6013dcbc488ef3850cf512689669596630dfb3",
+    "src/Tscs.Compiler/Scanner.cs": "1f1b8a495dd01db1e582da7c3401355834d222f0a47a189880e3bf9076faa918",
+    "src/Tscs.Compiler/Syntax.cs": "47e3c8219bf904b2d4535e9a767e30b08020e5b37166fbe5e892e8c6b2717e08",
+    "src/Tscs.Compiler/AssemblyInfo.cs": "f9b6f486ec82956d5b6817697889c302bc37c3bab5b69b0e27a5db4550dfdfd9",
+    "src/Tscs.Cli/Options.cs": "be41cb51475e2df2ebb5649fc1407cc747154bb05136802fdd7360e1f1f56a3a",
+    "src/Tscs.Cli/CommandLine.cs": "392c8bb4d11f9d913bece0c48f2a143faeee6e5b85f23231e47b1ae099d09656",
+    "tests/Tscs.Compiler.Tests/JsonAstTests.cs": "64f53701b0b1af19fb5e53124c8a94038234053c2d6c1f4431d72aef16f17e6f",
+    "tests/Tscs.Compiler.Tests/CommandLineTests.cs": "785b457a260233b640bc8f14ba586a1a47838bdff4ebd9b6c8a7810fe22157db",
+    "tests/Tscs.Compiler.Tests/Tscs.Compiler.Tests.csproj": "74acac36d50d036603bcab6de1ddf4bffa35ffa0979f0bccd47722290a8336fb",
+    "tests/Tscs.Compiler.Tests/TestData/json-ast.json": "e123c9af82e15c5c515bcab1df4583387faa772167d8b1830b416541cc9ef919",
+    "tools/generate-json-ast.ts": "01a45e8b0e352bfbd9999fda3556866faf1118986c1e0d00d3b7b980d08c2976",
+    "tools/fixture-harness/json_ast_oracle_test.go": "55623382fa996346b83f820618221dedddeb2c3651b72a1fd8234d07fb633145"
+  },
+  "assemblyHashes": {
+    "src/Tscs.Compiler/bin/Release/net10.0/Tscs.Compiler.dll": "1ac76aa86c5d44e8acb06f221074c9ebe6c71724b694eb11d2aafb817ac2c217",
+    "src/Tscs.Cli/bin/Release/net10.0/tscs.dll": "195e98cf60985b3eca07107953426afe930f5d2af978d34a81937ba6e396a25a",
+    "tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll": "699268fec7027175715efbbcb457d04aaad9d6ebb85751867f19e685a0d10771"
+  },
+  "results": {
+    "red": {
+      "failed": 23,
+      "passed": 8558,
+      "note": "22Go cases +2CLI; empty-source case passes stub"
+    },
+    "initialGreen": {
+      "passed": 8581,
+      "failed": 0
+    },
+    "reviewRed": {
+      "failed": 5,
+      "passed": 8587
+    },
+    "finalDirectMTP": {
+      "passed": 8592,
+      "failed": 0,
+      "skipped": 0
+    },
+    "node": 69,
+    "frozen": 29,
+    "build": "0 warnings/errors",
+    "repeat": "22-vector golden byte-identical",
+    "sdkOrchestration": "NOT_RUN"
+  },
+  "review": {
+    "independent": "Regenerated22 actual-Go golden byte-identically; ran28 JsonAstTests; audited selected parser/transport/mode/depth. Found1P2 host Unicode identifier classification leak (U2E2F).",
+    "authorCorrectivePass": "5RED regressions -> JSON-mode non-ASCII unquoted names explicitly TSCS1001; quoted Unicode remains supported. Actual Go recovery reproduction persisted. Full8592 suite and Node/frozen rerun pass.",
+    "secondIndependentReview": false
+  },
+  "policyGuards": "6original grammar/mode/depth guards +4nonASCII-name guards and1CLI unsupported guard are own policy tests, not Go accepted fixtures. New2CLI integration cases require product escape decoding and config TS1327.",
+  "configScope": "ReadConfig now consumes C# JsonSyntaxNode directly, replacing System.Text.Json config parsing; JSON serializer remains for CLI diagnostics only. Existing bootstrap supported settings/duplicate rejection/exactly-one-code-file/minimal globals restrictions retained. Config syntax carries actual file/text/diagnostics and syntaxexit2 or unsupportedexit1. Not whole effective-options/config host equivalence.",
+  "versions": {
+    "go": "1.27.3",
+    "sdk": "10.0.402",
+    "runtime": "10.0.13",
+    "node": "24.22.1",
+    "xunit": "4.0.2",
+    "mtp": "2.5.1"
+  },
+  "commands": [
+    "node tools/generate-json-ast.ts .artifacts/ts7-upstream OUTPUT",
+    "dotnet build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false",
+    "dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --minimum-expected-tests 8592 --fail-skips on",
+    "node --test tools/*.test.ts",
+    "node tools/verify-conformance.ts"
+  ],
+  "environment": "DOTNET_CLI_TELEMETRY_OPTOUT=1; pinned Go PATH, XDG_CONFIG_HOME=/tmp/tscs-offline-config telemetryoff verified, GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local; no-restore/local cached NuGet only",
+  "excludedAttempt": "stub-name-collision.log: initial JsonNode stub shadowed System.Text.Json.Nodes in existing tests; build failed before tests. Renamed JsonSyntaxNode and rebuilt before genuineRED. Not test RED or a pass.",
+  "logs": {
+    "docs/evidence/json-ast-run/build.log": "9a7356a32e6de4c22bb4ba67aaa7b67bcc271585b6c5677a2cbc3571c9a33d94",
+    "docs/evidence/json-ast-run/final-build.log": "9a950b7ad6425465ba2ba5d65dbdfca5aaad90422c7fac7bfc28352f02605fcf",
+    "docs/evidence/json-ast-run/final-frozen.log": "441c7bad381ac65cb1890aaf8424ec7b8999b55ef7574e9836a3516c151bc4b9",
+    "docs/evidence/json-ast-run/final-node.log": "19d32853728104c5995be92719ff5d44361c15fe496aeb3fb114e248165e106f",
+    "docs/evidence/json-ast-run/final.log": "efdfcb74bbf727a7bfe069f34bc089dc8d7c53898a37f2675a015d097c9692a6",
+    "docs/evidence/json-ast-run/frozen.log": "441c7bad381ac65cb1890aaf8424ec7b8999b55ef7574e9836a3516c151bc4b9",
+    "docs/evidence/json-ast-run/generate.log": "56c54ec01b0f3c4e4310c30e50085087811feb76ddcbbccad5f04f14f5c4f4c1",
+    "docs/evidence/json-ast-run/go-repeat.log": "74a78f51ddcfdc02c822d07be44e944f1acb951ebb663be43ff6c26d13d0451f",
+    "docs/evidence/json-ast-run/go.log": "155f36e9d61d14ab75387773c04a2e619030eedace6f56d712860f2dbed0b950",
+    "docs/evidence/json-ast-run/green.log": "09445a829fe5517a6531baf4f6bc2e3cd7017823752a5a27462d7a18fe7c2537",
+    "docs/evidence/json-ast-run/node.log": "5e9785757f93b1137d5c124210380e74e423a53540b958684f183ea82d7e2d0b",
+    "docs/evidence/json-ast-run/red-build.log": "97edaceb23270bec519b98351d04d81766bb0f9a595127f8c873f43618b08ecb",
+    "docs/evidence/json-ast-run/red.log": "74386626a10e28f1c34c1baa394aa00bc064f7b6033012378f11bd1cff2eb537",
+    "docs/evidence/json-ast-run/repeat.log": "56c54ec01b0f3c4e4310c30e50085087811feb76ddcbbccad5f04f14f5c4f4c1",
+    "docs/evidence/json-ast-run/review-red-build.log": "a0690a0b6155fc30883832e7baabb1e36342326986247ab2cc63062a685d568d",
+    "docs/evidence/json-ast-run/review-red.log": "3191da395e7f40c10fc6df2f219da57cf7f7c78b4d8ca59f9377e94085ea3485",
+    "docs/evidence/json-ast-run/stub-name-collision.log": "1641586b9940541fd98329b44471889f92472bcc36037c57cfd54e5a97a3b21f",
+    "docs/evidence/json-ast-run/unicode-repro-go.log": "74a78f51ddcfdc02c822d07be44e944f1acb951ebb663be43ff6c26d13d0451f",
+    "docs/evidence/json-ast-run/unicode-repro-input.json": "b9181c98ce8dbc747d5afec02d9d6ae58be1f77e76531e0656586c98fa290df5",
+    "docs/evidence/json-ast-run/unicode-repro-reference.json": "80d48cd0d451e6a8f7c793ae592bbddbb77610df24ca3ca5473401a7942b3831"
+  },
+  "limitations": [
+    "General JSON parser recovery/property expression grammar not ported: unsupported remains explicit",
+    "Fractions/exponents/nondecimal formats and non-ASCII unquoted names unsupported",
+    "Source/depth bootstrap limits explicit; policy guards not compatibility credit",
+    "No full13006fixture/config/AST/compiler/referenceCompiler/runtime profiles run this round",
+    "All prior seven reference fatals, original test domains and unknown concrete-case denominators retained"
+  ],
+  "compiler": "NOT_RUN",
+  "referenceCompiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "releaseEligible": false
+}

@@ -4,7 +4,7 @@ using System.Text;
 namespace Tscs;
 
 // Bounded port of upstream scanner.Scan: trivia, identifier, primitive literal and punctuation paths.
-internal sealed class Scanner(string file, string text)
+internal sealed class Scanner(string file, string text, bool jsonMode=false)
 {
     private int position;
     public List<Diagnostic> Diagnostics { get; } = [];
@@ -30,7 +30,7 @@ internal sealed class Scanner(string file, string text)
                         position += 2;
                     }
                     string comment = text[start..position];
-                    if (comment.Contains("@ts-", StringComparison.Ordinal) || comment.StartsWith("///", StringComparison.Ordinal))
+                    if (!jsonMode && (comment.Contains("@ts-", StringComparison.Ordinal) || comment.StartsWith("///", StringComparison.Ordinal)))
                         throw Error(new(TokenKind.Unsupported,comment,start,position-start),"TSCS1001","Comment directives are not supported yet.");
                     continue;
                 }
@@ -44,6 +44,13 @@ internal sealed class Scanner(string file, string text)
                 string value = text[begin..position];
                 kind = value switch { "let"=>TokenKind.Let,"const"=>TokenKind.Const,"true"=>TokenKind.True,"false"=>TokenKind.False,
                     "case" or "default" or "extends" or "super" or "catch" or "finally" or "in" or "instanceof" or "implements" or "package" or "private" or "protected" or "public" or "static" or "function" or "class" or "var" or "interface" or "type" or "import" or "export" or "declare" or "if" or "else" or "return" or "while" or "for" or "switch" or "new" or "null" or "undefined" or "this" or "throw" or "try" or "enum" or "async" or "await" or "yield" or "break" or "continue" or "do" or "delete" or "typeof" or "void" or "with" or "debugger" or "namespace" or "using" => TokenKind.Unsupported, _ => TokenKind.Identifier };
+                if(jsonMode)
+                {
+                    // The bootstrap identifier classifier uses host Unicode tables.
+                    // Do not expose that approximation as JSON name acceptance.
+                    if(value.Any(c=>c>127))throw Error(new(TokenKind.Unsupported,value,begin,position-begin),"TSCS1001","Non-ASCII unquoted JSON names are not supported yet.");
+                    kind=value switch {"true"=>TokenKind.True,"false"=>TokenKind.False,"null"=>TokenKind.Null,_=>TokenKind.Identifier};
+                }
             }
             else if (first is >= '0' and <= '9')
             {
@@ -56,7 +63,7 @@ internal sealed class Scanner(string file, string text)
                 kind = TokenKind.String;
                 decodedValue = ScanString(first, out stringFlags);
             }
-            else kind = first switch { '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,_=>TokenKind.Unsupported };
+            else kind = first switch { '[' when jsonMode=>TokenKind.OpenBracket,']' when jsonMode=>TokenKind.CloseBracket,'-' when jsonMode=>TokenKind.Minus, '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,_=>TokenKind.Unsupported };
             var token = new Token(kind,text[begin..position],begin,position-begin,lineBreak,decodedValue,stringFlags);
             if (kind == TokenKind.Unsupported) throw Error(token,"TSCS1001",$"Unsupported syntax '{token.Text}'.");
             tokens.Add(token);
