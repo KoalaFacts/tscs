@@ -1,0 +1,100 @@
+✔ a real config syntax error remains MATCH_DIAGNOSTICS and never clean MATCH (2.092718ms)
+✔ selected content and rooted context mismatches cannot earn value matches (0.623274ms)
+✔ changed converted values or extra conversion errors remain mismatches (0.37672ms)
+✔ absent, unsupported and panic outcomes cannot earn matches (0.394607ms)
+✔ missing, repeated or reordered actual identities reject the profile (0.417793ms)
+✔ post-completion truncation of a complete value profile is rejected (3.48753ms)
+✖ empty manifests never certify missing raw evidence (2.15999ms)
+✖ every required file remains required when its manifest entry and payload are deleted (2.066779ms)
+✖ shard counts cannot be reduced through a rehashed calls manifest (1.947989ms)
+✖ rehashed shard identities cannot diverge from selected config IDs (2.922915ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 6
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 188.101623
+
+✖ failing tests:
+
+test at tools/source-config-values.test.ts:32:2
+✖ empty manifests never certify missing raw evidence (2.15999ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:32:129
+      at evidence (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:28:88)
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:32:64)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at tools/source-config-values.test.ts:33:2
+✖ every required file remains required when its manifest entry and payload are deleted (2.066779ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception: golden.json
+      at file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:33:304
+      at evidence (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:28:88)
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:33:98)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at tools/source-config-values.test.ts:34:2
+✖ shard counts cannot be reduced through a rehashed calls manifest (1.947989ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:34:268
+      at evidence (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:28:88)
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:34:78)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at tools/source-config-values.test.ts:35:2
+✖ rehashed shard identities cannot diverge from selected config IDs (2.922915ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:35:727
+      at evidence (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:28:88)
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:35:79)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'throws',
+    diff: 'simple'
+  }

@@ -3,6 +3,18 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Config value evidence omission P2 — 2026-10-26
+
+- Fixed the fail-open artifact verifier: empty manifests or omitted required
+  payload/manifest entries now fail. Exact base/nested-oracle/shard sets, batch
+  coverage/IDs, selected reference bindings and recomputed results/totals are
+  required, including the original diagnostic outcome.
+- Negative regressions cover every required artifact, empty evidence, rehashed
+  calls/IDs and forged counters. Existing three raw profiles revalidate; their
+  historical execution/tree binding remains unchanged. No new compiler feature
+  or new full Go profile execution is claimed.
+- [Evidence](evidence/config-value-integrity.json). Full release still false.
+
 ## Source-backed config values — 2026-10-26
 
 - Connected selected raw config units to the existing product converter through

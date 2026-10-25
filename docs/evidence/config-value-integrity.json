@@ -1,0 +1,149 @@
+{
+  "baseCommit": "47b245cd68f1045a0c6d9348368838d1572758ab",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "finding": "P2 empty and partial omitted artifact evidence accepted",
+  "scope": "Verifier only, no compiler or config option semantics changed",
+  "sourceHashes": {
+    "tools/source-config-values.ts": "c66dd757b5e353cb3e994f52ba79dfe7742d10de53f6b2ef0deda43846e82ad9",
+    "tools/source-config-values.test.ts": "626d9fc1b130201ec35b24914236274a6c39a226a1ed90ddf35191932506c30d"
+  },
+  "redGreen": {
+    "initial": {
+      "failed": 4,
+      "passed": 6
+    },
+    "outcomeCounters": {
+      "failed": 1,
+      "passed": 10
+    },
+    "reviewCorrections": {
+      "failed": 3,
+      "passed": 11
+    },
+    "finalFocused": 14
+  },
+  "validation": {
+    "releaseWarnings": 0,
+    "releaseErrors": 0,
+    "directMtp": 9126,
+    "node": 89,
+    "frozen": 29,
+    "sdkCoordinator": "NOT_RUN",
+    "fullSourceGoProfileRerun": "NOT_RUN",
+    "historicalProfilesRevalidated": 3
+  },
+  "independentReview": {
+    "focused": 11,
+    "node": 86,
+    "historicalProfiles": 3,
+    "findings": [
+      "reference echo binding",
+      "derived/shared counters"
+    ],
+    "authorCorrectivePass": "3 RED ->14 focused and89 full Node",
+    "secondReview": false
+  },
+  "integrityScope": [
+    "exact complete artifact inventory",
+    "nested oracle inventory",
+    "hash/length checks",
+    "batch32 coverage/IDs and stdout hash",
+    "selected config and direct Go reference echo bindings",
+    "raw results re-reconciliation",
+    "derived diagnostic and selected skip counters",
+    "full source skip/encoding counts agreement only, not reconstruction or external authenticity proof"
+  ],
+  "rawLogs": {
+    "green-fixed-fixture.log": {
+      "bytes": 965,
+      "sha256": "c83eaa0bbac15258e10b4bdb4d7e53115b95880d7795f7ea44db9227ce033e15"
+    },
+    "red.log": {
+      "bytes": 5248,
+      "sha256": "c98bf6ad7160f3699b69a6e379e8d74ed737f8729a6bca287798fc1fe68e0ae6"
+    },
+    "count-red.log": {
+      "bytes": 2120,
+      "sha256": "81817347f31153d4a7751b3f5b16979e075ad1475ac9ff5216bdabf8c5c282c8"
+    },
+    "independent-review.ts": {
+      "bytes": 2438,
+      "sha256": "783fd6322015749a8443f474de1d557c94e2ac1308710e3971f249d386cfa593"
+    },
+    "node-final.log": {
+      "bytes": 7297,
+      "sha256": "fe151074a84e4265adf55a1ea73a55cdea3c4d871a593a492c4165b739beff94"
+    },
+    "node-after-review.log": {
+      "bytes": 7533,
+      "sha256": "00350cde0da23c871b039a1c3663f5ae9c5dcb629c6ba7c49fe109659e06e3bb"
+    },
+    "frozen.log": {
+      "bytes": 81,
+      "sha256": "441c7bad381ac65cb1890aaf8424ec7b8999b55ef7574e9836a3516c151bc4b9"
+    },
+    "independent-historical-and-mutations.log": {
+      "bytes": 1604,
+      "sha256": "7aedaccc62862cf595e94592e46a2c8ad67c78b58a790749923d8ab5ce4c7b3b"
+    },
+    "focused.log": {
+      "bytes": 1043,
+      "sha256": "9c800df122d23caa72cf9edcd629f6501dd7a1fcc81bdfaad7e7a6a73da09ce7"
+    },
+    "review-green.log": {
+      "bytes": 1278,
+      "sha256": "94a00f288074abee71a8a1f807200f5a0d0217bd8cc844abe6a8358927cda70d"
+    },
+    "independent-receipt.md": {
+      "bytes": 2305,
+      "sha256": "0fef6eac6af5ab03fad1375fe74f26f0a264f133544ab238cd279a61c2ae0fea"
+    },
+    "green.log": {
+      "bytes": 3200,
+      "sha256": "27f28998cd10ed686c9f275e5beea511e05037464dd1810cf3e407c3339d69d7"
+    },
+    "historical-revalidation.log": {
+      "bytes": 1061,
+      "sha256": "ddc5d8bd2b12e9f384650317f75a9be6edd2a0dda475017986c7ebed35d03ae5"
+    },
+    "node.log": {
+      "bytes": 7223,
+      "sha256": "c2b5458c720c1c4e627a9890c3fc7e711aec1a200577ebc80e7edf0ef6a5bb37"
+    },
+    "independent-full.log": {
+      "bytes": 7300,
+      "sha256": "41fb7bb3d3d8a4580346971a19b604a4e26e75556b4d12f2e97ed9c55d921e81"
+    },
+    "mtp.log": {
+      "bytes": 228,
+      "sha256": "f2404d03a5f03509b57f8761f54c5ff3d5bf4771f5d1b8ff87827352d6799eb0"
+    },
+    "independent-reviewed.diff": {
+      "bytes": 13433,
+      "sha256": "93b849271da3626ebe2a00bb0929bd6dac56c4bf44ccb497fa550469f6fa3cbf"
+    },
+    "build.log": {
+      "bytes": 545,
+      "sha256": "5b5037ce2f6cad04c28478533a7a2f2db87431debe71b114a39ad447838c007c"
+    },
+    "independent-focused.log": {
+      "bytes": 1041,
+      "sha256": "a4f6946ec021ba9a64ff8964aa7477f550e353061ca14ea5a4e05f0b19d13544"
+    },
+    "review-red.log": {
+      "bytes": 4475,
+      "sha256": "592b7169df959742272eff5fd1c8ef46b93596211dee03af9ea1a8d55206ddee"
+    },
+    "historical-final.log": {
+      "bytes": 1061,
+      "sha256": "ddc5d8bd2b12e9f384650317f75a9be6edd2a0dda475017986c7ebed35d03ae5"
+    }
+  },
+  "limits": [
+    "Historical profiles retain original tree/source hashes; strengthened verification does not relabel them fresh executions",
+    "Initial green attempt with incorrect synthetic nested paths retained/excluded; fixture corrected to actual producer format",
+    "Original compiler/referenceCompiler/acceptance NOT_RUN; no changed pin, golden expectations, denominator or skip policy",
+    "Seven earlier reference fatals retained; all remaining domains/profiles and unknown concrete denominator retained"
+  ],
+  "releaseEligible": false
+}

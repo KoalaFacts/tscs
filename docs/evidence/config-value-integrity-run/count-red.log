@@ -1,0 +1,41 @@
+✔ a real config syntax error remains MATCH_DIAGNOSTICS and never clean MATCH (2.312744ms)
+✔ selected content and rooted context mismatches cannot earn value matches (0.647862ms)
+✔ changed converted values or extra conversion errors remain mismatches (0.373165ms)
+✔ absent, unsupported and panic outcomes cannot earn matches (0.351041ms)
+✔ missing, repeated or reordered actual identities reject the profile (0.299343ms)
+✔ post-completion truncation of a complete value profile is rejected (4.622493ms)
+✔ empty manifests never certify missing raw evidence (1.655899ms)
+✔ every required file remains required when its manifest entry and payload are deleted (6.984963ms)
+✔ shard counts cannot be reduced through a rehashed calls manifest (2.100462ms)
+✔ rehashed shard identities cannot diverge from selected config IDs (2.278042ms)
+✖ claimed report totals must reconcile to raw config outcomes (3.275713ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 10
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 191.480119
+
+✖ failing tests:
+
+test at tools/source-config-values.test.ts:38:1
+✖ claimed report totals must reconcile to raw config outcomes (3.275713ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:38:141
+      at evidence (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:29:88)
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:38:72)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'throws',
+    diff: 'simple'
+  }

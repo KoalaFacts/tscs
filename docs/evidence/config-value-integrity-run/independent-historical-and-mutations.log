@@ -1,0 +1,10 @@
+historical PASS /workspace/scratch/daf3e6c2e318/tscs/.artifacts/source-config-values-verified {"sources":13006,"selectedConfigs":172,"noConfigSources":12834,"upstreamSkippedSources":42,"nonRawUtf8Sources":8,"selectedUpstreamSkipped":3,"parserErrorConfigs":1,"parserDiagnostics":1,"conversionDiagnostics":0,"actualValueConfigs":172,"MATCH":171,"MATCH_DIAGNOSTICS":1,"MISMATCH":0,"UNSUPPORTED":0,"CRASH":0}
+historical PASS /workspace/scratch/daf3e6c2e318/tscs/.artifacts/source-config-values-verified-repeat {"sources":13006,"selectedConfigs":172,"noConfigSources":12834,"upstreamSkippedSources":42,"nonRawUtf8Sources":8,"selectedUpstreamSkipped":3,"parserErrorConfigs":1,"parserDiagnostics":1,"conversionDiagnostics":0,"actualValueConfigs":172,"MATCH":171,"MATCH_DIAGNOSTICS":1,"MISMATCH":0,"UNSUPPORTED":0,"CRASH":0}
+historical PASS /tmp/tscs-source-values-review/profile {"sources":13006,"selectedConfigs":172,"noConfigSources":12834,"upstreamSkippedSources":42,"nonRawUtf8Sources":8,"selectedUpstreamSkipped":3,"parserErrorConfigs":1,"parserDiagnostics":1,"conversionDiagnostics":0,"actualValueConfigs":172,"MATCH":171,"MATCH_DIAGNOSTICS":1,"MISMATCH":0,"UNSUPPORTED":0,"CRASH":0}
+MUTATION ACCEPTED report.counts.parserErrorConfigs=999
+MUTATION ACCEPTED report.counts.parserDiagnostics=999
+MUTATION ACCEPTED report.counts.conversionDiagnostics=999
+MUTATION ACCEPTED report.counts.selectedUpstreamSkipped=999
+MUTATION ACCEPTED report.counts.upstreamSkippedSources=999
+MUTATION ACCEPTED report.counts.nonRawUtf8Sources=999
+MUTATION ACCEPTED foreign reference id/content/path with golden/results rehashed

@@ -309,3 +309,8 @@ pre-VFS/no-notifier only, not effective options or compiler acceptance. See
 [source value progress](source-config-values-progress.json), the172-record
 [source/config ledger](source-config-values-configs.jsonl), and
 [scope/evidence](../../progress/source-config-values.md).
+
+The [config-value evidence omission correction](../../progress/config-value-integrity.md)
+requires complete artifacts, bound reference echoes and reconciled counters.
+This strengthens historical verification without rerunning or upgrading its
+compiler acceptance scope.

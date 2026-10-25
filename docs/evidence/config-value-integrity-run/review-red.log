@@ -1,0 +1,84 @@
+✔ a real config syntax error remains MATCH_DIAGNOSTICS and never clean MATCH (1.903962ms)
+✔ selected content and rooted context mismatches cannot earn value matches (0.545847ms)
+✔ changed converted values or extra conversion errors remain mismatches (0.415599ms)
+✔ absent, unsupported and panic outcomes cannot earn matches (0.29111ms)
+✔ missing, repeated or reordered actual identities reject the profile (0.399044ms)
+✔ post-completion truncation of a complete value profile is rejected (5.147212ms)
+✔ empty manifests never certify missing raw evidence (1.968641ms)
+✔ every required file remains required when its manifest entry and payload are deleted (7.085497ms)
+✔ shard counts cannot be reduced through a rehashed calls manifest (2.669492ms)
+✔ rehashed shard identities cannot diverge from selected config IDs (2.788481ms)
+✔ claimed report totals must reconcile to raw config outcomes (2.835042ms)
+✖ rehashed reference echoes still bind to exact parse requests (5.156016ms)
+✖ derived diagnostic and selected-skip counters cannot be forged (2.606366ms)
+✖ shared source-scope counters cannot disagree between reports (2.37136ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 11
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 171.975622
+
+✖ failing tests:
+
+test at tools/source-config-values.test.ts:44:1
+✖ rehashed reference echoes still bind to exact parse requests (5.156016ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:44:537
+      at evidence (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:29:88)
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:44:125)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at tools/source-config-values.test.ts:45:1
+✖ derived diagnostic and selected-skip counters cannot be forged (2.606366ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:45:244
+      at evidence (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:29:88)
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:45:188)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at tools/source-config-values.test.ts:46:1
+✖ shared source-scope counters cannot disagree between reports (2.37136ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:46:196
+      at evidence (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:29:88)
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:46:140)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'throws',
+    diff: 'simple'
+  }
