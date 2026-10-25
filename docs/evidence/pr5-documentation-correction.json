@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-25",
+  "baseCommit": "1d6ebec99da14e6f230e61b5a999703eb0e8d7bc",
+  "scope": "PR5 P2 documentation correction only; runtime/tools/test data unchanged",
+  "correctedSourceHashes": {
+    "docs/progress/native-typescript-tools.md": "2312956bb481080bcf7e27f0dabcbac5632f95f41e112ae20de30e83b577673c",
+    "docs/STATUS.md": "5f69ef687081a83f1e16b560e52d35d2fc2f63bdb441d57245c9809fb6b89b61"
+  },
+  "independentReview": "No findings on the corrected two-document scope; no formal GitHub approval claimed",
+  "toolchain": {
+    "dotnetSdk": "10.0.402",
+    "node": "24.22.1",
+    "go": "1.27.3",
+    "xunit": "4.0.2",
+    "mtp": "2.5.1"
+  },
+  "validation": {
+    "ReleaseWarnings": 0,
+    "ReleaseErrors": 0,
+    "directMtp": {
+      "passed": 60,
+      "total": 60,
+      "skipped": 0
+    },
+    "Node": {
+      "passed": 54,
+      "total": 54,
+      "skipped": 0
+    },
+    "frozen": {
+      "passed": 29,
+      "total": 29
+    },
+    "goTest": "PASS",
+    "goVet": "PASS",
+    "inventoryPayloads": 8,
+    "inventoryRepeatByteEqual": true,
+    "inventorySummaryMatchesRecordedByteForByte": true,
+    "inventorySummarySha256": "4d6ac90f47e17dbd6031787c338be1fe0bd7703e6b65cc610815601c4c9d6922",
+    "SDKCoordinator": "NOT_RUN this doc correction; previous Unix-pipe limitation unchanged"
+  },
+  "privacyControls": {
+    "dotnet": "DOTNET_CLI_TELEMETRY_OPTOUT=1; restore used clear-only local empty feed, locked mode and NuGetAudit=false; build --no-restore",
+    "go": "Isolated XDG_CONFIG_HOME telemetry/mode=off, verified go env GOTELEMETRY=off; GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local",
+    "sources": [
+      "https://learn.microsoft.com/dotnet/core/tools/telemetry",
+      "https://go.dev/doc/telemetry"
+    ],
+    "priorDeniedTask": "Not resumed or retried; these are fresh tasks with disabled telemetry and offline dependencies"
+  },
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "inventory": {
+    "assets": 67951,
+    "fixtures": 13006,
+    "transpileFixtures": 25,
+    "transpileConfigurations": 28,
+    "fixtureConfigurationAcceptanceNotRun": 13034
+  },
+  "compiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "releaseEligible": false
+}

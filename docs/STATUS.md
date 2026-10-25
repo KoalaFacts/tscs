@@ -44,9 +44,9 @@ it is not the denominator for TS7-wide coverage.
   no original compiler/reference/acceptance record is promoted.
 - Full verify.sh attempted; SDK coordinator still aborts on Unix pipe permission.
   Direct MTP is a separate successful run. Independent review: no important findings.
-- Evidence: [native tools](evidence/native-typescript-tools.json). PR #5's prior-head
-  checks passed, but its remote Codex review was still running at preflight. New-head
-  CI/review must be checked separately before merge. Next: byte/directive/VFS slice.
+- Evidence: [native tools](evidence/native-typescript-tools.json). The migration
+  preserves the recorded inventory payloads and the bounded transpile configuration
+  set; complete upstream fixture/configuration acceptance remains NOT_RUN.
 
 ## Local verification and review
 
