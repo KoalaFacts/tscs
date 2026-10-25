@@ -5340,6 +5340,1338 @@
         }
       ],
       "source": "{1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001:true}"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1005,
+          "length": 3,
+          "message": "',' expected.",
+          "start": 7
+        },
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 14
+        }
+      ],
+      "id": "162",
+      "nodes": [
+        {
+          "end": 17,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 4,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": [
+            97
+          ]
+        },
+        {
+          "end": 6,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/p0/value",
+          "start": 5,
+          "units": []
+        },
+        {
+          "end": 10,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/name",
+          "start": 7,
+          "units": [
+            98
+          ]
+        },
+        {
+          "end": 16,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/value",
+          "start": 11,
+          "units": [
+            92,
+            120,
+            71
+          ]
+        }
+      ],
+      "source": "{\"a\":1 \"b\":\"\\xG\"}"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1005,
+          "length": 3,
+          "message": "',' expected.",
+          "start": 8
+        },
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 15
+        }
+      ],
+      "id": "163",
+      "nodes": [
+        {
+          "end": 18,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 5,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": [
+            55357,
+            56832
+          ]
+        },
+        {
+          "end": 7,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/p0/value",
+          "start": 6,
+          "units": []
+        },
+        {
+          "end": 11,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/name",
+          "start": 8,
+          "units": [
+            98
+          ]
+        },
+        {
+          "end": 17,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/value",
+          "start": 12,
+          "units": [
+            92,
+            120,
+            71
+          ]
+        }
+      ],
+      "source": "{\"😀\":1 \"b\":\"\\xG\"}"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 10
+        },
+        {
+          "code": 1005,
+          "length": 5,
+          "message": "',' expected.",
+          "start": 7
+        },
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 16
+        }
+      ],
+      "id": "164",
+      "nodes": [
+        {
+          "end": 22,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 4,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": [
+            97
+          ]
+        },
+        {
+          "end": 6,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/p0/value",
+          "start": 5,
+          "units": []
+        },
+        {
+          "end": 12,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/name",
+          "start": 7,
+          "units": [
+            92,
+            120,
+            71
+          ]
+        },
+        {
+          "end": 21,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/value",
+          "start": 13,
+          "units": [
+            92,
+            117,
+            90,
+            90,
+            90,
+            90
+          ]
+        }
+      ],
+      "source": "{\"a\":1 \"\\xG\":\"\\uZZZZ\"}"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 11
+        },
+        {
+          "code": 1005,
+          "length": 5,
+          "message": "',' expected.",
+          "start": 8
+        },
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 17
+        }
+      ],
+      "id": "165",
+      "nodes": [
+        {
+          "end": 23,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 5,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": [
+            55357,
+            56832
+          ]
+        },
+        {
+          "end": 7,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/p0/value",
+          "start": 6,
+          "units": []
+        },
+        {
+          "end": 13,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/name",
+          "start": 8,
+          "units": [
+            92,
+            120,
+            71
+          ]
+        },
+        {
+          "end": 22,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/value",
+          "start": 14,
+          "units": [
+            92,
+            117,
+            90,
+            90,
+            90,
+            90
+          ]
+        }
+      ],
+      "source": "{\"😀\":1 \"\\xG\":\"\\uZZZZ\"}"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 8
+        },
+        {
+          "code": 1005,
+          "length": 3,
+          "message": "',' expected.",
+          "start": 11
+        }
+      ],
+      "id": "166",
+      "nodes": [
+        {
+          "end": 17,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 4,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": [
+            97
+          ]
+        },
+        {
+          "end": 10,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 5,
+          "units": [
+            92,
+            120,
+            71
+          ]
+        },
+        {
+          "end": 14,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/name",
+          "start": 11,
+          "units": [
+            98
+          ]
+        },
+        {
+          "end": 16,
+          "kind": "Number",
+          "number": "2",
+          "path": "$/p1/value",
+          "start": 15,
+          "units": []
+        }
+      ],
+      "source": "{\"a\":\"\\xG\" \"b\":2}"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 9
+        },
+        {
+          "code": 1005,
+          "length": 3,
+          "message": "',' expected.",
+          "start": 12
+        }
+      ],
+      "id": "167",
+      "nodes": [
+        {
+          "end": 18,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 5,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": [
+            55357,
+            56832
+          ]
+        },
+        {
+          "end": 11,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 6,
+          "units": [
+            92,
+            120,
+            71
+          ]
+        },
+        {
+          "end": 15,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/name",
+          "start": 12,
+          "units": [
+            98
+          ]
+        },
+        {
+          "end": 17,
+          "kind": "Number",
+          "number": "2",
+          "path": "$/p1/value",
+          "start": 16,
+          "units": []
+        }
+      ],
+      "source": "{\"😀\":\"\\xG\" \"b\":2}"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1005,
+          "length": 3,
+          "message": "',' expected.",
+          "start": 7
+        },
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 14
+        },
+        {
+          "code": 1005,
+          "length": 3,
+          "message": "',' expected.",
+          "start": 17
+        },
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 24
+        }
+      ],
+      "id": "168",
+      "nodes": [
+        {
+          "end": 30,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 4,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": [
+            97
+          ]
+        },
+        {
+          "end": 6,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/p0/value",
+          "start": 5,
+          "units": []
+        },
+        {
+          "end": 10,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/name",
+          "start": 7,
+          "units": [
+            98
+          ]
+        },
+        {
+          "end": 16,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/value",
+          "start": 11,
+          "units": [
+            92,
+            120,
+            71
+          ]
+        },
+        {
+          "end": 20,
+          "kind": "String",
+          "number": "",
+          "path": "$/p2/name",
+          "start": 17,
+          "units": [
+            99
+          ]
+        },
+        {
+          "end": 29,
+          "kind": "String",
+          "number": "",
+          "path": "$/p2/value",
+          "start": 21,
+          "units": [
+            92,
+            117,
+            90,
+            90,
+            90,
+            90
+          ]
+        }
+      ],
+      "source": "{\"a\":1 \"b\":\"\\xG\" \"c\":\"\\uZZZZ\"}"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1005,
+          "length": 3,
+          "message": "',' expected.",
+          "start": 8
+        },
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 15
+        },
+        {
+          "code": 1005,
+          "length": 3,
+          "message": "',' expected.",
+          "start": 18
+        },
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 25
+        }
+      ],
+      "id": "169",
+      "nodes": [
+        {
+          "end": 31,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 5,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": [
+            55357,
+            56832
+          ]
+        },
+        {
+          "end": 7,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/p0/value",
+          "start": 6,
+          "units": []
+        },
+        {
+          "end": 11,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/name",
+          "start": 8,
+          "units": [
+            98
+          ]
+        },
+        {
+          "end": 17,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/value",
+          "start": 12,
+          "units": [
+            92,
+            120,
+            71
+          ]
+        },
+        {
+          "end": 21,
+          "kind": "String",
+          "number": "",
+          "path": "$/p2/name",
+          "start": 18,
+          "units": [
+            99
+          ]
+        },
+        {
+          "end": 30,
+          "kind": "String",
+          "number": "",
+          "path": "$/p2/value",
+          "start": 22,
+          "units": [
+            92,
+            117,
+            90,
+            90,
+            90,
+            90
+          ]
+        }
+      ],
+      "source": "{\"😀\":1 \"b\":\"\\xG\" \"c\":\"\\uZZZZ\"}"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 10
+        },
+        {
+          "code": 1005,
+          "length": 8,
+          "message": "',' expected.",
+          "start": 7
+        }
+      ],
+      "id": "170",
+      "nodes": [
+        {
+          "end": 18,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 4,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": [
+            97
+          ]
+        },
+        {
+          "end": 6,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/p0/value",
+          "start": 5,
+          "units": []
+        },
+        {
+          "end": 15,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/name",
+          "start": 7,
+          "units": [
+            92,
+            117,
+            90,
+            90,
+            90,
+            90
+          ]
+        },
+        {
+          "end": 17,
+          "kind": "Number",
+          "number": "2",
+          "path": "$/p1/value",
+          "start": 16,
+          "units": []
+        }
+      ],
+      "source": "{\"a\":1 \"\\uZZZZ\":2}"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 11
+        },
+        {
+          "code": 1005,
+          "length": 8,
+          "message": "',' expected.",
+          "start": 8
+        }
+      ],
+      "id": "171",
+      "nodes": [
+        {
+          "end": 19,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 5,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": [
+            55357,
+            56832
+          ]
+        },
+        {
+          "end": 7,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/p0/value",
+          "start": 6,
+          "units": []
+        },
+        {
+          "end": 16,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/name",
+          "start": 8,
+          "units": [
+            92,
+            117,
+            90,
+            90,
+            90,
+            90
+          ]
+        },
+        {
+          "end": 18,
+          "kind": "Number",
+          "number": "2",
+          "path": "$/p1/value",
+          "start": 17,
+          "units": []
+        }
+      ],
+      "source": "{\"😀\":1 \"\\uZZZZ\":2}"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 9
+        },
+        {
+          "code": 1005,
+          "length": 3,
+          "message": "',' expected.",
+          "start": 13
+        },
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 20
+        }
+      ],
+      "id": "172",
+      "nodes": [
+        {
+          "end": 26,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 4,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": [
+            97
+          ]
+        },
+        {
+          "end": 12,
+          "kind": "Array",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 5,
+          "units": []
+        },
+        {
+          "end": 11,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/value/e0",
+          "start": 6,
+          "units": [
+            92,
+            120,
+            71
+          ]
+        },
+        {
+          "end": 16,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/name",
+          "start": 13,
+          "units": [
+            98
+          ]
+        },
+        {
+          "end": 25,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/value",
+          "start": 17,
+          "units": [
+            92,
+            117,
+            90,
+            90,
+            90,
+            90
+          ]
+        }
+      ],
+      "source": "{\"a\":[\"\\xG\"] \"b\":\"\\uZZZZ\"}"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 10
+        },
+        {
+          "code": 1005,
+          "length": 3,
+          "message": "',' expected.",
+          "start": 14
+        },
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 21
+        }
+      ],
+      "id": "173",
+      "nodes": [
+        {
+          "end": 27,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 5,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": [
+            55357,
+            56832
+          ]
+        },
+        {
+          "end": 13,
+          "kind": "Array",
+          "number": "",
+          "path": "$/p0/value",
+          "start": 6,
+          "units": []
+        },
+        {
+          "end": 12,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/value/e0",
+          "start": 7,
+          "units": [
+            92,
+            120,
+            71
+          ]
+        },
+        {
+          "end": 17,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/name",
+          "start": 14,
+          "units": [
+            98
+          ]
+        },
+        {
+          "end": 26,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/value",
+          "start": 18,
+          "units": [
+            92,
+            117,
+            90,
+            90,
+            90,
+            90
+          ]
+        }
+      ],
+      "source": "{\"😀\":[\"\\xG\"] \"b\":\"\\uZZZZ\"}"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1005,
+          "length": 3,
+          "message": "',' expected.",
+          "start": 7
+        },
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 14
+        },
+        {
+          "code": 1327,
+          "length": 3,
+          "message": "String literal with double quotes expected.",
+          "start": 7
+        }
+      ],
+      "id": "174",
+      "nodes": [
+        {
+          "end": 17,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 4,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": [
+            97
+          ]
+        },
+        {
+          "end": 6,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/p0/value",
+          "start": 5,
+          "units": []
+        },
+        {
+          "end": 10,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/name",
+          "start": 7,
+          "units": [
+            98
+          ]
+        },
+        {
+          "end": 16,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/value",
+          "start": 11,
+          "units": [
+            92,
+            120,
+            71
+          ]
+        }
+      ],
+      "source": "{\"a\":1 'b':\"\\xG\"}"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1005,
+          "length": 3,
+          "message": "',' expected.",
+          "start": 8
+        },
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 15
+        },
+        {
+          "code": 1327,
+          "length": 3,
+          "message": "String literal with double quotes expected.",
+          "start": 8
+        }
+      ],
+      "id": "175",
+      "nodes": [
+        {
+          "end": 18,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 5,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": [
+            55357,
+            56832
+          ]
+        },
+        {
+          "end": 7,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/p0/value",
+          "start": 6,
+          "units": []
+        },
+        {
+          "end": 11,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/name",
+          "start": 8,
+          "units": [
+            98
+          ]
+        },
+        {
+          "end": 17,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/value",
+          "start": 12,
+          "units": [
+            92,
+            120,
+            71
+          ]
+        }
+      ],
+      "source": "{\"😀\":1 'b':\"\\xG\"}"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1005,
+          "length": 3,
+          "message": "',' expected.",
+          "start": 7
+        },
+        {
+          "code": 1005,
+          "length": 3,
+          "message": "',' expected.",
+          "start": 18
+        },
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 25
+        }
+      ],
+      "id": "176",
+      "nodes": [
+        {
+          "end": 29,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 4,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": [
+            97
+          ]
+        },
+        {
+          "end": 6,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/p0/value",
+          "start": 5,
+          "units": []
+        },
+        {
+          "end": 10,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/name",
+          "start": 7,
+          "units": [
+            98
+          ]
+        },
+        {
+          "end": 28,
+          "kind": "Object",
+          "number": "",
+          "path": "$/p1/value",
+          "start": 11,
+          "units": []
+        },
+        {
+          "end": 15,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/value/p0/name",
+          "start": 12,
+          "units": [
+            99
+          ]
+        },
+        {
+          "end": 17,
+          "kind": "Number",
+          "number": "2",
+          "path": "$/p1/value/p0/value",
+          "start": 16,
+          "units": []
+        },
+        {
+          "end": 21,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/value/p1/name",
+          "start": 18,
+          "units": [
+            100
+          ]
+        },
+        {
+          "end": 27,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/value/p1/value",
+          "start": 22,
+          "units": [
+            92,
+            120,
+            71
+          ]
+        }
+      ],
+      "source": "{\"a\":1 \"b\":{\"c\":2 \"d\":\"\\xG\"}}"
+    },
+    {
+      "diagnostics": [
+        {
+          "code": 1005,
+          "length": 3,
+          "message": "',' expected.",
+          "start": 8
+        },
+        {
+          "code": 1005,
+          "length": 3,
+          "message": "',' expected.",
+          "start": 19
+        },
+        {
+          "code": 1125,
+          "length": 0,
+          "message": "Hexadecimal digit expected.",
+          "start": 26
+        }
+      ],
+      "id": "177",
+      "nodes": [
+        {
+          "end": 30,
+          "kind": "Object",
+          "number": "",
+          "path": "$",
+          "start": 0,
+          "units": []
+        },
+        {
+          "end": 5,
+          "kind": "String",
+          "number": "",
+          "path": "$/p0/name",
+          "start": 1,
+          "units": [
+            55357,
+            56832
+          ]
+        },
+        {
+          "end": 7,
+          "kind": "Number",
+          "number": "1",
+          "path": "$/p0/value",
+          "start": 6,
+          "units": []
+        },
+        {
+          "end": 11,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/name",
+          "start": 8,
+          "units": [
+            98
+          ]
+        },
+        {
+          "end": 29,
+          "kind": "Object",
+          "number": "",
+          "path": "$/p1/value",
+          "start": 12,
+          "units": []
+        },
+        {
+          "end": 16,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/value/p0/name",
+          "start": 13,
+          "units": [
+            99
+          ]
+        },
+        {
+          "end": 18,
+          "kind": "Number",
+          "number": "2",
+          "path": "$/p1/value/p0/value",
+          "start": 17,
+          "units": []
+        },
+        {
+          "end": 22,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/value/p1/name",
+          "start": 19,
+          "units": [
+            100
+          ]
+        },
+        {
+          "end": 28,
+          "kind": "String",
+          "number": "",
+          "path": "$/p1/value/p1/value",
+          "start": 23,
+          "units": [
+            92,
+            120,
+            71
+          ]
+        }
+      ],
+      "source": "{\"😀\":1 \"b\":{\"c\":2 \"d\":\"\\xG\"}}"
     }
   ]
 }

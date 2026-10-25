@@ -284,3 +284,8 @@ from earning compiler credit. Actual Go JSON parser, pre-VFS preparation only;
 no effective config or original compiler assertions. See
 [source AST progress](source-config-ast-progress.json) and
 [scope/evidence](../../progress/source-config-ast.md).
+
+The later [mixed diagnostic-order correction](../../progress/json-diagnostic-order.md)
+adds16 actual-Go JSON parser cases and two CLI regressions. It changes event
+ordering within the bounded parser; it does not rerun or upgrade the historical
+full source profile, effective options or original compiler acceptance.

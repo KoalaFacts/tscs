@@ -3,6 +3,19 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Mixed JSON diagnostic event order — 2026-10-26
+
+- Addressed review P2: JSON parser errors now interleave with lexical errors
+  when tokens are consumed. No global position sort; final quote validation
+  remains last. Ordinary TypeScript scanner results remain unchanged.
+- Added16 actual-Go parser regressions (original162 unchanged): RED12/8746,
+  plus CLI mutation RED14/8746 -> final8760/8760; Node75/75, frozen29/29,
+  Release0 warnings/errors. Independent Go178-vector regeneration byte-identical;
+  independent8758-suite/188-focused tests pass before final two CLI additions.
+- [Evidence and raw logs](evidence/json-diagnostic-order.json). SDK coordinator
+  and original compiler acceptance NOT_RUN; prior full-source evidence remains
+  bound to its original tree. Effective configuration remains incomplete.
+
 ## Source-backed config AST and missing-comma recovery — 2026-10-26
 
 - Connected selected raw config units to the product AST with rooted filename/

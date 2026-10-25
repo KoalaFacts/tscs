@@ -11,6 +11,8 @@ const numbers=new Set(['0','1','1000000000000000128','19686109595169230000','9'.
 for(let d=-4n;d<=4n;d++)numbers.add(String(9007199254740992n+d));
 for(const e of [19n,20n,21n,22n,100n,308n,309n])for(const d of [-1n,0n,1n])numbers.add(String(10n**e+d));
 for(const n of numbers)sources.push(n,'-'+n,'[1,{"n":'+n+'},-'+n+']','{'+n+':true}');
+// Mixed lexical/parser errors exercise scan-event order, not position sorting.
+for(const source of [String.raw`{"a":1 "b":"\xG"}`,String.raw`{"a":1 "\xG":"\uZZZZ"}`,String.raw`{"a":"\xG" "b":2}`,String.raw`{"a":1 "b":"\xG" "c":"\uZZZZ"}`,String.raw`{"a":1 "\uZZZZ":2}`,String.raw`{"a":["\xG"] "b":"\uZZZZ"}`,String.raw`{"a":1 'b':"\xG"}`,String.raw`{"a":1 "b":{"c":2 "d":"\xG"}}`])sources.push(source,source.replace('"a"','"😀"'));
 const rows=sources.map((source,i)=>({id:String(i),source}));
 const temp=mkdtempSync(join(tmpdir(),'tscs-strings-'));try{
  const input=join(temp,'input.json'),output=join(temp,'output.json'),overlay=join(temp,'overlay.json'),probe=resolve('tools/fixture-harness/json_ast_oracle_test.go');writeFileSync(input,JSON.stringify(rows));writeFileSync(overlay,JSON.stringify({Replace:{[join(upstream,'tsc/internal/parser/tscs_json_ast_test.go')]:probe}}));

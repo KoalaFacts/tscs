@@ -1,0 +1,133 @@
+failed Tscs.Tests.CommandLineTests.ProjectMixedSyntaxDiagnosticsKeepScannerParserEventOrder(source: "{\"a\":1 \"b\":\"\\xG\"}", codes: "TS1005,TS1125") (3ms)
+  Assert.Equal() Failure: Collections differ at index 0
+                ↓ (pos 3)
+  Expected: "TS1005"
+  Actual:   "TS1125"
+                ↑ (pos 3)
+    at Tscs.Tests.CommandLineTests.ProjectMixedSyntaxDiagnosticsKeepScannerParserEventOrder(String source, String codes) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/CommandLineTests.cs:146
+    at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+    at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+failed Tscs.Tests.CommandLineTests.ProjectMixedSyntaxDiagnosticsKeepScannerParserEventOrder(source: "{\"a\":1 \"\\xG\":\"\\uZZZZ\"}", codes: "TS1125,TS1005,TS1125") (1ms)
+  Assert.Equal() Failure: Collections differ at index 1
+                ↓ (pos 3)
+  Expected: "TS1005"
+  Actual:   "TS1125"
+                ↑ (pos 3)
+    at Tscs.Tests.CommandLineTests.ProjectMixedSyntaxDiagnosticsKeepScannerParserEventOrder(String source, String codes) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/CommandLineTests.cs:146
+    at InvokeStub_CommandLineTests.ProjectMixedSyntaxDiagnosticsKeepScannerParserEventOrder(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(id: "163", json: "{\n      \"diagnostics\": [\n        {\n          \"code"···) (0ms)
+  Assert.Equal() Failure: Strings differ
+                ↓ (pos 3)
+  Expected: "TS1005"
+  Actual:   "TS1125"
+                ↑ (pos 3)
+    at Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonAstTests.cs:19
+    at InvokeStub_JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(id: "175", json: "{\n      \"diagnostics\": [\n        {\n          \"code"···) (0ms)
+  Assert.Equal() Failure: Strings differ
+                ↓ (pos 3)
+  Expected: "TS1005"
+  Actual:   "TS1125"
+                ↑ (pos 3)
+    at Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonAstTests.cs:19
+    at InvokeStub_JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(id: "173", json: "{\n      \"diagnostics\": [\n        {\n          \"code"···) (0ms)
+  Assert.Equal() Failure: Strings differ
+                ↓ (pos 3)
+  Expected: "TS1005"
+  Actual:   "TS1125"
+                ↑ (pos 3)
+    at Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonAstTests.cs:19
+    at InvokeStub_JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(id: "176", json: "{\n      \"diagnostics\": [\n        {\n          \"code"···) (0ms)
+  Assert.Equal() Failure: Strings differ
+                ↓ (pos 3)
+  Expected: "TS1005"
+  Actual:   "TS1125"
+                ↑ (pos 3)
+    at Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonAstTests.cs:19
+    at InvokeStub_JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(id: "174", json: "{\n      \"diagnostics\": [\n        {\n          \"code"···) (0ms)
+  Assert.Equal() Failure: Strings differ
+                ↓ (pos 3)
+  Expected: "TS1005"
+  Actual:   "TS1125"
+                ↑ (pos 3)
+    at Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonAstTests.cs:19
+    at InvokeStub_JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(id: "162", json: "{\n      \"diagnostics\": [\n        {\n          \"code"···) (0ms)
+  Assert.Equal() Failure: Strings differ
+                ↓ (pos 3)
+  Expected: "TS1005"
+  Actual:   "TS1125"
+                ↑ (pos 3)
+    at Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonAstTests.cs:19
+    at InvokeStub_JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(id: "168", json: "{\n      \"diagnostics\": [\n        {\n          \"code"···) (0ms)
+  Assert.Equal() Failure: Strings differ
+                ↓ (pos 3)
+  Expected: "TS1005"
+  Actual:   "TS1125"
+                ↑ (pos 3)
+    at Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonAstTests.cs:19
+    at InvokeStub_JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(id: "165", json: "{\n      \"diagnostics\": [\n        {\n          \"code"···) (0ms)
+  Assert.Equal() Failure: Strings differ
+                ↓ (pos 3)
+  Expected: "TS1005"
+  Actual:   "TS1125"
+                ↑ (pos 3)
+    at Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonAstTests.cs:19
+    at InvokeStub_JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(id: "164", json: "{\n      \"diagnostics\": [\n        {\n          \"code"···) (0ms)
+  Assert.Equal() Failure: Strings differ
+                ↓ (pos 3)
+  Expected: "TS1005"
+  Actual:   "TS1125"
+                ↑ (pos 3)
+    at Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonAstTests.cs:19
+    at InvokeStub_JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(id: "172", json: "{\n      \"diagnostics\": [\n        {\n          \"code"···) (0ms)
+  Assert.Equal() Failure: Strings differ
+                ↓ (pos 3)
+  Expected: "TS1005"
+  Actual:   "TS1125"
+                ↑ (pos 3)
+    at Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonAstTests.cs:19
+    at InvokeStub_JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(id: "177", json: "{\n      \"diagnostics\": [\n        {\n          \"code"···) (0ms)
+  Assert.Equal() Failure: Strings differ
+                ↓ (pos 3)
+  Expected: "TS1005"
+  Actual:   "TS1125"
+                ↑ (pos 3)
+    at Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonAstTests.cs:19
+    at InvokeStub_JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(id: "169", json: "{\n      \"diagnostics\": [\n        {\n          \"code"···) (0ms)
+  Assert.Equal() Failure: Strings differ
+                ↓ (pos 3)
+  Expected: "TS1005"
+  Actual:   "TS1125"
+                ↑ (pos 3)
+    at Tscs.Tests.JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonAstTests.cs:19
+    at InvokeStub_JsonAstTests.BoundedJsonAstAndQuoteDiagnosticsMatchActualPinnedParser(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Test run summary: Failed! - /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+  total: 8760
+  failed: 14
+  succeeded: 8746
+  skipped: 0
+  duration: 3s 410ms

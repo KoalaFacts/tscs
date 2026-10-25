@@ -8,6 +8,8 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
 {
     private int position;
     public List<Diagnostic> Diagnostics { get; } = [];
+    // Cumulative lexical diagnostics available after each token was scanned.
+    public List<int> DiagnosticCounts { get; } = [];
     public List<Token> Scan()
     {
         var tokens = new List<Token>();
@@ -36,7 +38,7 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                 }
                 break;
             }
-            if (position == text.Length) { tokens.Add(new(TokenKind.End,"",position,0,lineBreak)); return tokens; }
+            if (position == text.Length) { tokens.Add(new(TokenKind.End,"",position,0,lineBreak)); DiagnosticCounts.Add(Diagnostics.Count); return tokens; }
             int begin = position++; char first = text[begin]; TokenKind kind;string? decodedValue=null;StringTokenFlags stringFlags=StringTokenFlags.None;
             if (IsIdentifierStart(first))
             {
@@ -66,7 +68,7 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
             else kind = first switch { '[' when jsonMode=>TokenKind.OpenBracket,']' when jsonMode=>TokenKind.CloseBracket,'-' when jsonMode=>TokenKind.Minus, '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,_=>TokenKind.Unsupported };
             var token = new Token(kind,text[begin..position],begin,position-begin,lineBreak,decodedValue,stringFlags);
             if (kind == TokenKind.Unsupported) throw Error(token,"TSCS1001",$"Unsupported syntax '{token.Text}'.");
-            tokens.Add(token);
+            tokens.Add(token);DiagnosticCounts.Add(Diagnostics.Count);
         }
     }
     // The string scanner recovers locally: malformed escape spelling remains in

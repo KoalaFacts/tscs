@@ -1,0 +1,109 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "baseCommit": "2962886c5614af95cbd576c30ec49d31177fd4ea",
+  "profile": "bounded-json/mixed-lexical-parser-diagnostic-order",
+  "vectors": 178,
+  "originalVectorsUnchanged": 162,
+  "addedIds": [
+    "162",
+    "163",
+    "164",
+    "165",
+    "166",
+    "167",
+    "168",
+    "169",
+    "170",
+    "171",
+    "172",
+    "173",
+    "174",
+    "175",
+    "176",
+    "177"
+  ],
+  "referenceDiagnosticCount": 87,
+  "oracleMetadata": {
+    "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+    "goVersion": "go version go1.27.3 linux/amd64",
+    "jsNumberSourceSha256": "79cba5294aa96796c280169b6d3d5ed1b62da2b2aad312c8d9d06dc0a563d62b",
+    "parserSourceSha256": "18fbeb9644a2c642d2757188107f2a802e8084cf1ed56a24c78bab1933328c2e",
+    "scannerSourceSha256": "48008100fb5a020748651e319c4dcc361c1a81ca06f8c3e0ed94d42dd0d1e6df",
+    "probeSha256": "55623382fa996346b83f820618221dedddeb2c3651b72a1fd8234d07fb633145",
+    "tokenFlagsSha256": "98f7010c7113b1ac781205175de9fe0c9c9c5854b10744d03e32127eb72f2b29",
+    "diagnosticsSha256": "a0ca35f6d8bc101541dc9c91ce85b2962d97e5f26e59cbed184efb81d16255e9",
+    "stringUtilSha256": "e15d8030900518eb0d8bd926751df2f7c7cfda6d49c7a82da36d58daeed22b9e"
+  },
+  "finding": "P2: phase-wide lexical-before-parser concatenation misordered supported missing-property-comma with malformed string escapes. Global position sorting is also incorrect.",
+  "implementation": "Scanner cumulative diagnostic count per emitted token including EOF; Reader flushes available lexical events on Current/Take. Parser errors interleave at consumption; post-AST quote validation remains last. TS scanner tokens/diagnostics unchanged.",
+  "redGreen": [
+    "RED12fail/8746pass ->8758/8758",
+    "CLI mutation RED14fail/8746pass ->8760/8760"
+  ],
+  "validation": {
+    "releaseBuild": "0warnings/0errors",
+    "directMTP": "8760/8760,0skip",
+    "node": "75/75",
+    "frozen": "29/29",
+    "goldenRepeat": "byte-identical178vectors",
+    "sdkCoordinator": "NOT_RUN"
+  },
+  "independentReview": {
+    "findings": [],
+    "executed": [
+      "actual pinned Go regenerated178goldens byte-identical",
+      "focused JsonAstTests188/188",
+      "fullsuite8758/8758 before two CLI additions"
+    ],
+    "limits": "Reviewed two added CLI tests but did not independently execute8760 final suite; no second review claim",
+    "receipt": "json-diagnostic-order-run/independent-review.json"
+  },
+  "sourceHashes": {
+    "src/Tscs.Compiler/JsonSyntax.cs": "f4023d9a1911d29bfa2af41aeda41b76788eb531daa067b1d345f1c80a4ee95a",
+    "src/Tscs.Compiler/Scanner.cs": "2c28e821d487f50e6ee677d4ca2191da6299c2da613362c5d124b5db7025fbe4",
+    "tools/generate-json-ast.ts": "be3a51d1ec5943f73ff31735886be4b6a43f8f19fc38da723ac205bf870baff9",
+    "tools/fixture-harness/json_ast_oracle_test.go": "55623382fa996346b83f820618221dedddeb2c3651b72a1fd8234d07fb633145",
+    "tests/Tscs.Compiler.Tests/TestData/json-ast.json": "3324c88766ad031f4b92a2efcb664d2883ed7ddf4aeb5d1524d5a0937e24de51",
+    "tests/Tscs.Compiler.Tests/JsonAstTests.cs": "64f53701b0b1af19fb5e53124c8a94038234053c2d6c1f4431d72aef16f17e6f",
+    "tests/Tscs.Compiler.Tests/CommandLineTests.cs": "e77622edb60da55f5c91832c12eff430780d8c703497c49ce8ae27954d0b41bf"
+  },
+  "rawLogs": {
+    "docs/evidence/json-diagnostic-order-run/cli-red-build.log": "4584791bfa11392f400b354caca1cffe12d174ec5d6133225ecc600ba73e3502",
+    "docs/evidence/json-diagnostic-order-run/repeat.log": "920b3cfd3c69cf2cdc5bf60e72bd8bda2f129b6876089991df47bef29b40765a",
+    "docs/evidence/json-diagnostic-order-run/node.log": "9775025caf934e6b8fe402f6a984934676294962a3f1acbe465088d6091cd002",
+    "docs/evidence/json-diagnostic-order-run/go.log": "7cd50b4453e28dd82d67a71f1bd813e587aa8d12c216902819bbe42d13a33eb0",
+    "docs/evidence/json-diagnostic-order-run/independent-review.json": "abc8497b01f71538152a15057a8e005d8bd46482280b963ce6aa37f0bd272bd8",
+    "docs/evidence/json-diagnostic-order-run/red-build.log": "802da0dc484d5cbf8e483291c3df9a8ec0954d2ef32b6d42537709b1b927d160",
+    "docs/evidence/json-diagnostic-order-run/independent-go.log": "6508a47bea6a1826c6dd6dc513d84bb69985b8009c0edbdc577f3a2b4283d5db",
+    "docs/evidence/json-diagnostic-order-run/go-repeat.log": "6508a47bea6a1826c6dd6dc513d84bb69985b8009c0edbdc577f3a2b4283d5db",
+    "docs/evidence/json-diagnostic-order-run/frozen.log": "441c7bad381ac65cb1890aaf8424ec7b8999b55ef7574e9836a3516c151bc4b9",
+    "docs/evidence/json-diagnostic-order-run/generate.log": "920b3cfd3c69cf2cdc5bf60e72bd8bda2f129b6876089991df47bef29b40765a",
+    "docs/evidence/json-diagnostic-order-run/build.log": "e1af4527fb2b580db2393de7cd1f23a6ff31d97f70a690771f9a905effd5d569",
+    "docs/evidence/json-diagnostic-order-run/red.log": "fd63da06d9ea912d65d1845476c24bee49d9c74cc8d15ce3279eb7fe3d4b2796",
+    "docs/evidence/json-diagnostic-order-run/green.log": "143b09668c7a5979417c930cc8062d8180d7e28b6dda68c92b28b8306582995f",
+    "docs/evidence/json-diagnostic-order-run/cli-red.log": "3aa2abff7b0351c5b84a2e3dd14c4ec645a2918b5a23ab7b1f86f91ce4945da5"
+  },
+  "compiler": "NOT_RUN",
+  "referenceCompiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "concreteCases": null,
+  "releaseEligible": false,
+  "limitations": [
+    "No full source-backed13006 profile rerun this round; prior172-config results remain bound to tree68d6ec65",
+    "No general parser/unsupported-syntax recovery, numeric grammar or effective-options expansion",
+    "Seven prior reference fatals and every original test domain/unknown denominator retained"
+  ],
+  "assemblies": {
+    "Tscs.Compiler.dll": "0a21293ef812f9d7f8b946a48969cae206accf5eb11f1a3a927ae1356f0498f8",
+    "Tscs.Compiler.Tests.dll": "0e89af3c8c3148d1d2162bdd5ef6b95974b4acb9a1e3339a78eb2170fb3cf5ec",
+    "tscs.dll": "0bf47e046783045fc7dcdc841d4497e361fada7f678335efb27ce149cb6af17f"
+  },
+  "versions": {
+    "go": "go version go1.27.3 linux/amd64",
+    "dotnetSdk": "10.0.402",
+    "runtime": "10.0.13",
+    "node": "24.22.1",
+    "xunit": "4.0.2",
+    "mtp": "2.5.1"
+  }
+}

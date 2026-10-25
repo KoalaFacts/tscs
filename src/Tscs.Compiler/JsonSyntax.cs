@@ -12,17 +12,19 @@ internal static class JsonSyntax
         try
         {
             if(text.Length>1_000_000)throw new CompilationFailure(Diagnostic.Error(file,new(TokenKind.End,"",0,0),"TSCS1001","JSON exceeds the bootstrap size limit."));
-            var reader=new Reader(file,scanner.Scan());var root=reader.Parse();
-            return new(root,scanner.Diagnostics.Concat(reader.Diagnostics).ToArray());
+            var reader=new Reader(file,scanner.Scan(),scanner.Diagnostics,scanner.DiagnosticCounts);var root=reader.Parse();
+            return new(root,reader.Diagnostics.ToArray());
         }
         catch(CompilationFailure error){return new(null,scanner.Diagnostics.Append(error.Diagnostic).ToArray());}
     }
-    private sealed class Reader(string file,List<Token> tokens)
+    private sealed class Reader(string file,List<Token> tokens,IReadOnlyList<Diagnostic> lexical,IReadOnlyList<int> diagnosticCounts)
     {
         private int position;
-        private Token Current=>tokens[position];
+        private int lexicalPosition;
+        private void EmitLexical(){while(lexicalPosition<diagnosticCounts[position])Diagnostics.Add(lexical[lexicalPosition++]);}
+        private Token Current { get { EmitLexical();return tokens[position]; } }
         public List<Diagnostic> Diagnostics { get; }=[];
-        private Token Take()=>tokens[position++];
+        private Token Take(){var token=Current;position++;if(position<tokens.Count)EmitLexical();return token;}
         private bool Eat(TokenKind kind){if(Current.Kind!=kind)return false;Take();return true;}
         private void Unsupported()=>throw new CompilationFailure(Diagnostic.Error(file,Current,"TSCS1001","This JSON grammar or recovery path is not supported yet."));
         public JsonSyntaxNode? Parse()

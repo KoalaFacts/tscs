@@ -136,4 +136,13 @@ public class CommandLineTests : IDisposable
         using var json=System.Text.Json.JsonDocument.Parse(result.Out);var diagnostic=Assert.Single(json.RootElement.GetProperty("diagnostics").EnumerateArray());
         Assert.Equal("TS1005",diagnostic.GetProperty("code").GetString());Assert.Equal(164,diagnostic.GetProperty("start").GetInt32());Assert.Equal(9,diagnostic.GetProperty("length").GetInt32());Assert.Equal("',' expected.",diagnostic.GetProperty("message").GetString());
     }
+    [Theory]
+    [InlineData("""{"a":1 "b":"\xG"}""","TS1005,TS1125")]
+    [InlineData("""{"a":1 "\xG":"\uZZZZ"}""","TS1125,TS1005,TS1125")]
+    public void ProjectMixedSyntaxDiagnosticsKeepScannerParserEventOrder(string source,string codes)
+    {
+        var result=Run("--json","-p",Write("tsconfig.json",source));Assert.Equal(2,result.Code);
+        using var json=System.Text.Json.JsonDocument.Parse(result.Out);
+        Assert.Equal(codes.Split(','),json.RootElement.GetProperty("diagnostics").EnumerateArray().Select(d=>d.GetProperty("code").GetString()));
+    }
 }
