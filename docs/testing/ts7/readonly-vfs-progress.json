@@ -1,0 +1,22 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "profile": "readonly-vfs/case-sensitive/boundary-vectors",
+  "referenceVectors": 146,
+  "matchedVectors": 146,
+  "csharpSafetyGuardTests": 2,
+  "fullFixtureVfsCases": null,
+  "fullFixtureVfsStatus": "NOT_RUN",
+  "evidence": "../../evidence/readonly-vfs.json",
+  "unresolved": [
+    "Case-insensitive FS and filename case canonicalization",
+    "Directory enumeration, mutations, clocks and permissions",
+    "Overlapping symlink-prefix resolution order is explicitly unsupported",
+    "Cycles and symlink resolution deeper than256 hops explicitly unsupported; not executed in upstream oracle",
+    "Complete query/path validation and construction error families",
+    "Complete13006 fixture VFS construction/query/config profile not run",
+    "Original AST/configuration/compiler/emit acceptance not run"
+  ],
+  "compiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "releaseEligible": false
+}

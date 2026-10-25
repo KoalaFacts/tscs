@@ -3,6 +3,23 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Read-only VFS boundary — 2026-10-25
+
+- Added a case-sensitive in-memory snapshot for entry creation, implicit parents,
+  file/directory/link lookup, ReadFile decoding and Realpath fallback. Open follows
+  both upstream custom lookup and the standard-library parent-first link pass.
+- 146 actual Go vectors include POSIX/Windows paths, chained/broken links, parent
+  construction, BOM bytes and malformed UTF8 alias/target paths. Review found four
+  important differences; all were reproduced and fixed. Direct MTP2467/2467,
+  Node62/62, frozen29/29, Release0 warnings/errors; golden regeneration byte-equal.
+- Two C# safety tests keep repeated/expanding cycles explicitly unsupported. The
+  expanding-cycle regression hit the five-second subprocess timeout before the
+  depth guard; afterward the full suite passed. No upstream cyclic run or cycle
+  compatibility is claimed.
+- [Evidence](evidence/readonly-vfs.json), [progress](testing/ts7/readonly-vfs-progress.json).
+  Case folding, enumeration/mutation, overlapping link order, deeper chains and
+  complete fixture VFS/config/AST/compiler profiles remain unresolved or NOT_RUN.
+
 ## Rooted fixture files and link projections — 2026-10-25
 
 - Connected byte paths to raw fixture maps: default /.src or currentDirectory,
@@ -146,9 +163,9 @@ it is not the denominator for TS7-wide coverage.
   no original compiler/reference/acceptance record is promoted.
 - Full verify.sh attempted; SDK coordinator still aborts on Unix pipe permission.
   Direct MTP is a separate successful run. Independent review: no important findings.
-- Evidence: [native tools](evidence/native-typescript-tools.json). PR #5's prior-head
-  checks passed, but its remote Codex review was still running at preflight. New-head
-  CI/review must be checked separately before merge. Next: byte/directive/VFS slice.
+- Evidence: [native tools](evidence/native-typescript-tools.json). The migration
+  preserves the recorded inventory payloads and the bounded transpile configuration
+  set; complete upstream fixture/configuration acceptance remains NOT_RUN.
 
 ## Local verification and review
 

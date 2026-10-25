@@ -24,3 +24,8 @@ execute the fixed reference functions only for tests.
 FixtureLoader.cs and FixtureTrivia.cs adapt the pinned fixture parser, default
 scanner prelude handling, and tspath basename/root behavior. state_oracle_test.go
 is read-only test instrumentation calling the actual pinned functions.
+
+FixtureVfs.cs adapts the pinned TypeScript vfstest/iovfs behavior above and the
+Go standard library testing/fstest/mapfs.go symlink-resolution algorithm,
+Copyright 2020 The Go Authors. The latter is licensed under the BSD-style
+license reproduced in licenses/Go-LICENSE.txt.
