@@ -1,0 +1,98 @@
+failed Tscs.Tests.CommandLineTests.BoundedStringEscapeSupportHasHonestExitStatus(escape: "\\uZZZZ", code: 1) (1ms)
+  Assert.Equal() Failure: Values differ
+  Expected: 1
+  Actual:   2
+    at Tscs.Tests.CommandLineTests.BoundedStringEscapeSupportHasHonestExitStatus(String escape, Int32 code) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/CommandLineTests.cs:31
+    at InvokeStub_CommandLineTests.BoundedStringEscapeSupportHasHonestExitStatus(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.UnicodeEscapeTests.UnportedMalformedEscapeDiagnosticsRemainExplicit(escape: "\\u{110000}") (2ms)
+  Assert.Equal() Failure: Strings differ
+               ↓ (pos 2)
+  Expected: "TSCS1001"
+  Actual:   "TS1198"
+               ↑ (pos 2)
+    at Tscs.Tests.UnicodeEscapeTests.UnportedMalformedEscapeDiagnosticsRemainExplicit(String escape) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/UnicodeEscapeTests.cs:22
+    at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+    at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+failed Tscs.Tests.UnicodeEscapeTests.UnportedMalformedEscapeDiagnosticsRemainExplicit(escape: "\\u{xyz}") (0ms)
+  Assert.Equal() Failure: Strings differ
+               ↓ (pos 2)
+  Expected: "TSCS1001"
+  Actual:   "TS1125"
+               ↑ (pos 2)
+    at Tscs.Tests.UnicodeEscapeTests.UnportedMalformedEscapeDiagnosticsRemainExplicit(String escape) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/UnicodeEscapeTests.cs:22
+    at InvokeStub_UnicodeEscapeTests.UnportedMalformedEscapeDiagnosticsRemainExplicit(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.UnicodeEscapeTests.UnportedMalformedEscapeDiagnosticsRemainExplicit(escape: "\\u{}") (0ms)
+  Assert.Equal() Failure: Strings differ
+               ↓ (pos 2)
+  Expected: "TSCS1001"
+  Actual:   "TS1125"
+               ↑ (pos 2)
+    at Tscs.Tests.UnicodeEscapeTests.UnportedMalformedEscapeDiagnosticsRemainExplicit(String escape) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/UnicodeEscapeTests.cs:22
+    at InvokeStub_UnicodeEscapeTests.UnportedMalformedEscapeDiagnosticsRemainExplicit(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.UnicodeEscapeTests.UnportedMalformedEscapeDiagnosticsRemainExplicit(escape: "\\u{61") (0ms)
+  Assert.Equal() Failure: Strings differ
+               ↓ (pos 2)
+  Expected: "TSCS1001"
+  Actual:   "TS1199"
+               ↑ (pos 2)
+    at Tscs.Tests.UnicodeEscapeTests.UnportedMalformedEscapeDiagnosticsRemainExplicit(String escape) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/UnicodeEscapeTests.cs:22
+    at InvokeStub_UnicodeEscapeTests.UnportedMalformedEscapeDiagnosticsRemainExplicit(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.UnportedEscapeBranchesRemainExplicitlyUnsupported(escape: "\\uZZZZ") (0ms)
+  Assert.Equal() Failure: Strings differ
+               ↓ (pos 2)
+  Expected: "TSCS1001"
+  Actual:   "TS1125"
+               ↑ (pos 2)
+    at Tscs.Tests.StringEscapeTests.UnportedEscapeBranchesRemainExplicitlyUnsupported(String escape) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:27
+    at InvokeStub_StringEscapeTests.UnportedEscapeBranchesRemainExplicitlyUnsupported(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.UnportedEscapeBranchesRemainExplicitlyUnsupported(escape: "\\xZZ") (0ms)
+  Assert.Equal() Failure: Strings differ
+               ↓ (pos 2)
+  Expected: "TSCS1001"
+  Actual:   "TS1125"
+               ↑ (pos 2)
+    at Tscs.Tests.StringEscapeTests.UnportedEscapeBranchesRemainExplicitlyUnsupported(String escape) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:27
+    at InvokeStub_StringEscapeTests.UnportedEscapeBranchesRemainExplicitlyUnsupported(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringEscapeTests.TrailingBackslashRemainsExplicitlyUnsupported (2ms)
+  Assert.Single() Failure: The collection contained 2 items
+  Collection: [Diagnostic { Code = TS1002, Category = error, File = case.ts, Start = 11, Length = 0, Message = Unterminated string literal., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }, Diagnostic { Code = TS1126, Category = error, File = case.ts, Start = 11, Length = 0, Message = Unexpected end of text., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }]
+    at Tscs.Tests.StringEscapeTests.TrailingBackslashRemainsExplicitlyUnsupported() in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringEscapeTests.cs:20
+    at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+    at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+failed Tscs.Tests.StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(id: "double/a", json: "{\n      \"id\": \"double/a\",\n      \"literal\": \"\\\"a\\nz"···) (0ms)
+  Assert.Single() Failure: The collection contained 2 items
+  Collection: [Diagnostic { Code = TS1002, Category = error, File = case.ts, Start = 18, Length = 0, Message = Unterminated string literal., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }, Diagnostic { Code = TS1002, Category = error, File = case.ts, Start = 22, Length = 0, Message = Unterminated string literal., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }]
+    at Tscs.Tests.StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringLineTests.cs:13
+    at InvokeStub_StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(id: "single/d", json: "{\n      \"id\": \"single/d\",\n      \"literal\": \"'a\\rz'"···) (0ms)
+  Assert.Single() Failure: The collection contained 2 items
+  Collection: [Diagnostic { Code = TS1002, Category = error, File = case.ts, Start = 18, Length = 0, Message = Unterminated string literal., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }, Diagnostic { Code = TS1002, Category = error, File = case.ts, Start = 22, Length = 0, Message = Unterminated string literal., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }]
+    at Tscs.Tests.StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringLineTests.cs:13
+    at InvokeStub_StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(id: "double/d", json: "{\n      \"id\": \"double/d\",\n      \"literal\": \"\\\"a\\rz"···) (0ms)
+  Assert.Single() Failure: The collection contained 2 items
+  Collection: [Diagnostic { Code = TS1002, Category = error, File = case.ts, Start = 18, Length = 0, Message = Unterminated string literal., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }, Diagnostic { Code = TS1002, Category = error, File = case.ts, Start = 22, Length = 0, Message = Unterminated string literal., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }]
+    at Tscs.Tests.StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringLineTests.cs:13
+    at InvokeStub_StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(id: "single/a", json: "{\n      \"id\": \"single/a\",\n      \"literal\": \"'a\\nz'"···) (0ms)
+  Assert.Single() Failure: The collection contained 2 items
+  Collection: [Diagnostic { Code = TS1002, Category = error, File = case.ts, Start = 18, Length = 0, Message = Unterminated string literal., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }, Diagnostic { Code = TS1002, Category = error, File = case.ts, Start = 22, Length = 0, Message = Unterminated string literal., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }]
+    at Tscs.Tests.StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/StringLineTests.cs:13
+    at InvokeStub_StringLineTests.UnescapedStringLineCharactersMatchPinnedScanner(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Test run summary: Failed! - /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+  total: 8176
+  failed: 12
+  succeeded: 8164
+  skipped: 0
+  duration: 3s 243ms

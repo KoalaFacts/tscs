@@ -15,9 +15,9 @@ public class UnicodeEscapeTests
   Assert.Empty(Compilation.Check("case.ts","let s: string = "+literal+";"));
  }
  [Theory]
- [InlineData("\\u{}")]
- [InlineData("\\u{110000}")]
- [InlineData("\\u{61")]
- [InlineData("\\u{xyz}")]
- public void UnportedMalformedEscapeDiagnosticsRemainExplicit(string escape)=>Assert.Equal("TSCS1001",Assert.Single(Compilation.Check("case.ts","let s=\""+escape+"\";")).Code);
+ [InlineData("\\u{}","TS1125")]
+ [InlineData("\\u{110000}","TS1198")]
+ [InlineData("\\u{61","TS1199")]
+ [InlineData("\\u{xyz}","TS1125")]
+ public void MalformedEscapeDiagnosticsMatchImplementedBranches(string escape,string code)=>Assert.Equal(code,Assert.Single(Compilation.Check("case.ts","let s=\""+escape+"\";")).Code);
 }

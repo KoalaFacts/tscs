@@ -3,6 +3,28 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Product string escape recovery — 2026-10-25
+
+- Malformed hex/Unicode strings now recover with TS1125/TS1198/TS1199,
+  retain invalid escape spelling in decoded values, and continue scanning.
+  EOF/backslash and unterminated strings retain all TS1126/TS1002 errors.
+  Tokens carry pinned string flags (quote, invalid, unterminated, hex/Unicode).
+-323 full token streams execute the actual pinned Go scanner; compare every
+  token, raw spelling, UTF16 value/range, line break, string flag and every
+  diagnostic including order/message/range. Includes both quotes, emoji prefixes,
+  overflow, malformed surrogate lookahead, EOF and all58 prior plain literals.
+- Initial RED294fail/7882pass -> final direct MTP8181/8181, Node69/69,
+  frozen29/29, Go scope tests pass, Release0 warnings/errors. Golden repeats
+  byte-identically. Independent review regenerated the323 oracle results and
+  reran the built8181-test suite successfully; no blocking finding.
+  [Evidence and raw logs](evidence/string-recovery.json).
+- Compilation exposes lexical errors before parser/checker work; if unsupported
+  syntax is encountered later, earlier lexical diagnostics remain present.
+  CLI syntax exit2 and UTF16 JSON positions are covered. Numeric/octal/identity
+  escapes remain unsupported; general parser recovery, JSON/config and AST are
+  still incomplete. No original corpus/config/compiler acceptance rerun or
+  release claim. Historical sections below retain their original slice scope.
+
 ## Product valid Unicode/hex string escapes — 2026-10-25
 
 - Supports valid x2/u4/braced Unicode escapes in ordinary strings. UTF16 storage

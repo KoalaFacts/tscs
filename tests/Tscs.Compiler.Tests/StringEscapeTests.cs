@@ -17,12 +17,12 @@ public class StringEscapeTests
   Assert.Empty(Compilation.Check("case.ts","let s: string = "+literal+";"));
  }
  [Fact]
- public void TrailingBackslashRemainsExplicitlyUnsupported()=>Assert.Equal("TSCS1001",Assert.Single(Compilation.Check("case.ts","let s = \"a\\")).Code);
+ public void TrailingBackslashReportsBothLexicalErrors()=>Assert.Equal(new[]{"TS1002","TS1126"},Compilation.Check("case.ts","let s = \"a\\").Select(d=>d.Code));
  [Theory]
- [InlineData("\\uZZZZ")]
- [InlineData("\\xZZ")]
- [InlineData("\\0")]
- [InlineData("\\8")]
- [InlineData("\\q")]
- public void UnportedEscapeBranchesRemainExplicitlyUnsupported(string escape)=>Assert.Equal("TSCS1001",Assert.Single(Compilation.Check("case.ts","let s = \""+escape+"\";")).Code);
+ [InlineData("\\uZZZZ","TS1125")]
+ [InlineData("\\xZZ","TS1125")]
+ [InlineData("\\0","TSCS1001")]
+ [InlineData("\\8","TSCS1001")]
+ [InlineData("\\q","TSCS1001")]
+ public void EscapeBranchesReportSupportedDiagnosticsOrExplicitUnsupported(string escape,string code)=>Assert.Equal(code,Assert.Single(Compilation.Check("case.ts","let s = \""+escape+"\";")).Code);
 }

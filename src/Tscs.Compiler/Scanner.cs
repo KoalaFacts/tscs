@@ -7,6 +7,7 @@ namespace Tscs;
 internal sealed class Scanner(string file, string text)
 {
     private int position;
+    public List<Diagnostic> Diagnostics { get; } = [];
     public List<Token> Scan()
     {
         var tokens = new List<Token>();
@@ -36,7 +37,7 @@ internal sealed class Scanner(string file, string text)
                 break;
             }
             if (position == text.Length) { tokens.Add(new(TokenKind.End,"",position,0,lineBreak)); return tokens; }
-            int begin = position++; char first = text[begin]; TokenKind kind;string? decodedValue=null;
+            int begin = position++; char first = text[begin]; TokenKind kind;string? decodedValue=null;StringTokenFlags stringFlags=StringTokenFlags.None;
             if (IsIdentifierStart(first))
             {
                 while (position < text.Length && IsIdentifierPart(text[position])) position++;
@@ -53,57 +54,86 @@ internal sealed class Scanner(string file, string text)
             else if (first is '\'' or '"')
             {
                 kind = TokenKind.String;
-                var decoded=new StringBuilder();
-                while (position < text.Length && text[position] != first && text[position] is not ('\r' or '\n'))
-                {
-                    if(text[position]!='\\'){decoded.Append(text[position++]);continue;}
-                    int escapeStart=position++;
-                    if(position==text.Length)throw Error(new(TokenKind.Unsupported,"\\",escapeStart,1),"TSCS1001","This string escape is not supported yet.");
-                    char escaped=text[position++];
-                    switch(escaped)
-                    {
-                        case 'b':decoded.Append('\b');break;
-                        case 't':decoded.Append('\t');break;
-                        case 'n':decoded.Append('\n');break;
-                        case 'v':decoded.Append('\v');break;
-                        case 'f':decoded.Append('\f');break;
-                        case 'r':decoded.Append('\r');break;
-                        case '\'':case '"':case '\\':case '/':decoded.Append(escaped);break;
-                        case 'x':case 'u':
-                            bool extended=escaped=='u'&&position<text.Length&&text[position]=='{';
-                            if(extended)position++;
-                            int digits=0,codePoint=0,required=escaped=='x'?2:4;
-                            while(position<text.Length&&(extended||digits<required))
-                            {
-                                char h=text[position];int digit=h is >= '0' and <= '9'?h-'0':h is >= 'a' and <= 'f'?h-'a'+10:h is >= 'A' and <= 'F'?h-'A'+10:-1;
-                                if(digit<0)break;
-                                position++;digits++;codePoint=codePoint*16+digit;
-                                if(codePoint>0x10FFFF)throw Error(new(TokenKind.Unsupported,"\\",escapeStart,1),"TSCS1001","Malformed string escape diagnostics are not supported yet.");
-                            }
-                            if(extended?(digits==0||position==text.Length||text[position]!='}'):(digits!=required))
-                                throw Error(new(TokenKind.Unsupported,"\\",escapeStart,1),"TSCS1001","Malformed string escape diagnostics are not supported yet.");
-                            if(extended)position++;
-                            // A JavaScript string is UTF16: preserve lone surrogate
-                            // code units; adjacent halves naturally form a pair.
-                            if(codePoint<=0xFFFF)decoded.Append((char)codePoint);
-                            else decoded.Append(char.ConvertFromUtf32(codePoint));
-                            break;
-                        case '\r':if(position<text.Length&&text[position]=='\n')position++;break;
-                        case '\n':case '\u2028':case '\u2029':break;
-                        default:throw Error(new(TokenKind.Unsupported,"\\",escapeStart,1),"TSCS1001","This string escape is not supported yet.");
-                    }
-                }
-                if (position == text.Length || text[position] != first)
-                    throw Error(new(TokenKind.String,text[begin..position],position,0),"TS1002","Unterminated string literal.");
-                position++;
-                decodedValue=decoded.ToString();
+                decodedValue = ScanString(first, out stringFlags);
             }
             else kind = first switch { '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,_=>TokenKind.Unsupported };
-            var token = new Token(kind,text[begin..position],begin,position-begin,lineBreak,decodedValue);
+            var token = new Token(kind,text[begin..position],begin,position-begin,lineBreak,decodedValue,stringFlags);
             if (kind == TokenKind.Unsupported) throw Error(token,"TSCS1001",$"Unsupported syntax '{token.Text}'.");
             tokens.Add(token);
         }
     }
+    // The string scanner recovers locally: malformed escape spelling remains in
+    // the value, and the caller receives both tokens and every lexical error.
+    private string ScanString(char quote, out StringTokenFlags flags)
+    {
+        flags=quote=='\''?StringTokenFlags.SingleQuote:StringTokenFlags.None;
+        var value=new StringBuilder();
+        while(position<text.Length && text[position]!=quote && text[position] is not ('\r' or '\n'))
+        {
+            if(text[position]=='\\')value.Append(ScanStringEscape(ref flags));
+            else value.Append(text[position++]);
+        }
+        if(position==text.Length || text[position]!=quote)
+        {
+            flags|=StringTokenFlags.Unterminated;
+            Report("TS1002","Unterminated string literal.",position);
+        }
+        else position++;
+        return value.ToString();
+    }
+    private string ScanStringEscape(ref StringTokenFlags flags)
+    {
+        int start=position++;
+        if(position==text.Length){Report("TS1126","Unexpected end of text.",position);return "";}
+        char escaped=text[position++];
+        switch(escaped)
+        {
+            case 'b':return "\b";
+            case 't':return "\t";
+            case 'n':return "\n";
+            case 'v':return "\v";
+            case 'f':return "\f";
+            case 'r':return "\r";
+            case '\'':case '"':case '\\':case '/':return escaped.ToString();
+            case '\r':if(position<text.Length && text[position]=='\n')position++;return "";
+            case '\n':case '\u2028':case '\u2029':return "";
+            case 'x':case 'u':
+                bool extended=escaped=='u' && position<text.Length && text[position]=='{';
+                if(extended)position++;
+                else if(escaped=='u')flags|=StringTokenFlags.UnicodeEscape;
+                int digitsStart=position,required=escaped=='x'?2:4,codePoint=0;
+                while(position<text.Length && (extended || position-digitsStart<required))
+                {
+                    int digit=HexDigit(text[position]);if(digit<0)break;
+                    position++;
+                    // Only validity up to 10FFFF matters. Saturation retains the
+                    // full consumed span even for arbitrarily long invalid input.
+                    codePoint=Math.Min(0x110000,codePoint*16+digit);
+                }
+                if(position-digitsStart<(extended?1:required))
+                {
+                    flags|=StringTokenFlags.ContainsInvalidEscape;
+                    Report("TS1125","Hexadecimal digit expected.",position);
+                    return text[start..position];
+                }
+                bool invalid=false;
+                if(extended)
+                {
+                    if(codePoint>0x10FFFF){Report("TS1198","An extended Unicode escape value must be between 0x0 and 0x10FFFF inclusive.",digitsStart,position-digitsStart);invalid=true;}
+                    if(position==text.Length){Report("TS1126","Unexpected end of text.",position);invalid=true;}
+                    else if(text[position]=='}')position++;
+                    else {Report("TS1199","Unterminated Unicode escape sequence.",position);invalid=true;}
+                }
+                if(invalid){flags|=StringTokenFlags.ContainsInvalidEscape;return text[start..position];}
+                if(extended)flags|=StringTokenFlags.ExtendedUnicodeEscape;
+                else if(escaped=='x')flags|=StringTokenFlags.HexEscape;
+                // UTF16 storage preserves lone surrogates and mixed escaped pairs.
+                return codePoint<=0xFFFF?((char)codePoint).ToString():char.ConvertFromUtf32(codePoint);
+            default:throw Error(new(TokenKind.Unsupported,"\\",start,1),"TSCS1001","This string escape is not supported yet.");
+        }
+    }
+    private static int HexDigit(char c)=>c is >= '0' and <= '9'?c-'0':c is >= 'a' and <= 'f'?c-'a'+10:c is >= 'A' and <= 'F'?c-'A'+10:-1;
+    private void Report(string code,string message,int start,int length=0)=>Diagnostics.Add(Diagnostic.Error(file,new(TokenKind.String,"",start,length),code,message));
     private CompilationFailure Error(Token token,string code,string message)=>new(Diagnostic.Error(file,token,code,message));
     internal static bool IsLineBreak(char c)=>c is '\r' or '\n' or '\u2028' or '\u2029';
     private static bool IsIdentifierStart(char c)=>c is '_' or '$' || char.IsLetter(c);

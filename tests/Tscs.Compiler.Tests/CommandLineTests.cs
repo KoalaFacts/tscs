@@ -21,7 +21,7 @@ public class CommandLineTests : IDisposable
     }
     [Theory]
     [InlineData("\\n",0)]
-    [InlineData("\\uZZZZ",1)]
+    [InlineData("\\uZZZZ",2)]
     [InlineData("\\u0061",0)]
     [InlineData("\\x61",0)]
     [InlineData("\\u{1F600}",0)]
@@ -29,7 +29,19 @@ public class CommandLineTests : IDisposable
     {
         var result=Run("--noEmit","--noLib",Write("a.ts","let s: string = \""+escape+"\";"),Lib());
         Assert.Equal(code,result.Code);
-        if(code==1)Assert.Contains("TSCS1001",result.Out);else Assert.Equal("",result.Out);
+        if(code==1)Assert.Contains("TSCS1001",result.Out);else if(code==2)Assert.Contains("TS1125",result.Out);else Assert.Equal("",result.Out);
+    }
+    [Theory]
+    [InlineData("\\xG","TS1125",2,0)]
+    [InlineData("\\u{110000}","TS1198",3,6)]
+    [InlineData("\\u{61G}","TS1199",5,0)]
+    public void MalformedStringEscapesHaveSyntaxExitAndUtf16JsonLocations(string escape,string code,int relativeStart,int length)
+    {
+        string source="let s = \"😀"+escape+"\";";
+        var result=Run("--json","--noEmit","--noLib",Write("a.ts",source));
+        using var d=System.Text.Json.JsonDocument.Parse(result.Out);var diagnostic=Assert.Single(d.RootElement.GetProperty("diagnostics").EnumerateArray());
+        Assert.Equal(2,result.Code);Assert.Equal(2,d.RootElement.GetProperty("exitCode").GetInt32());Assert.Equal(code,diagnostic.GetProperty("code").GetString());
+        Assert.Equal(source.IndexOf(escape,StringComparison.Ordinal)+relativeStart,diagnostic.GetProperty("start").GetInt32());Assert.Equal(length,diagnostic.GetProperty("length").GetInt32());Assert.DoesNotContain("TS2318",result.Out);
     }
     [Fact] public void MissingInputFails()=>Assert.NotEqual(0,Run().Code);
     [Fact] public void UnknownOptionFails()=>Assert.NotEqual(0,Run("--imaginary").Code);

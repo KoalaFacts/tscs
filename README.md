@@ -24,7 +24,7 @@ for isolated compiler tests**, not a usable standard library.
 
 Supported initially: single-file `let`/`const` declarations, primitive annotations,
 primitive literal initializers, identifier references, simple assignments and
-nested lexical scopes. Integer decimal literals and quoted strings with simple escapes/line continuations are supported. Valid hexadecimal and Unicode escapes preserve UTF16 code units, including lone surrogates. Malformed, numeric and other escape branches remain explicitly unsupported.
+nested lexical scopes. Integer decimal literals and quoted strings with simple escapes/line continuations are supported. Valid hexadecimal and Unicode escapes preserve UTF16 code units, including lone surrogates. Malformed hexadecimal/Unicode escapes now retain their spelling and report recoverable lexical diagnostics; unterminated strings preserve all lexical errors. Numeric and other unported escape branches remain explicitly unsupported. Compilation returns lexical errors before parser/checker work; this does not implement general parser recovery.
 Both `--noEmit` and `--noLib` are required. `--pretty false`, `--target es2015/es6`
 and a tscs-only `--json` diagnostic mode are available.
 
@@ -62,7 +62,7 @@ The C# suite now has 7,853 cases (including 764 byte-decoding, 535 directive, 15
 After building, run just this suite with:
 
 ```sh
-dotnet test --solution Tscs.slnx -c Release --no-build --no-restore -- --fail-skips on --minimum-expected-tests 7853
+dotnet test --solution Tscs.slnx -c Release --no-build --no-restore -- --fail-skips on --minimum-expected-tests 8181
 ```
 
 The .NET 10 MTP runner is selected in `global.json`. If an execution environment
@@ -70,7 +70,7 @@ cannot launch the SDK's test coordinator, the same built MTP executable can also
 be run directly, without changing permissions or disabling isolation:
 
 ```sh
-dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 7853
+dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 8181
 ```
 
 Record direct execution separately from `dotnet test`; a direct pass is not a
