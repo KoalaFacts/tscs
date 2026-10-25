@@ -7,5 +7,5 @@ public class FixtureConstructionTests
 {
  public static IEnumerable<object[]> Vectors(){using var d=JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,"TestData/fixture-vfs.json")));foreach(var r in d.RootElement.GetProperty("vectors").EnumerateArray())yield return [r.GetProperty("id").GetString()!,r.GetRawText()];}
  [Theory,MemberData(nameof(Vectors))]
- public void ConstructionMatchesPinnedFactory(string id,string json){using var d=JsonDocument.Parse(json);Assert.True(JsonNode.DeepEquals(JsonNode.Parse(d.RootElement.GetProperty("expected").GetRawText()),JsonSerializer.SerializeToNode(FixtureConstruction.Probe(d.RootElement))),id);}
+ public void ConstructionMatchesPinnedFactory(string id,string json){using var d=JsonDocument.Parse(json);var request=JsonNode.Parse(json)!;request["profile"]="construction";using var output=new StringWriter();FixtureProtocol.Run(new StringReader(request.ToJsonString()+"\n"),output);Assert.True(JsonNode.DeepEquals(JsonNode.Parse(d.RootElement.GetProperty("expected").GetRawText()),JsonNode.Parse(output.ToString())!["expected"]),id);}
 }

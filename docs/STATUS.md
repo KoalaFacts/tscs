@@ -3,6 +3,21 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Complete source VFS construction profile — 2026-10-25
+
+- JSONL construction transport and strict schema/status validation now connect
+  every selected source to actual pinned Go factory/read/exists/Realpath/entries.
+- Default-options, case-sensitive profile:13006 MATCH/30902 queries; all42
+  upstream-skipped sources retained. Zero differences/panic/error/unsupported/
+  crash. Construction request/reference/actual/per-source results repeat exactly.
+- Independent review found unsupported could hide an opposing panic; a failing
+  regression now preserves failure priority and both side outcomes. Final
+  direct MTP3064/3064, Node65/65, frozen29/29, Release0/0. Original raw and
+  file-map full13006 profiles still match, with unchanged payloads.
+- [Evidence](evidence/full-construction.json), [progress](testing/ts7/construction-progress.json).
+  This is one source-level profile, not all VFS/configuration variants or original
+  compiler assertions. Those remain unrun/unresolved; release eligibility false.
+
 ## Raw fixtures to VFS construction — 2026-10-25
 
 - Connected raw fixture maps to the actual case-sensitive snapshot: files then

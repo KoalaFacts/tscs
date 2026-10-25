@@ -36,8 +36,19 @@ function validateMap(p) {
  !Array.isArray(p.files)||!p.files.every(f=>keys(f,['path','content'])&&bytes(f.path)&&bytes(f.content))||
  !Array.isArray(p.links)||!p.links.every(l=>keys(l,['rawAlias','rawTarget','alias','target'])&&Object.values(l).every(bytes)))throw Error('Malformed file-map payload');
 }
+function validateConstruction(p) {
+ const obj=x=>x!==null&&typeof x==='object'&&!Array.isArray(x);
+ const keys=(x,want)=>obj(x)&&Object.keys(x).sort().join(',')===[...want].sort().join(',');
+ const bytes=x=>typeof x==='string'&&Buffer.from(x,'base64').toString('base64')===x;
+ const list=x=>Array.isArray(x)&&x.every(bytes);
+ if(keys(p,['panic'])&&typeof p.panic==='string'||keys(p,['unsupported'])&&typeof p.unsupported==='string')return;
+ if(!keys(p,['queries','panic'])||p.panic!==null||!Array.isArray(p.queries)||!p.queries.every(q=>
+  keys(q,['path','content','readOk','fileExists','directoryExists','realpath','files','directories','symlinks'])&&
+  bytes(q.path)&&bytes(q.content)&&bytes(q.realpath)&&['readOk','fileExists','directoryExists'].every(k=>typeof q[k]==='boolean')&&
+  (q.files===null||list(q.files))&&(q.directories===null||list(q.directories))&&list(q.symlinks)))throw Error('Malformed construction payload');
+}
 export function reconcileResults(sources,actual,reference,profile='raw') {
- if(!['raw','file-map'].includes(profile))throw Error('Unknown comparison profile');
+ if(!['raw','file-map','construction'].includes(profile))throw Error('Unknown comparison profile');
  const index=(rows,label)=>{
   const m=new Map();for(const row of rows){if(typeof row.id!=='string'||!row.id||m.has(row.id))throw Error(`Duplicate or invalid ${label} identity`);m.set(row.id,row);}
   return m;
@@ -47,10 +58,11 @@ export function reconcileResults(sources,actual,reference,profile='raw') {
   if(m.size!==sourceIndex.size||[...m.keys()].some(id=>!sourceIndex.has(id)))throw Error(`Missing or unexpected ${label} result identities`);
  return sources.map(source=>{
   const av=a.get(source.id).expected,rv=r.get(source.id).expected;
-  const validate=profile==='file-map'?validateMap:validatePayload;validate(av);validate(rv);
+  const validate=profile==='construction'?validateConstruction:profile==='file-map'?validateMap:validatePayload;validate(av);validate(rv);
   const same=isDeepStrictEqual(av,rv);
-  const loading=rv.panic!==null&&rv.panic!==undefined?'REFERENCE_PANIC':rv.error!==null&&rv.error!==undefined?'REFERENCE_ERROR':av.panic!==null?'CRASH':same?'MATCH':'MISMATCH';
-  return {...source,loading,equal:same,actualSha256:sha256(canonicalJson(av)),referenceSha256:sha256(canonicalJson(rv)),
+  const loading=rv.panic!==null&&rv.panic!==undefined?'REFERENCE_PANIC':rv.error!==null&&rv.error!==undefined?'REFERENCE_ERROR':av.panic!==null&&av.panic!==undefined?'CRASH':profile==='construction'&&('unsupported' in av||'unsupported' in rv)?'UNSUPPORTED':same?'MATCH':'MISMATCH';
+  const outcome=p=>'unsupported' in p?'UNSUPPORTED':p.panic!==null&&p.panic!==undefined?'PANIC':p.error!==null&&p.error!==undefined?'ERROR':'RESULT';
+  return {...source,loading,equal:same,...(profile==='construction'?{actualOutcome:outcome(av),referenceOutcome:outcome(rv)}:{}),actualSha256:sha256(canonicalJson(av)),referenceSha256:sha256(canonicalJson(rv)),
    progress:{compiler:'NOT_RUN',reference:'NOT_RUN',acceptance:'NOT_RUN'}};
  });
 }

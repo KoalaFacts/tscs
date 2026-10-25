@@ -236,3 +236,13 @@ The frozen 29-case bootstrap cohort remains unchanged and independent. It includ
 synthetic/local cases and seven isolated upstream source copies; there is no
 verified full-runner mapping from that cohort to this inventory. It earns zero
 credit toward complete upstream acceptance until such a mapping is proven.
+
+## Source construction profile
+
+Run the same corpus tool with a fourth `construction` argument. It builds the
+current harness, binds all13006 requests to pinned blobs and calls the real Go
+factory. Query payloads are strictly validated; unsupported, reference panic,
+crash and mismatches remain distinct, with per-side outcomes and unequal counts.
+Current default-options/case-sensitive results match13006 sources/30902 queries.
+This does not run AST/config/compiler assertions or all VFS profiles. See
+[construction evidence](../../evidence/full-construction.json).

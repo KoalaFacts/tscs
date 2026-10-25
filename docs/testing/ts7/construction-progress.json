@@ -14,7 +14,16 @@
   "referenceCompiler": "NOT_RUN",
   "acceptance": "NOT_RUN",
   "fullFixtureVfsCases": null,
-  "fullFixtureVfsStatus": "NOT_RUN",
+  "fullFixtureVfsStatus": "OTHER_PROFILES_NOT_RUN",
   "releaseEligible": false,
-  "evidence": "../../evidence/fixture-vfs-construction.json"
+  "evidence": "../../evidence/fixture-vfs-construction.json",
+  "sourceConstructionProfile": {
+    "profile": "construction/default-options/case-sensitive/raw-map-factory-queries",
+    "sources": 13006,
+    "queries": 30902,
+    "matchedSources": 13006,
+    "upstreamSkippedRetained": 42,
+    "status": "MATCH",
+    "evidence": "../../evidence/full-construction.json"
+  }
 }
