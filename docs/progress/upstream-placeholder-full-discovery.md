@@ -21,7 +21,7 @@ Totals remain 13,006 source identities, 15,523 configuration targets (15,495 com
 ## Hosted result verified 2026-10-27
 
 This stage is now confirmed by actual hosted .NET SDK/MTP test execution:
-at exact head \`51993ce5fa451a3dcfe71bab47953f842e8e1cda\`,
+at exact head `51993ce5fa451a3dcfe71bab47953f842e8e1cda`,
 [run 40358477859](https://github.com/KoalaFacts/tscs/actions/runs/40358477859)
 and [run 40358486127](https://github.com/KoalaFacts/tscs/actions/runs/40358486127)
 each performed a successful locked Release build, discovered all
@@ -33,8 +33,8 @@ the older head's hosted NOT_RUN status only; the original upstream compiler
 acceptance is still NOT_RUN and the full runtime denominator remains unknown.
 
 Raw hosted discovery/CTRF logs are available in workflow artifacts
-12667661634 (\`sha256:37663778c0d041e4de837b3fe9e8ca648e4f0bac4de8d4baeb0cdda2f2ad8aa9\`)
-and 12666817064 (\`sha256:01d9dea88b930c24b74a2e69d67cee997972e116538cbca8e46445a5e6e0ede8\`).
+12667661634 (`sha256:37663778c0d041e4de837b3fe9e8ca648e4f0bac4de8d4baeb0cdda2f2ad8aa9`)
+and 12666817064 (`sha256:01d9dea88b930c24b74a2e69d67cee997972e116538cbca8e46445a5e6e0ede8`).
 Artifacts are subject to retention; the exact full result counts, run/job
 IDs and SHA digests are repeated in
 [evidence](../evidence/ts-ignore-directive.json). No original upstream

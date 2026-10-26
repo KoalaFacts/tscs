@@ -37,13 +37,13 @@ compiler completion ETA is claimed.
 
 ## 2026-10-27 — bounded canonical line-comment @ts-ignore
 
-Stable local guard \`bootstrap:ts-ignore-directive\` was moved only after
-the C# scanner learned to recognize whole-line \`// @ts-ignore\` and the
+Stable local guard `bootstrap:ts-ignore-directive` was moved only after
+the C# scanner learned to recognize whole-line `// @ts-ignore` and the
 checker filtered its own following-line diagnostics. Syntactic/lexical
 failures are never converted to SKIP or filtered. New real test cases pin
 next-line semantic suppression, CRLF, blank-line boundaries, string
 contents and explicit unsupported directive variants. Hosted TDD RED
-\`f706c04\`: 8 failures; GREEN \`51993ce\`: internal xUnit4/MTP
+`f706c04`: 8 failures; GREEN `51993ce`: internal xUnit4/MTP
 15,500/15,500 and native Node24 145/145, with both verify jobs and
 CodeQL/Actions succeeded. The bounded local inventory is **14 =
 8 implemented/upstream NOT_RUN + 6 SKIP(UNIMPLEMENTED)**, net removed

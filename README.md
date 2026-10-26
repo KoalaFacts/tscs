@@ -9,11 +9,11 @@ and optimizing the C# implementation.
 
 ## Bounded diagnostic directive support
 
-The current \`noEmit/noLib\` checker supports a restricted **leading, single-line**
-\`// @ts-ignore\` directive: it suppresses semantic checker diagnostics **only
+The current `noEmit/noLib` checker supports a restricted **leading, single-line**
+`// @ts-ignore` directive: it suppresses semantic checker diagnostics **only
 on the immediately following physical line**. It does not suppress scanner or
 parser errors, does not implement block-comment, trailing or
-\`@ts-expect-error\` variants, and does not establish full TS7 directive
+`@ts-expect-error` variants, and does not establish full TS7 directive
 compatibility. The original pinned upstream acceptance remains NOT_RUN.
 
 ## Build and check a file

@@ -1,15 +1,15 @@
 # TS7 scope inventory: source declarations, not conformance
 
-### 2026-10-27: actual full placeholder discovery and bounded \`@ts-ignore\`
+### 2026-10-27: actual full placeholder discovery and bounded `@ts-ignore`
 
-Both hosted verify jobs at product head \`51993ce\` compiled the exact 15,523-Fact
+Both hosted verify jobs at product head `51993ce` compiled the exact 15,523-Fact
 standalone project and reconciled **15,523/15,523 discovered as
 SKIP(UNIMPLEMENTED), with 0 original compiler PASS**. This is the first
 actual .NET MTP full-placeholder discovery verification; prior NOT_RUN
 notes are historical and apply to the stated older heads. The separate local
-bootstrap guard catalogue moved \`bootstrap:ts-ignore-directive\` from
+bootstrap guard catalogue moved `bootstrap:ts-ignore-directive` from
 SKIP(UNIMPLEMENTED) to IMPLEMENTED/upstream NOT_RUN after genuine bounded
-\`// @ts-ignore\` semantic suppression and 8 hosted test-first RED failures.
+`// @ts-ignore` semantic suppression and 8 hosted test-first RED failures.
 It is now **8 implemented / 6 missing local probes**, not a full TS7 progress
 percentage. Original runtime-case expansion and full reference acceptance
 remain UNEXPANDED/NOT_RUN. [Evidence](../../evidence/ts-ignore-directive.json).
