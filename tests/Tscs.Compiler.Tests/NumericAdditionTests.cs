@@ -41,4 +41,20 @@ public class NumericAdditionTests
     [InlineData("let x = 1 + +2;")]
     public void UnaryPlusRemainsUnsupported(string source) =>
         Assert.Contains(Compilation.Check("test.ts", source), d => d.Code == "TSCS1001");
+
+    [Fact]
+    public void LeftDeepAdditionKeepsBothUnresolvedNamesInSourceOrder()
+    {
+        var diagnostics=Compilation.Check("test.ts", "let n = 1 + firstMissing + secondMissing;");
+        Assert.Equal(new[] { "TS2304", "TS2304" }, diagnostics.Select(d=>d.Code));
+        Assert.Equal(new[] { 12, 27 }, diagnostics.Select(d=>d.Start));
+    }
+
+    [Fact]
+    public void EarlierUnsupportedOperandStopsBeforeLaterUnresolvedName()
+    {
+        var diagnostic=Assert.Single(Compilation.Check("test.ts", "let n = \"x\" + 2 + missing;"));
+        Assert.Equal("TSCS1001", diagnostic.Code);
+    }
+
 }
