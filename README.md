@@ -72,7 +72,7 @@ explicit `noEmit`/`noLib` isolation overrides; these are not full upstream harne
 Results go to `.artifacts/conformance.json`. A passing cohort is not a percentage
 claim about the entire TypeScript language.
 
-The previous verified C# suite has 15,453 cases; the new bounded `any` slice targets 15,459 (including 764 byte-decoding, 535 directive, 151 state and 750 path and 55 file-map and 154 VFS read plus 534 accessible-entry and 1,414 option-value and 2,920 configuration-product and 36 source-configuration vectors) and uses xUnit 4.0.2 (the official package is still named
+The new C# suite has 15,459 verified cases at compiler head `00317a1` (xUnit 4/MTP, zero failures/skips) (including 764 byte-decoding, 535 directive, 151 state and 750 path and 55 file-map and 154 VFS read plus 534 accessible-entry and 1,414 option-value and 2,920 configuration-product and 36 source-configuration vectors) and uses xUnit 4.0.2 (the official package is still named
 `xunit.v3.mtp-v2`) with Microsoft.Testing.Platform 2.5.1, not VSTest.
 After building, run just this suite with:
 
@@ -106,7 +106,7 @@ not used as a cross-platform reproducible-binary guarantee.
 
 ## Explicit implementation SKIPs (separate from internal tests)
 
-The [bounded implementation register](docs/testing/ts7/implementation-coverage.json) marks nine **already existing** local guard inputs as `SKIP / UNIMPLEMENTED` and five positive inputs as `IMPLEMENTED / upstream NOT_RUN`. The guard tests still execute; their passing rejection assertions do not mean the missing TypeScript features work. An independent CI check binds this report to its exact source inputs and rejects unexpected skips, while the xUnit fail-skips gate remains active. This is a starter catalogue, **not the full upstream completion percentage or a release waiver**. [Details](docs/progress/implementation-coverage.md).
+The [bounded implementation register](docs/testing/ts7/implementation-coverage.json) marks nine **already existing** local guard inputs as `SKIP / UNIMPLEMENTED` and five positive inputs as `IMPLEMENTED / upstream NOT_RUN`. The guard tests still execute; their passing rejection assertions do not mean the missing TypeScript features work. A dedicated CI check binds this report to its exact source inputs and rejects unexpected skips, while the xUnit fail-skips gate remains active. This is a starter catalogue, **not the full upstream completion percentage or a release waiver**. [Details](docs/progress/implementation-coverage.md).
 
 ## Pinned TS7 test-scope inventory
 

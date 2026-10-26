@@ -23,7 +23,7 @@ server. No real-project compatibility or performance claim.
 ## Bounded `any` variable annotations — 2026-10-26
 
 - Added a bounded parser/type-checker rule for variable `any` annotations; primitive assignment accepts `any` in either direction, while `const` reassignment stays TS2588. This is not full `any`/functions/generics support.
-- Hosted TDD RED on `6e2d446` had 15,459 tests, seven actual new `any` failures (TSCS1001), 15,452 success, zero skipped; both verify jobs failed as expected. New GREEN requires a distinct exact-head CI check.
+- Hosted TDD RED at `6e2d446`: **7 actual new `any` failures** (TSCS1001), 15,452 passed/15,459 total; both verify jobs failed as expected. Exact-head GREEN at `00317a1`: two hosted verify jobs each passed **15,459/15,459 xUnit 4/MTP**, **Node 103/103**, frozen differential **29/29**, standalone Go scope PASS, Release **0 errors/0 warnings**; CodeQL and Actions analysis both passed. Raw RED/GREEN logs are preserved in `docs/evidence/any-annotation-run/`, metadata in `docs/evidence/any-annotation.json`. The new capability itself was not run against the pinned whole upstream compiler.
 - One stable local guard probe (`bootstrap:any-annotation`) moved from SKIP/UNIMPLEMENTED to IMPLEMENTED/NOT_RUN; bounded local catalogue now **5 implemented, 9 SKIP** (14 local probes), with no original upstream compiler credit. Frozen upstream case denominator stays unknown, release=false.
 
 
