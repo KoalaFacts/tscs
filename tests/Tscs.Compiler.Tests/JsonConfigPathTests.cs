@@ -71,15 +71,17 @@ public class JsonConfigPathTests
  }
 
  [Theory]
- [InlineData("\uD800\uD800","\uFFFD")]
- [InlineData("\uDC00\uD800","\uFFFD")]
- [InlineData("\uD800X\uDC00","\uFFFDX\uFFFD")]
- [InlineData("\uD83D\uDE00","\uD83D\uDE00")]
- public void NetworkPathDiagnosticRepairsMalformedUtf8OnlyWhenFormatting(string suffix,string displayed)
+ [InlineData("D800-D800","FFFD")]
+ [InlineData("DC00-D800","FFFD")]
+ [InlineData("D800-0058-DC00","FFFD-0058-FFFD")]
+ [InlineData("D83D-DE00","D83D-DE00")]
+ public void NetworkPathDiagnosticRepairsMalformedUtf8OnlyWhenFormatting(string encodedSuffix,string encodedDisplayed)
  {
-  // Direct product boundary: no host file read, and no lossy JSON encoding
-  // of the original UTF-16 path before the pinned message is produced.
-  string raw="//server/"+suffix;
+  // InlineData is UTF-8 metadata. Build raw surrogate units at runtime to
+  // prevent attribute serialization from replacing malformed UTF-16 first.
+  static string Units(string hex)=>new(hex.Split('-').Select(unit=>(char)Convert.ToInt32(unit,16)).ToArray());
+  string raw="//server/"+Units(encodedSuffix);
+  string displayed=Units(encodedDisplayed);
   var result=One("outDir",StringValue(raw));
   Assert.Empty(result.Unsupported);
   Assert.Equal("Null",Assert.Single(result.Calls).Value.Kind);
