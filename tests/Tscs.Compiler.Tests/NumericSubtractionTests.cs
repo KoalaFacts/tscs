@@ -36,11 +36,38 @@ public sealed class NumericSubtractionTests
         Assert.Contains(Compilation.Check("test.ts", source), d => d.Code == "TSCS1001");
 
     [Theory]
-    [InlineData("let n = -3;")]
-    [InlineData("let n = 2 - -1;")]
     [InlineData("let n = 2 -- 1;")]
-    public void UnaryAndDecrementFormsRemainUnsupported(string source) =>
+    [InlineData("let n = 2--1;")]
+    [InlineData("let n = --1;")]
+    public void DecrementFormsRemainUnsupported(string source) =>
         Assert.Contains(Compilation.Check("test.ts", source), d => d.Code == "TSCS1001");
+
+    [Theory]
+    [InlineData("let n = -3;")]
+    [InlineData("let n: number = -3;")]
+    [InlineData("let n = 2 - -1;")]
+    [InlineData("let n = - -1;")]
+    [InlineData("let n = 2 * -3;")]
+    [InlineData("let n = -3 * 2 + 5;")]
+    [InlineData("let n: number = -1; n = -n;")]
+    [InlineData("let n = -1; let m = -n;")]
+    public void UnaryNumericMinusIsAccepted(string source) =>
+        Assert.Empty(Compilation.Check("test.ts", source));
+
+    [Theory]
+    [InlineData("let n = -\"x\";")]
+    [InlineData("let n = -true;")]
+    [InlineData("let n: any = 1; let m = -n;")]
+    public void UnaryMinusNonNumericOperandsRemainUnsupported(string source) =>
+        Assert.Contains(Compilation.Check("test.ts", source), d => d.Code == "TSCS1001");
+
+    [Fact]
+    public void UnaryMinusRetainsMissingNameDiagnostic() =>
+        Assert.Equal("TS2304", Assert.Single(Compilation.Check("test.ts", "let n = -missing;")).Code);
+
+    [Fact]
+    public void LongUnaryMinusChainDoesNotOverflowChecker() =>
+        Assert.Empty(Compilation.Check("test.ts", "let n = " + string.Concat(Enumerable.Repeat("- ", 20000)) + "1;"));
 
     [Fact]
     public void SubtractionAndAdditionAssociateLeftToRight()
