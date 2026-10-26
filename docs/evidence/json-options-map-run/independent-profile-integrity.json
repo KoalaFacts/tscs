@@ -1,0 +1,41 @@
+{
+  "verifiedArtifacts": 19,
+  "identicalAuthorPayloads": [
+    "oracle.json",
+    "declarations.json",
+    "generator.log",
+    "requests.jsonl",
+    "actual-calls.json",
+    "results.jsonl",
+    "actual-00.jsonl",
+    "actual-00.log",
+    "actual-01.jsonl",
+    "actual-01.log",
+    "actual-02.jsonl",
+    "actual-02.log",
+    "actual-03.jsonl",
+    "actual-03.log",
+    "actual-04.jsonl",
+    "actual-04.log",
+    "actual-05.jsonl",
+    "actual-05.log"
+  ],
+  "expectedTimingDifference": [
+    "go.log"
+  ],
+  "reviewSourceCommit": "ca49842f681c6914e84b11f7073f44d1b26877be",
+  "assemblyHashes": {
+    "tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.FixtureHarness.dll": "1bdeabbac6fe1226a1d6501628fa115e0731959281ff1517c156aeceee08c946",
+    "tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.Compiler.dll": "64e9c7e3b8785a8876bf80a869338fb55b4af4466319f0b54df59b85d9198a91"
+  },
+  "counts": {
+    "MATCH": 90,
+    "MATCH_DIAGNOSTICS": 8,
+    "UNSUPPORTED": 74,
+    "MISMATCH": 0,
+    "CRASH": 0,
+    "TIMEOUT": 0,
+    "SKIPPED": 0,
+    "NOT_RUN": 0
+  }
+}

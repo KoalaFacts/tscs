@@ -3,6 +3,20 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Declaration-driven config option map — 2026-10-26
+
+- Unified actual126 declaration entries (125 names, duplicate help retained)
+  into the product dispatcher.111 supported;15 path/locale policies explicitly
+  unsupported. Canonical-case errors, weighted suggestions, ordered duplicate
+  values, nil error calls and batch diagnostics follow actual convertOptionsFromJson.
+-316 actual-Go map inputs;226 complete comparisons/90 unsupported. Real fixture
+  preparation JSONL172:90 MATCH,8 MATCH_DIAGNOSTICS,74 UNSUPPORTED, no mismatches.
+  All3 selected upstream skips remain flagged. Historical input selection only;
+  fresh Go parser/map and C# preparation, no full13006 selection rerun.
+- RED490fail/14936pass ->15426/15426; Node95/95, frozen29/29.
+  [Scope and evidence](progress/json-options-map.md). ParseOption call boundary,
+  not typed/effective CompilerOptions, config host or original compiler acceptance.
+
 ## Lib enum-list integration — 2026-10-26
 
 - Connected the actual lib declaration/116 alias mappings to existing list and

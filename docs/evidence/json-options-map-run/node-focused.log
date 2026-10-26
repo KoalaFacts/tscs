@@ -1,0 +1,14 @@
+✔ complete option calls and diagnostics match independently (1.479349ms)
+✔ missing parser diagnostic cannot receive a match (0.464573ms)
+✔ unsupported policies stay unsupported rather than matching reference calls (0.194134ms)
+✔ unreported unsupported declaration rejects (0.163528ms)
+✔ input selection and context must bind even for unsupported output (0.266213ms)
+✔ wrong calls, omitted diagnostics and false clean outcome reject (0.296128ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 112.057266

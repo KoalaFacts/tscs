@@ -1,0 +1,13 @@
+Telemetry
+---------
+Microsoft Testing Platform collects usage data in order to help us improve your experience. The data is collected by Microsoft and are not shared with anyone.
+You can opt-out of telemetry by setting the TESTINGPLATFORM_TELEMETRY_OPTOUT or DOTNET_CLI_TELEMETRY_OPTOUT environment variable to '1' or 'true' using your favorite shell.
+
+Read more about Microsoft Testing Platform telemetry: https://aka.ms/testingplatform/telemetry
+
+Test run summary: Passed! - /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+  total: 14936
+  failed: 0
+  succeeded: 14936
+  skipped: 0
+  duration: 4s 936ms

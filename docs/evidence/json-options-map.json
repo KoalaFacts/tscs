@@ -1,0 +1,225 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "upstreamVersion": "7.1.0-dev",
+  "baseCommit": "aeffd714012c6afba07e555e4f74c522df24f1bb",
+  "reviewedImplementationCommit": "ca49842f681c6914e84b11f7073f44d1b26877be",
+  "profile": "convertOptionsFromJson/record-ParseOption/no-host",
+  "scope": "actual convertOptionsFromJson + recording optionParser; product descriptor dispatch and source fixture preparation, not typed/effective options or compiler acceptance",
+  "counts": {
+    "declarationEntries": 126,
+    "uniqueNames": 125,
+    "supportedDeclarationEntries": 111,
+    "unsupportedDeclarationEntries": 15,
+    "goMapInputsExecuted": 316,
+    "completeComparisons": 226,
+    "completeClean": 204,
+    "completeDiagnosticBearing": 22,
+    "unsupportedMapInputs": 90,
+    "selectedSourceInputs": 172,
+    "selectedUpstreamSkipped": 3,
+    "sourceOutcomes": {
+      "MATCH": 90,
+      "MATCH_DIAGNOSTICS": 8,
+      "UNSUPPORTED": 74,
+      "MISMATCH": 0,
+      "CRASH": 0,
+      "TIMEOUT": 0,
+      "SKIPPED": 0,
+      "NOT_RUN": 0
+    },
+    "red": {
+      "failed": 490,
+      "passed": 14936
+    },
+    "nodeRed": {
+      "failed": 5,
+      "passed": 1
+    },
+    "directMtp": {
+      "passed": 15426,
+      "failed": 0,
+      "skipped": 0
+    },
+    "node": 95,
+    "frozen": 29
+  },
+  "golden": {
+    "path": "tests/Tscs.Compiler.Tests/TestData/json-options-map.json",
+    "bytes": 777820,
+    "sha256": "b0fb46a68ecf2bc41bb598245520e7fb91bccc1d103182bee6e6e93452ea682d"
+  },
+  "productionDeclarations": {
+    "path": "src/Tscs.Compiler/json-option-declarations.json",
+    "bytes": 49882,
+    "sha256": "d91d78ea8f071d09059601b64921fcf54bcfd5e093cc39f01da0d90b30967255"
+  },
+  "sourceHashes": {
+    "src/Tscs.Compiler/JsonOptionsFromJson.cs": "d9662711fa6e88da8bb518f4dc7b1906a23ec21fc5c79e0036ddfd8b0ef1d0b2",
+    "src/Tscs.Compiler/Tscs.Compiler.csproj": "2c24e6834c5aa007697b990f7412b8a3177ae4f0be8cab5f44a40bb99262819e",
+    "src/Tscs.Compiler/json-option-declarations.json": "d91d78ea8f071d09059601b64921fcf54bcfd5e093cc39f01da0d90b30967255",
+    "tests/Tscs.Compiler.Tests/JsonOptionsMapTests.cs": "91acd7bef9a3cfe595404efa309922b1b2c2373a70d7be116b296692e7ac44ff",
+    "tests/Tscs.Compiler.Tests/TestData/json-options-map.json": "b0fb46a68ecf2bc41bb598245520e7fb91bccc1d103182bee6e6e93452ea682d",
+    "tests/Tscs.Compiler.Tests/Tscs.Compiler.Tests.csproj": "050d2bc804af3e9895813dfc0c0b669da39c7ecedc02d38271720f6c9a1abd25",
+    "tools/compare-source-config-options.ts": "e32961fbd3a1ec77f6fee60b1b68dadf07a9b262aad86abe0c7513ef4fe84a90",
+    "tools/fixture-harness/FixtureConfigOptions.cs": "2d117a11a23ba659c4689f05b966d773f6080ada5ca203a7a9e99b875af43ef7",
+    "tools/fixture-harness/FixtureProtocol.cs": "788e42758ed0cc1f1f5e5e1d064e7a6dfb46c794d68d430643042b0eb7f55e80",
+    "tools/fixture-harness/json_options_map_oracle_test.go": "a1748212e28a273bf3a9f0224d4e4ec7194f23a863a67f00886c19252afa9fd4",
+    "tools/generate-json-options-map.ts": "bf4481137a8c5e22989f47973ff6cbaea0c86d684af41face6ed7a1a239e559c",
+    "tools/source-config-options.test.ts": "55b7d60b3933c73983c4f9383a372e19a176b6459c8941f3a34a4e7e9f06a217",
+    "tools/source-config-options.ts": "092a27ff71564042891a9de83eb2613afbf7ace1f01561be28a0ab51d1b03d9e",
+    "README.md": "b7fa4f2cd49d6a601051d7c5e98fe86dd5292d5ef74c692a8a9af20e57ff61e4",
+    "scripts/verify.sh": "695b25bd9e45ae70869d8a48094b6f2be658491a44ce3fdc18cd9b3125bb8bb4",
+    "upstream.lock.json": "10a729f8b1e5674995cec0346a31f3642788901070a1c343084efcffd2080b2e"
+  },
+  "rawLogHashes": {
+    "docs/evidence/json-options-map-run/archive-receipt.json": "e4dfaf9ab616634d1afbed4a23c141c4dc447f9343e033dabd3fe7c2ef485665",
+    "docs/evidence/json-options-map-run/build.log": "bb03c2d586c3460f0716b2086b0fc030faef199986625ad9539784474b11c35a",
+    "docs/evidence/json-options-map-run/excluded-baseline.log": "3b6d91accd676497b97d1f548aa47d5ac8beae35e25845e0b10d67033da0e0ad",
+    "docs/evidence/json-options-map-run/excluded-binding.log": "475b70feef19877725e8849d78de94966a57f77800d48af9ddf6f6ee2a436088",
+    "docs/evidence/json-options-map-run/final-build.log": "a106dec9ee8338707eff440cc23fb814988e93e16fe4807ecd61049a363eeb40",
+    "docs/evidence/json-options-map-run/final-frozen.log": "441c7bad381ac65cb1890aaf8424ec7b8999b55ef7574e9836a3516c151bc4b9",
+    "docs/evidence/json-options-map-run/final-node.log": "a4e0ec0f57a2aec418e1c60d73c911369a679bc4f338aafefaf9a818e3ae7a38",
+    "docs/evidence/json-options-map-run/final-source-profile.log": "765318f42d1353d55ae1f541b56ef840ea80606277dc56deefb4d96459db3dc4",
+    "docs/evidence/json-options-map-run/final-tests.log": "ec34096d299ae3e3f575cc8255d2c22d3f98cb0987b44b2f40cbb26ec6caabd7",
+    "docs/evidence/json-options-map-run/frozen.log": "441c7bad381ac65cb1890aaf8424ec7b8999b55ef7574e9836a3516c151bc4b9",
+    "docs/evidence/json-options-map-run/generate-bound.log": "9f261745370fb82863a36ea3bd99054cbbd38749c93a1a31d361ad5b146ea9b7",
+    "docs/evidence/json-options-map-run/generate-final-repeat.log": "9f261745370fb82863a36ea3bd99054cbbd38749c93a1a31d361ad5b146ea9b7",
+    "docs/evidence/json-options-map-run/generate-final.log": "9f261745370fb82863a36ea3bd99054cbbd38749c93a1a31d361ad5b146ea9b7",
+    "docs/evidence/json-options-map-run/generate-repeat.log": "9f261745370fb82863a36ea3bd99054cbbd38749c93a1a31d361ad5b146ea9b7",
+    "docs/evidence/json-options-map-run/generate.log": "9f261745370fb82863a36ea3bd99054cbbd38749c93a1a31d361ad5b146ea9b7",
+    "docs/evidence/json-options-map-run/go-bound.log": "dc0fac3db910e719868e8be50f64842c7e72388e6ada68717e91ea72279e11d1",
+    "docs/evidence/json-options-map-run/go-final-repeat.log": "514e06dad2f55023221df92f1a79b23455256f610d43c8247be4108ea63515f8",
+    "docs/evidence/json-options-map-run/go-final.log": "dc0fac3db910e719868e8be50f64842c7e72388e6ada68717e91ea72279e11d1",
+    "docs/evidence/json-options-map-run/go-repeat.log": "83611a13ec4fd247110784fd55f52b4847241bc621bcb5361c3f40ae9c50adb7",
+    "docs/evidence/json-options-map-run/go.log": "715e8a83cff35b99cc331f02cbcf488b851577ce1173a311ea92135cab94224e",
+    "docs/evidence/json-options-map-run/green.log": "a14c78a909ba3ea1b7463fa705b461b4f64b9e9320c4c0d0a219e7324d289ef7",
+    "docs/evidence/json-options-map-run/independent-build.log": "b06bc8986c70aaea10ac71eaf7113129b4b905afdaf8af9d2a990b4e0b75d352",
+    "docs/evidence/json-options-map-run/independent-environment.log": "c403e0d78b2a119be02bfab88931e077712f9bd1e9760da81d0bdc161f7eb037",
+    "docs/evidence/json-options-map-run/independent-frozen.log": "441c7bad381ac65cb1890aaf8424ec7b8999b55ef7574e9836a3516c151bc4b9",
+    "docs/evidence/json-options-map-run/independent-generate.log": "9f261745370fb82863a36ea3bd99054cbbd38749c93a1a31d361ad5b146ea9b7",
+    "docs/evidence/json-options-map-run/independent-go.log": "514e06dad2f55023221df92f1a79b23455256f610d43c8247be4108ea63515f8",
+    "docs/evidence/json-options-map-run/independent-node-tests.log": "64d2d7eee8a973f8431b6ede8a1bcd875bde7be8306443731222021c333f527a",
+    "docs/evidence/json-options-map-run/independent-profile-integrity.json": "69ce73a4fe533462f00f84d33ed99e8a37af2c2e9b5e54894c30bf4c3241db31",
+    "docs/evidence/json-options-map-run/independent-regeneration-comparison.log": "b60153a8812cd099aac5ba8ae09bc5c5c9d5a1f359c9d64f7d914a098f950484",
+    "docs/evidence/json-options-map-run/independent-review.md": "a2d1d778e7a34eae2469fcfc1af379891ace1f2d6fd2efcfef64ce7d011cfa65",
+    "docs/evidence/json-options-map-run/independent-source-profile.log": "765318f42d1353d55ae1f541b56ef840ea80606277dc56deefb4d96459db3dc4",
+    "docs/evidence/json-options-map-run/independent-summary-metadata.json": "b1920799ec9d7d729b4aeb656667b7b85ff6857e345ab8cd8f35e1847033b7a1",
+    "docs/evidence/json-options-map-run/independent-tests.log": "57722c926bc7e29b0ad0331fc49001e88d2ff952938513a0700d6dfac0bc176e",
+    "docs/evidence/json-options-map-run/node-focused.log": "5794c23ae9f05bad1661f16617a7b2b5c7140a6033589979619cdad5530d2b41",
+    "docs/evidence/json-options-map-run/node-red.log": "483eb16d425e0bd289cd6936cdae8a71de154a015a846e0eb838082417e09f8c",
+    "docs/evidence/json-options-map-run/node.log": "00c3d7228cab6232b5914e97871f8973f761eb9d58da9323867a14eecc72e164",
+    "docs/evidence/json-options-map-run/red-build.log": "a8894e7adab137f12d9df6e7828be175dd067a69d3a2c863c4c5dffc9c20a0f7",
+    "docs/evidence/json-options-map-run/red.log": "3cffc141f4d7ece017c1aa153b118febcbbd6da9238daa15488ff335de6090f9",
+    "docs/evidence/json-options-map-run/source-profile.log": "765318f42d1353d55ae1f541b56ef840ea80606277dc56deefb4d96459db3dc4"
+  },
+  "archive": {
+    "path": "/workspace/scratch/daf3e6c2e318/tscs-source-options-map-evidence-2026-10-26.tar.gz",
+    "bytes": 276358,
+    "sha256": "87ff05abdb34b83743c525a599f609e40ec6da6a03bea6ff71174ca01efdae20",
+    "indexSha256": "310db0c7ffcfe022d9a3a2e1753cff1e65eae1af146dcf301f985f344b5dad43",
+    "payloads": 55,
+    "hardlinks": 37,
+    "gitBackedOmissions": [
+      {
+        "archivePath": "initial-pre-provenance-hardening/declarations.json",
+        "gitPath": "src/Tscs.Compiler/json-option-declarations.json",
+        "gitBlobOid": "4a88e75d762e4706bb13cc53d9df26481a850cdd",
+        "bytes": 49882,
+        "sha256": "d91d78ea8f071d09059601b64921fcf54bcfd5e093cc39f01da0d90b30967255"
+      },
+      {
+        "archivePath": "author-final/oracle.json",
+        "gitPath": "tests/Tscs.Compiler.Tests/TestData/json-options-map.json",
+        "gitBlobOid": "ea0c4d72bb1a858f81e298a81ef8fdc39228f371",
+        "bytes": 777820,
+        "sha256": "b0fb46a68ecf2bc41bb598245520e7fb91bccc1d103182bee6e6e93452ea682d"
+      },
+      {
+        "archivePath": "author-final/declarations.json",
+        "gitPath": "src/Tscs.Compiler/json-option-declarations.json",
+        "gitBlobOid": "4a88e75d762e4706bb13cc53d9df26481a850cdd",
+        "bytes": 49882,
+        "sha256": "d91d78ea8f071d09059601b64921fcf54bcfd5e093cc39f01da0d90b30967255"
+      },
+      {
+        "archivePath": "independent/oracle.json",
+        "gitPath": "tests/Tscs.Compiler.Tests/TestData/json-options-map.json",
+        "gitBlobOid": "ea0c4d72bb1a858f81e298a81ef8fdc39228f371",
+        "bytes": 777820,
+        "sha256": "b0fb46a68ecf2bc41bb598245520e7fb91bccc1d103182bee6e6e93452ea682d"
+      },
+      {
+        "archivePath": "independent/declarations.json",
+        "gitPath": "src/Tscs.Compiler/json-option-declarations.json",
+        "gitBlobOid": "4a88e75d762e4706bb13cc53d9df26481a850cdd",
+        "bytes": 49882,
+        "sha256": "d91d78ea8f071d09059601b64921fcf54bcfd5e093cc39f01da0d90b30967255"
+      }
+    ],
+    "libraryFileId": "libfile_01fe35b6091c8191a274e7c06d8d9852"
+  },
+  "review": {
+    "findings": [],
+    "receipt": "json-options-map-run/independent-review.md",
+    "independent": [
+      "Go316 and production resource identical",
+      "Release0warnings/errors",
+      "directMTP15426/15426",
+      "Node95/95",
+      "frozen29/29",
+      "source90MATCH/8DIAGNOSTICS/74UNSUPPORTED",
+      "all19artifactSHA;18payloads byte-identical"
+    ],
+    "limits": [
+      "no independent historical RED rerun",
+      "author docs/minimum updates outside implementation range",
+      "no second/formal GitHub approval",
+      "different per-run DLL hashes retained"
+    ]
+  },
+  "excludedAttempts": [
+    "producer repeated help ID rejected before golden; ID fixed with declaration position",
+    "pre-provenance-hardening source profile retained but excluded as final-source proof",
+    "initial existing-binary baseline lacked explicit telemetry environment; excluded from final validation"
+  ],
+  "notRun": [
+    "SDK test coordinator",
+    "one end-to-end scripts/verify.sh invocation",
+    "fresh locked restore",
+    "standalone Go scope test",
+    "full13006 raw selection",
+    "typed CompilerOptions/defaults/existingOptions",
+    "notifier/config host/effective config",
+    "originalCompiler",
+    "referenceCompiler",
+    "acceptance"
+  ],
+  "concreteCases": null,
+  "releaseEligible": false,
+  "commands": {
+    "authorReference": "source /tmp/tscs-options-env; TSCS_STRING_LOG=docs/evidence/json-options-map-run/go-bound.log node tools/generate-json-options-map.ts .artifacts/ts7-upstream tests/Tscs.Compiler.Tests/TestData/json-options-map.json src/Tscs.Compiler/json-option-declarations.json",
+    "build": "source /tmp/tscs-options-env; dotnet build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false",
+    "directMtp": "source /tmp/tscs-options-env; dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 15426",
+    "node": "source /tmp/tscs-options-env; node --test tools/*.test.ts",
+    "frozen": "source /tmp/tscs-options-env; node tools/verify-conformance.ts",
+    "sourceProfile": "source /tmp/tscs-options-env; node tools/compare-source-config-options.ts .artifacts/ts7-upstream .artifacts/source-options-map-final (intentional exit1)",
+    "independent": "json-options-map-run/independent-review.md"
+  },
+  "environment": {
+    "SDK": "10.0.402",
+    "runtime": "10.0.13",
+    "Go": "1.27.3",
+    "Node": "24.22.1",
+    "xunit": "4.0.2",
+    "MTP": "2.5.1",
+    "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
+    "TESTINGPLATFORM_TELEMETRY_OPTOUT": "1",
+    "XDG_CONFIG_HOME": "/tmp/tscs-offline-config",
+    "actualGoTelemetry": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "RestoreSources": "/tmp/tscs-empty-feed",
+    "NuGetAudit": "false"
+  }
+}

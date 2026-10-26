@@ -339,3 +339,18 @@ The [lib enum-list integration](../../progress/json-lib-options.md) connects116
 actual library aliases to filenames across504 actual-Go conversions. It preserves
 all126 option declaration identities and original scope. This converts metadata;
 it does not load standard libraries or establish CLI/effective-config acceptance.
+
+## Declaration-driven option map
+
+`node tools/compare-source-config-options.ts PINNED_CHECKOUT NEW_OUTPUT` freshly
+runs actual Go convertOptionsFromJson with a recording optionParser and C# fixture
+preparation/production dispatch. It binds the historical172 selected config
+inputs to fixed source blobs/cohortSHA; it does not rerun full13006 Go selection.
+90 MATCH/8 MATCH_DIAGNOSTICS/74 UNSUPPORTED, all3 selected upstream skips retained.
+Exit1 is intentional while diagnostics/unsupported policies remain.19 immutable
+raw artifacts/profile include six actual shards (five32-request, one12-request) with IDs/counts/hashes.
+The product retains all126 declarations;15 path/locale policies stay unsupported.
+316 whole-map golden inputs include selected sources, mixed scenarios and one
+input per declaration position;226 complete comparisons,90 unsupported cases.
+This records ParseOption calls, not typed options/defaults/notifier/host or compiler
+acceptance. See [scope/evidence](../../progress/json-options-map.md).
