@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "repository": "KoalaFacts/tscs",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "date": "2026-10-26",
+  "baselineCommit": "35dd34a4312b882a2cf69ac3c6d65b4d74e4cdba",
+  "redHead": "bf7d00f477d4b6ae19116d2d45b01c79ecdb1609",
+  "greenHead": "8473d1ce5dc00b684119244c4f6d9b0f4fd7210f",
+  "red": {
+    "source": "tests/Tscs.Compiler.Tests/JsonConfigPathTests.cs",
+    "cases": [
+      {
+        "input": "${confİgDir}/src",
+        "expected": "${confİgDir}/src",
+        "observed": "/.src/${confİgDir}/src"
+      },
+      {
+        "input": "file://localhoſt/C:/../out",
+        "expected": "file://localhoſt/C:/out",
+        "observed": "file://localhoſt/out"
+      },
+      {
+        "input": "file://LOCALHOST/C:/../out",
+        "expected": "file://LOCALHOST/C:/out",
+        "observed": "file://LOCALHOST/C:/out",
+        "control": true
+      }
+    ],
+    "testRunner": "xUnit4/MTP2",
+    "total": 15453,
+    "passed": 15451,
+    "failed": 2,
+    "skipped": 0,
+    "jobLogs": [
+      "https://github.com/KoalaFacts/tscs/actions/runs/40286033683/job/121449799741",
+      "https://github.com/KoalaFacts/tscs/actions/runs/40286038675/job/121449816499"
+    ]
+  },
+  "generatedResource": {
+    "file": "src/Tscs.Compiler/json-option-declarations.json",
+    "pinnedGenerator": "tools/generate-json-options-map.ts",
+    "oldSha256": "464d4fb5eaae717e6d8cc61d5dfb8c0bfab132278c0b3f3251d568e4baaf32d9",
+    "oldBytes": 49867,
+    "newSha256": "0d67a643ca7d3dce6315754e177f7d93cbada15682b4eebc45a2d4eea9a9552c",
+    "newBytes": 49865,
+    "nestedPolicyCorrections": [
+      "rootDirs.element.supported",
+      "typeRoots.element.supported"
+    ],
+    "fullByteParityWithPinnedGo": true,
+    "check": "tools/json-option-declarations.test.ts"
+  },
+  "paths": {
+    "file": "src/Tscs.Compiler/JsonConfigPaths.cs",
+    "goReferences": [
+      "tsc/internal/tsoptions/tsconfigparsing.go",
+      "tsc/internal/tspath/path.go"
+    ],
+    "templatePredicate": "PinnedEnumLowercase.Lower plus ordinal ASCII prefix",
+    "fileLocalhostPredicate": "Go Unicode simple fold for ASCII targets; U+017F and U+212A"
+  },
+  "green": {
+    "head": "8473d1ce5dc00b684119244c4f6d9b0f4fd7210f",
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "xunit": {
+      "total": 15453,
+      "passed": 15453,
+      "failed": 0,
+      "skipped": 0
+    },
+    "node": {
+      "total": 103,
+      "passed": 103,
+      "failed": 0
+    },
+    "frozen": {
+      "total": 29,
+      "passed": 29
+    },
+    "goStandaloneScope": "PASS",
+    "checks": [
+      {
+        "name": "CodeQL",
+        "result": "success",
+        "url": "https://github.com/KoalaFacts/tscs/runs/121451240009"
+      },
+      {
+        "name": "Analyze (actions)",
+        "result": "success",
+        "url": "https://github.com/KoalaFacts/tscs/actions/runs/40286428255/job/121451068763"
+      },
+      {
+        "name": "verify",
+        "result": "success",
+        "url": "https://github.com/KoalaFacts/tscs/actions/runs/40286427237/job/121451061802"
+      },
+      {
+        "name": "verify",
+        "result": "success",
+        "url": "https://github.com/KoalaFacts/tscs/actions/runs/40286434368/job/121451084725"
+      }
+    ]
+  },
+  "scope": {
+    "newUpstreamAccepted": 0,
+    "removedSkips": 0,
+    "registeredLocalGuardProbes": 14,
+    "implementedLocalGuardProbesUpstreamNotRun": 4,
+    "unimplementedSkippedLocalGuardProbes": 10,
+    "compilerOriginalAcceptance": "NOT_RUN",
+    "allUpstreamExecutableDenominator": "UNKNOWN",
+    "sourceProfile172Rerun": false,
+    "sourceSelection13006Rerun": false,
+    "releaseEligible": false
+  },
+  "evidenceNote": "RED and GREEN exact-head hosted jobs; complete generated-resource digest from actual pinned-Go producer, no claim of independent C# re-execution outside hosted CI."
+}

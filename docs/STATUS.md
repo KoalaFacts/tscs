@@ -1,5 +1,14 @@
 # Status — 2026-10-26
 
+## Review fixes: pinned Unicode path comparisons and generated declarations — 2026-10-26
+
+- Closed two concrete P2 implementation/integrity findings on PR #8 without bypassing comparison: Go `strings.ToLower` recognises dotted-I in the configDir prefix, while Unicode simple-folding `EqualFold` recognises long-s in `file://localhost`. The product uses its pinned Go lowercase map for templates and a target-ASCII simple-fold comparison for URI file/localhost roots. It does not use host `OrdinalIgnoreCase` for these predicates.
+- Real hosted TDD RED at `bf7d00f`: two new path regressions fail with the exact predicted wrong values; 15,451/15,453 xUnit pass, two fail. The ASCII control still passes. The separate complete embedded-declaration SHA-256 guard detects two stale nested `rootDirs.element.supported` / `typeRoots.element.supported` fields.
+- The committed generated resource now equals the entire freshly regenerated pinned Go payload byte-for-byte: 49,865 bytes, SHA-256 `0d67a643ca7d3dce6315754e177f7d93cbada15682b4eebc45a2d4eea9a9552c` (previous 49,867 bytes, `464d4fb5eaae717e6d8cc61d5dfb8c0bfab132278c0b3f3251d568e4baaf32d9`). Node regression locks the complete hash, not just the two fields.
+- Exact implementation head `8473d1ce5dc00b684119244c4f6d9b0f4fd7210f` passed 4/4 hosted checks: Release zero warning/error, xUnit/MTP **15,453/15,453** with zero skipped, Node24 **103/103**, frozen **29/29**, Go standalone scope pass. Both raw hosted verify logs are accessible through [Actions run 40286427237](https://github.com/KoalaFacts/tscs/actions/runs/40286427237) and [40286434368](https://github.com/KoalaFacts/tscs/actions/runs/40286434368). The RED logs are [40286033683](https://github.com/KoalaFacts/tscs/actions/runs/40286033683) and [40286038675](https://github.com/KoalaFacts/tscs/actions/runs/40286038675).
+- This P2 closeout adds **no new TypeScript language feature**; ten registered SKIP(UNIMPLEMENTED) probes remain, four local implemented probes still upstream NOT_RUN, full TS7 acceptance and denominator unknown. Historical 172-source/13,006-source profiles were not re-run. PR #8 not yet formally reviewed/merged. [Machine evidence](evidence/path-unicode-review-closure.json).
+
+
 ## Explicit SKIP/implementation status — 2026-10-26
 
 - Introduced a **separate** source-bound catalogue of 14 existing compiler theory inputs: 4 implemented but full upstream acceptance NOT_RUN; 10 `SKIP (UNIMPLEMENTED)` across 7 distinct missing capabilities. The original unsupported guard assertions still run and cannot count as feature implementation.
