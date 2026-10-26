@@ -9,13 +9,18 @@ const copy=()=>structuredClone(registry);
 test('every known missing guard remains an explicit local skip, not TS7 acceptance',()=>{
  const r=buildCoverage(registry,source,lock);
  assert.equal(r.counts.registered,14);
- assert.equal(r.counts.skippedUnimplemented,8);
- assert.equal(r.counts.implemented,6);
+ assert.equal(r.counts.skippedUnimplemented,7);
+ assert.equal(r.counts.implemented,7);
  assert.equal(r.counts.verifiedUpstream,0);
  assert.equal(r.concreteUpstreamCases,null);
  assert.equal(r.releaseEligible,false);
- assert.equal(r.uniqueUnimplementedCapabilities.length,5);
+ assert.equal(r.uniqueUnimplementedCapabilities.length,4);
  assert.equal(r.counts.registered,r.counts.implemented+r.counts.skippedUnimplemented);
+ const moved=r.cases.find(x=>x.id==='bootstrap:postfix-update');
+ assert.equal(moved?.capability,'numeric-postfix-update');
+ assert.equal(moved?.implementation,'IMPLEMENTED');
+ assert.equal(moved?.status,'NOT_RUN');
+ assert.equal(moved?.upstreamExecutableCaseId,null);
 });
 test('every local guard row must have its own registered skip or implementation classification',()=>{
  const smaller=copy();smaller.cases.splice(4,1);
@@ -46,9 +51,10 @@ test('a recognized regression failure remains a FAIL and cannot become a SKIP',(
 });
 test('guard input parser retains exact C# inline string escapes and row counts',()=>{
  const text=source.toString('utf8');
- assert.equal(extractInlineSources(text,'ValidPrimitiveCodeHasNoErrors').length,6);
- assert.equal(extractInlineSources(text,'UnsupportedSyntaxNeverSucceeds').length,4);
+ assert.equal(extractInlineSources(text,'ValidPrimitiveCodeHasNoErrors').length,7);
+ assert.equal(extractInlineSources(text,'UnsupportedSyntaxNeverSucceeds').length,3);
  assert.equal(extractInlineSources(text,'IntrinsicGlobalThisIsExplicitlyUnsupported').length,4);
- assert.equal(extractInlineSources(text,'UnsupportedSyntaxNeverSucceeds')[2], '// @ts-ignore\nlet n: number = "x";');
+ assert.equal(extractInlineSources(text,'UnsupportedSyntaxNeverSucceeds')[1], '// @ts-ignore\nlet n: number = "x";');
  assert.equal(extractInlineSources(text,'ValidPrimitiveCodeHasNoErrors')[4], 'let n: any = 1;');
+ assert.equal(extractInlineSources(text,'ValidPrimitiveCodeHasNoErrors')[5], 'let n = 1; n++;');
 });
