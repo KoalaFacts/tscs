@@ -74,9 +74,9 @@ internal sealed class Parser(string file, List<Token> tokens)
         }
         return new Block(statements);
     }
-    // Bounded numeric arithmetic with TypeScript precedence: '*'
-    // binds more tightly than '+' and '-'. Neither unary/exponentiation nor
-    // nonnumeric arithmetic is claimed as supported.
+    // Bounded numeric arithmetic: unary '-' binds more tightly than '*',
+    // which binds more tightly than additive '+'/'-'. No other unary form,
+    // exponentiation or nonnumeric arithmetic is claimed as supported.
     private ValueNode ParseValue()
     {
         ValueNode left=ParseProduct();
@@ -89,13 +89,23 @@ internal sealed class Parser(string file, List<Token> tokens)
     }
     private ValueNode ParseProduct()
     {
-        ValueNode left=ParsePrimary();
+        ValueNode left=ParseUnary();
         while(Current.Kind==TokenKind.Star)
         {
             var op=Take();
-            left=new ValueBinary(left,op,ParsePrimary());
+            left=new ValueBinary(left,op,ParseUnary());
         }
         return left;
+    }
+    private ValueNode ParseUnary()
+    {
+        // Avoid recursive parsing on input such as 20,000 whitespace-separated
+        // prefix '-' operators; the TypeChecker also evaluates this iteratively.
+        var prefixes=new List<Token>();
+        while(Current.Kind==TokenKind.Minus)prefixes.Add(Take());
+        ValueNode value=ParsePrimary();
+        for(int i=prefixes.Count-1;i>=0;i--)value=new ValueUnary(prefixes[i],value);
+        return value;
     }
     private ValueNode ParsePrimary()
     {

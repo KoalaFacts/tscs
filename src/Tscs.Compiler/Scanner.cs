@@ -85,6 +85,12 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                 decodedValue = ScanString(first, out stringFlags);
             }
             else kind = first switch { '[' when jsonMode=>TokenKind.OpenBracket,']' when jsonMode=>TokenKind.CloseBracket,'-'=>TokenKind.Minus, '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,'+' when !jsonMode=>TokenKind.Plus,'*' when !jsonMode=>TokenKind.Star,_=>TokenKind.Unsupported };
+            // Lex -- as an unsupported decrement token, never as two unary/binary
+            // minus operators. Whitespace-separated "- -" remains distinct.
+            if(!jsonMode && kind==TokenKind.Minus && position<text.Length && text[position]=='-')
+            { position++; kind=TokenKind.MinusMinus; }
+            if(!jsonMode && kind==TokenKind.MinusMinus)
+                throw Error(new(TokenKind.Unsupported,"--",begin,2,lineBreak),"TSCS1001","Decrement '--' is not supported yet.");
             // Combine contiguous plus signs before the single-plus unary guard.
             // The bootstrap admits only the identifier postfix form, never ++x.
             if(!jsonMode && kind==TokenKind.Plus && position<text.Length && text[position]=='+')

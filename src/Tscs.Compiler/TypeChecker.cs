@@ -63,6 +63,20 @@ internal sealed class TypeChecker(string file)
                 types.Push(TypeOfAtom(atom.Token,scope));
                 continue;
             }
+            if(node is ValueUnary unary)
+            {
+                if(!combine)
+                {
+                    pending.Push((unary,true));
+                    pending.Push((unary.Operand,false));
+                    continue;
+                }
+                var operand=types.Pop();
+                if(operand==null)types.Push(null);
+                else if(operand=="number")types.Push("number");
+                else throw new CompilationFailure(Diagnostic.Error(file,unary.Operator,"TSCS1001","Only numeric unary minus is supported yet."));
+                continue;
+            }
             var binary=(ValueBinary)node;
             if(!combine)
             {
