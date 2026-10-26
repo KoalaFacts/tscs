@@ -22,8 +22,17 @@ public class StringRecoveryTests
  [Fact]
  public void EarlierLexicalErrorsSurviveLaterUnsupportedSyntax()
  {
-  var analysis=Compilation.Analyze("case.ts","\"\\xG\"; +");
+  var analysis=Compilation.Analyze("case.ts","\"\\xG\"; function");
   Assert.True(analysis.HasSyntaxErrors);Assert.Equal(new[]{"TS1125","TSCS1001"},analysis.Diagnostics.Select(d=>d.Code));
+ }
+ [Fact]
+ public void EarlierLexicalErrorsSurviveNowSupportedNumericUnaryPlus()
+ {
+  // Once + is a legal numeric unary operator, lexical failures must still
+  // preempt any checker work instead of disappearing with the old scanner guard.
+  var analysis=Compilation.Analyze("case.ts","\"\\xG\"; +1;");
+  Assert.True(analysis.HasSyntaxErrors);
+  Assert.Equal("TS1125",Assert.Single(analysis.Diagnostics).Code);
  }
  [Fact]
  public void LexicalErrorsPrecedeParserAndCheckerWork()
