@@ -3,6 +3,19 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Lib enum-list integration — 2026-10-26
+
+- Connected the actual lib declaration/116 alias mappings to existing list and
+  enum converters. Preserves string filenames, order, null/nil/filter semantics
+  and full element diagnostics, including pinned converted-index behavior.
+- Actual private Go504 rows; all126 declarations retained. Product uses the
+  generated lib resource, not test-supplied expectations. Original failed-run
+  full-descriptor data retained losslessly; final rows share one declaration
+  table without changing any values/diagnostics/case identity.
+- RED486fail/14450pass ->14936/14936; Node89/89, frozen29/29.
+  [Scope/evidence](progress/json-lib-options.md). No standard-library loading,
+  new CLI lib acceptance, effective configuration or original compiler credit.
+
 ## Enum config options — 2026-10-26
 
 - Added actual six enum maps/deprecated keys and product conversion: nullable/

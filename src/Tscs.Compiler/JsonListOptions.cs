@@ -1,7 +1,7 @@
 namespace Tscs;
 // Bounded list conversion: caller supplies a primitive/object element declaration
-// with no path/enum/extra-validation policy. This is not the whole option map.
-internal sealed record JsonListOption(string Name,JsonScalarOption Element,bool PreserveFalsy,bool CommandLineOnly=false);
+// with no path/extra-validation policy; optional enum element uses the pinned map. This is not the whole option map.
+internal sealed record JsonListOption(string Name,JsonScalarOption Element,bool PreserveFalsy,bool CommandLineOnly=false,JsonEnumOption? EnumElement=null);
 internal static class JsonListOptions
 {
  public static JsonScalarOptionResult Convert(JsonListOption option,ConfigValue value,string file="",Token? name=null,JsonSyntaxNode? expression=null)
@@ -15,7 +15,9 @@ internal static class JsonListOptions
    // The pinned function indexes the original syntax list using the converted
    // value index, even when convertToObject has filtered scalar nulls earlier.
    Token? token=expression?.Elements[index].Token;
-   var result=JsonScalarOptions.Convert(option.Element,value.Elements[index],file,name,token);
+   var result=option.EnumElement is JsonEnumOption enumOption
+    ?JsonEnumOptions.Convert(enumOption,value.Elements[index],file,name,token)
+    :JsonScalarOptions.Convert(option.Element,value.Elements[index],file,name,token);
    diagnostics.AddRange(result.Diagnostics);
    if(option.PreserveFalsy||!Falsy(result.Value))values.Add(result.Value);
   }

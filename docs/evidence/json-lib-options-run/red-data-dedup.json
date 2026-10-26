@@ -1,0 +1,8 @@
+{
+  "redFullGoldenSha256": "cb726095091ed13f3623e1ec31d9666e5a4ff9fa7b43a24b392df52571b5457b",
+  "redBytes": 12801425,
+  "finalBytes": 288113,
+  "rowsCompared": 504,
+  "inventoryEqual": true,
+  "change": "row option descriptor references shared inventory by name; all other fields exact; source/probe metadata naturally changed"
+}

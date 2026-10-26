@@ -1,0 +1,199 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "upstreamVersion": "7.1.0-dev",
+  "baseCommit": "3f2862d3419c44ebcd45bf8ea0a38e0347db3cad",
+  "reviewedImplementationCommit": "6c3ee9926f4ee82b7f2fba49fabef601e79e76a5",
+  "profile": "convertJsonOption/lib-enum-list/compiler-only-and-source-node",
+  "counts": {
+    "declarationsRetained": 126,
+    "supportedLibDeclarations": 1,
+    "outsideProfile": 125,
+    "actualLibraryAliases": 116,
+    "helperCasesExecuted": 504,
+    "matched": 504,
+    "cleanValueCases": 472,
+    "diagnosticBearingCases": 32,
+    "diagnostics": {
+      "TS5024": 34,
+      "TS6046": 10
+    },
+    "red": {
+      "fail": 486,
+      "pass": 14450
+    },
+    "directMtp": {
+      "pass": 14936,
+      "fail": 0,
+      "skip": 0
+    },
+    "node": 89,
+    "frozen": 29
+  },
+  "golden": {
+    "path": "tests/Tscs.Compiler.Tests/TestData/json-lib-options.json",
+    "bytes": 288113,
+    "sha256": "68519c99bfc6c23ce261791d0f30258123fc3c539d7a193f32ae561f6705c3fd"
+  },
+  "productionDeclaration": {
+    "path": "src/Tscs.Compiler/json-lib-declaration.json",
+    "sha256": "b6ae526147e1ccdf7644f950eee64d4acc647d4514d4f1de88452653465f57e8"
+  },
+  "sourceHashes": {
+    "src/Tscs.Compiler/JsonLibOptions.cs": "ec28dabf55f85a0e25e2ee9e169397a8b454235a90ada6074126657f5f79a6d8",
+    "src/Tscs.Compiler/JsonListOptions.cs": "898f91469568f41cceec6f16d1c9db321a1fb36c0a2207f4fb3cf7f578ddcf44",
+    "src/Tscs.Compiler/JsonEnumOptions.cs": "6e1abb3762a881fae86aab70c01e56e77615c1c773ba4924b040ea4f08579eb7",
+    "src/Tscs.Compiler/JsonScalarOptions.cs": "8d920d61dd902987a18dc0128bb10104a022df3a21e4ebdaf4d95ebf0ace61c3",
+    "src/Tscs.Compiler/JsonConfigValues.cs": "1f8f67746cb0db46d07314c0a3b72479e41b02eb25c17d11ff7cce91af44dc86",
+    "src/Tscs.Compiler/JsonSyntax.cs": "f4023d9a1911d29bfa2af41aeda41b76788eb531daa067b1d345f1c80a4ee95a",
+    "src/Tscs.Compiler/Tscs.Compiler.csproj": "62f01c29e8d1e485bc93a190b3d73513c56bfa072b3cff2ac086aed40abf1f65",
+    "src/Tscs.Compiler/json-lib-declaration.json": "b6ae526147e1ccdf7644f950eee64d4acc647d4514d4f1de88452653465f57e8",
+    "src/Tscs.Compiler/json-enum-declarations.json": "0abcf5e7b1e9c38f777c3ca08746ade272180b57650b7d68a2eefb51111c22a8",
+    "tests/Tscs.Compiler.Tests/JsonLibOptionTests.cs": "d01abf0db44e699a5002f53bb27df2c145a3c89252811b374f55394b50adedd9",
+    "tests/Tscs.Compiler.Tests/Tscs.Compiler.Tests.csproj": "d608b7ce5a99378e1b006a78a0377981ea66f89d9f04dd415114be95de731687",
+    "tools/generate-json-lib-options.ts": "eacae33dc66614eb6506444a35b22b88961f5204a5c27aa50f4b7f7785c2acc1",
+    "tools/fixture-harness/json_lib_options_oracle_test.go": "6db470b0b3187e3514a6f9dd4694e24edf93212521b2762048353a64eed22f32",
+    "tools/fixture-harness/json_enum_options_oracle_test.go": "b0f1aa1edc154bef0bf9e42ee92252b98b89e6a00dce995bc0805d770113eaa7",
+    "tools/fixture-harness/config_values_oracle_test.go": "f8b81a281d3151f37c0bd29396cb421c13dc9196670658c86ea5032fb814938a",
+    "upstream.lock.json": "10a729f8b1e5674995cec0346a31f3642788901070a1c343084efcffd2080b2e",
+    "global.json": "6cac8ed8559756539f2db0e8cbf6d545ccc81d3d4b1ebbfcf3ee204d218847b4"
+  },
+  "referenceHashes": {
+    "tsc/internal/tsoptions/tsconfigparsing.go": "2f42a124c6d16054a263cd8b34a23dc188421f5db69923d52e56886d349f0c71",
+    "tsc/internal/tsoptions/commandlineoption.go": "3c15653631c1cb32e54e40ca0d8b4e336635f551a9f206851e69228efb060d1e",
+    "tsc/internal/tsoptions/declarations_generated.go": "8f414711280dc2e88abdb480bf6d823beae435eedb9161199fdf3b08a3ea33ff",
+    "tsc/internal/tsoptions/errors.go": "f63da5973b822776dfce424105e4f4adbcbde73cca9d7cb60badac17bd6879cc",
+    "tsc/internal/parser/parser.go": "18fbeb9644a2c642d2757188107f2a802e8084cf1ed56a24c78bab1933328c2e",
+    "tsc/internal/core/core.go": "c669af063743873cb2084b3432f17ecf8b2e20655d916c9a4ac53364fd75f067",
+    "tsc/internal/tsoptions/commandlineparser.go": "29a0cfc62b22526b641ed5e50620746234fee93c460755bb1762428c9acac202"
+  },
+  "commands": {
+    "oracle": "node tools/generate-json-lib-options.ts .artifacts/ts7-upstream tests/Tscs.Compiler.Tests/TestData/json-lib-options.json src/Tscs.Compiler/json-lib-declaration.json",
+    "build": "dotnet build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false",
+    "mtp": "dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 14936",
+    "node": "node --test tools/*.test.ts",
+    "frozen": "node tools/verify-conformance.ts"
+  },
+  "tools": {
+    "go": "go version go1.27.3 linux/amd64",
+    "sdk": "10.0.402",
+    "runtime": "10.0.13",
+    "node": "24.22.1",
+    "xunit": "4.0.2",
+    "mtp": "2.5.1",
+    "telemetry": "Go env confirmed off; DOTNET_CLI_TELEMETRY_OPTOUT=1",
+    "offline": "GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local; no-restore builds"
+  },
+  "redDataPreservation": {
+    "codec": "base64(gzip(original full-descriptor golden))",
+    "path": "docs/evidence/json-lib-options-run/red-full-golden.json.gz.b64",
+    "originalBytes": 12801425,
+    "originalSha256": "cb726095091ed13f3623e1ec31d9666e5a4ff9fa7b43a24b392df52571b5457b",
+    "dedupReceipt": "docs/evidence/json-lib-options-run/red-data-dedup.json",
+    "semanticComparison": "All504 other row fields and full126-declaration inventory exact after deduplicating option descriptor; source/probe metadata changed with final schema"
+  },
+  "rawArtifacts": {
+    "docs/evidence/json-lib-options-run/frozen.log": {
+      "bytes": 81,
+      "sha256": "441c7bad381ac65cb1890aaf8424ec7b8999b55ef7574e9836a3516c151bc4b9"
+    },
+    "docs/evidence/json-lib-options-run/generate-final.log": {
+      "bytes": 49,
+      "sha256": "0bc296e378ac5674e1fdfb3122a7c65994f75deb6572ce42890741c9027f3604"
+    },
+    "docs/evidence/json-lib-options-run/generate.log": {
+      "bytes": 49,
+      "sha256": "0bc296e378ac5674e1fdfb3122a7c65994f75deb6572ce42890741c9027f3604"
+    },
+    "docs/evidence/json-lib-options-run/go-final.log": {
+      "bytes": 67,
+      "sha256": "8f1867250829f865fc84f1ee50ef722c843e412c6307f125be925bb20790485d"
+    },
+    "docs/evidence/json-lib-options-run/go-repeat.log": {
+      "bytes": 67,
+      "sha256": "d4925b5d75e49534e456f843c84c9574628f545ac13239efeec2c4368de7f4a4"
+    },
+    "docs/evidence/json-lib-options-run/go.log": {
+      "bytes": 67,
+      "sha256": "827cdd1e8930b50463f2881cb650eba61d8403f08424cf504526fd0a06180963"
+    },
+    "docs/evidence/json-lib-options-run/green-build.log": {
+      "bytes": 545,
+      "sha256": "62581ef160d92615b0c9c93cde1e2f5ed493caf0456b41107a4b7d0decde056f"
+    },
+    "docs/evidence/json-lib-options-run/green.log": {
+      "bytes": 230,
+      "sha256": "9fc3dfac14a1b91f1ab8b1ce08e111c8519f034e4ea08f251d9125b5468980a7"
+    },
+    "docs/evidence/json-lib-options-run/independent-build.log": {
+      "bytes": 545,
+      "sha256": "2cc9cdd6975bf3ce3a241ce31da84f858fe482b3da7d2f8924a09c68fb7f3d33"
+    },
+    "docs/evidence/json-lib-options-run/independent-generation.log": {
+      "bytes": 49,
+      "sha256": "0bc296e378ac5674e1fdfb3122a7c65994f75deb6572ce42890741c9027f3604"
+    },
+    "docs/evidence/json-lib-options-run/independent-go.log": {
+      "bytes": 67,
+      "sha256": "ebe5c8204eaf55846e5b15ed86b1fe70bc8185a4ca7d09ce3b8e968762c61f44"
+    },
+    "docs/evidence/json-lib-options-run/independent-receipt.json": {
+      "bytes": 1063,
+      "sha256": "88a44a71afb2aac69da8c965945b6d77750f5da4fbd17329666e5692893238b6"
+    },
+    "docs/evidence/json-lib-options-run/independent-tests.log": {
+      "bytes": 296,
+      "sha256": "34d9022c55338ef28cf5b53589a7fe2f820922a139b55d4c7069f8c6a6eea3d2"
+    },
+    "docs/evidence/json-lib-options-run/node.log": {
+      "bytes": 7533,
+      "sha256": "81cc76e81f71f67bfade8f45b81f4e6ad5152b84bc3eff82a57fcb4ffabefe54"
+    },
+    "docs/evidence/json-lib-options-run/red-build.log": {
+      "bytes": 545,
+      "sha256": "acb277f36b357fa76ef99654804b033eae4b3758e9a222c9886aed922acb9561"
+    },
+    "docs/evidence/json-lib-options-run/red-data-dedup.json": {
+      "bytes": 331,
+      "sha256": "a04dfbc2b06b24cd7b997ccc5f6ab902616e9a5003f99c0d71637b4838b9767a"
+    },
+    "docs/evidence/json-lib-options-run/red-full-golden.json.gz.b64": {
+      "bytes": 147650,
+      "sha256": "c030496330e88d54c438c7808184096080bc4e9b20e4236b994d9e43c14c9ddc"
+    },
+    "docs/evidence/json-lib-options-run/red.log": {
+      "bytes": 586243,
+      "sha256": "277b79ba23a976d2aa8ace71ab8071d4673bf924b4171641dd213a40758bf907"
+    },
+    "docs/evidence/json-lib-options-run/repeat.log": {
+      "bytes": 49,
+      "sha256": "0bc296e378ac5674e1fdfb3122a7c65994f75deb6572ce42890741c9027f3604"
+    }
+  },
+  "limits": [
+    "Metadata conversion only, no lib file loading/new CLI lib acceptance",
+    "No host/effective options/declaration-driven full option map yet",
+    "No full13006/172/source/VFS rerun; existing172 no-lib-property observation is static only",
+    "SDK coordinator/wholeverify.sh NOT_RUN",
+    "Original compiler/referenceCompiler/acceptance NOT_RUN; all domains/seven reference fatals/unknown denominator retained"
+  ],
+  "concreteCases": null,
+  "releaseEligible": false,
+  "independentReview": {
+    "critical": 0,
+    "important": 0,
+    "minor": 0,
+    "goldenAndProductionDescriptorByteIdentical": true,
+    "serialBuildWarnings": 0,
+    "serialBuildErrors": 0,
+    "directMtpPassed": 14936,
+    "failed": 0,
+    "skipped": 0,
+    "redDataVerifiedBytes": 12801425,
+    "all504RowsAnd126InventoryEqualAfterDedup": true,
+    "limits": "Historical RED/Node/frozen not independently rerun; no CLI/library loading/compiler acceptance or formal approval; no second review"
+  },
+  "assemblies": {
+    "tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll": "f8d7c1bc971298a7e6d4d964d2e378d5e2b19ec075499cd8268bdb3a24423550",
+    "src/Tscs.Compiler/bin/Release/net10.0/Tscs.Compiler.dll": "88f241dae20d866920ab8a5906e49c3497d10307ecb1c3764bafd9abdac0c7b9"
+  }
+}

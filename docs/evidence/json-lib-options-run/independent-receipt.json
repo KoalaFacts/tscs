@@ -1,0 +1,39 @@
+{
+  "reviewedBase": "3f2862d3419c44ebcd45bf8ea0a38e0347db3cad",
+  "reviewedHead": "6c3ee9926f4ee82b7f2fba49fabef601e79e76a5",
+  "upstreamPin": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "critical": [],
+  "important": [],
+  "minor": [],
+  "generation": {
+    "inventory": 126,
+    "supported": 1,
+    "vectors": 504,
+    "goldenByteIdentical": true,
+    "productionDescriptorByteIdentical": true
+  },
+  "build": {
+    "configuration": "Release",
+    "offline": true,
+    "warnings": 0,
+    "errors": 0
+  },
+  "redDedup": {
+    "sha256": "cb726095091ed13f3623e1ec31d9666e5a4ff9fa7b43a24b392df52571b5457b",
+    "bytes": 12801425,
+    "rows": 504,
+    "inventoryEqual": true,
+    "allOtherFieldsEqual": true,
+    "eachOriginalDescriptorMatchesFinalInventory": true
+  },
+  "limits": [
+    "No upstream compiler acceptance, CLI lib support, or library file loading validation implied.",
+    "Historical RED not rerun; preserved golden and dedup checked directly."
+  ],
+  "tests": {
+    "total": 14936,
+    "succeeded": 14936,
+    "failed": 0,
+    "skipped": 0
+  }
+}

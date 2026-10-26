@@ -9,8 +9,10 @@ internal static class JsonEnumOptions
  {
   using var stream=typeof(JsonEnumOptions).Assembly.GetManifestResourceStream("Tscs.EnumDeclarations")??throw new InvalidOperationException("Missing pinned enum declarations");
   using var d=JsonDocument.Parse(stream);
-  return d.RootElement.EnumerateArray().Select(o=>new JsonEnumOption(o.GetProperty("name").GetString()!,o.GetProperty("entries").EnumerateArray().Select(e=>new JsonEnumEntry(e.GetProperty("key").GetString()!,Read(e.GetProperty("value")),e.GetProperty("deprecated").GetBoolean())).ToArray(),o.GetProperty("commandLineOnly").GetBoolean(),o.GetProperty("disallowNull").GetBoolean())).ToDictionary(o=>o.Name,StringComparer.Ordinal);
+  return d.RootElement.EnumerateArray().Select(ReadDeclaration).ToDictionary(o=>o.Name,StringComparer.Ordinal);
  }
+ internal static JsonEnumOption ReadDeclaration(JsonElement o)=>new(o.GetProperty("name").GetString()!,o.GetProperty("entries").EnumerateArray().Select(e=>new JsonEnumEntry(e.GetProperty("key").GetString()!,Read(e.GetProperty("value")),e.GetProperty("deprecated").GetBoolean())).ToArray(),o.GetProperty("commandLineOnly").GetBoolean(),o.GetProperty("disallowNull").GetBoolean());
+
  private static ConfigValue Read(JsonElement v)
  {
   string kind=v.GetProperty("kind").GetString()!;

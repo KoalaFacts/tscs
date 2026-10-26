@@ -334,3 +334,8 @@ The [enum option slice](../../progress/json-enum-options.md) executes324 actual-
 conversions, using six production-embedded maps with pinned Unicode lowercase.
 All126 declarations remain inventoried. This adds CLI target error diagnostics,
 not new target/compiler capability or effective config/host acceptance.
+
+The [lib enum-list integration](../../progress/json-lib-options.md) connects116
+actual library aliases to filenames across504 actual-Go conversions. It preserves
+all126 option declaration identities and original scope. This converts metadata;
+it does not load standard libraries or establish CLI/effective-config acceptance.
