@@ -218,4 +218,34 @@ public class CommandLineTests : IDisposable
         Assert.True(File.Exists(js),"Original profile must emit JavaScript; diagnostics alone are insufficient.");
         Assert.Equal("\"use strict\";\r\n",File.ReadAllText(js));
     }
+
+    [Theory]
+    [InlineData("no-target")]
+    [InlineData("noEmit-only")]
+    [InlineData("noLib-only")]
+    public void OriginalEmptyEmitSliceDoesNotUnlockOtherFlagCombinations(string mode)
+    {
+        var source=Write("emptyFile.ts","// @target: es2015\n");
+        var args=mode switch
+        {
+            "no-target" => Array.Empty<string>(),
+            "noEmit-only" => new[]{"--target","es2015","--noEmit"},
+            _ => new[]{"--target","es2015","--noLib"}
+        };
+        var result=Run(args.Append(source).ToArray());
+        Assert.Equal(1,result.Code);
+        Assert.Contains("bootstrap requires",result.Out);
+        Assert.False(File.Exists(Path.ChangeExtension(source,".js")));
+    }
+
+    [Fact]
+    public void OriginalEmptyEmitNeverOverwritesExistingJavaScript()
+    {
+        var source=Write("emptyFile.ts","// @target: es2015\n");
+        var emitted=Write("emptyFile.js","existing user content");
+        var result=Run("--target","es2015",source);
+        Assert.Equal(1,result.Code);
+        Assert.Contains("TSCS1002",result.Out);
+        Assert.Equal("existing user content",File.ReadAllText(emitted));
+    }
 }

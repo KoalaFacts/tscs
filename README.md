@@ -41,7 +41,14 @@ rejects `const` updates with TS2588. Prefix `++`, expression-position
 postfix updates, nonnumeric operands and emitted JavaScript remain unsupported.
 This check does not execute the increment.
 
-Both `--noEmit` and `--noLib` are required. `--pretty false`, `--target es2015/es6`
+Both `--noEmit` and `--noLib` are required for every **nonempty** program.
+A separately tested first original-fixture slice now handles a *single trivia-only*
+ES2015 `.ts` program under the original default emit/library flags, provided
+the target is explicitly selected: it emits the pinned strict prologue to a
+new `.js` file, refusing to overwrite an existing file. This is **not**
+general JavaScript emission, standard-library checking or original harness
+acceptance; the corresponding generated upstream Fact remains SKIP pending
+a live independent pinned-Go reference and complete original runner checks. `--pretty false`, `--target es2015/es6`
 and a tscs-only `--json` diagnostic mode are available.
 
 A minimal `tsconfig.json` may specify `files` and `compilerOptions.noEmit`, `noLib`,

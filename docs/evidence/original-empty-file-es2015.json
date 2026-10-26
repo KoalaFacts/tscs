@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "kind": "BASELINE_LINKED_ORIGINAL_PROFILE_EMIT_NOT_FULL_RUNNER_ACCEPTANCE",
+  "sourceCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "originalTargetId": "configuration:c5f81e2689b2db32a694b7b3de45098f5d58941800bfe0683e2f68000e24c110",
+  "upstreamPath": "tsc/testdata/tests/cases/compiler/emptyFile.ts",
+  "sourceSha256": "a149b5cff5898a63f501618af2c01a132895281e03663831e76f6deb9f3b5bc7",
+  "originalProfile": {
+    "target": "es2015"
+  },
+  "originalFlags": {
+    "noEmit": false,
+    "noLib": false,
+    "target": "es2015"
+  },
+  "sourceFilename": "emptyFile.ts",
+  "referenceBaselinePath": "tsc/testdata/baselines/reference/compiler/emptyFile.js",
+  "referenceBaselineGitBlob": "dc902040215cfedf94948f3e65594973c408b21d",
+  "referenceJavaScriptOutput": "\"use strict\";\r\n",
+  "referenceDiagnosticsBaselineFile": "ABSENT",
+  "red": {
+    "sha": "22e4b23064080cadde3ebe6936c93f2ace399c78",
+    "pass": 15552,
+    "fail": 1,
+    "skip": 0,
+    "jobs": [
+      121796292774,
+      121796332912
+    ],
+    "failure": "OriginalEmptyFileProfileMatchesPinnedEs2015EmitBaseline: expected CLI exit 0, actual 1"
+  },
+  "green": {
+    "sha": "308e7dcea54beadb77aa73fb815e4eb5bd2eea30",
+    "pass": 15553,
+    "fail": 0,
+    "skip": 0,
+    "jobs": [
+      121797747055,
+      121797784022
+    ],
+    "originalSourceConfigurationRegistered": 15523,
+    "originalSourceConfigurationAccepted": 0,
+    "originalSourceConfigurationSkippedUnimplemented": 15523
+  },
+  "executionProfile": "C# CLI original flags + pinned checked-in Go TS7 reference baseline output; not pinned Go TestLocal runtime",
+  "originalRunnerStatus": "NOT_RUN",
+  "releaseEligible": false,
+  "independentReview": "NOT_RUN",
+  "fullReleaseBlockers": [
+    "Go TestLocal/emptyFile.ts exact-original runtime and all original harness checks not yet exercised",
+    "15,523 original configuration-target placeholders remain SKIP(UNIMPLEMENTED)",
+    "Full TS7 dynamic and other domain test scope remains UNEXPANDED"
+  ],
+  "originalTargetSkipRemoved": [],
+  "scopeDelta": 0,
+  "completedOriginalTargets": 0
+}

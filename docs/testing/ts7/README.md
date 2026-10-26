@@ -1,5 +1,22 @@
 # TS7 scope inventory: source declarations, not conformance
 
+### 2026-10-27: pinned original emptyFile ES2015 emit, not yet original runner acceptance
+
+The bootstrap CLI now accepts the exact, SHA-bound **comment-only**
+`tsc/testdata/tests/cases/compiler/emptyFile.ts` original target configuration
+without adding isolation overrides, and the C# regression compares the emitted
+`"use strict";\r\n` against the corresponding reference baseline from the
+locked upstream tree. Real hosted RED (1 new failure) and product-head GREEN
+(15,553 strict MTP passes) are recorded in
+[STATUS](../../STATUS.md). Existing unimplemented syntax still rejects, and
+an existing JavaScript output is never overwritten. Live pinned Go
+`TestLocal/emptyFile.ts`, complete original runner checkpoints and full
+configuration-target MTP assertion integration are **NOT_RUN**: this does
+**not** remove `configuration:c5f81e2689b2db32a694b7b3de45098f5d58941800bfe0683e2f68000e24c110`
+from its original `SKIP(UNIMPLEMENTED)` register. Original accepted stays 0,
+and `releaseEligible=false`.
+
+
 ### 2026-10-27: actual full placeholder discovery and bounded `@ts-ignore`
 
 Both hosted verify jobs at product head `51993ce` compiled the exact 15,523-Fact
