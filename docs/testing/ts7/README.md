@@ -1,3 +1,7 @@
+### 2026-10-27: actual pinned-Go original emptyFile probe; original tscs acceptance still NOT_RUN
+
+The dedicated [Go original-runner probe](../../progress/original-emptyfile-go-reference.md) executes `TestLocal/emptyFile.ts` at the immutable pinned Go TS7 commit and verifies exact expected nested JSON test events. It is **not** a synthetic placeholder result or a tscs product-side accepted target. Locally only 11 synthetic-event validator regressions and a CLI smoke passed; actual Go execution depends on new-head CI. Until the C# original configuration is independently exercised under all applicable checks, the full source-configuration catalogue remains 0 original accepted / 15,523 SKIP(UNIMPLEMENTED), with the full runtime denominator UNEXPANDED.
+
 # TS7 scope inventory: source declarations, not conformance
 
 ### 2026-10-27: genuine bounded numeric unary plus; no original upstream credit
