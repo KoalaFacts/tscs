@@ -18,6 +18,9 @@ public class JsonConfigPathTests
  [InlineData("rootDir",@"..\types","/app/src","/app/types")]
  [InlineData("rootDir","${configDir}/src","/app/src","${configDir}/src")]
  [InlineData("sourceRoot","https://server/root","/.src","https://server/root")]
+ [InlineData("outDir","${confİgDir}/src","/.src","${confİgDir}/src")]
+ [InlineData("outDir","file://localhoſt/C:/../out","/.src","file://localhoſt/C:/out")]
+ [InlineData("outDir","file://LOCALHOST/C:/../out","/.src","file://LOCALHOST/C:/out")]
  [InlineData("mapRoot",@"C:\url\..\x","/.src",@"C:\url\..\x")]
  public void PinnedRootedAndSourceMapPathKindsRemainDistinct(string option,string raw,string root,string expected)
  {
