@@ -69,4 +69,24 @@ public class JsonConfigPathTests
   Assert.Equal("TS6266",diagnostic.Code);
   Assert.Equal("Option 'locale' can only be specified on command line.",diagnostic.Message);
  }
+
+ [Theory]
+ [InlineData("\uD800\uD800","\uFFFD")]
+ [InlineData("\uDC00\uD800","\uFFFD")]
+ [InlineData("\uD800X\uDC00","\uFFFDX\uFFFD")]
+ [InlineData("\uD83D\uDE00","\uD83D\uDE00")]
+ public void NetworkPathDiagnosticRepairsMalformedUtf8OnlyWhenFormatting(string suffix,string displayed)
+ {
+  // Direct product boundary: no host file read, and no lossy JSON encoding
+  // of the original UTF-16 path before the pinned message is produced.
+  string raw="//server/"+suffix;
+  var result=One("outDir",StringValue(raw));
+  Assert.Empty(result.Unsupported);
+  Assert.Equal("Null",Assert.Single(result.Calls).Value.Kind);
+  var diagnostic=Assert.Single(result.Diagnostics);
+  Assert.Equal("TS5116",diagnostic.Code);
+  Assert.Equal("Network path '//server/"+displayed+"' is not supported.",diagnostic.Message);
+  Assert.Equal(-1,diagnostic.Start);
+  Assert.Equal(0,diagnostic.Length);
+ }
 }

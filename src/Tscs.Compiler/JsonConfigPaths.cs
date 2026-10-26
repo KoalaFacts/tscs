@@ -13,7 +13,9 @@ internal static class JsonConfigPaths
   if(NetworkPath(absolute))
   {
    const string code="TS5116";
-   string message=$"Network path '{raw}' is not supported.";
+   // Pinned diagnostics.Format (strings.ToValidUTF8) replaces each contiguous
+   // malformed WTF-8 run once; keep raw path for validation and the caller.
+   string message=$"Network path '{JsonOptionsFromJson.DiagnosticArgument(raw)}' is not supported.";
    var diagnostic=file.Length>0&&expression is Token location
     ?Diagnostic.Error(file,location,code,message)
     :new Diagnostic(code,"error","",-1,0,message,[],[]);

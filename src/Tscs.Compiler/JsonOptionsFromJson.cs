@@ -61,7 +61,7 @@ internal static class JsonOptionsFromJson
  // Pinned diagnostics.Format uses strings.ToValidUTF8: one U+FFFD for each
  // contiguous invalid WTF-8 byte run, not one per malformed UTF-16 code unit.
  // Valid UTF-16 pairs remain intact and terminate an invalid run.
- private static string DiagnosticArgument(string value)
+ internal static string DiagnosticArgument(string value)
  {
   var result=new StringBuilder(value.Length);bool invalidRun=false;
   for(int i=0;i<value.Length;i++)
