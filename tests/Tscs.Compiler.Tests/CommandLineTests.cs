@@ -199,4 +199,23 @@ public class CommandLineTests : IDisposable
         using var json=System.Text.Json.JsonDocument.Parse(result.Out);
         Assert.Equal(codes.Split(','),json.RootElement.GetProperty("diagnostics").EnumerateArray().Select(d=>d.GetProperty("code").GetString()));
     }
+
+    // Pinned original TS7 fixture: tsc/testdata/tests/cases/compiler/emptyFile.ts
+    // Source SHA-256 a149b5cff5898a63f501618af2c01a132895281e03663831e76f6deb9f3b5bc7.
+    // Original configuration target configuration:c5f81e2689b2db32a694b7b3de45098f5d58941800bfe0683e2f68000e24c110
+    // Baseline: tsc/testdata/baselines/reference/compiler/emptyFile.js at the locked upstream commit.
+    [Fact]
+    public void OriginalEmptyFileProfileMatchesPinnedEs2015EmitBaseline()
+    {
+        const string fixture="// @target: es2015\n";
+        Assert.Equal("a149b5cff5898a63f501618af2c01a132895281e03663831e76f6deb9f3b5bc7",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(fixture))).ToLowerInvariant());
+        var input=Write("emptyFile.ts",fixture);
+        var result=Run("--target","es2015",input); // EXACT original profile: no added --noEmit or --noLib
+        Assert.Equal(0,result.Code);
+        Assert.Equal("",result.Out);
+        var js=Path.ChangeExtension(input,".js");
+        Assert.True(File.Exists(js),"Original profile must emit JavaScript; diagnostics alone are insufficient.");
+        Assert.Equal("\"use strict\";\r\n",File.ReadAllText(js));
+    }
 }
