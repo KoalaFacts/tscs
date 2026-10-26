@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -20,15 +21,30 @@ public static class CommandLine
             var globals=new HashSet<string>(StringComparer.Ordinal);
             foreach(var f in inputs.Where(f=>f.Path.EndsWith(".d.ts",StringComparison.Ordinal)))ReadGlobals(f.Text,globals);
             var analysis=Compilation.Analyze(codeFiles[0].Path,codeFiles[0].Text);
+            // First original-profile emit slice: an empty parsed program under the
+            // explicit ES2015 target. This does NOT silently accept nonempty source
+            // or other unimplemented library/emit combinations.
+            bool emptyOriginalEmit=!options.NoEmit&&!options.NoLib&&options.ExplicitEs2015Target&&
+                inputs.Length==1&&analysis.EmptyProgram&&analysis.Diagnostics.Count==0;
+            if ((!options.NoEmit||!options.NoLib) && !emptyOriginalEmit)
+                throw new InputFailure("The bootstrap requires --noEmit and --noLib; supply minimal ambient globals explicitly.");
             var diagnostics=analysis.Diagnostics.ToArray();
             bool unsupported=diagnostics.Any(d=>d.Code.StartsWith("TSCS",StringComparison.Ordinal));
             bool syntax=analysis.HasSyntaxErrors;
-            if(!unsupported&&!syntax)
+            if(!unsupported&&!syntax&&!emptyOriginalEmit)
             {
                 var missing=GlobalTypes.Where(t=>!globals.Contains(t)).Select(t=>new Diagnostic("TS2318","error","",0,0,$"Cannot find global type '{t}'.",[],[])).ToArray();
                 if(missing.Length>0)diagnostics=missing;
             }
             int exitCode=unsupported?1:diagnostics.Length>0?2:0;
+            if(exitCode==0&&emptyOriginalEmit)
+            {
+                // The locked TS7 reference baseline for emptyFile.ts emits precisely
+                // a strict prologue with CRLF. Never overwrite a pre-existing file.
+                var jsPath=Path.ChangeExtension(codeFiles[0].Path,".js");
+                using var output=new FileStream(jsPath,FileMode.CreateNew,FileAccess.Write);
+                output.Write(Encoding.UTF8.GetBytes("\"use strict\";\r\n"));
+            }
             if(json)
                 stdout.WriteLine(JsonSerializer.Serialize(new{diagnostics=diagnostics.Select(d=>d with{File=Path.GetFileName(d.File)}),exitCode},JsonOptions));
             else foreach(var d in diagnostics)stdout.WriteLine(Format(d,codeFiles[0].Text));

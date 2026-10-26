@@ -1,6 +1,6 @@
 namespace Tscs;
 
-public sealed record CompilationAnalysis(IReadOnlyList<Diagnostic> Diagnostics, bool HasSyntaxErrors);
+public sealed record CompilationAnalysis(IReadOnlyList<Diagnostic> Diagnostics, bool HasSyntaxErrors, bool EmptyProgram = false);
 
 public static class Compilation
 {
@@ -21,7 +21,7 @@ public static class Compilation
             var block=parser.Parse();
             if(parser.Diagnostics.Count>0)return new(Order(parser.Diagnostics),true);
             syntaxPhase=false;
-            return new(Order(new TypeChecker(file).Check(block).Where(d=>!scanner.SuppressesSemanticDiagnostic(d.Start))),false);
+            return new(Order(new TypeChecker(file).Check(block).Where(d=>!scanner.SuppressesSemanticDiagnostic(d.Start))),false,block.Statements.Count==0);
         }
         catch(CompilationFailure failure)
         {

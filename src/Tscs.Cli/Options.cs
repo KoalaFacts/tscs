@@ -6,6 +6,9 @@ internal sealed class Options
 {
     public List<string> Files { get; }=[];
     private bool noEmit,noLib;
+    public bool NoEmit=>noEmit;
+    public bool NoLib=>noLib;
+    public bool ExplicitEs2015Target {get;private set;}
     public static Options Parse(string[] args)
     {
         var options=new Options();string? project=null;
@@ -26,14 +29,13 @@ internal sealed class Options
                 case "--noEmit":options.noEmit=ReadBool(args,ref i);break;
                 case "--noLib":options.noLib=ReadBool(args,ref i);break;
                 case "--pretty":if(++i==args.Length||args[i]!="false")throw new InputFailure("Only --pretty false is supported.");break;
-                case "--target":if(++i==args.Length)throw new InputFailure("Missing target.");ValidateTarget(args[i]);break;
+                case "--target":if(++i==args.Length)throw new InputFailure("Missing target.");ValidateTarget(args[i]);options.ExplicitEs2015Target=true;break;
                 default:
                     if(arg.StartsWith('-'))throw new InputFailure($"Unsupported option '{arg}'.");
                     if(project!=null)throw new InputFailure("Cannot combine a project with source file arguments.");
                     options.Files.Add(Path.GetFullPath(arg));break;
             }
         }
-        if(!options.noEmit||!options.noLib)throw new InputFailure("The bootstrap requires --noEmit and --noLib; supply minimal ambient globals explicitly.");
         if(options.Files.Count==0)throw new InputFailure("No source files were specified.");
         if(options.Files.Distinct(StringComparer.Ordinal).Count()!=options.Files.Count)throw new InputFailure("Duplicate input paths are not supported.");
         return options;
@@ -76,7 +78,7 @@ internal sealed class Options
                                 var target=JsonEnumOptions.Convert(JsonEnumOptions.Declarations["target"],JsonConfigValues.Convert(option.Value),file,expression:option.Value.Token);
                                 if(target.Diagnostics.Count>0)throw new ConfigSyntaxFailure(text,target.Diagnostics);
                                 // Valid upstream targets beyond the bootstrap remain unsupported.
-                                if(target.Value.Kind=="Number"&&target.Value.Number==2)break;
+                                if(target.Value.Kind=="Number"&&target.Value.Number==2){ExplicitEs2015Target=true;break;}
                                 throw new InputFailure("Only target es2015/es6 is supported by the bootstrap.");
                             default:throw new InputFailure($"Unsupported compiler option '{(option.Name.Token.Value??option.Name.Token.Text)}'.");
                         }
