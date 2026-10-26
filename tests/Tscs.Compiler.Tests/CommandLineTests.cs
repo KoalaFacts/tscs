@@ -146,7 +146,10 @@ public class CommandLineTests : IDisposable
     [InlineData("{\"files\":[],\"extends\":\"./base.json\"}")]
     [InlineData("{\"files\":[],\"compilerOptions\":{\"strict\":true}}")]
     public void InvalidOrUnsupportedConfigFails(string json)=>Assert.NotEqual(0,Run("-p",Write("tsconfig.json",json)).Code);
-    [Fact] public void UnsupportedCodeHasNoSuccessExit()=>Assert.Equal(1,Run("--noEmit","--noLib",Write("a.ts","let x = 1; x++;"),Lib()).Code);
+    [Fact] public void UnsupportedPrefixUpdateHasNoSuccessExit()=>
+        Assert.Equal(1,Run("--noEmit","--noLib",Write("a.ts","let x = 1; ++x;"),Lib()).Code);
+    [Fact] public void ImplementedPostfixUpdateHasSuccessExit()=>
+        Assert.Equal(0,Run("--noEmit","--noLib",Write("a.ts","let x = 1; x++;"),Lib()).Code);
     [Theory]
     [InlineData("globalThis;", "TSCS1001", 1)]
     [InlineData("{ let globalThis = 1; globalThis; globalThis = 2; }", "", 0)]
