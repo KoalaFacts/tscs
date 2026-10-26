@@ -35,12 +35,52 @@ public class NumericAdditionTests
     public void NonNumericAdditionIsNotClaimedAsImplemented(string source) =>
         Assert.Contains(Compilation.Check("test.ts", source), d => d.Code == "TSCS1001");
 
+    // Genuine positive compiler assertions: source is parsed and type-checked.
+    // This bounded numeric unary '+' does not imply any/JS coercion or emit.
     [Theory]
     [InlineData("+1;")]
     [InlineData("let x = +1;")]
     [InlineData("let x = 1 + +2;")]
-    public void UnaryPlusRemainsUnsupported(string source) =>
+    [InlineData("let x = 2 * +3;")]
+    [InlineData("let x = - +3;")]
+    [InlineData("let x = + -3;")]
+    [InlineData("let x = + +3;")]
+    [InlineData("let x: number = 1; x = +x;")]
+    public void NumericUnaryPlusChecksWithoutErrors(string source) =>
+        Assert.Empty(Compilation.Check("test.ts", source));
+
+    [Theory]
+    [InlineData("let x = +true;")]
+    [InlineData("let x = +\"s\";")]
+    [InlineData("let x: any = 1; let y = +x;")]
+    public void UnaryPlusNonNumericOperandsStayExplicitlyUnsupported(string source) =>
         Assert.Contains(Compilation.Check("test.ts", source), d => d.Code == "TSCS1001");
+
+    [Fact]
+    public void UnaryPlusRetainsMissingIdentifierDiagnostic() =>
+        Assert.Equal("TS2304", Assert.Single(Compilation.Check("test.ts", "let n = +missing;")).Code);
+
+    [Fact]
+    public void UnaryPlusPreservesAssignmentMismatch() =>
+        Assert.Equal("TS2322", Assert.Single(Compilation.Check("test.ts", "let s: string = +1;")).Code);
+
+    [Fact]
+    public void UnaryPlusPrecedesMultiplicationInAst()
+    {
+        var scanner = new Scanner("test.ts", "let n = +3 * 2;");
+        var parser = new Parser("test.ts", scanner.Scan());
+        var variable = Assert.IsType<Variable>(Assert.Single(parser.Parse().Statements));
+        Assert.Empty(parser.Diagnostics);
+        var product = Assert.IsType<ValueBinary>(variable.Initializer);
+        Assert.Equal("*", product.Operator.Text);
+        var positive = Assert.IsType<ValueUnary>(product.Left);
+        Assert.Equal("+", positive.Operator.Text);
+        Assert.Equal("3", Assert.IsType<ValueAtom>(positive.Operand).Token.Text);
+    }
+
+    [Fact]
+    public void LongUnaryPlusChainAvoidsParserAndCheckerRecursion() =>
+        Assert.Empty(Compilation.Check("test.ts", "let n = " + string.Concat(Enumerable.Repeat("+ ", 20000)) + "1;"));
 
     [Fact]
     public void LeftDeepAdditionKeepsBothUnresolvedNamesInSourceOrder()
