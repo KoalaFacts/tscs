@@ -15,7 +15,9 @@ fi
 mkdir -p "$out"
 out="$(cd "$out" && pwd -P)"
 upstream="$out/TypeScript"
-export GOTOOLCHAIN=local
+# The pinned upstream root go.work references ../tools, which is outside the
+# purposely sparse tsc checkout. Test the pinned tsc module in isolation.
+export GOTOOLCHAIN=local GOWORK=off
 # The separate module-acquisition phase must validate the checked-in go.sum
 # against the official module proxy/sumdb; actual Go test execution is offline.
 if [[ "$(go version | awk '{print $3}')" != 'go1.27.3' ]]; then
@@ -54,7 +56,7 @@ printf 'commit=%s\ntree=%s\n' "$pin" "$(git -C "$upstream" rev-parse HEAD^{tree}
     GOTOOLCHAIN=local go mod download
 )
 export GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local
-if [[ "$(go env GOPROXY)" != 'off' || "$(go env GOSUMDB)" != 'off' || "$(go env GOTOOLCHAIN)" != 'local' || "$(go env GOTELEMETRY)" != 'off' ]]; then
+if [[ "$(go env GOPROXY)" != 'off' || "$(go env GOSUMDB)" != 'off' || "$(go env GOTOOLCHAIN)" != 'local' || "$(go env GOWORK)" != 'off' || "$(go env GOTELEMETRY)" != 'off' ]]; then
   echo 'Go offline/telemetry execution policy not in effect' >&2; exit 1
 fi
 (

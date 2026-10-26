@@ -74,7 +74,7 @@ function main(args) {
   const data=inspectPinnedEmptyFileGoRun(log,Number(exitText));
   const report={...data,rawLog:{sha256:createHash('sha256').update(raw).digest('hex'),bytes:raw.length},
     command:["go","test","-json","-count=1","-run","^TestLocal/emptyFile[.]ts$","./internal/testrunner"],
-    environment:{GOPROXY:'off',GOSUMDB:'off',GOTOOLCHAIN:'local',GOTELEMETRY:'off'},
+    environment:{GOPROXY:'off',GOSUMDB:'off',GOTOOLCHAIN:'local',GOWORK:'off',GOTELEMETRY:'off'},
     referenceRunnerSource:'tsc/internal/testrunner/compiler_runner.go',
     sourceOriginalConfiguration:{target:'es2015'},
   };

@@ -1,4 +1,6 @@
 # Status — 2026-10-27
+- Hosted RED at [job 121865211939](https://github.com/KoalaFacts/tscs/actions/runs/40406416194/job/121865211939): **11/11 Node24 verifier tests passed**, sparse checkout successfully pinned the exact source, but Go dependency acquisition failed before any original test due the upstream root `go.work` referencing `../tools/go.mod`, excluded by the intentionally sparse checkout. The fix isolates the actual `tsc` module with `GOWORK=off` in the acquisition, verification and test phases. This is a genuine infrastructure failure, **not** a successful original test or a billing error; exact fix-head CI must be run separately.
+
 ## 2026-10-27 — Live pinned Go TestLocal/emptyFile.ts probe (PR #8; reference-only)
 
 - Added an executable, strictly pinned upstream Go harness probe for the first original configuration target `configuration:c5f81e2689b2db32a694b7b3de45098f5d58941800bfe0683e2f68000e24c110`. Uses the **real** `TestLocal/emptyFile.ts` Go test and all seven required nested checks, not a generated xUnit placeholder. An independent JSON event verifier fails closed on absent/duplicate cases, skips, failures, truncation, other selected tests and package failure.
