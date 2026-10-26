@@ -44,6 +44,30 @@ public class CompilationTests
     public void AnyAnnotatedConstantStillCannotBeReassigned() =>
         Assert.Equal("TS2588", Assert.Single(Compilation.Check("test.ts", "const n: any = 1; n = 2;")).Code);
 
+
+    [Theory]
+    [InlineData("let n: number = 1; n++;")]
+    [InlineData("let n = 1; n++; n++;")]
+    [InlineData("let n = 1; { let x: number = 2; x++; } n++;")]
+    [InlineData("let n = 1; n++;\\nlet m: number = n;")]
+    [InlineData("let n = 1; n++")]
+    [InlineData("let n = 1; n++; n = 2;")]
+    public void NumericPostfixUpdatesAreWritable(string source) =>
+        Assert.Empty(Compilation.Check("test.ts", source));
+
+    [Fact]
+    public void PostfixConstantUpdateReportsTs2588() =>
+        Assert.Equal("TS2588", Assert.Single(Compilation.Check("test.ts", "const n = 1; n++;")).Code);
+
+    [Theory]
+    [InlineData("let s: string = \\"x\\"; s++;")]
+    [InlineData("let b: boolean = true; b++;")]
+    [InlineData("let n = 1; ++n;")]
+    [InlineData("let n = 1; let m = n++;")]
+    [InlineData("let n = 1; n++ + 2;")]
+    public void UnsupportedPostfixBoundaryRemainsExplicit(string source) =>
+        Assert.Contains(Compilation.Check("test.ts", source), d => d.Code == "TSCS1001");
+
 }
 
 public class ParserBoundaryTests
