@@ -1,5 +1,12 @@
 # TS7 scope inventory: source declarations, not conformance
 
+### 2026-10-27: genuine bounded numeric unary plus; no original upstream credit
+
+The C# scanner/parser/checker now handle numeric unary `+` alongside existing unary `-`, with prefix precedence, iterative traversal, explicit nonnumeric unsupported behavior and a preserved lexical-error ordering regression. Test-only RED `a60be67`: **12 genuine failures**; implementation `76b50ef` introduced one genuine old-regression failure; correcting the unsupported-syntax sentinel and adding the positive lexical guard at `ce47cb1` produced a hosted strict **15,570/15,570** internal regression pass. Frozen 29-case differential remains a separate cohort and no new original Go oracle differential has run for unary `+`.
+
+**Original source/configuration acceptance remains 0/15,523**: all 15,523 original runner Fact placeholders stay `SKIP(UNIMPLEMENTED)` until actual fixed-Go compiler/referenceCompiler run and complete original baseline assertions establish PASS. The local 14-case guard ledger stays **8 implemented / 6 SKIP**, not an upstream denominator. 7 historical reference-fatals, 39 original upstream-skipped target metadata flags and all unexpanded dynamic domains remain. No release waiver is granted. [Evidence](../../evidence/numeric-unary-plus.json).
+
+
 ### 2026-10-27: pinned original emptyFile ES2015 emit, not yet original runner acceptance
 
 The bootstrap CLI now accepts the exact, SHA-bound **comment-only**

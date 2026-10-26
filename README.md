@@ -3,7 +3,7 @@
 A TypeScript compiler written in C#.
 
 **Experimental bootstrap.** The current implementation checks a small subset of
-TypeScript; it does not yet emit JavaScript or replace `tsc` for real projects.
+TypeScript; it does not generally emit JavaScript or replace `tsc` for real projects.
 The goal is compatibility with a fixed upstream compiler before expanding coverage
 and optimizing the C# implementation.
 
@@ -34,7 +34,7 @@ for isolated compiler tests**, not a usable standard library.
 Supported initially: single-file `let`/`const` declarations, primitive annotations,
 primitive literal initializers, identifier references, simple assignments and
 nested lexical scopes. Bounded `any` variable annotations accept assignments to
-and from primitive types, without implementing the full TypeScript `any` type system. Bounded arithmetic supports numeric unary `-`, numeric binary `+`/`-`/`*`, numeric identifiers and assignments, with `*` binding more tightly than left-associative `+`/`-`. Long left-deep and unary chains are checked iteratively instead of recursing the C# call stack. Unary `+`, `--` decrement, string concatenation, `any` arithmetic, parentheses, exponentiation and full expression grammar remain unsupported; this does not implement JavaScript emit. Integer decimal literals and quoted strings with simple escapes/line continuations are supported. Valid hexadecimal and Unicode escapes preserve UTF16 code units, including lone surrogates. Malformed hexadecimal/Unicode escapes now retain their spelling and report recoverable lexical diagnostics; unterminated strings preserve all lexical errors. Standalone NUL and identity escapes are supported; legacy octal and decimal escapes preserve decoded values while reporting TS1487/TS1488 syntax errors. This does not implement JSON-specific string validation. Compilation returns lexical errors before parser/checker work; this does not implement general parser recovery.
+and from primitive types, without implementing the full TypeScript `any` type system. Bounded arithmetic supports numeric unary `+`/`-`, numeric binary `+`/`-`/`*`, numeric identifiers and assignments, with `*` binding more tightly than left-associative `+`/`-`. Long left-deep and `+`/`-` unary chains are checked iteratively instead of recursing the C# call stack. Numeric unary plus is a bounded `number`-only type-checker path, not JavaScript coercion or output. `--` decrement, nonnumeric unary-plus coercion, string concatenation, `any` arithmetic, parentheses, exponentiation and full expression grammar remain unsupported; this does not implement JavaScript emit. Integer decimal literals and quoted strings with simple escapes/line continuations are supported. Valid hexadecimal and Unicode escapes preserve UTF16 code units, including lone surrogates. Malformed hexadecimal/Unicode escapes now retain their spelling and report recoverable lexical diagnostics; unterminated strings preserve all lexical errors. Standalone NUL and identity escapes are supported; legacy octal and decimal escapes preserve decoded values while reporting TS1487/TS1488 syntax errors. This does not implement JSON-specific string validation. Compilation returns lexical errors before parser/checker work; this does not implement general parser recovery.
 An initialized, mutable `number` variable also supports a **statement-only**
 postfix update such as `let n = 1; n++;` under noEmit/noLib. The checker
 rejects `const` updates with TS2588. Prefix `++`, expression-position
