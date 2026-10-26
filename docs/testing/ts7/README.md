@@ -1,5 +1,10 @@
 # TS7 scope inventory: source declarations, not conformance
 
+## Implementation-aware SKIP classification — 2026-10-26
+
+A separate [machine-readable catalogue](implementation-coverage.json) classifies fourteen **existing local compiler guard probes**: 4 implemented but upstream NOT_RUN, and 10 explicitly SKIP with reason UNIMPLEMENTED (7 missing capabilities). All 14 are bound to named xUnit theory inputs and their original Git blob; the unsupported-feature guard tests continue to execute and never count as implemented compatibility. CI validates this separate ledger without removing the xUnit --fail-skips on gate. The local probe catalogue is **not 14 expanded upstream tests**; complete upstream executable cases and their acceptance remain unknown/NOT_RUN, so the full release gate is unchanged. See [scope and restrictions](../../progress/implementation-coverage.md).
+
+
 The release goal is unchanged: **every test in the pinned TS7 scope must be accounted
 for and accepted, with no missing cases**. This first slice does not meet that goal.
 It records source assets and declarations, expands the bounded transpile

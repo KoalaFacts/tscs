@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "kind": "BOUNDED_LOCAL_GUARD_PROBES_NOT_UPSTREAM_ACCEPTANCE",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "sourcePath": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
+  "sourceGitBlob": "01e6a90655aa05942b926fa709e806532defa48f",
+  "cases": [
+    {
+      "id": "bootstrap:primitive-number-declaration",
+      "source": "let n: number = 1;",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
+      "capability": "primitive-typed-declaration",
+      "domain": "checker",
+      "implementation": "IMPLEMENTED",
+      "skipReason": null,
+      "implementationLocation": "src/Tscs.Compiler/Compilation.cs",
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:primitive-string-declaration",
+      "source": "const s: string = \"ok\";",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
+      "capability": "primitive-typed-declaration",
+      "domain": "checker",
+      "implementation": "IMPLEMENTED",
+      "skipReason": null,
+      "implementationLocation": "src/Tscs.Compiler/Compilation.cs",
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:primitive-boolean-declaration",
+      "source": "let b: boolean = true;",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
+      "capability": "primitive-typed-declaration",
+      "domain": "checker",
+      "implementation": "IMPLEMENTED",
+      "skipReason": null,
+      "implementationLocation": "src/Tscs.Compiler/Compilation.cs",
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:nested-lexical-scope",
+      "source": "let x: number = 1; { let x: string = \"ok\"; } x = 2;",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
+      "capability": "nested-lexical-scopes",
+      "domain": "binder",
+      "implementation": "IMPLEMENTED",
+      "skipReason": null,
+      "implementationLocation": "src/Tscs.Compiler/Compilation.cs",
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:function-declaration",
+      "source": "let n = 1; function f() {}",
+      "guardMethod": "UnsupportedSyntaxNeverSucceeds",
+      "capability": "function-declarations",
+      "domain": "parser",
+      "implementation": "UNIMPLEMENTED",
+      "skipReason": "UNIMPLEMENTED",
+      "implementationLocation": null,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:postfix-update",
+      "source": "let n = 1; n++;",
+      "guardMethod": "UnsupportedSyntaxNeverSucceeds",
+      "capability": "postfix-updates",
+      "domain": "parser",
+      "implementation": "UNIMPLEMENTED",
+      "skipReason": "UNIMPLEMENTED",
+      "implementationLocation": null,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:binary-expression",
+      "source": "let n = 1 + 2;",
+      "guardMethod": "UnsupportedSyntaxNeverSucceeds",
+      "capability": "binary-expressions",
+      "domain": "parser",
+      "implementation": "UNIMPLEMENTED",
+      "skipReason": "UNIMPLEMENTED",
+      "implementationLocation": null,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:ts-ignore-directive",
+      "source": "// @ts-ignore\nlet n: number = \"x\";",
+      "guardMethod": "UnsupportedSyntaxNeverSucceeds",
+      "capability": "ts-ignore-directives",
+      "domain": "diagnostics",
+      "implementation": "UNIMPLEMENTED",
+      "skipReason": "UNIMPLEMENTED",
+      "implementationLocation": null,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:any-annotation",
+      "source": "let n: any = 1;",
+      "guardMethod": "UnsupportedSyntaxNeverSucceeds",
+      "capability": "any-type",
+      "domain": "checker",
+      "implementation": "UNIMPLEMENTED",
+      "skipReason": "UNIMPLEMENTED",
+      "implementationLocation": null,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:object-literal",
+      "source": "const a = { x: 1 };",
+      "guardMethod": "UnsupportedSyntaxNeverSucceeds",
+      "capability": "object-literals",
+      "domain": "parser",
+      "implementation": "UNIMPLEMENTED",
+      "skipReason": "UNIMPLEMENTED",
+      "implementationLocation": null,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:globalthis-read",
+      "source": "globalThis;",
+      "guardMethod": "IntrinsicGlobalThisIsExplicitlyUnsupported",
+      "capability": "intrinsic-globalthis",
+      "domain": "checker",
+      "implementation": "UNIMPLEMENTED",
+      "skipReason": "UNIMPLEMENTED",
+      "implementationLocation": null,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:globalthis-in-block",
+      "source": "{ globalThis; }",
+      "guardMethod": "IntrinsicGlobalThisIsExplicitlyUnsupported",
+      "capability": "intrinsic-globalthis",
+      "domain": "checker",
+      "implementation": "UNIMPLEMENTED",
+      "skipReason": "UNIMPLEMENTED",
+      "implementationLocation": null,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:globalthis-after-shadow",
+      "source": "{ let globalThis = 1; globalThis; } globalThis;",
+      "guardMethod": "IntrinsicGlobalThisIsExplicitlyUnsupported",
+      "capability": "intrinsic-globalthis",
+      "domain": "checker",
+      "implementation": "UNIMPLEMENTED",
+      "skipReason": "UNIMPLEMENTED",
+      "implementationLocation": null,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:globalthis-assignment",
+      "source": "globalThis = 1;",
+      "guardMethod": "IntrinsicGlobalThisIsExplicitlyUnsupported",
+      "capability": "intrinsic-globalthis",
+      "domain": "checker",
+      "implementation": "UNIMPLEMENTED",
+      "skipReason": "UNIMPLEMENTED",
+      "implementationLocation": null,
+      "upstreamExecutableCaseId": null
+    }
+  ]
+}

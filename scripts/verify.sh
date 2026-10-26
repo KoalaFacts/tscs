@@ -9,3 +9,4 @@ export DOTNET
 go test tools/scope-go/main.go tools/scope-go/main_test.go
 node --test tools/*.test.ts
 node tools/verify-conformance.ts
+node tools/implementation-coverage.ts --check

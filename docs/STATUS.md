@@ -1,5 +1,13 @@
 # Status — 2026-10-26
 
+## Explicit SKIP/implementation status — 2026-10-26
+
+- Introduced a **separate** source-bound catalogue of 14 existing compiler theory inputs: 4 implemented but full upstream acceptance NOT_RUN; 10 `SKIP (UNIMPLEMENTED)` across 7 distinct missing capabilities. The original unsupported guard assertions still run and cannot count as feature implementation.
+- Bound all rows to fixed TS7 pin, original `CompilationTests.cs` Git blob, exact method/InlineData source strings, stable local IDs, and explicit implementation locations or nulls. Missing/new rows, falsely implemented statuses, regressions re-labelled SKIP and wrong pins fail the coverage check; 7 new Node regression cases were locally exercised on Node22 (Node24 hosted verification pending).
+- [Machine report](testing/ts7/implementation-coverage.json), [registry](../tests/implementation-coverage/registry.json) and [scope/evidence](progress/implementation-coverage.md) remain distinct from the 15,450 xUnit tests, 29 frozen differentials and all original upstream compiler cases. `verify.sh` retains `--fail-skips on --minimum-expected-tests 15450` and adds the bounded report check after its existing gates.
+- Release remains false; upstream concrete-case denominator is unknown/unexpanded; original compiler/reference acceptance is NOT_RUN. No actual TypeScript compiler feature, upstream PASS, or removed SKIP is claimed by this accounting update. Single snapshot is insufficient to forecast an actual completion interval.
+
+
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
