@@ -29,7 +29,7 @@ func TestTscsJsonOptionsMapOracle(t *testing.T){
  var input []struct{ID string `json:"id"`;Source string `json:"source"`;BasePath string `json:"basePath"`};if e=json.Unmarshal(b,&input);e!=nil{t.Fatal(e)}
  var describe func(*CommandLineOption)any
  var supported func(*CommandLineOption)bool
- supported=func(o *CommandLineOption)bool{if o.PathKind!=CommandLineOptionPathKindNone||o.extraValidation!=""{return false};if o.Kind=="list"{return supported(o.Elements())};return o.Kind=="boolean"||o.Kind=="number"||o.Kind=="string"||o.Kind=="object"||o.Kind=="enum"}
+ supported=func(o *CommandLineOption)bool{if o.Kind=="list"{return supported(o.Elements())};return o.Kind=="boolean"||o.Kind=="number"||o.Kind=="string"||o.Kind=="object"||o.Kind=="enum"}
  describe=func(o *CommandLineOption)any{d:=map[string]any{"name":o.Name,"kind":string(o.Kind),"disallowNull":o.DisallowNullOrUndefined(),"commandLineOnly":o.IsCommandLineOnly,"pathKind":int(o.PathKind),"extraValidation":string(o.extraValidation),"supported":supported(o)};if o.Kind=="list"{d["element"]=describe(o.Elements());d["preserveFalsy"]=o.listPreserveFalsyValues};if o.Kind=="enum"{es:=[]any{};for k,v:=range o.EnumMap().Entries(){es=append(es,map[string]any{"key":k,"value":mapProjection(v),"deprecated":o.DeprecatedKeys()!=nil&&o.DeprecatedKeys().Has(k)})};d["entries"]=es};return d}
  inventory:=[]any{};for _,o:=range OptionsDeclarations{inventory=append(inventory,describe(o))}
  rows:=[]any{}

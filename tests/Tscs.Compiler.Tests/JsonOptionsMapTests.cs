@@ -19,13 +19,23 @@ public class JsonOptionsMapTests
   Assert.DoesNotContain(parsed.Diagnostics,x=>x.Code.StartsWith("TSCS",StringComparison.Ordinal));
   var root=JsonConfigValues.Convert(parsed.Root);
   var options=root.Properties.FirstOrDefault(p=>p.Key=="compilerOptions")?.Value??new("Null","",0,false,[],[]);
-  var result=JsonOptionsFromJson.Convert(options);
-  Equal(result.Unsupported,r.GetProperty("unsupported"),id+" unsupported");
-  // Unsupported policies retain the complete real-Go output but earn no match.
-  if(result.Unsupported.Count>0)return;
+  var result=JsonOptionsFromJson.Convert(options,r.GetProperty("basePath").GetString()!);
+  // This old Go golden fully captured the formerly unsupported results. Its
+  // historical classification stays intact while we compare every call.
+  foreach(var old in r.GetProperty("unsupported").EnumerateArray())
+   Assert.Contains(JsonOptionsFromJson.Declarations,x=>x.Name==old.GetString()&&x.Supported);
+  Assert.Empty(result.Unsupported);
   Equal(result.Calls.Select(p=>new{key=p.Key.Select(c=>(int)c).ToArray(),value=Snapshot(p.Value)}).ToArray(),r.GetProperty("calls"),id+" calls");
   Equal(Diagnostics(result.Diagnostics),r.GetProperty("diagnostics"),id+" options");
   Assert.All(result.Diagnostics,x=>Assert.Equal("",x.File));
+ }
+ [Fact]
+ public void AllPinnedCompilerDeclarationsHaveConversionPolicies()
+ {
+  Assert.Equal(126,JsonOptionsFromJson.Declarations.Count);
+  Assert.Equal(125,JsonOptionsFromJson.Declarations.Select(x=>x.Name).Distinct(StringComparer.Ordinal).Count());
+  Assert.All(JsonOptionsFromJson.Declarations,x=>Assert.True(x.Supported,x.Name));
+  Assert.Equal(15,JsonOptionsFromJson.Declarations.Count(x=>x.PathKind!=0||x.ExtraValidation=="locale"||x.Kind=="list"&&x.Element?.PathKind!=0));
  }
  public static IEnumerable<object[]> SourceRows(){using var d=JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,"TestData/json-options-map.json")));var vectors=d.RootElement.GetProperty("vectors").EnumerateArray().ToDictionary(v=>v.GetProperty("id").GetString()!);foreach(var b in d.RootElement.GetProperty("sourceBindings").EnumerateArray())yield return [b.GetProperty("id").GetString()!,b.GetRawText(),vectors[b.GetProperty("id").GetString()!].GetRawText()];}
  [Theory,MemberData(nameof(SourceRows))]
@@ -37,12 +47,12 @@ public class JsonOptionsMapTests
   Assert.Equal(id,d.RootElement.GetProperty("id").GetString());
   Assert.True(JsonNode.DeepEquals(b["selection"],JsonNode.Parse(actual.GetProperty("preparation").GetProperty("selection").GetRawText())));
   Assert.True(JsonNode.DeepEquals(b["context"],JsonNode.Parse(actual.GetProperty("preparation").GetProperty("context").GetRawText())));
-  Equal(actual.GetProperty("unsupportedOptions"),row.GetProperty("unsupported"),id);
+  Assert.Equal(0,actual.GetProperty("unsupportedOptions").GetArrayLength());
   Equal(actual.GetProperty("preparation").GetProperty("ast").GetProperty("diagnostics"),row.GetProperty("parserDiagnostics"),id);
-  bool unsupported=row.GetProperty("unsupported").GetArrayLength()>0;
   bool diagnostics=row.GetProperty("parserDiagnostics").GetArrayLength()+row.GetProperty("diagnostics").GetArrayLength()>0;
-  Assert.Equal(unsupported?"UNSUPPORTED":diagnostics?"OPTIONS_DIAGNOSTICS":"OPTIONS",actual.GetProperty("outcome").GetString());
-  if(!unsupported){Equal(actual.GetProperty("calls"),row.GetProperty("calls"),id);Equal(actual.GetProperty("optionDiagnostics"),row.GetProperty("diagnostics"),id);}
+  Assert.Equal(diagnostics?"OPTIONS_DIAGNOSTICS":"OPTIONS",actual.GetProperty("outcome").GetString());
+  Equal(actual.GetProperty("calls"),row.GetProperty("calls"),id);
+  Equal(actual.GetProperty("optionDiagnostics"),row.GetProperty("diagnostics"),id);
  }
  [Theory]
  [InlineData("const x=1;","NOT_APPLICABLE")]
