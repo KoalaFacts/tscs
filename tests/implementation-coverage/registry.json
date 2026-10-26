@@ -3,7 +3,7 @@
   "kind": "BOUNDED_LOCAL_GUARD_PROBES_NOT_UPSTREAM_ACCEPTANCE",
   "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
   "sourcePath": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
-  "sourceGitBlob": "6d46384e898d9ccb7f445615ca448806074e34ba",
+  "sourceGitBlob": "9411dabea912483616be76b32d5143aa65934eea",
   "cases": [
     {
       "id": "bootstrap:primitive-number-declaration",
@@ -85,12 +85,12 @@
     {
       "id": "bootstrap:binary-expression",
       "source": "let n = 1 + 2;",
-      "guardMethod": "UnsupportedSyntaxNeverSucceeds",
-      "capability": "binary-expressions",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
+      "capability": "numeric-addition-expression",
       "domain": "parser",
-      "implementation": "UNIMPLEMENTED",
-      "skipReason": "UNIMPLEMENTED",
-      "implementationLocation": null,
+      "implementation": "IMPLEMENTED",
+      "skipReason": null,
+      "implementationLocation": "src/Tscs.Compiler/Parser.cs",
       "upstreamExecutableCaseId": null
     },
     {

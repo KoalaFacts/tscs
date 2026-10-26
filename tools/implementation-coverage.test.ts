@@ -9,12 +9,12 @@ const copy=()=>structuredClone(registry);
 test('every known missing guard remains an explicit local skip, not TS7 acceptance',()=>{
  const r=buildCoverage(registry,source,lock);
  assert.equal(r.counts.registered,14);
- assert.equal(r.counts.skippedUnimplemented,9);
- assert.equal(r.counts.implemented,5);
+ assert.equal(r.counts.skippedUnimplemented,8);
+ assert.equal(r.counts.implemented,6);
  assert.equal(r.counts.verifiedUpstream,0);
  assert.equal(r.concreteUpstreamCases,null);
  assert.equal(r.releaseEligible,false);
- assert.equal(r.uniqueUnimplementedCapabilities.length,6);
+ assert.equal(r.uniqueUnimplementedCapabilities.length,5);
  assert.equal(r.counts.registered,r.counts.implemented+r.counts.skippedUnimplemented);
 });
 test('every local guard row must have its own registered skip or implementation classification',()=>{
@@ -46,9 +46,9 @@ test('a recognized regression failure remains a FAIL and cannot become a SKIP',(
 });
 test('guard input parser retains exact C# inline string escapes and row counts',()=>{
  const text=source.toString('utf8');
- assert.equal(extractInlineSources(text,'ValidPrimitiveCodeHasNoErrors').length,5);
- assert.equal(extractInlineSources(text,'UnsupportedSyntaxNeverSucceeds').length,5);
+ assert.equal(extractInlineSources(text,'ValidPrimitiveCodeHasNoErrors').length,6);
+ assert.equal(extractInlineSources(text,'UnsupportedSyntaxNeverSucceeds').length,4);
  assert.equal(extractInlineSources(text,'IntrinsicGlobalThisIsExplicitlyUnsupported').length,4);
- assert.equal(extractInlineSources(text,'UnsupportedSyntaxNeverSucceeds')[3], '// @ts-ignore\nlet n: number = "x";');
+ assert.equal(extractInlineSources(text,'UnsupportedSyntaxNeverSucceeds')[2], '// @ts-ignore\nlet n: number = "x";');
  assert.equal(extractInlineSources(text,'ValidPrimitiveCodeHasNoErrors')[4], 'let n: any = 1;');
 });

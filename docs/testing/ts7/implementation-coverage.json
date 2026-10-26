@@ -3,7 +3,7 @@
   "kind": "BOUNDED_LOCAL_GUARD_PROBES_NOT_UPSTREAM_ACCEPTANCE",
   "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
   "sourcePath": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
-  "sourceGitBlob": "6d46384e898d9ccb7f445615ca448806074e34ba",
+  "sourceGitBlob": "9411dabea912483616be76b32d5143aa65934eea",
   "scope": "LOCAL_GUARD_PROBES_ONLY",
   "concreteUpstreamCases": null,
   "upstreamCaseExpansion": "UNEXPANDED",
@@ -12,10 +12,10 @@
   "releaseEligible": false,
   "counts": {
     "registered": 14,
-    "implemented": 5,
+    "implemented": 6,
     "verifiedUpstream": 0,
-    "skippedUnimplemented": 9,
-    "notRun": 5,
+    "skippedUnimplemented": 8,
+    "notRun": 6,
     "fail": 0,
     "mismatch": 0,
     "crash": 0,
@@ -23,7 +23,6 @@
     "upstreamSkipped": 0
   },
   "uniqueUnimplementedCapabilities": [
-    "binary-expressions",
     "function-declarations",
     "intrinsic-globalthis",
     "object-literals",
@@ -48,8 +47,8 @@
     },
     "parser": {
       "registered": 4,
-      "implemented": 0,
-      "skipUnimplemented": 4
+      "implemented": 1,
+      "skipUnimplemented": 3
     }
   },
   "cases": [
@@ -147,13 +146,13 @@
     {
       "id": "bootstrap:binary-expression",
       "source": "let n = 1 + 2;",
-      "guardMethod": "UnsupportedSyntaxNeverSucceeds",
-      "capability": "binary-expressions",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
+      "capability": "numeric-addition-expression",
       "domain": "parser",
-      "implementation": "UNIMPLEMENTED",
-      "implementationLocation": null,
-      "status": "SKIP",
-      "reason": "UNIMPLEMENTED",
+      "implementation": "IMPLEMENTED",
+      "implementationLocation": "src/Tscs.Compiler/Parser.cs",
+      "status": "NOT_RUN",
+      "reason": null,
       "executed": false,
       "upstreamExecutableCaseId": null
     },
