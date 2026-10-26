@@ -21,7 +21,7 @@ public static class Compilation
             var block=parser.Parse();
             if(parser.Diagnostics.Count>0)return new(Order(parser.Diagnostics),true);
             syntaxPhase=false;
-            return new(Order(new TypeChecker(file).Check(block)),false);
+            return new(Order(new TypeChecker(file).Check(block).Where(d=>!scanner.SuppressesSemanticDiagnostic(d.Start))),false);
         }
         catch(CompilationFailure failure)
         {

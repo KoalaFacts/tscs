@@ -8,6 +8,22 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
 {
     private int position;
     public List<Diagnostic> Diagnostics { get; } = [];
+    private readonly List<(int Start,int End)> ignoredNextLines = [];
+    // Only checker diagnostics on the immediately following physical line
+    // can be suppressed; parser and scanner diagnostics still fail normally.
+    public bool SuppressesSemanticDiagnostic(int offset)
+    {
+        int low=0,high=ignoredNextLines.Count-1;
+        while(low<=high)
+        {
+            int mid=low+(high-low)/2;
+            var range=ignoredNextLines[mid];
+            if(offset<range.Start)high=mid-1;
+            else if(offset>=range.End)low=mid+1;
+            else return true;
+        }
+        return false;
+    }
     // Cumulative lexical diagnostics available after each token was scanned.
     public List<int> DiagnosticCounts { get; } = [];
     public List<Token> Scan()
@@ -33,7 +49,10 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                     }
                     string comment = text[start..position];
                     if (!jsonMode && (comment.Contains("@ts-", StringComparison.Ordinal) || comment.StartsWith("///", StringComparison.Ordinal)))
-                        throw Error(new(TokenKind.Unsupported,comment,start,position-start),"TSCS1001","Comment directives are not supported yet.");
+                    {
+                        if (!TryRegisterTsIgnore(start,position,block))
+                            throw Error(new(TokenKind.Unsupported,comment,start,position-start),"TSCS1001","Comment directives are not supported yet.");
+                    }
                     continue;
                 }
                 break;
@@ -170,6 +189,27 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                 {position++;return text[(position-2)..position];}
                 return escaped.ToString();
         }
+    }
+    private bool TryRegisterTsIgnore(int start,int end,bool block)
+    {
+        // A deliberately bounded subset: leading whole-line // @ts-ignore.
+        // Reject other @ts- directives and block/triple-slash forms.
+        if(block)return false;
+        var payload=text[(start+2)..end].TrimStart(' ','\t');
+        const string directive="@ts-ignore";
+        if(!payload.StartsWith(directive,StringComparison.Ordinal) ||
+           (payload.Length>directive.Length && !char.IsWhiteSpace(payload[directive.Length])))
+            return false;
+        int lineStart=start;
+        while(lineStart>0&&!IsLineBreak(text[lineStart-1]))lineStart--;
+        for(int i=lineStart;i<start;i++)
+            if(text[i] is not (' ' or '\t' or '\uFEFF'))return false;
+        if(end>=text.Length||!IsLineBreak(text[end]))return true;
+        int following=end+(text[end]=='\r'&&end+1<text.Length&&text[end+1]=='\n'?2:1);
+        int nextLineEnd=following;
+        while(nextLineEnd<text.Length&&!IsLineBreak(text[nextLineEnd]))nextLineEnd++;
+        ignoredNextLines.Add((following,nextLineEnd));
+        return true;
     }
     private static int HexDigit(char c)=>c is >= '0' and <= '9'?c-'0':c is >= 'a' and <= 'f'?c-'a'+10:c is >= 'A' and <= 'F'?c-'A'+10:-1;
     private void Report(string code,string message,int start,int length=0)=>Diagnostics.Add(Diagnostic.Error(file,new(TokenKind.String,"",start,length),code,message));

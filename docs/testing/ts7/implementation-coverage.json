@@ -3,7 +3,7 @@
   "kind": "BOUNDED_LOCAL_GUARD_PROBES_NOT_UPSTREAM_ACCEPTANCE",
   "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
   "sourcePath": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
-  "sourceGitBlob": "31c142706d0777545fd84d04723562e070e9bc52",
+  "sourceGitBlob": "741c55064d2c6ea7bc633c406fba3eb6de46ab30",
   "scope": "LOCAL_GUARD_PROBES_ONLY",
   "concreteUpstreamCases": null,
   "upstreamCaseExpansion": "UNEXPANDED",
@@ -12,10 +12,10 @@
   "releaseEligible": false,
   "counts": {
     "registered": 14,
-    "implemented": 7,
+    "implemented": 8,
     "verifiedUpstream": 0,
-    "skippedUnimplemented": 7,
-    "notRun": 7,
+    "skippedUnimplemented": 6,
+    "notRun": 8,
     "fail": 0,
     "mismatch": 0,
     "crash": 0,
@@ -25,8 +25,7 @@
   "uniqueUnimplementedCapabilities": [
     "function-declarations",
     "intrinsic-globalthis",
-    "object-literals",
-    "ts-ignore-directives"
+    "object-literals"
   ],
   "byDomain": {
     "binder": {
@@ -41,8 +40,8 @@
     },
     "diagnostics": {
       "registered": 1,
-      "implemented": 0,
-      "skipUnimplemented": 1
+      "implemented": 1,
+      "skipUnimplemented": 0
     },
     "parser": {
       "registered": 4,
@@ -158,13 +157,13 @@
     {
       "id": "bootstrap:ts-ignore-directive",
       "source": "// @ts-ignore\nlet n: number = \"x\";",
-      "guardMethod": "UnsupportedSyntaxNeverSucceeds",
-      "capability": "ts-ignore-directives",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
+      "capability": "ts-ignore-line-comment",
       "domain": "diagnostics",
-      "implementation": "UNIMPLEMENTED",
-      "implementationLocation": null,
-      "status": "SKIP",
-      "reason": "UNIMPLEMENTED",
+      "implementation": "IMPLEMENTED",
+      "implementationLocation": "src/Tscs.Compiler/Scanner.cs",
+      "status": "NOT_RUN",
+      "reason": null,
       "executed": false,
       "upstreamExecutableCaseId": null
     },
