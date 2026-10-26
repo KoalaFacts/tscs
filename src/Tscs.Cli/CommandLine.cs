@@ -16,15 +16,15 @@ public static class CommandLine
             var options=Options.Parse(args);
             var inputs=options.Files.Select(p=>(Path:p,Text:File.ReadAllText(p))).ToArray();
             var codeFiles=inputs.Where(f=>!f.Path.EndsWith(".d.ts",StringComparison.Ordinal)).ToArray();
-            if(codeFiles.Length!=1)throw new InputFailure("The bootstrap requires exactly one .ts source file, plus optional minimal .d.ts globals.");
-            if(!codeFiles[0].Path.EndsWith(".ts",StringComparison.Ordinal))throw new InputFailure("Only .ts input is supported.");
+            if(codeFiles.Length==0)throw new InputFailure("The bootstrap requires at least one .ts source file, plus optional minimal .d.ts globals.");
+            if(codeFiles.Any(f=>!f.Path.EndsWith(".ts",StringComparison.Ordinal)))throw new InputFailure("Only .ts input is supported.");
             var globals=new HashSet<string>(StringComparer.Ordinal);
             foreach(var f in inputs.Where(f=>f.Path.EndsWith(".d.ts",StringComparison.Ordinal)))ReadGlobals(f.Text,globals);
-            var analysis=Compilation.Analyze(codeFiles[0].Path,codeFiles[0].Text);
+            var analysis=Compilation.AnalyzeFiles(codeFiles.Select(f=>new SourceInput(f.Path,f.Text)).ToArray());
             // First original-profile emit slice: an empty parsed program under the
             // explicit ES2015 target. This does NOT silently accept nonempty source
             // or other unimplemented library/emit combinations.
-            bool emptyOriginalEmit=!options.NoEmit&&!options.NoLib&&options.ExplicitEs2015Target&&
+            bool emptyOriginalEmit=codeFiles.Length==1&&!options.NoEmit&&!options.NoLib&&options.ExplicitEs2015Target&&
                 inputs.Length==1&&analysis.EmptyProgram&&analysis.Diagnostics.Count==0;
             if ((!options.NoEmit||!options.NoLib) && !emptyOriginalEmit)
                 throw new InputFailure("The bootstrap requires --noEmit and --noLib; supply minimal ambient globals explicitly.");
@@ -47,7 +47,12 @@ public static class CommandLine
             }
             if(json)
                 stdout.WriteLine(JsonSerializer.Serialize(new{diagnostics=diagnostics.Select(d=>d with{File=Path.GetFileName(d.File)}),exitCode},JsonOptions));
-            else foreach(var d in diagnostics)stdout.WriteLine(Format(d,codeFiles[0].Text));
+            else
+            {
+                var sources=codeFiles.ToDictionary(f=>f.Path,f=>f.Text,StringComparer.Ordinal);
+                foreach(var d in diagnostics)
+                    stdout.WriteLine(Format(d,sources.GetValueOrDefault(d.File) ?? codeFiles[0].Text));
+            }
             return exitCode;
         }
         catch(ConfigSyntaxFailure error)

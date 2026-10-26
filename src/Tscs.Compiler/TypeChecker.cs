@@ -5,9 +5,14 @@ internal sealed class TypeChecker(string file)
 {
     private readonly List<Diagnostic> diagnostics=[];
     public IReadOnlyList<Diagnostic> Check(Block block) { CheckBlock(block,null);return diagnostics; }
-    private void CheckBlock(Block block,Scope? parent)
+    public IReadOnlyList<Diagnostic> CheckBound(Block block,Scope global)
     {
-        var scope=Binder.Bind(file,block,parent);
+        CheckBlock(block,global,true);
+        return diagnostics;
+    }
+    private void CheckBlock(Block block,Scope? parent,bool rootAlreadyBound=false)
+    {
+        var scope=rootAlreadyBound?parent!:Binder.Bind(file,block,parent);
         foreach(var statement in block.Statements)
         {
             switch(statement)
@@ -15,7 +20,7 @@ internal sealed class TypeChecker(string file)
                 case Block nested: CheckBlock(nested,scope);break;
                 case Variable v:
                     if(v.Name.Text is "eval" or "arguments") Error(v.Name,"TS1100",$"Invalid use of '{v.Name.Text}' in strict mode.");
-                    if(parent==null && v.Name.Text=="globalThis") Error(v.Name,"TS2397","Declaration name conflicts with built-in global identifier 'globalThis'.");
+                    if((parent==null || rootAlreadyBound) && v.Name.Text=="globalThis") Error(v.Name,"TS2397","Declaration name conflicts with built-in global identifier 'globalThis'.");
                     var symbol=scope.Symbols[v.Name.Text];
                     var source=v.Initializer is {} init?TypeOf(init,scope):null;
                     symbol.Type=v.Annotation??source;
@@ -118,7 +123,10 @@ internal sealed class TypeChecker(string file)
         if(symbol==null&&name.Text=="globalThis")
             throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001","The built-in globalThis type is not supported yet."));
         if(symbol==null) Error(name,"TS2304",$"Cannot find name '{name.Text}'.");
-        else if(name.Start<=symbol.Declaration.Name.Start)throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001","References before declaration are not supported yet."));
+        else if(symbol.File!=file && !symbol.CrossFileTypeReady)
+            throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001","Cross-file inference requires an explicit annotation or primitive literal initializer."));
+        else if(symbol.File==file && name.Start<=symbol.Declaration.Name.Start)
+            throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001","References before declaration are not supported yet."));
         return symbol;
     }
     // Bounded primitive/any assignment rule, not the full TS7 type relation.

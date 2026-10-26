@@ -248,4 +248,50 @@ public class CommandLineTests : IDisposable
         Assert.Contains("TSCS1002",result.Out);
         Assert.Equal("existing user content",File.ReadAllText(emitted));
     }
+    [Fact]
+    public void MultipleNoEmitScriptsResolveGlobalsAndProjectFiles()
+    {
+        var a=Write("a.ts","let first: number = second;");
+        var b=Write("b.ts","let second: number = 2;");
+        var lib=Lib();
+        Assert.Equal(0,Run("--noEmit","--noLib",a,b,lib).Code);
+        Assert.Equal(0,Run("--noEmit","--noLib",b,a,lib).Code);
+        var project=Write("tsconfig.json", "{\"files\":[\"a.ts\",\"b.ts\",\"minimal.d.ts\"],\"compilerOptions\":{\"noEmit\":true,\"noLib\":true}}");
+        Assert.Equal(0,Run("-p",project).Code);
+    }
+    [Fact]
+    public void CrossFileTypeErrorsRenderTheCorrectFile()
+    {
+        var a=Write("a.ts","let first: string = second;");
+        var b=Write("b.ts","let second: number = 2;");
+        var r=Run("--noEmit","--noLib",a,b,Lib());
+        Assert.Equal(2,r.Code);
+        Assert.Contains("a.ts(1,5): error TS2322:",r.Out);
+    }
+    [Fact]
+    public void CrossFileDuplicatesAndComplexInferenceNeverSucceedSilently()
+    {
+        var a=Write("a.ts","let repeated: number = 1;");
+        var b=Write("b.ts","let repeated: number = 2;");
+        var duplicate=Run("--noEmit","--noLib",a,b,Lib());
+        Assert.Equal(1,duplicate.Code);
+        Assert.Contains("TSCS1001",duplicate.Out);
+        Assert.Contains("b.ts(",duplicate.Out);
+
+        File.WriteAllText(a,"let result: boolean = inferred;");
+        File.WriteAllText(b,"let inferred = 1 + 2;");
+        var unknown=Run("--noEmit","--noLib",a,b,Path.Combine(directory,"minimal.d.ts"));
+        Assert.Equal(1,unknown.Code);
+        Assert.Contains("Cross-file inference",unknown.Out);
+    }
+    [Fact]
+    public void CrossFileRootGlobalThisStillRequiresIntrinsicHandling()
+    {
+        var a=Write("a.ts","let globalThis = 1;");
+        var b=Write("b.ts","let other: number = 2;");
+        var r=Run("--noEmit","--noLib",a,b,Lib());
+        Assert.Equal(2,r.Code);
+        Assert.Contains("TS2397",r.Out);
+    }
+
 }

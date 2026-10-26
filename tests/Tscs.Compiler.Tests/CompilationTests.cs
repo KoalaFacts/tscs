@@ -167,3 +167,39 @@ public class TsIgnoreDirectiveTests
     public void UnimplementedDirectiveVariantsRemainRejected(string source) =>
         Assert.Contains(Compilation.Check("test.ts", source), d => d.Code == "TSCS1001");
 }
+
+public class MultiSourceProgramTests
+{
+    [Fact]
+    public void CrossFilePrimitiveGlobalResolutionIsOrderIndependent()
+    {
+        var sources=new[]
+        {
+            new SourceInput("use.ts","let result: number = shared;"),
+            new SourceInput("define.ts","let shared: number = 42;")
+        };
+        Assert.Empty(Compilation.CheckFiles(sources));
+        Assert.Empty(Compilation.CheckFiles(sources.Reverse().ToArray()));
+    }
+    [Fact]
+    public void MultiSourceMismatchHasOriginalSourceIdentityAndSpan()
+    {
+        var sources=new[]
+        {
+            new SourceInput("use.ts","let result: string = shared;"),
+            new SourceInput("define.ts","let shared: number = 42;")
+        };
+        var d=Assert.Single(Compilation.CheckFiles(sources));
+        Assert.Multiple(()=>Assert.Equal("TS2322",d.Code),()=>Assert.Equal("use.ts",d.File),()=>Assert.Equal(4,d.Start));
+    }
+    [Fact]
+    public void ComplexCrossFileInferenceFailsClosed()
+    {
+        var sources=new[]
+        {
+            new SourceInput("use.ts","let result: boolean = shared;"),
+            new SourceInput("define.ts","let shared = 1 + 2;")
+        };
+        Assert.Contains(Compilation.CheckFiles(sources),d=>d.Code=="TSCS1001");
+    }
+}
