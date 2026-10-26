@@ -74,11 +74,14 @@ internal sealed class TypeChecker(string file)
             var right=types.Pop();
             var left=types.Pop();
             if(left==null||right==null)types.Push(null);
-            else if(left=="number"&&right=="number"&&binary.Operator.Kind is TokenKind.Plus or TokenKind.Star)types.Push("number");
+            else if(left=="number"&&right=="number"&&binary.Operator.Kind is TokenKind.Plus or TokenKind.Minus or TokenKind.Star)types.Push("number");
             else throw new CompilationFailure(Diagnostic.Error(file,binary.Operator,"TSCS1001",
-                binary.Operator.Kind==TokenKind.Star?
-                    "Only numeric multiplication expressions are supported yet.":
-                    "Only numeric addition expressions are supported yet."));
+                binary.Operator.Kind switch
+                {
+                    TokenKind.Star => "Only numeric multiplication expressions are supported yet.",
+                    TokenKind.Minus => "Only numeric subtraction expressions are supported yet.",
+                    _ => "Only numeric addition expressions are supported yet."
+                }));
         }
         return types.Pop();
     }

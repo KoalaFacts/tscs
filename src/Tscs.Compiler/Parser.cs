@@ -75,12 +75,12 @@ internal sealed class Parser(string file, List<Token> tokens)
         return new Block(statements);
     }
     // Bounded numeric arithmetic with TypeScript precedence: '*'
-    // binds more tightly than '+'. Neither unary/exponentiation nor
+    // binds more tightly than '+' and '-'. Neither unary/exponentiation nor
     // nonnumeric arithmetic is claimed as supported.
     private ValueNode ParseValue()
     {
         ValueNode left=ParseProduct();
-        while(Current.Kind==TokenKind.Plus)
+        while(Current.Kind is TokenKind.Plus or TokenKind.Minus)
         {
             var op=Take();
             left=new ValueBinary(left,op,ParseProduct());
