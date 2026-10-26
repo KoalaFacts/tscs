@@ -1,5 +1,36 @@
 # Status — 2026-10-26
 
+## Bounded numeric addition and measurable SKIP reduction — 2026-10-26
+
+- **Real feature:** scanner recognises binary `+`; the C# parser now records
+  left-associative numeric binary expressions; the checker infers `number` from
+  two number operands, preserving TS2322 annotation mismatch. Only number-only
+  `+` (including numeric identifier operands/chains/assignments) is implemented.
+  Unary `+`, string concatenation, `any` arithmetic and all other operators
+  remain explicitly unsupported, not silently treated as compatible.
+- **TDD RED:** `7cdd14f` compiled cleanly and the 11 new tests produced eight
+  expected failures (**15,462 passed / 8 failed / 0 skipped**, both hosted verify
+  jobs). This reflects seven positive examples plus one mismatch diagnostic.
+- **Regression and correction:** initial code/ledger head `c2b8df2` had one
+  genuine pre-existing failure: `StringRecoveryTests.EarlierLexicalErrorsSurviveLaterUnsupportedSyntax`
+  because standalone unary `+` stopped reporting TSCS1001 after an earlier
+  TS1125. The scanner now rejects unary `+` while preserving earlier lexical
+  errors. Three unary guards were added, so the final suite contains 15,473.
+- **Validated implementation head `273b4b7`:** four exact-head checks completed
+  success (CodeQL, Analyze(actions), two verify jobs). Both hosted runs confirmed
+  Release 0 warning/error, **xUnit4/MTP 15,473/15,473 (0 failed/skipped)**,
+  native Node **103/103**, frozen differential **29/29**, Go standalone scope
+  PASS. All six original hosted RED/intermediate/GREEN logs are retained bytewise
+  at [numeric-addition-run](evidence/numeric-addition-run/); original failing
+  attempts are excluded as passing proof but not erased.
+- Registry stable ID `bootstrap:binary-expression` moved SKIP/UNIMPLEMENTED
+  to IMPLEMENTED/NOT_RUN; local 14-probe register is now **6 implemented /
+  8 SKIP**. True full upstream acceptance added: **0**; complete executable
+  denominator unknown/unexpanded, full compiler/reference still NOT_RUN.
+  No actual pinned-Go complete original compiler comparison was run this stage;
+  releaseEligible=false. [Evidence ledger](evidence/numeric-addition.json).
+  PR #8 remains unmerged pending formal review.
+
 ## Review fixes: pinned Unicode path comparisons and generated declarations — 2026-10-26
 
 - Closed two concrete P2 implementation/integrity findings on PR #8 without bypassing comparison: Go `strings.ToLower` recognises dotted-I in the configDir prefix, while Unicode simple-folding `EqualFold` recognises long-s in `file://localhost`. The product uses its pinned Go lowercase map for templates and a target-ASCII simple-fold comparison for URI file/localhost roots. It does not use host `OrdinalIgnoreCase` for these predicates.

@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "stage": "numeric-addition",
+  "date": "2026-10-26",
+  "repository": "KoalaFacts/tscs",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "scope": "bounded number-only binary '+' expressions in C# parser/checker, no emitter",
+  "commits": {
+    "tddRed": "7cdd14f2e681476b1c1b7b3020e75662aed408c2",
+    "implementation": "9fe7384709bb807cbb6ee0aff3dfabfbfd2fadc3",
+    "coverageLedger": "c2b8df2df2be2a221ad779e29b75395c46522a6c",
+    "correctiveImplementation": "273b4b72c843fb8a9b6b38591104a08a9bbdff0f",
+    "rawLogArchive": "c11e2154cc28356bb9243f27d5e9fcdfe67c406a"
+  },
+  "testedImplementationTree": "5cba16404109645fa985c618f6fa72ecfe76020a",
+  "coverageStableId": "bootstrap:binary-expression",
+  "source": [
+    "src/Tscs.Compiler/Syntax.cs",
+    "src/Tscs.Compiler/Scanner.cs",
+    "src/Tscs.Compiler/Parser.cs",
+    "src/Tscs.Compiler/TypeChecker.cs",
+    "tests/Tscs.Compiler.Tests/NumericAdditionTests.cs",
+    "tests/Tscs.Compiler.Tests/CompilationTests.cs"
+  ],
+  "unitTestCounts": {
+    "before": 15459,
+    "after": 15473,
+    "netAdded": 14
+  },
+  "tddRed": {
+    "passed": 15462,
+    "failed": 8,
+    "skipped": 0,
+    "rawLogs": [
+      {
+        "jobId": 121493504581,
+        "url": "https://github.com/KoalaFacts/tscs/actions/runs/40299468142/job/121493504581",
+        "path": "docs/evidence/numeric-addition-run/red-verify-40299468142.log"
+      },
+      {
+        "jobId": 121493469931,
+        "url": "https://github.com/KoalaFacts/tscs/actions/runs/40299457738/job/121493469931",
+        "path": "docs/evidence/numeric-addition-run/red-verify-40299457738.log"
+      }
+    ]
+  },
+  "excludedRegression": {
+    "commit": "c2b8df2df2be2a221ad779e29b75395c46522a6c",
+    "passed": 15469,
+    "failed": 1,
+    "skipped": 0,
+    "case": "StringRecoveryTests.EarlierLexicalErrorsSurviveLaterUnsupportedSyntax",
+    "description": "TS1125 survived but TSCS1001 for unsupported unary plus was lost; corrected, not changed expectation",
+    "rawLogs": [
+      {
+        "jobId": 121496516124,
+        "path": "docs/evidence/numeric-addition-run/excluded-regression-verify-40300385188.log"
+      },
+      {
+        "jobId": 121496494864,
+        "path": "docs/evidence/numeric-addition-run/excluded-regression-verify-40300378298.log"
+      }
+    ]
+  },
+  "finalHosted": {
+    "commit": "273b4b72c843fb8a9b6b38591104a08a9bbdff0f",
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "mtp": {
+      "passed": 15473,
+      "failed": 0,
+      "skipped": 0
+    },
+    "node": {
+      "passed": 103,
+      "failed": 0
+    },
+    "frozen": {
+      "passed": 29,
+      "total": 29
+    },
+    "standaloneGoScope": "PASS",
+    "checkRuns": [
+      {
+        "name": "CodeQL",
+        "status": "success",
+        "jobId": 121498331294,
+        "url": "https://github.com/KoalaFacts/tscs/runs/121498331294"
+      },
+      {
+        "name": "Analyze (actions)",
+        "status": "success",
+        "jobId": 121497923023,
+        "url": "https://github.com/KoalaFacts/tscs/actions/runs/40300804364/job/121497923023"
+      },
+      {
+        "name": "verify",
+        "status": "success",
+        "jobId": 121497926437,
+        "url": "https://github.com/KoalaFacts/tscs/actions/runs/40300807560/job/121497926437",
+        "rawLog": "docs/evidence/numeric-addition-run/green-verify-40300807560.log"
+      },
+      {
+        "name": "verify",
+        "status": "success",
+        "jobId": 121497898171,
+        "url": "https://github.com/KoalaFacts/tscs/actions/runs/40300799504/job/121497898171",
+        "rawLog": "docs/evidence/numeric-addition-run/green-verify-40300799504.log"
+      }
+    ]
+  },
+  "localCoverage": {
+    "registered": 14,
+    "priorImplemented": 5,
+    "currentImplemented": 6,
+    "priorUnimplementedSkip": 9,
+    "currentUnimplementedSkip": 8,
+    "removedSkipIds": [
+      "bootstrap:binary-expression"
+    ],
+    "fullUpstreamAcceptedDelta": 0
+  },
+  "limitations": [
+    "only number-number '+' expression supported; no full binary operators",
+    "original pinned Go/compiler/reference acceptance NOT_RUN",
+    "complete TS7 executable-case count unknown/unexpanded",
+    "no fresh independent external code review this stage",
+    "full compiler type/checker/emitter API/Fourslash/unimplemented domains remain",
+    "not merged to main"
+  ],
+  "releaseEligible": false
+}
