@@ -49,7 +49,7 @@ public class CompilationTests
     [InlineData("let n: number = 1; n++;")]
     [InlineData("let n = 1; n++; n++;")]
     [InlineData("let n = 1; { let x: number = 2; x++; } n++;")]
-    [InlineData("let n = 1; n++;\\nlet m: number = n;")]
+    [InlineData("let n = 1; n++;\nlet m: number = n;")]
     [InlineData("let n = 1; n++")]
     [InlineData("let n = 1; n++; n = 2;")]
     public void NumericPostfixUpdatesAreWritable(string source) =>
@@ -60,7 +60,7 @@ public class CompilationTests
         Assert.Equal("TS2588", Assert.Single(Compilation.Check("test.ts", "const n = 1; n++;")).Code);
 
     [Theory]
-    [InlineData("let s: string = \\"x\\"; s++;")]
+    [InlineData("let s: string = \"x\"; s++;")]
     [InlineData("let b: boolean = true; b++;")]
     [InlineData("let n = 1; ++n;")]
     [InlineData("let n = 1; let m = n++;")]
