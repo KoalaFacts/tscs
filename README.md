@@ -26,6 +26,12 @@ Supported initially: single-file `let`/`const` declarations, primitive annotatio
 primitive literal initializers, identifier references, simple assignments and
 nested lexical scopes. Bounded `any` variable annotations accept assignments to
 and from primitive types, without implementing the full TypeScript `any` type system. A bounded left-associative numeric `+` expression is now supported for two number operands (including numeric identifiers, assignment and chains); unary `+`, string concatenation, `any` arithmetic, other operators and full expression grammar remain unsupported. Integer decimal literals and quoted strings with simple escapes/line continuations are supported. Valid hexadecimal and Unicode escapes preserve UTF16 code units, including lone surrogates. Malformed hexadecimal/Unicode escapes now retain their spelling and report recoverable lexical diagnostics; unterminated strings preserve all lexical errors. Standalone NUL and identity escapes are supported; legacy octal and decimal escapes preserve decoded values while reporting TS1487/TS1488 syntax errors. This does not implement JSON-specific string validation. Compilation returns lexical errors before parser/checker work; this does not implement general parser recovery.
+An initialized, mutable `number` variable also supports a **statement-only**
+postfix update such as `let n = 1; n++;` under noEmit/noLib. The checker
+rejects `const` updates with TS2588. Prefix `++`, expression-position
+postfix updates, nonnumeric operands and emitted JavaScript remain unsupported.
+This check does not execute the increment.
+
 Both `--noEmit` and `--noLib` are required. `--pretty false`, `--target es2015/es6`
 and a tscs-only `--json` diagnostic mode are available.
 

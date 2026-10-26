@@ -1,5 +1,38 @@
 # Status — 2026-10-26
 
+## Bounded postfix `++` and real SKIP reduction — 2026-10-26
+
+- **New C# checker slice:** the scanner lexes `++` distinctly from binary
+  `+`; the parser represents a same-line `identifier++` statement and the
+  checker accepts initialized mutable `number` variables. A `const` update
+  reports TS2588. Prefix updates, nonnumeric operands, postfix expressions
+  in initializers, emit and broader operator grammar remain unsupported.
+- **Real hosted RED at `167d240`:** seven intended failures in 15,485
+  xUnit tests (**15,478 passed / 7 failed / 0 skipped**), with clean Release
+  compilation. The earlier malformed-literal test attempt `7c1aade` is
+  excluded from this RED proof.
+- **Fixed genuine regressions:** first implementation `48e7f5e` passed
+  15,484/15,485 but a pre-existing CLI negative test still expected `x++`
+  to be rejected. `7339946` retained the failure assertion for the
+  unsupported *prefix* form and added a positive CLI success assertion;
+  xUnit became 15,486/15,486 while two Node inventory tests still encoded
+  the old 6/8 counts. `5e6927c` corrected those counts and asserted the
+  stable feature identity without weakening any real regression or release
+  gate.
+- **Exact implementation head `5e6927c`:** both hosted verify jobs passed
+  **xUnit4/MTP 15,486/15,486**, **Node24 103/103**, frozen differential
+  **29/29**, standalone Go scope PASS and Release **0 warnings/errors**.
+  CodeQL/Analyze(actions) also succeeded (**4/4 checks**). Raw RED,
+  intermediate failure and final hosted logs are preserved in
+  [postfix-update-run](evidence/postfix-update-run/); job identities and
+  limitations: [evidence ledger](evidence/postfix-update.json).
+- **Measured delta:** stable `bootstrap:postfix-update` moved from
+  SKIP(UNIMPLEMENTED) to IMPLEMENTED/NOT_RUN; the fixed 14-input local
+  catalogue changes **6 implemented / 8 SKIP → 7 implemented / 7 SKIP**.
+  Complete pinned upstream compiler acceptance remains **NOT_RUN**,
+  executable denominator unknown/unexpanded, releaseEligible=false.
+  PR #8 is not merged and has no formal latest-head GitHub approval.
+
 ## Bounded numeric addition and measurable SKIP reduction — 2026-10-26
 
 - **Real feature:** scanner recognises binary `+`; the C# parser now records
