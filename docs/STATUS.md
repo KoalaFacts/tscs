@@ -1,3 +1,25 @@
+# 2026-10-27 — Host-backed compiler program and project syntax diagnostics (PR #8)
+
+Added a production `ICompilerHost` / `FileSystemCompilerHost` boundary and
+`CompilerProgram.Load` to snapshot canonical source identities and contents,
+reject aliases/duplicates, and cache the bounded multi-file analysis. The CLI
+now uses this program path instead of privately loading and reparsing source
+files; alternate VFS/editor hosts can provide in-memory content. Multi-file
+scanner/parser failures are aggregated with stable source identity before
+binding, avoiding the previous first-bad-file early return. This unlocks
+subsequent module graphs and project host expansion without creating another
+independent compiler path. Minimal ambient declaration validation, module
+resolution, incremental invalidation, symlinks, full TypeScript types and
+JavaScript emit remain unsupported. Source-level tests cover real in-memory
+host execution, duplicate identity checks, diagnostic ownership and multi-file
+failure collection; testing must be verified against this exact new head.
+
+No upstream placeholder is reclassified: frozen 15,523 configurations,
+accepted full TS7 PASS 0, SKIP_UNIMPLEMENTED 15,523; 39 original upstream
+skip flags and seven reference-fatal sources remain distinct. Full runtime
+case denominator unknown, releaseEligible=false. This is architecture
+implementation, not original acceptance or an independent review.
+
 # 2026-10-27 — First multi-source program architecture package (PR #8)
 
 Production compiler: `Compilation.AnalyzeFiles`/CLI handles multiple

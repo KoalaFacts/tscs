@@ -41,3 +41,21 @@ module linking, declaration merging, standard libraries, and general
 JavaScript emission are not silently accepted. It creates the dependency
 for later CompilerHost/VFS, module resolution and multi-file emit work.
 No full original upstream configuration target has yet been accepted.
+
+## CompilerHost and program snapshots (2026-10-27; PR #8)
+
+`ICompilerHost` owns source text acquisition and canonical file identities;
+`FileSystemCompilerHost` is the CLI adapter, and alternate in-memory hosts
+can supply unsaved editor buffers. `CompilerProgram.Load` snapshots each
+canonical source exactly once, rejects duplicate identities (using the host's
+filename comparer), and reuses one analysis result. The CLI runs its existing
+bounded multi-source binder/checker through this shared program path, while
+its special minimal `.d.ts` global bootstrap remains separate. Parsing now
+collects syntax failures from all input files before global binding, preserving
+file identities and ordered UTF-16 spans instead of returning on the first
+bad source. No module graph, symlink resolution, incremental invalidation,
+general standard-library support, or TypeScript emit is claimed.
+
+Next dependencies: typed options/project host, proper module/source-file graph,
+per-source resilient binding, then unified emit. The pinned full original
+acceptance ledger remains separate from these local architecture checks.

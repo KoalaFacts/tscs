@@ -14,13 +14,16 @@ public static class CommandLine
         try
         {
             var options=Options.Parse(args);
-            var inputs=options.Files.Select(p=>(Path:p,Text:File.ReadAllText(p))).ToArray();
-            var codeFiles=inputs.Where(f=>!f.Path.EndsWith(".d.ts",StringComparison.Ordinal)).ToArray();
+            var host=new FileSystemCompilerHost();
+            var inputs=options.Files.Select(host.GetCanonicalFileName).ToArray();
+            var codeFiles=inputs.Where(p=>!p.EndsWith(".d.ts",StringComparison.Ordinal)).ToArray();
             if(codeFiles.Length==0)throw new InputFailure("The bootstrap requires at least one .ts source file, plus optional minimal .d.ts globals.");
-            if(codeFiles.Any(f=>!f.Path.EndsWith(".ts",StringComparison.Ordinal)))throw new InputFailure("Only .ts input is supported.");
+            if(codeFiles.Any(p=>!p.EndsWith(".ts",StringComparison.Ordinal)))throw new InputFailure("Only .ts input is supported.");
             var globals=new HashSet<string>(StringComparer.Ordinal);
-            foreach(var f in inputs.Where(f=>f.Path.EndsWith(".d.ts",StringComparison.Ordinal)))ReadGlobals(f.Text,globals);
-            var analysis=Compilation.AnalyzeFiles(codeFiles.Select(f=>new SourceInput(f.Path,f.Text)).ToArray());
+            foreach(var path in inputs.Where(p=>p.EndsWith(".d.ts",StringComparison.Ordinal)))
+                ReadGlobals(host.ReadFile(path),globals);
+            var program=CompilerProgram.Load(host,codeFiles);
+            var analysis=program.Analyze();
             // First original-profile emit slice: an empty parsed program under the
             // explicit ES2015 target. This does NOT silently accept nonempty source
             // or other unimplemented library/emit combinations.
@@ -41,7 +44,7 @@ public static class CommandLine
             {
                 // The locked TS7 reference baseline for emptyFile.ts emits precisely
                 // a strict prologue with CRLF. Never overwrite a pre-existing file.
-                var jsPath=Path.ChangeExtension(codeFiles[0].Path,".js");
+                var jsPath=Path.ChangeExtension(codeFiles[0],".js");
                 using var output=new FileStream(jsPath,FileMode.CreateNew,FileAccess.Write);
                 output.Write(Encoding.UTF8.GetBytes("\"use strict\";\r\n"));
             }
@@ -49,9 +52,9 @@ public static class CommandLine
                 stdout.WriteLine(JsonSerializer.Serialize(new{diagnostics=diagnostics.Select(d=>d with{File=Path.GetFileName(d.File)}),exitCode},JsonOptions));
             else
             {
-                var sources=codeFiles.ToDictionary(f=>f.Path,f=>f.Text,StringComparer.Ordinal);
+                var sources=program.Sources.ToDictionary(f=>f.File,f=>f.Text,StringComparer.Ordinal);
                 foreach(var d in diagnostics)
-                    stdout.WriteLine(Format(d,sources.GetValueOrDefault(d.File) ?? codeFiles[0].Text));
+                    stdout.WriteLine(Format(d,sources.GetValueOrDefault(d.File) ?? program.Sources[0].Text));
             }
             return exitCode;
         }

@@ -21,6 +21,8 @@ public static class Compilation
             throw new ArgumentException("Duplicate source paths are not supported.",nameof(files));
 
         var parsed=new List<ParsedSource>(files.Count);
+        var parsingDiagnostics=new List<Diagnostic>();
+        bool hasSyntaxErrors=false;
         foreach(var source in files)
         {
             ArgumentNullException.ThrowIfNull(source.Text);
@@ -33,20 +35,35 @@ public static class Compilation
                         "TSCS1001","Source exceeds the bootstrap size limit."));
                 scanner=new Scanner(source.File,source.Text);
                 var tokens=scanner.Scan();
-                if(scanner.Diagnostics.Count>0)return new(Order(scanner.Diagnostics),true);
+                if(scanner.Diagnostics.Count>0)
+                {
+                    parsingDiagnostics.AddRange(scanner.Diagnostics);
+                    hasSyntaxErrors=true;
+                    continue;
+                }
                 var parser=new Parser(source.File,tokens);
                 var block=parser.Parse();
-                if(parser.Diagnostics.Count>0)return new(Order(parser.Diagnostics),true);
+                if(parser.Diagnostics.Count>0)
+                {
+                    parsingDiagnostics.AddRange(parser.Diagnostics);
+                    hasSyntaxErrors=true;
+                    continue;
+                }
                 syntaxPhase=false;
                 parsed.Add(new(source.File,block,scanner));
             }
             catch(CompilationFailure failure)
             {
                 var lexical=scanner?.Diagnostics ?? [];
-                return new(Order(lexical.Append(failure.Diagnostic)),
-                    lexical.Count>0 || (syntaxPhase && !failure.Diagnostic.Code.StartsWith("TSCS",StringComparison.Ordinal)));
+                parsingDiagnostics.AddRange(lexical);
+                parsingDiagnostics.Add(failure.Diagnostic);
+                hasSyntaxErrors |= lexical.Count>0 ||
+                    (syntaxPhase && !failure.Diagnostic.Code.StartsWith("TSCS",StringComparison.Ordinal));
             }
         }
+        // A broken source cannot safely contribute symbols, but errors in other
+        // files must remain visible rather than disappearing behind the first one.
+        if(parsingDiagnostics.Count>0)return new(Order(parsingDiagnostics),hasSyntaxErrors);
         Scope? global=null;
         try
         {
@@ -76,5 +93,6 @@ public static class Compilation
         return new(diagnostics,false,parsed.All(p=>p.Root.Statements.Count==0));
     }
     private static Diagnostic[] Order(IEnumerable<Diagnostic> diagnostics)=>
-        diagnostics.OrderBy(d=>d.Start).ThenBy(d=>d.Length).ThenBy(d=>d.Code,StringComparer.Ordinal).ToArray();
+        diagnostics.OrderBy(d=>d.File,StringComparer.Ordinal).ThenBy(d=>d.Start)
+            .ThenBy(d=>d.Length).ThenBy(d=>d.Code,StringComparer.Ordinal).ToArray();
 }
