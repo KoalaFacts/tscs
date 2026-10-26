@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-27",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "workPackage": "CTRF xUnit 4/MTP2 discovery-to-ledger reconciliation, separate optional runner",
+  "sourceBlobs": {
+    "tools/verify-upstream-discovery.ts": "ffff1aa50895376efc319ddbab68a3627397df64",
+    "tools/verify-upstream-discovery.test.ts": "1488598cfd816a43207896c562e8036ccf1833d8",
+    "scripts/verify-upstream-placeholder-discovery.sh": "5eb4e53ca9a722e1cd14095c3c633582d8a5e663"
+  },
+  "localVerification": {
+    "runtime": "Node 22.16.0 experimental strip-types fallback, not Node24",
+    "initialRed": {
+      "failed": 10,
+      "passed": 0
+    },
+    "followupBindingRed": {
+      "failed": 1,
+      "passed": 10
+    },
+    "green": {
+      "passed": 11,
+      "failed": 0
+    },
+    "fullSyntheticOnly": {
+      "registered": 15523,
+      "reconciled": 15523,
+      "upstreamSkippedMetadata": 39,
+      "reportOrigin": "PYTHON_SYNTHETIC_NOT_DOTNET",
+      "releaseExpectedFailure": true
+    },
+    "shellSyntax": "PASS",
+    "historicalArchiveLockGate": {
+      "result": "BLOCKED",
+      "exitCode": 3,
+      "reason": "Standalone generated project has no reviewed packages.lock.json; SDK locally absent"
+    }
+  },
+  "logs": {
+    "libraryId": "libfile_f7edf4f7b3d8819184d92ba0ed5cbe8f",
+    "archiveSha256": "d3bb6861ddf8dd3073f8acd95d7ca415f307d098314a390be63c2613a2076001",
+    "files": {
+      "red-stub.log": "164e6eb44505a7244ef71a15e59b70e812089c54b205f3374e535c5ca4669f70",
+      "red-binding.log": "ecbbe4f8f334e898662f811078c982be963b31c1491b30884fed803149316267",
+      "green2.log": "c4ed521994ea434a6c50433e224653c8b3f5c2ae2d4768d1fa134afef4663772",
+      "full-synthetic.log": "926d24420c4560b7b029ac3c7c5e257359506fdcccfb0fbbfc306e209082f513",
+      "run-blocker.log": "76edd48e9ddfe88da2f1cffa59dcb77600d351aa9d93062eed3862dc7382dfc9"
+    }
+  },
+  "limitations": [
+    "No .NET 10 SDK locally; generated standalone project lock missing",
+    "Real MTP CTRF report NOT_RUN",
+    "Full compiler/reference/acceptance NOT_RUN; full TS7 denominator unknown",
+    "No independent reviewer yet",
+    "Historical ZIP is external Library artifact, not included in main solution"
+  ],
+  "counts": {
+    "registeredSourceConfigurations": 15523,
+    "knownUnimplemented": 15523,
+    "actualDiscoveryVerified": 0,
+    "sourceConfigurationAcceptance": 0,
+    "productFeatureDelta": 0,
+    "removedSkips": 0
+  },
+  "releaseEligible": false
+}

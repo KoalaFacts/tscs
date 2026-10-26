@@ -1,5 +1,11 @@
 # Status — 2026-10-26
 
+## Separate xUnit/MTP discovery reconciliation — 2026-10-27
+
+- A new CTRF execution report verifier performs fail-closed ID/source/configuration reconciliation for the **15,523 source-config placeholders**. Local Node22 fallback **11/11 tests**, and synthetic 15,523-row CTRF reconciliation passed; actual .NET/MTP discovery is **NOT_RUN** because the standalone bundle lacks a reviewed lock file and local SDK is absent. [Scope](progress/upstream-placeholder-discovery.md), [evidence](evidence/upstream-placeholder-discovery.json).
+- New standalone optional script refuses non-locked restore, leaving main strict internal `--fail-skips on` untouched. Compiler feature/accepted-case delta **0**, removed SKIPs **0**, releaseEligible=false.
+
+
 ## Full placeholder corpus integrity — 2026-10-26
 
 - A separate post-generation verifier now reconciles all **15,523 source-configuration target SKIPs** against every generated C# Fact, source/configuration ID and original artifact hash, including seven reference-fatal blockers and upstream-skip metadata. Synthetic corruption/missing-artifact regressions fail closed, and release mode rejects unresolved SKIPs. [Scope/results](progress/upstream-placeholder-integrity.md) and [machine evidence](evidence/upstream-placeholder-integrity.json).
