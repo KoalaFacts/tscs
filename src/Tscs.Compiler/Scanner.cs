@@ -65,7 +65,7 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                 kind = TokenKind.String;
                 decodedValue = ScanString(first, out stringFlags);
             }
-            else kind = first switch { '[' when jsonMode=>TokenKind.OpenBracket,']' when jsonMode=>TokenKind.CloseBracket,'-' when jsonMode=>TokenKind.Minus, '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,_=>TokenKind.Unsupported };
+            else kind = first switch { '[' when jsonMode=>TokenKind.OpenBracket,']' when jsonMode=>TokenKind.CloseBracket,'-' when jsonMode=>TokenKind.Minus, '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,'+' when !jsonMode=>TokenKind.Plus,_=>TokenKind.Unsupported };
             var token = new Token(kind,text[begin..position],begin,position-begin,lineBreak,decodedValue,stringFlags);
             if (kind == TokenKind.Unsupported) throw Error(token,"TSCS1001",$"Unsupported syntax '{token.Text}'.");
             tokens.Add(token);DiagnosticCounts.Add(Diagnostics.Count);

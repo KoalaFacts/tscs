@@ -35,7 +35,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                         if(Current.Kind!=TokenKind.Identifier || Current.Text is not ("number" or "string" or "boolean" or "any")) Unsupported(Current,"Only primitive type annotations are supported.");
                         annotation=Take().Text;
                     }
-                    Token? initializer=Eat(TokenKind.Equal)?ParseValue():null;
+                    ValueNode? initializer=Eat(TokenKind.Equal)?ParseValue():null;
                     if(annotation==null && initializer==null) Unsupported(name,"Variables without a type or initializer are not supported yet.");
                     statements.Add(new Variable(name,constant,annotation,initializer));
                     if(Eat(TokenKind.Comma))continue;
@@ -53,21 +53,39 @@ internal sealed class Parser(string file, List<Token> tokens)
             var value=ParseValue();
             if(Eat(TokenKind.Equal))
             {
-                if(value.Kind!=TokenKind.Identifier) Unsupported(value,"Only identifier assignment targets are supported.");
-                statements.Add(new Assignment(value,ParseValue()));
+                if(value is ValueAtom atom && atom.Token.Kind==TokenKind.Identifier)
+                    statements.Add(new Assignment(atom.Token,ParseValue()));
+                else Unsupported(Current,"Only identifier assignment targets are supported.");
             }
             else statements.Add(new Expression(value));
             EndStatement();
         }
         return new Block(statements);
     }
-    private Token ParseValue()
+    // A deliberately bounded first binary expression: left-associative '+'
+    // with number operands. Other operand types remain explicit UNSUPPORTED.
+    private ValueNode ParseValue()
+    {
+        ValueNode left=ParsePrimary();
+        while(Current.Kind==TokenKind.Plus)
+        {
+            var op=Take();
+            left=new ValueBinary(left,op,ParsePrimary());
+        }
+        return left;
+    }
+    private ValueNode ParsePrimary()
     {
         var token=Current;
-        if(token.Kind is TokenKind.Identifier or TokenKind.Number or TokenKind.String or TokenKind.True or TokenKind.False) return Take();
+        if(token.Kind is TokenKind.Identifier or TokenKind.Number or TokenKind.String or TokenKind.True or TokenKind.False)
+            return new ValueAtom(Take());
         if(token.Kind is TokenKind.Semi or TokenKind.End or TokenKind.Close)
-        { Diagnostics.Add(Diagnostic.Error(file,token,"TS1109","Expression expected.")); return new(TokenKind.Number,"0",token.Start,0); }
-        Unsupported(token,"Only primitive literals and identifier expressions are supported."); return default;
+        {
+            Diagnostics.Add(Diagnostic.Error(file,token,"TS1109","Expression expected."));
+            return new ValueAtom(new(TokenKind.Number,"0",token.Start,0));
+        }
+        Unsupported(token,"Only primitive literals and identifier expressions are supported.");
+        return default!;
     }
     private void EndStatement()
     {

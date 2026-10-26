@@ -34,7 +34,20 @@ internal sealed class TypeChecker(string file)
             }
         }
     }
-    private string? TypeOf(Token token,Scope scope)
+    private string? TypeOf(ValueNode value,Scope scope)
+    {
+        if(value is ValueBinary binary)
+        {
+            // Evaluate both operands to keep binding/initialization diagnostics.
+            var left=TypeOf(binary.Left,scope);
+            var right=TypeOf(binary.Right,scope);
+            if(left==null||right==null)return null;
+            if(left=="number" && right=="number")return "number";
+            throw new CompilationFailure(Diagnostic.Error(file,binary.Operator,"TSCS1001","Only numeric addition expressions are supported yet."));
+        }
+        return TypeOfAtom(((ValueAtom)value).Token,scope);
+    }
+    private string? TypeOfAtom(Token token,Scope scope)
     {
         if(token.Kind==TokenKind.Number)return "number";
         if(token.Kind==TokenKind.String)return "string";
