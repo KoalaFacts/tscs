@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 namespace Tscs;
 internal sealed record JsonOptionsMapResult(IReadOnlyList<ConfigProperty> Calls,IReadOnlyList<Diagnostic> Diagnostics,IReadOnlyList<string> Unsupported);
@@ -35,7 +36,10 @@ internal static class JsonOptionsFromJson
    if(option==null||option.Name!=key)
    {
     string? suggestion=option?.Name??Suggestion(key);
-    diagnostics.Add(suggestion==null?Error("TS5023",$"Unknown compiler option '{key}'."):Error("TS5025",$"Unknown compiler option '{key}'. Did you mean '{suggestion}'?"));continue;
+    // Keep the original UTF-16 key for lookup and weighted suggestions. The
+    // pinned Go formatter repairs only the eventual diagnostic arguments.
+    string printedKey=DiagnosticArgument(key);
+    diagnostics.Add(suggestion==null?Error("TS5023",$"Unknown compiler option '{printedKey}'."):Error("TS5025",$"Unknown compiler option '{printedKey}'. Did you mean '{DiagnosticArgument(suggestion)}'?"));continue;
    }
    if(!option.Supported){unsupported.Add(key);continue;}
    var converted=Dispatch(option,property.Value);diagnostics.AddRange(converted.Diagnostics);calls.Add(new(key,converted.Value));
@@ -51,6 +55,23 @@ internal static class JsonOptionsFromJson
    return JsonListOptions.Convert(new(o.Name,new(e.Name,new(e.Kind,e.DisallowNull),e.CommandLineOnly),o.PreserveFalsy,o.CommandLineOnly,e.Enum),value);
   }
   return JsonScalarOptions.Convert(new(o.Name,new(o.Kind,o.DisallowNull),o.CommandLineOnly),value);
+ }
+ // Pinned diagnostics.Format uses strings.ToValidUTF8: one U+FFFD for each
+ // contiguous invalid WTF-8 byte run, not one per malformed UTF-16 code unit.
+ // Valid UTF-16 pairs remain intact and terminate an invalid run.
+ private static string DiagnosticArgument(string value)
+ {
+  var result=new StringBuilder(value.Length);bool invalidRun=false;
+  for(int i=0;i<value.Length;i++)
+  {
+   char c=value[i];
+   if(char.IsHighSurrogate(c)&&i+1<value.Length&&char.IsLowSurrogate(value[i+1]))
+   {result.Append(c).Append(value[++i]);invalidRun=false;}
+   else if(char.IsSurrogate(c))
+   {if(!invalidRun)result.Append('\uFFFD');invalidRun=true;}
+   else{result.Append(c);invalidRun=false;}
+  }
+  return result.ToString();
  }
  private static Diagnostic Error(string code,string message)=>new(code,"error","",-1,0,message,[],[]);
  // Go []rune sees each invalid WTF8 surrogate byte as RuneError. No host ICU.

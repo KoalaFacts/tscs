@@ -82,3 +82,17 @@ recovery; final Git golden/resource provide those bytes. Preliminary profile
 predates input-provenance hardening and is excluded as final-source proof.
 Source, tests, golden and raw author/reviewer logs are committed separately.
 [Machine evidence](../evidence/json-options-map.json).
+
+## Follow-up: diagnostic invalid-sequence P2 — 2026-10-26
+
+Review identified that the raw UTF-16 unknown key could be serialized with
+separate U+FFFD characters for adjacent unpaired surrogates, while pinned Go
+`diagnostics.Format` uses `strings.ToValidUTF8` and collapses a contiguous
+invalid-byte run into one replacement. The product now normalizes only its
+formatted argument; raw keys, canonical lookup and weighted spelling inputs
+are unchanged. Six focused tests exercise direct conversion plus fixture JSONL
+transport: consecutive high, consecutive low, low/high, separated runs,
+valid high/low pair and invalid/valid/invalid sequences. The prior 316-row
+oracle and 172-source profile are historical; the newly added cases are not
+presented as a newly executed pinned-Go private-converter run. Hosted tests
+must be checked at the exact new commit before this correction is accepted.

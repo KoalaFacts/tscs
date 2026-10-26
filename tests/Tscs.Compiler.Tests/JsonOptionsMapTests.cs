@@ -52,4 +52,48 @@ public class JsonOptionsMapTests
   var request=JsonSerializer.Serialize(new{id="guard",input=Convert.ToBase64String(Encoding.UTF8.GetBytes(source)),fileName=Convert.ToBase64String("fixture.ts"u8),@implicit=false,failAt=0,returnNil=false,profile="config-options"});
   using var input=new StringReader(request+"\n");using var output=new StringWriter();FixtureProtocol.Run(input,output);using var d=JsonDocument.Parse(output.ToString());var row=d.RootElement.GetProperty("expected");Assert.Equal(expected,row.GetProperty("outcome").GetString());Assert.Equal(JsonValueKind.Null,row.GetProperty("calls").ValueKind);
  }
+
+ [Theory]
+ [InlineData("zz\\ud800\\ud800zz","zz\uFFFDzz")]
+ [InlineData("zz\\udc00\\udc00zz","zz\uFFFDzz")]
+ [InlineData("zz\\udc00\\ud800zz","zz\uFFFDzz")]
+ [InlineData("zz\\ud800X\\ud800zz","zz\uFFFDX\uFFFDzz")]
+ [InlineData("zz\\ud83d\\ude00zz","zz\U0001F600zz")]
+ [InlineData("zz\\ud800\\ud83d\\ude00\\ud800zz","zz\uFFFD\U0001F600\uFFFDzz")]
+ public void InvalidWtf8OptionNamesUsePinnedDiagnosticArgumentFormatting(string escapedKey,string printedKey)
+ {
+  string json="{\"compilerOptions\":{\""+escapedKey+"\":true}}";
+  var parsed=JsonSyntax.Parse("/tsconfig.json",json);
+  Assert.Empty(parsed.Diagnostics);
+  var root=JsonConfigValues.Convert(parsed.Root);
+  var options=Assert.Single(root.Properties).Value;
+  var rawKey=Assert.Single(options.Properties).Key;
+  Assert.Equal(Assert.Single(Assert.Single(parsed.Root!.Properties).Value.Properties).Name.Token.Value,rawKey);
+  var converted=JsonOptionsFromJson.Convert(options);
+  Assert.Empty(converted.Calls);
+  Assert.Empty(converted.Unsupported);
+  var diagnostic=Assert.Single(converted.Diagnostics);
+  Assert.Equal("TS5023",diagnostic.Code);
+  string expected="Unknown compiler option '"+printedKey+"'.";
+  Assert.Equal(expected,diagnostic.Message);
+
+  // Execute the actual fixture JSONL transport as well as the product entry.
+  string fixture="// @filename: tsconfig.json\n"+json;
+  var request=JsonSerializer.Serialize(new
+  {
+   id="invalid-wtf8-option",input=Convert.ToBase64String(Encoding.UTF8.GetBytes(fixture)),
+   fileName=Convert.ToBase64String("fixture.ts"u8),@implicit=false,failAt=0,returnNil=false,
+   profile="config-options"
+  });
+  using var input=new StringReader(request+"\n");using var output=new StringWriter();
+  FixtureProtocol.Run(input,output);
+  using var response=JsonDocument.Parse(output.ToString());
+  var result=response.RootElement.GetProperty("expected");
+  Assert.Equal("OPTIONS_DIAGNOSTICS",result.GetProperty("outcome").GetString());
+  Assert.Equal(JsonValueKind.Null,result.GetProperty("unsupported").ValueKind);
+  var ds=result.GetProperty("optionDiagnostics");
+  Assert.Equal(1,ds.GetArrayLength());
+  Assert.Equal("TS5023",ds[0].GetProperty("code").GetString());
+  Assert.Equal(expected,ds[0].GetProperty("message").GetString());
+ }
 }

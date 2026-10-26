@@ -3,6 +3,19 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Unknown-option diagnostic UTF-8 normalization P2 — 2026-10-26
+
+- The pinned Go diagnostic formatter collapses each contiguous malformed
+  WTF-8 byte sequence to a single U+FFFD. The option-map message path now
+  formats invalid surrogate runs the same way, preserving valid pairs and
+  leaving original lookup/suggestion keys unchanged.
+- Added six focused cases (adjacent high/low invalid surrogates, separated
+  invalid runs and valid surrogate pairs) exercising both product conversion
+  and the real fixture JSONL path. Their hosted run remains to be confirmed;
+  historical 15,426-run evidence is not attributed to this change.
+- Scope remains option-map diagnostics only. Full original compiler/reference/
+  acceptance remains NOT_RUN; release eligibility is unchanged.
+
 ## Declaration-driven config option map — 2026-10-26
 
 - Unified actual126 declaration entries (125 names, duplicate help retained)
