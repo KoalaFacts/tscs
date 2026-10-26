@@ -1,4 +1,10 @@
 # Status — 2026-10-26
+## Standalone xUnit/MTP NuGet lock and real discovery canary — 2026-10-27
+
+- The external generated test bundle now has a repository-reviewed standalone 16-package NuGet lock. It is projected from the existing pinned internal xUnit4/MTP2 lock (same versions/content hashes; three local project-reference entries excluded). The SHA-bound verifier and five local Node22.16.0 fallback regressions passed. See [lock scope](progress/upstream-placeholder-lock.md).
+- A separate 1-target original-source xUnit4/MTP2 discovery canary is added **after** the unchanged strict internal CI verification; its new-head hosted result must be checked independently. The 15,523-target discovery entry now validates the reviewed lock and copies it only to an extracted working bundle before locked restore/build/real CTRF reconciliation, rejecting any different existing lock.
+- No language implementation added, no original compiler acceptance PASS, no SKIPs eliminated. The full 15,523 MTP discovery remains NOT_RUN locally (no .NET SDK and archive is externally stored); complete runtime TS7 denominator remains UNEXPANDED, releaseEligible=false.
+
 
 ## Separate xUnit/MTP discovery reconciliation — 2026-10-27
 

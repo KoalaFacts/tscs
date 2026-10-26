@@ -1,4 +1,8 @@
 # TS7 scope inventory: source declarations, not conformance
+### Pinned standalone xUnit4/MTP2 project lock — 2026-10-27
+
+The [reviewed standalone lock](../../progress/upstream-placeholder-lock.md) pins the existing 16-package graph and is copied into an extracted configuration-placeholder bundle only after full source/ID integrity checks. CI has a one-target genuine-source MTP canary in a separate test project (not counted as original TypeScript acceptance) after the unchanged strict internal `--fail-skips on` gate. The whole 15,523-Fact MTP discovery is still NOT_RUN until the immutable Library archive is supplied in an SDK-backed environment. Its SKIPs must never count as implementation PASS.
+
 
 ### Separate xUnit/MTP discovery lane (2026-10-27)
 

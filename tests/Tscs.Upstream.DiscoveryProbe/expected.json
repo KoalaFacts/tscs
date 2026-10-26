@@ -1,0 +1,21 @@
+{
+  "id": "configuration:67cb1471604eb4443e5e229479f1458d2551e01344642b8b7d7e3795b626c824",
+  "upstreamPath": "tsc/testdata/tests/cases/compiler/2dArrays.ts",
+  "configuration": {
+    "Name": "",
+    "Config": {
+      "target": "es2015"
+    }
+  },
+  "missingCapability": "ORIGINAL_COMPILER_RUNNER",
+  "upstreamSelection": {
+    "status": "SELECTED_BY_EXTENSION",
+    "policy": {
+      "assetId": "asset:fa054797c12b5ada82dc02bb70c100b92a89bdbc3ae14591ac4053565957f043",
+      "declaration": "skippedTests",
+      "line": 79
+    }
+  },
+  "status": "SKIP",
+  "reason": "UNIMPLEMENTED"
+}
