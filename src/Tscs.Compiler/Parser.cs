@@ -51,6 +51,18 @@ internal sealed class Parser(string file, List<Token> tokens)
                 continue;
             }
             var value=ParseValue();
+            if(Current.Kind==TokenKind.PlusPlus)
+            {
+                var update=Take();
+                // Line terminators are forbidden between the operand and ++.
+                // Expressions such as (x)++, a.b++, x++ + 1 and x++ as an
+                // initializer remain unsupported until their grammar is ported.
+                if(!update.LineBreak && value is ValueAtom atom && atom.Token.Kind==TokenKind.Identifier)
+                    statements.Add(new PostfixUpdate(atom.Token,update));
+                else Unsupported(update,"Only same-line identifier postfix '++' is supported yet.");
+                EndStatement();
+                continue;
+            }
             if(Eat(TokenKind.Equal))
             {
                 if(value is ValueAtom atom && atom.Token.Kind==TokenKind.Identifier)

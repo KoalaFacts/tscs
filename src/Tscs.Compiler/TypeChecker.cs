@@ -30,6 +30,17 @@ internal sealed class TypeChecker(string file)
                     else if(target.Type!=null&&assigned!=null&&!Assignable(assigned,target.Type)) Mismatch(a.Name,assigned,target.Type);
                     else target.Initialized=true;
                     break;
+                case PostfixUpdate update:
+                    var updated=Resolve(update.Name,scope);
+                    if(updated==null)break;
+                    if(!updated.Initialized)
+                        throw new CompilationFailure(Diagnostic.Error(file,update.Name,"TSCS1001","Reads before initialization are not supported yet."));
+                    if(updated.Declaration.Constant)
+                        Error(update.Name,"TS2588",$"Cannot assign to '{update.Name.Text}' because it is a constant.");
+                    else if(updated.Type!="number")
+                        throw new CompilationFailure(Diagnostic.Error(file,update.Operator,"TSCS1001","Only number postfix updates are supported yet."));
+                    else updated.Initialized=true;
+                    break;
                 case Expression e: TypeOf(e.Value,scope);break;
             }
         }

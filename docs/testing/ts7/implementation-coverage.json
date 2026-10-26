@@ -3,7 +3,7 @@
   "kind": "BOUNDED_LOCAL_GUARD_PROBES_NOT_UPSTREAM_ACCEPTANCE",
   "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
   "sourcePath": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
-  "sourceGitBlob": "9411dabea912483616be76b32d5143aa65934eea",
+  "sourceGitBlob": "31c142706d0777545fd84d04723562e070e9bc52",
   "scope": "LOCAL_GUARD_PROBES_ONLY",
   "concreteUpstreamCases": null,
   "upstreamCaseExpansion": "UNEXPANDED",
@@ -12,10 +12,10 @@
   "releaseEligible": false,
   "counts": {
     "registered": 14,
-    "implemented": 6,
+    "implemented": 7,
     "verifiedUpstream": 0,
-    "skippedUnimplemented": 8,
-    "notRun": 6,
+    "skippedUnimplemented": 7,
+    "notRun": 7,
     "fail": 0,
     "mismatch": 0,
     "crash": 0,
@@ -26,7 +26,6 @@
     "function-declarations",
     "intrinsic-globalthis",
     "object-literals",
-    "postfix-updates",
     "ts-ignore-directives"
   ],
   "byDomain": {
@@ -47,8 +46,8 @@
     },
     "parser": {
       "registered": 4,
-      "implemented": 1,
-      "skipUnimplemented": 3
+      "implemented": 2,
+      "skipUnimplemented": 2
     }
   },
   "cases": [
@@ -133,13 +132,13 @@
     {
       "id": "bootstrap:postfix-update",
       "source": "let n = 1; n++;",
-      "guardMethod": "UnsupportedSyntaxNeverSucceeds",
-      "capability": "postfix-updates",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
+      "capability": "numeric-postfix-update",
       "domain": "parser",
-      "implementation": "UNIMPLEMENTED",
-      "implementationLocation": null,
-      "status": "SKIP",
-      "reason": "UNIMPLEMENTED",
+      "implementation": "IMPLEMENTED",
+      "implementationLocation": "src/Tscs.Compiler/Parser.cs",
+      "status": "NOT_RUN",
+      "reason": null,
       "executed": false,
       "upstreamExecutableCaseId": null
     },

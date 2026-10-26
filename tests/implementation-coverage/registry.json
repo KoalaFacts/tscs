@@ -3,7 +3,7 @@
   "kind": "BOUNDED_LOCAL_GUARD_PROBES_NOT_UPSTREAM_ACCEPTANCE",
   "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
   "sourcePath": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
-  "sourceGitBlob": "9411dabea912483616be76b32d5143aa65934eea",
+  "sourceGitBlob": "31c142706d0777545fd84d04723562e070e9bc52",
   "cases": [
     {
       "id": "bootstrap:primitive-number-declaration",
@@ -74,12 +74,12 @@
     {
       "id": "bootstrap:postfix-update",
       "source": "let n = 1; n++;",
-      "guardMethod": "UnsupportedSyntaxNeverSucceeds",
-      "capability": "postfix-updates",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
+      "capability": "numeric-postfix-update",
       "domain": "parser",
-      "implementation": "UNIMPLEMENTED",
-      "skipReason": "UNIMPLEMENTED",
-      "implementationLocation": null,
+      "implementation": "IMPLEMENTED",
+      "skipReason": null,
+      "implementationLocation": "src/Tscs.Compiler/Parser.cs",
       "upstreamExecutableCaseId": null
     },
     {

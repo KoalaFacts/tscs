@@ -66,6 +66,13 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                 decodedValue = ScanString(first, out stringFlags);
             }
             else kind = first switch { '[' when jsonMode=>TokenKind.OpenBracket,']' when jsonMode=>TokenKind.CloseBracket,'-' when jsonMode=>TokenKind.Minus, '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,'+' when !jsonMode=>TokenKind.Plus,_=>TokenKind.Unsupported };
+            // Combine contiguous plus signs before the single-plus unary guard.
+            // The bootstrap admits only the identifier postfix form, never ++x.
+            if(!jsonMode && kind==TokenKind.Plus && position<text.Length && text[position]=='+')
+            { position++; kind=TokenKind.PlusPlus; }
+            if(!jsonMode && kind==TokenKind.PlusPlus &&
+               (tokens.Count==0 || tokens[^1].Kind!=TokenKind.Identifier))
+                throw Error(new(TokenKind.Unsupported,"++",begin,2,lineBreak),"TSCS1001","Only identifier postfix '++' is supported yet.");
             // The bounded binary '+' requires a preceding value. Keep unsupported
             // unary '+' fail-closed at the scanner boundary, including after a
             // recovered lexical error, so earlier diagnostics are not lost.
