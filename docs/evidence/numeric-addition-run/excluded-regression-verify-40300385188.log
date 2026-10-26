@@ -1,0 +1,301 @@
+﻿2026-10-26T09:32:47.6625950Z Current runner version: '2.338.0'
+2026-10-26T09:32:47.6654417Z ##[group]Runner Image Provisioner
+2026-10-26T09:32:47.6655249Z Hosted Compute Agent
+2026-10-26T09:32:47.6655874Z Version: 20261021.618
+2026-10-26T09:32:47.6656447Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-26T09:32:47.6657122Z Build Date: 2026-10-21T00:45:21Z
+2026-10-26T09:32:47.6657772Z Worker ID: {644c7dd8-c09f-40a0-96e8-277257a75fce}
+2026-10-26T09:32:47.6658419Z Region: centralus
+2026-10-26T09:32:47.6658980Z Cloud: Azure
+2026-10-26T09:32:47.6659449Z ##[endgroup]
+2026-10-26T09:32:47.6661125Z ##[group]Operating System
+2026-10-26T09:32:47.6661712Z Ubuntu
+2026-10-26T09:32:47.6662216Z 24.04.5
+2026-10-26T09:32:47.6662745Z LTS
+2026-10-26T09:32:47.6663231Z ##[endgroup]
+2026-10-26T09:32:47.6663748Z ##[group]Runner Image
+2026-10-26T09:32:47.6664276Z Image: ubuntu-24.04
+2026-10-26T09:32:47.6664812Z Version: 20261012.334.1
+2026-10-26T09:32:47.6666039Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-26T09:32:47.6667501Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+2026-10-26T09:32:47.6668399Z ##[endgroup]
+2026-10-26T09:32:47.6669406Z ##[group]GITHUB_TOKEN Permissions
+2026-10-26T09:32:47.6671811Z Contents: read
+2026-10-26T09:32:47.6672326Z Metadata: read
+2026-10-26T09:32:47.6672896Z ##[endgroup]
+2026-10-26T09:32:47.6675109Z Secret source: Actions
+2026-10-26T09:32:47.6676083Z Cache mode: write
+2026-10-26T09:32:47.6676725Z Prepare workflow directory
+2026-10-26T09:32:47.6975017Z Prepare all required actions
+2026-10-26T09:32:47.7008935Z Getting action download info
+2026-10-26T09:32:47.9602820Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-26T09:32:48.1551412Z Download action repository 'actions/setup-dotnet@v4' (SHA:67a3573c9a986a3f9c594539f4ab511d57bb3ce9)
+2026-10-26T09:32:48.8126444Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-10-26T09:32:49.1040881Z Download action repository 'actions/setup-go@v6' (SHA:924ae3a1cded613372ab5595356fb5720e22ba16)
+2026-10-26T09:32:50.1234505Z Complete job name: verify
+2026-10-26T09:32:50.1954792Z ##[group]Run actions/checkout@v4
+2026-10-26T09:32:50.1955336Z with:
+2026-10-26T09:32:50.1955584Z   repository: KoalaFacts/tscs
+2026-10-26T09:32:50.1957454Z   token: ***
+2026-10-26T09:32:50.1957757Z   ssh-strict: true
+2026-10-26T09:32:50.1957979Z   ssh-user: git
+2026-10-26T09:32:50.1958233Z   persist-credentials: true
+2026-10-26T09:32:50.1958487Z   clean: true
+2026-10-26T09:32:50.1958721Z   sparse-checkout-cone-mode: true
+2026-10-26T09:32:50.1959061Z   fetch-depth: 1
+2026-10-26T09:32:50.1959287Z   fetch-tags: false
+2026-10-26T09:32:50.1959538Z   show-progress: true
+2026-10-26T09:32:50.1959787Z   lfs: false
+2026-10-26T09:32:50.1960004Z   submodules: false
+2026-10-26T09:32:50.1960300Z   set-safe-directory: true
+2026-10-26T09:32:50.1960549Z   allow-unsafe-pr-checkout: false
+2026-10-26T09:32:50.1961125Z ##[endgroup]
+2026-10-26T09:32:50.2679692Z Syncing repository: KoalaFacts/tscs
+2026-10-26T09:32:50.2681434Z ##[group]Getting Git version info
+2026-10-26T09:32:50.2682042Z Working directory is '/home/runner/work/tscs/tscs'
+2026-10-26T09:32:50.2682796Z [command]/usr/bin/git version
+2026-10-26T09:32:50.2737342Z git version 2.55.0
+2026-10-26T09:32:50.2753967Z ##[endgroup]
+2026-10-26T09:32:50.2767765Z Temporarily overriding HOME='/home/runner/work/_temp/5d449d6d-fa65-49d6-ae6b-424e09b086be' before making global git config changes
+2026-10-26T09:32:50.2772652Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-26T09:32:50.2773162Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/tscs/tscs
+2026-10-26T09:32:50.3499076Z Deleting the contents of '/home/runner/work/tscs/tscs'
+2026-10-26T09:32:50.3503299Z ##[group]Initializing the repository
+2026-10-26T09:32:50.3507260Z [command]/usr/bin/git init /home/runner/work/tscs/tscs
+2026-10-26T09:32:50.3994136Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-26T09:32:50.3995082Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-26T09:32:50.3996051Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-26T09:32:50.3996521Z hint: call:
+2026-10-26T09:32:50.3997157Z hint:
+2026-10-26T09:32:50.3997503Z hint: 	git config --global init.defaultBranch <name>
+2026-10-26T09:32:50.3997795Z hint:
+2026-10-26T09:32:50.3998073Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-26T09:32:50.3998512Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-26T09:32:50.3998854Z hint:
+2026-10-26T09:32:50.3999101Z hint: 	git branch -m <name>
+2026-10-26T09:32:50.3999346Z hint:
+2026-10-26T09:32:50.3999639Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-26T09:32:50.4090032Z Initialized empty Git repository in /home/runner/work/tscs/tscs/.git/
+2026-10-26T09:32:50.4101136Z [command]/usr/bin/git remote add origin https://github.com/KoalaFacts/tscs
+2026-10-26T09:32:50.4604030Z ##[endgroup]
+2026-10-26T09:32:50.4604543Z ##[group]Disabling automatic garbage collection
+2026-10-26T09:32:50.4607894Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-26T09:32:50.5189119Z ##[endgroup]
+2026-10-26T09:32:50.5189937Z ##[group]Setting up auth
+2026-10-26T09:32:50.5195934Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-26T09:32:50.5230854Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-26T09:32:50.5548100Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-26T09:32:50.5579548Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-26T09:32:50.5792260Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-26T09:32:50.5819864Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-26T09:32:50.6025282Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-26T09:32:50.6972485Z ##[endgroup]
+2026-10-26T09:32:50.6973171Z ##[group]Fetching the repository
+2026-10-26T09:32:50.6983254Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +fa2cc42943c5ead8849fc368ece6cf1c4cb4f559:refs/remotes/pull/8/merge
+2026-10-26T09:32:51.5539678Z From https://github.com/KoalaFacts/tscs
+2026-10-26T09:32:51.5540101Z  * [new ref]         fa2cc42943c5ead8849fc368ece6cf1c4cb4f559 -> pull/8/merge
+2026-10-26T09:32:51.5543434Z ##[endgroup]
+2026-10-26T09:32:51.5543731Z ##[group]Determining the checkout info
+2026-10-26T09:32:51.5545120Z ##[endgroup]
+2026-10-26T09:32:51.5556984Z [command]/usr/bin/git sparse-checkout disable
+2026-10-26T09:32:51.5601103Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-26T09:32:51.5628307Z ##[group]Checking out the ref
+2026-10-26T09:32:51.5631305Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/8/merge
+2026-10-26T09:32:51.6110152Z Note: switching to 'refs/remotes/pull/8/merge'.
+2026-10-26T09:32:51.6110452Z 
+2026-10-26T09:32:51.6110612Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-26T09:32:51.6111100Z changes and commit them, and you can discard any commits you make in this
+2026-10-26T09:32:51.6111428Z state without impacting any branches by switching back to a branch.
+2026-10-26T09:32:51.6111622Z 
+2026-10-26T09:32:51.6111807Z If you want to create a new branch to retain commits you create, you may
+2026-10-26T09:32:51.6112107Z do so (now or later) by using -c with the switch command. Example:
+2026-10-26T09:32:51.6112503Z 
+2026-10-26T09:32:51.6112578Z   git switch -c <new-branch-name>
+2026-10-26T09:32:51.6112687Z 
+2026-10-26T09:32:51.6112776Z Or undo this operation with:
+2026-10-26T09:32:51.6112878Z 
+2026-10-26T09:32:51.6112939Z   git switch -
+2026-10-26T09:32:51.6113027Z 
+2026-10-26T09:32:51.6125613Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-26T09:32:51.6125888Z 
+2026-10-26T09:32:51.6126192Z HEAD is now at fa2cc42 Merge c2b8df2df2be2a221ad779e29b75395c46522a6c into 81f84ff40dc1e746c8f924332b5808517f467ed7
+2026-10-26T09:32:51.6127201Z ##[endgroup]
+2026-10-26T09:32:51.6166236Z [command]/usr/bin/git log -1 --format=%H
+2026-10-26T09:32:51.6189698Z fa2cc42943c5ead8849fc368ece6cf1c4cb4f559
+2026-10-26T09:32:51.6502367Z ##[group]Run actions/setup-dotnet@v4
+2026-10-26T09:32:51.6502555Z with:
+2026-10-26T09:32:51.6502691Z   global-json-file: global.json
+2026-10-26T09:32:51.6502837Z   cache: false
+2026-10-26T09:32:51.6502974Z ##[endgroup]
+2026-10-26T09:32:51.7451038Z (node:2081) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-26T09:32:51.7451733Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-26T09:32:51.7467739Z [command]/home/runner/work/_actions/actions/setup-dotnet/v4/externals/install-dotnet.sh --skip-non-versioned-files --runtime dotnet --channel LTS
+2026-10-26T09:32:52.1150509Z dotnet-install: Attempting to download using aka.ms link https://builds.dotnet.microsoft.com/dotnet/Runtime/10.0.14/dotnet-runtime-10.0.14-linux-x64.tar.gz
+2026-10-26T09:32:52.5561897Z dotnet-install: Remote file https://builds.dotnet.microsoft.com/dotnet/Runtime/10.0.14/dotnet-runtime-10.0.14-linux-x64.tar.gz size is 36673986 bytes.
+2026-10-26T09:32:52.5563430Z dotnet-install: Extracting archive from https://builds.dotnet.microsoft.com/dotnet/Runtime/10.0.14/dotnet-runtime-10.0.14-linux-x64.tar.gz
+2026-10-26T09:32:53.0631192Z dotnet-install: Downloaded file size is 36673986 bytes.
+2026-10-26T09:32:53.0631646Z dotnet-install: The remote and local file sizes are equal.
+2026-10-26T09:32:53.0981995Z dotnet-install: Installed version is 10.0.14
+2026-10-26T09:32:53.1030657Z dotnet-install: Adding to current process PATH: `/usr/share/dotnet`. Note: This change will be visible only when sourcing script.
+2026-10-26T09:32:53.1031896Z dotnet-install: Note that the script does not resolve dependencies during installation.
+2026-10-26T09:32:53.1032616Z dotnet-install: To check the list of dependencies, go to https://learn.microsoft.com/dotnet/core/install, select your operating system and check the "Dependencies" section.
+2026-10-26T09:32:53.1033172Z dotnet-install: Installation finished successfully.
+2026-10-26T09:32:53.1051865Z [command]/home/runner/work/_actions/actions/setup-dotnet/v4/externals/install-dotnet.sh --skip-non-versioned-files --version 10.0.402
+2026-10-26T09:32:53.8059345Z dotnet-install: Attempting to download using primary link https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.402/dotnet-sdk-10.0.402-linux-x64.tar.gz
+2026-10-26T09:32:57.5595813Z dotnet-install: Remote file https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.402/dotnet-sdk-10.0.402-linux-x64.tar.gz size is 240279509 bytes.
+2026-10-26T09:32:57.5596773Z dotnet-install: Extracting archive from https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.402/dotnet-sdk-10.0.402-linux-x64.tar.gz
+2026-10-26T09:33:01.0282547Z dotnet-install: Downloaded file size is 240279509 bytes.
+2026-10-26T09:33:01.0282993Z dotnet-install: The remote and local file sizes are equal.
+2026-10-26T09:33:01.6798477Z dotnet-install: Installed version is 10.0.402
+2026-10-26T09:33:01.6844215Z dotnet-install: Adding to current process PATH: `/usr/share/dotnet`. Note: This change will be visible only when sourcing script.
+2026-10-26T09:33:01.6845145Z dotnet-install: Note that the script does not resolve dependencies during installation.
+2026-10-26T09:33:01.6846137Z dotnet-install: To check the list of dependencies, go to https://learn.microsoft.com/dotnet/core/install, select your operating system and check the "Dependencies" section.
+2026-10-26T09:33:01.6847187Z dotnet-install: Installation finished successfully.
+2026-10-26T09:33:01.7016576Z ##[group]Run actions/setup-node@v4
+2026-10-26T09:33:01.7016737Z with:
+2026-10-26T09:33:01.7016852Z   node-version: 24
+2026-10-26T09:33:01.7016969Z   always-auth: false
+2026-10-26T09:33:01.7017091Z   check-latest: false
+2026-10-26T09:33:01.7018684Z   token: ***
+2026-10-26T09:33:01.7018795Z env:
+2026-10-26T09:33:01.7018908Z   DOTNET_ROOT: /usr/share/dotnet
+2026-10-26T09:33:01.7019048Z ##[endgroup]
+2026-10-26T09:33:01.7981070Z Found in cache @ /opt/hostedtoolcache/node/24.21.0/x64
+2026-10-26T09:33:01.7984004Z (node:2578) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-26T09:33:01.7984421Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-26T09:33:01.7986273Z ##[group]Environment details
+2026-10-26T09:33:02.0617603Z node: v24.21.0
+2026-10-26T09:33:02.0617876Z npm: 11.19.0
+2026-10-26T09:33:02.0618050Z yarn: 1.22.22
+2026-10-26T09:33:02.0618499Z ##[endgroup]
+2026-10-26T09:33:02.0745658Z ##[group]Run actions/setup-go@v6
+2026-10-26T09:33:02.0745824Z with:
+2026-10-26T09:33:02.0745940Z   go-version: 1.27.3
+2026-10-26T09:33:02.0746058Z   cache: false
+2026-10-26T09:33:02.0746174Z   check-latest: false
+2026-10-26T09:33:02.0747784Z   token: ***
+2026-10-26T09:33:02.0747897Z env:
+2026-10-26T09:33:02.0748010Z   DOTNET_ROOT: /usr/share/dotnet
+2026-10-26T09:33:02.0748150Z ##[endgroup]
+2026-10-26T09:33:02.1598517Z Setup go version spec 1.27.3
+2026-10-26T09:33:02.1600600Z Attempting to download 1.27.3...
+2026-10-26T09:33:02.9141345Z matching 1.27.3...
+2026-10-26T09:33:02.9157967Z Acquiring 1.27.3 from https://github.com/actions/go-versions/releases/download/1.27.3-39437817176/go-1.27.3-linux-x64.tar.gz
+2026-10-26T09:33:03.4492572Z Extracting Go...
+2026-10-26T09:33:03.4599348Z [command]/usr/bin/tar xz --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/0a88ecbe-7b89-4b27-a063-10f0926f61d8 -f /home/runner/work/_temp/503820f1-9c35-43bd-8ea4-434b66f743c8
+2026-10-26T09:33:04.7477241Z Successfully extracted go to /home/runner/work/_temp/0a88ecbe-7b89-4b27-a063-10f0926f61d8
+2026-10-26T09:33:04.7477629Z Adding to the cache ...
+2026-10-26T09:33:13.4120649Z Successfully cached go to /opt/hostedtoolcache/go/1.27.3/x64
+2026-10-26T09:33:13.4122304Z Added go to the path
+2026-10-26T09:33:13.4124168Z Successfully set up Go version 1.27.3
+2026-10-26T09:33:13.4277896Z go version go1.27.3 linux/amd64
+2026-10-26T09:33:13.4278111Z 
+2026-10-26T09:33:13.4278409Z ##[group]go env
+2026-10-26T09:33:13.5267543Z AR='ar'
+2026-10-26T09:33:13.5267817Z CC='gcc'
+2026-10-26T09:33:13.5268057Z CGO_CFLAGS='-O2 -g'
+2026-10-26T09:33:13.5268274Z CGO_CPPFLAGS=''
+2026-10-26T09:33:13.5268494Z CGO_CXXFLAGS='-O2 -g'
+2026-10-26T09:33:13.5268701Z CGO_ENABLED='1'
+2026-10-26T09:33:13.5268904Z CGO_FFLAGS='-O2 -g'
+2026-10-26T09:33:13.5269150Z CGO_LDFLAGS='-O2 -g'
+2026-10-26T09:33:13.5269332Z CXX='g++'
+2026-10-26T09:33:13.5269502Z GCCGO='gccgo'
+2026-10-26T09:33:13.5269675Z GO111MODULE=''
+2026-10-26T09:33:13.5269935Z GOAMD64='v1'
+2026-10-26T09:33:13.5270113Z GOARCH='amd64'
+2026-10-26T09:33:13.5270285Z GOAUTH='netrc'
+2026-10-26T09:33:13.5270507Z GOBIN='/home/runner/go/bin'
+2026-10-26T09:33:13.5270987Z GOCACHE='/home/runner/.cache/go-build'
+2026-10-26T09:33:13.5271222Z GOCACHEPROG=''
+2026-10-26T09:33:13.5271394Z GODEBUG=''
+2026-10-26T09:33:13.5271638Z GOENV='/home/runner/.config/go/env'
+2026-10-26T09:33:13.5271954Z GOEXE=''
+2026-10-26T09:33:13.5272126Z GOEXPERIMENT=''
+2026-10-26T09:33:13.5272301Z GOFIPS140='off'
+2026-10-26T09:33:13.5272467Z GOFLAGS=''
+2026-10-26T09:33:13.5273253Z GOGCCFLAGS='-fPIC -m64 -pthread -Wl,--no-gc-sections -fmessage-length=0 -ffile-prefix-map=/tmp/go-build2272773591=/tmp/go-build -gno-record-gcc-switches'
+2026-10-26T09:33:13.5273858Z GOHOSTARCH='amd64'
+2026-10-26T09:33:13.5274050Z GOHOSTOS='linux'
+2026-10-26T09:33:13.5274556Z GOINSECURE=''
+2026-10-26T09:33:13.5274751Z GOMOD='/dev/null'
+2026-10-26T09:33:13.5275013Z GOMODCACHE='/home/runner/go/pkg/mod'
+2026-10-26T09:33:13.5275246Z GONOPROXY=''
+2026-10-26T09:33:13.5275463Z GONOSUMDB=''
+2026-10-26T09:33:13.5275631Z GOOS='linux'
+2026-10-26T09:33:13.5275863Z GOPACKAGESDRIVER=''
+2026-10-26T09:33:13.5276080Z GOPATH='/home/runner/go'
+2026-10-26T09:33:13.5276275Z GOPRIVATE=''
+2026-10-26T09:33:13.5276566Z GOPROXY='https://proxy.golang.org,direct'
+2026-10-26T09:33:13.5276920Z GOROOT='/opt/hostedtoolcache/go/1.27.3/x64'
+2026-10-26T09:33:13.5277206Z GOSUMDB='sum.golang.org'
+2026-10-26T09:33:13.5277427Z GOTELEMETRY='local'
+2026-10-26T09:33:13.5277727Z GOTELEMETRYDIR='/home/runner/.config/go/telemetry'
+2026-10-26T09:33:13.5277990Z GOTMPDIR=''
+2026-10-26T09:33:13.5278179Z GOTOOLCHAIN='local'
+2026-10-26T09:33:13.5278545Z GOTOOLDIR='/opt/hostedtoolcache/go/1.27.3/x64/pkg/tool/linux_amd64'
+2026-10-26T09:33:13.5278846Z GOVCS=''
+2026-10-26T09:33:13.5279033Z GOVERSION='go1.27.3'
+2026-10-26T09:33:13.5279222Z GOWORK=''
+2026-10-26T09:33:13.5279423Z PKG_CONFIG='pkg-config'
+2026-10-26T09:33:13.5279552Z 
+2026-10-26T09:33:13.5279936Z ##[endgroup]
+2026-10-26T09:33:13.5448904Z ##[group]Run ./scripts/verify.sh
+2026-10-26T09:33:13.5449138Z [36;1m./scripts/verify.sh[0m
+2026-10-26T09:33:13.5660342Z shell: /usr/bin/bash -e {0}
+2026-10-26T09:33:13.5660526Z env:
+2026-10-26T09:33:13.5660659Z   DOTNET_ROOT: /usr/share/dotnet
+2026-10-26T09:33:13.5661012Z   GOTOOLCHAIN: local
+2026-10-26T09:33:13.5661140Z ##[endgroup]
+2026-10-26T09:33:14.2871534Z   Determining projects to restore...
+2026-10-26T09:33:14.6164501Z   Restored /home/runner/work/tscs/tscs/src/Tscs.Cli/Tscs.Cli.csproj (in 75 ms).
+2026-10-26T09:33:14.6207178Z   Restored /home/runner/work/tscs/tscs/src/Tscs.Compiler/Tscs.Compiler.csproj (in 2 ms).
+2026-10-26T09:33:15.8178600Z   Restored /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/Tscs.Compiler.Tests.csproj (in 1.19 sec).
+2026-10-26T09:33:15.8210036Z   Restored /home/runner/work/tscs/tscs/tools/Tscs.FixtureHarness/Tscs.FixtureHarness.csproj (in 1 ms).
+2026-10-26T09:33:17.6136742Z   Tscs.Compiler -> /home/runner/work/tscs/tscs/src/Tscs.Compiler/bin/Release/net10.0/Tscs.Compiler.dll
+2026-10-26T09:33:18.7575563Z   Tscs.Cli -> /home/runner/work/tscs/tscs/src/Tscs.Cli/bin/Release/net10.0/tscs.dll
+2026-10-26T09:33:20.1742447Z   Tscs.FixtureHarness -> /home/runner/work/tscs/tscs/tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.FixtureHarness.dll
+2026-10-26T09:33:21.7328682Z   Tscs.Compiler.Tests -> /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll
+2026-10-26T09:33:21.7442617Z 
+2026-10-26T09:33:21.7451733Z Build succeeded.
+2026-10-26T09:33:21.7452210Z     0 Warning(s)
+2026-10-26T09:33:21.7452692Z     0 Error(s)
+2026-10-26T09:33:21.7453017Z 
+2026-10-26T09:33:21.7453380Z Time Elapsed 00:00:05.74
+2026-10-26T09:33:22.3376841Z Running tests from /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+2026-10-26T09:33:25.2729197Z [31mfailed[m Tscs.Tests.StringRecoveryTests.EarlierLexicalErrorsSurviveLaterUnsupportedSyntax [90m(3ms)[m
+2026-10-26T09:33:25.2730226Z   from /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+2026-10-26T09:33:25.2731020Z [31m  Assert.Equal() Failure: Collections differ
+2026-10-26T09:33:25.2731998Z                                                                ↓ (pos 1)
+2026-10-26T09:33:25.2732463Z   Expected: string[]                                ["TS1125", "TSCS1001"]
+2026-10-26T09:33:25.2732971Z   Actual:   ArraySelectIterator<Diagnostic, string> ["TS1125"]
+2026-10-26T09:33:25.2734262Z [m[90m    at Tscs.Tests.StringRecoveryTests.EarlierLexicalErrorsSurviveLaterUnsupportedSyntax() in /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/StringRecoveryTests.cs:26[90m
+2026-10-26T09:33:25.2735382Z     at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+2026-10-26T09:33:25.2736596Z     at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+2026-10-26T09:33:26.6386043Z [m[m/home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64) [31mfailed with 1 error(s)[m [90m(4s 301ms)[m
+2026-10-26T09:33:26.6386750Z Exit code: 2
+2026-10-26T09:33:26.6424105Z 
+2026-10-26T09:33:26.6429772Z [31mTest run summary: Failed!
+2026-10-26T09:33:26.6434109Z [m  total: 15470
+2026-10-26T09:33:26.6434353Z [31m  failed: 1
+2026-10-26T09:33:26.6434563Z [m  succeeded: 15469
+2026-10-26T09:33:26.6434958Z   skipped: 0
+2026-10-26T09:33:26.6435171Z   duration: 4s 457ms
+2026-10-26T09:33:26.6435730Z Test run completed with non-success exit code: 2 (see: https://aka.ms/testingplatform/exitcodes)
+2026-10-26T09:33:26.6588920Z ##[error]Process completed with exit code 2.
+2026-10-26T09:33:26.6671474Z Post job cleanup.
+2026-10-26T09:33:26.7254072Z [command]/usr/bin/git version
+2026-10-26T09:33:26.7290375Z git version 2.55.0
+2026-10-26T09:33:26.7318961Z Temporarily overriding HOME='/home/runner/work/_temp/5be0a591-789b-4d98-aa81-935d2b07558a' before making global git config changes
+2026-10-26T09:33:26.7319609Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-26T09:33:26.7323378Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/tscs/tscs
+2026-10-26T09:33:26.7363483Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-26T09:33:26.7412531Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-26T09:33:26.7622328Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-26T09:33:26.7651017Z http.https://github.com/.extraheader
+2026-10-26T09:33:26.7661750Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-26T09:33:26.7709978Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-26T09:33:26.7923596Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-26T09:33:26.7955823Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-26T09:33:26.8274473Z Cleaning up orphan processes
+2026-10-26T09:33:26.8480938Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-dotnet@v4, actions/setup-node@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
