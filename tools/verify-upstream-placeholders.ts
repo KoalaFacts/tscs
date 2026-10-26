@@ -4,6 +4,8 @@ import {readFileSync,readdirSync,lstatSync} from 'node:fs';
 import {resolve,join,basename} from 'node:path';
 import {createHash} from 'node:crypto';
 import {pathToFileURL} from 'node:url';
+import {stableId} from './ts7-scope.ts';
+import {canonicalJson} from './fixture-corpus.ts';
 
 const pin='8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f';
 const hash=b=>createHash('sha256').update(b).digest('hex');
@@ -56,6 +58,7 @@ export function verifyPlaceholderBundle(directory,{expectedTargets=15523,expecte
   demand(t.compiler==='NOT_RUN'&&t.referenceCompiler==='NOT_RUN'&&t.acceptance==='NOT_RUN','Real compiler executions cannot be downgraded to SKIP');
   demand(Number.isInteger(t.configurationIndex)&&t.configurationIndex>=0&&t.configuration!==undefined,'Lost configuration identity');
   const c=t.configuration;demand(c===null||(object(c)&&typeof c.Name==='string'&&object(c.Config)&&Object.values(c.Config).every(x=>typeof x==='string')),'Malformed source configuration');
+  demand(t.id===stableId(t.sourceProfileId,'configuration',canonicalJson(c)),'Configuration ID does not match source profile and configuration');
   demand(object(t.upstreamSelection)&&['SELECTED_BY_EXTENSION','UPSTREAM_SKIPPED'].includes(t.upstreamSelection.status),'Missing upstream skip provenance');
   if(t.upstreamSelection.status==='UPSTREAM_SKIPPED')skipSources.add(t.sourceId);
   const previous=sourceIds.get(t.sourceId);
