@@ -21,13 +21,13 @@ internal sealed class TypeChecker(string file)
                     symbol.Type=v.Annotation??source;
                     symbol.Initialized=v.Initializer!=null;
                     if(v.Constant&&v.Initializer==null) Error(v.Name,"TS1155","'const' declarations must be initialized.");
-                    if(v.Annotation!=null&&source!=null&&source!=v.Annotation) Mismatch(v.Name,source,v.Annotation);
+                    if(v.Annotation!=null&&source!=null&&!Assignable(source,v.Annotation)) Mismatch(v.Name,source,v.Annotation);
                     break;
                 case Assignment a:
                     var target=Resolve(a.Name,scope);var assigned=TypeOf(a.Value,scope);
                     if(target==null)break;
                     if(target.Declaration.Constant) Error(a.Name,"TS2588",$"Cannot assign to '{a.Name.Text}' because it is a constant.");
-                    else if(target.Type!=null&&assigned!=null&&target.Type!=assigned) Mismatch(a.Name,assigned,target.Type);
+                    else if(target.Type!=null&&assigned!=null&&!Assignable(assigned,target.Type)) Mismatch(a.Name,assigned,target.Type);
                     else target.Initialized=true;
                     break;
                 case Expression e: TypeOf(e.Value,scope);break;
@@ -53,6 +53,8 @@ internal sealed class TypeChecker(string file)
         else if(name.Start<=symbol.Declaration.Name.Start)throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001","References before declaration are not supported yet."));
         return symbol;
     }
+    // Bounded primitive/any assignment rule, not the full TS7 type relation.
+    private static bool Assignable(string source,string target)=>source==target || source=="any" || target=="any";
     private void Mismatch(Token token,string source,string target)=>Error(token,"TS2322",$"Type '{source}' is not assignable to type '{target}'.");
     private void Error(Token token,string code,string message)=>diagnostics.Add(Diagnostic.Error(file,token,code,message));
 }

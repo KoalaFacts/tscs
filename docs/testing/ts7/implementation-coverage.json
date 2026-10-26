@@ -3,7 +3,7 @@
   "kind": "BOUNDED_LOCAL_GUARD_PROBES_NOT_UPSTREAM_ACCEPTANCE",
   "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
   "sourcePath": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
-  "sourceGitBlob": "01e6a90655aa05942b926fa709e806532defa48f",
+  "sourceGitBlob": "6d46384e898d9ccb7f445615ca448806074e34ba",
   "scope": "LOCAL_GUARD_PROBES_ONLY",
   "concreteUpstreamCases": null,
   "upstreamCaseExpansion": "UNEXPANDED",
@@ -12,10 +12,10 @@
   "releaseEligible": false,
   "counts": {
     "registered": 14,
-    "implemented": 4,
+    "implemented": 5,
     "verifiedUpstream": 0,
-    "skippedUnimplemented": 10,
-    "notRun": 4,
+    "skippedUnimplemented": 9,
+    "notRun": 5,
     "fail": 0,
     "mismatch": 0,
     "crash": 0,
@@ -23,7 +23,6 @@
     "upstreamSkipped": 0
   },
   "uniqueUnimplementedCapabilities": [
-    "any-type",
     "binary-expressions",
     "function-declarations",
     "intrinsic-globalthis",
@@ -39,8 +38,8 @@
     },
     "checker": {
       "registered": 8,
-      "implemented": 3,
-      "skipUnimplemented": 5
+      "implemented": 4,
+      "skipUnimplemented": 4
     },
     "diagnostics": {
       "registered": 1,
@@ -107,6 +106,19 @@
       "upstreamExecutableCaseId": null
     },
     {
+      "id": "bootstrap:any-annotation",
+      "source": "let n: any = 1;",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
+      "capability": "any-variable-annotation",
+      "domain": "checker",
+      "implementation": "IMPLEMENTED",
+      "implementationLocation": "src/Tscs.Compiler/TypeChecker.cs",
+      "status": "NOT_RUN",
+      "reason": null,
+      "executed": false,
+      "upstreamExecutableCaseId": null
+    },
+    {
       "id": "bootstrap:function-declaration",
       "source": "let n = 1; function f() {}",
       "guardMethod": "UnsupportedSyntaxNeverSucceeds",
@@ -151,19 +163,6 @@
       "guardMethod": "UnsupportedSyntaxNeverSucceeds",
       "capability": "ts-ignore-directives",
       "domain": "diagnostics",
-      "implementation": "UNIMPLEMENTED",
-      "implementationLocation": null,
-      "status": "SKIP",
-      "reason": "UNIMPLEMENTED",
-      "executed": false,
-      "upstreamExecutableCaseId": null
-    },
-    {
-      "id": "bootstrap:any-annotation",
-      "source": "let n: any = 1;",
-      "guardMethod": "UnsupportedSyntaxNeverSucceeds",
-      "capability": "any-type",
-      "domain": "checker",
       "implementation": "UNIMPLEMENTED",
       "implementationLocation": null,
       "status": "SKIP",

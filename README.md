@@ -24,7 +24,8 @@ for isolated compiler tests**, not a usable standard library.
 
 Supported initially: single-file `let`/`const` declarations, primitive annotations,
 primitive literal initializers, identifier references, simple assignments and
-nested lexical scopes. Integer decimal literals and quoted strings with simple escapes/line continuations are supported. Valid hexadecimal and Unicode escapes preserve UTF16 code units, including lone surrogates. Malformed hexadecimal/Unicode escapes now retain their spelling and report recoverable lexical diagnostics; unterminated strings preserve all lexical errors. Standalone NUL and identity escapes are supported; legacy octal and decimal escapes preserve decoded values while reporting TS1487/TS1488 syntax errors. This does not implement JSON-specific string validation. Compilation returns lexical errors before parser/checker work; this does not implement general parser recovery.
+nested lexical scopes. Bounded `any` variable annotations accept assignments to
+and from primitive types, without implementing the full TypeScript `any` type system. Integer decimal literals and quoted strings with simple escapes/line continuations are supported. Valid hexadecimal and Unicode escapes preserve UTF16 code units, including lone surrogates. Malformed hexadecimal/Unicode escapes now retain their spelling and report recoverable lexical diagnostics; unterminated strings preserve all lexical errors. Standalone NUL and identity escapes are supported; legacy octal and decimal escapes preserve decoded values while reporting TS1487/TS1488 syntax errors. This does not implement JSON-specific string validation. Compilation returns lexical errors before parser/checker work; this does not implement general parser recovery.
 Both `--noEmit` and `--noLib` are required. `--pretty false`, `--target es2015/es6`
 and a tscs-only `--json` diagnostic mode are available.
 
@@ -71,12 +72,12 @@ explicit `noEmit`/`noLib` isolation overrides; these are not full upstream harne
 Results go to `.artifacts/conformance.json`. A passing cohort is not a percentage
 claim about the entire TypeScript language.
 
-The most recently verified C# suite has 15,453 cases (including 764 byte-decoding, 535 directive, 151 state and 750 path and 55 file-map and 154 VFS read plus 534 accessible-entry and 1,414 option-value and 2,920 configuration-product and 36 source-configuration vectors) and uses xUnit 4.0.2 (the official package is still named
+The previous verified C# suite has 15,453 cases; the new bounded `any` slice targets 15,459 (including 764 byte-decoding, 535 directive, 151 state and 750 path and 55 file-map and 154 VFS read plus 534 accessible-entry and 1,414 option-value and 2,920 configuration-product and 36 source-configuration vectors) and uses xUnit 4.0.2 (the official package is still named
 `xunit.v3.mtp-v2`) with Microsoft.Testing.Platform 2.5.1, not VSTest.
 After building, run just this suite with:
 
 ```sh
-dotnet test --solution Tscs.slnx -c Release --no-build --no-restore -- --fail-skips on --minimum-expected-tests 15453
+dotnet test --solution Tscs.slnx -c Release --no-build --no-restore -- --fail-skips on --minimum-expected-tests 15459
 ```
 
 The .NET 10 MTP runner is selected in `global.json`. If an execution environment
@@ -84,7 +85,7 @@ cannot launch the SDK's test coordinator, the same built MTP executable can also
 be run directly, without changing permissions or disabling isolation:
 
 ```sh
-dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 15453
+dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 15459
 ```
 
 Record direct execution separately from `dotnet test`; a direct pass is not a
@@ -105,7 +106,7 @@ not used as a cross-platform reproducible-binary guarantee.
 
 ## Explicit implementation SKIPs (separate from internal tests)
 
-The [bounded implementation register](docs/testing/ts7/implementation-coverage.json) marks ten **already existing** local guard inputs as `SKIP / UNIMPLEMENTED` and four positive inputs as `IMPLEMENTED / upstream NOT_RUN`. The guard tests still execute; their passing rejection assertions do not mean the missing TypeScript features work. An independent CI check binds this report to its exact source inputs and rejects unexpected skips, while the xUnit fail-skips gate remains active. This is a starter catalogue, **not the full upstream completion percentage or a release waiver**. [Details](docs/progress/implementation-coverage.md).
+The [bounded implementation register](docs/testing/ts7/implementation-coverage.json) marks nine **already existing** local guard inputs as `SKIP / UNIMPLEMENTED` and five positive inputs as `IMPLEMENTED / upstream NOT_RUN`. The guard tests still execute; their passing rejection assertions do not mean the missing TypeScript features work. An independent CI check binds this report to its exact source inputs and rejects unexpected skips, while the xUnit fail-skips gate remains active. This is a starter catalogue, **not the full upstream completion percentage or a release waiver**. [Details](docs/progress/implementation-coverage.md).
 
 ## Pinned TS7 test-scope inventory
 

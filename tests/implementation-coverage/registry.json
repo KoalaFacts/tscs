@@ -3,7 +3,7 @@
   "kind": "BOUNDED_LOCAL_GUARD_PROBES_NOT_UPSTREAM_ACCEPTANCE",
   "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
   "sourcePath": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
-  "sourceGitBlob": "01e6a90655aa05942b926fa709e806532defa48f",
+  "sourceGitBlob": "6d46384e898d9ccb7f445615ca448806074e34ba",
   "cases": [
     {
       "id": "bootstrap:primitive-number-declaration",
@@ -50,6 +50,17 @@
       "upstreamExecutableCaseId": null
     },
     {
+      "id": "bootstrap:any-annotation",
+      "source": "let n: any = 1;",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
+      "capability": "any-variable-annotation",
+      "domain": "checker",
+      "implementation": "IMPLEMENTED",
+      "skipReason": null,
+      "implementationLocation": "src/Tscs.Compiler/TypeChecker.cs",
+      "upstreamExecutableCaseId": null
+    },
+    {
       "id": "bootstrap:function-declaration",
       "source": "let n = 1; function f() {}",
       "guardMethod": "UnsupportedSyntaxNeverSucceeds",
@@ -88,17 +99,6 @@
       "guardMethod": "UnsupportedSyntaxNeverSucceeds",
       "capability": "ts-ignore-directives",
       "domain": "diagnostics",
-      "implementation": "UNIMPLEMENTED",
-      "skipReason": "UNIMPLEMENTED",
-      "implementationLocation": null,
-      "upstreamExecutableCaseId": null
-    },
-    {
-      "id": "bootstrap:any-annotation",
-      "source": "let n: any = 1;",
-      "guardMethod": "UnsupportedSyntaxNeverSucceeds",
-      "capability": "any-type",
-      "domain": "checker",
       "implementation": "UNIMPLEMENTED",
       "skipReason": "UNIMPLEMENTED",
       "implementationLocation": null,

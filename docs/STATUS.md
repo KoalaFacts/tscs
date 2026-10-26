@@ -20,6 +20,13 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Bounded `any` variable annotations — 2026-10-26
+
+- Added a bounded parser/type-checker rule for variable `any` annotations; primitive assignment accepts `any` in either direction, while `const` reassignment stays TS2588. This is not full `any`/functions/generics support.
+- Hosted TDD RED on `6e2d446` had 15,459 tests, seven actual new `any` failures (TSCS1001), 15,452 success, zero skipped; both verify jobs failed as expected. New GREEN requires a distinct exact-head CI check.
+- One stable local guard probe (`bootstrap:any-annotation`) moved from SKIP/UNIMPLEMENTED to IMPLEMENTED/NOT_RUN; bounded local catalogue now **5 implemented, 9 SKIP** (14 local probes), with no original upstream compiler credit. Frozen upstream case denominator stays unknown, release=false.
+
+
 ## Rooted path and network diagnostic follow-up — 2026-10-26
 
 - The pinned compiler-option map now dispatches the 15 previously unsupported

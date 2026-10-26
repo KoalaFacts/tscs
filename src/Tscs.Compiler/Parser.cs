@@ -32,7 +32,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                     Take(); string? annotation=null;
                     if(Eat(TokenKind.Colon))
                     {
-                        if(Current.Kind!=TokenKind.Identifier || Current.Text is not ("number" or "string" or "boolean")) Unsupported(Current,"Only primitive type annotations are supported.");
+                        if(Current.Kind!=TokenKind.Identifier || Current.Text is not ("number" or "string" or "boolean" or "any")) Unsupported(Current,"Only primitive type annotations are supported.");
                         annotation=Take().Text;
                     }
                     Token? initializer=Eat(TokenKind.Equal)?ParseValue():null;
