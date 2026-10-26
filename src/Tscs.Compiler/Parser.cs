@@ -74,8 +74,8 @@ internal sealed class Parser(string file, List<Token> tokens)
         }
         return new Block(statements);
     }
-    // Bounded numeric arithmetic: unary '-' binds more tightly than '*',
-    // which binds more tightly than additive '+'/'-'. No other unary form,
+    // Bounded numeric arithmetic: unary '+'/'-' bind more tightly than '*',
+    // which binds more tightly than additive '+'/'-'. Other unary forms,
     // exponentiation or nonnumeric arithmetic is claimed as supported.
     private ValueNode ParseValue()
     {
@@ -100,9 +100,9 @@ internal sealed class Parser(string file, List<Token> tokens)
     private ValueNode ParseUnary()
     {
         // Avoid recursive parsing on input such as 20,000 whitespace-separated
-        // prefix '-' operators; the TypeChecker also evaluates this iteratively.
+        // prefix '+'/'-' operators; the TypeChecker also evaluates iteratively.
         var prefixes=new List<Token>();
-        while(Current.Kind==TokenKind.Minus)prefixes.Add(Take());
+        while(Current.Kind is TokenKind.Minus or TokenKind.Plus)prefixes.Add(Take());
         ValueNode value=ParsePrimary();
         for(int i=prefixes.Count-1;i>=0;i--)value=new ValueUnary(prefixes[i],value);
         return value;

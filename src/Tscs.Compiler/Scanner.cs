@@ -91,19 +91,13 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
             { position++; kind=TokenKind.MinusMinus; }
             if(!jsonMode && kind==TokenKind.MinusMinus)
                 throw Error(new(TokenKind.Unsupported,"--",begin,2,lineBreak),"TSCS1001","Decrement '--' is not supported yet.");
-            // Combine contiguous plus signs before the single-plus unary guard.
-            // The bootstrap admits only the identifier postfix form, never ++x.
+            // Keep the lexical distinction between a single '+' (unary or
+            // binary, according to the parser) and the unsupported prefix '++'.
             if(!jsonMode && kind==TokenKind.Plus && position<text.Length && text[position]=='+')
             { position++; kind=TokenKind.PlusPlus; }
             if(!jsonMode && kind==TokenKind.PlusPlus &&
                (tokens.Count==0 || tokens[^1].Kind!=TokenKind.Identifier))
                 throw Error(new(TokenKind.Unsupported,"++",begin,2,lineBreak),"TSCS1001","Only identifier postfix '++' is supported yet.");
-            // The bounded binary '+' requires a preceding value. Keep unsupported
-            // unary '+' fail-closed at the scanner boundary, including after a
-            // recovered lexical error, so earlier diagnostics are not lost.
-            if(!jsonMode && kind==TokenKind.Plus &&
-               (tokens.Count==0 || tokens[^1].Kind is TokenKind.Semi or TokenKind.Equal or TokenKind.Colon or TokenKind.Comma or TokenKind.Plus or TokenKind.Open or TokenKind.Let or TokenKind.Const))
-                throw Error(new(TokenKind.Unsupported,"+",begin,1,lineBreak),"TSCS1001","Unary '+' expressions are not supported yet.");
             var token = new Token(kind,text[begin..position],begin,position-begin,lineBreak,decodedValue,stringFlags);
             if (kind == TokenKind.Unsupported) throw Error(token,"TSCS1001",$"Unsupported syntax '{token.Text}'.");
             tokens.Add(token);DiagnosticCounts.Add(Diagnostics.Count);

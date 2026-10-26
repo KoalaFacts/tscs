@@ -74,7 +74,10 @@ internal sealed class TypeChecker(string file)
                 var operand=types.Pop();
                 if(operand==null)types.Push(null);
                 else if(operand=="number")types.Push("number");
-                else throw new CompilationFailure(Diagnostic.Error(file,unary.Operator,"TSCS1001","Only numeric unary minus is supported yet."));
+                else throw new CompilationFailure(Diagnostic.Error(file,unary.Operator,"TSCS1001",
+                    unary.Operator.Kind==TokenKind.Plus
+                        ? "Only numeric unary plus is supported yet."
+                        : "Only numeric unary minus is supported yet."));
                 continue;
             }
             var binary=(ValueBinary)node;
