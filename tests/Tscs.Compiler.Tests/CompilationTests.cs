@@ -8,6 +8,7 @@ public class CompilationTests
     [InlineData("const s: string = \"ok\";")]
     [InlineData("let b: boolean = true;")]
     [InlineData("let x: number = 1; { let x: string = \"ok\"; } x = 2;")]
+    [InlineData("let n: any = 1;")]
     public void ValidPrimitiveCodeHasNoErrors(string source) => Assert.Empty(Compilation.Check("test.ts", source));
     [Theory]
     [InlineData("let n: number = \"x\";", "TS2322", 4, 1)]
@@ -27,9 +28,22 @@ public class CompilationTests
     [InlineData("let n = 1; n++;")]
     [InlineData("let n = 1 + 2;")]
     [InlineData("// @ts-ignore\nlet n: number = \"x\";")]
-    [InlineData("let n: any = 1;")]
     [InlineData("const a = { x: 1 };")]
     public void UnsupportedSyntaxNeverSucceeds(string source) => Assert.Contains(Compilation.Check("test.ts",source),d=>d.Code=="TSCS1001");
+
+    [Theory]
+    [InlineData("let n: any = 1; n = \"x\";")]
+    [InlineData("let n: any = \"x\"; n = false;")]
+    [InlineData("let n: any = 1; let s: string = n;")]
+    [InlineData("let n: number = 1; let a: any = n;")]
+    [InlineData("let n: any = 1; let b: boolean = n;")]
+    public void BoundedAnyVariableAssignmentsAreAssignable(string source) =>
+        Assert.Empty(Compilation.Check("test.ts", source));
+
+    [Fact]
+    public void AnyAnnotatedConstantStillCannotBeReassigned() =>
+        Assert.Equal("TS2588", Assert.Single(Compilation.Check("test.ts", "const n: any = 1; n = 2;")).Code);
+
 }
 
 public class ParserBoundaryTests
