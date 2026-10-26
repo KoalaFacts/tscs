@@ -3,6 +3,18 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Primitive-element config lists — 2026-10-26
+
+- Added bounded list option conversion through the product scalar converter:
+  element diagnostics, actual element declaration names, null/nil/empty lists,
+  ordered filtering and moduleSuffixes preserve-falsy behavior.
+- Actual private Go:4 supported lists of126 retained declarations ×20 inputs
+  ×2 contexts =160 rows, including108 diagnostic-bearing and52 clean value
+  outcomes. All144 TS5024 diagnostics and their UTF16 spans retained.
+- RED160fail/13946pass ->14106/14106; Node89/89, frozen29/29.
+  [Scope/evidence](progress/json-list-options.md). No new CLI option or full
+  config-host/compiler acceptance; historical profiles keep original bindings.
+
 ## Primitive config option conversion — 2026-10-26
 
 - Added actual convertJsonOption primitive/object conversion for declarations

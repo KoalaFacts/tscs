@@ -324,3 +324,8 @@ runs3000 actual-Go conversion cases across100 declarations; all126 are retained
 in its inventory and26 path/locale/list/enum branches are explicitly outside this
 slice. This is not effective options or original compiler acceptance. CLI boolean
 errors now use config diagnostics, retaining the bootstrap runtime limitations.
+
+The [primitive-element list slice](../../progress/json-list-options.md) adds160
+actual-Go list conversions for types/moduleSuffixes/customConditions/plugins.
+All126 declarations remain registered, with122 outside this bounded list branch.
+No new CLI option support or original compiler acceptance is claimed.
