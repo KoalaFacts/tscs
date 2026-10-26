@@ -329,3 +329,8 @@ The [primitive-element list slice](../../progress/json-list-options.md) adds160
 actual-Go list conversions for types/moduleSuffixes/customConditions/plugins.
 All126 declarations remain registered, with122 outside this bounded list branch.
 No new CLI option support or original compiler acceptance is claimed.
+
+The [enum option slice](../../progress/json-enum-options.md) executes324 actual-Go
+conversions, using six production-embedded maps with pinned Unicode lowercase.
+All126 declarations remain inventoried. This adds CLI target error diagnostics,
+not new target/compiler capability or effective config/host acceptance.

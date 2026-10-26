@@ -3,6 +3,18 @@
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
 
+## Enum config options — 2026-10-26
+
+- Added actual six enum maps/deprecated keys and product conversion: nullable/
+  empty string, pinned Go lowercase, valid values and TS5024/TS6046 diagnostics.
+  Native enum integers explicitly project to numeric config values.
+- Actual Go private converter324 rows across6 enum declarations, all126 retained.
+  Includes every real key/uppercase key, deprecated acceptance and ordered error
+  suggestions. CLI target invalid values now report syntax/config exit2; other
+  valid targets remain bootstrap unsupported, with no new emit/target capability.
+- RED300fail/14130pass, plus CLI RED302fail/14130pass ->14432/14432;
+  [scope/evidence](progress/json-enum-options.md). Full original acceptance NOT_RUN.
+
 ## Primitive-element config lists — 2026-10-26
 
 - Added bounded list option conversion through the product scalar converter:

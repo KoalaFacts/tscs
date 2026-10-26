@@ -72,7 +72,12 @@ internal sealed class Options
                         {
                             case "noEmit":noEmit=Boolean("noEmit",option.Value,file,text);break;
                             case "noLib":noLib=Boolean("noLib",option.Value,file,text);break;
-                            case "target":if(option.Value.Kind!="String")throw new InputFailure("target must be a string.");ValidateTarget(JsonConfigValues.Convert(option.Value).Text);break;
+                            case "target":
+                                var target=JsonEnumOptions.Convert(JsonEnumOptions.Declarations["target"],JsonConfigValues.Convert(option.Value),file,expression:option.Value.Token);
+                                if(target.Diagnostics.Count>0)throw new ConfigSyntaxFailure(text,target.Diagnostics);
+                                // Valid upstream targets beyond the bootstrap remain unsupported.
+                                if(target.Value.Kind=="Number"&&target.Value.Number==2)break;
+                                throw new InputFailure("Only target es2015/es6 is supported by the bootstrap.");
                             default:throw new InputFailure($"Unsupported compiler option '{(option.Name.Token.Value??option.Name.Token.Text)}'.");
                         }
                     }

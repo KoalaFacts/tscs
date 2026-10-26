@@ -94,6 +94,17 @@ public class CommandLineTests : IDisposable
         var result=Run(new[]{"-p",project}.Concat(flags.Split(' ',StringSplitOptions.RemoveEmptyEntries)).ToArray());
         Assert.Equal(1,result.Code);Assert.Contains("bootstrap requires",result.Out);
     }
+    [Theory]
+    [InlineData("\"bogus\"")]
+    [InlineData("0")]
+    public void InvalidConfigTargetMatchesActualPinnedEnumDiagnostic(string literal)
+    {
+        using var golden=System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,"TestData/json-enum-options.json")));
+        var row=golden.RootElement.GetProperty("vectors").EnumerateArray().Single(r=>r.GetProperty("option").GetProperty("name").GetString()=="target"&&r.GetProperty("literal").GetString()==literal&&r.GetProperty("located").GetBoolean());
+        var result=Run("--json","-p",Write("tsconfig.json",row.GetProperty("source").GetString()!));Assert.Equal(2,result.Code);
+        using var output=System.Text.Json.JsonDocument.Parse(result.Out);var actual=Assert.Single(output.RootElement.GetProperty("diagnostics").EnumerateArray());var expected=Assert.Single(row.GetProperty("diagnostics").EnumerateArray());
+        foreach(var key in new[]{"code","message","start","length"})Assert.Equal(expected.GetProperty(key).ToString(),actual.GetProperty(key).ToString());
+    }
     [Fact]
     public void ProjectUsesProductJsonStringDecoding()
     {

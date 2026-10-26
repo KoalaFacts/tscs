@@ -1,0 +1,209 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "upstreamVersion": "7.1.0-dev",
+  "baseCommit": "e2429b0463c896629d1be36753fb1a5950a6597f",
+  "reviewedImplementationCommit": "41bcf35e22cabfbee940287f842e9016f13c5fb6",
+  "profile": "convertJsonOption/enum/compiler-only-and-source-node",
+  "counts": {
+    "declarationsRetained": 126,
+    "supportedEnums": 6,
+    "outsideProfile": 120,
+    "executedHelperCases": 324,
+    "matched": 324,
+    "valueOutcomes": 206,
+    "TS5024": 48,
+    "TS6046": 70,
+    "stubRed": {
+      "fail": 300,
+      "pass": 14130
+    },
+    "cliRed": {
+      "fail": 302,
+      "pass": 14130
+    },
+    "directMtp": {
+      "pass": 14432,
+      "fail": 0,
+      "skip": 0
+    },
+    "node": 89,
+    "frozen": 29
+  },
+  "golden": {
+    "path": "tests/Tscs.Compiler.Tests/TestData/json-enum-options.json",
+    "bytes": 597737,
+    "sha256": "d69ee9d52075167873eef8dc32b4fd8626a05f94d7567b92b4dfd45cc65cb427"
+  },
+  "sourceHashes": {
+    "src/Tscs.Compiler/JsonEnumOptions.cs": "e41a869613986cd8ad27168216c031c6836b018b38364358e6a850c6a6d1ba5a",
+    "src/Tscs.Compiler/PinnedEnumLowercase.cs": "2418b8ad982bdc13625c3af7454f9313746739f3a9d4060ed0a90fea6bed9635",
+    "src/Tscs.Compiler/json-enum-declarations.json": "0abcf5e7b1e9c38f777c3ca08746ade272180b57650b7d68a2eefb51111c22a8",
+    "src/Tscs.Compiler/Tscs.Compiler.csproj": "9720f08a1780170a43ea5ee55e0eb1b05eb5ba35902aa195973dfb9c69df1098",
+    "src/Tscs.Compiler/JsonCompilerOptionTypes.cs": "7c795eba7e7a6dd305d229c7bcaccdddc08aa0bc49eaaaee35782faa33d508e0",
+    "src/Tscs.Compiler/JsonConfigValues.cs": "1f8f67746cb0db46d07314c0a3b72479e41b02eb25c17d11ff7cce91af44dc86",
+    "src/Tscs.Compiler/JsonSyntax.cs": "f4023d9a1911d29bfa2af41aeda41b76788eb531daa067b1d345f1c80a4ee95a",
+    "src/Tscs.Cli/Options.cs": "9f9aa1bbfb96a78de1db33a1f2ea31afb6a06ffa5daa71f9de7f1bc1e4ebd8da",
+    "tests/Tscs.Compiler.Tests/JsonEnumOptionTests.cs": "e25eed52f368fe7aeb520b91b5ae741de4b4b75015fa0a7e91b6bb593bce3b80",
+    "tests/Tscs.Compiler.Tests/CommandLineTests.cs": "59597e4270983f6d033de5cb72062d1c7d7fda0e5013331d3e465559aba5f209",
+    "tests/Tscs.Compiler.Tests/Tscs.Compiler.Tests.csproj": "41c656a16420ccab2ce5617f488dc35e1cead31c18f3c5a93f7254b93c09020e",
+    "tools/generate-json-enum-options.ts": "ab6cff0877ca87104c5e99635fae34b6477b0367cbb981ffccc5c58f799c371b",
+    "tools/fixture-harness/json_enum_options_oracle_test.go": "b0f1aa1edc154bef0bf9e42ee92252b98b89e6a00dce995bc0805d770113eaa7",
+    "tools/fixture-harness/config_values_oracle_test.go": "f8b81a281d3151f37c0bd29396cb421c13dc9196670658c86ea5032fb814938a",
+    "tools/fixture-harness/go-lowercase.json": "1dfb6b7429ec7ead9adc38f1623f519d843ea6ed13d736361897061d174cc6eb",
+    "upstream.lock.json": "10a729f8b1e5674995cec0346a31f3642788901070a1c343084efcffd2080b2e",
+    "global.json": "6cac8ed8559756539f2db0e8cbf6d545ccc81d3d4b1ebbfcf3ee204d218847b4"
+  },
+  "referenceHashes": {
+    "tsc/internal/tsoptions/tsconfigparsing.go": "2f42a124c6d16054a263cd8b34a23dc188421f5db69923d52e56886d349f0c71",
+    "tsc/internal/tsoptions/commandlineoption.go": "3c15653631c1cb32e54e40ca0d8b4e336635f551a9f206851e69228efb060d1e",
+    "tsc/internal/tsoptions/declarations_generated.go": "8f414711280dc2e88abdb480bf6d823beae435eedb9161199fdf3b08a3ea33ff",
+    "tsc/internal/tsoptions/errors.go": "f63da5973b822776dfce424105e4f4adbcbde73cca9d7cb60badac17bd6879cc",
+    "tsc/internal/parser/parser.go": "18fbeb9644a2c642d2757188107f2a802e8084cf1ed56a24c78bab1933328c2e",
+    "tsc/internal/tsoptions/commandlineparser.go": "29a0cfc62b22526b641ed5e50620746234fee93c460755bb1762428c9acac202"
+  },
+  "rawArtifacts": {
+    "docs/evidence/json-enum-options-run/cli-red-build.log": {
+      "bytes": 545,
+      "sha256": "8570a0e00e8e14feac0568003282f7eb076183f54534f505d407d5b2a828cd2f"
+    },
+    "docs/evidence/json-enum-options-run/cli-red.log": {
+      "bytes": 207686,
+      "sha256": "b40ea5baedf3fc8271e5cee5622fea3ade4a3d145d7b279254fc667fe544111a"
+    },
+    "docs/evidence/json-enum-options-run/excluded-resource-missing.log": {
+      "bytes": 416668,
+      "sha256": "546e4c5c8e8379f9f900e1fcb237ca6846691c36df04374a92ce2c814383e8cd"
+    },
+    "docs/evidence/json-enum-options-run/final-build.log": {
+      "bytes": 545,
+      "sha256": "44cb955b953ac8873027047c846457534c203a17e81858a997aa165d51a633c6"
+    },
+    "docs/evidence/json-enum-options-run/final-frozen.log": {
+      "bytes": 81,
+      "sha256": "441c7bad381ac65cb1890aaf8424ec7b8999b55ef7574e9836a3516c151bc4b9"
+    },
+    "docs/evidence/json-enum-options-run/final-node.log": {
+      "bytes": 7532,
+      "sha256": "0cfb73fe22c554d88cf14bb883bb8aa9601074393009838259d9d184cc4d2109"
+    },
+    "docs/evidence/json-enum-options-run/frozen.log": {
+      "bytes": 81,
+      "sha256": "441c7bad381ac65cb1890aaf8424ec7b8999b55ef7574e9836a3516c151bc4b9"
+    },
+    "docs/evidence/json-enum-options-run/generate-final.log": {
+      "bytes": 49,
+      "sha256": "692edfd19696df26f140e7693dbc39f69d3fc6a6b05ac26051a7a79a880b14eb"
+    },
+    "docs/evidence/json-enum-options-run/generate.log": {
+      "bytes": 49,
+      "sha256": "692edfd19696df26f140e7693dbc39f69d3fc6a6b05ac26051a7a79a880b14eb"
+    },
+    "docs/evidence/json-enum-options-run/go-final.log": {
+      "bytes": 67,
+      "sha256": "c2ff327979e402778023460be943369a5f33fecf1825498ce01a613f0c6b2d9d"
+    },
+    "docs/evidence/json-enum-options-run/go-repeat.log": {
+      "bytes": 67,
+      "sha256": "ebe5c8204eaf55846e5b15ed86b1fe70bc8185a4ca7d09ce3b8e968762c61f44"
+    },
+    "docs/evidence/json-enum-options-run/go.log": {
+      "bytes": 67,
+      "sha256": "4bc0d11ead31ffda2f5ec00da29763c119194a3a8b08559fd92985c6f79bd072"
+    },
+    "docs/evidence/json-enum-options-run/green-build.log": {
+      "bytes": 545,
+      "sha256": "c3bb346c0c5881fda7f8f5ee5f4522e70e62f345e79b455256c3585d00e7f72b"
+    },
+    "docs/evidence/json-enum-options-run/green.log": {
+      "bytes": 230,
+      "sha256": "b264d5c8c230c590841d19c54c8bdc7a9d03b477b8f489f97db04b6bfd8d0389"
+    },
+    "docs/evidence/json-enum-options-run/independent-build.log": {
+      "bytes": 545,
+      "sha256": "d9ddecb7be3afd660e3beef3c27ed578a0b78179763a0f2bc40244d8eba98966"
+    },
+    "docs/evidence/json-enum-options-run/independent-cli-boundary.json": {
+      "bytes": 1644,
+      "sha256": "ac076e4aee6e5dbdc60e8b2d0d52e105ac6155db0937136f1076acc8a76b4b7e"
+    },
+    "docs/evidence/json-enum-options-run/independent-go.log": {
+      "bytes": 67,
+      "sha256": "c2ff327979e402778023460be943369a5f33fecf1825498ce01a613f0c6b2d9d"
+    },
+    "docs/evidence/json-enum-options-run/independent-review-receipt.json": {
+      "bytes": 1208,
+      "sha256": "2803657704e00b587620c02a84795929f50cfce90e1f3aae81f8c1bb77d83892"
+    },
+    "docs/evidence/json-enum-options-run/independent-tests.log": {
+      "bytes": 230,
+      "sha256": "aee55903db4d611aac5bde77a965da2fe21f69c340b4d078eeea9e5495a39730"
+    },
+    "docs/evidence/json-enum-options-run/node.log": {
+      "bytes": 7535,
+      "sha256": "90630593ac6c678cd0b94f0f9b163ede8c36eef6a7507892f61f110bcd96cf7f"
+    },
+    "docs/evidence/json-enum-options-run/red-build.log": {
+      "bytes": 545,
+      "sha256": "885c557dfad5635892a805f89cc41c9dab8a4301ec8beb64aa37a8bfbf6472d5"
+    },
+    "docs/evidence/json-enum-options-run/red.log": {
+      "bytes": 206456,
+      "sha256": "c0778a63db17967bf170cb4365e0b91a9116d37736b3030902cf95f500df9a9f"
+    },
+    "docs/evidence/json-enum-options-run/repeat.log": {
+      "bytes": 49,
+      "sha256": "692edfd19696df26f140e7693dbc39f69d3fc6a6b05ac26051a7a79a880b14eb"
+    }
+  },
+  "commands": {
+    "oracle": "node tools/generate-json-enum-options.ts .artifacts/ts7-upstream tests/Tscs.Compiler.Tests/TestData/json-enum-options.json src/Tscs.Compiler/json-enum-declarations.json",
+    "build": "dotnet build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false",
+    "mtp": "dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 14432",
+    "node": "node --test tools/*.test.ts",
+    "frozen": "node tools/verify-conformance.ts"
+  },
+  "tools": {
+    "go": "go version go1.27.3 linux/amd64",
+    "sdk": "10.0.402",
+    "runtime": "10.0.13",
+    "node": "24.22.1",
+    "xunit": "4.0.2",
+    "mtp": "2.5.1",
+    "telemetry": "go env confirmed off; DOTNET_CLI_TELEMETRY_OPTOUT=1",
+    "offline": "GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local; no-restore builds"
+  },
+  "excludedOrHistorical": [
+    "Resource omission failure326 retained; not successful feature verification or stub RED",
+    "Initial RED generator metadata predates optional production-output argument; final data binds final generator",
+    "Node/frozen prior resource repair retained as historical; final-* logs establish final verification"
+  ],
+  "limits": [
+    "Native Go enum integers explicitly projected to Number config model",
+    "All six real maps use ASCII keys; malformed surrogate lookup cannot match; no generic WTF8 lower equivalence claim",
+    "No enum-list/paths/locale/notifier/config-host/effective-options implementation",
+    "Config target error diagnostics only, valid upstream targets beyond es6/es2015 remain unsupported; command-line --target unchanged",
+    "No full13006/172/source/VFS profile rerun; original bindings retained",
+    "SDK coordinator/wholeverify.sh NOT_RUN; original compiler/referenceCompiler/acceptance NOT_RUN",
+    "All domains/seven reference fatals/unknown denominator retained"
+  ],
+  "concreteCases": null,
+  "releaseEligible": false,
+  "independentReview": {
+    "critical": 0,
+    "important": 0,
+    "minor": 0,
+    "goldenAndProductionDeclarationsByteIdentical": true,
+    "serialBuildWarnings": 0,
+    "serialBuildErrors": 0,
+    "mtpPassed": 14432,
+    "mtpFailed": 0,
+    "mtpSkipped": 0,
+    "cliBoundary": "es6/ES2015 exit0; es2025/esnext/null/empty exit1",
+    "limits": "No independent RED/Node/frozen rerun; author documentation/minimum updates outside reviewed implementation head; no second/formal GitHub approval"
+  },
+  "assemblies": {
+    "tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll": "00bb154a695ac5ec964dd12fb49275cdfe61fba9e19f2f8a329280823ff9428f",
+    "src/Tscs.Compiler/bin/Release/net10.0/Tscs.Compiler.dll": "3858d39a92972bcfd36480db1230bb172ff4e5ed308710777e4455fe6cc3504f",
+    "src/Tscs.Cli/bin/Release/net10.0/tscs.dll": "89de83b3f2f70bbf2583f3e9bbb81d29715f42644d7b0da6559a165269ac16b5"
+  }
+}

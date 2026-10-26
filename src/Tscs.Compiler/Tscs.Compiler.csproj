@@ -1,1 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk" />
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <EmbeddedResource Include="../../tools/fixture-harness/go-lowercase.json" LogicalName="Tscs.EnumLowercase" />
+    <EmbeddedResource Include="json-enum-declarations.json" LogicalName="Tscs.EnumDeclarations" />
+  </ItemGroup>
+</Project>

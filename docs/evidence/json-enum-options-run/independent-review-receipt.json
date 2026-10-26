@@ -1,0 +1,44 @@
+{
+  "base": "e2429b0463c896629d1be36753fb1a5950a6597f",
+  "head": "41bcf35e22cabfbee940287f842e9016f13c5fb6",
+  "findings": {
+    "critical": [],
+    "important": [],
+    "minor": []
+  },
+  "oracle": {
+    "declarations": 126,
+    "supported": 6,
+    "vectors": 324,
+    "goldenByteIdentical": true,
+    "declarationsByteIdentical": true
+  },
+  "releaseBuild": {
+    "exitCode": 0,
+    "warnings": 0,
+    "errors": 0
+  },
+  "mtp": {
+    "exitCode": 0,
+    "passed": 14432,
+    "failed": 0,
+    "skipped": 0
+  },
+  "manualCliBoundary": {
+    "es6": 0,
+    "ES2015": 0,
+    "es2025": 1,
+    "esnext": 1,
+    "null": 1,
+    "empty": 1
+  },
+  "limits": [
+    "No Node/frozen suite rerun in independent review; author reports those separately.",
+    "Historical RED executions reviewed by supplied provenance, not recreated.",
+    "Concurrent author README/status/testing-docs/verify.sh edits outside reviewed head were not reviewed."
+  ],
+  "sha256": {
+    "tests/Tscs.Compiler.Tests/TestData/json-enum-options.json": "d69ee9d52075167873eef8dc32b4fd8626a05f94d7567b92b4dfd45cc65cb427",
+    "src/Tscs.Compiler/json-enum-declarations.json": "0abcf5e7b1e9c38f777c3ca08746ade272180b57650b7d68a2eefb51111c22a8"
+  }
+}
