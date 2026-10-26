@@ -22,3 +22,22 @@ bootstrap accepts only explicitly supplied empty global interfaces. Type identit
 module resolution, declaration merging, full Unicode identifier support, full
 numeric/string syntax and all checker branches require further upstream porting.
 Unsupported behavior cannot be interpreted as a conformance pass.
+
+## Shared global-script compilation (2026-10-27; PR #8)
+
+The C# compiler now routes both one-file and multiple-file inputs through
+`Compilation.AnalyzeFiles`: lex and parse separate source texts into
+file-identified ASTs, prebind top-level `let`/`const` symbols from every
+script, then check primitive expressions using a common global scope.
+Symbol records carry their declaring file, preventing UTF-16 offsets from
+unrelated files being mistaken for same-file forward references. The CLI
+accepts multiple noEmit/noLib `.ts` files or the corresponding tsconfig
+`files` array and formats each diagnostic against its owning source.
+
+This is a bounded global-script path, not complete TS7 program semantics.
+Cross-file types are prebound only for explicit primitive/any annotations
+or primitive literals. Unsupported complex inferred types, imports,
+module linking, declaration merging, standard libraries, and general
+JavaScript emission are not silently accepted. It creates the dependency
+for later CompilerHost/VFS, module resolution and multi-file emit work.
+No full original upstream configuration target has yet been accepted.

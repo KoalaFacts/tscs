@@ -67,8 +67,12 @@ TS5024 type errors / TS6266 command-line-only restrictions. Its CLI integration
 currently covers noEmit/noLib booleans, including null defaults and CLI overrides;
 other option types, paths, lists, enums and the config host remain incomplete.
 
-Exactly one non-declaration `.ts` file is supported, with optional minimal global
-`.d.ts` files. Those files may only contain the empty global interfaces shown in the example.
+One or more non-declaration `.ts` **global script** files are supported under
+`--noEmit --noLib`, with optional minimal global `.d.ts` files. Primitive
+top-level symbols can be referenced across files independently of input
+order. Complex cross-file inference and module linking still fail closed;
+this is not general TypeScript project compilation. Ambient files remain
+limited to the empty global interfaces shown in the example.
 
 Unsupported constructs/options return a TSCS diagnostic and exit 1. Ordinary
 TypeScript diagnostics return 2; a successful supported check returns 0.

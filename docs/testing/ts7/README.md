@@ -1,3 +1,12 @@
+### 2026-10-27: multi-source script compilation, no original case accepted
+The C# compiler now parses multiple source files into separate ASTs and
+prebinds a bounded global script scope before primitive checking. A
+source-backed internal regression package verifies it; the 15,523
+registered upstream configuration placeholders remain independent and
+all SKIP(UNIMPLEMENTED), with 0 original TS7 acceptance PASS. The
+implementation-ledger source Git blob has been updated without
+changing implementation status. See [PORTING](../../PORTING.md).
+
 ### 2026-10-27: actual pinned-Go original emptyFile probe; original tscs acceptance still NOT_RUN
 
 The dedicated [Go original-runner probe](../../progress/original-emptyfile-go-reference.md) executes `TestLocal/emptyFile.ts` at the immutable pinned Go TS7 commit and verifies exact expected nested JSON test events. It is **not** a synthetic placeholder result or a tscs product-side accepted target. Locally only 11 synthetic-event validator regressions and a CLI smoke passed; actual Go execution depends on new-head CI. Until the C# original configuration is independently exercised under all applicable checks, the full source-configuration catalogue remains 0 original accepted / 15,523 SKIP(UNIMPLEMENTED), with the full runtime denominator UNEXPANDED.

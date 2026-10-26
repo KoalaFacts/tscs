@@ -3,7 +3,7 @@
   "kind": "BOUNDED_LOCAL_GUARD_PROBES_NOT_UPSTREAM_ACCEPTANCE",
   "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
   "sourcePath": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
-  "sourceGitBlob": "741c55064d2c6ea7bc633c406fba3eb6de46ab30",
+  "sourceGitBlob": "663e44537aa2f9fac97f66708515624873930638",
   "cases": [
     {
       "id": "bootstrap:primitive-number-declaration",

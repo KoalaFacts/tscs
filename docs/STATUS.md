@@ -1,3 +1,30 @@
+# 2026-10-27 — First multi-source program architecture package (PR #8)
+
+Production compiler: `Compilation.AnalyzeFiles`/CLI handles multiple
+noEmit/noLib TypeScript global scripts, retaining per-file scanner/AST
+contexts and a shared top-level binder scope. Primitive annotated/literal
+symbols resolve across input files; unknown inference, declaration merging,
+imports, standard libraries and general emit still explicitly remain
+unsupported. New xUnit regression exercises multi-file ordering, type
+mismatch source positions, duplicate globals and fail-closed behavior.
+**This is product architecture implementation, not a full original TS7
+acceptance PASS.** Upstream configuration-level catalogue remains
+15,523 targets, original accepted 0, SKIP_UNIMPLEMENTED 15,523, full
+runtime expansion unknown; scope delta and removed SKIP IDs zero.
+
+The first product-head hosted verify jobs compiled the new C# code and
+passed 15,577 internal xUnit4/MTP cases but failed at the later Node
+implementation-ledger integrity check: changed
+`CompilationTests.cs` had an outdated source Git-blob SHA in both
+`tests/implementation-coverage/registry.json` and its derived report.
+This corrective commit updates only that source binding to the actual
+published Git blob `663e44537aa2f9fac97f66708515624873930638`. It does NOT weaken the fail-closed
+checker or reclassify implementation SKIPs. Full final-head CI remains
+subject to separate verification. Go reference verifier correction
+`e74dddc` now recognizes the two real pinned Go child tests
+`type` and `symbol`; previous Go job remains red, product-side original
+acceptance NOT_RUN. No independent formal review/merge/release claimed.
+
 # Status — 2026-10-27
 - Hosted RED at [job 121865211939](https://github.com/KoalaFacts/tscs/actions/runs/40406416194/job/121865211939): **11/11 Node24 verifier tests passed**, sparse checkout successfully pinned the exact source, but Go dependency acquisition failed before any original test due the upstream root `go.work` referencing `../tools/go.mod`, excluded by the intentionally sparse checkout. The fix isolates the actual `tsc` module with `GOWORK=off` in the acquisition, verification and test phases. This is a genuine infrastructure failure, **not** a successful original test or a billing error; exact fix-head CI must be run separately.
 
