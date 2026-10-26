@@ -1,5 +1,30 @@
 # Status — 2026-10-26
 
+
+## Bounded numeric addition checker stack safety — 2026-10-26
+
+- Confirmed P2 from PR #8 using an **isolated CLI child**: a supported 400,000-operator
+  numeric '+' chain (800,010 UTF16 source units, below the existing 1,000,000
+  limit) caused SIGABRT/StackOverflow on old checker. Both hosted RED
+  verification runs retained the crash in the child, not the xUnit or Node runner.
+  The full xUnit suite itself passed 15,488/15,488 on RED; native Node had
+  103 pass/1 fail, the new focused regression.
+- Changed TypeChecker.TypeOf from recursive binary traversal to iterative
+  post-order work/results stacks, retaining left-to-right resolution and first
+  unsupported-operand diagnostics. Two xUnit regression checks explicitly lock
+  diagnostic order and early-error precedence.
+- Implementation commit b69e30eb071da1b67420b64c413f9fc7fd39cd7a:
+  both hosted verify runs **xUnit 15,488/15,488; Node 104/104; frozen 29/29**,
+  standalone Go scope PASS, Release 0 warnings/errors. CodeQL/Actions analysis
+  also success; all four exact-head check-runs completed/success.
+- This is a crash/DoS regression fix to an **already implemented bounded**
+  numeric-addition path. Newly implemented capabilities: **0**; local
+  SKIP(UNIMPLEMENTED) unchanged **7 of 14**. Full original pinned TS7 compiler
+  acceptance **NOT_RUN**, executable denominator unknown and releaseEligible=false.
+  No fresh original Go compiler differential is claimed. [Scope, raw RED/GREEN
+  verification logs](progress/numeric-addition-stack.md).
+
+
 ## Bounded postfix `++` and real SKIP reduction — 2026-10-26
 
 - **New C# checker slice:** the scanner lexes `++` distinctly from binary

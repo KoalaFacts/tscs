@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-26",
+  "repository": "KoalaFacts/tscs",
+  "pinnedTypeScript": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "scope": "Stack-safe bounded numeric plus expression checker. Not full compiler conformance.",
+  "redCommit": "2890a98cdb0f7563183f172a989dd422a210ea65",
+  "redTree": "ea5eb1b76e178dc5846ccc76079b54391ebe7390",
+  "greenCommit": "b69e30eb071da1b67420b64c413f9fc7fd39cd7a",
+  "greenTree": "d848e8127afd50d207345d78cacceabf38521e47",
+  "localRegressionId": "numeric-addition-stack:400000-operators",
+  "operators": 400000,
+  "sourceUtf16CodeUnits": 800010,
+  "source": "let n = 1 + 1 + ... (400000 addition operators) + 1;",
+  "sourceGenerator": "'let n = '+'1+'.repeat(400000)+'1;'",
+  "test": "tools/numeric-addition-stack.test.ts",
+  "supportingTests": "tests/Tscs.Compiler.Tests/NumericAdditionTests.cs",
+  "red": {
+    "crashIsolatedChildSignal": "SIGABRT",
+    "internalMtpPassed": 15488,
+    "internalMtpFailed": 0,
+    "nativeNodePassed": 103,
+    "nativeNodeFailed": 1,
+    "hostedVerifyConclusions": [
+      "failure",
+      "failure"
+    ]
+  },
+  "green": {
+    "internalMtpPassed": 15488,
+    "internalMtpFailed": 0,
+    "internalMtpSkipped": 0,
+    "nativeNodePassed": 104,
+    "nativeNodeFailed": 0,
+    "frozenDifferentialPassed": 29,
+    "standaloneGoScope": "PASS",
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "exactSourceHeadChecks": [
+      {
+        "name": "CodeQL",
+        "conclusion": "success",
+        "head": "b69e30eb071da1b67420b64c413f9fc7fd39cd7a",
+        "checkUrl": "https://github.com/KoalaFacts/tscs/runs/121545626864"
+      },
+      {
+        "name": "verify",
+        "conclusion": "success",
+        "head": "b69e30eb071da1b67420b64c413f9fc7fd39cd7a",
+        "checkUrl": "https://github.com/KoalaFacts/tscs/actions/runs/40315045424/job/121545408420"
+      },
+      {
+        "name": "Analyze (actions)",
+        "conclusion": "success",
+        "head": "b69e30eb071da1b67420b64c413f9fc7fd39cd7a",
+        "checkUrl": "https://github.com/KoalaFacts/tscs/actions/runs/40315040600/job/121545395911"
+      },
+      {
+        "name": "verify",
+        "conclusion": "success",
+        "head": "b69e30eb071da1b67420b64c413f9fc7fd39cd7a",
+        "checkUrl": "https://github.com/KoalaFacts/tscs/actions/runs/40315037745/job/121545381367"
+      }
+    ]
+  },
+  "logs": [
+    {
+      "stage": "red",
+      "runId": 40314760971,
+      "jobId": 121544453907,
+      "path": "docs/evidence/numeric-addition-stack-run/red-verify-pr.log",
+      "sha256": "da89f202770659df57f9a48c7df2d90486dec26109db4126606dced7d75aa348",
+      "characters": 34465
+    },
+    {
+      "stage": "red",
+      "runId": 40314769293,
+      "jobId": 121544483315,
+      "path": "docs/evidence/numeric-addition-stack-run/red-verify-push.log",
+      "sha256": "6859bf516598369840f02c0dda86bd84a57fcce9fe1f83edab7b0b4eca4c3393",
+      "characters": 35366
+    },
+    {
+      "stage": "green",
+      "runId": 40315037745,
+      "jobId": 121545381367,
+      "path": "docs/evidence/numeric-addition-stack-run/green-verify-pr.log",
+      "sha256": "f316a0a8e2c21dc08d1d5e579769d85a84f2887051a63af104893be08ad30f33",
+      "characters": 33938
+    },
+    {
+      "stage": "green",
+      "runId": 40315045424,
+      "jobId": 121545408420,
+      "path": "docs/evidence/numeric-addition-stack-run/green-verify-push.log",
+      "sha256": "1e7d87cf77b838a479d3ed1e13b9b428b676e1f712c955ea1aaaf88496d4741e",
+      "characters": 34862
+    }
+  ],
+  "coverageDelta": {
+    "implemented": 0,
+    "removedUnimplementedSkips": 0,
+    "localRegisteredProbes": 14,
+    "localImplemented": 7,
+    "localSkipUnimplemented": 7,
+    "originalUpstreamCompilerAccepted": 0,
+    "originalUpstreamCompilerAcceptance": "NOT_RUN",
+    "concreteUpstreamCases": null
+  },
+  "releaseEligible": false,
+  "localCSharpSdkExecution": "NOT_RUN",
+  "independentReadOnlyReview": "NOT_RUN",
+  "constraints": [
+    "No new language feature or emitter",
+    "No full upstream compiler/reference execution",
+    "No new upstream test denominator/coverage credit",
+    "Hosted tests use the exact implementation commit; docs-only follow-up has a separate Git SHA"
+  ]
+}

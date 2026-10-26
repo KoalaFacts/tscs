@@ -25,7 +25,7 @@ for isolated compiler tests**, not a usable standard library.
 Supported initially: single-file `let`/`const` declarations, primitive annotations,
 primitive literal initializers, identifier references, simple assignments and
 nested lexical scopes. Bounded `any` variable annotations accept assignments to
-and from primitive types, without implementing the full TypeScript `any` type system. A bounded left-associative numeric `+` expression is now supported for two number operands (including numeric identifiers, assignment and chains); unary `+`, string concatenation, `any` arithmetic, other operators and full expression grammar remain unsupported. Integer decimal literals and quoted strings with simple escapes/line continuations are supported. Valid hexadecimal and Unicode escapes preserve UTF16 code units, including lone surrogates. Malformed hexadecimal/Unicode escapes now retain their spelling and report recoverable lexical diagnostics; unterminated strings preserve all lexical errors. Standalone NUL and identity escapes are supported; legacy octal and decimal escapes preserve decoded values while reporting TS1487/TS1488 syntax errors. This does not implement JSON-specific string validation. Compilation returns lexical errors before parser/checker work; this does not implement general parser recovery.
+and from primitive types, without implementing the full TypeScript `any` type system. A bounded left-associative numeric `+` expression is now supported for two number operands (including numeric identifiers, assignment and chains); unary `+`, string concatenation, `any` arithmetic, other operators and full expression grammar remain unsupported. The numeric '+' checker now evaluates long left-associative chains iteratively without C# call-stack recursion; this does not extend operand types or implement emit. Integer decimal literals and quoted strings with simple escapes/line continuations are supported. Valid hexadecimal and Unicode escapes preserve UTF16 code units, including lone surrogates. Malformed hexadecimal/Unicode escapes now retain their spelling and report recoverable lexical diagnostics; unterminated strings preserve all lexical errors. Standalone NUL and identity escapes are supported; legacy octal and decimal escapes preserve decoded values while reporting TS1487/TS1488 syntax errors. This does not implement JSON-specific string validation. Compilation returns lexical errors before parser/checker work; this does not implement general parser recovery.
 An initialized, mutable `number` variable also supports a **statement-only**
 postfix update such as `let n = 1; n++;` under noEmit/noLib. The checker
 rejects `const` updates with TS2588. Prefix `++`, expression-position
@@ -78,12 +78,12 @@ explicit `noEmit`/`noLib` isolation overrides; these are not full upstream harne
 Results go to `.artifacts/conformance.json`. A passing cohort is not a percentage
 claim about the entire TypeScript language.
 
-The C# suite has 15,473 verified cases at compiler implementation head `273b4b7` (xUnit 4/MTP, zero failures/skips) (including 764 byte-decoding, 535 directive, 151 state and 750 path and 55 file-map and 154 VFS read plus 534 accessible-entry and 1,414 option-value and 2,920 configuration-product and 36 source-configuration vectors) and uses xUnit 4.0.2 (the official package is still named
+The C# suite has 15,488 verified cases at compiler implementation head `b69e30e` (xUnit 4/MTP, zero failures/skips) (including 764 byte-decoding, 535 directive, 151 state and 750 path and 55 file-map and 154 VFS read plus 534 accessible-entry and 1,414 option-value and 2,920 configuration-product and 36 source-configuration vectors) and uses xUnit 4.0.2 (the official package is still named
 `xunit.v3.mtp-v2`) with Microsoft.Testing.Platform 2.5.1, not VSTest.
 After building, run just this suite with:
 
 ```sh
-dotnet test --solution Tscs.slnx -c Release --no-build --no-restore -- --fail-skips on --minimum-expected-tests 15473
+dotnet test --solution Tscs.slnx -c Release --no-build --no-restore -- --fail-skips on --minimum-expected-tests 15488
 ```
 
 The .NET 10 MTP runner is selected in `global.json`. If an execution environment
@@ -91,7 +91,7 @@ cannot launch the SDK's test coordinator, the same built MTP executable can also
 be run directly, without changing permissions or disabling isolation:
 
 ```sh
-dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 15473
+dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 15488
 ```
 
 Record direct execution separately from `dotnet test`; a direct pass is not a
