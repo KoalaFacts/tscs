@@ -1,4 +1,19 @@
 # TS7 scope inventory: source declarations, not conformance
+
+### 2026-10-27: actual full placeholder discovery and bounded \`@ts-ignore\`
+
+Both hosted verify jobs at product head \`51993ce\` compiled the exact 15,523-Fact
+standalone project and reconciled **15,523/15,523 discovered as
+SKIP(UNIMPLEMENTED), with 0 original compiler PASS**. This is the first
+actual .NET MTP full-placeholder discovery verification; prior NOT_RUN
+notes are historical and apply to the stated older heads. The separate local
+bootstrap guard catalogue moved \`bootstrap:ts-ignore-directive\` from
+SKIP(UNIMPLEMENTED) to IMPLEMENTED/upstream NOT_RUN after genuine bounded
+\`// @ts-ignore\` semantic suppression and 8 hosted test-first RED failures.
+It is now **8 implemented / 6 missing local probes**, not a full TS7 progress
+percentage. Original runtime-case expansion and full reference acceptance
+remain UNEXPANDED/NOT_RUN. [Evidence](../../evidence/ts-ignore-directive.json).
+
 ### Source-bound 15,523-Fact archive committed for complete MTP discovery — 2026-10-27
 
 Twenty ordered binary fragments in `tests/Tscs.Upstream.Placeholders/packed/` reconstruct the original immutable 3,544,490-byte generated test archive at SHA-256 `e45e033d458a318b792777f7d141973e5d457f4f9e1f04801cb4bcf3a6e4512b`. The separate `scripts/verify-upstream-full-discovery.sh` now runs in CI after the strict internal gate and real one-test canary; `tools/materialize-upstream-placeholders.ts` validates the complete archive before extraction. The existing reviewed NuGet lock and fail-closed real CTRF reconciler are used for all 15,523 configuration targets, with raw logs retained as an Actions artifact. New-head hosted results must be read before a PASS claim; full original compiler/reference semantics and runtime variant expansion remain NOT_RUN/UNEXPANDED. [Details](../../progress/upstream-placeholder-full-discovery.md).

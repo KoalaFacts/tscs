@@ -34,3 +34,21 @@ The fixed local 14-probe cohort is now **7 implemented / 7 SKIP**
 (one fewer SKIP), but actual full-upstream acceptance added is **zero**.
 The original upstream denominator is still unexpanded/unknown; no full
 compiler completion ETA is claimed.
+
+## 2026-10-27 — bounded canonical line-comment @ts-ignore
+
+Stable local guard \`bootstrap:ts-ignore-directive\` was moved only after
+the C# scanner learned to recognize whole-line \`// @ts-ignore\` and the
+checker filtered its own following-line diagnostics. Syntactic/lexical
+failures are never converted to SKIP or filtered. New real test cases pin
+next-line semantic suppression, CRLF, blank-line boundaries, string
+contents and explicit unsupported directive variants. Hosted TDD RED
+\`f706c04\`: 8 failures; GREEN \`51993ce\`: internal xUnit4/MTP
+15,500/15,500 and native Node24 145/145, with both verify jobs and
+CodeQL/Actions succeeded. The bounded local inventory is **14 =
+8 implemented/upstream NOT_RUN + 6 SKIP(UNIMPLEMENTED)**, net removed
+one stable local SKIP. Original upstream accepted +0, and the 15,523
+source/configuration targets remain separately discovered SKIP until real
+runner assertions and reference comparison exist. See
+[exact-head evidence](../evidence/ts-ignore-directive.json).
+

@@ -7,6 +7,15 @@ TypeScript; it does not yet emit JavaScript or replace `tsc` for real projects.
 The goal is compatibility with a fixed upstream compiler before expanding coverage
 and optimizing the C# implementation.
 
+## Bounded diagnostic directive support
+
+The current \`noEmit/noLib\` checker supports a restricted **leading, single-line**
+\`// @ts-ignore\` directive: it suppresses semantic checker diagnostics **only
+on the immediately following physical line**. It does not suppress scanner or
+parser errors, does not implement block-comment, trailing or
+\`@ts-expect-error\` variants, and does not establish full TS7 directive
+compatibility. The original pinned upstream acceptance remains NOT_RUN.
+
 ## Build and check a file
 
 Install the .NET SDK specified in `global.json` (10.0.402). Node 24 runs the native `.ts` test tools directly, without a transpiler. Go 1.27.3 is also required for source-inventory tests. The compiler itself is C# and does not invoke Node, Go or another compiler.
