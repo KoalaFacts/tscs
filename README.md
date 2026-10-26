@@ -112,9 +112,11 @@ not used as a cross-platform reproducible-binary guarantee.
 
 ## Explicit implementation SKIPs (separate from internal tests)
 
-The [bounded implementation register](docs/testing/ts7/implementation-coverage.json) marks eight **already existing** local guard inputs as `SKIP / UNIMPLEMENTED` and six positive inputs as `IMPLEMENTED / upstream NOT_RUN`. The guard tests still execute; their passing rejection assertions do not mean the missing TypeScript features work. A dedicated CI check binds this report to its exact source inputs and rejects unexpected skips, while the xUnit fail-skips gate remains active. This is a starter catalogue, **not the full upstream completion percentage or a release waiver**. [Details](docs/progress/implementation-coverage.md).
+The [bounded implementation register](docs/testing/ts7/implementation-coverage.json) marks seven **already existing** local guard inputs as `SKIP / UNIMPLEMENTED` and seven positive inputs as `IMPLEMENTED / upstream NOT_RUN`. The guard tests still execute; their passing rejection assertions do not mean the missing TypeScript features work. A dedicated CI check binds this report to its exact source inputs and rejects unexpected skips, while the xUnit fail-skips gate remains active. This is a starter catalogue, **not the full upstream completion percentage or a release waiver**. [Details](docs/progress/implementation-coverage.md).
 
 ## Pinned TS7 test-scope inventory
+
+The [source-configuration placeholder catalogue](docs/progress/upstream-placeholder-catalogue.md) generated **15,523 SKIP targets**. A [post-generation verifier now checks](docs/progress/upstream-placeholder-integrity.md) every target against all C# Fact identities and raw SHA-256 evidence. The generated .NET project is not yet compiled/discovered; these are not full runtime TS7 cases or accepted results.
 
 The [source-scope registry and roadmap](docs/testing/ts7/README.md) inventories all
 tracked upstream assets, Go declarations, JS test sources and fixture metadata:

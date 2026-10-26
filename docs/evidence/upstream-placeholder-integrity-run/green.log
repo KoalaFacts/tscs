@@ -1,0 +1,60 @@
+TAP version 13
+# (node:630) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: complete source-bound SKIP catalogue reconciles every generated C\# Fact and blocked source
+ok 1 - complete source-bound SKIP catalogue reconciles every generated C\# Fact and blocked source
+  ---
+  duration_ms: 16.856351
+  type: 'test'
+  ...
+# Subtest: rejects even rehashed facts that silently drop their throwing body
+ok 2 - rejects even rehashed facts that silently drop their throwing body
+  ---
+  duration_ms: 9.098579
+  type: 'test'
+  ...
+# Subtest: rejects SKIP status upgraded to PASS without original reference execution
+ok 3 - rejects SKIP status upgraded to PASS without original reference execution
+  ---
+  duration_ms: 9.127767
+  type: 'test'
+  ...
+# Subtest: fails when any required artifact is removed together with its manifest entry
+ok 4 - fails when any required artifact is removed together with its manifest entry
+  ---
+  duration_ms: 2.621222
+  type: 'test'
+  ...
+# Subtest: rejects changed source/configuration identity despite updated hash and metadata
+ok 5 - rejects changed source/configuration identity despite updated hash and metadata
+  ---
+  duration_ms: 4.415494
+  type: 'test'
+  ...
+# Subtest: rejects truncated inventory even if an attacker rewrites its own summary counts
+ok 6 - rejects truncated inventory even if an attacker rewrites its own summary counts
+  ---
+  duration_ms: 2.624647
+  type: 'test'
+  ...
+# Subtest: release mode rejects all unimplemented placeholders despite clean discovery
+ok 7 - release mode rejects all unimplemented placeholders despite clean discovery
+  ---
+  duration_ms: 1.99502
+  type: 'test'
+  ...
+# Subtest: rejects wrong pinned upstream version or fabricated blocked source
+ok 8 - rejects wrong pinned upstream version or fabricated blocked source
+  ---
+  duration_ms: 5.634898
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 380.183505

@@ -1,5 +1,12 @@
 # Status — 2026-10-26
 
+## Full placeholder corpus integrity — 2026-10-26
+
+- A separate post-generation verifier now reconciles all **15,523 source-configuration target SKIPs** against every generated C# Fact, source/configuration ID and original artifact hash, including seven reference-fatal blockers and upstream-skip metadata. Synthetic corruption/missing-artifact regressions fail closed, and release mode rejects unresolved SKIPs. [Scope/results](progress/upstream-placeholder-integrity.md) and [machine evidence](evidence/upstream-placeholder-integrity.json).
+- Genuine local Node22 experimental fallback RED **8 failed** -> GREEN **8 passed**. Full historical generated bundle audit: **15,523/15,523 fact identities**, 13,006 source identities and expected counts, with separate same-author Python reconciliation. No new language features/accepted upstream cases; **0 SKIPs resolved**. New native Node24 tests are included by the existing `node --test tools/*.test.ts` command, but the generated 15,523-Fact .NET project has not been compiled/discovered in this environment.
+- The strict existing xUnit internal regression gate is unchanged. Original full upstream compiler/reference/acceptance remains **NOT_RUN**; the complete runtime TS7 denominator remains **unknown**; releaseEligible=false.
+
+
 
 ## Bounded numeric addition checker stack safety — 2026-10-26
 
