@@ -19,3 +19,16 @@ Next bounded package after a successful actual Go result: bind the original sour
 ## Actual first hosted RED and bounded correction
 
 At [run 40406416194](https://github.com/KoalaFacts/tscs/actions/runs/40406416194/job/121865211939), the 11 Node24 verifier tests passed, pinned Git fetch/checkout succeeded, but **Go acquisition exited 1 before TestLocal was executed**: `go: cannot load module ../tools listed in go.work file: open ../tools/go.mod: no such file or directory`. This reflects a sparse-checkout workspace dependency, **not** a TypeScript reference test mismatch or a billing problem. The correction exports `GOWORK=off` and verifies `go env GOWORK` during offline test execution. The prior failed job remains evidence; do not relabel it GREEN or count its missing Go test. A new commit must rerun the real reference.
+
+### Raw pinned Go runner child inventory (2026-10-27)
+
+The first real Go 1.27.3 execution (workflow 40406950822) ran
+`TestLocal/emptyFile.ts` and exited 0. Its 11,369-byte reference.jsonl,
+SHA-256 `7864d2df6528152430c3b4d2251fe4bafe6f41c5558d2ec2fbc111e7346c6bc6`,
+has 56 events: 11 test names (parent, target, **nine** children), 12
+PASS actions including the package, no skips/fails. The strict validator
+incorrectly omitted the **type** and **symbol** child names, so that
+historical check remained red despite the reference Go process exit 0.
+Both children are now required, rather than ignored as unexpected.
+Original tscs product acceptance stays NOT_RUN and releaseEligible=false.
+[Raw failed-head artifact](https://github.com/KoalaFacts/tscs/actions/runs/40406950822/artifacts/12693495117).

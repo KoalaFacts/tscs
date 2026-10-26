@@ -68,3 +68,12 @@ test('rejects an invalid Go package and missing parent TestLocal', () => {
   assert.throws(() => inspectPinnedEmptyFileGoRun(events().replaceAll(pkg,'malicious/example'),0), /package|Unexpected/i);
   assert.throws(() => inspectPinnedEmptyFileGoRun(events({omit:root}),0), /missing|Missing/i);
 });
+
+test('pinned type and symbol checks are mandatory original Go children', () => {
+  assert.ok(requiredSubtests.includes('type'));
+  assert.ok(requiredSubtests.includes('symbol'));
+  for(const child of ['type','symbol']) {
+    assert.throws(() => inspectPinnedEmptyFileGoRun(events({omit:target+'/'+child}),0),/missing|Missing/i);
+    assert.throws(() => inspectPinnedEmptyFileGoRun(events({skip:target+'/'+child}),0),/skip|pass/i);
+  }
+});

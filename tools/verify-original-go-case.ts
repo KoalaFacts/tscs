@@ -5,7 +5,7 @@ import {pathToFileURL} from 'node:url';
 
 // Frozen, source-derived Go TestLocal/emptyFile.ts assertions at the exact pin.
 // Go testing.T.Run normalizes whitespace in names to underscores.
-// Types/symbols are checked within the target body, not in a Go t.Run child.
+// The exact pinned Go TestLocal exposes both type and symbol as real t.Run children.
 // Module resolution is conditional on TraceResolution and is not expected here.
 export const originalGoPin = '8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f';
 export const originalGoTargetId = 'configuration:c5f81e2689b2db32a694b7b3de45098f5d58941800bfe0683e2f68000e24c110';
@@ -13,7 +13,7 @@ export const originalGoPackage = 'github.com/microsoft/TypeScript/tsc/internal/t
 export const originalGoTarget = 'TestLocal/emptyFile.ts';
 export const requiredSubtests = Object.freeze([
   'error', 'content_mapper', 'output', 'sourcemap', 'sourcemap_record',
-  'union_ordering', 'source_file_parent_pointers',
+  'type', 'symbol', 'union_ordering', 'source_file_parent_pointers',
 ]);
 
 export function inspectPinnedEmptyFileGoRun(jsonl, exitCode) {
