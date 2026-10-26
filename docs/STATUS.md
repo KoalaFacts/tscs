@@ -1,4 +1,10 @@
 # Status — 2026-10-26
+## Git-backed full 15,523 source/configuration target MTP discovery — 2026-10-27
+
+- The historical, SHA-256-bound 3,544,490-byte generated placeholder archive is now stored as 20 ordered binary Git blobs (byte-identical reassembly checked). CI can extract and run the complete 15,523-Fact standalone xUnit4/MTP2 test assembly without needing a Library download. `tools/materialize-upstream-placeholders.ts` fails on missing/extra/corrupt blobs before writing any archive; six Node regressions and exact archive reconstruction passed locally. [Scope](progress/upstream-placeholder-full-discovery.md).
+- After the unchanged strict internal regression gate and one-source real canary, a separate CI step performs locked restore/build, actual 15,523-test CTRF discovery and stable-ID/source/config/status reconciliation. Raw discovery evidence is uploaded as a workflow artifact even on failure. **The new-head hosted discovery result must be checked; local .NET discovery is NOT_RUN.**
+- Compiler implementation delta **0**, original upstream acceptance PASS **0**, removed SKIP **0**; 15,523 source-configuration placeholders remain SKIP(UNIMPLEMENTED) until original assertions are implemented. The full runtime TS7 denominator remains unknown and releaseEligible=false.
+
 ## Standalone xUnit/MTP NuGet lock and real discovery canary — 2026-10-27
 
 - The external generated test bundle now has a repository-reviewed standalone 16-package NuGet lock. It is projected from the existing pinned internal xUnit4/MTP2 lock (same versions/content hashes; three local project-reference entries excluded). The SHA-bound verifier and five local Node22.16.0 fallback regressions passed. See [lock scope](progress/upstream-placeholder-lock.md).

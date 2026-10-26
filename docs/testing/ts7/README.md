@@ -1,4 +1,8 @@
 # TS7 scope inventory: source declarations, not conformance
+### Source-bound 15,523-Fact archive committed for complete MTP discovery — 2026-10-27
+
+Twenty ordered binary fragments in `tests/Tscs.Upstream.Placeholders/packed/` reconstruct the original immutable 3,544,490-byte generated test archive at SHA-256 `e45e033d458a318b792777f7d141973e5d457f4f9e1f04801cb4bcf3a6e4512b`. The separate `scripts/verify-upstream-full-discovery.sh` now runs in CI after the strict internal gate and real one-test canary; `tools/materialize-upstream-placeholders.ts` validates the complete archive before extraction. The existing reviewed NuGet lock and fail-closed real CTRF reconciler are used for all 15,523 configuration targets, with raw logs retained as an Actions artifact. New-head hosted results must be read before a PASS claim; full original compiler/reference semantics and runtime variant expansion remain NOT_RUN/UNEXPANDED. [Details](../../progress/upstream-placeholder-full-discovery.md).
+
 ### Pinned standalone xUnit4/MTP2 project lock — 2026-10-27
 
 The [reviewed standalone lock](../../progress/upstream-placeholder-lock.md) pins the existing 16-package graph and is copied into an extracted configuration-placeholder bundle only after full source/ID integrity checks. CI has a one-target genuine-source MTP canary in a separate test project (not counted as original TypeScript acceptance) after the unchanged strict internal `--fail-skips on` gate. The whole 15,523-Fact MTP discovery is still NOT_RUN until the immutable Library archive is supplied in an SDK-backed environment. Its SKIPs must never count as implementation PASS.

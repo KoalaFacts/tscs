@@ -19,3 +19,14 @@ jobs:
           cache: false
       - run: ./scripts/verify.sh
       - run: ./scripts/verify-upstream-lock-probe.sh
+      - run: ./scripts/verify-upstream-full-discovery.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ts7-upstream-placeholder-discovery
+          path: |
+            .artifacts/upstream-full-discovery/archive.log
+            .artifacts/upstream-full-discovery/runner.log
+            .artifacts/upstream-full-discovery/mtp/
+          if-no-files-found: warn
+          retention-days: 30
