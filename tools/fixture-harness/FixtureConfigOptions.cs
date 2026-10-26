@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 namespace Tscs.Conformance;
 // Real fixture preparation -> product value -> declaration-driven option map.
@@ -16,7 +17,8 @@ public static class FixtureConfigOptions
   {
    if(parsed==null)throw new InvalidOperationException("Selected supported config has no parse result");
    var value=JsonConfigValues.Convert(parsed.Root);var options=value.Properties.FirstOrDefault(x=>x.Key=="compilerOptions")?.Value??new("Null","",0,false,[],[]);
-   var result=JsonOptionsFromJson.Convert(options);unsupportedOptions=result.Unsupported;
+   string directory=new UTF8Encoding(false,true).GetString(Convert.FromBase64String(p.GetProperty("context").GetProperty("directory").GetString()!));
+   var result=JsonOptionsFromJson.Convert(options,directory);unsupportedOptions=result.Unsupported;
    calls=result.Calls.Select(x=>new{key=x.Key.Select(c=>(int)c).ToArray(),value=Snapshot(x.Value)}).ToArray();
    optionDiagnostics=result.Diagnostics.Select(x=>(object)new{code=x.Code,message=x.Message,start=x.Start,length=x.Length}).ToArray();
    outcome=result.Unsupported.Count>0?"UNSUPPORTED":parsed.Diagnostics.Count+result.Diagnostics.Count>0?"OPTIONS_DIAGNOSTICS":"OPTIONS";

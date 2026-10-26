@@ -2,9 +2,9 @@ using System.Text;
 using System.Text.Json;
 namespace Tscs;
 internal sealed record JsonOptionsMapResult(IReadOnlyList<ConfigProperty> Calls,IReadOnlyList<Diagnostic> Diagnostics,IReadOnlyList<string> Unsupported);
-internal sealed record JsonOptionDeclaration(string Name,string Kind,bool DisallowNull,bool CommandLineOnly,bool Supported,bool PreserveFalsy,JsonOptionDeclaration? Element,JsonEnumOption? Enum);
+internal sealed record JsonOptionDeclaration(string Name,string Kind,bool DisallowNull,bool CommandLineOnly,bool Supported,bool PreserveFalsy,JsonOptionDeclaration? Element,JsonEnumOption? Enum,int PathKind,string ExtraValidation);
 // convertOptionsFromJson dispatch/ParseOption boundary only. Calls remain values;
-// typed CompilerOptions/defaults/host/remaining path policies are separate work.
+// typed CompilerOptions/defaults/host remain separate work.
 internal static class JsonOptionsFromJson
 {
  internal static IReadOnlyList<JsonOptionDeclaration> Declarations {get;}=Load();
@@ -17,7 +17,7 @@ internal static class JsonOptionsFromJson
  private static JsonOptionDeclaration Read(JsonElement o)
  {
   string kind=o.GetProperty("kind").GetString()!;
-  return new(o.GetProperty("name").GetString()!,kind,o.GetProperty("disallowNull").GetBoolean(),o.GetProperty("commandLineOnly").GetBoolean(),o.GetProperty("supported").GetBoolean(),o.TryGetProperty("preserveFalsy",out var falsy)&&falsy.GetBoolean(),o.TryGetProperty("element",out var element)?Read(element):null,kind=="enum"?JsonEnumOptions.ReadDeclaration(o):null);
+  return new(o.GetProperty("name").GetString()!,kind,o.GetProperty("disallowNull").GetBoolean(),o.GetProperty("commandLineOnly").GetBoolean(),o.GetProperty("supported").GetBoolean(),o.TryGetProperty("preserveFalsy",out var falsy)&&falsy.GetBoolean(),o.TryGetProperty("element",out var element)?Read(element):null,kind=="enum"?JsonEnumOptions.ReadDeclaration(o):null,o.GetProperty("pathKind").GetInt32(),o.GetProperty("extraValidation").GetString()??"");
  }
  private static IReadOnlyDictionary<string,JsonOptionDeclaration> Names()
  {
@@ -25,7 +25,7 @@ internal static class JsonOptionsFromJson
   // As commandLineOptionsToMap, later duplicate declarations replace names.
   foreach(var o in Declarations){result[o.Name]=o;result[PinnedEnumLowercase.Lower(o.Name)]=o;}return result;
  }
- public static JsonOptionsMapResult Convert(ConfigValue value)
+ public static JsonOptionsMapResult Convert(ConfigValue value,string basePath="/.src")
  {
   var calls=new List<ConfigProperty>();var diagnostics=new List<Diagnostic>();var unsupported=new List<string>();
   if(value.Kind!="Object")return new(calls,diagnostics,unsupported);
@@ -42,19 +42,21 @@ internal static class JsonOptionsFromJson
     diagnostics.Add(suggestion==null?Error("TS5023",$"Unknown compiler option '{printedKey}'."):Error("TS5025",$"Unknown compiler option '{printedKey}'. Did you mean '{DiagnosticArgument(suggestion)}'?"));continue;
    }
    if(!option.Supported){unsupported.Add(key);continue;}
-   var converted=Dispatch(option,property.Value);diagnostics.AddRange(converted.Diagnostics);calls.Add(new(key,converted.Value));
+   var converted=Dispatch(option,property.Value,basePath);diagnostics.AddRange(converted.Diagnostics);calls.Add(new(key,converted.Value));
   }
   return new(calls,diagnostics,unsupported);
  }
- private static JsonScalarOptionResult Dispatch(JsonOptionDeclaration o,ConfigValue value)
+ private static JsonScalarOptionResult Dispatch(JsonOptionDeclaration o,ConfigValue value,string basePath)
  {
   if(o.Enum!=null)return JsonEnumOptions.Convert(o.Enum,value);
   if(o.Kind=="list")
   {
    var e=o.Element??throw new InvalidOperationException("Missing list element declaration");
-   return JsonListOptions.Convert(new(o.Name,new(e.Name,new(e.Kind,e.DisallowNull),e.CommandLineOnly),o.PreserveFalsy,o.CommandLineOnly,e.Enum),value);
+   return JsonListOptions.Convert(new(o.Name,new(e.Name,new(e.Kind,e.DisallowNull),e.CommandLineOnly),o.PreserveFalsy,o.CommandLineOnly,e.Enum,e.PathKind,basePath),value);
   }
-  return JsonScalarOptions.Convert(new(o.Name,new(o.Kind,o.DisallowNull),o.CommandLineOnly),value);
+  var scalar=new JsonScalarOption(o.Name,new(o.Kind,o.DisallowNull),o.CommandLineOnly);
+  if(o.ExtraValidation.Length>0&&!o.CommandLineOnly)throw new NotSupportedException("Unvalidated config policy: "+o.Name);
+  return o.PathKind!=0?JsonConfigPaths.Convert(scalar,o.PathKind,value,basePath):JsonScalarOptions.Convert(scalar,value);
  }
  // Pinned diagnostics.Format uses strings.ToValidUTF8: one U+FFFD for each
  // contiguous invalid WTF-8 byte run, not one per malformed UTF-16 code unit.
