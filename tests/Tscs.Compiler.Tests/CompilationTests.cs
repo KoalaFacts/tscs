@@ -137,3 +137,33 @@ public class IntrinsicBindingTests
     [Fact] public void GlobalThisCannotBeShadowedAtRoot()=>Assert.Contains("TS2397",Compilation.Check("test.ts","let globalThis = 1;").Select(d=>d.Code));
     [Fact] public void GlobalThisCanBeShadowedInBlock()=>Assert.Empty(Compilation.Check("test.ts","{ let globalThis = 1; }"));
 }
+
+public class TsIgnoreDirectiveTests
+{
+    [Theory]
+    [InlineData("// @ts-ignore\nlet n: number = \"x\";")]
+    [InlineData("let n: number = 1;\n// @ts-ignore\nn = \"x\";")]
+    [InlineData("//@ts-ignore\r\nmissing;")]
+    [InlineData("  // @ts-ignore\nmissing;")]
+    [InlineData("// @ts-ignore\nconst n = 1; n = 2;")]
+    public void NextLineSemanticDiagnosticsAreSuppressed(string source) =>
+        Assert.Empty(Compilation.Check("test.ts", source));
+
+    [Theory]
+    [InlineData("// @ts-ignore\n\nlet n: number = \"x\";", "TS2322")]
+    [InlineData("// @ts-ignore\nlet n: number = 1;\nlet m: string = 2;", "TS2322")]
+    [InlineData("const s = \"// @ts-ignore\";\nlet n: number = \"x\";", "TS2322")]
+    public void SuppressionIsLimitedToTheImmediateNextLine(string source, string code) =>
+        Assert.Contains(Compilation.Check("test.ts", source), d => d.Code == code);
+
+    [Fact]
+    public void DirectiveDoesNotTurnSyntaxErrorsIntoSuccess() =>
+        Assert.Contains(Compilation.Check("test.ts", "// @ts-ignore\nlet n = ;"), d => d.Code == "TS1109");
+
+    [Theory]
+    [InlineData("// @ts-expect-error\nlet n: number = \"x\";")]
+    [InlineData("// @ts-ignoreExtra\nlet n: number = \"x\";")]
+    [InlineData("/* @ts-ignore */\nlet n: number = \"x\";")]
+    public void UnimplementedDirectiveVariantsRemainRejected(string source) =>
+        Assert.Contains(Compilation.Check("test.ts", source), d => d.Code == "TSCS1001");
+}
