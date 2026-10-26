@@ -22,7 +22,7 @@ internal static class JsonConfigPaths
    return new(new("Null","",0,false,[],[]),[diagnostic]);
   }
   // Preserve the special configDir template after checking the resolved path.
-  string normalized=raw.StartsWith("$"+"{configDir}",StringComparison.OrdinalIgnoreCase)
+  string normalized=PinnedEnumLowercase.Lower(raw).StartsWith("${configdir}",StringComparison.Ordinal)
    ?Slashes(raw):absolute;
   if(normalized.Length==0)normalized=".";
   return new(scalar.Value with {Text=normalized},scalar.Diagnostics);
@@ -31,6 +31,22 @@ internal static class JsonConfigPaths
  private static bool Separator(char c)=>c is '/' or '\\';
  private static bool Volume(char c)=>c is >= 'a' and <= 'z' or >= 'A' and <= 'Z';
  private static string Slashes(string s)=>s.Replace('\\','/');
+ // Go strings.EqualFold uses Unicode simple case folding, not
+ // OrdinalIgnoreCase. Its non-ASCII equivalents of ASCII letters are
+ // U+017F (long s) and U+212A (Kelvin sign).
+ private static bool GoEqualFoldAscii(string value,string ascii)
+ {
+  if(value.Length!=ascii.Length)return false;
+  for(int i=0;i<ascii.Length;i++)
+  {
+   char ch=value[i];
+   if(ch=='\u017F')ch='s';
+   else if(ch=='\u212A')ch='k';
+   else if(ch is >= 'A' and <= 'Z')ch=(char)(ch+('a'-'A'));
+   if(ch!=ascii[i])return false;
+  }
+  return true;
+ }
  private static bool NetworkPath(string s)=>s.Length>=2&&Separator(s[0])
   &&(Separator(s[1])||s.Length>=3&&s[1]=='?'&&s[2]=='?'
       &&(s.Length==3||Separator(s[3])));
@@ -53,8 +69,8 @@ internal static class JsonConfigPaths
   if(scheme<0)return 0;
   int begin=scheme+3,endAuthority=s.IndexOf('/',begin);
   if(endAuthority<0)return n;
-  if(s[..scheme].Equals("file",StringComparison.OrdinalIgnoreCase)
-   &&(endAuthority==begin||s[begin..endAuthority].Equals("localhost",StringComparison.OrdinalIgnoreCase))
+  if(GoEqualFoldAscii(s[..scheme],"file")
+   &&(endAuthority==begin||GoEqualFoldAscii(s[begin..endAuthority],"localhost"))
    &&n>endAuthority+2&&Volume(s[endAuthority+1]))
   {
    int end=endAuthority+2;
