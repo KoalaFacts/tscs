@@ -74,12 +74,23 @@ internal sealed class Parser(string file, List<Token> tokens)
         }
         return new Block(statements);
     }
-    // A deliberately bounded first binary expression: left-associative '+'
-    // with number operands. Other operand types remain explicit UNSUPPORTED.
+    // Bounded numeric arithmetic with TypeScript precedence: '*'
+    // binds more tightly than '+'. Neither unary/exponentiation nor
+    // nonnumeric arithmetic is claimed as supported.
     private ValueNode ParseValue()
     {
-        ValueNode left=ParsePrimary();
+        ValueNode left=ParseProduct();
         while(Current.Kind==TokenKind.Plus)
+        {
+            var op=Take();
+            left=new ValueBinary(left,op,ParseProduct());
+        }
+        return left;
+    }
+    private ValueNode ParseProduct()
+    {
+        ValueNode left=ParsePrimary();
+        while(Current.Kind==TokenKind.Star)
         {
             var op=Take();
             left=new ValueBinary(left,op,ParsePrimary());
