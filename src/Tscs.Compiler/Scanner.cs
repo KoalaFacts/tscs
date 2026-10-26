@@ -66,6 +66,12 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                 decodedValue = ScanString(first, out stringFlags);
             }
             else kind = first switch { '[' when jsonMode=>TokenKind.OpenBracket,']' when jsonMode=>TokenKind.CloseBracket,'-' when jsonMode=>TokenKind.Minus, '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,'+' when !jsonMode=>TokenKind.Plus,_=>TokenKind.Unsupported };
+            // The bounded binary '+' requires a preceding value. Keep unsupported
+            // unary '+' fail-closed at the scanner boundary, including after a
+            // recovered lexical error, so earlier diagnostics are not lost.
+            if(!jsonMode && kind==TokenKind.Plus &&
+               (tokens.Count==0 || tokens[^1].Kind is TokenKind.Semi or TokenKind.Equal or TokenKind.Colon or TokenKind.Comma or TokenKind.Plus or TokenKind.Open or TokenKind.Let or TokenKind.Const))
+                throw Error(new(TokenKind.Unsupported,"+",begin,1,lineBreak),"TSCS1001","Unary '+' expressions are not supported yet.");
             var token = new Token(kind,text[begin..position],begin,position-begin,lineBreak,decodedValue,stringFlags);
             if (kind == TokenKind.Unsupported) throw Error(token,"TSCS1001",$"Unsupported syntax '{token.Text}'.");
             tokens.Add(token);DiagnosticCounts.Add(Diagnostics.Count);

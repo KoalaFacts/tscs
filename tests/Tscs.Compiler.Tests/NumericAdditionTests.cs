@@ -34,4 +34,11 @@ public class NumericAdditionTests
     [InlineData("let x: any = 1; let y = x + 2;")]
     public void NonNumericAdditionIsNotClaimedAsImplemented(string source) =>
         Assert.Contains(Compilation.Check("test.ts", source), d => d.Code == "TSCS1001");
+
+    [Theory]
+    [InlineData("+1;")]
+    [InlineData("let x = +1;")]
+    [InlineData("let x = 1 + +2;")]
+    public void UnaryPlusRemainsUnsupported(string source) =>
+        Assert.Contains(Compilation.Check("test.ts", source), d => d.Code == "TSCS1001");
 }
