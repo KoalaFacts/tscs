@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "kind": "BOUNDED_NUMERIC_UNARY_MINUS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "sourceCommit": "c7cd4036fe2eafd2f84f2106856f3ddc9222f863",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "red": {
+    "commit": "c24c849f04f69bd528853c0aa48023fba305940b",
+    "jobs": [
+      121761557869,
+      121761588256
+    ],
+    "runs": [
+      40376690397,
+      40376698463
+    ],
+    "internalPassed": 15540,
+    "internalFailed": 10,
+    "internalSkipped": 0
+  },
+  "green": {
+    "commit": "c7cd4036fe2eafd2f84f2106856f3ddc9222f863",
+    "jobs": [
+      121762505910,
+      121762548632
+    ],
+    "runs": [
+      40376954738,
+      40376966938
+    ],
+    "internalPassed": 15550,
+    "internalFailed": 0,
+    "internalSkipped": 0,
+    "nodePassed": 145,
+    "frozenCohortPassed": 29,
+    "frozenCohortTotal": 29,
+    "placeholderDiscovered": 15523,
+    "placeholderSkippedUnimplemented": 15523,
+    "upstreamAccepted": 0,
+    "checksSucceeded": 4
+  },
+  "sourceConfigExplicitOptionAudit": {
+    "archiveSha256": "e45e033d458a318b792777f7d141973e5d457f4f9e1f04801cb4bcf3a6e4512b",
+    "targetsSha256": "c1c4077d732ae859ad70899ac3fd85fc25f9eff1c99737f3e36aa806b5c2742e",
+    "targets": 15523,
+    "noEmitTrue": 1304,
+    "noLibTrue": 12,
+    "bothTrue": 0,
+    "interpretation": "Only explicitly declared options in source/configuration targets. Not effective compiler default expansion or actual executable case count."
+  },
+  "localCapabilityRegister": {
+    "implemented": 8,
+    "skipUnimplemented": 6,
+    "verifiedOriginal": 0
+  },
+  "acceptance": {
+    "originalRegistered": 15523,
+    "originalSkipUnimplemented": 15523,
+    "originalPass": 0,
+    "originalExecutableCaseTotal": null,
+    "otherDomains": "UNEXPANDED",
+    "releaseEligible": false
+  },
+  "caveats": [
+    "Docs/test follow-up needs its own exact-head verification.",
+    "Product implementation is on unmerged PR #8, not main.",
+    "No independent reviewer or local .NET 10 executor.",
+    "RED/GREEN are hosted CI runs, not locally executed."
+  ]
+}

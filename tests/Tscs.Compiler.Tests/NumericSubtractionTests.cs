@@ -70,6 +70,34 @@ public sealed class NumericSubtractionTests
         Assert.Empty(Compilation.Check("test.ts", "let n = " + string.Concat(Enumerable.Repeat("- ", 20000)) + "1;"));
 
     [Fact]
+    public void UnaryMinusBindsBeforeMultiplicationInTheAst()
+    {
+        var scanner = new Scanner("test.ts", "let n = -3 * 2;");
+        var parser = new Parser("test.ts", scanner.Scan());
+        var declaration = Assert.IsType<Variable>(Assert.Single(parser.Parse().Statements));
+        Assert.Empty(parser.Diagnostics);
+        var multiplication = Assert.IsType<ValueBinary>(declaration.Initializer);
+        Assert.Equal("*", multiplication.Operator.Text);
+        var negative = Assert.IsType<ValueUnary>(multiplication.Left);
+        Assert.Equal("-", negative.Operator.Text);
+        Assert.Equal("3", Assert.IsType<ValueAtom>(negative.Operand).Token.Text);
+    }
+
+    [Fact]
+    public void MinusSeparatedFromSubtractionIsAUnaryNode()
+    {
+        var scanner = new Scanner("test.ts", "let n = 2 - -1;");
+        var parser = new Parser("test.ts", scanner.Scan());
+        var declaration = Assert.IsType<Variable>(Assert.Single(parser.Parse().Statements));
+        Assert.Empty(parser.Diagnostics);
+        var subtraction = Assert.IsType<ValueBinary>(declaration.Initializer);
+        Assert.Equal("-", subtraction.Operator.Text);
+        var negative = Assert.IsType<ValueUnary>(subtraction.Right);
+        Assert.Equal("-", negative.Operator.Text);
+        Assert.Equal("1", Assert.IsType<ValueAtom>(negative.Operand).Token.Text);
+    }
+
+    [Fact]
     public void SubtractionAndAdditionAssociateLeftToRight()
     {
         var scanner = new Scanner("test.ts", "let n = 9 - 3 + 2;");
