@@ -1,0 +1,99 @@
+{
+  "date": "2026-10-26",
+  "repo": "KoalaFacts/tscs",
+  "commit": "efb2c56ccee623b83aaeaab3a56a03dbd1dda098",
+  "sourceTree": "baa8358d7eed58838b479a3611f2943caac7b472",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "upstreamGo": "tsc/internal/tsoptions/tsconfigparsing.go (convertJsonOption/isNetworkPathValue/normalizeNonListOptionValue); tsc/internal/nativepath/network.go (IsNetworkPath); diagnostics.Format(strings.ToValidUTF8)",
+  "scope": "TS5116 malformed WTF-8 argument formatting at network-path rejection; lexical config-path conversion only",
+  "sourceFiles": [
+    "src/Tscs.Compiler/JsonConfigPaths.cs",
+    "src/Tscs.Compiler/JsonOptionsFromJson.cs"
+  ],
+  "tests": [
+    "tests/Tscs.Compiler.Tests/JsonConfigPathTests.cs"
+  ],
+  "newCases": 4,
+  "cases": [
+    [
+      "D800-D800",
+      "FFFD"
+    ],
+    [
+      "DC00-D800",
+      "FFFD"
+    ],
+    [
+      "D800-0058-DC00",
+      "FFFD-0058-FFFD"
+    ],
+    [
+      "D83D-DE00",
+      "D83D-DE00"
+    ]
+  ],
+  "diagnostics": "TS5116 display argument only; raw path remains intact for path/network checks",
+  "hostedVerification": {
+    "testRunner": "xUnit4/Microsoft.Testing.Platform2",
+    "total": 15450,
+    "passed": 15450,
+    "failed": 0,
+    "skipped": 0,
+    "node": {
+      "passed": 95,
+      "failed": 0
+    },
+    "frozen": {
+      "passed": 29,
+      "total": 29
+    },
+    "standaloneGoScope": "PASS",
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "checkRuns": [
+      {
+        "name": "CodeQL",
+        "conclusion": "success",
+        "head": "efb2c56ccee623b83aaeaab3a56a03dbd1dda098",
+        "url": "https://github.com/KoalaFacts/tscs/runs/121421272799",
+        "completedAt": "2026-10-26T05:55:13Z"
+      },
+      {
+        "name": "verify",
+        "conclusion": "success",
+        "head": "efb2c56ccee623b83aaeaab3a56a03dbd1dda098",
+        "url": "https://github.com/KoalaFacts/tscs/actions/runs/40276780084/job/121421091616",
+        "completedAt": "2026-10-26T05:55:45Z"
+      },
+      {
+        "name": "Analyze (actions)",
+        "conclusion": "success",
+        "head": "efb2c56ccee623b83aaeaab3a56a03dbd1dda098",
+        "url": "https://github.com/KoalaFacts/tscs/actions/runs/40276776893/job/121421084862",
+        "completedAt": "2026-10-26T05:55:19Z"
+      },
+      {
+        "name": "verify",
+        "conclusion": "success",
+        "head": "efb2c56ccee623b83aaeaab3a56a03dbd1dda098",
+        "url": "https://github.com/KoalaFacts/tscs/actions/runs/40276775627/job/121421077933",
+        "completedAt": "2026-10-26T05:56:16Z"
+      }
+    ],
+    "rawLogs": [
+      "docs/evidence/network-path-diagnostic-run/verify-40276780084.log",
+      "docs/evidence/network-path-diagnostic-run/verify-40276775627.log"
+    ]
+  },
+  "limitations": [
+    "Upstream TS7 original compiler/referenceCompiler/acceptance NOT_RUN",
+    "316-row private-Go oracle not rerun at this commit",
+    "172-source full map profile not rerun",
+    "13,006 source selection not rerun",
+    "typed CompilerOptions, config host, emitter and full test expansion not implemented",
+    "SDK local test coordinator not run in this task"
+  ],
+  "releaseEligible": false
+}

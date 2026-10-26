@@ -1,7 +1,38 @@
-# Status — 2026-10-24
+# Status — 2026-10-26
 
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
+
+## Rooted path and network diagnostic follow-up — 2026-10-26
+
+- The pinned compiler-option map now dispatches the 15 previously unsupported
+  path/locale declarations in addition to the existing 111 entries (126
+  declaration positions; 125 distinct names). Rooted PathKinds (1/2/3/7)
+  resolve lexically against config directory; source-map path kind retains
+  its unrooted value, network/device paths are rejected, and command-line-only
+  locale still reports TS6266. This is option-value conversion, not file host,
+  typed/effective CompilerOptions or full compiler acceptance.
+- Independently inspecting fixed upstream `tsconfigparsing.go` and
+  `nativepath/network.go` revealed a formatting boundary: Go's
+  `diagnostics.Format` collapses contiguous malformed WTF-8 into one U+FFFD
+  in the TS5116 network-path argument. The product now formats just that
+  diagnostic argument with the same existing option-name repair helper. Raw
+  UTF-16 input still drives path resolution/network rejection. Four xUnit
+  regressions construct malformed UTF-16 at runtime (not in InlineData's
+  UTF-8 metadata), also checking a valid surrogate pair.
+- Exact source head `efb2c56ccee623b83aaeaab3a56a03dbd1dda098` had all
+  four hosted checks completed/success: Release0 warnings/errors, xUnit/MTP
+  **15,450/15,450** (zero failed/skipped), Node **95/95**, Go standalone
+  scope PASS, frozen cohort **29/29**. Two full hosted verify logs are saved
+  unchanged in `docs/evidence/network-path-diagnostic-run/`; the four check
+  URLs and source IDs are in
+  [the evidence ledger](evidence/network-path-diagnostic.json).
+- The 316 pinned private-Go option-map rows are historical reference results
+  that the updated C# tests compare in full. The complete 172-source map
+  CLI profile and 13,006 source selection were **not rerun** by this correction;
+  earlier unsupported classifications remain historical evidence. Full
+  original compiler/referenceCompiler/acceptance all **NOT_RUN**, concrete
+  upstream executable denominator unknown and releaseEligible=false.
 
 ## Unknown-option diagnostic UTF-8 normalization P2 — 2026-10-26
 
@@ -11,8 +42,9 @@ server. No real-project compatibility or performance claim.
   leaving original lookup/suggestion keys unchanged.
 - Added six focused cases (adjacent high/low invalid surrogates, separated
   invalid runs and valid surrogate pairs) exercising both product conversion
-  and the real fixture JSONL path. Their hosted run remains to be confirmed;
-  historical 15,426-run evidence is not attributed to this change.
+  and the real fixture JSONL path. Exact head ad68f397 passed four hosted
+  checks, MTP15,432/15,432, Node95/95 and frozen29/29. Historical15,426
+  results retain their original tree/provenance.
 - Scope remains option-map diagnostics only. Full original compiler/reference/
   acceptance remains NOT_RUN; release eligibility is unchanged.
 

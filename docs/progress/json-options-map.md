@@ -96,3 +96,28 @@ valid high/low pair and invalid/valid/invalid sequences. The prior 316-row
 oracle and 172-source profile are historical; the newly added cases are not
 presented as a newly executed pinned-Go private-converter run. Hosted tests
 must be checked at the exact new commit before this correction is accepted.
+
+## Rooted-path dispatch and TS5116 UTF-8 diagnostics — 2026-10-26
+
+The follow-up commits add the rooted/nonrooted lexical path policies and
+command-line locale rejection for all 126 pinned option declaration positions.
+The original 316 actual-Go outputs and 172 historical selected source config
+inputs are retained without rewriting their original provenance. The new
+production tests require the complete pinned option-map values and diagnostics,
+including formerly unsupported path outputs. This does **not** constitute a
+fresh execution of the complete 172-source differential or the original TS7
+compiler/reference/acceptance profiles.
+
+A separate review of the fixed Go formatter found the TS5116 diagnostic
+argument must collapse contiguous malformed WTF-8 bytes as the existing
+unknown-name diagnostic formatter does. Four targeted xUnit cases build
+unpaired-surrogate input at runtime (InlineData cannot preserve malformed
+UTF-16 in attribute metadata) and preserve a valid surrogate pair. The raw
+path still determines network rejection; only display text changes. This
+fix is in `efb2c56ccee623b83aaeaab3a56a03dbd1dda098`.
+Exact-head hosted GitHub logs confirm 15,450/15,450 MTP, Node95/95,
+frozen29/29, Go-scope pass and all four check-runs successful.
+See [machine evidence](../evidence/network-path-diagnostic.json) and raw
+[verify logs](../evidence/network-path-diagnostic-run/). No claim of local
+Go1.27 private-converter rerun, SDK test-coordinator local execution, typed
+CompilerOptions, effective tsconfig, full TypeScript coverage or release.
