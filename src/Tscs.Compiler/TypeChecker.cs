@@ -47,16 +47,37 @@ internal sealed class TypeChecker(string file)
     }
     private string? TypeOf(ValueNode value,Scope scope)
     {
-        if(value is ValueBinary binary)
+        // The parser builds left-deep chains for numeric additions. Do not
+        // recursively descend them: supported source can contain hundreds of
+        // thousands of '+' operators under the source-size limit.
+        // Post-order evaluation preserves left-to-right binding diagnostics
+        // and reports the first unsupported operand at the same operator.
+        var pending=new Stack<(ValueNode Node,bool Combine)>();
+        var types=new Stack<string?>();
+        pending.Push((value,false));
+        while(pending.Count>0)
         {
-            // Evaluate both operands to keep binding/initialization diagnostics.
-            var left=TypeOf(binary.Left,scope);
-            var right=TypeOf(binary.Right,scope);
-            if(left==null||right==null)return null;
-            if(left=="number" && right=="number")return "number";
-            throw new CompilationFailure(Diagnostic.Error(file,binary.Operator,"TSCS1001","Only numeric addition expressions are supported yet."));
+            var (node,combine)=pending.Pop();
+            if(node is ValueAtom atom)
+            {
+                types.Push(TypeOfAtom(atom.Token,scope));
+                continue;
+            }
+            var binary=(ValueBinary)node;
+            if(!combine)
+            {
+                pending.Push((binary,true));
+                pending.Push((binary.Right,false));
+                pending.Push((binary.Left,false));
+                continue;
+            }
+            var right=types.Pop();
+            var left=types.Pop();
+            if(left==null||right==null)types.Push(null);
+            else if(left=="number"&&right=="number")types.Push("number");
+            else throw new CompilationFailure(Diagnostic.Error(file,binary.Operator,"TSCS1001","Only numeric addition expressions are supported yet."));
         }
-        return TypeOfAtom(((ValueAtom)value).Token,scope);
+        return types.Pop();
     }
     private string? TypeOfAtom(Token token,Scope scope)
     {
