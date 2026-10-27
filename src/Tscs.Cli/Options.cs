@@ -71,8 +71,10 @@ internal sealed class Options
         var root=parsed.Root;
         if(root?.Kind!="Object")throw InvalidConfig(file,text,root,"Configuration must be an object.");
         var keys=new HashSet<string>(StringComparer.Ordinal);
+        var explicitPaths=new HashSet<string>(projectHost.FileNameComparer);
         var includes=new List<string>();
         var excludes=new List<string>();
+        int patternCount=0;
         foreach(var p in root!.Properties)
         {
             if(!keys.Add((p.Name.Token.Value??p.Name.Token.Text)))throw InvalidConfig(file,text,p.Name,"Duplicate configuration keys are not supported.");
@@ -81,10 +83,17 @@ internal sealed class Options
                 case "files":
                     if(p.Value.Kind!="Array")throw InvalidConfig(file,text,p.Value,"files must be an array.");
                     foreach(var item in p.Value.Elements)
-                    {if(item.Kind!="String"||string.IsNullOrEmpty(item.Token.Value))throw InvalidConfig(file,text,item,"File paths must be nonempty strings.");Files.Add(projectHost.ResolveReferencePath(file,item.Token.Value!));}
+                    {
+                        if(item.Kind!="String"||string.IsNullOrEmpty(item.Token.Value))
+                            throw InvalidConfig(file,text,item,"File paths must be nonempty strings.");
+                        var sourcePath=projectHost.ResolveReferencePath(file,item.Token.Value!);
+                        if(!explicitPaths.Add(sourcePath))
+                            throw InvalidConfig(file,text,item,"Duplicate input paths are not supported.");
+                        Files.Add(sourcePath);
+                    }
                     break;
-                case "include":includes.AddRange(ProjectPatterns(p.Value,"include",file,text));break;
-                case "exclude":excludes.AddRange(ProjectPatterns(p.Value,"exclude",file,text));break;
+                case "include":includes.AddRange(ProjectPatterns(p.Value,"include",file,text,projectHost.FileNameComparer,ref patternCount));break;
+                case "exclude":excludes.AddRange(ProjectPatterns(p.Value,"exclude",file,text,projectHost.FileNameComparer,ref patternCount));break;
                 case "compilerOptions":
                     if(p.Value.Kind!="Object")throw InvalidConfig(file,text,p.Value,"compilerOptions must be an object.");
                     var optionKeys=new HashSet<string>(StringComparer.Ordinal);
@@ -123,7 +132,8 @@ internal sealed class Options
         // bounded source set, while excludes apply only to discovered files.
         Files.AddRange(ProjectSourceDiscovery.Discover(projectHost,Path.GetDirectoryName(file)!,Files,includes,excludes));
     }
-    private static IReadOnlyList<string> ProjectPatterns(JsonSyntaxNode value,string name,string file,string text)
+    private static IReadOnlyList<string> ProjectPatterns(JsonSyntaxNode value,string name,string file,string text,
+        StringComparer comparer,ref int patternCount)
     {
         if(value.Kind!="Array")throw InvalidConfig(file,text,value,$"{name} must be an array.");
         var patterns=new List<string>();
@@ -131,7 +141,12 @@ internal sealed class Options
         {
             if(element.Kind!="String"||string.IsNullOrWhiteSpace(element.Token.Value))
                 throw InvalidConfig(file,text,element,$"{name} entries must be nonempty strings.");
+            if(patternCount>=ProjectSourceDiscovery.MaximumPatterns)
+                throw InvalidConfig(file,text,element,"Project source pattern count exceeds the bootstrap limit.");
+            try { ProjectSourceDiscovery.ValidatePattern(element.Token.Value!,comparer); }
+            catch(InputFailure error) { throw InvalidConfig(file,text,element,error.Message); }
             patterns.Add(element.Token.Value!);
+            patternCount++;
         }
         return patterns;
     }

@@ -38,8 +38,24 @@ configuration file identity and UTF-16 token ranges. The existing
 results. Unsupported `TSCS1002` retains exit 1; pinned TypeScript diagnostics
 retain exit 2. In-memory CLI regressions cover the semantic failure families.
 
-This is not complete TS7 config semantics: discovery glob validation,
-`extends`, default includes and extra emit modes remain outside this
-bounded package. Exact-head CI and independent review are still required.
-Original accepted PASS remains 0 / 15,523 registered SKIP_UNIMPLEMENTED;
-dynamic expansion is unknown.
+This is not complete TS7 config semantics: default includes, `extends`,
+custom module resolution and extra emit modes remain outside this bounded
+package. Original accepted PASS remains 0 / 15,523 registered
+SKIP_UNIMPLEMENTED; dynamic expansion is unknown.
+
+## Project source selector provenance (next bounded work package)
+
+`Options.ReadConfig` now validates every explicit include/exclude pattern
+through the existing `ProjectSourceDiscovery` matcher while retaining the
+original JSON string token, before any host directory enumeration. Malformed
+absolute/traversal/unsupported globs and the shared 64-pattern limit report
+source-bound `TSCS1002` on the specific selector. Duplicate explicit `files`
+paths now use the host's own case-sensitive or case-insensitive identity and
+point at the second JSON string, not a fileless CLI error. The direct
+`ProjectSourceDiscovery.Discover` API and safety bounds remain unchanged.
+
+The same in-memory CLI → project loader path verifies each error family and
+its UTF-16 span. Source code is pending exact-head build, CI and review;
+these internal regressions grant no original TS7 acceptance credit.
+Next dependency: effective project-configuration snapshots and config-origin
+provenance for default source discovery when that feature is implemented.

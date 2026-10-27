@@ -12,7 +12,7 @@ public static class ProjectSourceDiscovery
 {
     private const int MaxScannedEntries=50_000;
     private const int MaxSourceFiles=4_096;
-    private const int MaxPatterns=64;
+    internal const int MaximumPatterns=64;
     private static StringComparison FileComparison => OperatingSystem.IsWindows()
         ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
     private static RegexOptions GlobOptions(StringComparer comparer) => RegexOptions.CultureInvariant|
@@ -45,7 +45,7 @@ public static class ProjectSourceDiscovery
         // Identity comparison must not depend on a trailing separator or the
         // current operating system's pathname spelling.
         configDirectory=Path.TrimEndingDirectorySeparator(host.GetCanonicalFileName(configDirectory));
-        if(includePatterns.Count+excludePatterns.Count>MaxPatterns)
+        if(includePatterns.Count+excludePatterns.Count>MaximumPatterns)
             throw new InputFailure("Project source pattern count exceeds the bootstrap limit.");
         var comparer=host.FileNameComparer;
         var includes=includePatterns.Select(p=>Compile(p,comparer)).ToArray();
@@ -159,6 +159,12 @@ public static class ProjectSourceDiscovery
             return false;
         }
     }
+
+    // The CLI validates configured selectors against the actual matcher while
+    // it still has each JSON token's source position. Public Discover callers
+    // retain their existing InputFailure behavior for malformed patterns.
+    internal static void ValidatePattern(string input,StringComparer comparer) =>
+        _=Compile(input,comparer);
 
     private static Glob Compile(string input,StringComparer comparer)
     {
