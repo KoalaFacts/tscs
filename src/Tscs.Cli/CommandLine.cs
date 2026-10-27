@@ -49,7 +49,7 @@ public static class CommandLine
                 output.Write(Encoding.UTF8.GetBytes("\"use strict\";\r\n"));
             }
             if(json)
-                stdout.WriteLine(JsonSerializer.Serialize(new{diagnostics=diagnostics.Select(d=>d with{File=Path.GetFileName(d.File)}),exitCode},JsonOptions));
+                stdout.WriteLine(JsonSerializer.Serialize(new{diagnostics=JsonSourceIdentities(diagnostics,program.Sources),exitCode},JsonOptions));
             else
             {
                 var sources=program.Sources.ToDictionary(f=>f.File,f=>f.Text,StringComparer.Ordinal);
@@ -73,6 +73,22 @@ public static class CommandLine
             return 1;
         }
     }
+    // Keep single-file JSON basenames stable. Disambiguate basename collisions
+    // using source-relative paths so the original UTF-16 spans stay attributable.
+    private static Diagnostic[] JsonSourceIdentities(IEnumerable<Diagnostic> diagnostics,
+        IReadOnlyList<SourceInput> sources)
+    {
+        var comparer=OperatingSystem.IsWindows()?StringComparer.OrdinalIgnoreCase:StringComparer.Ordinal;
+        var collisions=sources.GroupBy(s=>Path.GetFileName(s.File),comparer)
+            .Where(group=>group.Count()>1).Select(group=>group.Key).ToHashSet(comparer);
+        return diagnostics.Select(d=>d.File.Length==0?d:d with
+        {
+            File=collisions.Contains(Path.GetFileName(d.File))
+                ? Path.GetRelativePath(Environment.CurrentDirectory,d.File).Replace('\\','/')
+                : Path.GetFileName(d.File)
+        }).ToArray();
+    }
+
     private static string Format(Diagnostic d,string text)
     {
         if(d.File.Length==0)return $"error {d.Code}: {d.Message}";

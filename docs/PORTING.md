@@ -92,3 +92,13 @@ This is not package/node resolution, default/namespace/re-export, JS output,
 ambient modules, type-only imports, mutable live bindings, circular runtime
 initialization, or full TypeScript module semantics. No upstream acceptance is
 credited without the independent reference and complete original assertions.
+
+## Shared source syntax snapshots (2026-10-27; PR #8)
+
+The host-backed dependency loader and `Compilation.AnalyzeFiles` now share
+one scanner/parser result per canonical source, preserving either its AST or its
+real lexical/parser/unsupported diagnostics. This removes duplicate parsing for
+imported modules without adding a second syntax path. CLI JSON retains the
+existing basename contract for unambiguous inputs, using unique relative paths
+when loaded source basenames collide. Full TS7 module semantics are still
+unimplemented; these changes do not award upstream acceptance.

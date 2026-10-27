@@ -1,3 +1,12 @@
+# 2026-10-27 — Shared AST snapshots and multi-file diagnostic identity (PR #8)
+
+The host program now caches each canonical source's actual syntax result for
+both graph discovery and compiler analysis, removing duplicate module parsing.
+CLI JSON now disambiguates equal source basenames with relative paths while
+preserving the single-file output contract. This addresses the open P2 source
+identity review finding, subject to exact-head CI. Original TS7 accepted
+0/15,523; SKIP_UNIMPLEMENTED=15,523; no release/merge/review claimed.
+
 # 2026-10-27 — Bounded relative named ES modules (PR #8)
 
 Implemented host-backed source loading for relative named imports and per-file

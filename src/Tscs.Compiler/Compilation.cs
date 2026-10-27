@@ -3,6 +3,8 @@ namespace Tscs;
 public sealed record SourceInput(string File,string Text);
 public sealed record CompilationAnalysis(IReadOnlyList<Diagnostic> Diagnostics,bool HasSyntaxErrors,bool EmptyProgram=false);
 internal sealed record ParsedSource(string File,Block Root,Scanner Scanner);
+// Store the successful AST or the original syntax diagnostics once per source.
+internal sealed record ParsedSourceResult(ParsedSource? Source,Diagnostic[] Diagnostics,bool HasSyntaxErrors);
 
 public static class Compilation
 {
@@ -10,18 +12,18 @@ public static class Compilation
     public static IReadOnlyList<Diagnostic> CheckFiles(IReadOnlyList<SourceInput> files)=>AnalyzeFiles(files).Diagnostics;
     public static CompilationAnalysis Analyze(string file,string text)=>AnalyzeFiles([new(file,text)]);
 
-    // Parse every source before binding and type checking. The global script
-    // declarations are available from every file regardless of input order.
-    // Modules, complex inferred cross-file types and general emit are not yet supported.
+    // Parse before binding; reuse the host Program's dependency-graph syntax
+    // snapshots when present. General module semantics and emit are not claimed.
     public static CompilationAnalysis AnalyzeFiles(IReadOnlyList<SourceInput> files) =>
         AnalyzeFiles(files,null,StringComparer.Ordinal);
 
     internal static CompilationAnalysis AnalyzeFiles(IReadOnlyList<SourceInput> files,
-        IReadOnlyDictionary<string,Dictionary<int,string>>? resolvedImports,StringComparer comparer)
+        IReadOnlyDictionary<string,Dictionary<int,string>>? resolvedImports,StringComparer comparer,
+        IReadOnlyDictionary<string,ParsedSourceResult>? syntaxSnapshots=null)
     {
         ArgumentNullException.ThrowIfNull(files);
         if(files.Count==0)throw new ArgumentException("At least one source file is required.",nameof(files));
-        if(files.Select(f=>f.File).Distinct(StringComparer.Ordinal).Count()!=files.Count)
+        if(files.Select(f=>f.File).Distinct(comparer).Count()!=files.Count)
             throw new ArgumentException("Duplicate source paths are not supported.",nameof(files));
 
         var parsed=new List<ParsedSource>(files.Count);
@@ -29,41 +31,11 @@ public static class Compilation
         bool hasSyntaxErrors=false;
         foreach(var source in files)
         {
-            ArgumentNullException.ThrowIfNull(source.Text);
-            bool syntaxPhase=true;
-            Scanner? scanner=null;
-            try
-            {
-                if(source.Text.Length>1_000_000)
-                    throw new CompilationFailure(Diagnostic.Error(source.File,new(TokenKind.End,"",0,0),
-                        "TSCS1001","Source exceeds the bootstrap size limit."));
-                scanner=new Scanner(source.File,source.Text);
-                var tokens=scanner.Scan();
-                if(scanner.Diagnostics.Count>0)
-                {
-                    parsingDiagnostics.AddRange(scanner.Diagnostics);
-                    hasSyntaxErrors=true;
-                    continue;
-                }
-                var parser=new Parser(source.File,tokens);
-                var block=parser.Parse();
-                if(parser.Diagnostics.Count>0)
-                {
-                    parsingDiagnostics.AddRange(parser.Diagnostics);
-                    hasSyntaxErrors=true;
-                    continue;
-                }
-                syntaxPhase=false;
-                parsed.Add(new(source.File,block,scanner));
-            }
-            catch(CompilationFailure failure)
-            {
-                var lexical=scanner?.Diagnostics ?? [];
-                parsingDiagnostics.AddRange(lexical);
-                parsingDiagnostics.Add(failure.Diagnostic);
-                hasSyntaxErrors |= lexical.Count>0 ||
-                    (syntaxPhase && !failure.Diagnostic.Code.StartsWith("TSCS",StringComparison.Ordinal));
-            }
+            var syntax=syntaxSnapshots!=null && syntaxSnapshots.TryGetValue(source.File,out var cached)
+                ? cached : ParseSource(source);
+            if(syntax.Source is { } parsedSource)parsed.Add(parsedSource);
+            if(syntax.Diagnostics.Length>0)parsingDiagnostics.AddRange(syntax.Diagnostics);
+            hasSyntaxErrors |= syntax.HasSyntaxErrors;
         }
         // A broken source cannot safely contribute symbols, but errors in other
         // files must remain visible rather than disappearing behind the first one.
@@ -133,6 +105,38 @@ public static class Compilation
         }
         return new(diagnostics,false,parsed.All(p=>p.Root.Statements.Count==0));
     }
+    // The dependency loader and Compilation share this actual syntax pass.
+    // Unsupported constructs retain their diagnostic; no failure becomes SKIP.
+    internal static ParsedSourceResult ParseSource(SourceInput source)
+    {
+        ArgumentNullException.ThrowIfNull(source.Text);
+        bool syntaxPhase=true;
+        Scanner? scanner=null;
+        try
+        {
+            if(source.Text.Length>1_000_000)
+                throw new CompilationFailure(Diagnostic.Error(source.File,new(TokenKind.End,"",0,0),
+                    "TSCS1001","Source exceeds the bootstrap size limit."));
+            scanner=new Scanner(source.File,source.Text);
+            var tokens=scanner.Scan();
+            if(scanner.Diagnostics.Count>0)
+                return new ParsedSourceResult(null,scanner.Diagnostics.ToArray(),true);
+            var parser=new Parser(source.File,tokens);
+            var block=parser.Parse();
+            if(parser.Diagnostics.Count>0)
+                return new ParsedSourceResult(null,parser.Diagnostics.ToArray(),true);
+            syntaxPhase=false;
+            return new ParsedSourceResult(new ParsedSource(source.File,block,scanner),[],false);
+        }
+        catch(CompilationFailure failure)
+        {
+            var lexical=scanner?.Diagnostics ?? [];
+            var errors=new List<Diagnostic>(lexical){failure.Diagnostic};
+            return new ParsedSourceResult(null,errors.ToArray(),lexical.Count>0 ||
+                (syntaxPhase && !failure.Diagnostic.Code.StartsWith("TSCS",StringComparison.Ordinal)));
+        }
+    }
+
     private static Diagnostic[] Order(IEnumerable<Diagnostic> diagnostics)=>
         diagnostics.OrderBy(d=>d.File,StringComparer.Ordinal).ThenBy(d=>d.Start)
             .ThenBy(d=>d.Length).ThenBy(d=>d.Code,StringComparer.Ordinal).ToArray();

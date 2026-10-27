@@ -260,6 +260,37 @@ public class CommandLineTests : IDisposable
         Assert.Equal(0,Run("-p",project).Code);
     }
     [Fact]
+    public void MultiFileJsonDiagnosticsDisambiguateIdenticalBasenames()
+    {
+        var dirA=Directory.CreateDirectory(Path.Combine(directory,"a")).FullName;
+        var dirB=Directory.CreateDirectory(Path.Combine(directory,"b")).FullName;
+        var a=Path.Combine(dirA,"index.ts");
+        var b=Path.Combine(dirB,"index.ts");
+        File.WriteAllText(a,"let a = ;");
+        File.WriteAllText(b,"let b = ;");
+
+        var result=Run("--json","--noEmit","--noLib",a,b);
+        Assert.Equal(2,result.Code);
+        using(var json=System.Text.Json.JsonDocument.Parse(result.Out))
+        {
+            var diagnostics=json.RootElement.GetProperty("diagnostics").EnumerateArray().ToArray();
+            Assert.Equal(2,diagnostics.Length);
+            Assert.All(diagnostics,d=>Assert.Equal("TS1109",d.GetProperty("code").GetString()));
+            var identities=diagnostics.Select(d=>d.GetProperty("file").GetString()).ToArray();
+            Assert.Equal(2,identities.Distinct(StringComparer.Ordinal).Count());
+            Assert.Contains(Path.GetRelativePath(Environment.CurrentDirectory,a).Replace('\\','/'),identities);
+            Assert.Contains(Path.GetRelativePath(Environment.CurrentDirectory,b).Replace('\\','/'),identities);
+        }
+
+        var single=Run("--json","--noEmit","--noLib",a);
+        using var one=System.Text.Json.JsonDocument.Parse(single.Out);
+        Assert.Equal(2,single.Code);
+        Assert.Equal("index.ts",
+            Assert.Single(one.RootElement.GetProperty("diagnostics").EnumerateArray())
+                .GetProperty("file").GetString());
+    }
+
+    [Fact]
     public void CrossFileTypeErrorsRenderTheCorrectFile()
     {
         var a=Write("a.ts","let first: string = second;");

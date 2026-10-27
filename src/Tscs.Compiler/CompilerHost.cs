@@ -44,13 +44,16 @@ public sealed class CompilerProgram
 {
     private readonly SourceInput[] sources;
     private readonly Dictionary<string,Dictionary<int,string>> importPaths;
+    private readonly IReadOnlyDictionary<string,ParsedSourceResult> syntaxSnapshots;
     private readonly StringComparer fileNameComparer;
     private CompilationAnalysis? analysis;
 
-    private CompilerProgram(SourceInput[] inputs,Dictionary<string,Dictionary<int,string>> imports,StringComparer comparer)
+    private CompilerProgram(SourceInput[] inputs,Dictionary<string,Dictionary<int,string>> imports,
+        Dictionary<string,ParsedSourceResult> syntax,StringComparer comparer)
     {
         sources=inputs;
         importPaths=imports;
+        syntaxSnapshots=syntax;
         fileNameComparer=comparer;
         Sources=Array.AsReadOnly(inputs);
     }
@@ -72,6 +75,7 @@ public sealed class CompilerProgram
         var queue=new Queue<string>();
         var loaded=new List<SourceInput>();
         var importPaths=new Dictionary<string,Dictionary<int,string>>(host.FileNameComparer);
+        var syntax=new Dictionary<string,ParsedSourceResult>(host.FileNameComparer);
 
         void LoadOne(string canonical)
         {
@@ -98,49 +102,36 @@ public sealed class CompilerProgram
                 if(scheduled.Add(dependency))queue.Enqueue(dependency);
             }
 
-            // Module edges come from parsed source nodes, never from a filename
-            // regex or a generated conformance placeholder. Unsupported syntax
-            // remains the analyzer's error, not a silently inferred dependency.
-            try
+            // Source edges and semantic checking reuse the same parsed AST.
+            // Invalid scanner/parser results also remain stored for Analyze.
+            var snapshot=Compilation.ParseSource(new SourceInput(canonical,source));
+            syntax.Add(canonical,snapshot);
+            if(snapshot.Source is { } parsed)
             {
-                var scanner=new Scanner(canonical,source);
-                var tokens=scanner.Scan();
-                if(scanner.Diagnostics.Count==0)
+                foreach(var import in parsed.Root.Statements.OfType<ImportDeclaration>())
                 {
-                    var parser=new Parser(canonical,tokens);
-                    var block=parser.Parse();
-                    if(parser.Diagnostics.Count==0)
+                    var specifier=import.ModulePath.Value ?? "";
+                    if(!((specifier.StartsWith("./",StringComparison.Ordinal) ||
+                          specifier.StartsWith("../",StringComparison.Ordinal)) &&
+                         !specifier.Contains('\\') && !specifier.Contains(':')))
+                        throw new ArgumentException(
+                            $"Only relative TypeScript module specifiers are supported: '{specifier}' in '{canonical}'.",nameof(paths));
+                    if(Path.GetExtension(specifier).Length==0)specifier+=".ts";
+                    if(!specifier.EndsWith(".ts",StringComparison.Ordinal) ||
+                       specifier.EndsWith(".d.ts",StringComparison.Ordinal))
+                        throw new ArgumentException(
+                            $"Only TypeScript source module paths are supported: '{specifier}' in '{canonical}'.",nameof(paths));
+                    var dependency=host.ResolveReferencePath(canonical,specifier);
+                    if(string.IsNullOrWhiteSpace(dependency))
+                        throw new ArgumentException("The compiler host returned an empty module identity.",nameof(host));
+                    if(!importPaths.TryGetValue(canonical,out var resolved))
                     {
-                        foreach(var import in block.Statements.OfType<ImportDeclaration>())
-                        {
-                            var specifier=import.ModulePath.Value ?? "";
-                            if(!((specifier.StartsWith("./",StringComparison.Ordinal) ||
-                                  specifier.StartsWith("../",StringComparison.Ordinal)) &&
-                                 !specifier.Contains('\\') && !specifier.Contains(':')))
-                                throw new ArgumentException(
-                                    $"Only relative TypeScript module specifiers are supported: '{specifier}' in '{canonical}'.",nameof(paths));
-                            if(Path.GetExtension(specifier).Length==0)specifier+=".ts";
-                            if(!specifier.EndsWith(".ts",StringComparison.Ordinal) ||
-                               specifier.EndsWith(".d.ts",StringComparison.Ordinal))
-                                throw new ArgumentException(
-                                    $"Only TypeScript source module paths are supported: '{specifier}' in '{canonical}'.",nameof(paths));
-                            var dependency=host.ResolveReferencePath(canonical,specifier);
-                            if(string.IsNullOrWhiteSpace(dependency))
-                                throw new ArgumentException("The compiler host returned an empty module identity.",nameof(host));
-                            if(!importPaths.TryGetValue(canonical,out var resolved))
-                            {
-                                resolved=new Dictionary<int,string>();
-                                importPaths.Add(canonical,resolved);
-                            }
-                            resolved.Add(import.ModulePath.Start,dependency);
-                            if(scheduled.Add(dependency))queue.Enqueue(dependency);
-                        }
+                        resolved=new Dictionary<int,string>();
+                        importPaths.Add(canonical,resolved);
                     }
+                    resolved.Add(import.ModulePath.Start,dependency);
+                    if(scheduled.Add(dependency))queue.Enqueue(dependency);
                 }
-            }
-            catch(CompilationFailure)
-            {
-                // The exact compiler diagnostic remains owned by Analyze.
             }
         }
 
@@ -162,8 +153,8 @@ public sealed class CompilerProgram
             var canonical=queue.Dequeue();
             if(loadedFiles.Add(canonical))LoadOne(canonical);
         }
-        return new CompilerProgram([.. loaded],importPaths,host.FileNameComparer);
+        return new CompilerProgram([.. loaded],importPaths,syntax,host.FileNameComparer);
     }
 
-    public CompilationAnalysis Analyze() => analysis ??= Compilation.AnalyzeFiles(sources,importPaths,fileNameComparer);
+    public CompilationAnalysis Analyze() => analysis ??= Compilation.AnalyzeFiles(sources,importPaths,fileNameComparer,syntaxSnapshots);
 }
