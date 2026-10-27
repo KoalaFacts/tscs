@@ -75,6 +75,34 @@ public sealed class JavaScriptEmitTests : IDisposable
             File.ReadAllText(Path.ChangeExtension(entry,".js")));
     }
 
+    [Theory]
+    [InlineData("export function identity(eval: number): number { return eval; }")]
+    [InlineData("export function identity(arguments: number): number { return arguments; }")]
+    [InlineData("export function eval(x: number): number { return x; }")]
+    [InlineData("export function arguments(x: number): number { return x; }")]
+    [InlineData("function identity(eval: number): number { return eval; } export { identity };")]
+    public void StrictModuleFunctionBindingsAreRejectedBeforeOutput(string source)
+    {
+        var input=Write("strict-function.ts",source);
+        var response=Run("--emitJs","--module","es2015","--noLib","--target","es2015",input,Globals());
+        Assert.Equal(2,response.Code);
+        Assert.Contains("TS1100",response.Output);
+        Assert.False(File.Exists(Path.ChangeExtension(input,".js")));
+    }
+
+    [Fact]
+    public void StrictModuleImportAliasesAreRejectedBeforeAnyOutput()
+    {
+        var dependency=Write("strict-dependency.ts","export const value: number = 1;");
+        var entry=Write("strict-consumer.ts",
+            "import { value as eval } from \"./strict-dependency.js\"; export const answer: number = eval;");
+        var response=Run("--emitJs","--module","es2015","--noLib","--target","es2015",entry,Globals());
+        Assert.Equal(2,response.Code);
+        Assert.Contains("TS1100",response.Output);
+        Assert.False(File.Exists(Path.ChangeExtension(entry,".js")));
+        Assert.False(File.Exists(Path.ChangeExtension(dependency,".js")));
+    }
+
     [Fact]
     public void TypeErrorInLinkedModulePreventsAllOutput()
     {

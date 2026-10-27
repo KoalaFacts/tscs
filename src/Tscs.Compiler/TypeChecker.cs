@@ -1,7 +1,7 @@
 namespace Tscs;
 
 // Primitive branches of checkVariableLikeDeclaration/checkIdentifier/checkBinaryLikeExpression.
-internal sealed class TypeChecker(string file)
+internal sealed class TypeChecker(string file,bool strictModule=false)
 {
     private readonly List<Diagnostic> diagnostics=[];
     public IReadOnlyList<Diagnostic> Check(Block block) { CheckBlock(block,null);return diagnostics; }
@@ -19,6 +19,7 @@ internal sealed class TypeChecker(string file)
             {
                 case Block nested: CheckBlock(nested,scope,false,expectedReturn);break;
                 case FunctionDeclaration function:
+                    CheckStrictModuleBinding(function.Name);
                     var functionSymbol=scope.Symbols[function.Name.Text];
                     var functionType=(FunctionTypeSymbol)functionSymbol.Type!;
                     if(!FunctionControlFlow.DefinitelyReturnsValue(function.Body))
@@ -26,8 +27,17 @@ internal sealed class TypeChecker(string file)
                             "Only function bodies with a definite value return are supported yet."));
                     var parameters=new Scope(scope);
                     foreach(var parameter in function.Parameters)
+                    {
+                        CheckStrictModuleBinding(parameter.Name);
                         Binder.DeclareParameter(file,parameters,parameter);
+                    }
                     CheckBlock(function.Body,parameters,false,functionType.ReturnType);
+                    break;
+                case ImportDeclaration import:
+                    // The imported name is an export property; only the local
+                    // alias introduces a strict-mode module binding.
+                    foreach(var specifier in import.Specifiers)
+                        CheckStrictModuleBinding(specifier.Local);
                     break;
                 case ConditionalStatement conditional:
                     CheckConditional(conditional,scope,expectedReturn);
@@ -282,6 +292,13 @@ internal sealed class TypeChecker(string file)
         else if(symbol.File==file && symbol.Declaration is not FunctionDeclaration && name.Start<=symbol.DeclarationStart)
             throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001","References before declaration are not supported yet."));
         return symbol;
+    }
+    private void CheckStrictModuleBinding(Token name)
+    {
+        // ES modules are always strict, including nested function scopes.
+        // Do not impose module-only restrictions on sloppy script parameters.
+        if(strictModule && (name.Text is "eval" or "arguments"))
+            Error(name,"TS1100",$"Invalid use of '{name.Text}' in strict mode.");
     }
     private void Mismatch(Token token,TypeSymbol source,TypeSymbol target)=>
         Error(token,"TS2322",$"Type '{source.DisplayName}' is not assignable to type '{target.DisplayName}'.");
