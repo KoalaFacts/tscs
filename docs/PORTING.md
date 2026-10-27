@@ -263,3 +263,17 @@ introduced. Project `extends`, `include`, module-resolution modes, CommonJS,
 source maps, declarations and general TS7 compiler options remain unsupported.
 A Node24 runtime smoke compiles from a project config and executes the output;
 this is not a full original upstream TS7 acceptance PASS.
+
+## Typed effective compiler settings in the Program (2026-10-28)
+
+`CompilerOptions` is an immutable effective option snapshot carrying the
+implemented `NoEmit`, `NoLib`, ES2015 target and named ES2015 module mode.
+The CLI converts pinned configuration values and explicit flags into one typed
+instance, then passes it to `CompilerProgram.Load`; `EmitJavaScript()`
+reads module mode from that same Program snapshot rather than a separate
+CLI boolean argument. The Program refuses emission if `NoEmit` is true.
+An explicit bool argument remains accepted for existing Program API callers,
+but cannot bypass `NoEmit`. In-memory CompilerHost regressions cover the
+actual checked and emitted graph, negative module boundaries and noEmit.
+This is a bounded module/options dependency cleanup, not general TS7 defaults,
+extended config expansion, module mode support or upstream conformance.

@@ -47,10 +47,12 @@ public sealed class CompilerProgram
     private readonly IReadOnlyDictionary<string,ParsedSourceResult> syntaxSnapshots;
     private readonly StringComparer fileNameComparer;
     private CompilationAnalysis? analysis;
+    public CompilerOptions Options { get; }
 
     private CompilerProgram(SourceInput[] inputs,Dictionary<string,Dictionary<int,string>> imports,
-        Dictionary<string,ParsedSourceResult> syntax,StringComparer comparer)
+        Dictionary<string,ParsedSourceResult> syntax,StringComparer comparer,CompilerOptions options)
     {
+        Options=options;
         sources=inputs;
         importPaths=imports;
         syntaxSnapshots=syntax;
@@ -60,7 +62,7 @@ public sealed class CompilerProgram
 
     public IReadOnlyList<SourceInput> Sources { get; }
 
-    public static CompilerProgram Load(ICompilerHost host,IReadOnlyList<string> paths)
+    public static CompilerProgram Load(ICompilerHost host,IReadOnlyList<string> paths,CompilerOptions? options=null)
     {
         ArgumentNullException.ThrowIfNull(host);
         ArgumentNullException.ThrowIfNull(paths);
@@ -162,7 +164,7 @@ public sealed class CompilerProgram
             var canonical=queue.Dequeue();
             if(loadedFiles.Add(canonical))LoadOne(canonical);
         }
-        return new CompilerProgram([.. loaded],importPaths,syntax,host.FileNameComparer);
+        return new CompilerProgram([.. loaded],importPaths,syntax,host.FileNameComparer,options ?? new CompilerOptions());
     }
 
     public CompilationAnalysis Analyze() => analysis ??= Compilation.AnalyzeFiles(sources,importPaths,fileNameComparer,syntaxSnapshots);
@@ -172,8 +174,13 @@ public sealed class CompilerProgram
     /// JavaScript. This cannot emit modules, declaration files, unsupported
     /// syntax or any program with errors. It never loads or reparses source.
     /// </summary>
-    public IReadOnlyList<JavaScriptOutput> EmitJavaScript(bool emitModules=false)
+    public IReadOnlyList<JavaScriptOutput> EmitJavaScript(bool? emitModules=null)
     {
+        if(Options.NoEmit)
+            throw new InvalidOperationException("JavaScript output is disabled by noEmit.");
+        // Existing explicit API callers may select the old bool overload;
+        // ordinary Program emission uses the same typed effective options as CLI.
+        bool emitNamedModules=emitModules ?? Options.Module==CompilerModule.Es2015;
         var checkedProgram=Analyze();
         if(checkedProgram.HasSyntaxErrors || checkedProgram.Diagnostics.Count>0)
             throw new InvalidOperationException("JavaScript output requires a successful checked program.");
@@ -183,10 +190,10 @@ public sealed class CompilerProgram
             var source=sources[i];
             if(!syntaxSnapshots.TryGetValue(source.File,out var syntax) || syntax.Source is not { } parsed)
                 throw new InvalidOperationException("No validated AST snapshot exists for the source.");
-            if(!emitModules && parsed.Root.Statements.Any(s=>
+            if(!emitNamedModules && parsed.Root.Statements.Any(s=>
                 s is ImportDeclaration or ExportDeclaration or Variable { Exported: true } or FunctionDeclaration { Exported: true }))
                 throw new NotSupportedException("ES module JavaScript output is not implemented; specify --module es2015 for supported named modules.");
-            output[i]=new JavaScriptOutput(source.File,JavaScriptEmitter.Emit(parsed.Root,emitModules));
+            output[i]=new JavaScriptOutput(source.File,JavaScriptEmitter.Emit(parsed.Root,emitNamedModules));
         }
         return Array.AsReadOnly(output);
     }

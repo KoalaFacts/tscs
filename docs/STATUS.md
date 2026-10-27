@@ -1,3 +1,15 @@
+# 2026-10-28 — Immutable CompilerOptions joined to CompilerProgram (bounded architecture)
+
+CLI project/flag configuration now produces one typed effective CompilerOptions
+snapshot, passed into the host-backed CompilerProgram. The AST emitter consumes
+its Program module mode and enforces noEmit, rather than a separate CLI switch.
+The existing explicit Program bool API is preserved for callers, with noEmit
+still blocking output. In-memory Program tests check real module JavaScript
+emission and both failure boundaries. This improves architecture reuse without
+claiming other TS7 option defaults or module transforms. The 15,523 registered
+original configuration targets remain SKIP_UNIMPLEMENTED until independent
+pinned product/reference acceptance; no original PASS is claimed.
+
 # 2026-10-28 — tsconfig named ES2015 module output (bounded architecture package)
 
 The CLI `compilerOptions.module` setting now flows through the pinned TS7 enum

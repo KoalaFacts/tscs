@@ -24,7 +24,7 @@ public static class CommandLine
             var globals=new HashSet<string>(StringComparer.Ordinal);
             foreach(var path in inputs.Where(p=>p.EndsWith(".d.ts",StringComparison.Ordinal)))
                 ReadGlobals(host.ReadFile(path),globals);
-            var program=CompilerProgram.Load(host,codeFiles);
+            var program=CompilerProgram.Load(host,codeFiles,options.EffectiveCompilerOptions);
             var analysis=program.Analyze();
             // First original-profile emit slice: an empty parsed program under the
             // explicit ES2015 target. This does NOT silently accept nonempty source
@@ -45,7 +45,7 @@ public static class CommandLine
             if(exitCode==0&&options.EmitJs)
             {
                 IReadOnlyList<JavaScriptOutput> emitted;
-                try { emitted=program.EmitJavaScript(options.EmitEs2015Module); }
+                try { emitted=program.EmitJavaScript(); }
                 catch(NotSupportedException error) { throw new InputFailure(error.Message); }
 
                 // Compute all outputs and reject existing files before writing any.

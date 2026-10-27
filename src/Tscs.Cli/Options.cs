@@ -5,12 +5,15 @@ namespace Tscs;
 internal sealed class Options
 {
     public List<string> Files { get; }=[];
-    private bool noEmit,noLib;
-    public bool NoEmit=>noEmit;
-    public bool NoLib=>noLib;
+    // One effective, immutable compiler settings snapshot. CLI-only --emitJs
+    // remains separate from TypeScript's compiler options.
+    private CompilerOptions compilerOptions=new();
+    public CompilerOptions EffectiveCompilerOptions=>compilerOptions;
+    public bool NoEmit=>compilerOptions.NoEmit;
+    public bool NoLib=>compilerOptions.NoLib;
     public bool EmitJs {get;private set;}
-    public bool EmitEs2015Module {get;private set;}
-    public bool ExplicitEs2015Target {get;private set;}
+    public bool EmitEs2015Module=>compilerOptions.Module==CompilerModule.Es2015;
+    public bool ExplicitEs2015Target=>compilerOptions.Target==CompilerTarget.Es2015;
     public static Options Parse(string[] args)
     {
         var options=new Options();string? project=null;
@@ -32,12 +35,12 @@ internal sealed class Options
                 case "--module":
                     if(++i==args.Length || (args[i]!="es2015" && args[i]!="es6"))
                         throw new InputFailure("Only --module es2015/es6 is supported for named ES modules.");
-                    options.EmitEs2015Module=true;
+                    options.compilerOptions=options.compilerOptions with {Module=CompilerModule.Es2015};
                     break;
-                case "--noEmit":options.noEmit=ReadBool(args,ref i);break;
-                case "--noLib":options.noLib=ReadBool(args,ref i);break;
+                case "--noEmit":options.compilerOptions=options.compilerOptions with {NoEmit=ReadBool(args,ref i)};break;
+                case "--noLib":options.compilerOptions=options.compilerOptions with {NoLib=ReadBool(args,ref i)};break;
                 case "--pretty":if(++i==args.Length||args[i]!="false")throw new InputFailure("Only --pretty false is supported.");break;
-                case "--target":if(++i==args.Length)throw new InputFailure("Missing target.");ValidateTarget(args[i]);options.ExplicitEs2015Target=true;break;
+                case "--target":if(++i==args.Length)throw new InputFailure("Missing target.");ValidateTarget(args[i]);options.compilerOptions=options.compilerOptions with {Target=CompilerTarget.Es2015};break;
                 default:
                     if(arg.StartsWith('-'))throw new InputFailure($"Unsupported option '{arg}'.");
                     if(project!=null)throw new InputFailure("Cannot combine a project with source file arguments.");
@@ -80,13 +83,13 @@ internal sealed class Options
                         if(!optionKeys.Add((option.Name.Token.Value??option.Name.Token.Text)))throw new InputFailure("Duplicate compiler options are not supported.");
                         switch((option.Name.Token.Value??option.Name.Token.Text))
                         {
-                            case "noEmit":noEmit=Boolean("noEmit",option.Value,file,text);break;
-                            case "noLib":noLib=Boolean("noLib",option.Value,file,text);break;
+                            case "noEmit":compilerOptions=compilerOptions with {NoEmit=Boolean("noEmit",option.Value,file,text)};break;
+                            case "noLib":compilerOptions=compilerOptions with {NoLib=Boolean("noLib",option.Value,file,text)};break;
                             case "target":
                                 var target=JsonEnumOptions.Convert(JsonEnumOptions.Declarations["target"],JsonConfigValues.Convert(option.Value),file,expression:option.Value.Token);
                                 if(target.Diagnostics.Count>0)throw new ConfigSyntaxFailure(text,target.Diagnostics);
                                 // Valid upstream targets beyond the bootstrap remain unsupported.
-                                if(target.Value.Kind=="Number"&&target.Value.Number==2){ExplicitEs2015Target=true;break;}
+                                if(target.Value.Kind=="Number"&&target.Value.Number==2){compilerOptions=compilerOptions with {Target=CompilerTarget.Es2015};break;}
                                 throw new InputFailure("Only target es2015/es6 is supported by the bootstrap.");
                             case "module":
                                 // Use the pinned TS7 declaration and its diagnostic mapping,
@@ -95,9 +98,9 @@ internal sealed class Options
                                 var module=JsonEnumOptions.Convert(JsonEnumOptions.Declarations["module"],
                                     JsonConfigValues.Convert(option.Value),file,expression:option.Value.Token);
                                 if(module.Diagnostics.Count>0)throw new ConfigSyntaxFailure(text,module.Diagnostics);
-                                if(option.Value.Kind=="Null"){EmitEs2015Module=false;break;}
+                                if(option.Value.Kind=="Null"){compilerOptions=compilerOptions with {Module=CompilerModule.Unspecified};break;}
                                 // Pinned ModuleKind.ES2015=5; ES6 is the same enum value.
-                                if(module.Value.Kind=="Number"&&module.Value.Number==5){EmitEs2015Module=true;break;}
+                                if(module.Value.Kind=="Number"&&module.Value.Number==5){compilerOptions=compilerOptions with {Module=CompilerModule.Es2015};break;}
                                 throw new InputFailure("Only module es2015/es6 is supported by the bootstrap.");
                             default:throw new InputFailure($"Unsupported compiler option '{(option.Name.Token.Value??option.Name.Token.Text)}'.");
                         }
