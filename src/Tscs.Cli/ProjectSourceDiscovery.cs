@@ -40,7 +40,9 @@ public static class ProjectSourceDiscovery
         IReadOnlyList<string> includePatterns,IReadOnlyList<string> excludePatterns)
     {
         ArgumentNullException.ThrowIfNull(host);
-        configDirectory=host.GetCanonicalFileName(configDirectory);
+        // Identity comparison must not depend on a trailing separator or the
+        // current operating system's pathname spelling.
+        configDirectory=Path.TrimEndingDirectorySeparator(host.GetCanonicalFileName(configDirectory));
         if(includePatterns.Count+excludePatterns.Count>MaxPatterns)
             throw new InputFailure("Project source pattern count exceeds the bootstrap limit.");
         var comparer=host.FileNameComparer;
@@ -55,30 +57,35 @@ public static class ProjectSourceDiscovery
         // by one glob must never turn on package inclusion for other globs.
         foreach(var include in includes)
         {
-            var directories=new Stack<string>();
-            directories.Push(configDirectory);
+            // Carry host-validated relative components with each directory.
+            // Path.GetRelativePath applies the process OS case policy, which
+            // can disagree with the VFS FileNameComparer.
+            var directories=new Stack<(string Directory,string Relative)>();
+            directories.Push((configDirectory,string.Empty));
             while(directories.Count>0)
             {
-                string directory=directories.Pop();
+                var (directory,parentRelative)=directories.Pop();
                 foreach(var entry in host.EnumerateDirectory(directory))
                 {
                     if(++scanned>MaxScannedEntries)
                         throw new InputFailure("Project source discovery exceeds the bootstrap scan limit.");
                     // The VFS decides whether an entry is a link. Never walk it.
                     if(entry.IsSymbolicLink)continue;
-                    var path=host.GetCanonicalFileName(entry.Path);
+                    var path=Path.TrimEndingDirectorySeparator(host.GetCanonicalFileName(entry.Path));
                     // Reject a malformed host that enumerates another directory
                     // (including a parent/ancestor) as an immediate child.
                     if(!comparer.Equals(Path.GetDirectoryName(path),directory))
                         throw new InputFailure("Project source host returned an entry outside its directory.");
-                    string relative=Path.GetRelativePath(configDirectory,path)
-                        .Replace(Path.DirectorySeparatorChar,'/');
-                    if(relative==".."||relative.StartsWith("../",StringComparison.Ordinal)||
-                       Path.IsPathRooted(relative))
-                        throw new InputFailure("Project source host returned a path outside the project.");
+                    // Every entry has already passed the immediate-parent
+                    // identity check above. Build relative glob paths from
+                    // its component rather than calling OS-dependent
+                    // Path.GetRelativePath on differently cased VFS aliases.
+                    var name=Path.GetFileName(path);
+                    if(string.IsNullOrEmpty(name)||name is "." or "..")
+                        throw new InputFailure("Project source host returned an invalid child name.");
+                    string relative=parentRelative.Length==0?name:parentRelative+"/"+name;
                     if(entry.IsDirectory)
                     {
-                        var name=Path.GetFileName(path);
                         if(comparer.Equals(name,".git")||comparer.Equals(name,".artifacts"))continue;
                         // Package boundaries are checked against the actual
                         // matched glob component, not a global pattern flag.
@@ -89,7 +96,7 @@ public static class ProjectSourceDiscovery
                         // Prune that whole subtree, like explicit directory excludes.
                         if(excludes.Any(g=>g.IsMatch(relative)||g.IsMatch(relative+"/"))||
                            !include.CanContainDirectory(relative))continue;
-                        directories.Push(path);
+                        directories.Push((path,relative));
                         continue;
                     }
                     if(!HasSuffix(path,".ts",comparer)||!include.IsMatch(relative)||

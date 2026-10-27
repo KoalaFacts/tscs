@@ -43,6 +43,47 @@ public sealed class ProjectVirtualHostTests
         }
     }
 
+    // The host deliberately reports an OS-casing alias for the root.
+    // Relative glob paths must use the host identity policy, not the OS.
+    private sealed class CaseAliasHost : IProjectSourceHost
+    {
+        public string Root { get; }=Path.GetFullPath(Path.Combine(Path.GetTempPath(),"tscs-case-alias-root"));
+        public string AliasedFile=>Path.GetFullPath(Path.Combine(Root.ToUpperInvariant(),"answer.ts"));
+        public StringComparer FileNameComparer=>StringComparer.OrdinalIgnoreCase;
+        public string GetCanonicalFileName(string path)=>Path.GetFullPath(path);
+        public string ReadFile(string canonicalFileName)=>
+            FileNameComparer.Equals(canonicalFileName,AliasedFile)
+                ? "let answer: number = 42;"
+                : throw new FileNotFoundException("Unknown in-memory source.",canonicalFileName);
+        public IEnumerable<CompilerDirectoryEntry> EnumerateDirectory(string canonicalDirectoryName)
+        {
+            if(!FileNameComparer.Equals(canonicalDirectoryName,Root))
+                throw new InvalidOperationException("Unexpected directory traversal.");
+            return [new CompilerDirectoryEntry(AliasedFile,false,false)];
+        }
+    }
+
+    [Fact]
+    public void CaseInsensitiveVirtualHostCanReturnDifferentlyCasedRoot()
+    {
+        var host=new CaseAliasHost();
+        var discovered=ProjectSourceDiscovery.Discover(host,host.Root,[],
+            ["*.ts"],[]);
+        Assert.Equal([host.AliasedFile],discovered);
+        Assert.Empty(CompilerProgram.Load(host,discovered).Analyze().Diagnostics);
+    }
+
+    [Fact]
+    public void TrailingConfigDirectorySeparatorStillDiscoversAndChecksSources()
+    {
+        var host=new VirtualProjectHost();
+        host.Add("main.ts","let answer: number = 42;");
+        var discovered=ProjectSourceDiscovery.Discover(host,
+            host.Root+Path.DirectorySeparatorChar,[],["*.ts"],[]);
+        Assert.Equal([host.PathFor("main.ts")],discovered);
+        Assert.Empty(CompilerProgram.Load(host,discovered).Analyze().Diagnostics);
+    }
+
     [Fact]
     public void VirtualGlobsResolveRealProgramSourcesWithoutDiskAccess()
     {
