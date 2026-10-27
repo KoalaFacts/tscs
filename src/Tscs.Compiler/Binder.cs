@@ -19,6 +19,7 @@ internal sealed class Symbol(string file,Statement declaration)
 }
 internal sealed class Scope(Scope? parent)
 {
+    public Scope? Parent { get; } = parent;
     public Dictionary<string,Symbol> Symbols { get; } = new(StringComparer.Ordinal);
     public Symbol? Find(string name)=>Symbols.GetValueOrDefault(name)??parent?.Find(name);
 }

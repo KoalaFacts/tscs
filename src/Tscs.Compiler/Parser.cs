@@ -5,6 +5,7 @@ internal sealed class Parser(string file, List<Token> tokens)
 {
     private int position;
     private int callNesting;
+    private int conditionalNesting;
     private Token Current => tokens[position];
     public List<Diagnostic> Diagnostics { get; } = [];
     private Token Take() => tokens[position++];
@@ -135,6 +136,11 @@ internal sealed class Parser(string file, List<Token> tokens)
                 statements.Add(new FunctionDeclaration(name,parameters,result,body,exported));
                 continue;
             }
+            if(Current.Kind==TokenKind.If)
+            {
+                statements.Add(ParseConditional(depth,inFunction));
+                continue;
+            }
             if(Current.Kind==TokenKind.Return)
             {
                 var keyword=Take();
@@ -196,6 +202,44 @@ internal sealed class Parser(string file, List<Token> tokens)
         }
         return new Block(statements);
     }
+    // Preserve distinct branch ASTs for later control flow and symbol analysis.
+    // Single-statement arms remain unsupported until the parser can represent them.
+    private ConditionalStatement ParseConditional(int depth,bool inFunction)
+    {
+        if(++conditionalNesting>128)
+            Unsupported(Current,"Conditional nesting exceeds the bootstrap limit.");
+        try
+        {
+            var keyword=Take();
+            if(!Eat(TokenKind.OpenParen))
+                Unsupported(Current,"Expected '(' after 'if'.");
+            var condition=ParseValue();
+            if(!Eat(TokenKind.CloseParen))
+                Unsupported(Current,"Expected ')' after the condition.");
+            if(!Eat(TokenKind.Open))
+                Unsupported(Current,"Conditional branches require a braced block.");
+            var consequent=Parse(depth+1,inFunction);
+            if(!Eat(TokenKind.Close))
+                Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+            Statement? alternate=null;
+            if(Eat(TokenKind.Else))
+            {
+                if(Current.Kind==TokenKind.If)
+                    alternate=ParseConditional(depth+1,inFunction);
+                else
+                {
+                    if(!Eat(TokenKind.Open))
+                        Unsupported(Current,"Conditional branches require a braced block.");
+                    alternate=Parse(depth+1,inFunction);
+                    if(!Eat(TokenKind.Close))
+                        Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+                }
+            }
+            return new ConditionalStatement(keyword,condition,consequent,alternate);
+        }
+        finally { conditionalNesting--; }
+    }
+
     private string ReadPrimitiveAnnotation()
     {
         if(Current.Kind!=TokenKind.Identifier ||

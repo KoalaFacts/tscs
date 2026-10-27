@@ -181,3 +181,16 @@ This permits nested straight-line return blocks without treating functions
 with no returning path as implemented. There are no branches/loops, void
 returns, full ASI semantics or generalized TypeScript control-flow checks yet;
 the complete original TS7 acceptance registry is unchanged.
+
+## Braced conditional flow (2026-10-27; PR #8)
+
+The shared parser retains braced `if / else if / else` conditions as
+`ConditionalStatement` nodes. `FunctionControlFlow` recognizes a definite
+return when both arms return or a following statement returns, while the
+existing TypeChecker checks each arm with lexical scopes, restores outer
+symbol initialization between arms, and joins definite initialization only
+when both paths establish it. Bounded conditions permit boolean or any.
+Unbraced arms, general truthiness, complex predicates, control-flow
+narrowing, loops and the general TypeScript function model remain unsupported.
+No fixed TS7 upstream acceptance SKIP is removed without genuine product
+assertions and pinned reference results.

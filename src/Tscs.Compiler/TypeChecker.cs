@@ -29,6 +29,9 @@ internal sealed class TypeChecker(string file)
                         Binder.DeclareParameter(file,parameters,parameter);
                     CheckBlock(function.Body,parameters,false,functionType.ReturnType);
                     break;
+                case ConditionalStatement conditional:
+                    CheckConditional(conditional,scope,expectedReturn);
+                    break;
                 case ReturnStatement returned:
                     if(expectedReturn==null)
                         throw new CompilationFailure(Diagnostic.Error(file,returned.Keyword,"TSCS1001",
@@ -75,6 +78,52 @@ internal sealed class TypeChecker(string file)
             }
         }
     }
+    // Each branch runs against the same lexical parent, but writes to symbols
+    // are joined conservatively; an unexecuted arm cannot initialize a value.
+    private void CheckConditional(ConditionalStatement conditional,Scope scope,TypeSymbol? expectedReturn)
+    {
+        var conditionType=TypeOf(conditional.Condition,scope);
+        if(conditionType!=null && !CompilerTypes.IsAssignable(conditionType,CompilerTypes.Boolean))
+            throw new CompilationFailure(Diagnostic.Error(file,conditional.Keyword,"TSCS1001",
+                "Only boolean or any conditions are supported by the current flow checker."));
+        var before=CaptureInitialized(scope);
+        var whenTrue=before;
+        var whenFalse=before;
+        try
+        {
+            CheckBlock(conditional.Consequent,scope,false,expectedReturn);
+            whenTrue=CaptureInitialized(scope);
+            RestoreInitialized(before);
+            switch(conditional.Alternate)
+            {
+                case Block alternate:
+                    CheckBlock(alternate,scope,false,expectedReturn);
+                    break;
+                case ConditionalStatement chained:
+                    CheckConditional(chained,scope,expectedReturn);
+                    break;
+            }
+            whenFalse=CaptureInitialized(scope);
+        }
+        finally { RestoreInitialized(before); }
+        foreach(var (symbol,_) in before)
+            symbol.Initialized=whenTrue[symbol] && whenFalse[symbol];
+    }
+
+    private static Dictionary<Symbol,bool> CaptureInitialized(Scope scope)
+    {
+        var values=new Dictionary<Symbol,bool>();
+        for(Scope? current=scope;current!=null;current=current.Parent)
+            foreach(var symbol in current.Symbols.Values)
+                values.TryAdd(symbol,symbol.Initialized);
+        return values;
+    }
+
+    private static void RestoreInitialized(IReadOnlyDictionary<Symbol,bool> values)
+    {
+        foreach(var (symbol,initialized) in values) symbol.Initialized=initialized;
+    }
+
     private TypeSymbol? TypeOf(ValueNode value,Scope scope)
     {
         // The parser builds left-deep chains for numeric additions. Do not

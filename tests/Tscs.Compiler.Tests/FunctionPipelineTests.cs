@@ -52,6 +52,26 @@ public sealed class FunctionPipelineTests
         Assert.Contains(diagnostics,d=>d.Code=="TSCS1001");
     }
 
+    [Theory]
+    [InlineData("function choose(flag: boolean): number { if (flag) { return 1; } else { return 2; } } let n: number = choose(true);")]
+    [InlineData("function choose(flag: boolean): number { if (flag) { return 1; } return 2; } let n: number = choose(false);")]
+    [InlineData("function choose(a: boolean, b: boolean): number { if (a) { return 1; } else if (b) { return 2; } else { return 3; } } let n: number = choose(false, true);")]
+    [InlineData("function choose(flag: boolean): number { let n: number; if (flag) { n = 1; } else { n = 2; } return n; }")]
+    [InlineData("function choose(flag: any): number { if (flag) { return 1; } else { return 2; } }")]
+    public void BracedConditionalReturnPathsAndDefiniteAssignmentWork(string source) =>
+        Assert.Empty(Compilation.Check("source.ts",source));
+
+    [Theory]
+    [InlineData("function missing(flag: boolean): number { if (flag) { return 1; } }","TSCS1001")]
+    [InlineData("function missing(flag: boolean): number { if (flag) { return 1; } else { let x = 1; } }","TSCS1001")]
+    [InlineData("function missing(flag: boolean): number { let n: number; if (flag) { n = 1; } return n; }","TSCS1001")]
+    [InlineData("function bad(flag: boolean): number { if (flag) { return \"bad\"; } else { return 1; } }","TS2322")]
+    [InlineData("function bad(flag: boolean): number { if (flag) { let inner = 1; } return inner; }","TS2304")]
+    [InlineData("function unsupported(flag: number): number { if (flag) { return 1; } else { return 2; } }","TSCS1001")]
+    [InlineData("function unsupported(flag: boolean): number { if (flag) return 1; else { return 2; } }","TSCS1001")]
+    public void ConditionalBoundariesRejectIncompleteOrUnsupportedPrograms(string source,string code) =>
+        Assert.Contains(Compilation.Check("source.ts",source),d=>d.Code==code);
+
     [Fact]
     public void CallsCanFollowAHostResolvedNamedExport()
     {

@@ -1,3 +1,17 @@
+# 2026-10-27 — Braced conditionals and path-sensitive function returns (PR #8)
+
+Extended the shared Scanner → AST/Parser → Binder/Scope → TypeChecker →
+FunctionControlFlow pipeline with braced `if / else if / else` statements,
+conservative definite value-return checking, and branch-isolated
+initialized-state joins. Boolean/any conditions, lexical branch scopes and
+variables initialized in both arms work in the bounded noEmit/noLib subset.
+Unbraced arms, arbitrary JavaScript truthiness, comparisons/logical operators,
+loops, void returns and full TS7 semantics remain unsupported.
+Targeted regressions cover success, uninitialized reads and fail-closed forms.
+No original upstream configuration-level SKIP is cleared; accepted original
+PASS remains 0/15,523 with dynamic scope unknown. Exact-head verification
+must be recorded separately; code submission is not an acceptance claim.
+
 # 2026-10-27 — Straight-line function return flow and return-line boundary (PR #8)
 
 Corrected an reviewed ASI issue: a line break after `return` cannot attach
