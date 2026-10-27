@@ -21,7 +21,7 @@ internal sealed class Scope(Scope? parent)
 {
     public Scope? Parent { get; } = parent;
     public Dictionary<string,Symbol> Symbols { get; } = new(StringComparer.Ordinal);
-    public Symbol? Find(string name)=>Symbols.GetValueOrDefault(name)??parent?.Find(name);
+    public Symbol? Find(string name)=>Symbols.GetValueOrDefault(name)??Parent?.Find(name);
 }
 // A shared global scope is prebound for all .ts scripts before type checking.
 // Complex cross-file inference and declaration merging intentionally fail closed.
