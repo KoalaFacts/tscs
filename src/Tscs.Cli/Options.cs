@@ -8,6 +8,7 @@ internal sealed class Options
     private bool noEmit,noLib;
     public bool NoEmit=>noEmit;
     public bool NoLib=>noLib;
+    public bool EmitJs {get;private set;}
     public bool ExplicitEs2015Target {get;private set;}
     public static Options Parse(string[] args)
     {
@@ -26,6 +27,7 @@ internal sealed class Options
             {
                 case "-p":case "--project":i++;break;
                 case "--json":break;
+                case "--emitJs":options.EmitJs=true;break;
                 case "--noEmit":options.noEmit=ReadBool(args,ref i);break;
                 case "--noLib":options.noLib=ReadBool(args,ref i);break;
                 case "--pretty":if(++i==args.Length||args[i]!="false")throw new InputFailure("Only --pretty false is supported.");break;

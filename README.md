@@ -16,6 +16,26 @@ parser errors, does not implement block-comment, trailing or
 `@ts-expect-error` variants, and does not establish full TS7 directive
 compatibility. The original pinned upstream acceptance remains NOT_RUN.
 
+## Bounded AST-backed ES2015 JavaScript output
+
+The shared CompilerProgram/Parser/Binder/TypeChecker AST supports an explicit,
+type-stripping global-script output mode for the already-checked subset.
+Primitive variables, arithmetic/boolean expressions, calls, named functions,
+value returns, braced conditionals and nested blocks can be emitted:
+
+```sh
+dotnet src/Tscs.Cli/bin/Release/net10.0/tscs.dll \
+  --emitJs --noLib --target es2015 \
+  fixtures/local/number-ok.ts fixtures/minimal.d.ts
+```
+
+This writes the corresponding `.js` next to the `.ts` only when all input
+diagnostics are clear and the output does not exist. Existing files are never
+overwritten. The mode deliberately does **not** support ES modules, general
+JS/TS syntax, standard-library compilation, declarations or source maps.
+`--noEmit` and this explicit output mode are mutually exclusive.
+The original fixed TS7 acceptance register remains separate and unaccepted.
+
 ## Build and check a file
 
 Install the .NET SDK specified in `global.json` (10.0.402). Node 24 runs the native `.ts` test tools directly, without a transpiler. Go 1.27.3 is also required for source-inventory tests. The compiler itself is C# and does not invoke Node, Go or another compiler.

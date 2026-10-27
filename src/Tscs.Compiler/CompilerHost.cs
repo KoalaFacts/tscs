@@ -161,4 +161,31 @@ public sealed class CompilerProgram
     }
 
     public CompilationAnalysis Analyze() => analysis ??= Compilation.AnalyzeFiles(sources,importPaths,fileNameComparer,syntaxSnapshots);
+
+    /// <summary>
+    /// Emit the already-parsed, fully checked global-script subset as ES2015
+    /// JavaScript. This cannot emit modules, declaration files, unsupported
+    /// syntax or any program with errors. It never loads or reparses source.
+    /// </summary>
+    public IReadOnlyList<JavaScriptOutput> EmitJavaScript()
+    {
+        var checkedProgram=Analyze();
+        if(checkedProgram.HasSyntaxErrors || checkedProgram.Diagnostics.Count>0)
+            throw new InvalidOperationException("JavaScript output requires a successful checked program.");
+        var output=new JavaScriptOutput[sources.Length];
+        for(int i=0;i<sources.Length;i++)
+        {
+            var source=sources[i];
+            if(!syntaxSnapshots.TryGetValue(source.File,out var syntax) || syntax.Source is not { } parsed)
+                throw new InvalidOperationException("No validated AST snapshot exists for the source.");
+            if(parsed.Root.Statements.Any(s=>
+                s is ImportDeclaration or ExportDeclaration or Variable { Exported: true } or FunctionDeclaration { Exported: true }))
+                throw new NotSupportedException("ES module JavaScript output is not implemented; the writer only supports global scripts.");
+            output[i]=new JavaScriptOutput(source.File,JavaScriptEmitter.Emit(parsed.Root));
+        }
+        return Array.AsReadOnly(output);
+    }
 }
+
+/// <summary>One emitted JavaScript result paired with its exact source identity.</summary>
+public sealed record JavaScriptOutput(string SourceFile,string Text);

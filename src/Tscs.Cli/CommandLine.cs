@@ -14,6 +14,8 @@ public static class CommandLine
         try
         {
             var options=Options.Parse(args);
+            if(options.EmitJs && (options.NoEmit || !options.NoLib || !options.ExplicitEs2015Target))
+                throw new InputFailure("AST-backed output requires --emitJs --noLib --target es2015 and --noEmit false.");
             var host=new FileSystemCompilerHost();
             var inputs=options.Files.Select(host.GetCanonicalFileName).ToArray();
             var codeFiles=inputs.Where(p=>!p.EndsWith(".d.ts",StringComparison.Ordinal)).ToArray();
@@ -27,9 +29,9 @@ public static class CommandLine
             // First original-profile emit slice: an empty parsed program under the
             // explicit ES2015 target. This does NOT silently accept nonempty source
             // or other unimplemented library/emit combinations.
-            bool emptyOriginalEmit=codeFiles.Length==1&&!options.NoEmit&&!options.NoLib&&options.ExplicitEs2015Target&&
+            bool emptyOriginalEmit=!options.EmitJs&&codeFiles.Length==1&&!options.NoEmit&&!options.NoLib&&options.ExplicitEs2015Target&&
                 inputs.Length==1&&analysis.EmptyProgram&&analysis.Diagnostics.Count==0;
-            if ((!options.NoEmit||!options.NoLib) && !emptyOriginalEmit)
+            if ((!options.NoEmit||!options.NoLib) && !emptyOriginalEmit && !options.EmitJs)
                 throw new InputFailure("The bootstrap requires --noEmit and --noLib; supply minimal ambient globals explicitly.");
             var diagnostics=analysis.Diagnostics.ToArray();
             bool unsupported=diagnostics.Any(d=>d.Code.StartsWith("TSCS",StringComparison.Ordinal));
@@ -40,6 +42,42 @@ public static class CommandLine
                 if(missing.Length>0)diagnostics=missing;
             }
             int exitCode=unsupported?1:diagnostics.Length>0?2:0;
+            if(exitCode==0&&options.EmitJs)
+            {
+                IReadOnlyList<JavaScriptOutput> emitted;
+                try { emitted=program.EmitJavaScript(); }
+                catch(NotSupportedException error) { throw new InputFailure(error.Message); }
+
+                // Compute all outputs and reject existing files before writing any.
+                // No existing JavaScript file is ever overwritten.
+                var files=emitted.Select(item=>(Path:Path.ChangeExtension(item.SourceFile,".js"),item.Text)).ToArray();
+                if(files.Select(f=>f.Path).Distinct(host.FileNameComparer).Count()!=files.Length)
+                    throw new InputFailure("Multiple source files would produce the same JavaScript output.");
+                if(files.Any(f=>File.Exists(f.Path)))
+                    throw new InputFailure("A JavaScript output already exists; refusing to overwrite it.");
+                var created=new List<string>();
+                try
+                {
+                    foreach(var outputFile in files)
+                    {
+                        using var stream=new FileStream(outputFile.Path,FileMode.CreateNew,FileAccess.Write,FileShare.None);
+                        created.Add(outputFile.Path);
+                        using var writer=new StreamWriter(stream,new UTF8Encoding(false));
+                        writer.Write(outputFile.Text);
+                    }
+                }
+                catch
+                {
+                    // Roll back only files created by this invocation.
+                    foreach(var path in created)
+                    {
+                        try { File.Delete(path); }
+                        catch(IOException) { }
+                        catch(UnauthorizedAccessException) { }
+                    }
+                    throw;
+                }
+            }
             if(exitCode==0&&emptyOriginalEmit)
             {
                 // The locked TS7 reference baseline for emptyFile.ts emits precisely
