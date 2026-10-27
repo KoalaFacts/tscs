@@ -20,6 +20,8 @@ public static class ProjectSourceDiscovery
 
     internal static bool IsTypeScriptFile(string path)=>path.EndsWith(".ts",FileComparison);
     internal static bool IsDeclarationFile(string path)=>path.EndsWith(".d.ts",FileComparison);
+    internal static bool IsTypeScriptFile(string path,StringComparer comparer)=>HasSuffix(path,".ts",comparer);
+    internal static bool IsDeclarationFile(string path,StringComparer comparer)=>HasSuffix(path,".d.ts",comparer);
     private static bool HasSuffix(string path,string suffix,StringComparer comparer)=>
         path.Length>=suffix.Length&&comparer.Equals(path[^suffix.Length..],suffix);
     private static bool IsPackageDirectory(string name,StringComparer comparer)=>

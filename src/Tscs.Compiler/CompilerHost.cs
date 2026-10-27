@@ -37,6 +37,12 @@ public readonly record struct CompilerDirectoryEntry(string Path,bool IsDirector
 public interface IProjectSourceHost : ICompilerHost
 {
     IEnumerable<CompilerDirectoryEntry> EnumerateDirectory(string canonicalDirectoryName);
+
+    // Project entry points may name a directory instead of tsconfig.json.
+    // This host-owned query avoids asking the process filesystem about a VFS.
+    // Existing directory-enumeration hosts remain source-compatible when
+    // their callers pass the complete configuration filename.
+    bool DirectoryExists(string canonicalDirectoryName) => false;
 }
 
 /// <summary>
@@ -50,6 +56,7 @@ public sealed class FileSystemCompilerHost : IProjectSourceHost
 
     public string GetCanonicalFileName(string path) => Path.GetFullPath(path);
     public string ReadFile(string canonicalFileName) => File.ReadAllText(canonicalFileName);
+    public bool DirectoryExists(string canonicalDirectoryName) => Directory.Exists(canonicalDirectoryName);
 
     public IEnumerable<CompilerDirectoryEntry> EnumerateDirectory(string canonicalDirectoryName)
     {

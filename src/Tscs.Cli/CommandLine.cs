@@ -8,21 +8,26 @@ public static class CommandLine
 {
     private static readonly string[] GlobalTypes=["Array","Boolean","CallableFunction","Function","IArguments","NewableFunction","Number","Object","RegExp","String"];
     private static readonly JsonSerializerOptions JsonOptions=new(){PropertyNamingPolicy=JsonNamingPolicy.CamelCase};
-    public static int Run(string[] args,TextWriter stdout,TextWriter stderr)
+    public static int Run(string[] args,TextWriter stdout,TextWriter stderr) =>
+        Run(args,stdout,stderr,new FileSystemCompilerHost());
+
+    // An injected host owns configuration, discovery and source reads.
+    // The filesystem CLI remains the only writer of physical .js outputs.
+    public static int Run(string[] args,TextWriter stdout,TextWriter stderr,IProjectSourceHost host)
     {
+        ArgumentNullException.ThrowIfNull(host);
         bool json=args.Contains("--json",StringComparer.Ordinal);
         try
         {
-            var host=new FileSystemCompilerHost();
             var options=Options.Parse(args,host);
             if(options.EmitJs && (options.NoEmit || !options.NoLib || !options.ExplicitEs2015Target))
                 throw new InputFailure("AST-backed output requires --emitJs --noLib --target es2015 and --noEmit false.");
             var inputs=options.Files.Select(host.GetCanonicalFileName).ToArray();
-            var codeFiles=inputs.Where(p=>!ProjectSourceDiscovery.IsDeclarationFile(p)).ToArray();
+            var codeFiles=inputs.Where(p=>!ProjectSourceDiscovery.IsDeclarationFile(p,host.FileNameComparer)).ToArray();
             if(codeFiles.Length==0)throw new InputFailure("The bootstrap requires at least one .ts source file, plus optional minimal .d.ts globals.");
-            if(codeFiles.Any(p=>!ProjectSourceDiscovery.IsTypeScriptFile(p)))throw new InputFailure("Only .ts input is supported.");
+            if(codeFiles.Any(p=>!ProjectSourceDiscovery.IsTypeScriptFile(p,host.FileNameComparer)))throw new InputFailure("Only .ts input is supported.");
             var globals=new HashSet<string>(StringComparer.Ordinal);
-            foreach(var path in inputs.Where(ProjectSourceDiscovery.IsDeclarationFile))
+            foreach(var path in inputs.Where(p=>ProjectSourceDiscovery.IsDeclarationFile(p,host.FileNameComparer)))
                 ReadGlobals(host.ReadFile(path),globals);
             var program=CompilerProgram.Load(host,codeFiles,options.EffectiveCompilerOptions);
             var analysis=program.Analyze();
@@ -44,6 +49,8 @@ public static class CommandLine
             int exitCode=unsupported?1:diagnostics.Length>0?2:0;
             if(exitCode==0&&options.EmitJs)
             {
+                if(host is not FileSystemCompilerHost)
+                    throw new InputFailure("Filesystem JavaScript output is unavailable for virtual compiler hosts.");
                 IReadOnlyList<JavaScriptOutput> emitted;
                 try { emitted=program.EmitJavaScript(); }
                 catch(NotSupportedException error) { throw new InputFailure(error.Message); }
@@ -80,6 +87,8 @@ public static class CommandLine
             }
             if(exitCode==0&&emptyOriginalEmit)
             {
+                if(host is not FileSystemCompilerHost)
+                    throw new InputFailure("Filesystem JavaScript output is unavailable for virtual compiler hosts.");
                 // The locked TS7 reference baseline for emptyFile.ts emits precisely
                 // a strict prologue with CRLF. Never overwrite a pre-existing file.
                 var jsPath=Path.ChangeExtension(codeFiles[0],".js");
@@ -87,7 +96,7 @@ public static class CommandLine
                 output.Write(Encoding.UTF8.GetBytes("\"use strict\";\r\n"));
             }
             if(json)
-                stdout.WriteLine(JsonSerializer.Serialize(new{diagnostics=JsonSourceIdentities(diagnostics,program.Sources),exitCode},JsonOptions));
+                stdout.WriteLine(JsonSerializer.Serialize(new{diagnostics=JsonSourceIdentities(diagnostics,program.Sources,host.FileNameComparer),exitCode},JsonOptions));
             else
             {
                 // Diagnostic paths and source snapshots must use the host's file identity rules.
@@ -115,9 +124,8 @@ public static class CommandLine
     // Keep single-file JSON basenames stable. Disambiguate basename collisions
     // using source-relative paths so the original UTF-16 spans stay attributable.
     private static Diagnostic[] JsonSourceIdentities(IEnumerable<Diagnostic> diagnostics,
-        IReadOnlyList<SourceInput> sources)
+        IReadOnlyList<SourceInput> sources,StringComparer comparer)
     {
-        var comparer=OperatingSystem.IsWindows()?StringComparer.OrdinalIgnoreCase:StringComparer.Ordinal;
         var collisions=sources.GroupBy(s=>Path.GetFileName(s.File),comparer)
             .Where(group=>group.Count()>1).Select(group=>group.Key).ToHashSet(comparer);
         return diagnostics.Select(d=>d.File.Length==0?d:d with
