@@ -42,48 +42,6 @@ internal static class Binder
         return local;
     }
 
-    // A module has an explicit export table independent from its lexical scope.
-    // Local names never leak into another module just because a file was loaded
-    // through the same Program. The table retains the declaring Symbol identity
-    // across renamed exports and multiple consumers.
-    public static IReadOnlyDictionary<string,Symbol> BindExports(string file,Block block,Scope scope)
-    {
-        var exports=new Dictionary<string,Symbol>(StringComparer.Ordinal);
-        void Add(Token exported,Symbol symbol)
-        {
-            if(!exports.TryAdd(exported.Text,symbol))
-                throw new CompilationFailure(Diagnostic.Error(file,exported,"TSCS1001",
-                    "Duplicate module export names are not supported yet."));
-        }
-
-        foreach(var statement in block.Statements)
-        {
-            if(statement is Variable { Exported:true } variable)
-            {
-                Add(variable.Name,scope.Symbols[variable.Name.Text]);
-            }
-            else if(statement is ExportDeclaration list)
-            {
-                foreach(var specifier in list.Specifiers)
-                {
-                    if(!scope.Symbols.TryGetValue(specifier.Local.Text,out var symbol))
-                    {
-                        bool imported=block.Statements.OfType<ImportDeclaration>()
-                            .SelectMany(import=>import.Specifiers)
-                            .Any(import=>import.Local.Text==specifier.Local.Text);
-                        if(imported)
-                            throw new CompilationFailure(Diagnostic.Error(file,specifier.Local,"TSCS1001",
-                                "Re-exporting an imported binding is not supported yet."));
-                        throw new CompilationFailure(Diagnostic.Error(file,specifier.Local,"TS2304",
-                            $"Cannot find name '{specifier.Local.Text}'."));
-                    }
-                    Add(specifier.Exported,symbol);
-                }
-            }
-        }
-        return exports;
-    }
-
     public static void Import(string file,Scope scope,ImportSpecifier specifier,Symbol exported)
     {
         if(!exported.CrossFileTypeReady)

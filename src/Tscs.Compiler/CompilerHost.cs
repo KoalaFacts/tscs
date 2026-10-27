@@ -108,9 +108,9 @@ public sealed class CompilerProgram
             syntax.Add(canonical,snapshot);
             if(snapshot.Source is { } parsed)
             {
-                foreach(var import in parsed.Root.Statements.OfType<ImportDeclaration>())
+                void QueueModule(Token modulePath)
                 {
-                    var specifier=import.ModulePath.Value ?? "";
+                    var specifier=modulePath.Value ?? "";
                     if(!((specifier.StartsWith("./",StringComparison.Ordinal) ||
                           specifier.StartsWith("../",StringComparison.Ordinal)) &&
                          !specifier.Contains('\\') && !specifier.Contains(':')))
@@ -129,9 +129,13 @@ public sealed class CompilerProgram
                         resolved=new Dictionary<int,string>();
                         importPaths.Add(canonical,resolved);
                     }
-                    resolved.Add(import.ModulePath.Start,dependency);
+                    resolved.Add(modulePath.Start,dependency);
                     if(scheduled.Add(dependency))queue.Enqueue(dependency);
                 }
+                foreach(var import in parsed.Root.Statements.OfType<ImportDeclaration>())
+                    QueueModule(import.ModulePath);
+                foreach(var export in parsed.Root.Statements.OfType<ExportDeclaration>())
+                    if(export.ModulePath is { } from)QueueModule(from);
             }
         }
 

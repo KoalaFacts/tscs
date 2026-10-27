@@ -115,3 +115,18 @@ binding re-exports, `from` re-exports, default/namespace exports, packages,
 full module resolution and emit still fail closed. CLI source identities
 normalize only actual host-platform separators: Unix literal backslashes
 remain distinct source characters.
+
+## Deferred named value module linking (2026-10-27; PR #8)
+
+`ModuleLinker` prebinds every module's lexical scope, then resolves named
+value exports through the host's source graph. An exported name may map to a
+local declaration, an imported alias or `export { name as alias } from "./path"`.
+Public names preserve the original declaration symbol and file ownership,
+without exposing module-private bindings. Non-recursive circular value imports
+resolve against prebound exported declarations. Cyclic/deep re-export aliases,
+duplicate exported names, missing members and non-module targets fail closed.
+
+This is deliberately bounded named-value linking: no star/default/namespace
+or type-only exports, package resolution, type imports, full TS7 module
+semantics, runtime initialization, or JavaScript emit. Original upstream
+acceptance remains independent from these internal architecture checks.

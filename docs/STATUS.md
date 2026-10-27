@@ -1,3 +1,18 @@
+# 2026-10-27 — Deferred named export linking (PR #8)
+
+The host-backed Program now links named value exports after prebinding all
+module-local scopes. Relative named `export { source as public } from "./file"`
+and imported-binding aliases follow transitive source-graph edges and keep
+the original declaring symbol identity. Non-recursive circular value imports
+work against prebound declarations; recursive export aliases explicitly fail.
+Missing/duplicate members, package paths and non-module targets stay rejected.
+Focused compiler regressions cover real three-file programs and failure cases.
+
+This is not complete TS7 modules, emit or release acceptance. Existing 15,523
+configuration-level upstream placeholders remain SKIP_UNIMPLEMENTED, original
+accepted PASS remains 0, complete dynamic scope unknown. New-head CI is
+required; no merger or independent review is claimed for this change.
+
 # 2026-10-27 — Explicit module export bindings and OS-correct diagnostic identities (PR #8)
 
 Named local `export { local as publicName }` lists now bind through a

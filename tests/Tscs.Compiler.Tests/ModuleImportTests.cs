@@ -108,13 +108,71 @@ public sealed class ModuleImportTests
     }
 
     [Fact]
-    public void ImportedBindingReexportsRemainExplicitlyUnsupported()
+    public void ImportedBindingAliasesCanBeReexportedWithoutLeakingPrivateNames()
     {
         var host=new Host();
-        host.Files["/virtual/main.ts"]="import { value } from \"./values\"; export { value };";
+        host.Files["/virtual/main.ts"]="import { exposed } from \"./middle\"; let result: number = exposed * 2;";
+        host.Files["/virtual/middle.ts"]="import { value as internalName } from \"./values\"; export { internalName as exposed };";
         host.Files["/virtual/values.ts"]="export const value: number = 4;";
-        var diagnostic=Assert.Single(CompilerProgram.Load(host,["main.ts"]).Analyze().Diagnostics);
-        Assert.Equal("TSCS1001",diagnostic.Code);
+        var program=CompilerProgram.Load(host,["main.ts"]);
+        Assert.Equal(3,program.Sources.Count);
+        Assert.Equal(3,host.Reads.Count);
+        Assert.Empty(program.Analyze().Diagnostics);
+
+        host.Files["/virtual/main.ts"]="import { internalName } from \"./middle\"; let n = internalName;";
+        Assert.Equal("TS2305",Assert.Single(CompilerProgram.Load(host,["main.ts"]).Analyze().Diagnostics).Code);
+    }
+
+    [Fact]
+    public void NamedReexportsFollowTheHostGraphTransitively()
+    {
+        var host=new Host();
+        host.Files["/virtual/main.ts"]="import { publicValue as value } from \"./barrel\"; let result: number = value;";
+        host.Files["/virtual/barrel.ts"]="export { sourceValue as publicValue } from \"./inner\";";
+        host.Files["/virtual/inner.ts"]="const hidden: number = 1; export const sourceValue: number = 7;";
+        var program=CompilerProgram.Load(host,["main.ts"]);
+        Assert.Equal(3,program.Sources.Count);
+        Assert.Empty(program.Analyze().Diagnostics);
+
+        host.Files["/virtual/main.ts"]="import { hidden } from \"./barrel\"; let result: number = hidden;";
+        Assert.Equal("TS2305",Assert.Single(CompilerProgram.Load(host,["main.ts"]).Analyze().Diagnostics).Code);
+    }
+
+    [Fact]
+    public void CircularValueImportsUsePreboundSymbols()
+    {
+        var host=new Host();
+        host.Files["/virtual/a.ts"]="import { b } from \"./b\"; export const a: number = 1; let result: number = b;";
+        host.Files["/virtual/b.ts"]="import { a } from \"./a\"; export const b: number = 2; let result: number = a;";
+        Assert.Empty(CompilerProgram.Load(host,["a.ts"]).Analyze().Diagnostics);
+        Assert.Equal(2,host.Reads.Count);
+    }
+
+    [Fact]
+    public void CyclicAndMissingNamedReexportsFailClosed()
+    {
+        var host=new Host();
+        host.Files["/virtual/a.ts"]="export { value } from \"./b\";";
+        host.Files["/virtual/b.ts"]="export { value } from \"./a\";";
+        Assert.Equal("TSCS1001",Assert.Single(CompilerProgram.Load(host,["a.ts"]).Analyze().Diagnostics).Code);
+
+        host.Files["/virtual/b.ts"]="export { missing as value } from \"./a\";";
+        Assert.Equal("TS2305",Assert.Single(CompilerProgram.Load(host,["a.ts"]).Analyze().Diagnostics).Code);
+
+        host.Files["/virtual/b.ts"]="const value: number = 1; export { value as x, value as x };";
+        Assert.Equal("TSCS1001",Assert.Single(CompilerProgram.Load(host,["a.ts"]).Analyze().Diagnostics).Code);
+    }
+
+    [Fact]
+    public void ReexportsRejectPackagesAndNonModules()
+    {
+        var host=new Host();
+        host.Files["/virtual/a.ts"]="export { x } from \"pkg\";";
+        Assert.Throws<ArgumentException>(()=>CompilerProgram.Load(host,["a.ts"]));
+
+        host.Files["/virtual/a.ts"]="export { x } from \"./script\";";
+        host.Files["/virtual/script.ts"]="let x: number = 1;";
+        Assert.Equal("TSCS1001",Assert.Single(CompilerProgram.Load(host,["a.ts"]).Analyze().Diagnostics).Code);
     }
 
     [Fact]

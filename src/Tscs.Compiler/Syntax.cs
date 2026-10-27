@@ -14,7 +14,7 @@ internal sealed record Variable(Token Name, bool Constant, string? Annotation, V
 internal sealed record ImportSpecifier(Token Imported,Token Local);
 internal sealed record ImportDeclaration(Token ModulePath,IReadOnlyList<ImportSpecifier> Specifiers) : Statement;
 internal sealed record ExportSpecifier(Token Local,Token Exported);
-internal sealed record ExportDeclaration(IReadOnlyList<ExportSpecifier> Specifiers) : Statement;
+internal sealed record ExportDeclaration(IReadOnlyList<ExportSpecifier> Specifiers,Token? ModulePath=null) : Statement;
 internal sealed record Assignment(Token Name, ValueNode Value) : Statement;
 internal sealed record PostfixUpdate(Token Name, Token Operator) : Statement;
 internal sealed record Expression(ValueNode Value) : Statement;

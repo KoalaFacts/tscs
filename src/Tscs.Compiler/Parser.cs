@@ -87,9 +87,17 @@ internal sealed class Parser(string file, List<Token> tokens)
                         }
                     }
                     if(!Eat(TokenKind.Close))Unsupported(Current,"Expected '}' after named exports.");
+                    Token? from=null;
                     if(Current.Kind==TokenKind.Identifier && Current.Text=="from")
-                        Unsupported(Current,"Re-exports from another module are not supported yet.");
-                    statements.Add(new ExportDeclaration(exports));
+                    {
+                        Take();
+                        if(Current.Kind!=TokenKind.String)
+                            Unsupported(Current,"Expected a string module specifier in a re-export.");
+                        from=Take();
+                        if(exports.Count==0)
+                            Unsupported(from.Value,"An empty re-export list is not supported.");
+                    }
+                    statements.Add(new ExportDeclaration(exports,from));
                     EndStatement();
                     continue;
                 }

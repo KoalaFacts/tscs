@@ -51,35 +51,7 @@ public static class Compilation
             if(parsed.Count>1 || moduleSources.Length>0)
                 global=Binder.BindProgram(scriptSources.Select(p=>(p.File,p.Root)));
             if(moduleSources.Length>0)
-            {
-                modules=new Dictionary<string,Scope>(comparer);
-                var exportTables=new Dictionary<string,IReadOnlyDictionary<string,Symbol>>(comparer);
-                foreach(var source in moduleSources)
-                    modules.Add(source.File,Binder.BindModule(source.File,source.Root,global!));
-                foreach(var source in moduleSources)
-                    exportTables.Add(source.File,Binder.BindExports(source.File,source.Root,modules[source.File]));
-                foreach(var source in moduleSources)
-                {
-                    foreach(var import in source.Root.Statements.OfType<ImportDeclaration>())
-                    {
-                        if(resolvedImports==null ||
-                           !resolvedImports.TryGetValue(source.File,out var imports) ||
-                           !imports.TryGetValue(import.ModulePath.Start,out var targetFile))
-                            throw new CompilationFailure(Diagnostic.Error(source.File,import.ModulePath,"TSCS1001",
-                                "Module imports require a host-resolved source graph."));
-                        if(!modules.TryGetValue(targetFile,out var target))
-                            throw new CompilationFailure(Diagnostic.Error(source.File,import.ModulePath,"TSCS1001",
-                                "The referenced source is not an ES module."));
-                        foreach(var specifier in import.Specifiers)
-                        {
-                            if(!exportTables[targetFile].TryGetValue(specifier.Imported.Text,out var exported))
-                                throw new CompilationFailure(Diagnostic.Error(source.File,specifier.Imported,"TS2305",
-                                    $"Module '{import.ModulePath.Value}' has no exported member '{specifier.Imported.Text}'."));
-                            Binder.Import(source.File,modules[source.File],specifier,exported);
-                        }
-                    }
-                }
-            }
+                modules=ModuleLinker.Link(moduleSources,global!,resolvedImports,comparer);
         }
         catch(CompilationFailure failure)
         {
