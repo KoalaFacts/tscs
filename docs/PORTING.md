@@ -215,3 +215,23 @@ or `any`, but not unrelated/structural types; unary `!` accepts boolean or
 operator overloading, optional chaining, nullish coalescing and generalized
 TypeScript expression inference remain unsupported and fail closed. No new
 upstream full-original acceptance target is credited by this local feature.
+
+## AST-backed bounded ES2015 global-script output (2026-10-27)
+
+`CompilerProgram.EmitJavaScript` consumes the existing immutable parsed
+`SourceFile` snapshots **after** one `Analyze()` check; it does not create
+an alternative parser, binder, checker, or source-file identity. Its
+`JavaScriptEmitter` lowers the supported primitive statements and expressions
+to ES2015, with type annotations erased and precedence-preserving iterative
+expression traversal. No output is available for code containing diagnostics,
+module imports/exports, missing snapshots or unsupported grammar. The CLI
+requires `--emitJs --noLib --target es2015` (without `--noEmit`), retains
+minimal ambient global declarations and refuses to overwrite any `.js`.
+This is a bounded working script pipeline, not an implementation of TS7
+commonjs/ES module lowering, standard libraries, declaration/maps, plugins,
+transforms, or the full upstream emit baseline. The separate original
+15,523 configuration targets remain SKIP_UNIMPLEMENTED until an exact
+product/reference acceptance run matches all original expectations.
+
+Next dependency: typed emit options and full module-aware lowering with
+preserved module identities, before declaration/map generation.

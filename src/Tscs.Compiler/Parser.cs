@@ -18,7 +18,7 @@ internal sealed class Parser(string file, List<Token> tokens)
         while(Current.Kind!=TokenKind.End && !(depth>0 && Current.Kind==TokenKind.Close))
         {
             if(Current.Kind==TokenKind.Close) { Diagnostics.Add(Diagnostic.Error(file,Take(),"TS1128","Declaration or statement expected.")); continue; }
-            if(Eat(TokenKind.Semi))continue;
+            if(Eat(TokenKind.Semi)) { statements.Add(new EmptyStatement()); continue; }
             if(Eat(TokenKind.Open))
             {
                 statements.Add(Parse(depth+1,inFunction));

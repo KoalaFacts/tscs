@@ -5,6 +5,7 @@ internal enum TokenKind { End, Identifier, Number, String, Let, Const, True, Fal
 internal enum StringTokenFlags { None=0, Unterminated=1<<2, ExtendedUnicodeEscape=1<<3, UnicodeEscape=1<<10, ContainsInvalidEscape=1<<11, HexEscape=1<<12, SingleQuote=1<<16 }
 internal readonly record struct Token(TokenKind Kind, string Text, int Start, int Length, bool LineBreak = false,string? Value = null, StringTokenFlags Flags = StringTokenFlags.None);
 internal abstract record Statement;
+internal sealed record EmptyStatement() : Statement;
 internal sealed record Block(List<Statement> Statements) : Statement;
 internal abstract record ValueNode;
 internal sealed record ValueAtom(Token Token) : ValueNode;
