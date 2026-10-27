@@ -7,6 +7,7 @@ internal sealed class Symbol(string file,Variable declaration)
     public string? Type { get; set; }
     public bool Initialized { get; set; }
     public bool CrossFileTypeReady { get; set; }
+    public bool Imported { get; set; }
 }
 internal sealed class Scope(Scope? parent)
 {
@@ -30,7 +31,37 @@ internal static class Binder
         foreach(var (file,root) in sources)
             foreach(var variable in root.Statements.OfType<Variable>())
                 Declare(file,global,variable);
-        foreach(var symbol in global.Symbols.Values)
+        InitializeDeclaredTypes(global);
+        return global;
+    }
+
+    public static Scope BindModule(string file,Block block,Scope global)
+    {
+        var local=Bind(file,block,global);
+        InitializeDeclaredTypes(local);
+        return local;
+    }
+
+    public static void Import(string file,Scope scope,ImportSpecifier specifier,Symbol exported)
+    {
+        if(!exported.CrossFileTypeReady)
+            throw new CompilationFailure(Diagnostic.Error(file,specifier.Imported,"TSCS1001",
+                "Imported declarations require an explicit primitive annotation or literal type."));
+        var imported=new Symbol(exported.File,exported.Declaration)
+        {
+            Type=exported.Type,
+            Initialized=exported.Initialized,
+            CrossFileTypeReady=true,
+            Imported=true
+        };
+        if(!scope.Symbols.TryAdd(specifier.Local.Text,imported))
+            throw new CompilationFailure(Diagnostic.Error(file,specifier.Local,"TSCS1001",
+                "Duplicate import or local declaration is not supported yet."));
+    }
+
+    private static void InitializeDeclaredTypes(Scope scope)
+    {
+        foreach(var symbol in scope.Symbols.Values)
         {
             var declaration=symbol.Declaration;
             string? literalType=declaration.Initializer is ValueAtom atom
@@ -46,7 +77,6 @@ internal static class Binder
             symbol.Initialized=declaration.Initializer!=null;
             symbol.CrossFileTypeReady=symbol.Type!=null;
         }
-        return global;
     }
     private static void Declare(string file,Scope scope,Variable declaration)
     {

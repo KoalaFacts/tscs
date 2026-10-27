@@ -22,6 +22,48 @@ internal sealed class Parser(string file, List<Token> tokens)
                 if(!Eat(TokenKind.Close)) Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
                 continue;
             }
+            if(Current.Kind==TokenKind.Import)
+            {
+                if(depth!=0)Unsupported(Current,"Module imports must be at source-file scope.");
+                Take();
+                if(!Eat(TokenKind.Open))Unsupported(Current,"Only named module imports are supported yet.");
+                var specifiers=new List<ImportSpecifier>();
+                while(true)
+                {
+                    if(Current.Kind!=TokenKind.Identifier)
+                        Unsupported(Current,"Expected an imported identifier.");
+                    var imported=Take();
+                    var local=imported;
+                    if(Current.Kind==TokenKind.Identifier && Current.Text=="as")
+                    {
+                        Take();
+                        if(Current.Kind!=TokenKind.Identifier)
+                            Unsupported(Current,"Expected a local alias after 'as'.");
+                        local=Take();
+                    }
+                    specifiers.Add(new(imported,local));
+                    if(!Eat(TokenKind.Comma))break;
+                }
+                if(!Eat(TokenKind.Close))Unsupported(Current,"Expected '}' after named imports.");
+                if(Current.Kind!=TokenKind.Identifier || Current.Text!="from")
+                    Unsupported(Current,"Expected 'from' in an import declaration.");
+                Take();
+                if(Current.Kind!=TokenKind.String)
+                    Unsupported(Current,"Expected a string module specifier.");
+                var module=Take();
+                statements.Add(new ImportDeclaration(module,specifiers));
+                EndStatement();
+                continue;
+            }
+            bool exported=false;
+            if(Current.Kind==TokenKind.Export)
+            {
+                if(depth!=0)Unsupported(Current,"Module exports must be at source-file scope.");
+                Take();
+                exported=true;
+                if(Current.Kind is not (TokenKind.Let or TokenKind.Const))
+                    Unsupported(Current,"Only exported let/const declarations are supported yet.");
+            }
             if(Current.Kind is TokenKind.Let or TokenKind.Const)
             {
                 bool constant=Take().Kind==TokenKind.Const;
@@ -37,7 +79,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                     }
                     ValueNode? initializer=Eat(TokenKind.Equal)?ParseValue():null;
                     if(annotation==null && initializer==null) Unsupported(name,"Variables without a type or initializer are not supported yet.");
-                    statements.Add(new Variable(name,constant,annotation,initializer));
+                    statements.Add(new Variable(name,constant,annotation,initializer,exported));
                     if(Eat(TokenKind.Comma))continue;
                     // Preserve upstream missing-comma recovery in variable declaration lists.
                     if(!Current.LineBreak && Current.Kind is TokenKind.Identifier or TokenKind.Let)

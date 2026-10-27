@@ -75,3 +75,20 @@ ES module import/export resolution, `types`/`lib` references, declaration-file
 semantics, symlink identity, project references or full TS7 resolution rules.
 General virtual hosts can override relative dependency resolution. Root aliases
 remain errors, and missing referenced files are not silently skipped.
+
+## Bounded ES named-module symbols (2026-10-27; PR #8)
+
+The host-backed loader discovers relative `import { name as alias } from "./module"`
+source edges using the real Scanner/Parser AST, with explicit `.ts` and bounded
+extensionless module paths. The binder gives modules separate top-level scopes,
+prebinds primitive typed exports, and links **only explicitly exported**
+`let`/`const` symbols into importing scopes. Global-script symbols remain a
+separate shared scope. Imported aliases are read-only; missing exports and
+unsupported relative forms fail closed instead of leaking globals. The checker
+still supports only its bounded primitive expression semantics, and the host
+currently reparses module syntax during analysis after graph discovery.
+
+This is not package/node resolution, default/namespace/re-export, JS output,
+ambient modules, type-only imports, mutable live bindings, circular runtime
+initialization, or full TypeScript module semantics. No upstream acceptance is
+credited without the independent reference and complete original assertions.

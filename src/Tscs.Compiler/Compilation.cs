@@ -13,7 +13,11 @@ public static class Compilation
     // Parse every source before binding and type checking. The global script
     // declarations are available from every file regardless of input order.
     // Modules, complex inferred cross-file types and general emit are not yet supported.
-    public static CompilationAnalysis AnalyzeFiles(IReadOnlyList<SourceInput> files)
+    public static CompilationAnalysis AnalyzeFiles(IReadOnlyList<SourceInput> files) =>
+        AnalyzeFiles(files,null,StringComparer.Ordinal);
+
+    internal static CompilationAnalysis AnalyzeFiles(IReadOnlyList<SourceInput> files,
+        IReadOnlyDictionary<string,Dictionary<int,string>>? resolvedImports,StringComparer comparer)
     {
         ArgumentNullException.ThrowIfNull(files);
         if(files.Count==0)throw new ArgumentException("At least one source file is required.",nameof(files));
@@ -65,9 +69,44 @@ public static class Compilation
         // files must remain visible rather than disappearing behind the first one.
         if(parsingDiagnostics.Count>0)return new(Order(parsingDiagnostics),hasSyntaxErrors);
         Scope? global=null;
+        Dictionary<string,Scope>? modules=null;
         try
         {
-            if(parsed.Count>1)global=Binder.BindProgram(parsed.Select(p=>(p.File,p.Root)));
+            bool IsModule(ParsedSource source) =>
+                source.Root.Statements.Any(s=>s is ImportDeclaration || s is Variable { Exported:true });
+            var moduleSources=parsed.Where(IsModule).ToArray();
+            var scriptSources=parsed.Where(s=>!IsModule(s)).ToArray();
+            if(parsed.Count>1 || moduleSources.Length>0)
+                global=Binder.BindProgram(scriptSources.Select(p=>(p.File,p.Root)));
+            if(moduleSources.Length>0)
+            {
+                modules=new Dictionary<string,Scope>(comparer);
+                foreach(var source in moduleSources)
+                    modules.Add(source.File,Binder.BindModule(source.File,source.Root,global!));
+                foreach(var source in moduleSources)
+                {
+                    foreach(var import in source.Root.Statements.OfType<ImportDeclaration>())
+                    {
+                        if(resolvedImports==null ||
+                           !resolvedImports.TryGetValue(source.File,out var imports) ||
+                           !imports.TryGetValue(import.ModulePath.Start,out var targetFile))
+                            throw new CompilationFailure(Diagnostic.Error(source.File,import.ModulePath,"TSCS1001",
+                                "Module imports require a host-resolved source graph."));
+                        if(!modules.TryGetValue(targetFile,out var target))
+                            throw new CompilationFailure(Diagnostic.Error(source.File,import.ModulePath,"TSCS1001",
+                                "The referenced source is not an ES module."));
+                        var targetSource=moduleSources.First(p=>comparer.Equals(p.File,targetFile));
+                        foreach(var specifier in import.Specifiers)
+                        {
+                            if(!targetSource.Root.Statements.OfType<Variable>().Any(
+                                   v=>v.Exported && v.Name.Text==specifier.Imported.Text))
+                                throw new CompilationFailure(Diagnostic.Error(source.File,specifier.Imported,"TS2305",
+                                    $"Module '{import.ModulePath.Value}' has no exported member '{specifier.Imported.Text}'."));
+                            Binder.Import(source.File,modules[source.File],specifier,target.Symbols[specifier.Imported.Text]);
+                        }
+                    }
+                }
+            }
         }
         catch(CompilationFailure failure)
         {
@@ -79,9 +118,11 @@ public static class Compilation
             try
             {
                 var checker=new TypeChecker(source.File);
-                var checkedDiagnostics=global==null
+                var scope=modules!=null && modules.TryGetValue(source.File,out var local)
+                    ? local : global;
+                var checkedDiagnostics=scope==null
                     ? checker.Check(source.Root)
-                    : checker.CheckBound(source.Root,global);
+                    : checker.CheckBound(source.Root,scope);
                 diagnostics.AddRange(Order(checkedDiagnostics.Where(d=>!source.Scanner.SuppressesSemanticDiagnostic(d.Start))));
             }
             catch(CompilationFailure failure)

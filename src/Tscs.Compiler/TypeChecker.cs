@@ -31,7 +31,8 @@ internal sealed class TypeChecker(string file)
                 case Assignment a:
                     var target=Resolve(a.Name,scope);var assigned=TypeOf(a.Value,scope);
                     if(target==null)break;
-                    if(target.Declaration.Constant) Error(a.Name,"TS2588",$"Cannot assign to '{a.Name.Text}' because it is a constant.");
+                    if(target.Imported) Error(a.Name,"TS2632",$"Cannot assign to '{a.Name.Text}' because it is an import.");
+                    else if(target.Declaration.Constant) Error(a.Name,"TS2588",$"Cannot assign to '{a.Name.Text}' because it is a constant.");
                     else if(target.Type!=null&&assigned!=null&&!Assignable(assigned,target.Type)) Mismatch(a.Name,assigned,target.Type);
                     else target.Initialized=true;
                     break;
@@ -40,7 +41,9 @@ internal sealed class TypeChecker(string file)
                     if(updated==null)break;
                     if(!updated.Initialized)
                         throw new CompilationFailure(Diagnostic.Error(file,update.Name,"TSCS1001","Reads before initialization are not supported yet."));
-                    if(updated.Declaration.Constant)
+                    if(updated.Imported)
+                        Error(update.Name,"TS2632",$"Cannot assign to '{update.Name.Text}' because it is an import.");
+                    else if(updated.Declaration.Constant)
                         Error(update.Name,"TS2588",$"Cannot assign to '{update.Name.Text}' because it is a constant.");
                     else if(updated.Type!="number")
                         throw new CompilationFailure(Diagnostic.Error(file,update.Operator,"TSCS1001","Only number postfix updates are supported yet."));

@@ -1,3 +1,17 @@
+# 2026-10-27 — Bounded relative named ES modules (PR #8)
+
+Implemented host-backed source loading for relative named imports and per-file
+module scopes with explicit primitive `export let/const` declarations. Import
+aliases resolve through the binder before checker evaluation; ordinary global
+scripts do not see private module declarations, and imports cannot be assigned.
+This is an actual, bounded compiler path, not a placeholder. Dynamic/package
+resolution, default exports, re-exports, standard library, emit, and complete
+module inference remain unsupported. This new source change requires fresh
+exact-head build/regression/CI and does **not** reclassify an upstream target.
+Frozen configuration-level accepted PASS=0/15,523; SKIP_UNIMPLEMENTED=15,523;
+full runtime denominator unknown; releaseEligible=false. No formal review or
+merge claimed.
+
 # 2026-10-27 — Host-backed transitive global-script path references (PR #8)
 
 Implemented a bounded source-dependency graph in `CompilerProgram.Load`:

@@ -43,11 +43,15 @@ public sealed class FileSystemCompilerHost : ICompilerHost
 public sealed class CompilerProgram
 {
     private readonly SourceInput[] sources;
+    private readonly Dictionary<string,Dictionary<int,string>> importPaths;
+    private readonly StringComparer fileNameComparer;
     private CompilationAnalysis? analysis;
 
-    private CompilerProgram(SourceInput[] inputs)
+    private CompilerProgram(SourceInput[] inputs,Dictionary<string,Dictionary<int,string>> imports,StringComparer comparer)
     {
         sources=inputs;
+        importPaths=imports;
+        fileNameComparer=comparer;
         Sources=Array.AsReadOnly(inputs);
     }
 
@@ -67,6 +71,7 @@ public sealed class CompilerProgram
         var loadedFiles=new HashSet<string>(host.FileNameComparer);
         var queue=new Queue<string>();
         var loaded=new List<SourceInput>();
+        var importPaths=new Dictionary<string,Dictionary<int,string>>(host.FileNameComparer);
 
         void LoadOne(string canonical)
         {
@@ -92,6 +97,51 @@ public sealed class CompilerProgram
                     throw new ArgumentException("The compiler host returned an empty dependency identity.",nameof(host));
                 if(scheduled.Add(dependency))queue.Enqueue(dependency);
             }
+
+            // Module edges come from parsed source nodes, never from a filename
+            // regex or a generated conformance placeholder. Unsupported syntax
+            // remains the analyzer's error, not a silently inferred dependency.
+            try
+            {
+                var scanner=new Scanner(canonical,source);
+                var tokens=scanner.Scan();
+                if(scanner.Diagnostics.Count==0)
+                {
+                    var parser=new Parser(canonical,tokens);
+                    var block=parser.Parse();
+                    if(parser.Diagnostics.Count==0)
+                    {
+                        foreach(var import in block.Statements.OfType<ImportDeclaration>())
+                        {
+                            var specifier=import.ModulePath.Value ?? "";
+                            if(!((specifier.StartsWith("./",StringComparison.Ordinal) ||
+                                  specifier.StartsWith("../",StringComparison.Ordinal)) &&
+                                 !specifier.Contains('\\') && !specifier.Contains(':')))
+                                throw new ArgumentException(
+                                    $"Only relative TypeScript module specifiers are supported: '{specifier}' in '{canonical}'.",nameof(paths));
+                            if(Path.GetExtension(specifier).Length==0)specifier+=".ts";
+                            if(!specifier.EndsWith(".ts",StringComparison.Ordinal) ||
+                               specifier.EndsWith(".d.ts",StringComparison.Ordinal))
+                                throw new ArgumentException(
+                                    $"Only TypeScript source module paths are supported: '{specifier}' in '{canonical}'.",nameof(paths));
+                            var dependency=host.ResolveReferencePath(canonical,specifier);
+                            if(string.IsNullOrWhiteSpace(dependency))
+                                throw new ArgumentException("The compiler host returned an empty module identity.",nameof(host));
+                            if(!importPaths.TryGetValue(canonical,out var resolved))
+                            {
+                                resolved=new Dictionary<int,string>();
+                                importPaths.Add(canonical,resolved);
+                            }
+                            resolved.Add(import.ModulePath.Start,dependency);
+                            if(scheduled.Add(dependency))queue.Enqueue(dependency);
+                        }
+                    }
+                }
+            }
+            catch(CompilationFailure)
+            {
+                // The exact compiler diagnostic remains owned by Analyze.
+            }
         }
 
         foreach(var path in paths)
@@ -112,8 +162,8 @@ public sealed class CompilerProgram
             var canonical=queue.Dequeue();
             if(loadedFiles.Add(canonical))LoadOne(canonical);
         }
-        return new CompilerProgram([.. loaded]);
+        return new CompilerProgram([.. loaded],importPaths,host.FileNameComparer);
     }
 
-    public CompilationAnalysis Analyze() => analysis ??= Compilation.AnalyzeFiles(sources);
+    public CompilationAnalysis Analyze() => analysis ??= Compilation.AnalyzeFiles(sources,importPaths,fileNameComparer);
 }
