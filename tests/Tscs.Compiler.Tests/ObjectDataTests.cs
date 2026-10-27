@@ -27,7 +27,7 @@ public sealed class ObjectDataTests
     [InlineData("const data = { value: 1 }; data.value = \"bad\";", "TS2322")]
     [InlineData("const data: { value: number } = { value: \"bad\" };", "TS2322")]
     [InlineData("const data: { value: number } = {};", "TS2741")]
-    [InlineData("function f(x: { value: number }): number { return x.value; } f({ value: \"bad\" });", "TS2345")]
+    [InlineData("function f(x: { value: number }): number { return x.value; } f({ value: \"bad\" });", "TS2322")]
     [InlineData("function f(): { value: number } { return { value: \"bad\" }; }", "TS2322")]
     [InlineData("const data: { value: number } = { value: 1, extra: true };", "TS2353")]
     [InlineData("const data: { nested: { value: number } } = { nested: { value: 1, extra: true } };", "TS2353")]
@@ -106,6 +106,26 @@ public sealed class ObjectDataTests
     [InlineData("let x = { nested: { a: 1 } }; x.nested = { a: \"bad\" };", "TS2322")]
     public void FreshnessIsCheckedAtEveryObjectConsumptionSite(string source,string code)=>
         Assert.Contains(Compilation.Check("freshness.ts",source),d=>d.Code==code);
+
+    [Fact]
+    public void FreshObjectArgumentUsesPinnedPropertyDiagnostic()
+    {
+        // Actual pinned Go run 40602154110, object-data:negative-06.
+        const string source="function f(x: { value: number }): number { return x.value; } f({ value: \"bad\" });";
+        var error=Assert.Single(Compilation.Check("input.ts",source));
+        Assert.Equal("TS2322",error.Code);
+        Assert.Equal("Type 'string' is not assignable to type 'number'.",error.Message);
+        Assert.Equal(65,error.Start);
+        Assert.Equal(5,error.Length);
+    }
+
+    [Fact]
+    public void NonLiteralObjectArgumentRetainsWholeArgumentMismatch()
+    {
+        const string source="function f(x: { value: number }): number { return x.value; } const data = { value: \"bad\" }; f(data);";
+        var error=Assert.Single(Compilation.Check("input.ts",source));
+        Assert.Equal("TS2345",error.Code);
+    }
 
     private static CompilerProgram LoadGraph(string entry)
     {

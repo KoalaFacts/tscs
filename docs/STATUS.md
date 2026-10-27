@@ -25,6 +25,20 @@ Original TS7 accounting is unchanged: 15,523 configuration targets remain SKIP,
 Next: complete exact-head CI/reference and whole-package review on PR #18;
 do not open overlapping work or return to configuration-only micro-deliveries.
 
+## Reference-corrective pass (same work package)
+
+The first live fixed-Go differential found 28 matches and one real mismatch:
+`object-data:negative-06` must report TS2322 at the object property, not TS2345
+at the call. Contextual member checking is now corrected; whole-argument
+non-literal mismatches retain TS2345. Local RED2/42 became GREEN44/44, build
+0 warnings/errors, and the emitted module graph still executes correctly.
+All29 fresh local product results now match the captured actual pinned Go
+codes/exits with identical input hashes. Fresh corrected-head CI remains pending;
+see `docs/evidence/object-contextual-diagnostic.json`. No case was skipped or removed.
+
+Codex review failed due to exhausted review credits, not a clean approval. No
+independent whole-package review or merge is claimed. Finish this same PR only.
+
 ## Existing foundation and remaining scope
 
 The source contains host-backed project/config loading, module linking, typed

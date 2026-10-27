@@ -100,7 +100,7 @@
       "id": "object-data:negative-06",
       "source": "function f(x: { value: number }): number { return x.value; } f({ value: \"bad\" });",
       "expectedCodes": [
-        "TS2345"
+        "TS2322"
       ]
     },
     {

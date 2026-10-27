@@ -47,7 +47,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         throw new CompilationFailure(Diagnostic.Error(file,returned.Keyword,"TSCS1001",
                             "Return statements outside functions are not supported."));
                     var returnType=TypeOf(returned.Value,scope);
-                    if(returnType!=null && CheckContextualLiteral(returned.Value,expectedReturn) &&
+                    if(returnType!=null && CheckContextualLiteral(returned.Value,expectedReturn,returnType) &&
                        !CompilerTypes.IsAssignable(returnType,expectedReturn))
                         Mismatch(returned.Keyword,returnType,expectedReturn);
                     break;
@@ -62,7 +62,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     symbol.Initialized=v.Initializer!=null;
                     if(v.Constant&&v.Initializer==null) Error(v.Name,"TS1155","'const' declarations must be initialized.");
                     if(annotatedType!=null && source!=null &&
-                       CheckContextualLiteral(v.Initializer!,annotatedType) &&
+                       CheckContextualLiteral(v.Initializer!,annotatedType,source) &&
                        !CompilerTypes.IsAssignable(source,annotatedType))
                         Mismatch(v.Name,source,annotatedType);
                     break;
@@ -73,7 +73,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     else if(target.IsConstant) Error(a.Name,"TS2588",$"Cannot assign to '{a.Name.Text}' because it is a constant.");
                     else if(target.Type!=null && assigned!=null)
                     {
-                        if(CheckContextualLiteral(a.Value,target.Type) &&
+                        if(CheckContextualLiteral(a.Value,target.Type,assigned) &&
                            !CompilerTypes.IsAssignable(assigned,target.Type))Mismatch(a.Name,assigned,target.Type);
                         else target.Initialized=true;
                     }
@@ -85,7 +85,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     var propertyType=TypeOf(assignment.Target,scope);
                     var valueType=TypeOf(assignment.Value,scope);
                     if(propertyType!=null && valueType!=null &&
-                       CheckContextualLiteral(assignment.Value,propertyType) &&
+                       CheckContextualLiteral(assignment.Value,propertyType,valueType) &&
                        !CompilerTypes.IsAssignable(valueType,propertyType))
                         Mismatch(assignment.Target.Name,valueType,propertyType);
                     break;
@@ -277,7 +277,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 else
                     for(int i=0;i<arguments.Length;i++)
                         if(arguments[i] is { } actual &&
-                           CheckContextualLiteral(call.Arguments[i],signature.Parameters[i]) &&
+                           CheckContextualLiteral(call.Arguments[i],signature.Parameters[i],actual) &&
                            !CompilerTypes.IsAssignable(actual,signature.Parameters[i]))
                             Error(call.Callee,"TS2345",
                                 $"Argument of type '{actual.DisplayName}' is not assignable to parameter of type '{signature.Parameters[i].DisplayName}'.");
@@ -362,11 +362,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     }
     // Fresh literal checks are use-site rules, not properties of stored object
     // types: a wider value in a variable remains structurally assignable.
-    private bool CheckContextualLiteral(ValueNode value,TypeSymbol expected)
+    private bool CheckContextualLiteral(ValueNode value,TypeSymbol expected,TypeSymbol actual)
     {
         while(value is ValueParenthesized group)value=group.Expression;
         if(value is not ValueObject literal || expected is not ObjectTypeSymbol shape ||
-           shape.Members.Count==0)return true;
+           actual is not ObjectTypeSymbol data || shape.Members.Count==0)return true;
         bool valid=true;
         foreach(var property in literal.Properties)
         {
@@ -376,7 +376,18 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 Error(property.Name,"TS2353",$"Object literal may only specify known properties, and '{name}' does not exist in type '{shape.DisplayName}'.");
                 valid=false;
             }
-            else valid=CheckContextualLiteral(property.Value,required) && valid;
+            else if(data.Members.TryGetValue(name,out var member))
+            {
+                // Contextual checking diagnoses a fresh literal's property,
+                // not the whole function argument. Reuse its computed type so
+                // nested name-resolution errors are not evaluated twice.
+                if(!CheckContextualLiteral(property.Value,required,member))valid=false;
+                else if(!CompilerTypes.IsAssignable(member,required))
+                {
+                    Mismatch(property.Name,member,required);
+                    valid=false;
+                }
+            }
         }
         return valid;
     }
