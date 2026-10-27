@@ -3,7 +3,7 @@
   "kind": "BOUNDED_LOCAL_GUARD_PROBES_NOT_UPSTREAM_ACCEPTANCE",
   "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
   "sourcePath": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
-  "sourceGitBlob": "663e44537aa2f9fac97f66708515624873930638",
+  "sourceGitBlob": "4de00d8cf5fb989f41e5bb363d0dd0c7d5b02376",
   "scope": "LOCAL_GUARD_PROBES_ONLY",
   "concreteUpstreamCases": null,
   "upstreamCaseExpansion": "UNEXPANDED",
@@ -11,11 +11,11 @@
   "fullCompilerAcceptance": "NOT_RUN",
   "releaseEligible": false,
   "counts": {
-    "registered": 14,
-    "implemented": 8,
+    "registered": 15,
+    "implemented": 9,
     "verifiedUpstream": 0,
     "skippedUnimplemented": 6,
-    "notRun": 8,
+    "notRun": 9,
     "fail": 0,
     "mismatch": 0,
     "crash": 0,
@@ -23,9 +23,9 @@
     "upstreamSkipped": 0
   },
   "uniqueUnimplementedCapabilities": [
+    "computed-object-keys",
     "function-declarations",
-    "intrinsic-globalthis",
-    "object-literals"
+    "intrinsic-globalthis"
   ],
   "byDomain": {
     "binder": {
@@ -44,8 +44,8 @@
       "skipUnimplemented": 0
     },
     "parser": {
-      "registered": 4,
-      "implemented": 2,
+      "registered": 5,
+      "implemented": 3,
       "skipUnimplemented": 2
     }
   },
@@ -170,8 +170,21 @@
     {
       "id": "bootstrap:object-literal",
       "source": "const a = { x: 1 };",
-      "guardMethod": "UnsupportedSyntaxNeverSucceeds",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
       "capability": "object-literals",
+      "domain": "parser",
+      "implementation": "IMPLEMENTED",
+      "implementationLocation": "src/Tscs.Compiler/Parser.cs",
+      "status": "NOT_RUN",
+      "reason": null,
+      "executed": false,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:computed-object-key",
+      "source": "const a = { [computed]: 1 };",
+      "guardMethod": "UnsupportedSyntaxNeverSucceeds",
+      "capability": "computed-object-keys",
       "domain": "parser",
       "implementation": "UNIMPLEMENTED",
       "implementationLocation": null,

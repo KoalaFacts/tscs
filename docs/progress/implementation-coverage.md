@@ -52,3 +52,7 @@ source/configuration targets remain separately discovered SKIP until real
 runner assertions and reference comparison exist. See
 [exact-head evidence](../evidence/ts-ignore-directive.json).
 
+
+## 2026-10-28 — required named object literal guard migration (candidate branch)
+
+The actual object-expression parser/checker implementation makes the stable local `bootstrap:object-literal` guard a positive implementation probe (`IMPLEMENTED`, upstream `NOT_RUN`), rather than leaving a previously unsupported input marked as an accepted negative. The remaining unsupported computed-key syntax receives its own exact new local ID, `bootstrap:computed-object-key`, with `SKIP(UNIMPLEMENTED)`; neither failure nor missing implementation is hidden. Confirmed local scope grows from 14 to 15 probes, with 9 implemented and 6 explicitly unimplemented. This is an **unmerged candidate** requiring exact-head verification and independent review, not a new fixed-TS7 compiler PASS; 15,523 original registered configuration targets remain unaccepted.
