@@ -67,6 +67,16 @@ public sealed class JavaScriptEmitTests : IDisposable
     }
 
     [Fact]
+    public void EmptyStatementCannotPromoteLaterStringIntoStrictModeDirective()
+    {
+        var input=Write("directive.ts",
+            "; \"use strict\"; function identity(eval: number): number { return eval; } let answer: number = identity(42);");
+        var result=Run("--emitJs","--noLib","--target","es2015",input,Globals());
+        Assert.Equal(0,result.Code);
+        Assert.StartsWith(";\n\"use strict\";\n",File.ReadAllText(Path.ChangeExtension(input,".js")));
+    }
+
+    [Fact]
     public void ModuleEmitFailsClosedWithoutCreatingFiles()
     {
         var input=Write("module.ts","export const value: number = 42;");

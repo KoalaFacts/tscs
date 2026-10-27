@@ -25,6 +25,10 @@ internal static class JavaScriptEmitter
         {
             switch(statement)
             {
+                case EmptyStatement:
+                    Indent(depth);
+                    output.Append(";\n");
+                    break;
                 case Variable variable:
                     Indent(depth);
                     output.Append(variable.Constant?"const ":"let ").Append(variable.Name.Text);

@@ -1,3 +1,14 @@
+# 2026-10-27 — Preserve script directive boundaries in the AST (PR #9 review P2)
+
+An independently reported code review found that discarding a leading empty
+statement can promote a subsequent string expression into a JavaScript
+`"use strict"` directive during emit. The parser now records `EmptyStatement`
+and the AST writer retains its semicolon, preserving sloppy-script semantics.
+A new xUnit regression checks the exact emitted prefix, and Node24 executes
+the emitted non-directive string/legacy binding case to catch a syntax failure.
+This is a correctness fix to the new emission module, not a new TS7 accepted
+target. Run exact amended-head CI and re-review before merging.
+
 # 2026-10-27 — AST-backed bounded ES2015 script output (new work package)
 
 Added a single Program-snapshot JavaScript emission path using the same parsed,
