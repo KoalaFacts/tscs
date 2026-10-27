@@ -67,9 +67,17 @@ try {
   writeFileSync(join(temporary,"bridge.ts"),'export { value as answer } from "./value.js";\n');
   const moduleEntry=join(temporary,"entry.ts");
   writeFileSync(moduleEntry,'import { answer } from "./bridge.js"; export function twice(x: number): number { return x + x; } export const result: number = twice(answer);\n');
+  // The config project and CLI share the same effective ES2015 module mode.
+  // This exercises config input, transitive source loading and real JS output
+  // in one compiled-and-executed path (not just an option parsing snapshot).
+  const project=join(temporary,"tsconfig.json");
+  writeFileSync(project,JSON.stringify({
+    files:["entry.ts","minimal.d.ts"],
+    compilerOptions:{module:"es2015",target:"es2015",noLib:true}
+  }));
   const moduleCompile=spawnSync(process.env.DOTNET??"dotnet",[
     resolve("src/Tscs.Cli/bin/Release/net10.0/tscs.dll"),
-    "--emitJs","--module","es2015","--noLib","--target","es2015",moduleEntry,globals
+    "--emitJs","-p",project
   ],{encoding:"utf8",timeout:30000,env:{
     ...process.env,
     DOTNET_CLI_TELEMETRY_OPTOUT:"1",
