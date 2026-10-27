@@ -40,6 +40,13 @@ internal static class JavaScriptEmitter
                     }
                     output.Append(";\n");
                     break;
+                case MemberAssignment memberAssignment:
+                    Indent(depth);
+                    WriteExpression(new ValueMember(memberAssignment.Target,memberAssignment.Member));
+                    output.Append(" = ");
+                    WriteExpression(memberAssignment.Value);
+                    output.Append(";\n");
+                    break;
                 case Assignment assignment:
                     Indent(depth);
                     output.Append(assignment.Name.Text).Append(" = ");
@@ -165,8 +172,8 @@ internal static class JavaScriptEmitter
                 _ => throw new NotSupportedException("Unsupported binary operator in emitted AST.")
             },
             ValueUnary => 7,
-            ValueCall => 8,
-            ValueAtom or ValueParenthesized => 9,
+            ValueCall or ValueMember => 8,
+            ValueAtom or ValueParenthesized or ValueObject => 9,
             _ => throw new NotSupportedException("Unsupported expression in emitted AST.")
         };
 
@@ -211,6 +218,20 @@ internal static class JavaScriptEmitter
                         Text(")");
                         Node(grouped.Expression);
                         Text("(");
+                        break;
+                    case ValueObject objectLiteral:
+                        Text(" }");
+                        for(int i=objectLiteral.Properties.Count-1;i>=0;i--)
+                        {
+                            Node(objectLiteral.Properties[i].Value);
+                            Text(objectLiteral.Properties[i].Name.Text+": ");
+                            if(i>0)Text(", ");
+                        }
+                        Text("{ ");
+                        break;
+                    case ValueMember member:
+                        Text("."+member.Member.Text);
+                        Node(member.Target,precedence);
                         break;
                     case ValueCall call:
                         Text(")");

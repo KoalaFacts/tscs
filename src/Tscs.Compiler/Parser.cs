@@ -7,6 +7,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     private int callNesting;
     private int conditionalNesting;
     private int groupNesting;
+    private int objectNesting;
     private Token Current => tokens[position];
     public List<Diagnostic> Diagnostics { get; } = [];
     private Token Take() => tokens[position++];
@@ -124,13 +125,13 @@ internal sealed class Parser(string file, List<Token> tokens)
                         if(parameter.Kind!=TokenKind.Identifier)Unsupported(parameter,"Expected a named parameter.");
                         Take();
                         if(!Eat(TokenKind.Colon))Unsupported(Current,"Function parameters require an explicit primitive type.");
-                        parameters.Add(new ParameterDeclaration(parameter,ReadPrimitiveAnnotation()));
+                        parameters.Add(new ParameterDeclaration(parameter,ReadTypeAnnotation()));
                         if(!Eat(TokenKind.Comma))break;
                     }
                 }
                 if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after function parameters.");
                 if(!Eat(TokenKind.Colon))Unsupported(Current,"Function return types must be explicit in this compiler subset.");
-                var result=ReadPrimitiveAnnotation();
+                var result=ReadTypeAnnotation();
                 if(!Eat(TokenKind.Open))Unsupported(Current,"Expected '{' before function body.");
                 var body=Parse(depth+1,true);
                 if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
@@ -159,10 +160,10 @@ internal sealed class Parser(string file, List<Token> tokens)
                 {
                     var name=Current;
                     if(name.Kind!=TokenKind.Identifier) Unsupported(name,"Only named variable declarations are supported.");
-                    Take(); string? annotation=null;
+                    Take(); TypeSyntax? annotation=null;
                     if(Eat(TokenKind.Colon))
                     {
-                        annotation=ReadPrimitiveAnnotation();
+                        annotation=ReadTypeAnnotation();
                     }
                     ValueNode? initializer=Eat(TokenKind.Equal)?ParseValue():null;
                     if(annotation==null && initializer==null) Unsupported(name,"Variables without a type or initializer are not supported yet.");
@@ -196,7 +197,9 @@ internal sealed class Parser(string file, List<Token> tokens)
             {
                 if(value is ValueAtom atom && atom.Token.Kind==TokenKind.Identifier)
                     statements.Add(new Assignment(atom.Token,ParseValue()));
-                else Unsupported(Current,"Only identifier assignment targets are supported.");
+                else if(value is ValueMember member)
+                    statements.Add(new MemberAssignment(member.Target,member.Member,ParseValue()));
+                else Unsupported(Current,"Only identifier and named-property assignment targets are supported.");
             }
             else statements.Add(new Expression(value));
             EndStatement();
@@ -241,12 +244,33 @@ internal sealed class Parser(string file, List<Token> tokens)
         finally { conditionalNesting--; }
     }
 
-    private string ReadPrimitiveAnnotation()
+    private TypeSyntax ReadTypeAnnotation(int depth=0)
     {
+        if(depth>16)Unsupported(Current,"Object type nesting exceeds the supported limit.");
+        if(Eat(TokenKind.Open))
+        {
+            var properties=new List<ObjectTypePropertySyntax>();
+            var names=new HashSet<string>(StringComparer.Ordinal);
+            while(Current.Kind!=TokenKind.Close)
+            {
+                if(properties.Count>=128)Unsupported(Current,"Object types are limited to 128 named members.");
+                var name=Current;
+                if(name.Kind!=TokenKind.Identifier)Unsupported(name,"Object types require named members.");
+                Take();
+                if(!names.Add(name.Text))Unsupported(name,"Duplicate object type members are not supported.");
+                if(!Eat(TokenKind.Colon))Unsupported(Current,"Expected ':' after object type member.");
+                properties.Add(new(name,ReadTypeAnnotation(depth+1)));
+                if(Current.Kind==TokenKind.Close)break;
+                if(!Eat(TokenKind.Semi) && !Eat(TokenKind.Comma))
+                    Unsupported(Current,"Expected ';' or ',' between object type members.");
+            }
+            Take();
+            return new ObjectTypeSyntax(properties);
+        }
         if(Current.Kind!=TokenKind.Identifier ||
            Current.Text is not ("number" or "string" or "boolean" or "any"))
-            Unsupported(Current,"Only primitive type annotations are supported.");
-        return Take().Text;
+            Unsupported(Current,"Only primitive and required named object type annotations are supported.");
+        return new PrimitiveTypeSyntax(Take());
     }
 
     // Single precedence ladder shared by variable, call, return, assignment
@@ -319,10 +343,47 @@ internal sealed class Parser(string file, List<Token> tokens)
         // prefix '+'/'-' operators; the TypeChecker also evaluates iteratively.
         var prefixes=new List<Token>();
         while(Current.Kind is TokenKind.Minus or TokenKind.Plus or TokenKind.Bang)prefixes.Add(Take());
-        ValueNode value=ParsePrimary();
+        ValueNode value=ParsePostfix();
         for(int i=prefixes.Count-1;i>=0;i--)value=new ValueUnary(prefixes[i],value);
         return value;
     }
+    private ValueNode ParsePostfix()
+    {
+        var value=ParsePrimary();
+        while(true)
+        {
+            if(Eat(TokenKind.Dot))
+            {
+                if(Current.Kind!=TokenKind.Identifier)
+                    Unsupported(Current,"Expected a named property after '.'.");
+                value=new ValueMember(value,Take());
+                continue;
+            }
+            if(Current.Kind!=TokenKind.OpenParen)break;
+            if(value is not ValueAtom { Token.Kind: TokenKind.Identifier })
+                Unsupported(Current,"Only named function calls are supported yet.");
+            var callee=((ValueAtom)value).Token;
+            Take();
+            if(++callNesting>64)Unsupported(callee,"Nested calls exceed the compiler subset depth limit.");
+            try
+            {
+                var arguments=new List<ValueNode>();
+                if(Current.Kind!=TokenKind.CloseParen)
+                {
+                    while(true)
+                    {
+                        arguments.Add(ParseValue());
+                        if(!Eat(TokenKind.Comma))break;
+                    }
+                }
+                if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after function arguments.");
+                value=new ValueCall(callee,arguments);
+            }
+            finally { callNesting--; }
+        }
+        return value;
+    }
+
     private ValueNode ParsePrimary()
     {
         var token=Current;
@@ -338,35 +399,43 @@ internal sealed class Parser(string file, List<Token> tokens)
             }
             finally { groupNesting--; }
         }
-        if(token.Kind==TokenKind.Identifier)
+        if(token.Kind==TokenKind.Open)
         {
             Take();
-            if(!Eat(TokenKind.OpenParen))return new ValueAtom(token);
-            if(++callNesting>64)Unsupported(token,"Nested calls exceed the compiler subset depth limit.");
+            if(++objectNesting>16)Unsupported(token,"Object literal nesting exceeds the supported limit.");
             try
             {
-                var arguments=new List<ValueNode>();
-                if(Current.Kind!=TokenKind.CloseParen)
+                var properties=new List<ObjectValueProperty>();
+                var names=new HashSet<string>(StringComparer.Ordinal);
+                while(Current.Kind!=TokenKind.Close)
                 {
-                    while(true)
-                    {
-                        arguments.Add(ParseValue());
-                        if(!Eat(TokenKind.Comma))break;
-                    }
+                    if(properties.Count>=128)Unsupported(Current,"Object literals are limited to 128 named properties.");
+                    var name=Current;
+                    if(name.Kind!=TokenKind.Identifier)
+                        Unsupported(name,"Object literals require named properties.");
+                    Take();
+                    if(!names.Add(name.Text))
+                        throw new CompilationFailure(Diagnostic.Error(file,name,"TS1117",
+                            "An object literal cannot have multiple properties with the same name."));
+                    if(!Eat(TokenKind.Colon))Unsupported(Current,"Expected ':' after object property.");
+                    properties.Add(new(name,ParseValue()));
+                    if(Current.Kind==TokenKind.Close)break;
+                    if(!Eat(TokenKind.Comma))Unsupported(Current,"Expected ',' between object properties.");
+                    if(Current.Kind==TokenKind.Close)break;
                 }
-                if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after function arguments.");
-                return new ValueCall(token,arguments);
+                var close=Take();
+                return new ValueObject(token,properties,close);
             }
-            finally { callNesting--; }
+            finally { objectNesting--; }
         }
-        if(token.Kind is TokenKind.Number or TokenKind.String or TokenKind.True or TokenKind.False)
+        if(token.Kind is TokenKind.Identifier or TokenKind.Number or TokenKind.String or TokenKind.True or TokenKind.False)
             return new ValueAtom(Take());
         if(token.Kind is TokenKind.Semi or TokenKind.End or TokenKind.Close)
         {
             Diagnostics.Add(Diagnostic.Error(file,token,"TS1109","Expression expected."));
             return new ValueAtom(new(TokenKind.Number,"0",token.Start,0));
         }
-        Unsupported(token,"Only primitive, parenthesized and named-call expressions are supported.");
+        Unsupported(token,"Only implemented primitive, object, parenthesized and named-call expressions are supported.");
         return default!;
     }
     private void EndStatement()

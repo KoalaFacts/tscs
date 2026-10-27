@@ -28,9 +28,25 @@ internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,T
         $"({string.Join(", ",Parameters.Select(p=>p.DisplayName))}) => {ReturnType.DisplayName}";
 }
 
-// These relations cover only the implemented primitive + any subset.
-// Unsupported TypeScript type forms remain parser/compiler errors; an unknown
-// type is represented by null, never silently treated as 'any'.
+// Required named properties share the same semantic model as primitives.
+// Optional/readonly/index signatures and unions remain unsupported rather
+// than being silently widened to any.
+internal sealed record ObjectPropertySymbol(string Name,TypeSymbol Type);
+internal sealed record ObjectTypeSymbol : TypeSymbol
+{
+    public ObjectTypeSymbol(IEnumerable<ObjectPropertySymbol> properties)
+    {
+        Properties=properties.ToArray();
+        Members=Properties.ToDictionary(p=>p.Name,p=>p.Type,StringComparer.Ordinal);
+    }
+    public IReadOnlyList<ObjectPropertySymbol> Properties { get; }
+    public IReadOnlyDictionary<string,TypeSymbol> Members { get; }
+    public override string DisplayName => "{ " +
+        string.Join("; ",Properties.Select(p=>$"{p.Name}: {p.Type.DisplayName}")) + " }";
+    public TypeSymbol? Member(string name)=>Members.GetValueOrDefault(name);
+}
+
+// An unknown type is null, never implicitly any.
 internal static class CompilerTypes
 {
     public static readonly TypeSymbol Number=new PrimitiveTypeSymbol(PrimitiveKind.Number);
@@ -47,6 +63,37 @@ internal static class CompilerTypes
         _ => throw new ArgumentOutOfRangeException(nameof(name),
             "Only parser-validated primitive annotations may reach the semantic type model.")
     };
+
+    public static TypeSymbol FromAnnotation(TypeSyntax annotation) => annotation switch
+    {
+        PrimitiveTypeSyntax primitive => FromAnnotation(primitive.Name.Text),
+        ObjectTypeSyntax shape => new ObjectTypeSymbol(shape.Properties.Select(
+            property=>new ObjectPropertySymbol(property.Name.Text,FromAnnotation(property.Type)))),
+        _ => throw new ArgumentOutOfRangeException(nameof(annotation))
+    };
+
+    // Prebind only literal members whose semantic type is known without
+    // evaluating another declaration. This makes structural exports stable
+    // across the existing module-linking pass.
+    public static TypeSymbol? InferLiteral(ValueNode value,int depth=0)
+    {
+        if(depth>16)return null;
+        switch(value)
+        {
+            case ValueAtom atom: return FromLiteral(atom.Token);
+            case ValueParenthesized grouped: return InferLiteral(grouped.Expression,depth+1);
+            case ValueObject literal:
+                var members=new List<ObjectPropertySymbol>();
+                foreach(var property in literal.Properties)
+                {
+                    var type=InferLiteral(property.Value,depth+1);
+                    if(type==null)return null;
+                    members.Add(new(property.Name.Text,type));
+                }
+                return new ObjectTypeSymbol(members);
+            default: return null;
+        }
+    }
 
     public static TypeSymbol? FromLiteral(Token token) => token.Kind switch
     {
@@ -66,5 +113,23 @@ internal static class CompilerTypes
         (left.Equals(right) || left.Equals(Any) || right.Equals(Any));
 
     public static bool IsAssignable(TypeSymbol source,TypeSymbol target) =>
-        source.Equals(target) || source.Equals(Any) || target.Equals(Any);
+        IsAssignable(source,target,0);
+
+    private static bool IsAssignable(TypeSymbol source,TypeSymbol target,int depth)
+    {
+        if(source.Equals(Any)||target.Equals(Any))return true;
+        if(source is ObjectTypeSymbol objectSource && target is ObjectTypeSymbol objectTarget)
+        {
+            if(depth>16)return false;
+            foreach(var requirement in objectTarget.Properties)
+            {
+                var present=objectSource.Member(requirement.Name);
+                if(present==null || !IsAssignable(present,requirement.Type,depth+1))
+                    return false;
+            }
+            return true;
+        }
+        if(source is ObjectTypeSymbol || target is ObjectTypeSymbol)return false;
+        return source.Equals(target);
+    }
 }

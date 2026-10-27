@@ -63,6 +63,21 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     if(annotatedType!=null&&source!=null&&!CompilerTypes.IsAssignable(source,annotatedType))
                         Mismatch(v.Name,source,annotatedType);
                     break;
+                case MemberAssignment memberAssignment:
+                    var owner=TypeOf(memberAssignment.Target,scope);
+                    var valueType=TypeOf(memberAssignment.Value,scope);
+                    if(owner==null)break;
+                    if(owner.Equals(CompilerTypes.Any))break;
+                    if(owner is not ObjectTypeSymbol objectOwner ||
+                       objectOwner.Member(memberAssignment.Member.Text) is not { } propertyType)
+                    {
+                        Error(memberAssignment.Member,"TS2339",
+                            $"Property '{memberAssignment.Member.Text}' does not exist on type '{owner.DisplayName}'.");
+                        break;
+                    }
+                    if(valueType!=null && !CompilerTypes.IsAssignable(valueType,propertyType))
+                        Mismatch(memberAssignment.Member,valueType,propertyType);
+                    break;
                 case Assignment a:
                     var target=Resolve(a.Name,scope);var assigned=TypeOf(a.Value,scope);
                     if(target==null)break;
@@ -222,6 +237,48 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             Error(call.Callee,"TS2345",
                                 $"Argument of type '{actual.DisplayName}' is not assignable to parameter of type '{signature.Parameters[i].DisplayName}'.");
                 types.Push(signature.ReturnType);
+                continue;
+            }
+            if(node is ValueObject literal)
+            {
+                if(!combine)
+                {
+                    pending.Push((literal,true));
+                    for(int i=literal.Properties.Count-1;i>=0;i--)
+                        pending.Push((literal.Properties[i].Value,false));
+                    continue;
+                }
+                var members=new ObjectPropertySymbol[literal.Properties.Count];
+                bool unknown=false;
+                for(int i=members.Length-1;i>=0;i--)
+                {
+                    var type=types.Pop();
+                    if(type==null)unknown=true;
+                    else members[i]=new ObjectPropertySymbol(literal.Properties[i].Name.Text,type);
+                }
+                types.Push(unknown?null:new ObjectTypeSymbol(members));
+                continue;
+            }
+            if(node is ValueMember member)
+            {
+                if(!combine)
+                {
+                    pending.Push((member,true));
+                    pending.Push((member.Target,false));
+                    continue;
+                }
+                var owner=types.Pop();
+                if(owner==null)types.Push(null);
+                else if(owner.Equals(CompilerTypes.Any))types.Push(CompilerTypes.Any);
+                else if(owner is ObjectTypeSymbol shape &&
+                        shape.Member(member.Member.Text) is { } property)
+                    types.Push(property);
+                else
+                {
+                    Error(member.Member,"TS2339",
+                        $"Property '{member.Member.Text}' does not exist on type '{owner.DisplayName}'.");
+                    types.Push(null);
+                }
                 continue;
             }
             var binary=(ValueBinary)node;

@@ -93,6 +93,55 @@ try {
   ],{cwd:temporary,encoding:"utf8",timeout:15000});
   assert.equal(moduleRun.error,undefined,String(moduleRun.error));
   assert.equal(moduleRun.status,0,moduleRun.stdout+"\n"+moduleRun.stderr);
+  // The object graph must pass through the actual C# compiler and execute
+  // as ES2015 modules; acceptance against the frozen TS7 suite is separate.
+  writeFileSync(join(temporary,"object-data.ts"),
+    'export const order: { quantity: number; owner: string } = { quantity: 21, owner: "Ada" };\n');
+  writeFileSync(join(temporary,"object-service.ts"),[
+    'import { order } from "./object-data.js";',
+    'export function double(input: { quantity: number }): { quantity: number } {',
+    '  return { quantity: input.quantity * 2 };',
+    '}',
+    'export const processed: { quantity: number } = double(order);'
+  ].join("\n")+"\n");
+  writeFileSync(join(temporary,"object-entry.ts"),[
+    'import { processed } from "./object-service.js";',
+    'import { order } from "./object-data.js";',
+    'let state: { quantity: number } = { quantity: 0 };',
+    'state.quantity = processed.quantity;',
+    'export const answer: number = state.quantity;',
+    'export const owner: string = order.owner;'
+  ].join("\n")+"\n");
+  const objectCompile=spawnSync(process.env.DOTNET??"dotnet",[
+    resolve("src/Tscs.Cli/bin/Release/net10.0/tscs.dll"),
+    "--emitJs","--module","es2015","--noLib","--target","es2015",
+    join(temporary,"object-entry.ts"),globals
+  ],{encoding:"utf8",timeout:30000,env:{
+    ...process.env,DOTNET_CLI_TELEMETRY_OPTOUT:"1",TESTINGPLATFORM_TELEMETRY_OPTOUT:"1"
+  }});
+  assert.equal(objectCompile.error,undefined,String(objectCompile.error));
+  assert.equal(objectCompile.status,0,objectCompile.stdout+"\n"+objectCompile.stderr);
+  for(const file of ["object-data.js","object-service.js","object-entry.js"])
+    assert.ok(existsSync(join(temporary,file)),file+" was not emitted");
+  const objectRun=spawnSync(process.execPath,[
+    "--input-type=module","--eval",
+    'import { answer, owner } from "./object-entry.js"; if(answer !== 42 || owner !== "Ada") throw new Error("object module result mismatch");'
+  ],{cwd:temporary,encoding:"utf8",timeout:15000});
+  assert.equal(objectRun.error,undefined,String(objectRun.error));
+  assert.equal(objectRun.status,0,objectRun.stdout+"\n"+objectRun.stderr);
+
+  const invalidObject=join(temporary,"invalid-object.ts");
+  writeFileSync(invalidObject,
+    'const item: { quantity: number } = { quantity: 1 }; let bad: number = item.missing;\n');
+  const negative=spawnSync(process.env.DOTNET??"dotnet",[
+    resolve("src/Tscs.Cli/bin/Release/net10.0/tscs.dll"),
+    "--noEmit","--noLib","--target","es2015",invalidObject,globals
+  ],{encoding:"utf8",timeout:30000,env:{
+    ...process.env,DOTNET_CLI_TELEMETRY_OPTOUT:"1",TESTINGPLATFORM_TELEMETRY_OPTOUT:"1"
+  }});
+  assert.equal(negative.error,undefined,String(negative.error));
+  assert.notEqual(negative.status,0,"missing object member unexpectedly compiled");
+  assert.match(negative.stdout+"\n"+negative.stderr,/TS2339/);
   console.log("AST-backed ES2015 script and named module graphs emitted and executed successfully.");
 } finally {
   rmSync(temporary,{recursive:true,force:true});

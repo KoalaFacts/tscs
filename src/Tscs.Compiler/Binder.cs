@@ -86,8 +86,8 @@ internal static class Binder
             switch(symbol.Declaration)
             {
                 case Variable declaration:
-                    TypeSymbol? literalType=declaration.Initializer is ValueAtom atom
-                        ? CompilerTypes.FromLiteral(atom.Token) : null;
+                    TypeSymbol? literalType=declaration.Initializer is {} initializer
+                        ? CompilerTypes.InferLiteral(initializer) : null;
                     symbol.Type=declaration.Annotation is { } annotation
                         ? CompilerTypes.FromAnnotation(annotation) : literalType;
                     symbol.Initialized=declaration.Initializer!=null;
