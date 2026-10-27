@@ -52,7 +52,8 @@ public static class CommandLine
                 stdout.WriteLine(JsonSerializer.Serialize(new{diagnostics=JsonSourceIdentities(diagnostics,program.Sources),exitCode},JsonOptions));
             else
             {
-                var sources=program.Sources.ToDictionary(f=>f.File,f=>f.Text,StringComparer.Ordinal);
+                // Diagnostic paths and source snapshots must use the host's file identity rules.
+                var sources=program.Sources.ToDictionary(f=>f.File,f=>f.Text,host.FileNameComparer);
                 foreach(var d in diagnostics)
                     stdout.WriteLine(Format(d,sources.GetValueOrDefault(d.File) ?? program.Sources[0].Text));
             }

@@ -321,6 +321,18 @@ public class CommandLineTests : IDisposable
     }
 
     [Fact]
+    public void WindowsModuleDiagnosticUsesLoadedCaseAndSourceCoordinates()
+    {
+        if(!OperatingSystem.IsWindows())return;
+        var a=Write("A.ts","export { value } from \"./b\";");
+        var b=Write("B.ts","\n\nexport { value } from \"./b\";");
+        var result=Run("--noEmit","--noLib",a,b);
+        Assert.Equal(1,result.Code);
+        Assert.Contains("B.ts(3,10): error TSCS1001:",result.Out);
+        Assert.DoesNotContain("b.ts(1,12)",result.Out);
+    }
+
+    [Fact]
     public void CrossFileTypeErrorsRenderTheCorrectFile()
     {
         var a=Write("a.ts","let first: string = second;");

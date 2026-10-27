@@ -130,3 +130,14 @@ This is deliberately bounded named-value linking: no star/default/namespace
 or type-only exports, package resolution, type imports, full TS7 module
 semantics, runtime initialization, or JavaScript emit. Original upstream
 acceptance remains independent from these internal architecture checks.
+
+## Host-canonical module diagnostic provenance (2026-10-27; PR #8)
+
+Module graph edges retain their host-resolved target paths, which can differ in
+case from the single loaded SourceInput identity on case-insensitive hosts.
+ModuleLinker normalizes a resolved target to the matching ParsedSource.File and
+uses that identity through recursive export linking and error construction.
+The CLI uses ICompilerHost.FileNameComparer to retrieve diagnostic source text.
+This avoids attributing module-cycle diagnostics to an edge spelling while
+formatting UTF-16 offsets against another source. It does not add module
+resolution beyond the bounded relative paths or release acceptance.

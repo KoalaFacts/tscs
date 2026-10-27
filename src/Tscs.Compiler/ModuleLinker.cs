@@ -42,15 +42,18 @@ internal static class ModuleLinker
                !imports.TryGetValue(modulePath.Start,out var targetFile))
                 throw new CompilationFailure(Diagnostic.Error(file,modulePath,"TSCS1001",
                     "Module imports and re-exports require a host-resolved source graph."));
-            if(!nodes.ContainsKey(targetFile))
+            if(!nodes.TryGetValue(targetFile,out var target))
                 throw new CompilationFailure(Diagnostic.Error(file,modulePath,"TSCS1001",
                     "The referenced source is not an ES module."));
-            return targetFile;
+            return target.Source.File;
         }
 
         Symbol? Resolve(string file,string exportedName,List<(string File,string Name)> active)
         {
             var module=nodes[file];
+            // Host comparers may equate different spellings (e.g. B.ts and b.ts).
+            // All downstream diagnostics and source positions use the loaded AST's identity.
+            file=module.Source.File;
             if(!module.Exports.TryGetValue(exportedName,out var entry))return null;
             if(active.Count>=256 || active.Any(x=>comparer.Equals(x.File,file) &&
                 StringComparer.Ordinal.Equals(x.Name,exportedName)))

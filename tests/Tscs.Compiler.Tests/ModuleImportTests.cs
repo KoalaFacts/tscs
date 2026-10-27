@@ -5,10 +5,10 @@ namespace Tscs.Tests;
 
 public sealed class ModuleImportTests
 {
-    private sealed class Host : ICompilerHost
+    private sealed class Host(StringComparer? comparer=null) : ICompilerHost
     {
-        public StringComparer FileNameComparer => StringComparer.Ordinal;
-        public Dictionary<string,string> Files { get; }=new(StringComparer.Ordinal);
+        public StringComparer FileNameComparer { get; }=comparer??StringComparer.Ordinal;
+        public Dictionary<string,string> Files { get; }=new(comparer??StringComparer.Ordinal);
         public List<string> Reads { get; }=[];
         public string GetCanonicalFileName(string path) =>
             Path.GetFullPath(Path.IsPathRooted(path)?path:Path.Combine("/virtual",path));
@@ -161,6 +161,25 @@ public sealed class ModuleImportTests
 
         host.Files["/virtual/b.ts"]="const value: number = 1; export { value as x, value as x };";
         Assert.Equal("TSCS1001",Assert.Single(CompilerProgram.Load(host,["a.ts"]).Analyze().Diagnostics).Code);
+    }
+
+    [Fact]
+    public void CaseInsensitiveModuleEdgesKeepLoadedSourceForCycleDiagnostics()
+    {
+        // Simulates a case-insensitive filesystem even on Linux CI runners:
+        // b.ts is an edge spelling, B.ts is the actual parsed source identity.
+        var host=new Host(StringComparer.OrdinalIgnoreCase);
+        host.Files["/virtual/A.ts"]="export { value } from \"./b\";";
+        var bText="\n\nexport { value } from \"./b\";";
+        host.Files["/virtual/B.ts"]=bText;
+
+        var program=CompilerProgram.Load(host,["A.ts","B.ts"]);
+        var diagnostic=Assert.Single(program.Analyze().Diagnostics);
+        Assert.Equal("TSCS1001",diagnostic.Code);
+        Assert.Equal("/virtual/B.ts",diagnostic.File);
+        Assert.Equal(bText.IndexOf("value",StringComparison.Ordinal),diagnostic.Start);
+        Assert.Equal(2,host.Reads.Count); // b.ts does not load the same B.ts again.
+        Assert.Equal(["/virtual/A.ts","/virtual/B.ts"],program.Sources.Select(s=>s.File));
     }
 
     [Fact]

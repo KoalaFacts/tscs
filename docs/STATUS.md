@@ -1,3 +1,15 @@
+# 2026-10-27 — Host-canonical module diagnostic provenance (PR #8)
+
+Fixed the reviewed P2 on case-insensitive module hosts: module edges can spell
+`b.ts` while the loaded AST/source identity is `B.ts`. ModuleLinker now
+normalizes linked targets and recursive resolutions to the actual parsed
+source before constructing diagnostics; CLI text lookup shares the host's
+identity comparer. New targeted host regression asserts real cycle provenance,
+UTF-16 offset and deduplicated reads. A Windows-only CLI regression verifies
+the correct third-line text coordinate; it is not treated as executed on Linux.
+This protects the reusable module source graph, not new TS7 acceptance.
+Exact-head checks are needed; no merge or upstream skip reduction is claimed.
+
 # 2026-10-27 — Deferred named export linking (PR #8)
 
 The host-backed Program now links named value exports after prebinding all
