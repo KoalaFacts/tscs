@@ -132,8 +132,6 @@ internal sealed class Parser(string file, List<Token> tokens)
                 if(!Eat(TokenKind.Open))Unsupported(Current,"Expected '{' before function body.");
                 var body=Parse(depth+1,true);
                 if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
-                if(body.Statements.LastOrDefault() is not ReturnStatement)
-                    Unsupported(name,"Only function bodies ending in a value return are supported yet.");
                 statements.Add(new FunctionDeclaration(name,parameters,result,body,exported));
                 continue;
             }
@@ -141,7 +139,7 @@ internal sealed class Parser(string file, List<Token> tokens)
             {
                 var keyword=Take();
                 if(!inFunction)Unsupported(keyword,"Return statements are supported only inside functions.");
-                if(Current.Kind is TokenKind.Semi or TokenKind.End or TokenKind.Close)
+                if(Current.LineBreak || Current.Kind is TokenKind.Semi or TokenKind.End or TokenKind.Close)
                     Unsupported(keyword,"Only value-returning functions are supported yet.");
                 statements.Add(new ReturnStatement(keyword,ParseValue()));
                 EndStatement();

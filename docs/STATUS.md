@@ -1,3 +1,15 @@
+# 2026-10-27 — Straight-line function return flow and return-line boundary (PR #8)
+
+Corrected an reviewed ASI issue: a line break after `return` cannot attach
+the next expression as its value; LF, CRLF and multiline-comment boundaries
+now fail closed in the current non-void function subset. Replaced the parser's
+last-statement-only shortcut with a shared FunctionControlFlow check in the
+TypeChecker. Unconditional nested blocks ending in a value return now work,
+while nonreturning bodies remain rejected. Conditional/loop control flow,
+void returns, full ASI and full TS7 function acceptance are still absent.
+The original accepted count and SKIP_UNIMPLEMENTED catalogue are unchanged.
+Current head CI must validate this commit; no merge/release is implied.
+
 # 2026-10-27 — Explicit-signature function pipeline (PR #8)
 
 Implemented a bounded, reusable function-declaration and call path across Scanner, AST,

@@ -167,3 +167,17 @@ before their textual declaration, unlike let/const. This is intentionally a
 small real working function family, not TypeScript's full callable type system,
 closures, overloads, defaults, recursion analysis, hoisting runtime semantics
 or JavaScript emit. The frozen upstream original test ledger remains separate.
+
+## Function return-flow boundary (2026-10-27; PR #8)
+
+The Parser retains the exact Scanner line-break flag on the token following
+`return`. Under the current value-return-only subset, a line terminator after
+`return` (including CRLF or one inside a block comment) is rejected rather
+than silently treating the following expression as the return value.
+`FunctionControlFlow` now analyzes unconditional sequential/nested lexical
+blocks for a definite value return; TypeChecker enforces that semantic
+requirement instead of the Parser requiring a direct last statement.
+This permits nested straight-line return blocks without treating functions
+with no returning path as implemented. There are no branches/loops, void
+returns, full ASI semantics or generalized TypeScript control-flow checks yet;
+the complete original TS7 acceptance registry is unchanged.

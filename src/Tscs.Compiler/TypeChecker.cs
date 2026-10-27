@@ -21,6 +21,9 @@ internal sealed class TypeChecker(string file)
                 case FunctionDeclaration function:
                     var functionSymbol=scope.Symbols[function.Name.Text];
                     var functionType=(FunctionTypeSymbol)functionSymbol.Type!;
+                    if(!FunctionControlFlow.DefinitelyReturnsValue(function.Body))
+                        throw new CompilationFailure(Diagnostic.Error(file,function.Name,"TSCS1001",
+                            "Only function bodies with a definite value return are supported yet."));
                     var parameters=new Scope(scope);
                     foreach(var parameter in function.Parameters)
                         Binder.DeclareParameter(file,parameters,parameter);

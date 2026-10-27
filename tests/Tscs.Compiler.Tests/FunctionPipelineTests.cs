@@ -24,6 +24,34 @@ public sealed class FunctionPipelineTests
     public void FunctionsFailClosedOnUnsupportedOrIncorrectSemantics(string source,string code) =>
         Assert.Contains(Compilation.Check("source.ts",source),d=>d.Code==code);
 
+    [Theory]
+    [InlineData("function f(): number { return\n1; }")]
+    [InlineData("function f(): number { return\r\n1; }")]
+    [InlineData("function f(): number { return/* newline\ninside */1; }")]
+    [InlineData("function f(): number { return/* newline\r\ninside */1; }")]
+    [InlineData("function f(): number { return // comment\n1; }")]
+    public void ReturnCannotConsumeAnExpressionAcrossALineTerminator(string source)
+    {
+        var diagnostics=Compilation.Check("source.ts",source);
+        Assert.Contains(diagnostics,d=>d.Code=="TSCS1001" &&
+            d.Start==source.IndexOf("return",StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData("function f(): number { return 1; } let n: number = f();")]
+    [InlineData("function f(): number { return /* same line */ 1; } let n: number = f();")]
+    [InlineData("function f(x: number): number { { return x; } } let n: number = f(3);")]
+    [InlineData("function f(x: number): number { let y: number = x; { let z: number = y; return z; } } let n: number = f(3);")]
+    public void StraightLineFunctionReturnFlowIncludesNestedUnconditionalBlocks(string source) =>
+        Assert.Empty(Compilation.Check("source.ts",source));
+
+    [Fact]
+    public void NestedBlocksWithoutAValueReturnStillFailClosed()
+    {
+        var diagnostics=Compilation.Check("source.ts","function f(x: number): number { { let y: number = x; } }");
+        Assert.Contains(diagnostics,d=>d.Code=="TSCS1001");
+    }
+
     [Fact]
     public void CallsCanFollowAHostResolvedNamedExport()
     {
