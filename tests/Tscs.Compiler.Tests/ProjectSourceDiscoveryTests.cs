@@ -78,6 +78,29 @@ public sealed class ProjectSourceDiscoveryTests : IDisposable
         Assert.Equal(0,Run(config).Exit);
     }
 
+    [Fact]
+    public void PackageDirectoryOptInCannotLeakIntoAnotherInclude()
+    {
+        Globals();
+        Write("src/main.ts","let result: number = packageValue;");
+        Write("src/node_modules/bad.ts","let bad: number = \"wrong\";");
+        Write("node_modules/special.ts","let packageValue: number = 42;");
+        var config=Write("tsconfig.json",
+            "{\"files\":[\"minimal.d.ts\"],\"include\":[\"src/**/*.ts\",\"node_modules/special.ts\"],\"compilerOptions\":{\"noEmit\":true,\"noLib\":true}}");
+        var result=Run(config);
+        Assert.Equal(0,result.Exit);
+        Assert.DoesNotContain("bad.ts",result.Output);
+    }
+
+    [Fact]
+    public void DiscoveredSourceAndDeclarationSuffixesMatchCliHostCasing()
+    {
+        Assert.True(ProjectSourceDiscovery.IsTypeScriptFile("example.ts"));
+        Assert.True(ProjectSourceDiscovery.IsDeclarationFile("example.d.ts"));
+        Assert.Equal(OperatingSystem.IsWindows(),ProjectSourceDiscovery.IsTypeScriptFile("example.TS"));
+        Assert.Equal(OperatingSystem.IsWindows(),ProjectSourceDiscovery.IsDeclarationFile("example.D.TS"));
+    }
+
     [Theory]
     [InlineData("../*.ts")]
     [InlineData("/absolute/*.ts")]
