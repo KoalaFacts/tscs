@@ -1,3 +1,15 @@
+# 2026-10-27 — Host-backed transitive global-script path references (PR #8)
+
+Implemented a bounded source-dependency graph in `CompilerProgram.Load`:
+leading relative triple-slash path references load transitively through
+`ICompilerHost`, while canonical deduplication prevents cycles/diamonds from
+reloading sources. The loaded sources feed the existing multi-file binder and
+checker; malformed/late directives, missing dependencies and unsupported
+absolute references fail closed. New host tests cover the working cross-file
+path and these boundaries. This is not ES-module resolution or original TS7
+acceptance. Original configuration-level PASS stays 0/15,523, SKIP_UNIMPLEMENTED
+stays 15,523; the full runtime domain denominator remains unknown.
+
 # 2026-10-27 — Host-backed compiler program and project syntax diagnostics (PR #8)
 
 Added a production `ICompilerHost` / `FileSystemCompilerHost` boundary and

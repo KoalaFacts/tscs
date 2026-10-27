@@ -59,3 +59,19 @@ general standard-library support, or TypeScript emit is claimed.
 Next dependencies: typed options/project host, proper module/source-file graph,
 per-source resilient binding, then unified emit. The pinned full original
 acceptance ledger remains separate from these local architecture checks.
+
+## Host-backed path-reference source graph (2026-10-27; PR #8)
+
+`CompilerProgram.Load` now expands a bounded, transitive set of **leading**
+`/// <reference path="./other.ts" />` source dependencies through
+`ICompilerHost.ResolveReferencePath`. The host canonicalizes each dependency,
+and a visited-set prevents duplicate source reads across diamonds and cycles.
+These referenced global scripts pass through the *same* multi-file binder and
+checker as explicit inputs. The lexer admits only correctly formed leading path
+references; unsupported triple-slash directives still fail closed.
+
+This is a real source-graph path for global-script primitive programs, **not**
+ES module import/export resolution, `types`/`lib` references, declaration-file
+semantics, symlink identity, project references or full TS7 resolution rules.
+General virtual hosts can override relative dependency resolution. Root aliases
+remain errors, and missing referenced files are not silently skipped.

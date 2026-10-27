@@ -9,6 +9,9 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
     private int position;
     public List<Diagnostic> Diagnostics { get; } = [];
     private readonly List<(int Start,int End)> ignoredNextLines = [];
+    private readonly HashSet<int> referenceDirectiveStarts=jsonMode
+        ? []
+        : TripleSlashPathReferences.Collect(text).Select(r=>r.Start).ToHashSet();
     // Only checker diagnostics on the immediately following physical line
     // can be suppressed; parser and scanner diagnostics still fail normally.
     public bool SuppressesSemanticDiagnostic(int offset)
@@ -50,7 +53,11 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                     string comment = text[start..position];
                     if (!jsonMode && (comment.Contains("@ts-", StringComparison.Ordinal) || comment.StartsWith("///", StringComparison.Ordinal)))
                     {
-                        if (!TryRegisterTsIgnore(start,position,block))
+                        // A valid leading path reference is resolved by CompilerProgram.
+                        // Do not treat arbitrary triple-slash comments as implemented.
+                        if (!(comment.StartsWith("///",StringComparison.Ordinal) &&
+                              referenceDirectiveStarts.Contains(start)) &&
+                            !TryRegisterTsIgnore(start,position,block))
                             throw Error(new(TokenKind.Unsupported,comment,start,position-start),"TSCS1001","Comment directives are not supported yet.");
                     }
                     continue;
