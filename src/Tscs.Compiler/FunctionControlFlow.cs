@@ -1,22 +1,24 @@
 namespace Tscs;
 
-// This bounded flow analysis treats a return as definite only when every
-// supported path through blocks and braced conditional arms returns a value.
+// The only supported terminating statement is a value return. A successor
+// is reachable if any path through the supported blocks can fall through.
 internal static class FunctionControlFlow
 {
-    public static bool DefinitelyReturnsValue(Block body)
+    public static bool DefinitelyReturnsValue(Block body) => !CanCompleteNormally(body);
+
+    public static bool CanCompleteNormally(Block body)
     {
         foreach(var statement in body.Statements)
-            if(AlwaysReturns(statement))return true;
-        return false;
+            if(!CanCompleteNormally(statement))return false;
+        return true;
     }
 
-    private static bool AlwaysReturns(Statement statement)=>statement switch
+    public static bool CanCompleteNormally(Statement statement) => statement switch
     {
-        ReturnStatement => true,
-        Block nested => DefinitelyReturnsValue(nested),
-        ConditionalStatement { Alternate: not null } branch =>
-            DefinitelyReturnsValue(branch.Consequent) && AlwaysReturns(branch.Alternate),
-        _ => false
+        ReturnStatement => false,
+        Block nested => CanCompleteNormally(nested),
+        ConditionalStatement { Alternate: { } alternate } branch =>
+            CanCompleteNormally(branch.Consequent) || CanCompleteNormally(alternate),
+        _ => true
     };
 }

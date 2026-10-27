@@ -1,3 +1,15 @@
+# 2026-10-27 — Reachability-aware function branch joins (PR #8)
+
+Refined the existing definite-return pass to expose whether a supported block or
+conditional can complete normally. The TypeChecker now joins initialized symbols
+only across branches reaching the following statement, so a branch ending in a
+value return cannot incorrectly poison an initialized value from the other arm.
+Nested and else-if branches use the same AST flow helper. The feature remains
+limited to braced conditionals, sequential blocks and value returns; no loops,
+exceptional control flow, TypeScript narrowing or general emit is claimed.
+Original TS7 acceptance is unchanged: 0 PASS / 15,523 SKIP_UNIMPLEMENTED,
+with full executable expansion unknown. Fresh-head verification is required.
+
 # 2026-10-27 — Braced conditionals and path-sensitive function returns (PR #8)
 
 Extended the shared Scanner → AST/Parser → Binder/Scope → TypeChecker →

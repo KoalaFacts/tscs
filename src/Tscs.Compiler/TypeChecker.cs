@@ -89,6 +89,11 @@ internal sealed class TypeChecker(string file)
         var before=CaptureInitialized(scope);
         var whenTrue=before;
         var whenFalse=before;
+        // A returning arm cannot reach the statement after this conditional.
+        // Only paths that can fall through contribute to definite assignment.
+        bool thenFallsThrough=FunctionControlFlow.CanCompleteNormally(conditional.Consequent);
+        bool elseFallsThrough=conditional.Alternate is null ||
+            FunctionControlFlow.CanCompleteNormally(conditional.Alternate);
         try
         {
             CheckBlock(conditional.Consequent,scope,false,expectedReturn);
@@ -106,8 +111,16 @@ internal sealed class TypeChecker(string file)
             whenFalse=CaptureInitialized(scope);
         }
         finally { RestoreInitialized(before); }
-        foreach(var (symbol,_) in before)
-            symbol.Initialized=whenTrue[symbol] && whenFalse[symbol];
+        foreach(var (symbol,initialized) in before)
+            symbol.Initialized=(thenFallsThrough,elseFallsThrough) switch
+            {
+                (true,true) => whenTrue[symbol] && whenFalse[symbol],
+                (true,false) => whenTrue[symbol],
+                (false,true) => whenFalse[symbol],
+                // No path continues: retain the incoming state rather than
+                // fabricating an initialized value in unreachable code.
+                _ => initialized
+            };
     }
 
     private static Dictionary<Symbol,bool> CaptureInitialized(Scope scope)

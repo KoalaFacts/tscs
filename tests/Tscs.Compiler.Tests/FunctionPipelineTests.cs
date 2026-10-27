@@ -72,6 +72,21 @@ public sealed class FunctionPipelineTests
     public void ConditionalBoundariesRejectIncompleteOrUnsupportedPrograms(string source,string code) =>
         Assert.Contains(Compilation.Check("source.ts",source),d=>d.Code==code);
 
+    [Theory]
+    [InlineData("function select(flag: boolean): number { let value: number; if (flag) { return 1; } else { value = 2; } return value; }")]
+    [InlineData("function select(flag: boolean): number { let value: number; if (flag) { value = 1; } else { return 2; } return value; }")]
+    [InlineData("function select(a: boolean, b: boolean): number { let value: number; if (a) { return 1; } else if (b) { value = 2; } else { value = 3; } return value; }")]
+    [InlineData("function select(a: boolean, b: boolean): number { let value: number; if (a) { if (b) { return 1; } else { return 2; } } else { value = 3; } return value; }")]
+    public void ReturningBranchesDoNotPolluteDefiniteAssignmentJoins(string source) =>
+        Assert.Empty(Compilation.Check("source.ts",source));
+
+    [Theory]
+    [InlineData("function invalid(flag: boolean): number { let value: number; if (flag) { return 1; } return value; }")]
+    [InlineData("function invalid(flag: boolean): number { let value: number; if (flag) { return 1; } else { let other = 2; } return value; }")]
+    [InlineData("function invalid(a: boolean, b: boolean): number { let value: number; if (a) { return 1; } else if (b) { value = 2; } return value; }")]
+    public void AnyReachableUninitializedPathStillFailsClosed(string source) =>
+        Assert.Contains(Compilation.Check("source.ts",source),d=>d.Code=="TSCS1001");
+
     [Fact]
     public void CallsCanFollowAHostResolvedNamedExport()
     {
