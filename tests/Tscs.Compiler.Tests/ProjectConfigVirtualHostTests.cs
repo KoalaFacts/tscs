@@ -105,11 +105,11 @@ public sealed class ProjectConfigVirtualHostTests
     public void VirtualConfigSyntaxDiagnosticsUseVirtualSourceLocation()
     {
         var host = new MemoryProjectHost();
-        host.Add("tsconfig.json", """{"files":["one.ts" "two.ts"]}""");
+        host.Add("tsconfig.json", """{'files':[]}""");
 
         var result = Run(host, "-p", host.FileAt("tsconfig.json"));
         Assert.Equal(2, result.Exit);
-        Assert.Contains("TS1005", result.Output);
+        Assert.Contains("TS1327", result.Output);
         Assert.Contains("\"file\":\"tsconfig.json\"", result.Output);
         Assert.Single(host.Reads);
     }
