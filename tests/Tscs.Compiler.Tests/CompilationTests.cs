@@ -28,7 +28,7 @@ public class CompilationTests
     }
     [Theory]
     [InlineData("let n = 1; function f() {}")]
-    [InlineData("const a = { x: 1 };")]
+    [InlineData("const a = { [computed]: 1 };")]
     public void UnsupportedSyntaxNeverSucceeds(string source) => Assert.Contains(Compilation.Check("test.ts",source),d=>d.Code=="TSCS1001");
 
     [Theory]
