@@ -1,0 +1,47 @@
+{
+  "baseHead": "231811d35ee8bc6d393b86ab0588ff812e9918ca",
+  "reviewedHashes": {
+    "src/Tscs.Compiler/JsonCompilerOptionTypes.cs": "7c795eba7e7a6dd305d229c7bcaccdddc08aa0bc49eaaaee35782faa33d508e0",
+    "src/Tscs.Cli/Options.cs": "b19908635a84d0b29e132a2e4e0de85787e3cae6598610a7b50aebed607d35d0",
+    "tests/Tscs.Compiler.Tests/JsonOptionTypeTests.cs": "9ace9cea3ff5bb8e2b07495863461b196321e791cad3b83e3e6ca2537209e7c8",
+    "tests/Tscs.Compiler.Tests/CommandLineTests.cs": "04804a83e533375dd47208729f28f4fef414a8dd4e4fc989735950297a3c34ca",
+    "tests/Tscs.Compiler.Tests/Tscs.Compiler.Tests.csproj": "7e7121b1c912b5c3718bbed738393be09cb9e9e2e66b01caddc772899284ca73",
+    "tools/generate-json-option-types.ts": "b405120bbf58bd4d345a8ec058396f640658a9b9ef1d6c07a42e947a4faeacf9",
+    "tools/fixture-harness/json_option_types_oracle_test.go": "0b5eef5bcf032e0ef6375b9b5d2d783e04af3ff39da6ff1e6ebd6bea3d6d998e",
+    "tests/Tscs.Compiler.Tests/TestData/json-option-types.json": "ddde9c33c3ef258819e5d9835f35b9a3f8813f5e23b84c2e46b71b810bc2cb86"
+  },
+  "regeneratedGoldenIdentical": true,
+  "regeneration": {
+    "declarations": 129,
+    "inputs": 14,
+    "vectors": 1806,
+    "accepted": 411,
+    "rejected": 1395
+  },
+  "build": {
+    "configuration": "Release",
+    "warnings": 0,
+    "errors": 0,
+    "log": "/tmp/tscs-option-types-review/build.log"
+  },
+  "tests": {
+    "total": 10933,
+    "passed": 10933,
+    "failed": 0,
+    "skipped": 0,
+    "log": "/tmp/tscs-option-types-review/test.log"
+  },
+  "cliExploration": "/tmp/tscs-option-types-review/cli-exploration.json",
+  "findings": {
+    "critical": [],
+    "important": [],
+    "minor": [
+      "The CLI null override regression verifies the successful true/true case; adding no-flag and one-flag cases would also lock in the documented unset/default-false behavior. Independent exploratory runs verified those paths currently behave correctly."
+    ]
+  },
+  "limits": [
+    "Read-only review, no repository/index/HEAD edits",
+    "Did not independently reproduce prior RED run; inspected original RED logs",
+    "Shape helper and bounded CLI integration only; no full convertJsonOption, effective-options, host, full source profile or original compiler acceptance claims"
+  ]
+}

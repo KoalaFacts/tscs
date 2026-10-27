@@ -1,0 +1,165 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "upstreamVersion": "7.1.0-dev",
+  "baseCommit": "448a83f1d4a36cd9f3c6bd2bac6d5b38cabf0963",
+  "reviewedImplementationCommit": "d0660e552d6f4aa9b8cefb58ba2392c1d4dd0423",
+  "profile": "convertJsonOption/primitive-element-list/compiler-only-and-source-node",
+  "counts": {
+    "declarationsRetained": 126,
+    "supportedLists": 4,
+    "outsideListProfile": 122,
+    "inputs": 20,
+    "contexts": 2,
+    "helperCasesExecuted": 160,
+    "matched": 160,
+    "cleanValueCases": 52,
+    "diagnosticBearingCases": 108,
+    "TS5024": 144,
+    "red": {
+      "failed": 160,
+      "passed": 13946
+    },
+    "directMtp": {
+      "passed": 14106,
+      "failed": 0,
+      "skipped": 0
+    },
+    "node": 89,
+    "frozen": 29
+  },
+  "golden": {
+    "path": "tests/Tscs.Compiler.Tests/TestData/json-list-options.json",
+    "bytes": 117577,
+    "sha256": "a4c8b233ad712b27c4d5237018ebe945408676ecca6c7c165723c1176b0af820"
+  },
+  "sourceHashes": {
+    "src/Tscs.Compiler/JsonListOptions.cs": "53fb254a4b917508cbcedac55dad50ef69edd1b9f7d1b1c1098817124cc948f3",
+    "src/Tscs.Compiler/JsonScalarOptions.cs": "8d920d61dd902987a18dc0128bb10104a022df3a21e4ebdaf4d95ebf0ace61c3",
+    "src/Tscs.Compiler/JsonConfigValues.cs": "1f8f67746cb0db46d07314c0a3b72479e41b02eb25c17d11ff7cce91af44dc86",
+    "src/Tscs.Compiler/JsonSyntax.cs": "f4023d9a1911d29bfa2af41aeda41b76788eb531daa067b1d345f1c80a4ee95a",
+    "tests/Tscs.Compiler.Tests/JsonListOptionTests.cs": "600059745a3b74946cfc01a26f351266614f3f4fdace134278ab08d3051cdf4d",
+    "tests/Tscs.Compiler.Tests/Tscs.Compiler.Tests.csproj": "592b628d564130c710a8a583017a2e060a27936bf5b29e14142862095b58c8d6",
+    "tools/generate-json-list-options.ts": "085041d50f6ba82ec5a30d1b7686e12161bcbdcb7c9e57d8ea1edda7f0d5d1ab",
+    "tools/fixture-harness/json_list_options_oracle_test.go": "631f9cd84ecdac54f4f34753e8b2f1121081de7bd755cc274aaf7accac73cbe9",
+    "tools/fixture-harness/config_values_oracle_test.go": "f8b81a281d3151f37c0bd29396cb421c13dc9196670658c86ea5032fb814938a",
+    "upstream.lock.json": "10a729f8b1e5674995cec0346a31f3642788901070a1c343084efcffd2080b2e",
+    "global.json": "6cac8ed8559756539f2db0e8cbf6d545ccc81d3d4b1ebbfcf3ee204d218847b4",
+    "Directory.Build.props": "13732ce9bcf14f2065948951e50572ef87f93d1d4c6726ce1b71b8efd1bbb92d"
+  },
+  "referenceHashes": {
+    "tsc/internal/tsoptions/tsconfigparsing.go": "2f42a124c6d16054a263cd8b34a23dc188421f5db69923d52e56886d349f0c71",
+    "tsc/internal/tsoptions/commandlineoption.go": "3c15653631c1cb32e54e40ca0d8b4e336635f551a9f206851e69228efb060d1e",
+    "tsc/internal/tsoptions/declarations_generated.go": "8f414711280dc2e88abdb480bf6d823beae435eedb9161199fdf3b08a3ea33ff",
+    "tsc/internal/tsoptions/errors.go": "f63da5973b822776dfce424105e4f4adbcbde73cca9d7cb60badac17bd6879cc",
+    "tsc/internal/parser/parser.go": "18fbeb9644a2c642d2757188107f2a802e8084cf1ed56a24c78bab1933328c2e",
+    "tsc/internal/core/core.go": "c669af063743873cb2084b3432f17ecf8b2e20655d916c9a4ac53364fd75f067"
+  },
+  "commands": {
+    "oracle": "node tools/generate-json-list-options.ts .artifacts/ts7-upstream tests/Tscs.Compiler.Tests/TestData/json-list-options.json",
+    "build": "dotnet build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false",
+    "mtp": "dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 14106",
+    "node": "node --test tools/*.test.ts",
+    "frozen": "node tools/verify-conformance.ts"
+  },
+  "tools": {
+    "go": "go version go1.27.3 linux/amd64",
+    "sdk": "10.0.402",
+    "runtime": "10.0.13",
+    "node": "24.22.1",
+    "xunit": "4.0.2",
+    "mtp": "2.5.1",
+    "telemetry": "go env GOTELEMETRY confirmed off, DOTNET_CLI_TELEMETRY_OPTOUT=1",
+    "offline": "GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local; no-restore builds"
+  },
+  "rawArtifacts": {
+    "docs/evidence/json-list-options-run/frozen.log": {
+      "bytes": 81,
+      "sha256": "441c7bad381ac65cb1890aaf8424ec7b8999b55ef7574e9836a3516c151bc4b9"
+    },
+    "docs/evidence/json-list-options-run/generate.log": {
+      "bytes": 49,
+      "sha256": "ab2518f2cf025d02f66da5587129809073c2a259619326314bc5ebcc25aa22b2"
+    },
+    "docs/evidence/json-list-options-run/go-repeat.log": {
+      "bytes": 67,
+      "sha256": "fe7b72f2e5347f99f9919addd9e0b612749cbd8aa7d74f682c50e14754389518"
+    },
+    "docs/evidence/json-list-options-run/go.log": {
+      "bytes": 67,
+      "sha256": "1473d4562e54755b2574eec50670fbc8f39ed684af6ddf8c98081ceb143ba6a8"
+    },
+    "docs/evidence/json-list-options-run/green-build.log": {
+      "bytes": 545,
+      "sha256": "2940a5832f1df9b9cb602ab7f2d20515305746bff44efb01ad2fae2d20cb02cb"
+    },
+    "docs/evidence/json-list-options-run/green.log": {
+      "bytes": 230,
+      "sha256": "fce313ecd1e1ad8220e511024de3f777015813eff4148d2321537d9aa3f68cf5"
+    },
+    "docs/evidence/json-list-options-run/independent-build.log": {
+      "bytes": 545,
+      "sha256": "a8894e7adab137f12d9df6e7828be175dd067a69d3a2c863c4c5dffc9c20a0f7"
+    },
+    "docs/evidence/json-list-options-run/independent-generate.log": {
+      "bytes": 49,
+      "sha256": "ab2518f2cf025d02f66da5587129809073c2a259619326314bc5ebcc25aa22b2"
+    },
+    "docs/evidence/json-list-options-run/independent-go.log": {
+      "bytes": 67,
+      "sha256": "fe7b72f2e5347f99f9919addd9e0b612749cbd8aa7d74f682c50e14754389518"
+    },
+    "docs/evidence/json-list-options-run/independent-receipt.json": {
+      "bytes": 1621,
+      "sha256": "320f24283947daa4d4882e3498c3129599c66c737c1f07134ba3cb2bfd2815d5"
+    },
+    "docs/evidence/json-list-options-run/independent-tests.log": {
+      "bytes": 230,
+      "sha256": "a36edab9dd45cbe291056454fb79549aee3eee40763dc7671ba41d94326dcf23"
+    },
+    "docs/evidence/json-list-options-run/node.log": {
+      "bytes": 7540,
+      "sha256": "5a948f2724d9521436a9b4abfaa1e368f21a345222615235048a0229a8767412"
+    },
+    "docs/evidence/json-list-options-run/red-build.log": {
+      "bytes": 545,
+      "sha256": "fc22611b599ce67ae6065d37ef44be2a911d0b798d0e6980650bf8e39866156a"
+    },
+    "docs/evidence/json-list-options-run/red.log": {
+      "bytes": 110852,
+      "sha256": "52a5ac12dd21ffbcf2d4378ea5dba9b3c196246c71772b3dfe42a9c300058bb3"
+    },
+    "docs/evidence/json-list-options-run/repeat.log": {
+      "bytes": 49,
+      "sha256": "ab2518f2cf025d02f66da5587129809073c2a259619326314bc5ebcc25aa22b2"
+    }
+  },
+  "limits": [
+    "Only4 primitive/object-element lists;122 declarations retained outside this bounded profile",
+    "No enum/path/locale/listOrElement/config-host/notifier/effective options",
+    "No new CLI option support",
+    "Original index behavior after convertToObject null filtering preserved, not full parser recovery",
+    "No full13006/172/source/VFS profiles rerun; historical tree bindings unchanged",
+    "SDK coordinator and complete verify.sh NOT_RUN",
+    "All original compiler/referenceCompiler/acceptance NOT_RUN;7 reference fatals and all domains retained"
+  ],
+  "concreteCases": null,
+  "releaseEligible": false,
+  "independentReview": {
+    "critical": 0,
+    "important": 0,
+    "minor": 0,
+    "oracleByteIdentical": true,
+    "helperCases": 160,
+    "serialBuildWarnings": 0,
+    "serialBuildErrors": 0,
+    "mtpPassed": 14106,
+    "mtpFailed": 0,
+    "mtpSkipped": 0,
+    "testCommand": "dotnet run --project tests/Tscs.Compiler.Tests/Tscs.Compiler.Tests.csproj -c Release --no-build --no-restore",
+    "limits": "Node/frozen/RED not independently rerun; no formal GitHub approval or second review; concurrent author documentation updates outside reviewed implementation head"
+  },
+  "assemblies": {
+    "tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll": "4df6392d454b3090f7a6435dbb23efbfd761f782847b3e38af30c92ff2f1c7b3",
+    "src/Tscs.Compiler/bin/Release/net10.0/Tscs.Compiler.dll": "328ed3ee444dae479e7c0966da93ecae5c0ed83e839202c5a803ff789281d465"
+  }
+}

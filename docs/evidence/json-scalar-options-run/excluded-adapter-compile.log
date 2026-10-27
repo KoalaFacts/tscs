@@ -1,0 +1,15 @@
+file:///workspace/scratch/daf3e6c2e318/tscs/tools/generate-json-scalar-options.ts:17
+ if(r.error||r.signal||r.status!==0)throw Error(r.error??r.stdout+r.stderr);
+                                          ^
+
+Error: FAIL	github.com/microsoft/TypeScript/tsc/internal/tsoptions [build failed]
+FAIL
+# github.com/microsoft/TypeScript/tsc/internal/tsoptions [github.com/microsoft/TypeScript/tsc/internal/tsoptions.test]
+../../../tools/fixture-harness/json_scalar_options_oracle_test.go:30:23: cannot index sf.Statements (variable of type *"github.com/microsoft/TypeScript/tsc/internal/ast".NodeList)
+
+    at file:///workspace/scratch/daf3e6c2e318/tscs/tools/generate-json-scalar-options.ts:17:43
+    at ModuleJob.run (node:internal/modules/esm/module_job:561:25)
+    at async node:internal/modules/esm/loader:647:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.22.1

@@ -1,0 +1,40 @@
+Independent source-config-values review receipt
+Repository: /workspace/scratch/daf3e6c2e318/tscs
+Review base: ece63721f1a9ccfd770072529d526f0e4874b4a7
+Review head: cf0223900c009a2345bb7efb30c907dd4095e65d
+HEAD independently checked unchanged at end of validation.
+Reviewer made no repository source/index/HEAD/branch edits. Wrote only /tmp/tscs-source-values-review and standard build outputs. Parent-created untracked docs/evidence/source-config-values-run was observed; not created or reviewed as part of this commit range.
+
+Findings
+No important correctness, regression, or scope-credit issue found in the reviewed bounded stage. No blocker or severity finding. This is an independent technical review, not formal approval or a whole-compiler acceptance claim.
+
+Inspected
+All 12 changed paths, including complete new C#, TypeScript and Go source, project inclusion, plan and generated golden structure. Read adjacent existing FixtureConfigAst, FixtureConfigSelection, FixtureProtocol, fixture-corpus build/binding helpers, JsonSyntax, JsonConfigValues, synthetic value tests/oracle, raw selection oracle, and actual pinned Go conversion branches. Source-backed golden was regenerated independently and every byte compared rather than relying only on its asserted counts.
+Checked parse-result sharing, unsupported detection before null-root conversion, absent-config separation, empty-source sentinel, original diagnostics, value projection (UTF16/float64 bits/property order/array nil), distinct MATCH_DIAGNOSTICS reconciliation, ordered identities, selected name/content/rooted context, skip/decoding metadata retention and no-config noncredit. Pinned Go's supported AST conversion domain has empty conversion diagnostics; current profile faithfully retains parser diagnostics. Unsupported grammar remains unsupported.
+
+Environment used for every new executable verification
+export DOTNET_CLI_TELEMETRY_OPTOUT=1 XDG_CONFIG_HOME=/tmp/tscs-offline-config GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local PATH=/tmp/tscs-dotnet:/tmp/tscs-go/go/bin:$PATH DOTNET=/tmp/tscs-dotnet/dotnet RestoreSources=/tmp/tscs-empty-feed NuGetAudit=false
+Node v24.22.1; pinned Go go1.27.3 linux/amd64; .NET SDK 10.0.402. Profile summary captures versions. Builds were --no-restore, serial and no shared compilation.
+
+Exact independent verification commands and results (cwd repository above)
+1. node tools/compare-source-config-values.ts .artifacts/ts7-upstream .artifacts/ts7-scope /tmp/tscs-source-values-review/profile > /tmp/tscs-source-values-review/profile.log 2>&1
+Exit 1, expected because clean MATCH count is 171 rather than 172. Actual Go selection and parser/private convertToObject succeeded (oracle/selection.log and oracle/reference.log). All 13006 raw identities processed; 172 selected configs executed in C#; 12834 no-config sources have no C# value/compiler credit. Counts: 171 MATCH, 1 MATCH_DIAGNOSTICS, 0 MISMATCH, 0 UNSUPPORTED, 0 CRASH. 42 upstream skipped sources and 8 nonraw-UTF8 sources retained; 3 selected skipped configs retained. Exactly one parser diagnostic, zero conversion diagnostics. Original TS1005 belongs to tsc/testdata/tests/cases/compiler/tsconfigRootdirInclude.ts. No Go failure was relabelled as success.
+The script ran actual Go tests with overlay, -count=1, and built the C# harness using build -c Release --no-restore -m:1 -p:UseSharedCompilation=false; harness build succeeded, 0 warnings/errors.
+2. node --test tools/*.test.ts > /tmp/tscs-source-values-review/node.log 2>&1
+Exit 0: 81 passed, 0 failed, 0 skipped, including all six new reconciliation/integrity tests.
+3. /tmp/tscs-dotnet/dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --minimum-expected-tests 9126 --fail-skips on > /tmp/tscs-source-values-review/mtp.log 2>&1
+Exit 0: 9126 passed, 0 failed, 0 skipped. This initial run used existing test assembly; repeated after own complete Release build below.
+4. node /tmp/tscs-source-values-review/check-evidence.mjs > /tmp/tscs-source-values-review/evidence-check.log 2>&1
+Exit 0. Independent checker uses fs/crypto/assert directly, not the implementation's artifact verifier. Verified 24 manifest entries and all 30 current source hashes in each of author .artifacts/source-config-values-verified, author .artifacts/source-config-values-verified-repeat, and independent /tmp/tscs-source-values-review/profile: 72 total artifact entries, including author 48. Compared 13 nonlog payloads byte-for-byte across all three runs (golden, actual-calls, results, 4 oracle payloads, 6 actual shards). Logs/reports were not assumed byte-identical. Checked 13006 unique ordered input/reference bindings, no-config count, and all 172 source metadata bindings against inventory. Independently regenerated golden equals committed tests/Tscs.Compiler.Tests/TestData/source-config-values.json exactly; SHA256 a42df34c1b72c3e42f12f19c7e6894f375afdf63f72c34429f02dbd59e492ae9. Checker source is retained in this review directory.
+5. /tmp/tscs-dotnet/dotnet build -c Release --no-restore -m:1 -p:UseSharedCompilation=false > /tmp/tscs-source-values-review/build-release.log 2>&1
+Exit 0: all solution projects built; 0 warnings, 0 errors.
+6. /tmp/tscs-dotnet/dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --minimum-expected-tests 9126 --fail-skips on > /tmp/tscs-source-values-review/mtp-after-build.log 2>&1
+Exit 0: independently rebuilt test assembly, 9126 passed, 0 failed, 0 skipped.
+
+Limits / declined to judge
+The review is of the specified source-backed selected-value stage only: one default pre-VFS/no-notifier profile. Did not infer whole makeUnitsFromTest behavior, concrete runnable-case denominator, option declarations/notifiers, host/extends/globs, effective options, compiler output, or compiler acceptance. The 12834 no-config sources were actually selected by Go only and do not establish C# value behavior over those sources. Did not independently repeat the historical RED, mutation experiments, locked offline restore, frozen29, standalone Go scope checks, or any SDK-coordinator invocation; no result for those is claimed here. Did not validate future unsupported grammar or unrelated runtime/test domains. Existing synthetic conversion/other tests did run as part of 9126. Did not send third-party messages, spawn agents, merge, or perform publication.
+
+Temporary-script naming correction (history retained)
+The independently authored checker was initially written and run as check-evidence.mjs (command 4 above); that historical command/result and original evidence-check.log remain reported accurately. Parent then reminded reviewer of the user's native-TypeScript requirement. Renamed the same checker bytes to /tmp/tscs-source-values-review/check-evidence.ts using mv, and actually reran under Node24:
+7. node /tmp/tscs-source-values-review/check-evidence.ts > /tmp/tscs-source-values-review/evidence-check-ts.log 2>&1
+Exit 0: again all 72 artifact entries valid, all 30 current source hashes per run valid, all 13 nonlog payloads identical in three runs, committed golden SHA256 a42df34c1b72c3e42f12f19c7e6894f375afdf63f72c34429f02dbd59e492ae9, ordered 13006 identities and selected metadata verified. Retained executable checker is now check-evidence.ts; no .mjs checker remains. No source-tree changes resulted.

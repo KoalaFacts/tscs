@@ -1,0 +1,341 @@
+﻿2026-10-26T09:26:03.2731894Z Current runner version: '2.338.0'
+2026-10-26T09:26:03.2754588Z ##[group]Runner Image Provisioner
+2026-10-26T09:26:03.2755418Z Hosted Compute Agent
+2026-10-26T09:26:03.2755904Z Version: 20261021.618
+2026-10-26T09:26:03.2756445Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-26T09:26:03.2757078Z Build Date: 2026-10-21T00:45:21Z
+2026-10-26T09:26:03.2757631Z Worker ID: {c85a66ed-3cd4-4033-af04-cd4e9a7a98b5}
+2026-10-26T09:26:03.2758555Z Region: centralus
+2026-10-26T09:26:03.2759061Z Cloud: Azure
+2026-10-26T09:26:03.2759539Z ##[endgroup]
+2026-10-26T09:26:03.2760755Z ##[group]Operating System
+2026-10-26T09:26:03.2761273Z Ubuntu
+2026-10-26T09:26:03.2761763Z 24.04.5
+2026-10-26T09:26:03.2762195Z LTS
+2026-10-26T09:26:03.2762622Z ##[endgroup]
+2026-10-26T09:26:03.2763156Z ##[group]Runner Image
+2026-10-26T09:26:03.2763656Z Image: ubuntu-24.04
+2026-10-26T09:26:03.2764149Z Version: 20261012.334.1
+2026-10-26T09:26:03.2765190Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-26T09:26:03.2766490Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+2026-10-26T09:26:03.2767290Z ##[endgroup]
+2026-10-26T09:26:03.2768813Z ##[group]GITHUB_TOKEN Permissions
+2026-10-26T09:26:03.2770831Z Contents: read
+2026-10-26T09:26:03.2771384Z Metadata: read
+2026-10-26T09:26:03.2771845Z ##[endgroup]
+2026-10-26T09:26:03.2773624Z Secret source: Actions
+2026-10-26T09:26:03.2774502Z Cache mode: write
+2026-10-26T09:26:03.2775411Z Prepare workflow directory
+2026-10-26T09:26:03.3047155Z Prepare all required actions
+2026-10-26T09:26:03.3089767Z Getting action download info
+2026-10-26T09:26:03.5873075Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-26T09:26:03.7297282Z Download action repository 'actions/setup-dotnet@v4' (SHA:67a3573c9a986a3f9c594539f4ab511d57bb3ce9)
+2026-10-26T09:26:04.3201173Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-10-26T09:26:04.5082541Z Download action repository 'actions/setup-go@v6' (SHA:924ae3a1cded613372ab5595356fb5720e22ba16)
+2026-10-26T09:26:05.0992772Z Complete job name: verify
+2026-10-26T09:26:05.1651000Z ##[group]Run actions/checkout@v4
+2026-10-26T09:26:05.1651922Z with:
+2026-10-26T09:26:05.1652532Z   repository: KoalaFacts/tscs
+2026-10-26T09:26:05.1655356Z   token: ***
+2026-10-26T09:26:05.1655961Z   ssh-strict: true
+2026-10-26T09:26:05.1656568Z   ssh-user: git
+2026-10-26T09:26:05.1657222Z   persist-credentials: true
+2026-10-26T09:26:05.1657972Z   clean: true
+2026-10-26T09:26:05.1658591Z   sparse-checkout-cone-mode: true
+2026-10-26T09:26:05.1659236Z   fetch-depth: 1
+2026-10-26T09:26:05.1659826Z   fetch-tags: false
+2026-10-26T09:26:05.1660422Z   show-progress: true
+2026-10-26T09:26:05.1661033Z   lfs: false
+2026-10-26T09:26:05.1661601Z   submodules: false
+2026-10-26T09:26:05.1662202Z   set-safe-directory: true
+2026-10-26T09:26:05.1662846Z   allow-unsafe-pr-checkout: false
+2026-10-26T09:26:05.1663682Z ##[endgroup]
+2026-10-26T09:26:05.2471249Z Syncing repository: KoalaFacts/tscs
+2026-10-26T09:26:05.2473187Z ##[group]Getting Git version info
+2026-10-26T09:26:05.2474021Z Working directory is '/home/runner/work/tscs/tscs'
+2026-10-26T09:26:05.2482724Z [command]/usr/bin/git version
+2026-10-26T09:26:05.3943507Z git version 2.55.0
+2026-10-26T09:26:05.3963898Z ##[endgroup]
+2026-10-26T09:26:05.3977025Z Temporarily overriding HOME='/home/runner/work/_temp/7cf31440-22f2-41e0-a1b2-18b549c9b949' before making global git config changes
+2026-10-26T09:26:05.3979081Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-26T09:26:05.3982773Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/tscs/tscs
+2026-10-26T09:26:05.4028414Z Deleting the contents of '/home/runner/work/tscs/tscs'
+2026-10-26T09:26:05.4032582Z ##[group]Initializing the repository
+2026-10-26T09:26:05.4036082Z [command]/usr/bin/git init /home/runner/work/tscs/tscs
+2026-10-26T09:26:05.4111974Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-26T09:26:05.4113546Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-26T09:26:05.4115289Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-26T09:26:05.4116277Z hint: call:
+2026-10-26T09:26:05.4116988Z hint:
+2026-10-26T09:26:05.4118002Z hint: 	git config --global init.defaultBranch <name>
+2026-10-26T09:26:05.4118826Z hint:
+2026-10-26T09:26:05.4119757Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-26T09:26:05.4120837Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-26T09:26:05.4121792Z hint:
+2026-10-26T09:26:05.4122712Z hint: 	git branch -m <name>
+2026-10-26T09:26:05.4123738Z hint:
+2026-10-26T09:26:05.4124625Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-26T09:26:05.4125690Z Initialized empty Git repository in /home/runner/work/tscs/tscs/.git/
+2026-10-26T09:26:05.4128133Z [command]/usr/bin/git remote add origin https://github.com/KoalaFacts/tscs
+2026-10-26T09:26:05.4167262Z ##[endgroup]
+2026-10-26T09:26:05.4168726Z ##[group]Disabling automatic garbage collection
+2026-10-26T09:26:05.4169921Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-26T09:26:05.4201046Z ##[endgroup]
+2026-10-26T09:26:05.4202131Z ##[group]Setting up auth
+2026-10-26T09:26:05.4205863Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-26T09:26:05.4234503Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-26T09:26:05.4525162Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-26T09:26:05.4556604Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-26T09:26:05.4752865Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-26T09:26:05.4788879Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-26T09:26:05.4987560Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-26T09:26:05.5026136Z ##[endgroup]
+2026-10-26T09:26:05.5033157Z ##[group]Fetching the repository
+2026-10-26T09:26:05.5034655Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +7cdd14f2e681476b1c1b7b3020e75662aed408c2:refs/remotes/origin/feat/pinned-config-values
+2026-10-26T09:26:06.5751481Z From https://github.com/KoalaFacts/tscs
+2026-10-26T09:26:06.5752374Z  * [new ref]         7cdd14f2e681476b1c1b7b3020e75662aed408c2 -> origin/feat/pinned-config-values
+2026-10-26T09:26:06.5754631Z ##[endgroup]
+2026-10-26T09:26:06.5755332Z ##[group]Determining the checkout info
+2026-10-26T09:26:06.5756238Z ##[endgroup]
+2026-10-26T09:26:06.5762440Z [command]/usr/bin/git sparse-checkout disable
+2026-10-26T09:26:06.5812359Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-26T09:26:06.5841226Z ##[group]Checking out the ref
+2026-10-26T09:26:06.5868878Z [command]/usr/bin/git checkout --progress --force -B feat/pinned-config-values refs/remotes/origin/feat/pinned-config-values
+2026-10-26T09:26:06.9950984Z Switched to a new branch 'feat/pinned-config-values'
+2026-10-26T09:26:06.9959563Z branch 'feat/pinned-config-values' set up to track 'origin/feat/pinned-config-values'.
+2026-10-26T09:26:06.9968191Z ##[endgroup]
+2026-10-26T09:26:07.3348127Z [command]/usr/bin/git log -1 --format=%H
+2026-10-26T09:26:07.3373556Z 7cdd14f2e681476b1c1b7b3020e75662aed408c2
+2026-10-26T09:26:07.3730295Z ##[group]Run actions/setup-dotnet@v4
+2026-10-26T09:26:07.3730576Z with:
+2026-10-26T09:26:07.3730926Z   global-json-file: global.json
+2026-10-26T09:26:07.3731128Z   cache: false
+2026-10-26T09:26:07.3731297Z ##[endgroup]
+2026-10-26T09:26:07.4870139Z (node:2046) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-26T09:26:07.4870855Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-26T09:26:07.4889013Z [command]/home/runner/work/_actions/actions/setup-dotnet/v4/externals/install-dotnet.sh --skip-non-versioned-files --runtime dotnet --channel LTS
+2026-10-26T09:26:08.3155031Z dotnet-install: Attempting to download using aka.ms link https://builds.dotnet.microsoft.com/dotnet/Runtime/10.0.14/dotnet-runtime-10.0.14-linux-x64.tar.gz
+2026-10-26T09:26:10.3613659Z dotnet-install: Remote file https://builds.dotnet.microsoft.com/dotnet/Runtime/10.0.14/dotnet-runtime-10.0.14-linux-x64.tar.gz size is 36673986 bytes.
+2026-10-26T09:26:10.3614936Z dotnet-install: Extracting archive from https://builds.dotnet.microsoft.com/dotnet/Runtime/10.0.14/dotnet-runtime-10.0.14-linux-x64.tar.gz
+2026-10-26T09:26:10.9088006Z dotnet-install: Downloaded file size is 36673986 bytes.
+2026-10-26T09:26:10.9088896Z dotnet-install: The remote and local file sizes are equal.
+2026-10-26T09:26:10.9328849Z dotnet-install: Installed version is 10.0.14
+2026-10-26T09:26:10.9376989Z dotnet-install: Adding to current process PATH: `/usr/share/dotnet`. Note: This change will be visible only when sourcing script.
+2026-10-26T09:26:10.9378065Z dotnet-install: Note that the script does not resolve dependencies during installation.
+2026-10-26T09:26:10.9378854Z dotnet-install: To check the list of dependencies, go to https://learn.microsoft.com/dotnet/core/install, select your operating system and check the "Dependencies" section.
+2026-10-26T09:26:10.9379634Z dotnet-install: Installation finished successfully.
+2026-10-26T09:26:10.9408976Z [command]/home/runner/work/_actions/actions/setup-dotnet/v4/externals/install-dotnet.sh --skip-non-versioned-files --version 10.0.402
+2026-10-26T09:26:11.4444208Z dotnet-install: Attempting to download using primary link https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.402/dotnet-sdk-10.0.402-linux-x64.tar.gz
+2026-10-26T09:26:15.2938967Z dotnet-install: Remote file https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.402/dotnet-sdk-10.0.402-linux-x64.tar.gz size is 240279509 bytes.
+2026-10-26T09:26:15.2939821Z dotnet-install: Extracting archive from https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.402/dotnet-sdk-10.0.402-linux-x64.tar.gz
+2026-10-26T09:26:19.3970129Z dotnet-install: Downloaded file size is 240279509 bytes.
+2026-10-26T09:26:19.3970531Z dotnet-install: The remote and local file sizes are equal.
+2026-10-26T09:26:20.3221412Z dotnet-install: Installed version is 10.0.402
+2026-10-26T09:26:20.3271584Z dotnet-install: Adding to current process PATH: `/usr/share/dotnet`. Note: This change will be visible only when sourcing script.
+2026-10-26T09:26:20.3272626Z dotnet-install: Note that the script does not resolve dependencies during installation.
+2026-10-26T09:26:20.3273770Z dotnet-install: To check the list of dependencies, go to https://learn.microsoft.com/dotnet/core/install, select your operating system and check the "Dependencies" section.
+2026-10-26T09:26:20.3274361Z dotnet-install: Installation finished successfully.
+2026-10-26T09:26:20.3453956Z ##[group]Run actions/setup-node@v4
+2026-10-26T09:26:20.3454182Z with:
+2026-10-26T09:26:20.3454346Z   node-version: 24
+2026-10-26T09:26:20.3454526Z   always-auth: false
+2026-10-26T09:26:20.3454699Z   check-latest: false
+2026-10-26T09:26:20.3456699Z   token: ***
+2026-10-26T09:26:20.3456859Z env:
+2026-10-26T09:26:20.3457027Z   DOTNET_ROOT: /usr/share/dotnet
+2026-10-26T09:26:20.3457233Z ##[endgroup]
+2026-10-26T09:26:20.4592588Z (node:2545) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-26T09:26:20.4593212Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-26T09:26:20.4598832Z Found in cache @ /opt/hostedtoolcache/node/24.21.0/x64
+2026-10-26T09:26:20.4599425Z ##[group]Environment details
+2026-10-26T09:26:20.9721956Z node: v24.21.0
+2026-10-26T09:26:20.9722315Z npm: 11.19.0
+2026-10-26T09:26:20.9722579Z yarn: 1.22.22
+2026-10-26T09:26:20.9723225Z ##[endgroup]
+2026-10-26T09:26:20.9936884Z ##[group]Run actions/setup-go@v6
+2026-10-26T09:26:20.9937106Z with:
+2026-10-26T09:26:20.9937268Z   go-version: 1.27.3
+2026-10-26T09:26:20.9937441Z   cache: false
+2026-10-26T09:26:20.9937611Z   check-latest: false
+2026-10-26T09:26:20.9939854Z   token: ***
+2026-10-26T09:26:20.9940015Z env:
+2026-10-26T09:26:20.9940183Z   DOTNET_ROOT: /usr/share/dotnet
+2026-10-26T09:26:20.9940384Z ##[endgroup]
+2026-10-26T09:26:21.0962905Z Setup go version spec 1.27.3
+2026-10-26T09:26:21.0967245Z Attempting to download 1.27.3...
+2026-10-26T09:26:21.8589860Z matching 1.27.3...
+2026-10-26T09:26:21.8610926Z Acquiring 1.27.3 from https://github.com/actions/go-versions/releases/download/1.27.3-39437817176/go-1.27.3-linux-x64.tar.gz
+2026-10-26T09:26:22.4394223Z Extracting Go...
+2026-10-26T09:26:22.4485105Z [command]/usr/bin/tar xz --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/0a394564-1fc3-4813-b458-98f65622327a -f /home/runner/work/_temp/a0623a9f-a56b-4e9d-aaee-3f4b97310f23
+2026-10-26T09:26:23.8823616Z Successfully extracted go to /home/runner/work/_temp/0a394564-1fc3-4813-b458-98f65622327a
+2026-10-26T09:26:23.8824294Z Adding to the cache ...
+2026-10-26T09:26:33.7887042Z Successfully cached go to /opt/hostedtoolcache/go/1.27.3/x64
+2026-10-26T09:26:33.7888047Z Added go to the path
+2026-10-26T09:26:33.7890350Z Successfully set up Go version 1.27.3
+2026-10-26T09:26:33.8060971Z go version go1.27.3 linux/amd64
+2026-10-26T09:26:33.8061221Z 
+2026-10-26T09:26:33.8061578Z ##[group]go env
+2026-10-26T09:26:34.2730877Z AR='ar'
+2026-10-26T09:26:34.2731185Z CC='gcc'
+2026-10-26T09:26:34.2731416Z CGO_CFLAGS='-O2 -g'
+2026-10-26T09:26:34.2731694Z CGO_CPPFLAGS=''
+2026-10-26T09:26:34.2732010Z CGO_CXXFLAGS='-O2 -g'
+2026-10-26T09:26:34.2732320Z CGO_ENABLED='1'
+2026-10-26T09:26:34.2732627Z CGO_FFLAGS='-O2 -g'
+2026-10-26T09:26:34.2732928Z CGO_LDFLAGS='-O2 -g'
+2026-10-26T09:26:34.2733177Z CXX='g++'
+2026-10-26T09:26:34.2733350Z GCCGO='gccgo'
+2026-10-26T09:26:34.2733532Z GO111MODULE=''
+2026-10-26T09:26:34.2733789Z GOAMD64='v1'
+2026-10-26T09:26:34.2733958Z GOARCH='amd64'
+2026-10-26T09:26:34.2734127Z GOAUTH='netrc'
+2026-10-26T09:26:34.2734328Z GOBIN='/home/runner/go/bin'
+2026-10-26T09:26:34.2734609Z GOCACHE='/home/runner/.cache/go-build'
+2026-10-26T09:26:34.2734841Z GOCACHEPROG=''
+2026-10-26T09:26:34.2735012Z GODEBUG=''
+2026-10-26T09:26:34.2735235Z GOENV='/home/runner/.config/go/env'
+2026-10-26T09:26:34.2735495Z GOEXE=''
+2026-10-26T09:26:34.2735659Z GOEXPERIMENT=''
+2026-10-26T09:26:34.2735832Z GOFIPS140='off'
+2026-10-26T09:26:34.2736030Z GOFLAGS=''
+2026-10-26T09:26:34.2736762Z GOGCCFLAGS='-fPIC -m64 -pthread -Wl,--no-gc-sections -fmessage-length=0 -ffile-prefix-map=/tmp/go-build3267617784=/tmp/go-build -gno-record-gcc-switches'
+2026-10-26T09:26:34.2737330Z GOHOSTARCH='amd64'
+2026-10-26T09:26:34.2737509Z GOHOSTOS='linux'
+2026-10-26T09:26:34.2737899Z GOINSECURE=''
+2026-10-26T09:26:34.2738088Z GOMOD='/dev/null'
+2026-10-26T09:26:34.2738343Z GOMODCACHE='/home/runner/go/pkg/mod'
+2026-10-26T09:26:34.2738563Z GONOPROXY=''
+2026-10-26T09:26:34.2738740Z GONOSUMDB=''
+2026-10-26T09:26:34.2738900Z GOOS='linux'
+2026-10-26T09:26:34.2739091Z GOPACKAGESDRIVER=''
+2026-10-26T09:26:34.2739299Z GOPATH='/home/runner/go'
+2026-10-26T09:26:34.2739490Z GOPRIVATE=''
+2026-10-26T09:26:34.2739754Z GOPROXY='https://proxy.golang.org,direct'
+2026-10-26T09:26:34.2740082Z GOROOT='/opt/hostedtoolcache/go/1.27.3/x64'
+2026-10-26T09:26:34.2740340Z GOSUMDB='sum.golang.org'
+2026-10-26T09:26:34.2740544Z GOTELEMETRY='local'
+2026-10-26T09:26:34.2740815Z GOTELEMETRYDIR='/home/runner/.config/go/telemetry'
+2026-10-26T09:26:34.2741066Z GOTMPDIR=''
+2026-10-26T09:26:34.2741252Z GOTOOLCHAIN='local'
+2026-10-26T09:26:34.2741589Z GOTOOLDIR='/opt/hostedtoolcache/go/1.27.3/x64/pkg/tool/linux_amd64'
+2026-10-26T09:26:34.2742087Z GOVCS=''
+2026-10-26T09:26:34.2742271Z GOVERSION='go1.27.3'
+2026-10-26T09:26:34.2742447Z GOWORK=''
+2026-10-26T09:26:34.2742637Z PKG_CONFIG='pkg-config'
+2026-10-26T09:26:34.2742754Z 
+2026-10-26T09:26:34.2743110Z ##[endgroup]
+2026-10-26T09:26:34.2932517Z ##[group]Run ./scripts/verify.sh
+2026-10-26T09:26:34.2932820Z [36;1m./scripts/verify.sh[0m
+2026-10-26T09:26:34.5508636Z shell: /usr/bin/bash -e {0}
+2026-10-26T09:26:34.5508887Z env:
+2026-10-26T09:26:34.5509075Z   DOTNET_ROOT: /usr/share/dotnet
+2026-10-26T09:26:34.5509297Z   GOTOOLCHAIN: local
+2026-10-26T09:26:34.5509478Z ##[endgroup]
+2026-10-26T09:26:35.4085670Z   Determining projects to restore...
+2026-10-26T09:26:35.8377233Z   Restored /home/runner/work/tscs/tscs/src/Tscs.Cli/Tscs.Cli.csproj (in 96 ms).
+2026-10-26T09:26:35.8441692Z   Restored /home/runner/work/tscs/tscs/tools/Tscs.FixtureHarness/Tscs.FixtureHarness.csproj (in 3 ms).
+2026-10-26T09:26:35.8563467Z   Restored /home/runner/work/tscs/tscs/src/Tscs.Compiler/Tscs.Compiler.csproj (in 10 ms).
+2026-10-26T09:26:37.3061057Z   Restored /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/Tscs.Compiler.Tests.csproj (in 1.44 sec).
+2026-10-26T09:26:39.5913342Z   Tscs.Compiler -> /home/runner/work/tscs/tscs/src/Tscs.Compiler/bin/Release/net10.0/Tscs.Compiler.dll
+2026-10-26T09:26:41.0262023Z   Tscs.Cli -> /home/runner/work/tscs/tscs/src/Tscs.Cli/bin/Release/net10.0/tscs.dll
+2026-10-26T09:26:42.7501723Z   Tscs.FixtureHarness -> /home/runner/work/tscs/tscs/tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.FixtureHarness.dll
+2026-10-26T09:26:44.8992707Z   Tscs.Compiler.Tests -> /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll
+2026-10-26T09:26:44.9124611Z 
+2026-10-26T09:26:44.9129725Z Build succeeded.
+2026-10-26T09:26:44.9130677Z     0 Warning(s)
+2026-10-26T09:26:44.9130962Z     0 Error(s)
+2026-10-26T09:26:44.9131752Z 
+2026-10-26T09:26:44.9131987Z Time Elapsed 00:00:07.39
+2026-10-26T09:26:45.6235109Z Running tests from /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+2026-10-26T09:26:49.8820856Z [31mfailed[m Tscs.Tests.NumericAdditionTests.AdditionInfersNumberAndPreservesMismatchDiagnostic [90m(2ms)[m
+2026-10-26T09:26:49.8822881Z   from /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+2026-10-26T09:26:49.8824503Z [31m  Assert.Multiple() Failure: Multiple failures were encountered
+2026-10-26T09:26:49.8833880Z   ---- Assert.Equal() Failure: Strings differ
+2026-10-26T09:26:49.8834729Z                ↓ (pos 2)
+2026-10-26T09:26:49.8835253Z   Expected: "TS2322"
+2026-10-26T09:26:49.8835775Z   Actual:   "TSCS1001"
+2026-10-26T09:26:49.8836363Z                ↑ (pos 2)
+2026-10-26T09:26:49.8836957Z   ---- Assert.Equal() Failure: Values differ
+2026-10-26T09:26:49.8837520Z   Expected: 4
+2026-10-26T09:26:49.8838146Z   Actual:   18
+2026-10-26T09:26:49.8838728Z [m[90m    Inner stack traces:
+2026-10-26T09:26:49.8839620Z [90m    ----- Inner Stack Trace #1 (Xunit.Sdk.EqualException) -----
+2026-10-26T09:26:49.8841754Z [90m    at Tscs.Tests.NumericAdditionTests.<>c__DisplayClass1_0.<AdditionInfersNumberAndPreservesMismatchDiagnostic>b__0() in /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/NumericAdditionTests.cs:26[90m
+2026-10-26T09:26:49.8843580Z     ----- Inner Stack Trace #2 (Xunit.Sdk.EqualException) -----
+2026-10-26T09:26:49.8846014Z [90m    at Tscs.Tests.NumericAdditionTests.<>c__DisplayClass1_0.<AdditionInfersNumberAndPreservesMismatchDiagnostic>b__1() in /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/NumericAdditionTests.cs:27[90m
+2026-10-26T09:26:49.8848613Z [m[31mfailed[m Tscs.Tests.NumericAdditionTests.NumberAdditionChecksWithoutErrors(source: "let n: any = 1 + 2;") [90m(1ms)[m
+2026-10-26T09:26:49.8851031Z   from /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+2026-10-26T09:26:49.8853880Z [31m  Assert.Empty() Failure: Collection was not empty
+2026-10-26T09:26:49.8856052Z   Collection: [Diagnostic { Code = TSCS1001, Category = error, File = test.ts, Start = 15, Length = 1, Message = Unsupported syntax '+'., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }]
+2026-10-26T09:26:49.8859256Z [m[90m    at Tscs.Tests.NumericAdditionTests.NumberAdditionChecksWithoutErrors(String source) in /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/NumericAdditionTests.cs:19[90m
+2026-10-26T09:26:49.8861232Z     at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+2026-10-26T09:26:49.8862976Z     at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+2026-10-26T09:26:49.8865238Z [m[31mfailed[m Tscs.Tests.NumericAdditionTests.NumberAdditionChecksWithoutErrors(source: "let x: number = 1; let y: number = 2 + x;") [90m(0ms)[m
+2026-10-26T09:26:49.8867140Z   from /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+2026-10-26T09:26:49.8868734Z [31m  Assert.Empty() Failure: Collection was not empty
+2026-10-26T09:26:49.8870573Z   Collection: [Diagnostic { Code = TSCS1001, Category = error, File = test.ts, Start = 37, Length = 1, Message = Unsupported syntax '+'., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }]
+2026-10-26T09:26:49.8873355Z [m[90m    at Tscs.Tests.NumericAdditionTests.NumberAdditionChecksWithoutErrors(String source) in /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/NumericAdditionTests.cs:19[90m
+2026-10-26T09:26:49.8875343Z     at InvokeStub_NumericAdditionTests.NumberAdditionChecksWithoutErrors(Object, Span`1)
+2026-10-26T09:26:49.8878231Z     at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+2026-10-26T09:26:49.8880648Z [m[31mfailed[m Tscs.Tests.NumericAdditionTests.NumberAdditionChecksWithoutErrors(source: "let n: number = 1; n = n + 2;") [90m(0ms)[m
+2026-10-26T09:26:49.8882548Z   from /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+2026-10-26T09:26:49.8884068Z [31m  Assert.Empty() Failure: Collection was not empty
+2026-10-26T09:26:49.8885796Z   Collection: [Diagnostic { Code = TSCS1001, Category = error, File = test.ts, Start = 25, Length = 1, Message = Unsupported syntax '+'., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }]
+2026-10-26T09:26:49.8888624Z [m[90m    at Tscs.Tests.NumericAdditionTests.NumberAdditionChecksWithoutErrors(String source) in /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/NumericAdditionTests.cs:19[90m
+2026-10-26T09:26:49.8890544Z     at InvokeStub_NumericAdditionTests.NumberAdditionChecksWithoutErrors(Object, Span`1)
+2026-10-26T09:26:49.8892376Z     at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+2026-10-26T09:26:49.8894772Z [m[31mfailed[m Tscs.Tests.NumericAdditionTests.NumberAdditionChecksWithoutErrors(source: "let x: number = 1; let y: number = x + 2;") [90m(0ms)[m
+2026-10-26T09:26:49.8896604Z   from /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+2026-10-26T09:26:49.8898987Z [31m  Assert.Empty() Failure: Collection was not empty
+2026-10-26T09:26:49.8900710Z   Collection: [Diagnostic { Code = TSCS1001, Category = error, File = test.ts, Start = 37, Length = 1, Message = Unsupported syntax '+'., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }]
+2026-10-26T09:26:49.8903514Z [m[90m    at Tscs.Tests.NumericAdditionTests.NumberAdditionChecksWithoutErrors(String source) in /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/NumericAdditionTests.cs:19[90m
+2026-10-26T09:26:49.8905469Z     at InvokeStub_NumericAdditionTests.NumberAdditionChecksWithoutErrors(Object, Span`1)
+2026-10-26T09:26:49.8907336Z     at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+2026-10-26T09:26:49.8910149Z [m[31mfailed[m Tscs.Tests.NumericAdditionTests.NumberAdditionChecksWithoutErrors(source: "let n: number = 1 + 2;") [90m(0ms)[m
+2026-10-26T09:26:49.8913924Z   from /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+2026-10-26T09:26:49.8915342Z [31m  Assert.Empty() Failure: Collection was not empty
+2026-10-26T09:26:49.8917074Z   Collection: [Diagnostic { Code = TSCS1001, Category = error, File = test.ts, Start = 18, Length = 1, Message = Unsupported syntax '+'., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }]
+2026-10-26T09:26:49.8920873Z [m[90m    at Tscs.Tests.NumericAdditionTests.NumberAdditionChecksWithoutErrors(String source) in /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/NumericAdditionTests.cs:19[90m
+2026-10-26T09:26:49.8922777Z     at InvokeStub_NumericAdditionTests.NumberAdditionChecksWithoutErrors(Object, Span`1)
+2026-10-26T09:26:49.8924589Z     at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+2026-10-26T09:26:49.8926751Z [m[31mfailed[m Tscs.Tests.NumericAdditionTests.NumberAdditionChecksWithoutErrors(source: "const n = 1 + 2 + 3;") [90m(0ms)[m
+2026-10-26T09:26:49.8928580Z   from /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+2026-10-26T09:26:49.8929941Z [31m  Assert.Empty() Failure: Collection was not empty
+2026-10-26T09:26:49.8956217Z   Collection: [Diagnostic { Code = TSCS1001, Category = error, File = test.ts, Start = 12, Length = 1, Message = Unsupported syntax '+'., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }]
+2026-10-26T09:26:49.8960718Z [m[90m    at Tscs.Tests.NumericAdditionTests.NumberAdditionChecksWithoutErrors(String source) in /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/NumericAdditionTests.cs:19[90m
+2026-10-26T09:26:49.8964684Z     at InvokeStub_NumericAdditionTests.NumberAdditionChecksWithoutErrors(Object, Span`1)
+2026-10-26T09:26:49.8967222Z     at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+2026-10-26T09:26:49.8970567Z [m[31mfailed[m Tscs.Tests.NumericAdditionTests.NumberAdditionChecksWithoutErrors(source: "let n = 1 + 2;") [90m(0ms)[m
+2026-10-26T09:26:49.8972846Z   from /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+2026-10-26T09:26:49.8974411Z [31m  Assert.Empty() Failure: Collection was not empty
+2026-10-26T09:26:49.8976695Z   Collection: [Diagnostic { Code = TSCS1001, Category = error, File = test.ts, Start = 10, Length = 1, Message = Unsupported syntax '+'., Related = Tscs.Diagnostic[], MessageChain = Tscs.Diagnostic[] }]
+2026-10-26T09:26:49.8980835Z [m[90m    at Tscs.Tests.NumericAdditionTests.NumberAdditionChecksWithoutErrors(String source) in /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/NumericAdditionTests.cs:19[90m
+2026-10-26T09:26:49.8983559Z     at InvokeStub_NumericAdditionTests.NumberAdditionChecksWithoutErrors(Object, Span`1)
+2026-10-26T09:26:49.8985488Z     at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+2026-10-26T09:26:51.5821875Z [m[m/home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64) [31mfailed with 8 error(s)[m [90m(5s 960ms)[m
+2026-10-26T09:26:51.5822744Z Exit code: 2
+2026-10-26T09:26:51.5870549Z 
+2026-10-26T09:26:51.5878645Z [31mTest run summary: Failed!
+2026-10-26T09:26:51.5883388Z [m  total: 15470
+2026-10-26T09:26:51.5883724Z [31m  failed: 8
+2026-10-26T09:26:51.5884084Z [m  succeeded: 15462
+2026-10-26T09:26:51.5884352Z   skipped: 0
+2026-10-26T09:26:51.5884557Z   duration: 6s 147ms
+2026-10-26T09:26:51.5885406Z Test run completed with non-success exit code: 2 (see: https://aka.ms/testingplatform/exitcodes)
+2026-10-26T09:26:51.6037366Z ##[error]Process completed with exit code 2.
+2026-10-26T09:26:51.6137566Z Post job cleanup.
+2026-10-26T09:26:51.6834229Z [command]/usr/bin/git version
+2026-10-26T09:26:51.6870245Z git version 2.55.0
+2026-10-26T09:26:51.6901544Z Temporarily overriding HOME='/home/runner/work/_temp/b9ae85dd-475b-4c13-835b-462f67edff9d' before making global git config changes
+2026-10-26T09:26:51.6902747Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-26T09:26:51.6906566Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/tscs/tscs
+2026-10-26T09:26:51.6944314Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-26T09:26:51.6982228Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-26T09:26:51.7206327Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-26T09:26:51.7233658Z http.https://github.com/.extraheader
+2026-10-26T09:26:51.7261790Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-26T09:26:51.7300279Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-26T09:26:51.7524948Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-26T09:26:51.7556877Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-26T09:26:51.7898398Z Cleaning up orphan processes
+2026-10-26T09:26:51.8196300Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-dotnet@v4, actions/setup-node@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

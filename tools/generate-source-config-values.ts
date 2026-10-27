@@ -1,0 +1,48 @@
+// All pinned fixture identities -> actual raw selection -> actual Go config value.
+import {readFileSync,writeFileSync,mkdirSync,existsSync} from 'node:fs';
+import {resolve,join} from 'node:path';
+import {execFileSync,spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {parseTree,classifyAsset,stableId,sha256} from './ts7-scope.ts';
+import {validateReferenceBindings} from './fixture-corpus.ts';
+const [up,inv,out,raw]=process.argv.slice(2),pin='8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f';
+if(!up||!inv||!out||!raw||existsSync(raw))throw Error('Usage: node tools/generate-source-config-values.ts PINNED_CHECKOUT INVENTORY GOLDEN NEW_RAW_DIRECTORY');
+const upstream=resolve(up),output=resolve(raw),go=process.env.GO??'go';
+const git=(...args)=>execFileSync('git',['-C',upstream,...args],{maxBuffer:64*1024*1024,env:{...process.env,GIT_NO_REPLACE_OBJECTS:'1'}});
+if(Number(process.versions.node.split('.')[0])!==24||git('rev-parse','HEAD').toString().trim()!==pin||git('status','--porcelain','--untracked-files=no').length||JSON.parse(readFileSync('upstream.lock.json','utf8')).commit!==pin)throw Error('Exact clean pin and Node24 required');
+const goVersion=execFileSync(go,['version'],{encoding:'utf8'}).trim();if(!goVersion.startsWith('go version go1.27.3 '))throw Error('Pinned Go required');
+const fixtureBytes=readFileSync(join(inv,'fixtures.jsonl')),summary=JSON.parse(readFileSync(join(inv,'summary.json'),'utf8'));
+if(summary.provenance.commit!==pin||summary.artifacts.find(a=>a.path==='fixtures.jsonl')?.sha256!==sha256(fixtureBytes))throw Error('Inventory hash/pin mismatch');
+const fixtures=fixtureBytes.toString('utf8').trimEnd().split('\n').map(l=>JSON.parse(l)),byPath=new Map(fixtures.map(f=>[f.path,f]));
+const tree=parseTree(git('ls-tree','-r','-z','--full-tree',pin)).filter(e=>classifyAsset(e.path).role==='fixture-input');
+if(byPath.size!==fixtures.length||tree.length!==fixtures.length||tree.some(e=>!byPath.has(e.path)))throw Error('Fixture omission/duplicate');
+const sources=[];
+const requests=tree.map(e=>{
+ const f=byPath.get(e.path),bytes=readFileSync(join(upstream,e.path));
+ const oid=createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
+ if(e.type!=='blob'||!['100644','100755'].includes(e.mode)||e.oid!==oid||f.rawSha256!==sha256(bytes)||f.domain!==classifyAsset(e.path).domain||f.id!==stableId(stableId(pin,'asset',e.path),'fixture',e.path))throw Error('Source blob/domain/identity mismatch');
+ sources.push({sourceId:f.id,path:e.path,blobOid:oid,rawSha256:f.rawSha256,decoding:f.decoding,upstreamSelection:f.upstreamSelection});
+ return {id:stableId(f.id,'source-config-values','default-options/pre-vfs/no-notifier'),input:bytes.toString('base64'),fileName:Buffer.from(e.path).toString('base64'),implicit:false,failAt:0,returnNil:false,profile:'config-values'};
+});
+mkdirSync(output,{recursive:true});const save=(p,v)=>writeFileSync(join(output,p),v,{flag:'wx',flush:true});save('requests.json',JSON.stringify(requests));
+const probes=['state_oracle_test.go','config_ast_selection_oracle_test.go','config_values_oracle_test.go','source_config_values_oracle_test.go'];
+const packages=['testrunner','testrunner','tsoptions','tsoptions'];
+save('overlay.json',JSON.stringify({Replace:Object.fromEntries(probes.map((p,i)=>[join(upstream,'tsc/internal',packages[i],'tscs_'+p),resolve('tools/fixture-harness',p)]))}));
+const referenceStart=Date.now();
+function run(name,pkg,outputName,env){const remaining=180000-(Date.now()-referenceStart);if(remaining<=0)throw Error("Reference TIMEOUT");const r=spawnSync(go,['test','-overlay',join(output,'overlay.json'),'-run','^'+name+'$','-count=1','./internal/'+pkg],{cwd:join(upstream,'tsc'),encoding:'utf8',timeout:remaining,maxBuffer:16*1024*1024,env:{...process.env,GOWORK:'off',GOTOOLCHAIN:'local',...env}});save(outputName+'.log',(r.stdout??'')+(r.stderr??''));if(r.error||r.signal||r.status!==0)throw Error('Actual Go failed: '+(r.error??r.stderr));}
+run('TestTscsConfigAstSelectionOracle','testrunner','selection',{TSCS_STATE_INPUT:join(output,'requests.json'),TSCS_STATE_OUTPUT:join(output,'selection.json')});
+const selection=JSON.parse(readFileSync(join(output,'selection.json'),'utf8'));validateReferenceBindings(requests,selection);
+if(selection.some(r=>r.expected.panic!==null))throw Error('Selection panic; not a complete config value profile');
+const selected=selection.map((r,i)=>({r,i})).filter(({r})=>r.expected.configFile!==null);
+const parseRequests=selected.map(({r})=>({id:r.id,sourceBytes:r.expected.configFile.content,fileName:r.context.configPath}));save('parse-requests.json',JSON.stringify(parseRequests));
+run('TestTscsSourceConfigValuesOracle','tsoptions','reference',{TSCS_STRING_INPUT:join(output,'parse-requests.json'),TSCS_STRING_OUTPUT:join(output,'reference.json')});
+const reference=JSON.parse(readFileSync(join(output,'reference.json'),'utf8'));
+if(reference.length!==parseRequests.length||new Set(reference.map(r=>r.id)).size!==reference.length||reference.some((r,i)=>r.id!==parseRequests[i].id||r.sourceBytes!==parseRequests[i].sourceBytes||r.fileName!==parseRequests[i].fileName))throw Error('Config value input binding mismatch');
+const vectors=selected.map(({r,i},n)=>({id:r.id,source:sources[i],configId:stableId(r.id,'config',r.expected.configFile.name+':'+sha256(Buffer.from(r.expected.configFile.content,'base64'))),request:requests[i],selection:r.expected,context:r.context,reference:reference[n]}));
+const sourcePaths=['tools/generate-source-config-values.ts',...probes.map(p=>'tools/fixture-harness/'+p)];
+const referencePaths=['tsc/internal/testrunner/test_case_parser.go','tsc/internal/testutil/harnessutil/harnessutil.go','tsc/internal/tsoptions/tsconfigparsing.go','tsc/internal/parser/parser.go','tsc/internal/scanner/scanner.go','tsc/internal/stringutil/util.go','tsc/internal/jsnum/string.go','tsc/internal/ast/tokenflags.go','tsc/internal/diagnostics/diagnostics_generated.go','tsc/internal/tspath/path.go','tsc/internal/tspath/rooted_path.go','tsc/internal/vfs/osvfs/os.go'];
+const counts={sources:requests.length,selectedConfigs:vectors.length,noConfigSources:requests.length-vectors.length,upstreamSkippedSources:sources.filter(s=>s.upstreamSelection.status==='UPSTREAM_SKIPPED').length,nonRawUtf8Sources:sources.filter(s=>s.decoding!=='UTF8').length,selectedUpstreamSkipped:vectors.filter(v=>v.source.upstreamSelection.status==='UPSTREAM_SKIPPED').length,parserErrorConfigs:reference.filter(r=>r.parserDiagnostics.length).length,parserDiagnostics:reference.reduce((n,r)=>n+r.parserDiagnostics.length,0),conversionDiagnostics:reference.reduce((n,r)=>n+r.conversionDiagnostics.length,0)};
+const metadata={upstreamCommit:pin,profile:'selected-config-values/default-options/pre-vfs/no-notifier',goVersion,fixtureInventorySha256:sha256(fixtureBytes),counts,sourceHashes:Object.fromEntries(sourcePaths.map(p=>[p,sha256(readFileSync(p))])),referenceHashes:Object.fromEntries(referencePaths.map(p=>[p,sha256(git('show',`${pin}:${p}`))]))};
+writeFileSync(out,JSON.stringify({...metadata,vectors})+'\n');
+save('summary.json',JSON.stringify({...metadata,artifacts:['requests.json','selection.json','selection.log','parse-requests.json','reference.json','reference.log'].map(path=>({path,bytes:readFileSync(join(output,path)).length,sha256:sha256(readFileSync(join(output,path)))}))},null,2)+'\n');
+console.log(JSON.stringify(counts));

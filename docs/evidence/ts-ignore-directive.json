@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "stage": "BOUNDED_TS_IGNORE_AND_REAL_MTP_UPSTREAM_PLACEHOLDER_DISCOVERY",
+  "sourceHead": "51993ce5fa451a3dcfe71bab47953f842e8e1cda",
+  "priorHead": "324e89e4a2b90285ddd8ec4111d7bd8884bf718b",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "functionality": "whole-line // @ts-ignore suppresses next physical line semantic checker diagnostics only",
+  "implementationLocations": [
+    "src/Tscs.Compiler/Scanner.cs",
+    "src/Tscs.Compiler/Compilation.cs"
+  ],
+  "capabilityMovement": {
+    "id": "bootstrap:ts-ignore-directive",
+    "before": {
+      "implementation": "UNIMPLEMENTED",
+      "status": "SKIP",
+      "reason": "UNIMPLEMENTED"
+    },
+    "after": {
+      "implementation": "IMPLEMENTED",
+      "status": "NOT_RUN",
+      "reason": null
+    }
+  },
+  "testFirstRed": {
+    "commit": "f706c04572cba439efeb7ffe9f5cd15e132eb78a",
+    "jobs": [
+      {
+        "runId": 40357878782,
+        "jobId": 121695097990,
+        "passed": 15492,
+        "failed": 8,
+        "skipped": 0
+      },
+      {
+        "runId": 40357891412,
+        "jobId": 121695598276,
+        "passed": 15492,
+        "failed": 8,
+        "skipped": 0
+      }
+    ]
+  },
+  "verifiedGreen": {
+    "commit": "51993ce5fa451a3dcfe71bab47953f842e8e1cda",
+    "jobs": [
+      {
+        "runId": 40358477859,
+        "jobId": 121697212555,
+        "internalPassed": 15500,
+        "internalFailed": 0,
+        "internalSkipped": 0,
+        "nodePassed": 145,
+        "frozenPassed": 29,
+        "realUpstreamPlaceholdersDiscovered": 15523,
+        "upstreamPlaceholderSkipped": 15523,
+        "realUpstreamAccepted": 0,
+        "artifactId": 12667661634,
+        "artifactSha256": "37663778c0d041e4de837b3fe9e8ca648e4f0bac4de8d4baeb0cdda2f2ad8aa9"
+      },
+      {
+        "runId": 40358486127,
+        "jobId": 121697243235,
+        "internalPassed": 15500,
+        "internalFailed": 0,
+        "internalSkipped": 0,
+        "nodePassed": 145,
+        "frozenPassed": 29,
+        "realUpstreamPlaceholdersDiscovered": 15523,
+        "upstreamPlaceholderSkipped": 15523,
+        "realUpstreamAccepted": 0,
+        "artifactId": 12666817064,
+        "artifactSha256": "01d9dea88b930c24b74a2e69d67cee997972e116538cbca8e46445a5e6e0ede8"
+      }
+    ],
+    "checks": {
+      "verify": 2,
+      "codeQL": "success",
+      "actionsAnalysis": "success"
+    }
+  },
+  "independentReview": "NOT_RUN",
+  "originalCompilerAcceptance": "NOT_RUN",
+  "releaseEligible": false,
+  "missing": "complete upstream executable-case expansion, original compiler/referenceCompiler comparison, emission and other domains"
+}

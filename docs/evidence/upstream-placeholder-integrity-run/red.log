@@ -1,0 +1,214 @@
+TAP version 13
+# (node:593) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: complete source-bound SKIP catalogue reconciles every generated C\# Fact and blocked source
+not ok 1 - complete source-bound SKIP catalogue reconciles every generated C\# Fact and blocked source
+  ---
+  duration_ms: 10.488077
+  type: 'test'
+  location: '/mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:26:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+    + {}
+    - {
+    -   blockedSources: 1,
+    -   skippedUnimplemented: 1,
+    -   sources: 2,
+    -   targets: 1,
+    -   upstreamSkippedSources: 2,
+    -   upstreamSkippedTargetMetadata: 1
+    - }
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    sources: 2
+    targets: 1
+    skippedUnimplemented: 1
+    blockedSources: 1
+    upstreamSkippedSources: 2
+    upstreamSkippedTargetMetadata: 1
+  actual:
+  operator: 'deepStrictEqual'
+  stack: |-
+    file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:28:9
+    withBundle (file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:24:43)
+    TestContext.<anonymous> (file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:26:103)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: rejects even rehashed facts that silently drop their throwing body
+not ok 2 - rejects even rehashed facts that silently drop their throwing body
+  ---
+  duration_ms: 3.53129
+  type: 'test'
+  location: '/mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:30:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  operator: 'throws'
+  stack: |-
+    file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:32:9
+    withBundle (file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:24:43)
+    TestContext.<anonymous> (file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:30:79)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: rejects SKIP status upgraded to PASS without original reference execution
+not ok 3 - rejects SKIP status upgraded to PASS without original reference execution
+  ---
+  duration_ms: 2.128648
+  type: 'test'
+  location: '/mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:34:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  operator: 'throws'
+  stack: |-
+    file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:36:9
+    withBundle (file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:24:43)
+    TestContext.<anonymous> (file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:34:86)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: fails when any required artifact is removed together with its manifest entry
+not ok 4 - fails when any required artifact is removed together with its manifest entry
+  ---
+  duration_ms: 2.650651
+  type: 'test'
+  location: '/mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:38:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  operator: 'throws'
+  stack: |-
+    file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:41:9
+    withBundle (file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:24:43)
+    TestContext.<anonymous> (file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:38:89)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: rejects changed source/configuration identity despite updated hash and metadata
+not ok 5 - rejects changed source/configuration identity despite updated hash and metadata
+  ---
+  duration_ms: 3.181897
+  type: 'test'
+  location: '/mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:43:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  operator: 'throws'
+  stack: |-
+    file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:45:9
+    withBundle (file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:24:43)
+    TestContext.<anonymous> (file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:43:92)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: rejects truncated inventory even if an attacker rewrites its own summary counts
+not ok 6 - rejects truncated inventory even if an attacker rewrites its own summary counts
+  ---
+  duration_ms: 4.187899
+  type: 'test'
+  location: '/mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:47:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  operator: 'throws'
+  stack: |-
+    file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:50:9
+    withBundle (file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:24:43)
+    TestContext.<anonymous> (file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:47:92)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: release mode rejects all unimplemented placeholders despite clean discovery
+not ok 7 - release mode rejects all unimplemented placeholders despite clean discovery
+  ---
+  duration_ms: 2.782489
+  type: 'test'
+  location: '/mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:52:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  operator: 'throws'
+  stack: |-
+    file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:53:9
+    withBundle (file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:24:43)
+    TestContext.<anonymous> (file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:52:88)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: rejects wrong pinned upstream version or fabricated blocked source
+not ok 8 - rejects wrong pinned upstream version or fabricated blocked source
+  ---
+  duration_ms: 2.274822
+  type: 'test'
+  location: '/mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:55:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  operator: 'throws'
+  stack: |-
+    file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:57:9
+    withBundle (file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:24:43)
+    TestContext.<anonymous> (file:///mnt/data/tscs-work/patch/verify-upstream-placeholders.test.ts:55:79)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 0
+# fail 8
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 266.047402

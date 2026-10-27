@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-26",
+  "repository": "KoalaFacts/tscs",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "priorHead": "992b952d160b88545b762fd922ed250b84b5fb16",
+  "workPackage": "post-generation validator, fail-closed 15523 target/Fact/source reconciliation",
+  "bundle": {
+    "libraryId": "libfile_00d083171c708191a3a2affd64acfeff",
+    "zipSha256": "e45e033d458a318b792777f7d141973e5d457f4f9e1f04801cb4bcf3a6e4512b",
+    "targetLedgerSha256": "c1c4077d732ae859ad70899ac3fd85fc25f9eff1c99737f3e36aa806b5c2742e"
+  },
+  "catalogueResults": {
+    "sources": 13006,
+    "configurationTargets": 15523,
+    "compilerTargets": 15495,
+    "transpileTargets": 28,
+    "skippedUnimplemented": 15523,
+    "upstreamSkippedSources": 42,
+    "upstreamSkippedTargetMetadata": 39,
+    "referenceFatalSources": 7,
+    "accepted": 0
+  },
+  "validation": {
+    "localNode": "22.16.0 --experimental-strip-types FALLBACK, NOT Node24",
+    "stubRed": {
+      "fail": 8,
+      "pass": 0
+    },
+    "green": {
+      "pass": 8,
+      "fail": 0
+    },
+    "historicalBundleCheck": "PASS",
+    "releaseGate": "EXPECTED_FAILURE_SKIPS_REMAIN",
+    "independentReadOnlyCrossCheck": "SAME_AUTHOR_PYTHON_PASS"
+  },
+  "sourcesAndLogs": [
+    {
+      "path": "tools/verify-upstream-placeholders.ts",
+      "bytes": 9576,
+      "sha256": "b235458f07b2506fb8e03841206695f9aa95092f994c53a8ae784e71464f8d24"
+    },
+    {
+      "path": "tools/verify-upstream-placeholders.test.ts",
+      "bytes": 6847,
+      "sha256": "6455cf2b616a0dc6b91053deec272c6dbe94f9764af7501da12b7681ae5665e1"
+    },
+    {
+      "path": "docs/evidence/upstream-placeholder-integrity-run/red.log",
+      "bytes": 9536,
+      "sha256": "fe28dd2a8d48792f32cd565975cb43b58286855b7af064d6a4942d643815b67c"
+    },
+    {
+      "path": "docs/evidence/upstream-placeholder-integrity-run/green.log",
+      "bytes": 2076,
+      "sha256": "b34cea0bbfbab62916cc2bbe2e6d7f9d74ca1737e99c5c65f83bee7c9feec9a9"
+    },
+    {
+      "path": "docs/evidence/upstream-placeholder-integrity-run/artifact-check.log",
+      "bytes": 320,
+      "sha256": "fef68bd851299de7190275bfc52b28aa3501c233a36202f7dda333b084c75986"
+    },
+    {
+      "path": "docs/evidence/upstream-placeholder-integrity-run/release-block.log",
+      "bytes": 288,
+      "sha256": "366eb08985d3b892d4545c83deac941a6458ac9d237e2aebe60fba1fb7183a5c"
+    },
+    {
+      "path": "docs/evidence/upstream-placeholder-integrity-run/independent-audit.log",
+      "bytes": 233,
+      "sha256": "3bb5669af1575281dbaf408f92e5cbd6f33c933a85ce2354b234b8ed668e23b8"
+    }
+  ],
+  "limitations": [
+    "No .NET SDK locally; generated C# compiled/discovered: NOT_RUN",
+    "New head hosted CI: must be checked independently",
+    "No fresh original upstream compiler or reference acceptance",
+    "No formal/independent reviewer; same-author Python read-only check only",
+    "15,523 configuration targets are not the full runtime TS7 case denominator"
+  ],
+  "productFeaturesAdded": 0,
+  "skipsResolved": 0,
+  "releaseEligible": false
+}

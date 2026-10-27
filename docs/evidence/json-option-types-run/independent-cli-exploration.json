@@ -1,0 +1,47 @@
+[
+  {
+    "flags": [],
+    "exit": 1,
+    "output": "error TSCS1002: The bootstrap requires --noEmit and --noLib; supply minimal ambient globals explicitly.\n"
+  },
+  {
+    "flags": [
+      "--noEmit"
+    ],
+    "exit": 1,
+    "output": "error TSCS1002: The bootstrap requires --noEmit and --noLib; supply minimal ambient globals explicitly.\n"
+  },
+  {
+    "flags": [
+      "--noLib"
+    ],
+    "exit": 1,
+    "output": "error TSCS1002: The bootstrap requires --noEmit and --noLib; supply minimal ambient globals explicitly.\n"
+  },
+  {
+    "flags": [
+      "--noEmit",
+      "--noLib"
+    ],
+    "exit": 0,
+    "output": ""
+  },
+  {
+    "flags": [
+      "--noEmit",
+      "false",
+      "--noLib"
+    ],
+    "exit": 1,
+    "output": "error TSCS1002: The bootstrap requires --noEmit and --noLib; supply minimal ambient globals explicitly.\n"
+  },
+  {
+    "flags": [
+      "--noEmit",
+      "--noLib",
+      "false"
+    ],
+    "exit": 1,
+    "output": "error TSCS1002: The bootstrap requires --noEmit and --noLib; supply minimal ambient globals explicitly.\n"
+  }
+]

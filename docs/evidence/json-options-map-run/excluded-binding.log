@@ -1,0 +1,13 @@
+duplicate IDs [ 'map-declaration:help' ]
+binding 126 316 316 []
+file:///workspace/scratch/daf3e6c2e318/tscs/tools/generate-json-options-map.ts:36
+ if(data.inventory.length!==126||data.vectors.length!==inputs.length||new Set(inputs.map(x=>x.id)).size!==inputs.length||data.vectors.some((v,i)=>Object.keys(inputs[i]).some(k=>JSON.stringify(v[k])!==JSON.stringify(inputs[i][k]))))throw Error('Oracle input binding mismatch');
+                                                                                                                                                                                                                                             ^
+
+Error: Oracle input binding mismatch
+    at file:///workspace/scratch/daf3e6c2e318/tscs/tools/generate-json-options-map.ts:36:238
+    at ModuleJob.run (node:internal/modules/esm/module_job:561:25)
+    at async node:internal/modules/esm/loader:647:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.22.1

@@ -1,0 +1,6000 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "goVersion": "go version go1.27.3 linux/amd64",
+  "jsNumberSourceSha256": "79cba5294aa96796c280169b6d3d5ed1b62da2b2aad312c8d9d06dc0a563d62b",
+  "configSourceSha256": "2f42a124c6d16054a263cd8b34a23dc188421f5db69923d52e56886d349f0c71",
+  "parserSourceSha256": "18fbeb9644a2c642d2757188107f2a802e8084cf1ed56a24c78bab1933328c2e",
+  "scannerSourceSha256": "48008100fb5a020748651e319c4dcc361c1a81ca06f8c3e0ed94d42dd0d1e6df",
+  "probeSha256": "f8b81a281d3151f37c0bd29396cb421c13dc9196670658c86ea5032fb814938a",
+  "tokenFlagsSha256": "98f7010c7113b1ac781205175de9fe0c9c9c5854b10744d03e32127eb72f2b29",
+  "diagnosticsSha256": "a0ca35f6d8bc101541dc9c91ce85b2962d97e5f26e59cbed184efb81d16255e9",
+  "stringUtilSha256": "e15d8030900518eb0d8bd926751df2f7c7cfda6d49c7a82da36d58daeed22b9e",
+  "vectors": [
+    {
+      "diagnostics": [],
+      "id": "0",
+      "source": "",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "EmptySource",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "1",
+      "source": "{}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "2",
+      "source": "[]",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "3",
+      "source": "true",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "True",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "4",
+      "source": "false",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "False",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "5",
+      "source": "null",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Null",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "6",
+      "source": "12",
+      "value": {
+        "bits": "4028000000000000",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "7",
+      "source": "-12",
+      "value": {
+        "bits": "c028000000000000",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "8",
+      "source": "\"hello\"",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "String",
+        "properties": [],
+        "units": [
+          104,
+          101,
+          108,
+          108,
+          111
+        ]
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "9",
+      "source": "'hello'",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "String",
+        "properties": [],
+        "units": [
+          104,
+          101,
+          108,
+          108,
+          111
+        ]
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "10",
+      "source": "{\"x\":true,\"a\":[null,1,-2,\"z\",],}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              120
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          },
+          {
+            "key": [
+              97
+            ],
+            "value": {
+              "bits": "",
+              "elements": [
+                {
+                  "bits": "3ff0000000000000",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                },
+                {
+                  "bits": "c000000000000000",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                },
+                {
+                  "bits": "",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "String",
+                  "properties": [],
+                  "units": [
+                    122
+                  ]
+                }
+              ],
+              "isNil": false,
+              "kind": "Array",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "11",
+      "source": "{x:'value'}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              120
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                118,
+                97,
+                108,
+                117,
+                101
+              ]
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "12",
+      "source": "{\"a\":{},\"a\":{\"b\":[]}}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              97
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "Object",
+              "properties": [
+                {
+                  "key": [
+                    98
+                  ],
+                  "value": {
+                    "bits": "",
+                    "elements": [],
+                    "isNil": false,
+                    "kind": "Array",
+                    "properties": [],
+                    "units": []
+                  }
+                }
+              ],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "13",
+      "source": " /* pre */ {\"😀\":\"\\uD800\", \"s\":\"\\q\"} // end",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              55357,
+              56832
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                55296
+              ]
+            }
+          },
+          {
+            "key": [
+              115
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                113
+              ]
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "14",
+      "source": "{1:\"n\"}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                110
+              ]
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "15",
+      "source": "{\"x\":\"\\xZ\"}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              120
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                92,
+                120,
+                90
+              ]
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "16",
+      "source": "{\"x\":\"\\09\"}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              120
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                0,
+                57
+              ]
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "17",
+      "source": "{\"files\":[\"a.ts\",\"minimal.d.ts\"],\"compilerOptions\":{\"noEmit\":true,\"noLib\":true,\"target\":\"es2015\",},}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              102,
+              105,
+              108,
+              101,
+              115
+            ],
+            "value": {
+              "bits": "",
+              "elements": [
+                {
+                  "bits": "",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "String",
+                  "properties": [],
+                  "units": [
+                    97,
+                    46,
+                    116,
+                    115
+                  ]
+                },
+                {
+                  "bits": "",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "String",
+                  "properties": [],
+                  "units": [
+                    109,
+                    105,
+                    110,
+                    105,
+                    109,
+                    97,
+                    108,
+                    46,
+                    100,
+                    46,
+                    116,
+                    115
+                  ]
+                }
+              ],
+              "isNil": false,
+              "kind": "Array",
+              "properties": [],
+              "units": []
+            }
+          },
+          {
+            "key": [
+              99,
+              111,
+              109,
+              112,
+              105,
+              108,
+              101,
+              114,
+              79,
+              112,
+              116,
+              105,
+              111,
+              110,
+              115
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "Object",
+              "properties": [
+                {
+                  "key": [
+                    110,
+                    111,
+                    69,
+                    109,
+                    105,
+                    116
+                  ],
+                  "value": {
+                    "bits": "",
+                    "elements": [],
+                    "isNil": false,
+                    "kind": "True",
+                    "properties": [],
+                    "units": []
+                  }
+                },
+                {
+                  "key": [
+                    110,
+                    111,
+                    76,
+                    105,
+                    98
+                  ],
+                  "value": {
+                    "bits": "",
+                    "elements": [],
+                    "isNil": false,
+                    "kind": "True",
+                    "properties": [],
+                    "units": []
+                  }
+                },
+                {
+                  "key": [
+                    116,
+                    97,
+                    114,
+                    103,
+                    101,
+                    116
+                  ],
+                  "value": {
+                    "bits": "",
+                    "elements": [],
+                    "isNil": false,
+                    "kind": "String",
+                    "properties": [],
+                    "units": [
+                      101,
+                      115,
+                      50,
+                      48,
+                      49,
+                      53
+                    ]
+                  }
+                }
+              ],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "18",
+      "source": "{\"a\":[{\"b\":false},[\"x\",true]]}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              97
+            ],
+            "value": {
+              "bits": "",
+              "elements": [
+                {
+                  "bits": "",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Object",
+                  "properties": [
+                    {
+                      "key": [
+                        98
+                      ],
+                      "value": {
+                        "bits": "",
+                        "elements": [],
+                        "isNil": false,
+                        "kind": "False",
+                        "properties": [],
+                        "units": []
+                      }
+                    }
+                  ],
+                  "units": []
+                },
+                {
+                  "bits": "",
+                  "elements": [
+                    {
+                      "bits": "",
+                      "elements": [],
+                      "isNil": false,
+                      "kind": "String",
+                      "properties": [],
+                      "units": [
+                        120
+                      ]
+                    },
+                    {
+                      "bits": "",
+                      "elements": [],
+                      "isNil": false,
+                      "kind": "True",
+                      "properties": [],
+                      "units": []
+                    }
+                  ],
+                  "isNil": false,
+                  "kind": "Array",
+                  "properties": [],
+                  "units": []
+                }
+              ],
+              "isNil": false,
+              "kind": "Array",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "19",
+      "source": "{'😀': 'v'}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              55357,
+              56832
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                118
+              ]
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "20",
+      "source": "// hi\n[1,2,3,]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "4000000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "4008000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "21",
+      "source": "{\"a\":\"\\u{1f600}\",\"b\":\"\\uD800\\uDC00\"}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              97
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                55357,
+                56832
+              ]
+            }
+          },
+          {
+            "key": [
+              98
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                55296,
+                56320
+              ]
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "22",
+      "source": "0",
+      "value": {
+        "bits": "0000000000000000",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "23",
+      "source": "-0",
+      "value": {
+        "bits": "8000000000000000",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "24",
+      "source": "[1,{\"n\":0},-0]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "0000000000000000",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "8000000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "25",
+      "source": "{0:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              48
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "26",
+      "source": "1",
+      "value": {
+        "bits": "3ff0000000000000",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "27",
+      "source": "-1",
+      "value": {
+        "bits": "bff0000000000000",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "28",
+      "source": "[1,{\"n\":1},-1]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "3ff0000000000000",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "bff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "29",
+      "source": "{1:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "30",
+      "source": "1000000000000000128",
+      "value": {
+        "bits": "43abc16d674ec801",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "31",
+      "source": "-1000000000000000128",
+      "value": {
+        "bits": "c3abc16d674ec801",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "32",
+      "source": "[1,{\"n\":1000000000000000128},-1000000000000000128]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "43abc16d674ec801",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c3abc16d674ec801",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "33",
+      "source": "{1000000000000000128:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              49,
+              48,
+              48
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "34",
+      "source": "19686109595169230000",
+      "value": {
+        "bits": "43f11331c6015789",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "35",
+      "source": "-19686109595169230000",
+      "value": {
+        "bits": "c3f11331c6015789",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "36",
+      "source": "[1,{\"n\":19686109595169230000},-19686109595169230000]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "43f11331c6015789",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c3f11331c6015789",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "37",
+      "source": "{19686109595169230000:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49,
+              57,
+              54,
+              56,
+              54,
+              49,
+              48,
+              57,
+              53,
+              57,
+              53,
+              49,
+              54,
+              57,
+              50,
+              51,
+              48,
+              48,
+              48,
+              48
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "38",
+      "source": "9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999",
+      "value": {
+        "bits": "7ff0000000000000",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "39",
+      "source": "-9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999",
+      "value": {
+        "bits": "fff0000000000000",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "40",
+      "source": "[1,{\"n\":9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999},-9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "7ff0000000000000",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "fff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "41",
+      "source": "{9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              73,
+              110,
+              102,
+              105,
+              110,
+              105,
+              116,
+              121
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "42",
+      "source": "9007199254740988",
+      "value": {
+        "bits": "433ffffffffffffc",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "43",
+      "source": "-9007199254740988",
+      "value": {
+        "bits": "c33ffffffffffffc",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "44",
+      "source": "[1,{\"n\":9007199254740988},-9007199254740988]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "433ffffffffffffc",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c33ffffffffffffc",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "45",
+      "source": "{9007199254740988:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              57,
+              48,
+              48,
+              55,
+              49,
+              57,
+              57,
+              50,
+              53,
+              52,
+              55,
+              52,
+              48,
+              57,
+              56,
+              56
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "46",
+      "source": "9007199254740989",
+      "value": {
+        "bits": "433ffffffffffffd",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "47",
+      "source": "-9007199254740989",
+      "value": {
+        "bits": "c33ffffffffffffd",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "48",
+      "source": "[1,{\"n\":9007199254740989},-9007199254740989]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "433ffffffffffffd",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c33ffffffffffffd",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "49",
+      "source": "{9007199254740989:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              57,
+              48,
+              48,
+              55,
+              49,
+              57,
+              57,
+              50,
+              53,
+              52,
+              55,
+              52,
+              48,
+              57,
+              56,
+              57
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "50",
+      "source": "9007199254740990",
+      "value": {
+        "bits": "433ffffffffffffe",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "51",
+      "source": "-9007199254740990",
+      "value": {
+        "bits": "c33ffffffffffffe",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "52",
+      "source": "[1,{\"n\":9007199254740990},-9007199254740990]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "433ffffffffffffe",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c33ffffffffffffe",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "53",
+      "source": "{9007199254740990:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              57,
+              48,
+              48,
+              55,
+              49,
+              57,
+              57,
+              50,
+              53,
+              52,
+              55,
+              52,
+              48,
+              57,
+              57,
+              48
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "54",
+      "source": "9007199254740991",
+      "value": {
+        "bits": "433fffffffffffff",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "55",
+      "source": "-9007199254740991",
+      "value": {
+        "bits": "c33fffffffffffff",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "56",
+      "source": "[1,{\"n\":9007199254740991},-9007199254740991]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "433fffffffffffff",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c33fffffffffffff",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "57",
+      "source": "{9007199254740991:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              57,
+              48,
+              48,
+              55,
+              49,
+              57,
+              57,
+              50,
+              53,
+              52,
+              55,
+              52,
+              48,
+              57,
+              57,
+              49
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "58",
+      "source": "9007199254740992",
+      "value": {
+        "bits": "4340000000000000",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "59",
+      "source": "-9007199254740992",
+      "value": {
+        "bits": "c340000000000000",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "60",
+      "source": "[1,{\"n\":9007199254740992},-9007199254740992]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "4340000000000000",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c340000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "61",
+      "source": "{9007199254740992:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              57,
+              48,
+              48,
+              55,
+              49,
+              57,
+              57,
+              50,
+              53,
+              52,
+              55,
+              52,
+              48,
+              57,
+              57,
+              50
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "62",
+      "source": "9007199254740993",
+      "value": {
+        "bits": "4340000000000000",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "63",
+      "source": "-9007199254740993",
+      "value": {
+        "bits": "c340000000000000",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "64",
+      "source": "[1,{\"n\":9007199254740993},-9007199254740993]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "4340000000000000",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c340000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "65",
+      "source": "{9007199254740993:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              57,
+              48,
+              48,
+              55,
+              49,
+              57,
+              57,
+              50,
+              53,
+              52,
+              55,
+              52,
+              48,
+              57,
+              57,
+              50
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "66",
+      "source": "9007199254740994",
+      "value": {
+        "bits": "4340000000000001",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "67",
+      "source": "-9007199254740994",
+      "value": {
+        "bits": "c340000000000001",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "68",
+      "source": "[1,{\"n\":9007199254740994},-9007199254740994]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "4340000000000001",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c340000000000001",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "69",
+      "source": "{9007199254740994:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              57,
+              48,
+              48,
+              55,
+              49,
+              57,
+              57,
+              50,
+              53,
+              52,
+              55,
+              52,
+              48,
+              57,
+              57,
+              52
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "70",
+      "source": "9007199254740995",
+      "value": {
+        "bits": "4340000000000002",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "71",
+      "source": "-9007199254740995",
+      "value": {
+        "bits": "c340000000000002",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "72",
+      "source": "[1,{\"n\":9007199254740995},-9007199254740995]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "4340000000000002",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c340000000000002",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "73",
+      "source": "{9007199254740995:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              57,
+              48,
+              48,
+              55,
+              49,
+              57,
+              57,
+              50,
+              53,
+              52,
+              55,
+              52,
+              48,
+              57,
+              57,
+              54
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "74",
+      "source": "9007199254740996",
+      "value": {
+        "bits": "4340000000000002",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "75",
+      "source": "-9007199254740996",
+      "value": {
+        "bits": "c340000000000002",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "76",
+      "source": "[1,{\"n\":9007199254740996},-9007199254740996]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "4340000000000002",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c340000000000002",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "77",
+      "source": "{9007199254740996:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              57,
+              48,
+              48,
+              55,
+              49,
+              57,
+              57,
+              50,
+              53,
+              52,
+              55,
+              52,
+              48,
+              57,
+              57,
+              54
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "78",
+      "source": "9999999999999999999",
+      "value": {
+        "bits": "43e158e460913d00",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "79",
+      "source": "-9999999999999999999",
+      "value": {
+        "bits": "c3e158e460913d00",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "80",
+      "source": "[1,{\"n\":9999999999999999999},-9999999999999999999]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "43e158e460913d00",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c3e158e460913d00",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "81",
+      "source": "{9999999999999999999:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "82",
+      "source": "10000000000000000000",
+      "value": {
+        "bits": "43e158e460913d00",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "83",
+      "source": "-10000000000000000000",
+      "value": {
+        "bits": "c3e158e460913d00",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "84",
+      "source": "[1,{\"n\":10000000000000000000},-10000000000000000000]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "43e158e460913d00",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c3e158e460913d00",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "85",
+      "source": "{10000000000000000000:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "86",
+      "source": "10000000000000000001",
+      "value": {
+        "bits": "43e158e460913d00",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "87",
+      "source": "-10000000000000000001",
+      "value": {
+        "bits": "c3e158e460913d00",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "88",
+      "source": "[1,{\"n\":10000000000000000001},-10000000000000000001]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "43e158e460913d00",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c3e158e460913d00",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "89",
+      "source": "{10000000000000000001:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "90",
+      "source": "99999999999999999999",
+      "value": {
+        "bits": "4415af1d78b58c40",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "91",
+      "source": "-99999999999999999999",
+      "value": {
+        "bits": "c415af1d78b58c40",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "92",
+      "source": "[1,{\"n\":99999999999999999999},-99999999999999999999]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "4415af1d78b58c40",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c415af1d78b58c40",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "93",
+      "source": "{99999999999999999999:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "94",
+      "source": "100000000000000000000",
+      "value": {
+        "bits": "4415af1d78b58c40",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "95",
+      "source": "-100000000000000000000",
+      "value": {
+        "bits": "c415af1d78b58c40",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "96",
+      "source": "[1,{\"n\":100000000000000000000},-100000000000000000000]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "4415af1d78b58c40",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c415af1d78b58c40",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "97",
+      "source": "{100000000000000000000:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "98",
+      "source": "100000000000000000001",
+      "value": {
+        "bits": "4415af1d78b58c40",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "99",
+      "source": "-100000000000000000001",
+      "value": {
+        "bits": "c415af1d78b58c40",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "100",
+      "source": "[1,{\"n\":100000000000000000001},-100000000000000000001]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "4415af1d78b58c40",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c415af1d78b58c40",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "101",
+      "source": "{100000000000000000001:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "102",
+      "source": "999999999999999999999",
+      "value": {
+        "bits": "444b1ae4d6e2ef50",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "103",
+      "source": "-999999999999999999999",
+      "value": {
+        "bits": "c44b1ae4d6e2ef50",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "104",
+      "source": "[1,{\"n\":999999999999999999999},-999999999999999999999]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "444b1ae4d6e2ef50",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c44b1ae4d6e2ef50",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "105",
+      "source": "{999999999999999999999:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49,
+              101,
+              43,
+              50,
+              49
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "106",
+      "source": "1000000000000000000000",
+      "value": {
+        "bits": "444b1ae4d6e2ef50",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "107",
+      "source": "-1000000000000000000000",
+      "value": {
+        "bits": "c44b1ae4d6e2ef50",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "108",
+      "source": "[1,{\"n\":1000000000000000000000},-1000000000000000000000]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "444b1ae4d6e2ef50",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c44b1ae4d6e2ef50",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "109",
+      "source": "{1000000000000000000000:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49,
+              101,
+              43,
+              50,
+              49
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "110",
+      "source": "1000000000000000000001",
+      "value": {
+        "bits": "444b1ae4d6e2ef50",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "111",
+      "source": "-1000000000000000000001",
+      "value": {
+        "bits": "c44b1ae4d6e2ef50",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "112",
+      "source": "[1,{\"n\":1000000000000000000001},-1000000000000000000001]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "444b1ae4d6e2ef50",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c44b1ae4d6e2ef50",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "113",
+      "source": "{1000000000000000000001:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49,
+              101,
+              43,
+              50,
+              49
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "114",
+      "source": "9999999999999999999999",
+      "value": {
+        "bits": "4480f0cf064dd592",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "115",
+      "source": "-9999999999999999999999",
+      "value": {
+        "bits": "c480f0cf064dd592",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "116",
+      "source": "[1,{\"n\":9999999999999999999999},-9999999999999999999999]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "4480f0cf064dd592",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c480f0cf064dd592",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "117",
+      "source": "{9999999999999999999999:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49,
+              101,
+              43,
+              50,
+              50
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "118",
+      "source": "10000000000000000000000",
+      "value": {
+        "bits": "4480f0cf064dd592",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "119",
+      "source": "-10000000000000000000000",
+      "value": {
+        "bits": "c480f0cf064dd592",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "120",
+      "source": "[1,{\"n\":10000000000000000000000},-10000000000000000000000]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "4480f0cf064dd592",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c480f0cf064dd592",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "121",
+      "source": "{10000000000000000000000:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49,
+              101,
+              43,
+              50,
+              50
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "122",
+      "source": "10000000000000000000001",
+      "value": {
+        "bits": "4480f0cf064dd592",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "123",
+      "source": "-10000000000000000000001",
+      "value": {
+        "bits": "c480f0cf064dd592",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "124",
+      "source": "[1,{\"n\":10000000000000000000001},-10000000000000000000001]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "4480f0cf064dd592",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "c480f0cf064dd592",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "125",
+      "source": "{10000000000000000000001:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49,
+              101,
+              43,
+              50,
+              50
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "126",
+      "source": "9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999",
+      "value": {
+        "bits": "54b249ad2594c37d",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "127",
+      "source": "-9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999",
+      "value": {
+        "bits": "d4b249ad2594c37d",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "128",
+      "source": "[1,{\"n\":9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999},-9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "54b249ad2594c37d",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "d4b249ad2594c37d",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "129",
+      "source": "{9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49,
+              101,
+              43,
+              49,
+              48,
+              48
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "130",
+      "source": "10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "value": {
+        "bits": "54b249ad2594c37d",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "131",
+      "source": "-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "value": {
+        "bits": "d4b249ad2594c37d",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "132",
+      "source": "[1,{\"n\":10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000},-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "54b249ad2594c37d",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "d4b249ad2594c37d",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "133",
+      "source": "{10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49,
+              101,
+              43,
+              49,
+              48,
+              48
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "134",
+      "source": "10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "value": {
+        "bits": "54b249ad2594c37d",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "135",
+      "source": "-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "value": {
+        "bits": "d4b249ad2594c37d",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "136",
+      "source": "[1,{\"n\":10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001},-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "54b249ad2594c37d",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "d4b249ad2594c37d",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "137",
+      "source": "{10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49,
+              101,
+              43,
+              49,
+              48,
+              48
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "138",
+      "source": "99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999",
+      "value": {
+        "bits": "7fe1ccf385ebc8a0",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "139",
+      "source": "-99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999",
+      "value": {
+        "bits": "ffe1ccf385ebc8a0",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "140",
+      "source": "[1,{\"n\":99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999},-99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "7fe1ccf385ebc8a0",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "ffe1ccf385ebc8a0",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "141",
+      "source": "{99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49,
+              101,
+              43,
+              51,
+              48,
+              56
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "142",
+      "source": "100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "value": {
+        "bits": "7fe1ccf385ebc8a0",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "143",
+      "source": "-100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "value": {
+        "bits": "ffe1ccf385ebc8a0",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "144",
+      "source": "[1,{\"n\":100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000},-100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "7fe1ccf385ebc8a0",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "ffe1ccf385ebc8a0",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "145",
+      "source": "{100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49,
+              101,
+              43,
+              51,
+              48,
+              56
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "146",
+      "source": "100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "value": {
+        "bits": "7fe1ccf385ebc8a0",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "147",
+      "source": "-100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "value": {
+        "bits": "ffe1ccf385ebc8a0",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "148",
+      "source": "[1,{\"n\":100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001},-100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "7fe1ccf385ebc8a0",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "ffe1ccf385ebc8a0",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "149",
+      "source": "{100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49,
+              101,
+              43,
+              51,
+              48,
+              56
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "150",
+      "source": "999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999",
+      "value": {
+        "bits": "7ff0000000000000",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "151",
+      "source": "-999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999",
+      "value": {
+        "bits": "fff0000000000000",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "152",
+      "source": "[1,{\"n\":999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999},-999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "7ff0000000000000",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "fff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "153",
+      "source": "{999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              73,
+              110,
+              102,
+              105,
+              110,
+              105,
+              116,
+              121
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "154",
+      "source": "1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "value": {
+        "bits": "7ff0000000000000",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "155",
+      "source": "-1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "value": {
+        "bits": "fff0000000000000",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "156",
+      "source": "[1,{\"n\":1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000},-1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "7ff0000000000000",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "fff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "157",
+      "source": "{1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              73,
+              110,
+              102,
+              105,
+              110,
+              105,
+              116,
+              121
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "158",
+      "source": "1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "value": {
+        "bits": "7ff0000000000000",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "159",
+      "source": "-1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "value": {
+        "bits": "fff0000000000000",
+        "elements": [],
+        "isNil": false,
+        "kind": "Number",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "160",
+      "source": "[1,{\"n\":1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001},-1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [
+              {
+                "key": [
+                  110
+                ],
+                "value": {
+                  "bits": "7ff0000000000000",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "Number",
+                  "properties": [],
+                  "units": []
+                }
+              }
+            ],
+            "units": []
+          },
+          {
+            "bits": "fff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "161",
+      "source": "{1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001:true}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              73,
+              110,
+              102,
+              105,
+              110,
+              105,
+              116,
+              121
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "True",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "162",
+      "source": "{\"a\":1 \"b\":\"\\xG\"}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              97
+            ],
+            "value": {
+              "bits": "3ff0000000000000",
+              "elements": [],
+              "isNil": false,
+              "kind": "Number",
+              "properties": [],
+              "units": []
+            }
+          },
+          {
+            "key": [
+              98
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                92,
+                120,
+                71
+              ]
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "163",
+      "source": "{\"😀\":1 \"b\":\"\\xG\"}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              55357,
+              56832
+            ],
+            "value": {
+              "bits": "3ff0000000000000",
+              "elements": [],
+              "isNil": false,
+              "kind": "Number",
+              "properties": [],
+              "units": []
+            }
+          },
+          {
+            "key": [
+              98
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                92,
+                120,
+                71
+              ]
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "164",
+      "source": "{\"a\":1 \"\\xG\":\"\\uZZZZ\"}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              97
+            ],
+            "value": {
+              "bits": "3ff0000000000000",
+              "elements": [],
+              "isNil": false,
+              "kind": "Number",
+              "properties": [],
+              "units": []
+            }
+          },
+          {
+            "key": [
+              92,
+              120,
+              71
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                92,
+                117,
+                90,
+                90,
+                90,
+                90
+              ]
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "165",
+      "source": "{\"😀\":1 \"\\xG\":\"\\uZZZZ\"}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              55357,
+              56832
+            ],
+            "value": {
+              "bits": "3ff0000000000000",
+              "elements": [],
+              "isNil": false,
+              "kind": "Number",
+              "properties": [],
+              "units": []
+            }
+          },
+          {
+            "key": [
+              92,
+              120,
+              71
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                92,
+                117,
+                90,
+                90,
+                90,
+                90
+              ]
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "166",
+      "source": "{\"a\":\"\\xG\" \"b\":2}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              97
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                92,
+                120,
+                71
+              ]
+            }
+          },
+          {
+            "key": [
+              98
+            ],
+            "value": {
+              "bits": "4000000000000000",
+              "elements": [],
+              "isNil": false,
+              "kind": "Number",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "167",
+      "source": "{\"😀\":\"\\xG\" \"b\":2}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              55357,
+              56832
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                92,
+                120,
+                71
+              ]
+            }
+          },
+          {
+            "key": [
+              98
+            ],
+            "value": {
+              "bits": "4000000000000000",
+              "elements": [],
+              "isNil": false,
+              "kind": "Number",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "168",
+      "source": "{\"a\":1 \"b\":\"\\xG\" \"c\":\"\\uZZZZ\"}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              97
+            ],
+            "value": {
+              "bits": "3ff0000000000000",
+              "elements": [],
+              "isNil": false,
+              "kind": "Number",
+              "properties": [],
+              "units": []
+            }
+          },
+          {
+            "key": [
+              98
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                92,
+                120,
+                71
+              ]
+            }
+          },
+          {
+            "key": [
+              99
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                92,
+                117,
+                90,
+                90,
+                90,
+                90
+              ]
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "169",
+      "source": "{\"😀\":1 \"b\":\"\\xG\" \"c\":\"\\uZZZZ\"}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              55357,
+              56832
+            ],
+            "value": {
+              "bits": "3ff0000000000000",
+              "elements": [],
+              "isNil": false,
+              "kind": "Number",
+              "properties": [],
+              "units": []
+            }
+          },
+          {
+            "key": [
+              98
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                92,
+                120,
+                71
+              ]
+            }
+          },
+          {
+            "key": [
+              99
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                92,
+                117,
+                90,
+                90,
+                90,
+                90
+              ]
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "170",
+      "source": "{\"a\":1 \"\\uZZZZ\":2}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              97
+            ],
+            "value": {
+              "bits": "3ff0000000000000",
+              "elements": [],
+              "isNil": false,
+              "kind": "Number",
+              "properties": [],
+              "units": []
+            }
+          },
+          {
+            "key": [
+              92,
+              117,
+              90,
+              90,
+              90,
+              90
+            ],
+            "value": {
+              "bits": "4000000000000000",
+              "elements": [],
+              "isNil": false,
+              "kind": "Number",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "171",
+      "source": "{\"😀\":1 \"\\uZZZZ\":2}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              55357,
+              56832
+            ],
+            "value": {
+              "bits": "3ff0000000000000",
+              "elements": [],
+              "isNil": false,
+              "kind": "Number",
+              "properties": [],
+              "units": []
+            }
+          },
+          {
+            "key": [
+              92,
+              117,
+              90,
+              90,
+              90,
+              90
+            ],
+            "value": {
+              "bits": "4000000000000000",
+              "elements": [],
+              "isNil": false,
+              "kind": "Number",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "172",
+      "source": "{\"a\":[\"\\xG\"] \"b\":\"\\uZZZZ\"}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              97
+            ],
+            "value": {
+              "bits": "",
+              "elements": [
+                {
+                  "bits": "",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "String",
+                  "properties": [],
+                  "units": [
+                    92,
+                    120,
+                    71
+                  ]
+                }
+              ],
+              "isNil": false,
+              "kind": "Array",
+              "properties": [],
+              "units": []
+            }
+          },
+          {
+            "key": [
+              98
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                92,
+                117,
+                90,
+                90,
+                90,
+                90
+              ]
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "173",
+      "source": "{\"😀\":[\"\\xG\"] \"b\":\"\\uZZZZ\"}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              55357,
+              56832
+            ],
+            "value": {
+              "bits": "",
+              "elements": [
+                {
+                  "bits": "",
+                  "elements": [],
+                  "isNil": false,
+                  "kind": "String",
+                  "properties": [],
+                  "units": [
+                    92,
+                    120,
+                    71
+                  ]
+                }
+              ],
+              "isNil": false,
+              "kind": "Array",
+              "properties": [],
+              "units": []
+            }
+          },
+          {
+            "key": [
+              98
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                92,
+                117,
+                90,
+                90,
+                90,
+                90
+              ]
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "174",
+      "source": "{\"a\":1 'b':\"\\xG\"}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              97
+            ],
+            "value": {
+              "bits": "3ff0000000000000",
+              "elements": [],
+              "isNil": false,
+              "kind": "Number",
+              "properties": [],
+              "units": []
+            }
+          },
+          {
+            "key": [
+              98
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                92,
+                120,
+                71
+              ]
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "175",
+      "source": "{\"😀\":1 'b':\"\\xG\"}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              55357,
+              56832
+            ],
+            "value": {
+              "bits": "3ff0000000000000",
+              "elements": [],
+              "isNil": false,
+              "kind": "Number",
+              "properties": [],
+              "units": []
+            }
+          },
+          {
+            "key": [
+              98
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                92,
+                120,
+                71
+              ]
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "176",
+      "source": "{\"a\":1 \"b\":{\"c\":2 \"d\":\"\\xG\"}}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              97
+            ],
+            "value": {
+              "bits": "3ff0000000000000",
+              "elements": [],
+              "isNil": false,
+              "kind": "Number",
+              "properties": [],
+              "units": []
+            }
+          },
+          {
+            "key": [
+              98
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "Object",
+              "properties": [
+                {
+                  "key": [
+                    99
+                  ],
+                  "value": {
+                    "bits": "4000000000000000",
+                    "elements": [],
+                    "isNil": false,
+                    "kind": "Number",
+                    "properties": [],
+                    "units": []
+                  }
+                },
+                {
+                  "key": [
+                    100
+                  ],
+                  "value": {
+                    "bits": "",
+                    "elements": [],
+                    "isNil": false,
+                    "kind": "String",
+                    "properties": [],
+                    "units": [
+                      92,
+                      120,
+                      71
+                    ]
+                  }
+                }
+              ],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "177",
+      "source": "{\"😀\":1 \"b\":{\"c\":2 \"d\":\"\\xG\"}}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              55357,
+              56832
+            ],
+            "value": {
+              "bits": "3ff0000000000000",
+              "elements": [],
+              "isNil": false,
+              "kind": "Number",
+              "properties": [],
+              "units": []
+            }
+          },
+          {
+            "key": [
+              98
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "Object",
+              "properties": [
+                {
+                  "key": [
+                    99
+                  ],
+                  "value": {
+                    "bits": "4000000000000000",
+                    "elements": [],
+                    "isNil": false,
+                    "kind": "Number",
+                    "properties": [],
+                    "units": []
+                  }
+                },
+                {
+                  "key": [
+                    100
+                  ],
+                  "value": {
+                    "bits": "",
+                    "elements": [],
+                    "isNil": false,
+                    "kind": "String",
+                    "properties": [],
+                    "units": [
+                      92,
+                      120,
+                      71
+                    ]
+                  }
+                }
+              ],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "178",
+      "source": "[null]",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": true,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "179",
+      "source": "[null,null]",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": true,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "180",
+      "source": "[null,1,null,false,null,\"\"]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "3ff0000000000000",
+            "elements": [],
+            "isNil": false,
+            "kind": "Number",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "False",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "String",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "181",
+      "source": "[[null],null,[]]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": true,
+            "kind": "Array",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Array",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "182",
+      "source": "{\"\":1,\"b\":2,\"a\":1,\"b\":3,\"a\":4}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              98
+            ],
+            "value": {
+              "bits": "4008000000000000",
+              "elements": [],
+              "isNil": false,
+              "kind": "Number",
+              "properties": [],
+              "units": []
+            }
+          },
+          {
+            "key": [
+              97
+            ],
+            "value": {
+              "bits": "4010000000000000",
+              "elements": [],
+              "isNil": false,
+              "kind": "Number",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "183",
+      "source": "{\"\\uD800\":\"\\uDC00\",\"\":\"drop\"}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              55296
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "String",
+              "properties": [],
+              "units": [
+                56320
+              ]
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "184",
+      "source": "{1:true,\"1\":false,\"01\":null}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              49
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "False",
+              "properties": [],
+              "units": []
+            }
+          },
+          {
+            "key": [
+              48,
+              49
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "Null",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "185",
+      "source": "{'a':1,a:2}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              97
+            ],
+            "value": {
+              "bits": "4000000000000000",
+              "elements": [],
+              "isNil": false,
+              "kind": "Number",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "186",
+      "source": "[{},null,{},null]",
+      "value": {
+        "bits": "",
+        "elements": [
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [],
+            "units": []
+          },
+          {
+            "bits": "",
+            "elements": [],
+            "isNil": false,
+            "kind": "Object",
+            "properties": [],
+            "units": []
+          }
+        ],
+        "isNil": false,
+        "kind": "Array",
+        "properties": [],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "187",
+      "source": "{\"a\":null,\"b\":[null],\"c\":[]}",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "Object",
+        "properties": [
+          {
+            "key": [
+              97
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "Null",
+              "properties": [],
+              "units": []
+            }
+          },
+          {
+            "key": [
+              98
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": true,
+              "kind": "Array",
+              "properties": [],
+              "units": []
+            }
+          },
+          {
+            "key": [
+              99
+            ],
+            "value": {
+              "bits": "",
+              "elements": [],
+              "isNil": false,
+              "kind": "Array",
+              "properties": [],
+              "units": []
+            }
+          }
+        ],
+        "units": []
+      }
+    },
+    {
+      "diagnostics": [],
+      "id": "188",
+      "source": " /* empty */ ",
+      "value": {
+        "bits": "",
+        "elements": [],
+        "isNil": false,
+        "kind": "EmptySource",
+        "properties": [],
+        "units": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+✔ a real config syntax error remains MATCH_DIAGNOSTICS and never clean MATCH (2.03479ms)
+✔ selected content and rooted context mismatches cannot earn value matches (0.733651ms)
+✔ changed converted values or extra conversion errors remain mismatches (0.596633ms)
+✔ absent, unsupported and panic outcomes cannot earn matches (0.292142ms)
+✔ missing, repeated or reordered actual identities reject the profile (0.291962ms)
+✔ post-completion truncation of a complete value profile is rejected (5.075964ms)
+✔ empty manifests never certify missing raw evidence (2.06093ms)
+✔ every required file remains required when its manifest entry and payload are deleted (7.392622ms)
+✔ shard counts cannot be reduced through a rehashed calls manifest (2.529489ms)
+✔ rehashed shard identities cannot diverge from selected config IDs (3.106893ms)
+✔ claimed report totals must reconcile to raw config outcomes (3.195277ms)
+✔ rehashed reference echoes still bind to exact parse requests (11.071381ms)
+✔ derived diagnostic and selected-skip counters cannot be forged (9.357887ms)
+✔ shared source-scope counters cannot disagree between reports (5.781192ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 207.230847

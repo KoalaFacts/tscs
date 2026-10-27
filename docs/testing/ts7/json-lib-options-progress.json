@@ -1,0 +1,13 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "profile": "convertJsonOption/lib-enum-list/compiler-only-and-source-node",
+  "declarationsRetained": 126,
+  "libAliases": 116,
+  "matchedHelperCases": 504,
+  "originalCompiler": "NOT_RUN",
+  "referenceCompiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "concreteCases": null,
+  "releaseEligible": false,
+  "evidence": "../../evidence/json-lib-options.json"
+}

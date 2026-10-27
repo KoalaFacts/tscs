@@ -1,4 +1,74 @@
+### 2026-10-27: multi-source script compilation, no original case accepted
+The C# compiler now parses multiple source files into separate ASTs and
+prebinds a bounded global script scope before primitive checking. A
+source-backed internal regression package verifies it; the 15,523
+registered upstream configuration placeholders remain independent and
+all SKIP(UNIMPLEMENTED), with 0 original TS7 acceptance PASS. The
+implementation-ledger source Git blob has been updated without
+changing implementation status. See [PORTING](../../PORTING.md).
+
+### 2026-10-27: actual pinned-Go original emptyFile probe; original tscs acceptance still NOT_RUN
+
+The dedicated [Go original-runner probe](../../progress/original-emptyfile-go-reference.md) executes `TestLocal/emptyFile.ts` at the immutable pinned Go TS7 commit and verifies exact expected nested JSON test events. It is **not** a synthetic placeholder result or a tscs product-side accepted target. Locally only 11 synthetic-event validator regressions and a CLI smoke passed; actual Go execution depends on new-head CI. Until the C# original configuration is independently exercised under all applicable checks, the full source-configuration catalogue remains 0 original accepted / 15,523 SKIP(UNIMPLEMENTED), with the full runtime denominator UNEXPANDED.
+
 # TS7 scope inventory: source declarations, not conformance
+
+### 2026-10-27: genuine bounded numeric unary plus; no original upstream credit
+
+The C# scanner/parser/checker now handle numeric unary `+` alongside existing unary `-`, with prefix precedence, iterative traversal, explicit nonnumeric unsupported behavior and a preserved lexical-error ordering regression. Test-only RED `a60be67`: **12 genuine failures**; implementation `76b50ef` introduced one genuine old-regression failure; correcting the unsupported-syntax sentinel and adding the positive lexical guard at `ce47cb1` produced a hosted strict **15,570/15,570** internal regression pass. Frozen 29-case differential remains a separate cohort and no new original Go oracle differential has run for unary `+`.
+
+**Original source/configuration acceptance remains 0/15,523**: all 15,523 original runner Fact placeholders stay `SKIP(UNIMPLEMENTED)` until actual fixed-Go compiler/referenceCompiler run and complete original baseline assertions establish PASS. The local 14-case guard ledger stays **8 implemented / 6 SKIP**, not an upstream denominator. 7 historical reference-fatals, 39 original upstream-skipped target metadata flags and all unexpanded dynamic domains remain. No release waiver is granted. [Evidence](../../evidence/numeric-unary-plus.json).
+
+
+### 2026-10-27: pinned original emptyFile ES2015 emit, not yet original runner acceptance
+
+The bootstrap CLI now accepts the exact, SHA-bound **comment-only**
+`tsc/testdata/tests/cases/compiler/emptyFile.ts` original target configuration
+without adding isolation overrides, and the C# regression compares the emitted
+`"use strict";\r\n` against the corresponding reference baseline from the
+locked upstream tree. Real hosted RED (1 new failure) and product-head GREEN
+(15,553 strict MTP passes) are recorded in
+[STATUS](../../STATUS.md). Existing unimplemented syntax still rejects, and
+an existing JavaScript output is never overwritten. Live pinned Go
+`TestLocal/emptyFile.ts`, complete original runner checkpoints and full
+configuration-target MTP assertion integration are **NOT_RUN**: this does
+**not** remove `configuration:c5f81e2689b2db32a694b7b3de45098f5d58941800bfe0683e2f68000e24c110`
+from its original `SKIP(UNIMPLEMENTED)` register. Original accepted stays 0,
+and `releaseEligible=false`.
+
+
+### 2026-10-27: actual full placeholder discovery and bounded `@ts-ignore`
+
+Both hosted verify jobs at product head `51993ce` compiled the exact 15,523-Fact
+standalone project and reconciled **15,523/15,523 discovered as
+SKIP(UNIMPLEMENTED), with 0 original compiler PASS**. This is the first
+actual .NET MTP full-placeholder discovery verification; prior NOT_RUN
+notes are historical and apply to the stated older heads. The separate local
+bootstrap guard catalogue moved `bootstrap:ts-ignore-directive` from
+SKIP(UNIMPLEMENTED) to IMPLEMENTED/upstream NOT_RUN after genuine bounded
+`// @ts-ignore` semantic suppression and 8 hosted test-first RED failures.
+It is now **8 implemented / 6 missing local probes**, not a full TS7 progress
+percentage. Original runtime-case expansion and full reference acceptance
+remain UNEXPANDED/NOT_RUN. [Evidence](../../evidence/ts-ignore-directive.json).
+
+### Source-bound 15,523-Fact archive committed for complete MTP discovery — 2026-10-27
+
+Twenty ordered binary fragments in `tests/Tscs.Upstream.Placeholders/packed/` reconstruct the original immutable 3,544,490-byte generated test archive at SHA-256 `e45e033d458a318b792777f7d141973e5d457f4f9e1f04801cb4bcf3a6e4512b`. The separate `scripts/verify-upstream-full-discovery.sh` now runs in CI after the strict internal gate and real one-test canary; `tools/materialize-upstream-placeholders.ts` validates the complete archive before extraction. The existing reviewed NuGet lock and fail-closed real CTRF reconciler are used for all 15,523 configuration targets, with raw logs retained as an Actions artifact. New-head hosted results must be read before a PASS claim; full original compiler/reference semantics and runtime variant expansion remain NOT_RUN/UNEXPANDED. [Details](../../progress/upstream-placeholder-full-discovery.md).
+
+### Pinned standalone xUnit4/MTP2 project lock — 2026-10-27
+
+The [reviewed standalone lock](../../progress/upstream-placeholder-lock.md) pins the existing 16-package graph and is copied into an extracted configuration-placeholder bundle only after full source/ID integrity checks. CI has a one-target genuine-source MTP canary in a separate test project (not counted as original TypeScript acceptance) after the unchanged strict internal `--fail-skips on` gate. The whole 15,523-Fact MTP discovery is still NOT_RUN until the immutable Library archive is supplied in an SDK-backed environment. Its SKIPs must never count as implementation PASS.
+
+
+### Separate xUnit/MTP discovery lane (2026-10-27)
+
+[Discovery reconciler and optional runner](../../progress/upstream-placeholder-discovery.md) validate generated xUnit CTRF results against all 15,523 original configuration IDs and source paths. **Node11/11** and a **synthetic-only full-inventory** check have passed; the actual 63-shard .NET discovery remains **NOT_RUN/BLOCKED** (no standalone reviewed package lock), not upstream compiler PASS. Internal `--fail-skips on` remains unchanged.
+
+
+## Implementation-aware SKIP classification — 2026-10-26
+
+A separate [machine-readable catalogue](implementation-coverage.json) classifies fourteen **existing local compiler guard probes**: 7 implemented but upstream NOT_RUN, and 7 explicitly SKIP with reason UNIMPLEMENTED (4 missing capabilities). All 14 are bound to named xUnit theory inputs and their original Git blob; the unsupported-feature guard tests continue to execute and never count as implemented compatibility. CI validates this separate ledger without removing the xUnit --fail-skips on gate. The numeric-addition and numeric-postfix local SKIPs were removed after an actual C# scanner/parser/checker change; this is not general binary expression coverage. The local probe catalogue is **not 14 expanded upstream tests**; complete upstream executable cases and their acceptance remain unknown/NOT_RUN, so the full release gate is unchanged. See [scope and restrictions](../../progress/implementation-coverage.md).
+
 
 The release goal is unchanged: **every test in the pinned TS7 scope must be accounted
 for and accepted, with no missing cases**. This first slice does not meet that goal.
@@ -289,3 +359,68 @@ The later [mixed diagnostic-order correction](../../progress/json-diagnostic-ord
 adds16 actual-Go JSON parser cases and two CLI regressions. It changes event
 ordering within the bounded parser; it does not rerun or upgrade the historical
 full source profile, effective options or original compiler acceptance.
+
+The [config value conversion slice](../../progress/config-values.md) adds189
+actual-Go convertToObject vectors. It does not expand original compiler acceptance
+or rerun the full source profiles; option callbacks/effective config remain unrun.
+
+## Source-backed config values
+
+```sh
+node tools/compare-source-config-values.ts PINNED_CHECKOUT INVENTORY NEW_OUTPUT
+```
+
+Fresh actual Go raw selection retains all13006 source identities; selected172
+configs pass through actual Go ParseSourceFile/convertToObject and the product
+C# parser/converter JSONL.171 MATCH and1 MATCH_DIAGNOSTICS; the original TS1005
+forces tool exit1.12834 no-config sources receive no C# value/compiler credit.
+All42 skips/8 non-raw-UTF8 sources and3 selected skips remain recorded. This is
+pre-VFS/no-notifier only, not effective options or compiler acceptance. See
+[source value progress](source-config-values-progress.json), the172-record
+[source/config ledger](source-config-values-configs.jsonl), and
+[scope/evidence](../../progress/source-config-values.md).
+
+The [config-value evidence omission correction](../../progress/config-value-integrity.md)
+requires complete artifacts, bound reference echoes and reconciled counters.
+This strengthens historical verification without rerunning or upgrading its
+compiler acceptance scope.
+
+The [product option shape predicate](../../progress/json-option-types.md) adds
+1806 actual-Go helper rows and a CLI null-boolean override regression. These
+are not complete option conversion, effective configuration or compiler passes.
+
+The [primitive config option converter](../../progress/json-scalar-options.md)
+runs3000 actual-Go conversion cases across100 declarations; all126 are retained
+in its inventory and26 path/locale/list/enum branches are explicitly outside this
+slice. This is not effective options or original compiler acceptance. CLI boolean
+errors now use config diagnostics, retaining the bootstrap runtime limitations.
+
+The [primitive-element list slice](../../progress/json-list-options.md) adds160
+actual-Go list conversions for types/moduleSuffixes/customConditions/plugins.
+All126 declarations remain registered, with122 outside this bounded list branch.
+No new CLI option support or original compiler acceptance is claimed.
+
+The [enum option slice](../../progress/json-enum-options.md) executes324 actual-Go
+conversions, using six production-embedded maps with pinned Unicode lowercase.
+All126 declarations remain inventoried. This adds CLI target error diagnostics,
+not new target/compiler capability or effective config/host acceptance.
+
+The [lib enum-list integration](../../progress/json-lib-options.md) connects116
+actual library aliases to filenames across504 actual-Go conversions. It preserves
+all126 option declaration identities and original scope. This converts metadata;
+it does not load standard libraries or establish CLI/effective-config acceptance.
+
+## Declaration-driven option map
+
+`node tools/compare-source-config-options.ts PINNED_CHECKOUT NEW_OUTPUT` freshly
+runs actual Go convertOptionsFromJson with a recording optionParser and C# fixture
+preparation/production dispatch. It binds the historical172 selected config
+inputs to fixed source blobs/cohortSHA; it does not rerun full13006 Go selection.
+90 MATCH/8 MATCH_DIAGNOSTICS/74 UNSUPPORTED, all3 selected upstream skips retained.
+Exit1 is intentional while diagnostics/unsupported policies remain.19 immutable
+raw artifacts/profile include six actual shards (five32-request, one12-request) with IDs/counts/hashes.
+The product retains all126 declarations;15 path/locale policies stay unsupported.
+316 whole-map golden inputs include selected sources, mixed scenarios and one
+input per declaration position;226 complete comparisons,90 unsupported cases.
+This records ParseOption calls, not typed options/defaults/notifier/host or compiler
+acceptance. See [scope/evidence](../../progress/json-options-map.md).

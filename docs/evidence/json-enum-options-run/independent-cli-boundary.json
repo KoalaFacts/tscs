@@ -1,0 +1,44 @@
+[
+  {
+    "target": "es6",
+    "expectedExit": 0,
+    "actualExit": 0,
+    "stdout": "{\"diagnostics\":[],\"exitCode\":0}\n",
+    "stderr": ""
+  },
+  {
+    "target": "ES2015",
+    "expectedExit": 0,
+    "actualExit": 0,
+    "stdout": "{\"diagnostics\":[],\"exitCode\":0}\n",
+    "stderr": ""
+  },
+  {
+    "target": "es2025",
+    "expectedExit": 1,
+    "actualExit": 1,
+    "stdout": "{\"diagnostics\":[{\"code\":\"TSCS1002\",\"category\":\"error\",\"file\":\"\",\"start\":0,\"length\":0,\"message\":\"Only target es2015/es6 is supported by the bootstrap.\",\"related\":[],\"messageChain\":[]}],\"exitCode\":1}\n",
+    "stderr": ""
+  },
+  {
+    "target": "esnext",
+    "expectedExit": 1,
+    "actualExit": 1,
+    "stdout": "{\"diagnostics\":[{\"code\":\"TSCS1002\",\"category\":\"error\",\"file\":\"\",\"start\":0,\"length\":0,\"message\":\"Only target es2015/es6 is supported by the bootstrap.\",\"related\":[],\"messageChain\":[]}],\"exitCode\":1}\n",
+    "stderr": ""
+  },
+  {
+    "target": null,
+    "expectedExit": 1,
+    "actualExit": 1,
+    "stdout": "{\"diagnostics\":[{\"code\":\"TSCS1002\",\"category\":\"error\",\"file\":\"\",\"start\":0,\"length\":0,\"message\":\"Only target es2015/es6 is supported by the bootstrap.\",\"related\":[],\"messageChain\":[]}],\"exitCode\":1}\n",
+    "stderr": ""
+  },
+  {
+    "target": "",
+    "expectedExit": 1,
+    "actualExit": 1,
+    "stdout": "{\"diagnostics\":[{\"code\":\"TSCS1002\",\"category\":\"error\",\"file\":\"\",\"start\":0,\"length\":0,\"message\":\"Only target es2015/es6 is supported by the bootstrap.\",\"related\":[],\"messageChain\":[]}],\"exitCode\":1}\n",
+    "stderr": ""
+  }
+]

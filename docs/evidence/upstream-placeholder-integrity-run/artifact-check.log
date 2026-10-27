@@ -1,0 +1,3 @@
+(node:642) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"sources":13006,"targets":15523,"skippedUnimplemented":15523,"blockedSources":7,"upstreamSkippedSources":42,"upstreamSkippedTargetMetadata":39}

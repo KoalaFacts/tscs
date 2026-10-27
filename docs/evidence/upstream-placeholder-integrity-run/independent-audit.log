@@ -1,0 +1,3 @@
+independent_python_checked 15523 source_targets; class_shards 63 facts 15523
+by_runner {'ORIGINAL_COMPILER_RUNNER': 15495, 'ORIGINAL_TRANSPILE_RUNNER': 28}
+source_hash c1c4077d732ae859ad70899ac3fd85fc25f9eff1c99737f3e36aa806b5c2742e

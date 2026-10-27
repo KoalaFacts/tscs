@@ -1,0 +1,34 @@
+Independent read-only review: bounded config value conversion
+
+Baseline HEAD: 81f84ff40dc1e746c8f924332b5808517f467ed7 (working tree changes reviewed).
+Conclusion: no important correctness findings in the stated bounded AST domain.
+
+Code review proofs:
+- Compared JsonConfigValues.cs with pinned upstream tsconfigparsing.go functions at lines 595, 677, 729, 753, 854. The true/false/null/string/number, minus numeric, array, object, and empty-source branches agree with returnValue=true / nil notifier behavior for ASTs produced by the bounded parser.
+- Array filtering removes only scalar null, retains nested typed nil arrays, and distinguishes literal [] from nonempty all-null arrays. This matches upstream []any{} vs var value []any and interface != nil behavior.
+- Empty property names are dropped after recursively converting their value. OrderedMap.Set overwrites values without moving existing keys; the indexed List plus Ordinal Dictionary follows that behavior.
+- Strings and keys are compared as UTF16 units, numbers as exact binary64 hex bits. The oracle uses DecodeJSStringRune rather than lossy ordinary Go UTF8 conversion. Infinity/-Infinity and -0 cases are represented without JSON numeric normalization.
+- Upstream convertToObject calls private convertToJson directly with true/nil; the Go probe is in package tsoptions and calls the actual private function. No reimplementation provides expected converted values.
+- All 178 prior json-ast sources are retained in order; 11 focused cases are appended. Generator checks exact tracked-clean compiler pin, Go1.27.3, source/id/length/unique-id binding, and writes function/probe provenance hashes.
+- Converter diagnostics are zero for this supported domain by inspection of upstream branches; parser diagnostics are deliberately separate. The test's empty expected conversion-diagnostic assertion does not establish general diagnostic recovery support.
+- CLI changes call conversion only for existing supported boolean values and target string. Duplicate/files policy and unsupported options are still explicit. This is not effective-options, config host, discovery, inheritance, or full runtime/compiler acceptance.
+- Bounds live in JsonSyntax.Parse (1,000,000 UTF16 code units, depth check >128) and grammar checks. JsonConfigValues.Convert assumes that parser-owned supported AST; it is not independently a validation/safety boundary for arbitrary manually constructed nodes.
+
+Independent execution (repo cwd, source files untouched):
+1. env DOTNET_CLI_TELEMETRY_OPTOUT=1 XDG_CONFIG_HOME=/tmp/tscs-offline-config GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local PATH=/tmp/tscs-go/go/bin:$PATH TSCS_STRING_LOG=/tmp/tscs-config-values-review/go.log node tools/generate-config-values.ts .artifacts/ts7-upstream /tmp/tscs-config-values-review/config-values.json
+   Exit 0; actual Go oracle succeeds, 189 vectors. cmp against checked-in candidate exits0; bytes identical.
+2. env DOTNET_CLI_TELEMETRY_OPTOUT=1 XDG_CONFIG_HOME=/tmp/tscs-offline-config /tmp/tscs-dotnet/dotnet build Tscs.slnx --no-restore -c Release -m:1 /nodeReuse:false /p:UseSharedCompilation=false
+   Exit0; 0 warnings, 0 errors. build-serial.log.
+3. env DOTNET_CLI_TELEMETRY_OPTOUT=1 XDG_CONFIG_HOME=/tmp/tscs-offline-config /tmp/tscs-dotnet/dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll
+   Exit0 after independent build; 8949 total, 8949 passed, 0 failed/skipped. tests-after-build.log.
+4. Python assertions: all178 prior sources match in order; 189 vectors; all conversion diagnostics empty; regenerated fixture bytes equal candidate.
+
+Evidence limitations:
+- Existing stub-RED log read: 189 failed / 8760 passed; not independently recreated because this was a read-only source review.
+- Initial default parallel dotnet build --no-restore -c Release exited1 with Build FAILED and 0 warnings/errors; cause not diagnosed. Retained build.log. Explicit serial build succeeded independently, as above.
+- One first test invocation failed before launch because its redirected log directory did not yet exist; corrected test invocation and post-build rerun both passed. No source change resulted.
+- Finite vector parity and source inspection establish this bounded conversion work; they do not prove complete JSON grammar or broader config/compiler compatibility.
+
+Artifacts: go.log, generate.log, config-values.json (independent regeneration), build.log (unsuccessful initial build), build-serial.log (success), tests.log and tests-after-build.log.
+
+Fixture SHA256: 0fd665cb283014fb3e3088b4db3cfdb3d6f6603a7145078e0ae7ebbd65bad5fd

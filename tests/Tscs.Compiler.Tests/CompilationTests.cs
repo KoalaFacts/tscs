@@ -8,6 +8,10 @@ public class CompilationTests
     [InlineData("const s: string = \"ok\";")]
     [InlineData("let b: boolean = true;")]
     [InlineData("let x: number = 1; { let x: string = \"ok\"; } x = 2;")]
+    [InlineData("let n: any = 1;")]
+    [InlineData("let n = 1; n++;")]
+    [InlineData("let n = 1 + 2;")]
+    [InlineData("// @ts-ignore\nlet n: number = \"x\";")]
     public void ValidPrimitiveCodeHasNoErrors(string source) => Assert.Empty(Compilation.Check("test.ts", source));
     [Theory]
     [InlineData("let n: number = \"x\";", "TS2322", 4, 1)]
@@ -24,12 +28,46 @@ public class CompilationTests
     }
     [Theory]
     [InlineData("let n = 1; function f() {}")]
-    [InlineData("let n = 1; n++;")]
-    [InlineData("let n = 1 + 2;")]
-    [InlineData("// @ts-ignore\nlet n: number = \"x\";")]
-    [InlineData("let n: any = 1;")]
     [InlineData("const a = { x: 1 };")]
     public void UnsupportedSyntaxNeverSucceeds(string source) => Assert.Contains(Compilation.Check("test.ts",source),d=>d.Code=="TSCS1001");
+
+    [Theory]
+    [InlineData("let n: any = 1; n = \"x\";")]
+    [InlineData("let n: any = \"x\"; n = false;")]
+    [InlineData("let n: any = 1; let s: string = n;")]
+    [InlineData("let n: number = 1; let a: any = n;")]
+    [InlineData("let n: any = 1; let b: boolean = n;")]
+    public void BoundedAnyVariableAssignmentsAreAssignable(string source) =>
+        Assert.Empty(Compilation.Check("test.ts", source));
+
+    [Fact]
+    public void AnyAnnotatedConstantStillCannotBeReassigned() =>
+        Assert.Equal("TS2588", Assert.Single(Compilation.Check("test.ts", "const n: any = 1; n = 2;")).Code);
+
+
+    [Theory]
+    [InlineData("let n: number = 1; n++;")]
+    [InlineData("let n = 1; n++; n++;")]
+    [InlineData("let n = 1; { let x: number = 2; x++; } n++;")]
+    [InlineData("let n = 1; n++;\nlet m: number = n;")]
+    [InlineData("let n = 1; n++")]
+    [InlineData("let n = 1; n++; n = 2;")]
+    public void NumericPostfixUpdatesAreWritable(string source) =>
+        Assert.Empty(Compilation.Check("test.ts", source));
+
+    [Fact]
+    public void PostfixConstantUpdateReportsTs2588() =>
+        Assert.Equal("TS2588", Assert.Single(Compilation.Check("test.ts", "const n = 1; n++;")).Code);
+
+    [Theory]
+    [InlineData("let s: string = \"x\"; s++;")]
+    [InlineData("let b: boolean = true; b++;")]
+    [InlineData("let n = 1; ++n;")]
+    [InlineData("let n = 1; let m = n++;")]
+    [InlineData("let n = 1; n++ + 2;")]
+    public void UnsupportedPostfixBoundaryRemainsExplicit(string source) =>
+        Assert.Contains(Compilation.Check("test.ts", source), d => d.Code == "TSCS1001");
+
 }
 
 public class ParserBoundaryTests
@@ -98,4 +136,70 @@ public class IntrinsicBindingTests
     }
     [Fact] public void GlobalThisCannotBeShadowedAtRoot()=>Assert.Contains("TS2397",Compilation.Check("test.ts","let globalThis = 1;").Select(d=>d.Code));
     [Fact] public void GlobalThisCanBeShadowedInBlock()=>Assert.Empty(Compilation.Check("test.ts","{ let globalThis = 1; }"));
+}
+
+public class TsIgnoreDirectiveTests
+{
+    [Theory]
+    [InlineData("// @ts-ignore\nlet n: number = \"x\";")]
+    [InlineData("let n: number = 1;\n// @ts-ignore\nn = \"x\";")]
+    [InlineData("//@ts-ignore\r\nmissing;")]
+    [InlineData("  // @ts-ignore\nmissing;")]
+    [InlineData("// @ts-ignore\nconst n = 1; n = 2;")]
+    public void NextLineSemanticDiagnosticsAreSuppressed(string source) =>
+        Assert.Empty(Compilation.Check("test.ts", source));
+
+    [Theory]
+    [InlineData("// @ts-ignore\n\nlet n: number = \"x\";", "TS2322")]
+    [InlineData("// @ts-ignore\nlet n: number = 1;\nlet m: string = 2;", "TS2322")]
+    [InlineData("const s = \"// @ts-ignore\";\nlet n: number = \"x\";", "TS2322")]
+    public void SuppressionIsLimitedToTheImmediateNextLine(string source, string code) =>
+        Assert.Contains(Compilation.Check("test.ts", source), d => d.Code == code);
+
+    [Fact]
+    public void DirectiveDoesNotTurnSyntaxErrorsIntoSuccess() =>
+        Assert.Contains(Compilation.Check("test.ts", "// @ts-ignore\nlet n = ;"), d => d.Code == "TS1109");
+
+    [Theory]
+    [InlineData("// @ts-expect-error\nlet n: number = \"x\";")]
+    [InlineData("// @ts-ignoreExtra\nlet n: number = \"x\";")]
+    [InlineData("/* @ts-ignore */\nlet n: number = \"x\";")]
+    public void UnimplementedDirectiveVariantsRemainRejected(string source) =>
+        Assert.Contains(Compilation.Check("test.ts", source), d => d.Code == "TSCS1001");
+}
+
+public class MultiSourceProgramTests
+{
+    [Fact]
+    public void CrossFilePrimitiveGlobalResolutionIsOrderIndependent()
+    {
+        var sources=new[]
+        {
+            new SourceInput("use.ts","let result: number = shared;"),
+            new SourceInput("define.ts","let shared: number = 42;")
+        };
+        Assert.Empty(Compilation.CheckFiles(sources));
+        Assert.Empty(Compilation.CheckFiles(sources.Reverse().ToArray()));
+    }
+    [Fact]
+    public void MultiSourceMismatchHasOriginalSourceIdentityAndSpan()
+    {
+        var sources=new[]
+        {
+            new SourceInput("use.ts","let result: string = shared;"),
+            new SourceInput("define.ts","let shared: number = 42;")
+        };
+        var d=Assert.Single(Compilation.CheckFiles(sources));
+        Assert.Multiple(()=>Assert.Equal("TS2322",d.Code),()=>Assert.Equal("use.ts",d.File),()=>Assert.Equal(4,d.Start));
+    }
+    [Fact]
+    public void ComplexCrossFileInferenceFailsClosed()
+    {
+        var sources=new[]
+        {
+            new SourceInput("use.ts","let result: boolean = shared;"),
+            new SourceInput("define.ts","let shared = 1 + 2;")
+        };
+        Assert.Contains(Compilation.CheckFiles(sources),d=>d.Code=="TSCS1001");
+    }
 }

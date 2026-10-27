@@ -1,0 +1,13 @@
+{
+  "sourceCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "profile": "private-convertJsonOption/primitive-no-path-no-extra/compiler-and-file-node",
+  "declarationsRetained": 126,
+  "supportedDeclarations": 100,
+  "helperCasesMatched": 3000,
+  "originalCompiler": "NOT_RUN",
+  "referenceCompiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "concreteCases": null,
+  "releaseEligible": false,
+  "evidence": "../../evidence/json-scalar-options.json"
+}

@@ -1,0 +1,8 @@
+warning: --no-progress is deprecated; use --progress off instead.
+
+Test run summary: Passed! - /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+  total: 14936
+  failed: 0
+  succeeded: 14936
+  skipped: 0
+  duration: 4s 878ms

@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "repo": "KoalaFacts/tscs",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "scope": "BOUNDED_LOCAL_ANY_VARIABLE_ANNOTATION_NOT_UPSTREAM_COMPILER_ACCEPTANCE",
+  "testFirstRedCommit": "6e2d446731687de2c6e2081e3a827908ce4e8524",
+  "productGreenCommit": "00317a1f68733be1658750d304cd906bb48202f0",
+  "paths": [
+    "src/Tscs.Compiler/Parser.cs",
+    "src/Tscs.Compiler/TypeChecker.cs",
+    "tests/Tscs.Compiler.Tests/CompilationTests.cs",
+    "tests/implementation-coverage/registry.json"
+  ],
+  "statusTransition": {
+    "id": "bootstrap:any-annotation",
+    "before": "SKIP/UNIMPLEMENTED",
+    "after": "IMPLEMENTED/NOT_RUN",
+    "originalSource": "let n: any = 1;",
+    "removedSkipCount": 1,
+    "remainingSkips": 9,
+    "registeredLocalProbes": 14
+  },
+  "red": {
+    "testTotal": 15459,
+    "testPassed": 15452,
+    "testFailed": 7,
+    "testSkipped": 0,
+    "reason": "new bounded any cases report TSCS1001 because production annotation parser rejected any",
+    "bothVerifyJobs": "failure"
+  },
+  "green": {
+    "testTotal": 15459,
+    "testPassed": 15459,
+    "testFailed": 0,
+    "testSkipped": 0,
+    "node": {
+      "passed": 103,
+      "total": 103
+    },
+    "frozenDifferential": {
+      "passed": 29,
+      "total": 29
+    },
+    "standaloneGoScope": "PASS",
+    "releaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "hostedCheckRuns": {
+      "completedSuccess": 4,
+      "total": 4
+    }
+  },
+  "rawHostedLogs": [
+    {
+      "phase": "RED",
+      "path": "docs/evidence/any-annotation-run/red-verify-40292315634.log",
+      "gitBlob": "a88bddc069ea11b780e8e27ae4ae21bd1ecd0c3c",
+      "run": "40292315634",
+      "job": 121470024767,
+      "url": "https://github.com/KoalaFacts/tscs/actions/runs/40292315634/job/121470024767"
+    },
+    {
+      "phase": "RED",
+      "path": "docs/evidence/any-annotation-run/red-verify-40292308670.log",
+      "gitBlob": "d3a0a812bf448256887c15205bcd8e803cfb454e",
+      "run": "40292308670",
+      "job": 121470001168,
+      "url": "https://github.com/KoalaFacts/tscs/actions/runs/40292308670/job/121470001168"
+    },
+    {
+      "phase": "GREEN",
+      "path": "docs/evidence/any-annotation-run/green-verify-40293115392.log",
+      "gitBlob": "fd68516b7405d292c576d4185b2713ebfb971181",
+      "run": "40293115392",
+      "job": 121472625286,
+      "url": "https://github.com/KoalaFacts/tscs/actions/runs/40293115392/job/121472625286"
+    },
+    {
+      "phase": "GREEN",
+      "path": "docs/evidence/any-annotation-run/green-verify-40293108099.log",
+      "gitBlob": "ab345315059d632257b4f0e4e6a7e6b6c65b77e0",
+      "run": "40293108099",
+      "job": 121472601159,
+      "url": "https://github.com/KoalaFacts/tscs/actions/runs/40293108099/job/121472601159"
+    }
+  ],
+  "limits": [
+    "Full upstream compiler/reference compiler/acceptance NOT_RUN.",
+    "The bounded any variable annotation/primitive-assignment subset is not all TypeScript any semantics.",
+    "These 14 registered probes are local checks, not concrete upstream executable cases.",
+    "Frozen 29-case cohort mapping to full upstream scope remains unverified.",
+    "13,006 source fixtures and all unknown dynamic tests preserved; releaseEligible false."
+  ],
+  "upstreamOriginalCompilerAcceptedDelta": 0,
+  "releaseEligible": false
+}

@@ -5,8 +5,15 @@ namespace Tscs.Conformance;
 public static class FixtureConfigAst
 {
  private static readonly UTF8Encoding StrictUtf8=new(false,true);
- public static object Probe(JsonElement request)
+ public static object Probe(JsonElement request)=>Prepare(request).Envelope;
+ // Share the actual parsed AST with the value profile, without parsing twice.
+ internal static (object Envelope,JsonSyntaxResult? Parsed) Prepare(JsonElement request)
  {
+  var envelope=ProbeCore(request,out var parsed);return (envelope,parsed);
+ }
+ private static object ProbeCore(JsonElement request,out JsonSyntaxResult? parsedResult)
+ {
+  parsedResult=null;
   var selection=JsonSerializer.SerializeToElement(FixtureConfigSelection.Probe(request));
   if(selection.GetProperty("panic").ValueKind!=JsonValueKind.Null)return new{selection,context=(object?)null,ast=(object?)null,unsupported=(string?)null};
   var parsedUnits=FixtureLoader.Parse(Convert.FromBase64String(request.GetProperty("input").GetString()!),Convert.FromBase64String(request.GetProperty("fileName").GetString()!),(unitName,body,options)=>new FixtureCallbackResult<FixtureUnit?>(null,null));
@@ -17,7 +24,7 @@ public static class FixtureConfigAst
   string name,text;
   try{name=StrictUtf8.GetString(configPath);text=StrictUtf8.GetString(Convert.FromBase64String(config.GetProperty("content").GetString()!));}
   catch(DecoderFallbackException){return new{selection,context,ast=(object?)null,unsupported="INVALID_UTF8_CONFIG"};}
-  var parsed=JsonSyntax.Parse(name,text);var nodes=new List<object>();
+  var parsed=JsonSyntax.Parse(name,text);parsedResult=parsed;var nodes=new List<object>();
   void Walk(JsonSyntaxNode? node,string path)
   {
    if(node==null)return;

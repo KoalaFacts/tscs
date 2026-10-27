@@ -1,0 +1,56 @@
+name: Development environment
+on:
+  push:
+    paths:
+      - 'scripts/setup-dev-environment.sh'
+      - '.github/workflows/dev-environment.yml'
+      - 'global.json'
+      - '**/packages.lock.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TSCS_DEV_ROOT: ${{ github.workspace }}/.artifacts/tscs-dev-environment
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      TESTINGPLATFORM_TELEMETRY_OPTOUT: '1'
+    steps:
+      - uses: actions/checkout@v4
+      # Intentionally do not use setup-dotnet/node/go: exercise the same entry
+      # used by an agent or developer with an empty user-local tool cache.
+      - name: Install verified toolchain, restore locked local feed, build
+        run: |
+          set -o pipefail
+          mkdir -p "$TSCS_DEV_ROOT/logs"
+          bash scripts/setup-dev-environment.sh 2>&1 | tee "$TSCS_DEV_ROOT/logs/setup.log"
+      - name: Activate and smoke-test the actual tools and compiler
+        run: |
+          set -euo pipefail
+          source "$TSCS_DEV_ROOT/env.sh"
+          dotnet --info | tee "$TSCS_DEV_ROOT/logs/dotnet-info.log"
+          printf 'const value: number = 42; if (value !== 42) throw Error("native TS failed");\n' > "$RUNNER_TEMP/tscs-native-smoke.ts"
+          node "$RUNNER_TEMP/tscs-native-smoke.ts"
+          test "$(go env GOTELEMETRY)" = off
+          test "$(go env GOPROXY)" = off
+          test "$(go env GOSUMDB)" = off
+          dotnet src/Tscs.Cli/bin/Release/net10.0/tscs.dll --noEmit --noLib --target es2015 fixtures/local/number-ok.ts fixtures/minimal.d.ts
+          dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --filter-class Tscs.Tests.CompilerHostTests --fail-skips on --minimum-expected-tests 1 | tee "$TSCS_DEV_ROOT/logs/host-smoke.log"
+          git diff --exit-code -- global.json '**/packages.lock.json'
+      - name: Verify disconnected cache reuse
+        run: |
+          set -o pipefail
+          bash scripts/setup-dev-environment.sh --offline --tools-only 2>&1 | tee "$TSCS_DEV_ROOT/logs/offline-reuse.log"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tscs-development-environment-evidence
+          path: |
+            ${{ github.workspace }}/.artifacts/tscs-dev-environment/logs/
+            ${{ github.workspace }}/.artifacts/tscs-dev-environment/downloads/toolchain.tsv
+            ${{ github.workspace }}/.artifacts/tscs-dev-environment/downloads/packages.tsv
+            ${{ github.workspace }}/.artifacts/tscs-dev-environment/NuGet.Config
+          if-no-files-found: warn
+          retention-days: 30

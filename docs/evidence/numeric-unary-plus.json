@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "kind": "BOUNDED_NUMERIC_UNARY_PLUS_COMPILER_IMPLEMENTATION_NOT_FULL_UPSTREAM_ACCEPTANCE",
+  "recordedAtDate": "2026-10-27",
+  "repository": "KoalaFacts/tscs",
+  "pr": 8,
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "previousProductHead": "5056c3f110c1c1ce8fc2b54b8087a1cff7fd4f21",
+  "testFirstRed": {
+    "sha": "a60be67ddd5420c2d986d8e0ed6e43c662e6623b",
+    "jobId": 121825428611,
+    "runId": 40394957565,
+    "passed": 15557,
+    "failed": 12,
+    "skipped": 0,
+    "buildErrors": 0
+  },
+  "productHeadWithDiscoveredRegression": {
+    "sha": "76b50ef7437917975bce9524a240ba27a8d73402",
+    "jobId": 121826858547,
+    "runId": 40395366462,
+    "passed": 15569,
+    "failed": 1,
+    "skipped": 0,
+    "failedTest": "StringRecoveryTests.EarlierLexicalErrorsSurviveLaterUnsupportedSyntax",
+    "buildErrors": 0
+  },
+  "testedProductAndRegressionHead": {
+    "sha": "ce47cb14759711da31e15b941ecdf03315f35e78",
+    "jobId": 121829124125,
+    "runId": 40395996559,
+    "runUrl": "https://github.com/KoalaFacts/tscs/actions/runs/40395996559/job/121829124125",
+    "strictInternalXunit4Mtp": {
+      "total": 15570,
+      "passed": 15570,
+      "failed": 0,
+      "skipped": 0
+    },
+    "node24": {
+      "total": 145,
+      "passed": 145,
+      "failed": 0,
+      "skipped": 0
+    },
+    "frozenDifferential": {
+      "total": 29,
+      "passed": 29
+    },
+    "releaseBuild": {
+      "errors": 0,
+      "warnings": 0
+    },
+    "fullOriginalPlaceholderMtpDiscovery": {
+      "registered": 15523,
+      "discovered": 15523,
+      "skippedUnimplemented": 15523,
+      "originalPassed": 0,
+      "originalFailed": 0,
+      "upstreamSkippedMetadata": 39
+    },
+    "standaloneOneTargetCanary": {
+      "registered": 1,
+      "discovered": 1,
+      "skippedUnimplemented": 1,
+      "passed": 0
+    },
+    "logProvenance": "Exact GitHub Actions job log inspected; original 4.75 MB log remains externally hosted with ordinary retention. Not a new pinned Go original-runner execution."
+  },
+  "newlyImplementedProductCapability": "numeric unary '+' restricted to number operands; iterative parser/checker; no JS coercion",
+  "modifiedProductFiles": [
+    "src/Tscs.Compiler/Scanner.cs",
+    "src/Tscs.Compiler/Parser.cs",
+    "src/Tscs.Compiler/TypeChecker.cs"
+  ],
+  "preservedNegativeTests": [
+    "Unicode/escape lexical errors before unsupported syntax",
+    "nonnumeric unary operands explicit TSCS1001",
+    "unresolved name TS2304",
+    "assignment mismatch TS2322",
+    "prefix ++/decrement unsupported"
+  ],
+  "originalScope": {
+    "confirmedConfigurationTargets": 15523,
+    "originalAccepted": 0,
+    "originalSkippedUnimplemented": 15523,
+    "originalSkipIdsRemoved": [],
+    "originalPassIdsNew": [],
+    "upstreamSkippedTargetMetadata": 39,
+    "referenceFatalSources": 7,
+    "expandedRuntimeCases": null,
+    "additionalDomains": "UNEXPANDED",
+    "releaseEligible": false
+  },
+  "localGuardCatalogue": {
+    "registered": 14,
+    "implementedButUpstreamNotRun": 8,
+    "skippedUnimplemented": 6,
+    "scope": "LOCAL_GUARDS_NOT_FULL_COMPILER_ACCEPTANCE",
+    "scopeDelta": 0
+  },
+  "independentReviewer": "NOT_RUN",
+  "localDotnet": "NOT_RUN",
+  "livePinnedGoOriginalRunner": "NOT_RUN",
+  "fullOriginalReferenceDifferential": "NOT_RUN",
+  "confidence": "Internal subset implementation verified in hosted .NET; no claim of original TS7 acceptance."
+}

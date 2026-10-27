@@ -6,6 +6,9 @@ internal sealed class Options
 {
     public List<string> Files { get; }=[];
     private bool noEmit,noLib;
+    public bool NoEmit=>noEmit;
+    public bool NoLib=>noLib;
+    public bool ExplicitEs2015Target {get;private set;}
     public static Options Parse(string[] args)
     {
         var options=new Options();string? project=null;
@@ -26,14 +29,13 @@ internal sealed class Options
                 case "--noEmit":options.noEmit=ReadBool(args,ref i);break;
                 case "--noLib":options.noLib=ReadBool(args,ref i);break;
                 case "--pretty":if(++i==args.Length||args[i]!="false")throw new InputFailure("Only --pretty false is supported.");break;
-                case "--target":if(++i==args.Length)throw new InputFailure("Missing target.");ValidateTarget(args[i]);break;
+                case "--target":if(++i==args.Length)throw new InputFailure("Missing target.");ValidateTarget(args[i]);options.ExplicitEs2015Target=true;break;
                 default:
                     if(arg.StartsWith('-'))throw new InputFailure($"Unsupported option '{arg}'.");
                     if(project!=null)throw new InputFailure("Cannot combine a project with source file arguments.");
                     options.Files.Add(Path.GetFullPath(arg));break;
             }
         }
-        if(!options.noEmit||!options.noLib)throw new InputFailure("The bootstrap requires --noEmit and --noLib; supply minimal ambient globals explicitly.");
         if(options.Files.Count==0)throw new InputFailure("No source files were specified.");
         if(options.Files.Distinct(StringComparer.Ordinal).Count()!=options.Files.Count)throw new InputFailure("Duplicate input paths are not supported.");
         return options;
@@ -70,9 +72,14 @@ internal sealed class Options
                         if(!optionKeys.Add((option.Name.Token.Value??option.Name.Token.Text)))throw new InputFailure("Duplicate compiler options are not supported.");
                         switch((option.Name.Token.Value??option.Name.Token.Text))
                         {
-                            case "noEmit":noEmit=Boolean(option.Value);break;
-                            case "noLib":noLib=Boolean(option.Value);break;
-                            case "target":if(option.Value.Kind!="String")throw new InputFailure("target must be a string.");ValidateTarget(option.Value.Token.Value!);break;
+                            case "noEmit":noEmit=Boolean("noEmit",option.Value,file,text);break;
+                            case "noLib":noLib=Boolean("noLib",option.Value,file,text);break;
+                            case "target":
+                                var target=JsonEnumOptions.Convert(JsonEnumOptions.Declarations["target"],JsonConfigValues.Convert(option.Value),file,expression:option.Value.Token);
+                                if(target.Diagnostics.Count>0)throw new ConfigSyntaxFailure(text,target.Diagnostics);
+                                // Valid upstream targets beyond the bootstrap remain unsupported.
+                                if(target.Value.Kind=="Number"&&target.Value.Number==2){ExplicitEs2015Target=true;break;}
+                                throw new InputFailure("Only target es2015/es6 is supported by the bootstrap.");
                             default:throw new InputFailure($"Unsupported compiler option '{(option.Name.Token.Value??option.Name.Token.Text)}'.");
                         }
                     }
@@ -81,7 +88,13 @@ internal sealed class Options
             }
         }
     }
-    private static bool Boolean(JsonSyntaxNode value)=>value.Kind switch{"True"=>true,"False"=>false,_=>throw new InputFailure("Expected a boolean compiler option.")};
+    private static bool Boolean(string name,JsonSyntaxNode value,string file,string text)
+    {
+        var result=JsonScalarOptions.Convert(new(name,new("boolean",false)),JsonConfigValues.Convert(value),file,expression:value.Token);
+        if(result.Diagnostics.Count>0)throw new ConfigSyntaxFailure(text,result.Diagnostics);
+        // Null remains unset/default false, then explicit CLI flags override.
+        return result.Value.Kind=="True";
+    }
     private static void ValidateTarget(string target)
     {if(!target.Equals("es2015",StringComparison.OrdinalIgnoreCase)&&!target.Equals("es6",StringComparison.OrdinalIgnoreCase))throw new InputFailure("Only target es2015/es6 is supported by the bootstrap.");}
 }

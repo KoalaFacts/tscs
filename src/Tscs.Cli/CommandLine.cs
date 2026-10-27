@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -13,25 +14,49 @@ public static class CommandLine
         try
         {
             var options=Options.Parse(args);
-            var inputs=options.Files.Select(p=>(Path:p,Text:File.ReadAllText(p))).ToArray();
-            var codeFiles=inputs.Where(f=>!f.Path.EndsWith(".d.ts",StringComparison.Ordinal)).ToArray();
-            if(codeFiles.Length!=1)throw new InputFailure("The bootstrap requires exactly one .ts source file, plus optional minimal .d.ts globals.");
-            if(!codeFiles[0].Path.EndsWith(".ts",StringComparison.Ordinal))throw new InputFailure("Only .ts input is supported.");
+            var host=new FileSystemCompilerHost();
+            var inputs=options.Files.Select(host.GetCanonicalFileName).ToArray();
+            var codeFiles=inputs.Where(p=>!p.EndsWith(".d.ts",StringComparison.Ordinal)).ToArray();
+            if(codeFiles.Length==0)throw new InputFailure("The bootstrap requires at least one .ts source file, plus optional minimal .d.ts globals.");
+            if(codeFiles.Any(p=>!p.EndsWith(".ts",StringComparison.Ordinal)))throw new InputFailure("Only .ts input is supported.");
             var globals=new HashSet<string>(StringComparer.Ordinal);
-            foreach(var f in inputs.Where(f=>f.Path.EndsWith(".d.ts",StringComparison.Ordinal)))ReadGlobals(f.Text,globals);
-            var analysis=Compilation.Analyze(codeFiles[0].Path,codeFiles[0].Text);
+            foreach(var path in inputs.Where(p=>p.EndsWith(".d.ts",StringComparison.Ordinal)))
+                ReadGlobals(host.ReadFile(path),globals);
+            var program=CompilerProgram.Load(host,codeFiles);
+            var analysis=program.Analyze();
+            // First original-profile emit slice: an empty parsed program under the
+            // explicit ES2015 target. This does NOT silently accept nonempty source
+            // or other unimplemented library/emit combinations.
+            bool emptyOriginalEmit=codeFiles.Length==1&&!options.NoEmit&&!options.NoLib&&options.ExplicitEs2015Target&&
+                inputs.Length==1&&analysis.EmptyProgram&&analysis.Diagnostics.Count==0;
+            if ((!options.NoEmit||!options.NoLib) && !emptyOriginalEmit)
+                throw new InputFailure("The bootstrap requires --noEmit and --noLib; supply minimal ambient globals explicitly.");
             var diagnostics=analysis.Diagnostics.ToArray();
             bool unsupported=diagnostics.Any(d=>d.Code.StartsWith("TSCS",StringComparison.Ordinal));
             bool syntax=analysis.HasSyntaxErrors;
-            if(!unsupported&&!syntax)
+            if(!unsupported&&!syntax&&!emptyOriginalEmit)
             {
                 var missing=GlobalTypes.Where(t=>!globals.Contains(t)).Select(t=>new Diagnostic("TS2318","error","",0,0,$"Cannot find global type '{t}'.",[],[])).ToArray();
                 if(missing.Length>0)diagnostics=missing;
             }
             int exitCode=unsupported?1:diagnostics.Length>0?2:0;
+            if(exitCode==0&&emptyOriginalEmit)
+            {
+                // The locked TS7 reference baseline for emptyFile.ts emits precisely
+                // a strict prologue with CRLF. Never overwrite a pre-existing file.
+                var jsPath=Path.ChangeExtension(codeFiles[0],".js");
+                using var output=new FileStream(jsPath,FileMode.CreateNew,FileAccess.Write);
+                output.Write(Encoding.UTF8.GetBytes("\"use strict\";\r\n"));
+            }
             if(json)
-                stdout.WriteLine(JsonSerializer.Serialize(new{diagnostics=diagnostics.Select(d=>d with{File=Path.GetFileName(d.File)}),exitCode},JsonOptions));
-            else foreach(var d in diagnostics)stdout.WriteLine(Format(d,codeFiles[0].Text));
+                stdout.WriteLine(JsonSerializer.Serialize(new{diagnostics=JsonSourceIdentities(diagnostics,program.Sources),exitCode},JsonOptions));
+            else
+            {
+                // Diagnostic paths and source snapshots must use the host's file identity rules.
+                var sources=program.Sources.ToDictionary(f=>f.File,f=>f.Text,host.FileNameComparer);
+                foreach(var d in diagnostics)
+                    stdout.WriteLine(Format(d,sources.GetValueOrDefault(d.File) ?? program.Sources[0].Text));
+            }
             return exitCode;
         }
         catch(ConfigSyntaxFailure error)
@@ -49,6 +74,22 @@ public static class CommandLine
             return 1;
         }
     }
+    // Keep single-file JSON basenames stable. Disambiguate basename collisions
+    // using source-relative paths so the original UTF-16 spans stay attributable.
+    private static Diagnostic[] JsonSourceIdentities(IEnumerable<Diagnostic> diagnostics,
+        IReadOnlyList<SourceInput> sources)
+    {
+        var comparer=OperatingSystem.IsWindows()?StringComparer.OrdinalIgnoreCase:StringComparer.Ordinal;
+        var collisions=sources.GroupBy(s=>Path.GetFileName(s.File),comparer)
+            .Where(group=>group.Count()>1).Select(group=>group.Key).ToHashSet(comparer);
+        return diagnostics.Select(d=>d.File.Length==0?d:d with
+        {
+            File=collisions.Contains(Path.GetFileName(d.File))
+                ? Path.GetRelativePath(Environment.CurrentDirectory,d.File).Replace(Path.DirectorySeparatorChar,'/')
+                : Path.GetFileName(d.File)
+        }).ToArray();
+    }
+
     private static string Format(Diagnostic d,string text)
     {
         if(d.File.Length==0)return $"error {d.Code}: {d.Message}";
@@ -59,7 +100,7 @@ public static class CommandLine
             else if(text[i] is '\n' or '\u2028' or '\u2029'){line++;column=1;}
             else column++;
         }
-        var path=Path.GetRelativePath(Environment.CurrentDirectory,Path.GetFullPath(d.File)).Replace('\\','/');
+        var path=Path.GetRelativePath(Environment.CurrentDirectory,Path.GetFullPath(d.File)).Replace(Path.DirectorySeparatorChar,'/');
         return $"{path}({line},{column}): error {d.Code}: {d.Message}";
     }
     // Minimal ambient global shapes only. Members, inheritance and arbitrary declarations are rejected.

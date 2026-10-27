@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-26",
+  "repo": "KoalaFacts/tscs",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "scope": "Bounded checker for number-only identifier postfix ++ statements under noEmit/noLib",
+  "kind": "LOCAL_CAPABILITY_NOT_FULL_UPSTREAM_ACCEPTANCE",
+  "sourceHead": "5e6927c1f5355757b00aa77a8193311db20b7d48",
+  "stableProbeId": "bootstrap:postfix-update",
+  "coverage": {
+    "registered": 14,
+    "implementedBefore": 6,
+    "implementedAfter": 7,
+    "skipBefore": 8,
+    "skipAfter": 7,
+    "netSkippedRemoved": 1,
+    "upstreamAcceptedAdded": 0
+  },
+  "runs": [
+    {
+      "head": "167d2400962b4ca7281d7af6ba76cb5f20d207a7",
+      "kind": "RED",
+      "xunit": {
+        "total": 15485,
+        "passed": 15478,
+        "failed": 7,
+        "skipped": 0
+      }
+    },
+    {
+      "head": "48e7f5ea696342c1e3b0f09d2b739be1e2f0a45f",
+      "kind": "INTERMEDIATE_FAIL",
+      "xunit": {
+        "total": 15485,
+        "passed": 15484,
+        "failed": 1
+      },
+      "reason": "Old CLI negative guard still expected newly implemented postfix ++ to be unsupported"
+    },
+    {
+      "head": "7339946d8b8eaf032c0c348d411da8b99a5b1751",
+      "kind": "INTERMEDIATE_FAIL",
+      "xunit": {
+        "total": 15486,
+        "passed": 15486,
+        "failed": 0
+      },
+      "nodeFailures": 2,
+      "reason": "Old Node coverage count/row-index expectations"
+    },
+    {
+      "head": "5e6927c1f5355757b00aa77a8193311db20b7d48",
+      "kind": "GREEN",
+      "xunit": {
+        "total": 15486,
+        "passed": 15486,
+        "failed": 0,
+        "skipped": 0
+      },
+      "node": {
+        "total": 103,
+        "passed": 103,
+        "failed": 0
+      },
+      "frozen": {
+        "total": 29,
+        "passed": 29
+      },
+      "goStandaloneScope": "PASS",
+      "releaseWarnings": 0,
+      "releaseErrors": 0,
+      "checkRuns": [
+        "https://github.com/KoalaFacts/tscs/runs/121521236315",
+        "https://github.com/KoalaFacts/tscs/actions/runs/40307361435/job/121519666621",
+        "https://github.com/KoalaFacts/tscs/actions/runs/40307368965/job/121519687493",
+        "https://github.com/KoalaFacts/tscs/actions/runs/40307360514/job/121519658046"
+      ]
+    }
+  ],
+  "excluded": [
+    {
+      "head": "7c1aade8eb90cf4600332b1c9d96bfbe45142ea9",
+      "reason": "Pre-RED test literals contained unintended extra escapes; corrected before valid RED"
+    }
+  ],
+  "rawLogIndex": [
+    {
+      "jobId": 121516536847,
+      "path": "docs/evidence/postfix-update-run/red-167d240-verify.log",
+      "gitBlob": "82202e66be1784bf7d58628699472de0dc41d130",
+      "lengthUtf16": 29294
+    },
+    {
+      "jobId": 121518139750,
+      "path": "docs/evidence/postfix-update-run/intermediate-cli-failure-48e7f5e.log",
+      "gitBlob": "79f59168bff2b9cb7ed771b1dda803dacc1cc570",
+      "lengthUtf16": 22290
+    },
+    {
+      "jobId": 121518794354,
+      "path": "docs/evidence/postfix-update-run/intermediate-node-failure-7339946.log",
+      "gitBlob": "a0cdd064e571f9fd84c10a13b0b3410710944b59",
+      "lengthUtf16": 35841
+    },
+    {
+      "jobId": 121519687493,
+      "path": "docs/evidence/postfix-update-run/final-verify-40307368965.log",
+      "gitBlob": "f087968f7d9ca9482ba055a79e29172b859e7900",
+      "lengthUtf16": 34742
+    },
+    {
+      "jobId": 121519658046,
+      "path": "docs/evidence/postfix-update-run/final-verify-40307360514.log",
+      "gitBlob": "88f5d7c56ceefdec4c6a2d91fdaca540f8d9b121",
+      "lengthUtf16": 33820
+    }
+  ],
+  "limitations": [
+    "Pinned original Go compiler/referenceCompiler/full acceptance NOT_RUN",
+    "Full upstream executable denominator unexpanded/unknown",
+    "Does not cover general update expressions, other operand types, functions, standard library or JS emitter",
+    "No independent external formal GitHub review approval",
+    "No local dotnet binary available in this run; source verification uses exact-head hosted Actions evidence"
+  ],
+  "releaseEligible": false
+}

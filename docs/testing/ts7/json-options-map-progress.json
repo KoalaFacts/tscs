@@ -1,0 +1,27 @@
+{
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "profile": "convertOptionsFromJson/record-ParseOption/no-host",
+  "declarationsRetained": 126,
+  "supportedDeclarationEntries": 111,
+  "unsupportedDeclarationEntries": 15,
+  "mapInputsExecuted": 316,
+  "completeMapComparisons": 226,
+  "unsupportedMapInputs": 90,
+  "selectedSourceInputs": 172,
+  "sourceOutcomes": {
+    "MATCH": 90,
+    "MATCH_DIAGNOSTICS": 8,
+    "UNSUPPORTED": 74,
+    "MISMATCH": 0,
+    "CRASH": 0,
+    "TIMEOUT": 0,
+    "SKIPPED": 0,
+    "NOT_RUN": 0
+  },
+  "originalCompiler": "NOT_RUN",
+  "referenceCompiler": "NOT_RUN",
+  "acceptance": "NOT_RUN",
+  "concreteCases": null,
+  "releaseEligible": false,
+  "evidence": "../../evidence/json-options-map.json"
+}

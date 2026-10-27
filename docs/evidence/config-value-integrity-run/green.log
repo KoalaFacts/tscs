@@ -1,0 +1,48 @@
+✔ a real config syntax error remains MATCH_DIAGNOSTICS and never clean MATCH (1.626763ms)
+✔ selected content and rooted context mismatches cannot earn value matches (0.638566ms)
+✔ changed converted values or extra conversion errors remain mismatches (0.364662ms)
+✔ absent, unsupported and panic outcomes cannot earn matches (0.272953ms)
+✔ missing, repeated or reordered actual identities reject the profile (0.287114ms)
+✖ post-completion truncation of a complete value profile is rejected (3.545798ms)
+✔ empty manifests never certify missing raw evidence (1.533361ms)
+✖ every required file remains required when its manifest entry and payload are deleted (5.017276ms)
+✔ shard counts cannot be reduced through a rehashed calls manifest (1.841057ms)
+✔ rehashed shard identities cannot diverge from selected config IDs (2.294684ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 8
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 146.748201
+
+✖ failing tests:
+
+test at tools/source-config-values.test.ts:31:2
+✖ post-completion truncation of a complete value profile is rejected (3.545798ms)
+  Error: Invalid config value evidence: required artifact omitted
+      at fail (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.ts:25:29)
+      at checkManifest (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.ts:29:55)
+      at verifySourceConfigValueArtifacts (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.ts:55:72)
+      at file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:31:99
+      at evidence (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:28:88)
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:31:80)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+
+test at tools/source-config-values.test.ts:33:2
+✖ every required file remains required when its manifest entry and payload are deleted (5.017276ms)
+  Error: Invalid config value evidence: required artifact omitted
+      at fail (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.ts:25:29)
+      at checkManifest (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.ts:29:55)
+      at verifySourceConfigValueArtifacts (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.ts:55:72)
+      at file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:33:452
+      at evidence (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:28:88)
+      at TestContext.<anonymous> (file:///workspace/scratch/daf3e6c2e318/tscs/tools/source-config-values.test.ts:33:98)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)

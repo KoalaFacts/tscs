@@ -1,0 +1,807 @@
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/16/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":4,\"messa"···) (2ms)
+  79/types/16/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+    at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/6/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":2,\"messa"···) (0ms)
+  89/customConditions/6/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/8/true", json: "{\"diagnostics\":[],\"id\":\"79/types/8/true\",\"literal\""···) (0ms)
+  79/types/8/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/3/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  79/types/3/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/8/true", json: "{\"diagnostics\":[],\"id\":\"123/plugins/8/true\",\"liter"···) (0ms)
+  123/plugins/8/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/17/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (18ms)
+  123/plugins/17/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/17/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  89/customConditions/17/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/4/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  123/plugins/4/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/19/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  89/customConditions/19/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/8/false", json: "{\"diagnostics\":[],\"id\":\"123/plugins/8/false\",\"lite"···) (0ms)
+  123/plugins/8/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/13/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  79/types/13/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/0/false", json: "{\"diagnostics\":[],\"id\":\"84/moduleSuffixes/0/false\""···) (0ms)
+  84/moduleSuffixes/0/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/2/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  123/plugins/2/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/17/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":1,\"messa"···) (0ms)
+  84/moduleSuffixes/17/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/9/false", json: "{\"diagnostics\":[],\"id\":\"89/customConditions/9/fals"···) (0ms)
+  89/customConditions/9/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/16/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  123/plugins/16/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/11/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  84/moduleSuffixes/11/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/5/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":3,\"messa"···) (0ms)
+  84/moduleSuffixes/5/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/14/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":5,\"messa"···) (0ms)
+  84/moduleSuffixes/14/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/4/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":2,\"messa"···) (0ms)
+  123/plugins/4/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/2/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":5,\"messa"···) (0ms)
+  89/customConditions/2/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/3/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":1,\"messa"···) (0ms)
+  79/types/3/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/6/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  79/types/6/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/12/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  89/customConditions/12/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/12/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  123/plugins/12/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/17/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":1,\"messa"···) (0ms)
+  79/types/17/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/7/true", json: "{\"diagnostics\":[],\"id\":\"123/plugins/7/true\",\"liter"···) (0ms)
+  123/plugins/7/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/16/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  89/customConditions/16/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/18/false", json: "{\"diagnostics\":[],\"id\":\"84/moduleSuffixes/18/false"···) (0ms)
+  84/moduleSuffixes/18/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/5/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":3,\"messa"···) (0ms)
+  79/types/5/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/14/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":5,\"messa"···) (0ms)
+  123/plugins/14/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/4/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":2,\"messa"···) (0ms)
+  89/customConditions/4/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/13/true", json: "{\"diagnostics\":[],\"id\":\"123/plugins/13/true\",\"lite"···) (0ms)
+  123/plugins/13/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/3/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  84/moduleSuffixes/3/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/3/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":1,\"messa"···) (0ms)
+  123/plugins/3/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/11/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":5,\"messa"···) (0ms)
+  84/moduleSuffixes/11/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/11/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":5,\"messa"···) (0ms)
+  89/customConditions/11/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/7/false", json: "{\"diagnostics\":[],\"id\":\"89/customConditions/7/fals"···) (0ms)
+  89/customConditions/7/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/10/true", json: "{\"diagnostics\":[],\"id\":\"89/customConditions/10/tru"···) (0ms)
+  89/customConditions/10/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/18/true", json: "{\"diagnostics\":[],\"id\":\"89/customConditions/18/tru"···) (0ms)
+  89/customConditions/18/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/6/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":2,\"messa"···) (0ms)
+  84/moduleSuffixes/6/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/14/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  84/moduleSuffixes/14/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/9/true", json: "{\"diagnostics\":[],\"id\":\"89/customConditions/9/true"···) (0ms)
+  89/customConditions/9/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/7/false", json: "{\"diagnostics\":[],\"id\":\"84/moduleSuffixes/7/false\""···) (0ms)
+  84/moduleSuffixes/7/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/11/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  123/plugins/11/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/7/true", json: "{\"diagnostics\":[],\"id\":\"89/customConditions/7/true"···) (0ms)
+  89/customConditions/7/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/9/false", json: "{\"diagnostics\":[],\"id\":\"84/moduleSuffixes/9/false\""···) (0ms)
+  84/moduleSuffixes/9/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/18/false", json: "{\"diagnostics\":[],\"id\":\"79/types/18/false\",\"litera"···) (0ms)
+  79/types/18/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/5/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":3,\"messa"···) (0ms)
+  89/customConditions/5/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/2/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  79/types/2/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/19/false", json: "{\"diagnostics\":[],\"id\":\"123/plugins/19/false\",\"lit"···) (0ms)
+  123/plugins/19/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/17/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":1,\"messa"···) (0ms)
+  89/customConditions/17/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/7/true", json: "{\"diagnostics\":[],\"id\":\"84/moduleSuffixes/7/true\","···) (0ms)
+  84/moduleSuffixes/7/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/19/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  79/types/19/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/5/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  79/types/5/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/3/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  89/customConditions/3/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/10/true", json: "{\"diagnostics\":[],\"id\":\"84/moduleSuffixes/10/true\""···) (0ms)
+  84/moduleSuffixes/10/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/10/true", json: "{\"diagnostics\":[],\"id\":\"79/types/10/true\",\"literal"···) (0ms)
+  79/types/10/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/0/false", json: "{\"diagnostics\":[],\"id\":\"79/types/0/false\",\"literal"···) (0ms)
+  79/types/0/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/12/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  79/types/12/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/7/true", json: "{\"diagnostics\":[],\"id\":\"79/types/7/true\",\"literal\""···) (0ms)
+  79/types/7/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/18/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":4,\"messa"···) (0ms)
+  123/plugins/18/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/0/false", json: "{\"diagnostics\":[],\"id\":\"123/plugins/0/false\",\"lite"···) (0ms)
+  123/plugins/0/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/8/true", json: "{\"diagnostics\":[],\"id\":\"89/customConditions/8/true"···) (0ms)
+  89/customConditions/8/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/5/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  123/plugins/5/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/19/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":11,\"mess"···) (0ms)
+  89/customConditions/19/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/7/false", json: "{\"diagnostics\":[],\"id\":\"123/plugins/7/false\",\"lite"···) (0ms)
+  123/plugins/7/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/19/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  84/moduleSuffixes/19/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/6/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  84/moduleSuffixes/6/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/9/true", json: "{\"diagnostics\":[],\"id\":\"79/types/9/true\",\"literal\""···) (0ms)
+  79/types/9/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/3/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":1,\"messa"···) (0ms)
+  84/moduleSuffixes/3/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/15/false", json: "{\"diagnostics\":[],\"id\":\"89/customConditions/15/fal"···) (0ms)
+  89/customConditions/15/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/8/false", json: "{\"diagnostics\":[],\"id\":\"89/customConditions/8/fals"···) (0ms)
+  89/customConditions/8/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/13/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":2,\"messa"···) (0ms)
+  89/customConditions/13/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/9/true", json: "{\"diagnostics\":[],\"id\":\"84/moduleSuffixes/9/true\","···) (0ms)
+  84/moduleSuffixes/9/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/9/false", json: "{\"diagnostics\":[],\"id\":\"79/types/9/false\",\"literal"···) (0ms)
+  79/types/9/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/11/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  79/types/11/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/12/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":1,\"messa"···) (0ms)
+  84/moduleSuffixes/12/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/1/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":4,\"messa"···) (0ms)
+  79/types/1/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/11/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  89/customConditions/11/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/5/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  89/customConditions/5/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/4/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  79/types/4/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/11/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":5,\"messa"···) (0ms)
+  79/types/11/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/12/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":1,\"messa"···) (0ms)
+  89/customConditions/12/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/10/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  123/plugins/10/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/16/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":4,\"messa"···) (0ms)
+  123/plugins/16/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/10/false", json: "{\"diagnostics\":[],\"id\":\"84/moduleSuffixes/10/false"···) (0ms)
+  84/moduleSuffixes/10/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/0/false", json: "{\"diagnostics\":[],\"id\":\"89/customConditions/0/fals"···) (0ms)
+  89/customConditions/0/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/14/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  123/plugins/14/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/19/true", json: "{\"diagnostics\":[],\"id\":\"123/plugins/19/true\",\"lite"···) (0ms)
+  123/plugins/19/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/13/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  89/customConditions/13/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/2/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  89/customConditions/2/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/16/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":4,\"messa"···) (0ms)
+  84/moduleSuffixes/16/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/13/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  84/moduleSuffixes/13/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/0/true", json: "{\"diagnostics\":[],\"id\":\"123/plugins/0/true\",\"liter"···) (0ms)
+  123/plugins/0/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/1/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  84/moduleSuffixes/1/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/13/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":2,\"messa"···) (0ms)
+  84/moduleSuffixes/13/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/17/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":1,\"messa"···) (0ms)
+  123/plugins/17/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/12/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":1,\"messa"···) (0ms)
+  123/plugins/12/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/16/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":4,\"messa"···) (0ms)
+  89/customConditions/16/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/3/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  123/plugins/3/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/16/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  84/moduleSuffixes/16/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/1/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":4,\"messa"···) (0ms)
+  84/moduleSuffixes/1/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/9/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":2,\"messa"···) (0ms)
+  123/plugins/9/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/12/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  84/moduleSuffixes/12/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/15/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  123/plugins/15/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/18/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  123/plugins/18/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/19/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":11,\"mess"···) (0ms)
+  84/moduleSuffixes/19/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/4/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":2,\"messa"···) (0ms)
+  79/types/4/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/0/true", json: "{\"diagnostics\":[],\"id\":\"89/customConditions/0/true"···) (0ms)
+  89/customConditions/0/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/15/false", json: "{\"diagnostics\":[],\"id\":\"84/moduleSuffixes/15/false"···) (0ms)
+  84/moduleSuffixes/15/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/8/false", json: "{\"diagnostics\":[],\"id\":\"84/moduleSuffixes/8/false\""···) (0ms)
+  84/moduleSuffixes/8/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/1/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  89/customConditions/1/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/8/true", json: "{\"diagnostics\":[],\"id\":\"84/moduleSuffixes/8/true\","···) (0ms)
+  84/moduleSuffixes/8/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/13/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":2,\"messa"···) (0ms)
+  79/types/13/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/2/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  84/moduleSuffixes/2/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/1/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  123/plugins/1/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/6/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  89/customConditions/6/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/4/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":2,\"messa"···) (0ms)
+  84/moduleSuffixes/4/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/4/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  89/customConditions/4/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/1/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  79/types/1/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/14/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":5,\"messa"···) (0ms)
+  79/types/14/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/6/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":2,\"messa"···) (0ms)
+  79/types/6/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/16/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  79/types/16/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/8/false", json: "{\"diagnostics\":[],\"id\":\"79/types/8/false\",\"literal"···) (0ms)
+  79/types/8/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/15/true", json: "{\"diagnostics\":[],\"id\":\"79/types/15/true\",\"literal"···) (0ms)
+  79/types/15/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/1/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":4,\"messa"···) (0ms)
+  123/plugins/1/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/18/true", json: "{\"diagnostics\":[],\"id\":\"84/moduleSuffixes/18/true\""···) (0ms)
+  84/moduleSuffixes/18/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/14/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  89/customConditions/14/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/18/true", json: "{\"diagnostics\":[],\"id\":\"79/types/18/true\",\"literal"···) (0ms)
+  79/types/18/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/19/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":11,\"mess"···) (0ms)
+  79/types/19/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/12/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":1,\"messa"···) (0ms)
+  79/types/12/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/4/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  84/moduleSuffixes/4/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/15/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":2,\"messa"···) (0ms)
+  123/plugins/15/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/13/false", json: "{\"diagnostics\":[],\"id\":\"123/plugins/13/false\",\"lit"···) (0ms)
+  123/plugins/13/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/5/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  84/moduleSuffixes/5/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/3/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":1,\"messa"···) (0ms)
+  89/customConditions/3/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/5/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":3,\"messa"···) (0ms)
+  123/plugins/5/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/10/false", json: "{\"diagnostics\":[],\"id\":\"89/customConditions/10/fal"···) (0ms)
+  89/customConditions/10/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/2/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":5,\"messa"···) (0ms)
+  84/moduleSuffixes/2/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/14/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  79/types/14/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/2/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":5,\"messa"···) (0ms)
+  79/types/2/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/7/false", json: "{\"diagnostics\":[],\"id\":\"79/types/7/false\",\"literal"···) (0ms)
+  79/types/7/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/0/true", json: "{\"diagnostics\":[],\"id\":\"79/types/0/true\",\"literal\""···) (0ms)
+  79/types/0/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/17/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  84/moduleSuffixes/17/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/2/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":5,\"messa"···) (0ms)
+  123/plugins/2/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/9/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  123/plugins/9/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/10/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":3,\"messa"···) (0ms)
+  123/plugins/10/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/15/false", json: "{\"diagnostics\":[],\"id\":\"79/types/15/false\",\"litera"···) (0ms)
+  79/types/15/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/0/true", json: "{\"diagnostics\":[],\"id\":\"84/moduleSuffixes/0/true\","···) (0ms)
+  84/moduleSuffixes/0/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/1/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":4,\"messa"···) (0ms)
+  89/customConditions/1/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "84/moduleSuffixes/15/true", json: "{\"diagnostics\":[],\"id\":\"84/moduleSuffixes/15/true\""···) (0ms)
+  84/moduleSuffixes/15/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/10/false", json: "{\"diagnostics\":[],\"id\":\"79/types/10/false\",\"litera"···) (0ms)
+  79/types/10/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/11/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":5,\"messa"···) (0ms)
+  123/plugins/11/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "79/types/17/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  79/types/17/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/18/false", json: "{\"diagnostics\":[],\"id\":\"89/customConditions/18/fal"···) (0ms)
+  89/customConditions/18/false value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/15/true", json: "{\"diagnostics\":[],\"id\":\"89/customConditions/15/tru"···) (0ms)
+  89/customConditions/15/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "89/customConditions/14/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":5,\"messa"···) (0ms)
+  89/customConditions/14/true value
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:15
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/6/true", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":2,\"messa"···) (0ms)
+  123/plugins/6/true diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+failed Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(id: "123/plugins/6/false", json: "{\"diagnostics\":[{\"code\":\"TS5024\",\"length\":0,\"messa"···) (0ms)
+  123/plugins/6/false diagnostics: []
+    at Tscs.Tests.JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(String id, String json) in /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/JsonListOptionTests.cs:19
+    at InvokeStub_JsonListOptionTests.ListConversionAndDiagnosticsMatchActualPrivateGo(Object, Span`1)
+    at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Test run summary: Failed! - /workspace/scratch/daf3e6c2e318/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+  total: 14106
+  failed: 160
+  succeeded: 13946
+  skipped: 0
+  duration: 4s 510ms

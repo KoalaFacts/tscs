@@ -1,0 +1,401 @@
+﻿2026-10-26T05:54:38.2512682Z Current runner version: '2.338.0'
+2026-10-26T05:54:38.2553663Z ##[group]Runner Image Provisioner
+2026-10-26T05:54:38.2555464Z Hosted Compute Agent
+2026-10-26T05:54:38.2556482Z Version: 20261021.618
+2026-10-26T05:54:38.2557580Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-26T05:54:38.2558788Z Build Date: 2026-10-21T00:45:21Z
+2026-10-26T05:54:38.2559951Z Worker ID: {2fd5d354-eee7-4b20-8eeb-e187851f47e2}
+2026-10-26T05:54:38.2561265Z Region: eastus
+2026-10-26T05:54:38.2562203Z Cloud: Azure
+2026-10-26T05:54:38.2563141Z ##[endgroup]
+2026-10-26T05:54:38.2565928Z ##[group]Operating System
+2026-10-26T05:54:38.2567124Z Ubuntu
+2026-10-26T05:54:38.2568102Z 24.04.5
+2026-10-26T05:54:38.2568986Z LTS
+2026-10-26T05:54:38.2570060Z ##[endgroup]
+2026-10-26T05:54:38.2571166Z ##[group]Runner Image
+2026-10-26T05:54:38.2572318Z Image: ubuntu-24.04
+2026-10-26T05:54:38.2573305Z Version: 20261012.334.1
+2026-10-26T05:54:38.2575905Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-26T05:54:38.2578765Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+2026-10-26T05:54:38.2580711Z ##[endgroup]
+2026-10-26T05:54:38.2582576Z ##[group]GITHUB_TOKEN Permissions
+2026-10-26T05:54:38.2586192Z Contents: read
+2026-10-26T05:54:38.2587155Z Metadata: read
+2026-10-26T05:54:38.2588234Z ##[endgroup]
+2026-10-26T05:54:38.2591669Z Secret source: Actions
+2026-10-26T05:54:38.2593325Z Cache mode: write
+2026-10-26T05:54:38.2594506Z Prepare workflow directory
+2026-10-26T05:54:38.3113108Z Prepare all required actions
+2026-10-26T05:54:38.3189327Z Getting action download info
+2026-10-26T05:54:38.5098688Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-26T05:54:38.6136450Z Download action repository 'actions/setup-dotnet@v4' (SHA:67a3573c9a986a3f9c594539f4ab511d57bb3ce9)
+2026-10-26T05:54:38.7918034Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-10-26T05:54:38.8753341Z Download action repository 'actions/setup-go@v6' (SHA:924ae3a1cded613372ab5595356fb5720e22ba16)
+2026-10-26T05:54:39.1769004Z Complete job name: verify
+2026-10-26T05:54:39.2793648Z ##[group]Run actions/checkout@v4
+2026-10-26T05:54:39.2795479Z with:
+2026-10-26T05:54:39.2796364Z   repository: KoalaFacts/tscs
+2026-10-26T05:54:39.2806332Z   token: ***
+2026-10-26T05:54:39.2807202Z   ssh-strict: true
+2026-10-26T05:54:39.2808076Z   ssh-user: git
+2026-10-26T05:54:39.2808972Z   persist-credentials: true
+2026-10-26T05:54:39.2809950Z   clean: true
+2026-10-26T05:54:39.2810841Z   sparse-checkout-cone-mode: true
+2026-10-26T05:54:39.2811889Z   fetch-depth: 1
+2026-10-26T05:54:39.2812740Z   fetch-tags: false
+2026-10-26T05:54:39.2813646Z   show-progress: true
+2026-10-26T05:54:39.2814534Z   lfs: false
+2026-10-26T05:54:39.2815526Z   submodules: false
+2026-10-26T05:54:39.2816450Z   set-safe-directory: true
+2026-10-26T05:54:39.2817478Z   allow-unsafe-pr-checkout: false
+2026-10-26T05:54:39.2818901Z ##[endgroup]
+2026-10-26T05:54:39.3897365Z Syncing repository: KoalaFacts/tscs
+2026-10-26T05:54:39.3900999Z ##[group]Getting Git version info
+2026-10-26T05:54:39.3902856Z Working directory is '/home/runner/work/tscs/tscs'
+2026-10-26T05:54:39.3905498Z [command]/usr/bin/git version
+2026-10-26T05:54:39.3972634Z git version 2.55.0
+2026-10-26T05:54:39.4007761Z ##[endgroup]
+2026-10-26T05:54:39.4019445Z Temporarily overriding HOME='/home/runner/work/_temp/06cb8f68-5590-435e-820c-18117d6bb28e' before making global git config changes
+2026-10-26T05:54:39.4024364Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-26T05:54:39.4029073Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/tscs/tscs
+2026-10-26T05:54:39.4076206Z Deleting the contents of '/home/runner/work/tscs/tscs'
+2026-10-26T05:54:39.4082080Z ##[group]Initializing the repository
+2026-10-26T05:54:39.4088174Z [command]/usr/bin/git init /home/runner/work/tscs/tscs
+2026-10-26T05:54:39.4212949Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-26T05:54:39.4217068Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-26T05:54:39.4220291Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-26T05:54:39.4222333Z hint: call:
+2026-10-26T05:54:39.4223733Z hint:
+2026-10-26T05:54:39.4225441Z hint: 	git config --global init.defaultBranch <name>
+2026-10-26T05:54:39.4228054Z hint:
+2026-10-26T05:54:39.4229585Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-26T05:54:39.4231789Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-26T05:54:39.4233572Z hint:
+2026-10-26T05:54:39.4235457Z hint: 	git branch -m <name>
+2026-10-26T05:54:39.4237471Z hint:
+2026-10-26T05:54:39.4239873Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-26T05:54:39.4243748Z Initialized empty Git repository in /home/runner/work/tscs/tscs/.git/
+2026-10-26T05:54:39.4250832Z [command]/usr/bin/git remote add origin https://github.com/KoalaFacts/tscs
+2026-10-26T05:54:39.4297320Z ##[endgroup]
+2026-10-26T05:54:39.4299560Z ##[group]Disabling automatic garbage collection
+2026-10-26T05:54:39.4301630Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-26T05:54:39.4344366Z ##[endgroup]
+2026-10-26T05:54:39.4347765Z ##[group]Setting up auth
+2026-10-26T05:54:39.4353643Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-26T05:54:39.4401548Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-26T05:54:39.4788331Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-26T05:54:39.4828263Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-26T05:54:39.5062294Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-26T05:54:39.5103014Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-26T05:54:39.5339462Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-26T05:54:39.5386521Z ##[endgroup]
+2026-10-26T05:54:39.5388200Z ##[group]Fetching the repository
+2026-10-26T05:54:39.5398824Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +9e026a5f64354e86949d1bea8eb9cd441dfa03eb:refs/remotes/pull/8/merge
+2026-10-26T05:54:39.8817533Z From https://github.com/KoalaFacts/tscs
+2026-10-26T05:54:39.8819720Z  * [new ref]         9e026a5f64354e86949d1bea8eb9cd441dfa03eb -> pull/8/merge
+2026-10-26T05:54:39.8824636Z ##[endgroup]
+2026-10-26T05:54:39.8827714Z ##[group]Determining the checkout info
+2026-10-26T05:54:39.8830959Z ##[endgroup]
+2026-10-26T05:54:39.8836317Z [command]/usr/bin/git sparse-checkout disable
+2026-10-26T05:54:39.8900852Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-26T05:54:39.8935380Z ##[group]Checking out the ref
+2026-10-26T05:54:39.8939120Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/8/merge
+2026-10-26T05:54:39.9566714Z Note: switching to 'refs/remotes/pull/8/merge'.
+2026-10-26T05:54:39.9567512Z 
+2026-10-26T05:54:39.9568054Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-26T05:54:39.9569339Z changes and commit them, and you can discard any commits you make in this
+2026-10-26T05:54:39.9647956Z state without impacting any branches by switching back to a branch.
+2026-10-26T05:54:39.9649263Z 
+2026-10-26T05:54:39.9650146Z If you want to create a new branch to retain commits you create, you may
+2026-10-26T05:54:39.9652069Z do so (now or later) by using -c with the switch command. Example:
+2026-10-26T05:54:39.9653680Z 
+2026-10-26T05:54:39.9654319Z   git switch -c <new-branch-name>
+2026-10-26T05:54:39.9655383Z 
+2026-10-26T05:54:39.9656014Z Or undo this operation with:
+2026-10-26T05:54:39.9656795Z 
+2026-10-26T05:54:39.9657374Z   git switch -
+2026-10-26T05:54:39.9658099Z 
+2026-10-26T05:54:39.9658985Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-26T05:54:39.9663258Z 
+2026-10-26T05:54:39.9664600Z HEAD is now at 9e026a5 Merge efb2c56ccee623b83aaeaab3a56a03dbd1dda098 into 81f84ff40dc1e746c8f924332b5808517f467ed7
+2026-10-26T05:54:39.9669931Z ##[endgroup]
+2026-10-26T05:54:39.9672505Z [command]/usr/bin/git log -1 --format=%H
+2026-10-26T05:54:39.9673722Z 9e026a5f64354e86949d1bea8eb9cd441dfa03eb
+2026-10-26T05:54:40.0028324Z ##[group]Run actions/setup-dotnet@v4
+2026-10-26T05:54:40.0029230Z with:
+2026-10-26T05:54:40.0029969Z   global-json-file: global.json
+2026-10-26T05:54:40.0030776Z   cache: false
+2026-10-26T05:54:40.0031525Z ##[endgroup]
+2026-10-26T05:54:40.1496981Z (node:2297) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-26T05:54:40.1498990Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-26T05:54:40.1522680Z [command]/home/runner/work/_actions/actions/setup-dotnet/v4/externals/install-dotnet.sh --skip-non-versioned-files --runtime dotnet --channel LTS
+2026-10-26T05:54:40.5313836Z dotnet-install: Attempting to download using aka.ms link https://builds.dotnet.microsoft.com/dotnet/Runtime/10.0.14/dotnet-runtime-10.0.14-linux-x64.tar.gz
+2026-10-26T05:54:40.7314587Z dotnet-install: Remote file https://builds.dotnet.microsoft.com/dotnet/Runtime/10.0.14/dotnet-runtime-10.0.14-linux-x64.tar.gz size is 36673986 bytes.
+2026-10-26T05:54:40.7321175Z dotnet-install: Extracting archive from https://builds.dotnet.microsoft.com/dotnet/Runtime/10.0.14/dotnet-runtime-10.0.14-linux-x64.tar.gz
+2026-10-26T05:54:41.4069131Z dotnet-install: Downloaded file size is 36673986 bytes.
+2026-10-26T05:54:41.4071450Z dotnet-install: The remote and local file sizes are equal.
+2026-10-26T05:54:41.4359635Z dotnet-install: Installed version is 10.0.14
+2026-10-26T05:54:41.4421136Z dotnet-install: Adding to current process PATH: `/usr/share/dotnet`. Note: This change will be visible only when sourcing script.
+2026-10-26T05:54:41.4423345Z dotnet-install: Note that the script does not resolve dependencies during installation.
+2026-10-26T05:54:41.4441285Z dotnet-install: To check the list of dependencies, go to https://learn.microsoft.com/dotnet/core/install, select your operating system and check the "Dependencies" section.
+2026-10-26T05:54:41.4443482Z dotnet-install: Installation finished successfully.
+2026-10-26T05:54:41.4454423Z [command]/home/runner/work/_actions/actions/setup-dotnet/v4/externals/install-dotnet.sh --skip-non-versioned-files --version 10.0.402
+2026-10-26T05:54:42.6638769Z dotnet-install: Attempting to download using primary link https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.402/dotnet-sdk-10.0.402-linux-x64.tar.gz
+2026-10-26T05:54:43.4108005Z dotnet-install: Remote file https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.402/dotnet-sdk-10.0.402-linux-x64.tar.gz size is 240279509 bytes.
+2026-10-26T05:54:43.4117645Z dotnet-install: Extracting archive from https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.402/dotnet-sdk-10.0.402-linux-x64.tar.gz
+2026-10-26T05:54:48.1607509Z dotnet-install: Downloaded file size is 240279509 bytes.
+2026-10-26T05:54:48.1609225Z dotnet-install: The remote and local file sizes are equal.
+2026-10-26T05:54:48.4132574Z dotnet-install: Installed version is 10.0.402
+2026-10-26T05:54:48.4193701Z dotnet-install: Adding to current process PATH: `/usr/share/dotnet`. Note: This change will be visible only when sourcing script.
+2026-10-26T05:54:48.4195860Z dotnet-install: Note that the script does not resolve dependencies during installation.
+2026-10-26T05:54:48.4197989Z dotnet-install: To check the list of dependencies, go to https://learn.microsoft.com/dotnet/core/install, select your operating system and check the "Dependencies" section.
+2026-10-26T05:54:48.4200053Z dotnet-install: Installation finished successfully.
+2026-10-26T05:54:48.4436002Z ##[group]Run actions/setup-node@v4
+2026-10-26T05:54:48.4436341Z with:
+2026-10-26T05:54:48.4436553Z   node-version: 24
+2026-10-26T05:54:48.4436779Z   always-auth: false
+2026-10-26T05:54:48.4437013Z   check-latest: false
+2026-10-26T05:54:48.4439709Z   token: ***
+2026-10-26T05:54:48.4439917Z env:
+2026-10-26T05:54:48.4440126Z   DOTNET_ROOT: /usr/share/dotnet
+2026-10-26T05:54:48.4440379Z ##[endgroup]
+2026-10-26T05:54:48.5911805Z Found in cache @ /opt/hostedtoolcache/node/24.21.0/x64
+2026-10-26T05:54:48.5915541Z (node:2794) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-26T05:54:48.5916432Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-26T05:54:48.5919185Z ##[group]Environment details
+2026-10-26T05:54:49.0291937Z node: v24.21.0
+2026-10-26T05:54:49.0292525Z npm: 11.19.0
+2026-10-26T05:54:49.0293136Z yarn: 1.22.22
+2026-10-26T05:54:49.0294431Z ##[endgroup]
+2026-10-26T05:54:49.0453529Z ##[group]Run actions/setup-go@v6
+2026-10-26T05:54:49.0453845Z with:
+2026-10-26T05:54:49.0454055Z   go-version: 1.27.3
+2026-10-26T05:54:49.0454282Z   cache: false
+2026-10-26T05:54:49.0454486Z   check-latest: false
+2026-10-26T05:54:49.0457567Z   token: ***
+2026-10-26T05:54:49.0457779Z env:
+2026-10-26T05:54:49.0457981Z   DOTNET_ROOT: /usr/share/dotnet
+2026-10-26T05:54:49.0458232Z ##[endgroup]
+2026-10-26T05:54:49.1767510Z Setup go version spec 1.27.3
+2026-10-26T05:54:49.1775199Z Attempting to download 1.27.3...
+2026-10-26T05:54:49.6669618Z matching 1.27.3...
+2026-10-26T05:54:49.6698876Z Acquiring 1.27.3 from https://github.com/actions/go-versions/releases/download/1.27.3-39437817176/go-1.27.3-linux-x64.tar.gz
+2026-10-26T05:54:50.0832572Z Extracting Go...
+2026-10-26T05:54:50.0947326Z [command]/usr/bin/tar xz --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/191e820f-2af0-425e-8efc-ead129eb84df -f /home/runner/work/_temp/0a9c7bbe-220a-4c22-a8e5-017167df0c1a
+2026-10-26T05:54:51.8165412Z Successfully extracted go to /home/runner/work/_temp/191e820f-2af0-425e-8efc-ead129eb84df
+2026-10-26T05:54:51.8166430Z Adding to the cache ...
+2026-10-26T05:54:57.6453947Z Successfully cached go to /opt/hostedtoolcache/go/1.27.3/x64
+2026-10-26T05:54:57.6457533Z Added go to the path
+2026-10-26T05:54:57.6460715Z Successfully set up Go version 1.27.3
+2026-10-26T05:54:57.6662600Z go version go1.27.3 linux/amd64
+2026-10-26T05:54:57.6662956Z 
+2026-10-26T05:54:57.6663538Z ##[group]go env
+2026-10-26T05:54:57.8012489Z AR='ar'
+2026-10-26T05:54:57.8012940Z CC='gcc'
+2026-10-26T05:54:57.8013351Z CGO_CFLAGS='-O2 -g'
+2026-10-26T05:54:57.8013737Z CGO_CPPFLAGS=''
+2026-10-26T05:54:57.8014153Z CGO_CXXFLAGS='-O2 -g'
+2026-10-26T05:54:57.8014545Z CGO_ENABLED='1'
+2026-10-26T05:54:57.8015283Z CGO_FFLAGS='-O2 -g'
+2026-10-26T05:54:57.8015763Z CGO_LDFLAGS='-O2 -g'
+2026-10-26T05:54:57.8016099Z CXX='g++'
+2026-10-26T05:54:57.8016431Z GCCGO='gccgo'
+2026-10-26T05:54:57.8016770Z GO111MODULE=''
+2026-10-26T05:54:57.8017171Z GOAMD64='v1'
+2026-10-26T05:54:57.8017486Z GOARCH='amd64'
+2026-10-26T05:54:57.8017827Z GOAUTH='netrc'
+2026-10-26T05:54:57.8018215Z GOBIN='/home/runner/go/bin'
+2026-10-26T05:54:57.8018778Z GOCACHE='/home/runner/.cache/go-build'
+2026-10-26T05:54:57.8019339Z GOCACHEPROG=''
+2026-10-26T05:54:57.8019686Z GODEBUG=''
+2026-10-26T05:54:57.8020185Z GOENV='/home/runner/.config/go/env'
+2026-10-26T05:54:57.8020781Z GOEXE=''
+2026-10-26T05:54:57.8021105Z GOEXPERIMENT=''
+2026-10-26T05:54:57.8021443Z GOFIPS140='off'
+2026-10-26T05:54:57.8021761Z GOFLAGS=''
+2026-10-26T05:54:57.8023246Z GOGCCFLAGS='-fPIC -m64 -pthread -Wl,--no-gc-sections -fmessage-length=0 -ffile-prefix-map=/tmp/go-build849127719=/tmp/go-build -gno-record-gcc-switches'
+2026-10-26T05:54:57.8024372Z GOHOSTARCH='amd64'
+2026-10-26T05:54:57.8025004Z GOHOSTOS='linux'
+2026-10-26T05:54:57.8025717Z GOINSECURE=''
+2026-10-26T05:54:57.8026083Z GOMOD='/dev/null'
+2026-10-26T05:54:57.8026583Z GOMODCACHE='/home/runner/go/pkg/mod'
+2026-10-26T05:54:57.8027047Z GONOPROXY=''
+2026-10-26T05:54:57.8027406Z GONOSUMDB=''
+2026-10-26T05:54:57.8027741Z GOOS='linux'
+2026-10-26T05:54:57.8028161Z GOPACKAGESDRIVER=''
+2026-10-26T05:54:57.8028579Z GOPATH='/home/runner/go'
+2026-10-26T05:54:57.8028939Z GOPRIVATE=''
+2026-10-26T05:54:57.8029449Z GOPROXY='https://proxy.golang.org,direct'
+2026-10-26T05:54:57.8030086Z GOROOT='/opt/hostedtoolcache/go/1.27.3/x64'
+2026-10-26T05:54:57.8030591Z GOSUMDB='sum.golang.org'
+2026-10-26T05:54:57.8031091Z GOTELEMETRY='local'
+2026-10-26T05:54:57.8031816Z GOTELEMETRYDIR='/home/runner/.config/go/telemetry'
+2026-10-26T05:54:57.8032471Z GOTMPDIR=''
+2026-10-26T05:54:57.8032910Z GOTOOLCHAIN='local'
+2026-10-26T05:54:57.8033657Z GOTOOLDIR='/opt/hostedtoolcache/go/1.27.3/x64/pkg/tool/linux_amd64'
+2026-10-26T05:54:57.8034301Z GOVCS=''
+2026-10-26T05:54:57.8034657Z GOVERSION='go1.27.3'
+2026-10-26T05:54:57.8035278Z GOWORK=''
+2026-10-26T05:54:57.8035681Z PKG_CONFIG='pkg-config'
+2026-10-26T05:54:57.8035954Z 
+2026-10-26T05:54:57.8036483Z ##[endgroup]
+2026-10-26T05:54:57.8213096Z ##[group]Run ./scripts/verify.sh
+2026-10-26T05:54:57.8213505Z [36;1m./scripts/verify.sh[0m
+2026-10-26T05:54:57.8475368Z shell: /usr/bin/bash -e {0}
+2026-10-26T05:54:57.8475789Z env:
+2026-10-26T05:54:57.8476104Z   DOTNET_ROOT: /usr/share/dotnet
+2026-10-26T05:54:57.8476509Z   GOTOOLCHAIN: local
+2026-10-26T05:54:57.8476839Z ##[endgroup]
+2026-10-26T05:54:58.9889209Z   Determining projects to restore...
+2026-10-26T05:55:01.0810145Z   Restored /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/Tscs.Compiler.Tests.csproj (in 1.64 sec).
+2026-10-26T05:55:01.0880914Z   Restored /home/runner/work/tscs/tscs/src/Tscs.Compiler/Tscs.Compiler.csproj (in 2 ms).
+2026-10-26T05:55:01.0927566Z   Restored /home/runner/work/tscs/tscs/tools/Tscs.FixtureHarness/Tscs.FixtureHarness.csproj (in 2 ms).
+2026-10-26T05:55:01.0971846Z   Restored /home/runner/work/tscs/tscs/src/Tscs.Cli/Tscs.Cli.csproj (in 2 ms).
+2026-10-26T05:55:04.2148849Z   Tscs.Compiler -> /home/runner/work/tscs/tscs/src/Tscs.Compiler/bin/Release/net10.0/Tscs.Compiler.dll
+2026-10-26T05:55:06.1503455Z   Tscs.Cli -> /home/runner/work/tscs/tscs/src/Tscs.Cli/bin/Release/net10.0/tscs.dll
+2026-10-26T05:55:09.0817099Z   Tscs.FixtureHarness -> /home/runner/work/tscs/tscs/tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.FixtureHarness.dll
+2026-10-26T05:55:11.7625633Z   Tscs.Compiler.Tests -> /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll
+2026-10-26T05:55:11.7816393Z 
+2026-10-26T05:55:11.7824051Z Build succeeded.
+2026-10-26T05:55:11.7825265Z     0 Warning(s)
+2026-10-26T05:55:11.7825805Z     0 Error(s)
+2026-10-26T05:55:11.7827190Z 
+2026-10-26T05:55:11.7827426Z Time Elapsed 00:00:10.41
+2026-10-26T05:55:12.7547672Z Running tests from /home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64)
+2026-10-26T05:55:21.1321548Z [m/home/runner/work/tscs/tscs/tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll (net10.0|x64) [32mpassed[m [90m(8s 379ms)[m
+2026-10-26T05:55:21.1399200Z 
+2026-10-26T05:55:21.1409522Z [32mTest run summary: Passed!
+2026-10-26T05:55:21.1415003Z [m  total: 15450
+2026-10-26T05:55:21.1415515Z   failed: 0
+2026-10-26T05:55:21.1418390Z [32m  succeeded: 15450
+2026-10-26T05:55:21.1418957Z [m  skipped: 0
+2026-10-26T05:55:21.1419407Z   duration: 8s 642ms
+2026-10-26T05:55:29.5775038Z ok  	command-line-arguments	0.006s
+2026-10-26T05:55:29.9692399Z ✔ diagnostic differences fail (2.283498ms)
+2026-10-26T05:55:29.9693669Z ✔ missing evidence is not a pass (0.251494ms)
+2026-10-26T05:55:29.9694521Z ✔ unsupported is not success (0.232798ms)
+2026-10-26T05:55:29.9695571Z ✔ empty selection is rejected (0.636829ms)
+2026-10-26T05:55:29.9696284Z ✔ duplicates are rejected (0.27591ms)
+2026-10-26T05:55:29.9696938Z ✔ crash stays a crash (0.167525ms)
+2026-10-26T05:55:29.9731293Z ✔ timeout stays a timeout (0.159269ms)
+2026-10-26T05:55:29.9740796Z ✔ real subprocess timeout fails (38.682606ms)
+2026-10-26T05:55:29.9742283Z ✔ malformed output fails (57.115175ms)
+2026-10-26T05:55:29.9744130Z ✔ nonzero exit without diagnostics is a mismatch (0.663219ms)
+2026-10-26T05:55:29.9745750Z ✔ message ordering matters (0.374846ms)
+2026-10-26T05:55:29.9747209Z ✔ a subprocess success cannot hide malformed result fields (45.326796ms)
+2026-10-26T05:55:30.6991018Z ✔ altered expected diagnostics fail before running compiler (170.244979ms)
+2026-10-26T05:55:30.6996096Z ✔ altered fixture bytes fail before running compiler (201.80707ms)
+2026-10-26T05:55:30.7066628Z ✔ an empty manifest cannot produce a passing report (194.555975ms)
+2026-10-26T05:55:30.7068546Z ✔ reduced cohort is rejected against frozen evidence (187.514223ms)
+2026-10-26T05:55:30.7072575Z ✔ altered corpus denominator cannot pass (146.607348ms)
+2026-10-26T05:55:37.4872986Z ✔ raw comparison preserves nil and metadata differences without awarding compiler credit (3.677375ms)
+2026-10-26T05:55:37.4876035Z ✔ raw comparison rejects omissions, duplicate identities and extra results (1.11509ms)
+2026-10-26T05:55:37.4880476Z ✔ raw comparison ignores object property order but retains panic status (0.427866ms)
+2026-10-26T05:55:37.4885447Z ✔ malformed result envelopes and byte fields cannot be accepted as matches (0.705479ms)
+2026-10-26T05:55:37.4891276Z ✔ empty panic and error strings retain reference failure classification (0.402087ms)
+2026-10-26T05:55:37.4898779Z ✔ harness build executes edited sources and fails closed on a compiler error (7642.480142ms)
+2026-10-26T05:55:37.4905259Z ✔ file-map profile compares rooted contents and retains raw alias collisions (1.140006ms)
+2026-10-26T05:55:37.4910718Z ✔ reference echoes must bind every result to the actual input bytes and file name (0.520139ms)
+2026-10-26T05:55:37.4923812Z ✔ construction distinguishes matches, unsupported, mismatches and reference panic (1.234334ms)
+2026-10-26T05:55:37.4926593Z ✔ construction rejects malformed matching payloads and keeps nil distinct (0.670132ms)
+2026-10-26T05:55:37.4932291Z ✔ construction unsupported cannot hide opposing runtime panic (0.319391ms)
+2026-10-26T05:55:37.5036811Z ✔ generation reconciles committed bytes, skips, dynamic declarations and unexpanded gitlinks (546.873037ms)
+2026-10-26T05:55:37.5038619Z ✔ repeated generation yields identical artifacts and verifiable checksums (404.344772ms)
+2026-10-26T05:55:37.5040062Z ✔ wrong pins and preexisting output are rejected without overwriting (111.306736ms)
+2026-10-26T05:55:37.5041778Z ✔ partial or unparsable skip metadata remains unresolved, not an asserted upstream skip (426.734858ms)
+2026-10-26T05:55:37.5043403Z ✔ Go syntax candidates explicitly retain unevaluated selection constraints (240.798885ms)
+2026-10-26T05:55:37.5045237Z ✔ toolchain provenance requires pinned Go and is recorded in the result (237.948639ms)
+2026-10-26T05:55:37.5046289Z ✔ configuration ledger is separate and an unverified source pin cannot be expanded (251.776809ms)
+2026-10-26T05:55:37.5047447Z ✔ owned tool modules and tests use Node native TypeScript entries (2.478307ms)
+2026-10-26T05:55:37.5049036Z ✔ shell verification and reference build run native TypeScript without a loader (1.062771ms)
+2026-10-26T05:55:37.5050564Z ✔ no config is NOT_APPLICABLE and never compiler acceptance (4.161948ms)
+2026-10-26T05:55:37.5052601Z ✔ syntax errors and unsupported grammar cannot earn clean MATCH (1.687007ms)
+2026-10-26T05:55:37.5053972Z ✔ AST differences and source/selection bindings remain visible (1.992282ms)
+2026-10-26T05:55:37.5055650Z ✔ strict schema rejects malformed bytes, ranges and extra fields (0.48817ms)
+2026-10-26T05:55:37.5057178Z ✔ malformed envelope and duplicate identities cannot produce accepted evidence (0.931464ms)
+2026-10-26T05:55:37.5058726Z ✔ post-completion truncation cannot reuse a previously valid summary (2.081961ms)
+2026-10-26T05:55:37.5060091Z ✔ complete option calls and diagnostics match independently (2.721815ms)
+2026-10-26T05:55:37.5061314Z ✔ missing parser diagnostic cannot receive a match (0.751495ms)
+2026-10-26T05:55:37.5063272Z ✔ unsupported policies stay unsupported rather than matching reference calls (0.344789ms)
+2026-10-26T05:55:37.5064569Z ✔ unreported unsupported declaration rejects (0.413849ms)
+2026-10-26T05:55:37.5066129Z ✔ input selection and context must bind even for unsupported output (0.540508ms)
+2026-10-26T05:55:37.5067533Z ✔ wrong calls, omitted diagnostics and false clean outcome reject (0.487147ms)
+2026-10-26T05:55:37.5069059Z ✔ a real config syntax error remains MATCH_DIAGNOSTICS and never clean MATCH (3.331724ms)
+2026-10-26T05:55:37.5070682Z ✔ selected content and rooted context mismatches cannot earn value matches (1.356314ms)
+2026-10-26T05:55:37.5071565Z ✔ changed converted values or extra conversion errors remain mismatches (1.651219ms)
+2026-10-26T05:55:37.5072301Z ✔ absent, unsupported and panic outcomes cannot earn matches (0.708324ms)
+2026-10-26T05:55:37.5073044Z ✔ missing, repeated or reordered actual identities reject the profile (0.523265ms)
+2026-10-26T05:55:37.5073828Z ✔ post-completion truncation of a complete value profile is rejected (13.025098ms)
+2026-10-26T05:55:37.5075663Z ✔ empty manifests never certify missing raw evidence (6.01663ms)
+2026-10-26T05:55:37.5076762Z ✔ every required file remains required when its manifest entry and payload are deleted (25.611583ms)
+2026-10-26T05:55:37.5077587Z ✔ shard counts cannot be reduced through a rehashed calls manifest (7.721277ms)
+2026-10-26T05:55:37.5078320Z ✔ rehashed shard identities cannot diverge from selected config IDs (5.451846ms)
+2026-10-26T05:55:37.5079015Z ✔ claimed report totals must reconcile to raw config outcomes (7.342709ms)
+2026-10-26T05:55:37.5079872Z ✔ rehashed reference echoes still bind to exact parse requests (28.89018ms)
+2026-10-26T05:55:37.5081231Z ✔ derived diagnostic and selected-skip counters cannot be forged (17.240497ms)
+2026-10-26T05:55:37.5082589Z ✔ shared source-scope counters cannot disagree between reports (6.401745ms)
+2026-10-26T05:55:37.5084057Z ✔ runner policy is bound to pinned path rather than a mutable inventory label (2.42103ms)
+2026-10-26T05:55:37.5086140Z ✔ configuration evidence rejects a helper and runner configuration disagreement (1.645949ms)
+2026-10-26T05:55:37.5087774Z ✔ runner fallback evidence preserves compiler nil and transpile original settings (0.952133ms)
+2026-10-26T05:55:37.5089278Z ✔ malformed outputs, missing IDs and swapped input cannot earn MATCH (1.292303ms)
+2026-10-26T05:55:37.5090089Z ✔ no settings gives the transpile fallback configuration, not zero tests (2.84061ms)
+2026-10-26T05:55:37.5090927Z ✔ non-varying commas remain scalar and singleton variations have no suffix (0.872032ms)
+2026-10-26T05:55:37.5091857Z ✔ settings use last declaration, Go whitespace, and remove only one final semicolon (0.469805ms)
+2026-10-26T05:55:37.5092825Z ✔ boolean products get canonical sorted names while preserving first spelling (0.565464ms)
+2026-10-26T05:55:37.5093709Z ✔ wildcards add missing boolean values and exclusions ignore unknown values (0.391888ms)
+2026-10-26T05:55:37.5094660Z ✔ empty token lists disappear except when transpile fallback restores raw settings (0.356822ms)
+2026-10-26T05:55:37.5095975Z ✔ invalid included values and emptied sets are blockers with no partial configurations (0.652158ms)
+2026-10-26T05:55:37.5096872Z ✔ all three boolean axes have eight distinct names, not repeated aliases (0.417776ms)
+2026-10-26T05:55:37.5097875Z ✔ inventory expands only source-verified UTF8 transpile configurations with stable IDs and NOT_RUN (2.79323ms)
+2026-10-26T05:55:37.5098935Z ✔ unverified pin, missing policy bytes or changed policy never gain expansion credit (0.958916ms)
+2026-10-26T05:55:37.5099937Z ✔ full-source extraction retains canonical newline consumption and trailing-space settings (0.485475ms)
+2026-10-26T05:55:37.5100954Z ✔ a blocked fixture retains its evidence without removing successful neighboring records (0.528364ms)
+2026-10-26T05:55:37.5101935Z ✔ checked-in scope summary binds the actual generator, upstream pin and progress bytes (3.355118ms)
+2026-10-26T05:55:37.5103112Z ✔ initial source-scope progress cannot silently become accepted coverage (2.971305ms)
+2026-10-26T05:55:37.5103939Z ✔ tree parser preserves byte-exact paths, modes, and gitlinks (4.593794ms)
+2026-10-26T05:55:37.5105154Z ✔ tree parser rejects duplicates, traversal, malformed and undecodable paths (0.764971ms)
+2026-10-26T05:55:37.5105987Z ✔ IDs bind pin, record kind, and full path rather than basename (1.208225ms)
+2026-10-26T05:55:37.5107366Z ✔ classification separates runner input, support, baselines, tools and JS tests (0.95574ms)
+2026-10-26T05:55:37.5109023Z ✔ fixture metadata preserves duplicate raw directives and does not invent variants (0.940431ms)
+2026-10-26T05:55:37.5110315Z ✔ metadata follows anchored upstream option syntax rather than accepting indentation (0.42437ms)
+2026-10-26T05:55:37.5111107Z ✔ invalid UTF8 and UTF16 are byte evidence, never replacement text (0.613966ms)
+2026-10-26T05:55:37.5111848Z ✔ NUL-containing source and UTF8 BOM remain distinguishable raw evidence (0.37729ms)
+2026-10-26T05:55:37.5112845Z ✔ initial status is independent for each record and never implies acceptance (0.443796ms)
+2026-10-26T05:55:37.5113743Z ✔ successful progress requires evidence and acceptance cannot outrun compiler/reference (2.091508ms)
+2026-10-26T05:55:37.5114625Z ✔ summary is lossless by domain but refuses to substitute files for executable cases (0.9027ms)
+2026-10-26T05:55:37.5115849Z ✔ summary rejects dropped, duplicate and dangling fixture/declaration sources (0.885187ms)
+2026-10-26T05:55:37.5116646Z ✔ UTF8 BOM handling and whitespace match the pinned reader/metadata syntax (0.384895ms)
+2026-10-26T05:55:37.5117390Z ✔ metadata starts only at LF boundaries, not JS-only line separators (0.573951ms)
+2026-10-26T05:55:37.5117813Z ℹ tests 95
+2026-10-26T05:55:37.5118019Z ℹ suites 0
+2026-10-26T05:55:37.5118356Z ℹ pass 95
+2026-10-26T05:55:37.5118556Z ℹ fail 0
+2026-10-26T05:55:37.5118762Z ℹ cancelled 0
+2026-10-26T05:55:37.5118979Z ℹ skipped 0
+2026-10-26T05:55:37.5119204Z ℹ todo 0
+2026-10-26T05:55:37.5119453Z ℹ duration_ms 7855.90103
+2026-10-26T05:55:42.7339012Z Differential cohort: 29/29; inventory 12981 files (90 unresolved variant files).
+2026-10-26T05:55:42.7502907Z Post job cleanup.
+2026-10-26T05:55:42.8879532Z Post job cleanup.
+2026-10-26T05:55:43.0252305Z (node:5888) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-26T05:55:43.0253730Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-26T05:55:43.0431306Z Post job cleanup.
+2026-10-26T05:55:43.1769048Z (node:5896) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-26T05:55:43.1770359Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-26T05:55:43.1961502Z Post job cleanup.
+2026-10-26T05:55:43.2902042Z [command]/usr/bin/git version
+2026-10-26T05:55:43.2951086Z git version 2.55.0
+2026-10-26T05:55:43.2997513Z Temporarily overriding HOME='/home/runner/work/_temp/cc642cd4-b014-4fa1-b9b2-2b859b3c424c' before making global git config changes
+2026-10-26T05:55:43.2998788Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-26T05:55:43.3003819Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/tscs/tscs
+2026-10-26T05:55:43.3048328Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-26T05:55:43.3088243Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-26T05:55:43.3352926Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-26T05:55:43.3382625Z http.https://github.com/.extraheader
+2026-10-26T05:55:43.3397823Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-26T05:55:43.3435884Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-26T05:55:43.3731706Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-26T05:55:43.3779552Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-26T05:55:43.4186575Z Cleaning up orphan processes
+2026-10-26T05:55:43.4510489Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-dotnet@v4, actions/setup-node@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

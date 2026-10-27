@@ -1,0 +1,46 @@
+{
+  "path": "/workspace/scratch/daf3e6c2e318/tscs-source-options-map-evidence-2026-10-26.tar.gz",
+  "bytes": 276358,
+  "sha256": "87ff05abdb34b83743c525a599f609e40ec6da6a03bea6ff71174ca01efdae20",
+  "indexSha256": "310db0c7ffcfe022d9a3a2e1753cff1e65eae1af146dcf301f985f344b5dad43",
+  "payloads": 55,
+  "hardlinks": 37,
+  "gitBackedOmissions": [
+    {
+      "archivePath": "initial-pre-provenance-hardening/declarations.json",
+      "gitPath": "src/Tscs.Compiler/json-option-declarations.json",
+      "gitBlobOid": "4a88e75d762e4706bb13cc53d9df26481a850cdd",
+      "bytes": 49882,
+      "sha256": "d91d78ea8f071d09059601b64921fcf54bcfd5e093cc39f01da0d90b30967255"
+    },
+    {
+      "archivePath": "author-final/oracle.json",
+      "gitPath": "tests/Tscs.Compiler.Tests/TestData/json-options-map.json",
+      "gitBlobOid": "ea0c4d72bb1a858f81e298a81ef8fdc39228f371",
+      "bytes": 777820,
+      "sha256": "b0fb46a68ecf2bc41bb598245520e7fb91bccc1d103182bee6e6e93452ea682d"
+    },
+    {
+      "archivePath": "author-final/declarations.json",
+      "gitPath": "src/Tscs.Compiler/json-option-declarations.json",
+      "gitBlobOid": "4a88e75d762e4706bb13cc53d9df26481a850cdd",
+      "bytes": 49882,
+      "sha256": "d91d78ea8f071d09059601b64921fcf54bcfd5e093cc39f01da0d90b30967255"
+    },
+    {
+      "archivePath": "independent/oracle.json",
+      "gitPath": "tests/Tscs.Compiler.Tests/TestData/json-options-map.json",
+      "gitBlobOid": "ea0c4d72bb1a858f81e298a81ef8fdc39228f371",
+      "bytes": 777820,
+      "sha256": "b0fb46a68ecf2bc41bb598245520e7fb91bccc1d103182bee6e6e93452ea682d"
+    },
+    {
+      "archivePath": "independent/declarations.json",
+      "gitPath": "src/Tscs.Compiler/json-option-declarations.json",
+      "gitBlobOid": "4a88e75d762e4706bb13cc53d9df26481a850cdd",
+      "bytes": 49882,
+      "sha256": "d91d78ea8f071d09059601b64921fcf54bcfd5e093cc39f01da0d90b30967255"
+    }
+  ],
+  "libraryFileId": "libfile_01fe35b6091c8191a274e7c06d8d9852"
+}

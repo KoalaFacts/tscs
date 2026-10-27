@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "kind": "BOUNDED_LOCAL_GUARD_PROBES_NOT_UPSTREAM_ACCEPTANCE",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "sourcePath": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
+  "sourceGitBlob": "663e44537aa2f9fac97f66708515624873930638",
+  "scope": "LOCAL_GUARD_PROBES_ONLY",
+  "concreteUpstreamCases": null,
+  "upstreamCaseExpansion": "UNEXPANDED",
+  "fullCompilerAccepted": 0,
+  "fullCompilerAcceptance": "NOT_RUN",
+  "releaseEligible": false,
+  "counts": {
+    "registered": 14,
+    "implemented": 8,
+    "verifiedUpstream": 0,
+    "skippedUnimplemented": 6,
+    "notRun": 8,
+    "fail": 0,
+    "mismatch": 0,
+    "crash": 0,
+    "timeout": 0,
+    "upstreamSkipped": 0
+  },
+  "uniqueUnimplementedCapabilities": [
+    "function-declarations",
+    "intrinsic-globalthis",
+    "object-literals"
+  ],
+  "byDomain": {
+    "binder": {
+      "registered": 1,
+      "implemented": 1,
+      "skipUnimplemented": 0
+    },
+    "checker": {
+      "registered": 8,
+      "implemented": 4,
+      "skipUnimplemented": 4
+    },
+    "diagnostics": {
+      "registered": 1,
+      "implemented": 1,
+      "skipUnimplemented": 0
+    },
+    "parser": {
+      "registered": 4,
+      "implemented": 2,
+      "skipUnimplemented": 2
+    }
+  },
+  "cases": [
+    {
+      "id": "bootstrap:primitive-number-declaration",
+      "source": "let n: number = 1;",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
+      "capability": "primitive-typed-declaration",
+      "domain": "checker",
+      "implementation": "IMPLEMENTED",
+      "implementationLocation": "src/Tscs.Compiler/Compilation.cs",
+      "status": "NOT_RUN",
+      "reason": null,
+      "executed": false,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:primitive-string-declaration",
+      "source": "const s: string = \"ok\";",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
+      "capability": "primitive-typed-declaration",
+      "domain": "checker",
+      "implementation": "IMPLEMENTED",
+      "implementationLocation": "src/Tscs.Compiler/Compilation.cs",
+      "status": "NOT_RUN",
+      "reason": null,
+      "executed": false,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:primitive-boolean-declaration",
+      "source": "let b: boolean = true;",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
+      "capability": "primitive-typed-declaration",
+      "domain": "checker",
+      "implementation": "IMPLEMENTED",
+      "implementationLocation": "src/Tscs.Compiler/Compilation.cs",
+      "status": "NOT_RUN",
+      "reason": null,
+      "executed": false,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:nested-lexical-scope",
+      "source": "let x: number = 1; { let x: string = \"ok\"; } x = 2;",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
+      "capability": "nested-lexical-scopes",
+      "domain": "binder",
+      "implementation": "IMPLEMENTED",
+      "implementationLocation": "src/Tscs.Compiler/Compilation.cs",
+      "status": "NOT_RUN",
+      "reason": null,
+      "executed": false,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:any-annotation",
+      "source": "let n: any = 1;",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
+      "capability": "any-variable-annotation",
+      "domain": "checker",
+      "implementation": "IMPLEMENTED",
+      "implementationLocation": "src/Tscs.Compiler/TypeChecker.cs",
+      "status": "NOT_RUN",
+      "reason": null,
+      "executed": false,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:function-declaration",
+      "source": "let n = 1; function f() {}",
+      "guardMethod": "UnsupportedSyntaxNeverSucceeds",
+      "capability": "function-declarations",
+      "domain": "parser",
+      "implementation": "UNIMPLEMENTED",
+      "implementationLocation": null,
+      "status": "SKIP",
+      "reason": "UNIMPLEMENTED",
+      "executed": false,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:postfix-update",
+      "source": "let n = 1; n++;",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
+      "capability": "numeric-postfix-update",
+      "domain": "parser",
+      "implementation": "IMPLEMENTED",
+      "implementationLocation": "src/Tscs.Compiler/Parser.cs",
+      "status": "NOT_RUN",
+      "reason": null,
+      "executed": false,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:binary-expression",
+      "source": "let n = 1 + 2;",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
+      "capability": "numeric-addition-expression",
+      "domain": "parser",
+      "implementation": "IMPLEMENTED",
+      "implementationLocation": "src/Tscs.Compiler/Parser.cs",
+      "status": "NOT_RUN",
+      "reason": null,
+      "executed": false,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:ts-ignore-directive",
+      "source": "// @ts-ignore\nlet n: number = \"x\";",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
+      "capability": "ts-ignore-line-comment",
+      "domain": "diagnostics",
+      "implementation": "IMPLEMENTED",
+      "implementationLocation": "src/Tscs.Compiler/Scanner.cs",
+      "status": "NOT_RUN",
+      "reason": null,
+      "executed": false,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:object-literal",
+      "source": "const a = { x: 1 };",
+      "guardMethod": "UnsupportedSyntaxNeverSucceeds",
+      "capability": "object-literals",
+      "domain": "parser",
+      "implementation": "UNIMPLEMENTED",
+      "implementationLocation": null,
+      "status": "SKIP",
+      "reason": "UNIMPLEMENTED",
+      "executed": false,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:globalthis-read",
+      "source": "globalThis;",
+      "guardMethod": "IntrinsicGlobalThisIsExplicitlyUnsupported",
+      "capability": "intrinsic-globalthis",
+      "domain": "checker",
+      "implementation": "UNIMPLEMENTED",
+      "implementationLocation": null,
+      "status": "SKIP",
+      "reason": "UNIMPLEMENTED",
+      "executed": false,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:globalthis-in-block",
+      "source": "{ globalThis; }",
+      "guardMethod": "IntrinsicGlobalThisIsExplicitlyUnsupported",
+      "capability": "intrinsic-globalthis",
+      "domain": "checker",
+      "implementation": "UNIMPLEMENTED",
+      "implementationLocation": null,
+      "status": "SKIP",
+      "reason": "UNIMPLEMENTED",
+      "executed": false,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:globalthis-after-shadow",
+      "source": "{ let globalThis = 1; globalThis; } globalThis;",
+      "guardMethod": "IntrinsicGlobalThisIsExplicitlyUnsupported",
+      "capability": "intrinsic-globalthis",
+      "domain": "checker",
+      "implementation": "UNIMPLEMENTED",
+      "implementationLocation": null,
+      "status": "SKIP",
+      "reason": "UNIMPLEMENTED",
+      "executed": false,
+      "upstreamExecutableCaseId": null
+    },
+    {
+      "id": "bootstrap:globalthis-assignment",
+      "source": "globalThis = 1;",
+      "guardMethod": "IntrinsicGlobalThisIsExplicitlyUnsupported",
+      "capability": "intrinsic-globalthis",
+      "domain": "checker",
+      "implementation": "UNIMPLEMENTED",
+      "implementationLocation": null,
+      "status": "SKIP",
+      "reason": "UNIMPLEMENTED",
+      "executed": false,
+      "upstreamExecutableCaseId": null
+    }
+  ],
+  "estimate": {
+    "sampleSnapshots": 1,
+    "ratePerDay": null,
+    "remainingDays": null,
+    "confidence": "INSUFFICIENT_DATA",
+    "reason": "No two time-separated snapshots of a fixed upstream executable-case denominator exist."
+  }
+}

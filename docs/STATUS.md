@@ -1,7 +1,540 @@
-# Status — 2026-10-24
+# 2026-10-27 — Reachability-aware function branch joins (PR #8)
+
+Refined the existing definite-return pass to expose whether a supported block or
+conditional can complete normally. The TypeChecker now joins initialized symbols
+only across branches reaching the following statement, so a branch ending in a
+value return cannot incorrectly poison an initialized value from the other arm.
+Nested and else-if branches use the same AST flow helper. The feature remains
+limited to braced conditionals, sequential blocks and value returns; no loops,
+exceptional control flow, TypeScript narrowing or general emit is claimed.
+Original TS7 acceptance is unchanged: 0 PASS / 15,523 SKIP_UNIMPLEMENTED,
+with full executable expansion unknown. Fresh-head verification is required.
+
+# 2026-10-27 — Braced conditionals and path-sensitive function returns (PR #8)
+
+Extended the shared Scanner → AST/Parser → Binder/Scope → TypeChecker →
+FunctionControlFlow pipeline with braced `if / else if / else` statements,
+conservative definite value-return checking, and branch-isolated
+initialized-state joins. Boolean/any conditions, lexical branch scopes and
+variables initialized in both arms work in the bounded noEmit/noLib subset.
+Unbraced arms, arbitrary JavaScript truthiness, comparisons/logical operators,
+loops, void returns and full TS7 semantics remain unsupported.
+Targeted regressions cover success, uninitialized reads and fail-closed forms.
+No original upstream configuration-level SKIP is cleared; accepted original
+PASS remains 0/15,523 with dynamic scope unknown. Exact-head verification
+must be recorded separately; code submission is not an acceptance claim.
+
+# 2026-10-27 — Straight-line function return flow and return-line boundary (PR #8)
+
+Corrected an reviewed ASI issue: a line break after `return` cannot attach
+the next expression as its value; LF, CRLF and multiline-comment boundaries
+now fail closed in the current non-void function subset. Replaced the parser's
+last-statement-only shortcut with a shared FunctionControlFlow check in the
+TypeChecker. Unconditional nested blocks ending in a value return now work,
+while nonreturning bodies remain rejected. Conditional/loop control flow,
+void returns, full ASI and full TS7 function acceptance are still absent.
+The original accepted count and SKIP_UNIMPLEMENTED catalogue are unchanged.
+Current head CI must validate this commit; no merge/release is implied.
+
+# 2026-10-27 — Explicit-signature function pipeline (PR #8)
+
+Implemented a bounded, reusable function-declaration and call path across Scanner, AST,
+Parser, Binder, ModuleLinker, TypeSymbol and TypeChecker. Named source-level functions
+with explicit primitive/any parameters and return annotations can call/return primitive
+expressions, bind parameters in their own lexical scope, be referenced before their
+declaration and be imported through the existing named-value module graph. The shared
+checker validates arity, argument types and return assignability; missing annotations,
+unsupported bodies/call targets remain errors, not implicit any. No JavaScript emit,
+closures, overloads, default/rest/optional parameters, inference, generics, recursion
+soundness proof or complete TypeScript function semantics are claimed. This is a
+bounded implementation family, not acceptance of the general function-declaration
+local guard: `function f() {}` still fails closed. The existing 15,523 original
+upstream configuration-level SKIPs and original PASS=0 remain unchanged, with full
+dynamic scope still unknown. Exact-head C#/CI validation and independent review are
+required before considering the PR ready to merge.
+
+# 2026-10-27 — Shared semantic TypeSymbol foundation (PR #8)
+
+The bounded compiler now represents checked primitive/any types as semantic
+`TypeSymbol` values shared by Binder, ModuleLinker and TypeChecker. AST type
+annotation spelling stays in syntax; binder prebinding, module imports and
+expression checking use one type identity and assignment relation. A
+cross-module regression exercises typed string and any imports plus TS2322
+mismatch text. This lays a real code path for future callable/object types,
+but functions and general TS7 type relations are still UNIMPLEMENTED.
+Existing 15,523 original configuration targets remain SKIP_UNIMPLEMENTED;
+no original acceptance PASS or release eligibility is newly claimed.
+Exact-head compilation and regression remain required.
+
+# 2026-10-27 — Host-canonical module diagnostic provenance (PR #8)
+
+Fixed the reviewed P2 on case-insensitive module hosts: module edges can spell
+`b.ts` while the loaded AST/source identity is `B.ts`. ModuleLinker now
+normalizes linked targets and recursive resolutions to the actual parsed
+source before constructing diagnostics; CLI text lookup shares the host's
+identity comparer. New targeted host regression asserts real cycle provenance,
+UTF-16 offset and deduplicated reads. A Windows-only CLI regression verifies
+the correct third-line text coordinate; it is not treated as executed on Linux.
+This protects the reusable module source graph, not new TS7 acceptance.
+Exact-head checks are needed; no merge or upstream skip reduction is claimed.
+
+# 2026-10-27 — Deferred named export linking (PR #8)
+
+The host-backed Program now links named value exports after prebinding all
+module-local scopes. Relative named `export { source as public } from "./file"`
+and imported-binding aliases follow transitive source-graph edges and keep
+the original declaring symbol identity. Non-recursive circular value imports
+work against prebound declarations; recursive export aliases explicitly fail.
+Missing/duplicate members, package paths and non-module targets stay rejected.
+Focused compiler regressions cover real three-file programs and failure cases.
+
+This is not complete TS7 modules, emit or release acceptance. Existing 15,523
+configuration-level upstream placeholders remain SKIP_UNIMPLEMENTED, original
+accepted PASS remains 0, complete dynamic scope unknown. New-head CI is
+required; no merger or independent review is claimed for this change.
+
+# 2026-10-27 — Explicit module export bindings and OS-correct diagnostic identities (PR #8)
+
+Named local `export { local as publicName }` lists now bind through a
+per-module export table sharing the declaration symbol, rather than treating
+all lexical locals as exports. `export {}` is a module boundary. Named imports
+resolve against these tables independent of source input order; duplicate and
+unknown exports fail closed. Imported-binding re-exports and
+`export {name} from "..."` remain unsupported, as do default/namespace exports,
+general module resolution, emit and TypeScript's complete symbol semantics.
+JSON and text diagnostics preserve literal Unix backslashes instead of
+collapsing them into directory separators. New targeted regressions exist;
+the new head still needs its own validation. Upstream accepted PASS remains
+0/15,523; SKIP_UNIMPLEMENTED=15,523; full dynamic scope unknown; no merge
+or independent review is asserted.
+
+# 2026-10-27 — Shared AST snapshots and multi-file diagnostic identity (PR #8)
+
+The host program now caches each canonical source's actual syntax result for
+both graph discovery and compiler analysis, removing duplicate module parsing.
+CLI JSON now disambiguates equal source basenames with relative paths while
+preserving the single-file output contract. This addresses the open P2 source
+identity review finding, subject to exact-head CI. Original TS7 accepted
+0/15,523; SKIP_UNIMPLEMENTED=15,523; no release/merge/review claimed.
+
+# 2026-10-27 — Bounded relative named ES modules (PR #8)
+
+Implemented host-backed source loading for relative named imports and per-file
+module scopes with explicit primitive `export let/const` declarations. Import
+aliases resolve through the binder before checker evaluation; ordinary global
+scripts do not see private module declarations, and imports cannot be assigned.
+This is an actual, bounded compiler path, not a placeholder. Dynamic/package
+resolution, default exports, re-exports, standard library, emit, and complete
+module inference remain unsupported. This new source change requires fresh
+exact-head build/regression/CI and does **not** reclassify an upstream target.
+Frozen configuration-level accepted PASS=0/15,523; SKIP_UNIMPLEMENTED=15,523;
+full runtime denominator unknown; releaseEligible=false. No formal review or
+merge claimed.
+
+# 2026-10-27 — Host-backed transitive global-script path references (PR #8)
+
+Implemented a bounded source-dependency graph in `CompilerProgram.Load`:
+leading relative triple-slash path references load transitively through
+`ICompilerHost`, while canonical deduplication prevents cycles/diamonds from
+reloading sources. The loaded sources feed the existing multi-file binder and
+checker; malformed/late directives, missing dependencies and unsupported
+absolute references fail closed. New host tests cover the working cross-file
+path and these boundaries. This is not ES-module resolution or original TS7
+acceptance. Original configuration-level PASS stays 0/15,523, SKIP_UNIMPLEMENTED
+stays 15,523; the full runtime domain denominator remains unknown.
+
+# 2026-10-27 — Host-backed compiler program and project syntax diagnostics (PR #8)
+
+Added a production `ICompilerHost` / `FileSystemCompilerHost` boundary and
+`CompilerProgram.Load` to snapshot canonical source identities and contents,
+reject aliases/duplicates, and cache the bounded multi-file analysis. The CLI
+now uses this program path instead of privately loading and reparsing source
+files; alternate VFS/editor hosts can provide in-memory content. Multi-file
+scanner/parser failures are aggregated with stable source identity before
+binding, avoiding the previous first-bad-file early return. This unlocks
+subsequent module graphs and project host expansion without creating another
+independent compiler path. Minimal ambient declaration validation, module
+resolution, incremental invalidation, symlinks, full TypeScript types and
+JavaScript emit remain unsupported. Source-level tests cover real in-memory
+host execution, duplicate identity checks, diagnostic ownership and multi-file
+failure collection; testing must be verified against this exact new head.
+
+No upstream placeholder is reclassified: frozen 15,523 configurations,
+accepted full TS7 PASS 0, SKIP_UNIMPLEMENTED 15,523; 39 original upstream
+skip flags and seven reference-fatal sources remain distinct. Full runtime
+case denominator unknown, releaseEligible=false. This is architecture
+implementation, not original acceptance or an independent review.
+
+# 2026-10-27 — First multi-source program architecture package (PR #8)
+
+Production compiler: `Compilation.AnalyzeFiles`/CLI handles multiple
+noEmit/noLib TypeScript global scripts, retaining per-file scanner/AST
+contexts and a shared top-level binder scope. Primitive annotated/literal
+symbols resolve across input files; unknown inference, declaration merging,
+imports, standard libraries and general emit still explicitly remain
+unsupported. New xUnit regression exercises multi-file ordering, type
+mismatch source positions, duplicate globals and fail-closed behavior.
+**This is product architecture implementation, not a full original TS7
+acceptance PASS.** Upstream configuration-level catalogue remains
+15,523 targets, original accepted 0, SKIP_UNIMPLEMENTED 15,523, full
+runtime expansion unknown; scope delta and removed SKIP IDs zero.
+
+The first product-head hosted verify jobs compiled the new C# code and
+passed 15,577 internal xUnit4/MTP cases but failed at the later Node
+implementation-ledger integrity check: changed
+`CompilationTests.cs` had an outdated source Git-blob SHA in both
+`tests/implementation-coverage/registry.json` and its derived report.
+This corrective commit updates only that source binding to the actual
+published Git blob `663e44537aa2f9fac97f66708515624873930638`. It does NOT weaken the fail-closed
+checker or reclassify implementation SKIPs. Full final-head CI remains
+subject to separate verification. Go reference verifier correction
+`e74dddc` now recognizes the two real pinned Go child tests
+`type` and `symbol`; previous Go job remains red, product-side original
+acceptance NOT_RUN. No independent formal review/merge/release claimed.
+
+# Status — 2026-10-27
+- Hosted RED at [job 121865211939](https://github.com/KoalaFacts/tscs/actions/runs/40406416194/job/121865211939): **11/11 Node24 verifier tests passed**, sparse checkout successfully pinned the exact source, but Go dependency acquisition failed before any original test due the upstream root `go.work` referencing `../tools/go.mod`, excluded by the intentionally sparse checkout. The fix isolates the actual `tsc` module with `GOWORK=off` in the acquisition, verification and test phases. This is a genuine infrastructure failure, **not** a successful original test or a billing error; exact fix-head CI must be run separately.
+
+## 2026-10-27 — Live pinned Go TestLocal/emptyFile.ts probe (PR #8; reference-only)
+
+- Added an executable, strictly pinned upstream Go harness probe for the first original configuration target `configuration:c5f81e2689b2db32a694b7b3de45098f5d58941800bfe0683e2f68000e24c110`. Uses the **real** `TestLocal/emptyFile.ts` Go test and all seven required nested checks, not a generated xUnit placeholder. An independent JSON event verifier fails closed on absent/duplicate cases, skips, failures, truncation, other selected tests and package failure.
+- New native TypeScript validator was tested locally against synthetic Go event streams: **11/11 GREEN after missing-module RED**, plus CLI JSON/SHA smoke and `bash -n`. Local Node was 22.16.0 experimental strip-types, **not Node24**; local .NET 10 and Go1.27.3 were unavailable. The actual live pinned Go test and hosted checks remain **NOT_RUN until exact-head CI completes**. No independent review has occurred.
+- Reference dependency acquisition uses the official module proxy/sumdb and immutable pinned `go.sum`; Go test phase checks `GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local GOTELEMETRY=off` and preserves full output, SHA and failure evidence. [Probe design and limitations](progress/original-emptyfile-go-reference.md).
+- **Accounting unchanged:** original 15,523 configurations, original `PASS=0`, `SKIP(UNIMPLEMENTED)=15,523`, new accepted target IDs **none**, removed SKIP IDs **none**, `scopeDelta=0`, 39 UPSTREAM_SKIPPED metadata flags, seven historical reference-fatals, full executable test denominator unknown. Separate 14 local probes: 8 implementation-present / upstream NOT_RUN, six SKIP. Release gate remains blocked. A Go reference PASS alone **cannot** clear the C# product acceptance gate.
+
+## 2026-10-27 — Numeric unary plus, genuine RED → GREEN and preserved lexical regression (PR #8 only)
+
+- Test-first commit [`a60be67`](https://github.com/KoalaFacts/tscs/commit/a60be67ddd5420c2d986d8e0ed6e43c662e6623b) replaces the existing unary-plus rejection test with **real positive** C# compiler assertions for `+1`, `1 + +2`, `2 * +3`, nested `+/-`, typed variables, AST precedence and a 20,000-prefix chain; retains separate rejection of nonnumeric operands and exact TS2304/TS2322 diagnostics. Hosted test-first [RED run 40394957565](https://github.com/KoalaFacts/tscs/actions/runs/40394957565/job/121825428611) built successfully with zero errors and reported **15,557 PASS / 12 new FAIL / 0 SKIP**. These were genuine implementation failures, not fabricated SKIPs.
+- Product commit [`76b50ef`](https://github.com/KoalaFacts/tscs/commit/76b50ef7437917975bce9524a240ba27a8d73402) removes the scanner's unsupported *single* `+` guard (while preserving the distinct `++` fail-closed boundary), parses prefix `+`/ `-` iteratively and checks numeric unary expressions iteratively. This does **not** implement nonnumeric unary-plus coercion, prefix increment, JavaScript emit or original upstream runner acceptance.
+- The initial product-head CI exposed a genuine preexisting regression: `StringRecoveryTests.EarlierLexicalErrorsSurviveLaterUnsupportedSyntax` previously used a trailing `+` as its unsupported-syntax sentinel. At [run 40395366462](https://github.com/KoalaFacts/tscs/actions/runs/40395366462/job/121826858547), the build passed but MTP recorded **15,569 PASS / 1 FAIL**. The test-only correction [`ce47cb1`](https://github.com/KoalaFacts/tscs/commit/ce47cb14759711da31e15b941ecdf03315f35e78) replaces that sentinel with the still-unsupported `function` token and adds a separate assertion that lexical TS1125 survives a now-supported `+1`. Neither existing diagnostic was silently dropped or marked SKIP.
+- Hosted exact-product-and-regression-head [GREEN run 40395996559](https://github.com/KoalaFacts/tscs/actions/runs/40395996559/job/121829124125): **15,570/15,570 strict internal xUnit4/MTP PASS (0 FAIL/0 SKIP)**, **145/145 Node24 PASS**, frozen differential **29/29**, locked Release build **0 errors/0 warnings**, pinned Go source scope and distinct one-test discovery canary successful. The separate full original configuration placeholder xUnit/MTP lane still reports **15,523 discovered / 15,523 SKIP(UNIMPLEMENTED) / 0 original PASS / 0 original FAIL**, with **39 UPSTREAM_SKIPPED metadata flags**, not automatic PASS. Further exact-head checks are recorded independently; a docs follow-up requires its own new-head CI.
+- **No new accepted original target**: stable 15,523 configuration targets remain frozen, original upstream end-to-end PASS **0**, removed original SKIP IDs **none**; 7 historical reference-fatal sources remain; full dynamic execution scope is **UNEXPANDED/unknown**, `releaseEligible=false`. The distinct 14-case local guard register is unchanged (**8 implemented but upstream NOT_RUN / 6 SKIP**), because this new arithmetic capability has no verified original source/configuration mapping. No independent code review or formal APPROVE is claimed. Current Go `TestLocal` run and original reference differential for this feature remain **NOT_RUN**, and local .NET is unavailable.
+
+## 2026-10-27 — First pinned original-profile emit slice; original acceptance remains NOT_RUN (PR #8 only)
+
+- Exact upstream `tsc/testdata/tests/cases/compiler/emptyFile.ts` (SHA-256 `a149b5cff5898a63f501618af2c01a132895281e03663831e76f6deb9f3b5bc7`) and source configuration `configuration:c5f81e2689b2db32a694b7b3de45098f5d58941800bfe0683e2f68000e24c110` are used **without** `--noEmit`/`--noLib` overrides. The source is a comment-only test directive. The locked upstream reference `compiler/emptyFile.js` baseline contains the empty program's `"use strict";\r\n` emit and no diagnostics baseline.
+- Real test-first **RED** at `22e4b23064080cadde3ebe6936c93f2ace399c78`: both hosted strict internal verify jobs built but failed exactly the new source-bound emit assertion, **15,552 passed / 1 failed / 0 skipped** ([push](https://github.com/KoalaFacts/tscs/actions/runs/40386569208), [PR](https://github.com/KoalaFacts/tscs/actions/runs/40386580533)).
+- Product **GREEN** at `308e7dcea54beadb77aa73fb815e4eb5bd2eea30`: compiler analysis exposes empty-program state after parsing; CLI admits *only* the single-file explicit ES2015/noEmit=false/noLib=false empty-program case and emits the pinned strict prologue with CRLF, refusing to overwrite existing JavaScript. Real hosted full verify jobs passed strict MTP **15,553/15,553**; Node24 and frozen 29/29, full original placeholder discovery **15,523 SKIP / 0 PASS** and 4/4 exact-head checks passed ([push](https://github.com/KoalaFacts/tscs/actions/runs/40386981806), [PR](https://github.com/KoalaFacts/tscs/actions/runs/40386992638)). This does not permit syntax-bearing programs with these options.
+- These are **baseline-linked product regression tests**, not a complete original `TestLocal` runner invocation: the pinned Go runner's diagnostic/JS/source-map/types-and-symbols/module-resolution/parent-pointer checks have **NOT_RUN** at this original profile. Original accepted **0/15,523**, `SKIP_UNIMPLEMENTED=15,523`; scope +0 and removed SKIP IDs none. Seven reference-fatals and all unexpanded domains unchanged. `releaseEligible=false`. Self-review only; formal review/merge pending.
+
+## 2026-10-27 — Bounded numeric unary-minus compiler implementation (PR #8 only)
+
+- Genuine hosted RED commit `c24c849f04f69bd528853c0aa48023fba305940b`: **15,540 internal MTP PASS / 10 FAIL / 0 SKIP** at both exact-head verify jobs. New tests reported `TSCS1001` for numeric unary minus and `-missing`; Release build itself had zero errors. [RED push](https://github.com/KoalaFacts/tscs/actions/runs/40376690397) · [RED PR](https://github.com/KoalaFacts/tscs/actions/runs/40376698463).
+- Product commit `c7cd4036fe2eafd2f84f2106856f3ddc9222f863` adds explicit decrement `--` rejection, iteratively constructed unary `-` AST nodes and iterative numeric-only TypeChecker handling. Covers `-n`, chained prefixes, `2 - -1` and precedence with multiplication. Nonnumeric unary operands remain `TSCS1001`; unresolved identifiers retain `TS2304`. Parser/type checker remain bounded; emitter/full original TS7 acceptance are not implemented.
+- **Exact implementation-head hosted GREEN**, two verify jobs [40376954738](https://github.com/KoalaFacts/tscs/actions/runs/40376954738) and [40376966938](https://github.com/KoalaFacts/tscs/actions/runs/40376966938): both strict xUnit4/MTP **15,550/15,550** (no skips/failures), native Node24 **145/145**, frozen isolated differential **29/29**, Release zero warnings/errors, separate 15,523/15,523 actual MTP discovery SKIP with 0 accepted PASS. CodeQL and Actions analysis succeeded (**4/4 checks**). Additional AST-shape assertions in the documentation/test follow-up require their **own** new-head CI; previous GREEN is not credited to that follow-up.
+- Immutable upstream configuration corpus checked independently using the recorded SHA-256 (`targets.jsonl` `c1c4077d732ae859ad70899ac3fd85fc25f9eff1c99737f3e36aa806b5c2742e`): **1,304/15,523** target configurations explicitly have `noemit=true`, **12/15,523** explicitly have `nolib=true`, **0** explicitly set *both*. This explains why the current CLI's strict `--noEmit --noLib` bootstrap cannot by itself claim original-profile acceptance; the static counts do not establish effective defaults or the full runtime denominator. First genuine PASS still needs exact original fixture/configuration execution, reference outputs, standard-lib/emit capability, and full assertion evidence. Full upstream acceptance **0 PASS / 15,523 registered SKIP**, releaseEligible=false.
+- **Scope delta:** original targets +0, original accepted +0, removed original SKIPs 0. Local 14-probe catalogue remains **8 implemented/upstream NOT_RUN / 6 UNIMPLEMENTED SKIP**, because this extra arithmetic slice has not been mapped to an original profile; internal unit tests are not substituted for upstream PASS. Self-review only; no independent review or formal APPROVE. Main remains separate from open PR #8.
+
+## 2026-10-27 — One fewer genuine local SKIP; full 15,523-Fact MTP discovery confirmed
+
+- Test-first RED `f706c04572cba439efeb7ffe9f5cd15e132eb78a`: two hosted xUnit4/MTP verify jobs reproduced **8 focused failures**, each with **15,492 passed / 8 failed / 0 skipped**, while old bootstrap ignored no `@ts-ignore` directives. [RED job 1](https://github.com/KoalaFacts/tscs/actions/runs/40357878782/job/121695097990) · [RED job 2](https://github.com/KoalaFacts/tscs/actions/runs/40357891412/job/121695598276).
+- Product commit `51993ce5fa451a3dcfe71bab47953f842e8e1cda` implements narrowly scoped whole-line `// @ts-ignore`: scanner records the next physical line; checker-only diagnostics (including TS2304/TS2322/TS2588) are suppressed there, but scanner/parser errors, blank-line gaps and other directive spellings remain fail-closed. The formerly negative local guard `bootstrap:ts-ignore-directive` now asserts actual successful behavior; the previous unsupported-only guard still runs for other features. Stable local bootstrap inventory **14 total = 8 IMPLEMENTED/upstream NOT_RUN + 6 SKIP(UNIMPLEMENTED)**, newly removed SKIP **1**. This is **not full TypeScript directive compatibility**.
+- Exact product head hosted GREEN: [verify run 40358477859](https://github.com/KoalaFacts/tscs/actions/runs/40358477859) and [40358486127](https://github.com/KoalaFacts/tscs/actions/runs/40358486127), both **xUnit 15,500/15,500 with zero skips**, native Node24 **145/145**, frozen differential **29/29**, Release builds succeeded; both verify checks and CodeQL/Actions analysis succeeded.
+- The separate original-source configuration placeholder project **really compiled and ran under xUnit4/MTP2 in both hosted jobs**: **15,523 discovered, 15,523 SKIP(UNIMPLEMENTED), 0 PASS, 0 FAIL**. The one-source canary also correctly discovered one SKIP. Exact GitHub artifact snapshots (temporary retention) are **12667661634**, digest `sha256:37663778c0d041e4de837b3fe9e8ca648e4f0bac4de8d4baeb0cdda2f2ad8aa9` and **12666817064**, digest `sha256:01d9dea88b930c24b74a2e69d67cee997972e116538cbca8e46445a5e6e0ede8`. [Bounded evidence](evidence/ts-ignore-directive.json).
+- **Original pinned upstream compiler/referenceCompiler end-to-end acceptance PASS +0**, releaseEligible=false, 7 historical reference-fatal sources and incomplete Go/JS/Fourslash/build/watch/profile expansion unchanged. Local new-head .NET/Go executors were unavailable; no independent code review or formal APPROVE is claimed.
+
+## Git-backed full 15,523 source/configuration target MTP discovery — 2026-10-27
+
+- The historical, SHA-256-bound 3,544,490-byte generated placeholder archive is now stored as 20 ordered binary Git blobs (byte-identical reassembly checked). CI can extract and run the complete 15,523-Fact standalone xUnit4/MTP2 test assembly without needing a Library download. `tools/materialize-upstream-placeholders.ts` fails on missing/extra/corrupt blobs before writing any archive; six Node regressions and exact archive reconstruction passed locally. [Scope](progress/upstream-placeholder-full-discovery.md).
+- After the unchanged strict internal regression gate and one-source real canary, a separate CI step performs locked restore/build, actual 15,523-test CTRF discovery and stable-ID/source/config/status reconciliation. Raw discovery evidence is uploaded as a workflow artifact even on failure. **The new-head hosted discovery result must be checked; local .NET discovery is NOT_RUN.**
+- Compiler implementation delta **0**, original upstream acceptance PASS **0**, removed SKIP **0**; 15,523 source-configuration placeholders remain SKIP(UNIMPLEMENTED) until original assertions are implemented. The full runtime TS7 denominator remains unknown and releaseEligible=false.
+
+## Standalone xUnit/MTP NuGet lock and real discovery canary — 2026-10-27
+
+- The external generated test bundle now has a repository-reviewed standalone 16-package NuGet lock. It is projected from the existing pinned internal xUnit4/MTP2 lock (same versions/content hashes; three local project-reference entries excluded). The SHA-bound verifier and five local Node22.16.0 fallback regressions passed. See [lock scope](progress/upstream-placeholder-lock.md).
+- A separate 1-target original-source xUnit4/MTP2 discovery canary is added **after** the unchanged strict internal CI verification; its new-head hosted result must be checked independently. The 15,523-target discovery entry now validates the reviewed lock and copies it only to an extracted working bundle before locked restore/build/real CTRF reconciliation, rejecting any different existing lock.
+- No language implementation added, no original compiler acceptance PASS, no SKIPs eliminated. The full 15,523 MTP discovery remains NOT_RUN locally (no .NET SDK and archive is externally stored); complete runtime TS7 denominator remains UNEXPANDED, releaseEligible=false.
+
+
+## Separate xUnit/MTP discovery reconciliation — 2026-10-27
+
+- A new CTRF execution report verifier performs fail-closed ID/source/configuration reconciliation for the **15,523 source-config placeholders**. Local Node22 fallback **11/11 tests**, and synthetic 15,523-row CTRF reconciliation passed; actual .NET/MTP discovery is **NOT_RUN** because the standalone bundle lacks a reviewed lock file and local SDK is absent. [Scope](progress/upstream-placeholder-discovery.md), [evidence](evidence/upstream-placeholder-discovery.json).
+- New standalone optional script refuses non-locked restore, leaving main strict internal `--fail-skips on` untouched. Compiler feature/accepted-case delta **0**, removed SKIPs **0**, releaseEligible=false.
+
+
+## Full placeholder corpus integrity — 2026-10-26
+
+- A separate post-generation verifier now reconciles all **15,523 source-configuration target SKIPs** against every generated C# Fact, source/configuration ID and original artifact hash, including seven reference-fatal blockers and upstream-skip metadata. Synthetic corruption/missing-artifact regressions fail closed, and release mode rejects unresolved SKIPs. [Scope/results](progress/upstream-placeholder-integrity.md) and [machine evidence](evidence/upstream-placeholder-integrity.json).
+- Genuine local Node22 experimental fallback RED **8 failed** -> GREEN **8 passed**. Full historical generated bundle audit: **15,523/15,523 fact identities**, 13,006 source identities and expected counts, with separate same-author Python reconciliation. No new language features/accepted upstream cases; **0 SKIPs resolved**. New native Node24 tests are included by the existing `node --test tools/*.test.ts` command, but the generated 15,523-Fact .NET project has not been compiled/discovered in this environment.
+- The strict existing xUnit internal regression gate is unchanged. Original full upstream compiler/reference/acceptance remains **NOT_RUN**; the complete runtime TS7 denominator remains **unknown**; releaseEligible=false.
+
+
+
+## Bounded numeric addition checker stack safety — 2026-10-26
+
+- Confirmed P2 from PR #8 using an **isolated CLI child**: a supported 400,000-operator
+  numeric '+' chain (800,010 UTF16 source units, below the existing 1,000,000
+  limit) caused SIGABRT/StackOverflow on old checker. Both hosted RED
+  verification runs retained the crash in the child, not the xUnit or Node runner.
+  The full xUnit suite itself passed 15,488/15,488 on RED; native Node had
+  103 pass/1 fail, the new focused regression.
+- Changed TypeChecker.TypeOf from recursive binary traversal to iterative
+  post-order work/results stacks, retaining left-to-right resolution and first
+  unsupported-operand diagnostics. Two xUnit regression checks explicitly lock
+  diagnostic order and early-error precedence.
+- Implementation commit b69e30eb071da1b67420b64c413f9fc7fd39cd7a:
+  both hosted verify runs **xUnit 15,488/15,488; Node 104/104; frozen 29/29**,
+  standalone Go scope PASS, Release 0 warnings/errors. CodeQL/Actions analysis
+  also success; all four exact-head check-runs completed/success.
+- This is a crash/DoS regression fix to an **already implemented bounded**
+  numeric-addition path. Newly implemented capabilities: **0**; local
+  SKIP(UNIMPLEMENTED) unchanged **7 of 14**. Full original pinned TS7 compiler
+  acceptance **NOT_RUN**, executable denominator unknown and releaseEligible=false.
+  No fresh original Go compiler differential is claimed. [Scope, raw RED/GREEN
+  verification logs](progress/numeric-addition-stack.md).
+
+
+## Bounded postfix `++` and real SKIP reduction — 2026-10-26
+
+- **New C# checker slice:** the scanner lexes `++` distinctly from binary
+  `+`; the parser represents a same-line `identifier++` statement and the
+  checker accepts initialized mutable `number` variables. A `const` update
+  reports TS2588. Prefix updates, nonnumeric operands, postfix expressions
+  in initializers, emit and broader operator grammar remain unsupported.
+- **Real hosted RED at `167d240`:** seven intended failures in 15,485
+  xUnit tests (**15,478 passed / 7 failed / 0 skipped**), with clean Release
+  compilation. The earlier malformed-literal test attempt `7c1aade` is
+  excluded from this RED proof.
+- **Fixed genuine regressions:** first implementation `48e7f5e` passed
+  15,484/15,485 but a pre-existing CLI negative test still expected `x++`
+  to be rejected. `7339946` retained the failure assertion for the
+  unsupported *prefix* form and added a positive CLI success assertion;
+  xUnit became 15,486/15,486 while two Node inventory tests still encoded
+  the old 6/8 counts. `5e6927c` corrected those counts and asserted the
+  stable feature identity without weakening any real regression or release
+  gate.
+- **Exact implementation head `5e6927c`:** both hosted verify jobs passed
+  **xUnit4/MTP 15,486/15,486**, **Node24 103/103**, frozen differential
+  **29/29**, standalone Go scope PASS and Release **0 warnings/errors**.
+  CodeQL/Analyze(actions) also succeeded (**4/4 checks**). Raw RED,
+  intermediate failure and final hosted logs are preserved in
+  [postfix-update-run](evidence/postfix-update-run/); job identities and
+  limitations: [evidence ledger](evidence/postfix-update.json).
+- **Measured delta:** stable `bootstrap:postfix-update` moved from
+  SKIP(UNIMPLEMENTED) to IMPLEMENTED/NOT_RUN; the fixed 14-input local
+  catalogue changes **6 implemented / 8 SKIP → 7 implemented / 7 SKIP**.
+  Complete pinned upstream compiler acceptance remains **NOT_RUN**,
+  executable denominator unknown/unexpanded, releaseEligible=false.
+  PR #8 is not merged and has no formal latest-head GitHub approval.
+
+## Bounded numeric addition and measurable SKIP reduction — 2026-10-26
+
+- **Real feature:** scanner recognises binary `+`; the C# parser now records
+  left-associative numeric binary expressions; the checker infers `number` from
+  two number operands, preserving TS2322 annotation mismatch. Only number-only
+  `+` (including numeric identifier operands/chains/assignments) is implemented.
+  Unary `+`, string concatenation, `any` arithmetic and all other operators
+  remain explicitly unsupported, not silently treated as compatible.
+- **TDD RED:** `7cdd14f` compiled cleanly and the 11 new tests produced eight
+  expected failures (**15,462 passed / 8 failed / 0 skipped**, both hosted verify
+  jobs). This reflects seven positive examples plus one mismatch diagnostic.
+- **Regression and correction:** initial code/ledger head `c2b8df2` had one
+  genuine pre-existing failure: `StringRecoveryTests.EarlierLexicalErrorsSurviveLaterUnsupportedSyntax`
+  because standalone unary `+` stopped reporting TSCS1001 after an earlier
+  TS1125. The scanner now rejects unary `+` while preserving earlier lexical
+  errors. Three unary guards were added, so the final suite contains 15,473.
+- **Validated implementation head `273b4b7`:** four exact-head checks completed
+  success (CodeQL, Analyze(actions), two verify jobs). Both hosted runs confirmed
+  Release 0 warning/error, **xUnit4/MTP 15,473/15,473 (0 failed/skipped)**,
+  native Node **103/103**, frozen differential **29/29**, Go standalone scope
+  PASS. All six original hosted RED/intermediate/GREEN logs are retained bytewise
+  at [numeric-addition-run](evidence/numeric-addition-run/); original failing
+  attempts are excluded as passing proof but not erased.
+- Registry stable ID `bootstrap:binary-expression` moved SKIP/UNIMPLEMENTED
+  to IMPLEMENTED/NOT_RUN; local 14-probe register is now **6 implemented /
+  8 SKIP**. True full upstream acceptance added: **0**; complete executable
+  denominator unknown/unexpanded, full compiler/reference still NOT_RUN.
+  No actual pinned-Go complete original compiler comparison was run this stage;
+  releaseEligible=false. [Evidence ledger](evidence/numeric-addition.json).
+  PR #8 remains unmerged pending formal review.
+
+## Review fixes: pinned Unicode path comparisons and generated declarations — 2026-10-26
+
+- Closed two concrete P2 implementation/integrity findings on PR #8 without bypassing comparison: Go `strings.ToLower` recognises dotted-I in the configDir prefix, while Unicode simple-folding `EqualFold` recognises long-s in `file://localhost`. The product uses its pinned Go lowercase map for templates and a target-ASCII simple-fold comparison for URI file/localhost roots. It does not use host `OrdinalIgnoreCase` for these predicates.
+- Real hosted TDD RED at `bf7d00f`: two new path regressions fail with the exact predicted wrong values; 15,451/15,453 xUnit pass, two fail. The ASCII control still passes. The separate complete embedded-declaration SHA-256 guard detects two stale nested `rootDirs.element.supported` / `typeRoots.element.supported` fields.
+- The committed generated resource now equals the entire freshly regenerated pinned Go payload byte-for-byte: 49,865 bytes, SHA-256 `0d67a643ca7d3dce6315754e177f7d93cbada15682b4eebc45a2d4eea9a9552c` (previous 49,867 bytes, `464d4fb5eaae717e6d8cc61d5dfb8c0bfab132278c0b3f3251d568e4baaf32d9`). Node regression locks the complete hash, not just the two fields.
+- Exact implementation head `8473d1ce5dc00b684119244c4f6d9b0f4fd7210f` passed 4/4 hosted checks: Release zero warning/error, xUnit/MTP **15,453/15,453** with zero skipped, Node24 **103/103**, frozen **29/29**, Go standalone scope pass. Both raw hosted verify logs are accessible through [Actions run 40286427237](https://github.com/KoalaFacts/tscs/actions/runs/40286427237) and [40286434368](https://github.com/KoalaFacts/tscs/actions/runs/40286434368). The RED logs are [40286033683](https://github.com/KoalaFacts/tscs/actions/runs/40286033683) and [40286038675](https://github.com/KoalaFacts/tscs/actions/runs/40286038675).
+- This P2 closeout adds **no new TypeScript language feature**; ten registered SKIP(UNIMPLEMENTED) probes remain, four local implemented probes still upstream NOT_RUN, full TS7 acceptance and denominator unknown. Historical 172-source/13,006-source profiles were not re-run. PR #8 not yet formally reviewed/merged. [Machine evidence](evidence/path-unicode-review-closure.json).
+
+
+## Explicit SKIP/implementation status — 2026-10-26
+
+- Introduced a **separate** source-bound catalogue of 14 existing compiler theory inputs: 4 implemented but full upstream acceptance NOT_RUN; 10 `SKIP (UNIMPLEMENTED)` across 7 distinct missing capabilities. The original unsupported guard assertions still run and cannot count as feature implementation.
+- Bound all rows to fixed TS7 pin, original `CompilationTests.cs` Git blob, exact method/InlineData source strings, stable local IDs, and explicit implementation locations or nulls. Missing/new rows, falsely implemented statuses, regressions re-labelled SKIP and wrong pins fail the coverage check; 7 new Node regression cases were locally exercised on Node22 (Node24 hosted verification pending).
+- [Machine report](testing/ts7/implementation-coverage.json), [registry](../tests/implementation-coverage/registry.json) and [scope/evidence](progress/implementation-coverage.md) remain distinct from the 15,450 xUnit tests, 29 frozen differentials and all original upstream compiler cases. `verify.sh` retains `--fail-skips on --minimum-expected-tests 15450` and adds the bounded report check after its existing gates.
+- Release remains false; upstream concrete-case denominator is unknown/unexpanded; original compiler/reference acceptance is NOT_RUN. No actual TypeScript compiler feature, upstream PASS, or removed SKIP is claimed by this accounting update. Single snapshot is insufficient to forecast an actual completion interval.
+
 
 Working bootstrap of the first noEmit milestone. No JavaScript emitter or language
 server. No real-project compatibility or performance claim.
+
+## Bounded `any` variable annotations — 2026-10-26
+
+- Added a bounded parser/type-checker rule for variable `any` annotations; primitive assignment accepts `any` in either direction, while `const` reassignment stays TS2588. This is not full `any`/functions/generics support.
+- Hosted TDD RED at `6e2d446`: **7 actual new `any` failures** (TSCS1001), 15,452 passed/15,459 total; both verify jobs failed as expected. Exact-head GREEN at `00317a1`: two hosted verify jobs each passed **15,459/15,459 xUnit 4/MTP**, **Node 103/103**, frozen differential **29/29**, standalone Go scope PASS, Release **0 errors/0 warnings**; CodeQL and Actions analysis both passed. Raw RED/GREEN logs are preserved in `docs/evidence/any-annotation-run/`, metadata in `docs/evidence/any-annotation.json`. The new capability itself was not run against the pinned whole upstream compiler.
+- One stable local guard probe (`bootstrap:any-annotation`) moved from SKIP/UNIMPLEMENTED to IMPLEMENTED/NOT_RUN; bounded local catalogue now **5 implemented, 9 SKIP** (14 local probes), with no original upstream compiler credit. Frozen upstream case denominator stays unknown, release=false.
+
+
+## Rooted path and network diagnostic follow-up — 2026-10-26
+
+- The pinned compiler-option map now dispatches the 15 previously unsupported
+  path/locale declarations in addition to the existing 111 entries (126
+  declaration positions; 125 distinct names). Rooted PathKinds (1/2/3/7)
+  resolve lexically against config directory; source-map path kind retains
+  its unrooted value, network/device paths are rejected, and command-line-only
+  locale still reports TS6266. This is option-value conversion, not file host,
+  typed/effective CompilerOptions or full compiler acceptance.
+- Independently inspecting fixed upstream `tsconfigparsing.go` and
+  `nativepath/network.go` revealed a formatting boundary: Go's
+  `diagnostics.Format` collapses contiguous malformed WTF-8 into one U+FFFD
+  in the TS5116 network-path argument. The product now formats just that
+  diagnostic argument with the same existing option-name repair helper. Raw
+  UTF-16 input still drives path resolution/network rejection. Four xUnit
+  regressions construct malformed UTF-16 at runtime (not in InlineData's
+  UTF-8 metadata), also checking a valid surrogate pair.
+- Exact source head `efb2c56ccee623b83aaeaab3a56a03dbd1dda098` had all
+  four hosted checks completed/success: Release0 warnings/errors, xUnit/MTP
+  **15,450/15,450** (zero failed/skipped), Node **95/95**, Go standalone
+  scope PASS, frozen cohort **29/29**. Two full hosted verify logs are saved
+  unchanged in `docs/evidence/network-path-diagnostic-run/`; the four check
+  URLs and source IDs are in
+  [the evidence ledger](evidence/network-path-diagnostic.json).
+- The 316 pinned private-Go option-map rows are historical reference results
+  that the updated C# tests compare in full. The complete 172-source map
+  CLI profile and 13,006 source selection were **not rerun** by this correction;
+  earlier unsupported classifications remain historical evidence. Full
+  original compiler/referenceCompiler/acceptance all **NOT_RUN**, concrete
+  upstream executable denominator unknown and releaseEligible=false.
+
+## Unknown-option diagnostic UTF-8 normalization P2 — 2026-10-26
+
+- The pinned Go diagnostic formatter collapses each contiguous malformed
+  WTF-8 byte sequence to a single U+FFFD. The option-map message path now
+  formats invalid surrogate runs the same way, preserving valid pairs and
+  leaving original lookup/suggestion keys unchanged.
+- Added six focused cases (adjacent high/low invalid surrogates, separated
+  invalid runs and valid surrogate pairs) exercising both product conversion
+  and the real fixture JSONL path. Exact head ad68f397 passed four hosted
+  checks, MTP15,432/15,432, Node95/95 and frozen29/29. Historical15,426
+  results retain their original tree/provenance.
+- Scope remains option-map diagnostics only. Full original compiler/reference/
+  acceptance remains NOT_RUN; release eligibility is unchanged.
+
+## Declaration-driven config option map — 2026-10-26
+
+- Unified actual126 declaration entries (125 names, duplicate help retained)
+  into the product dispatcher.111 supported;15 path/locale policies explicitly
+  unsupported. Canonical-case errors, weighted suggestions, ordered duplicate
+  values, nil error calls and batch diagnostics follow actual convertOptionsFromJson.
+-316 actual-Go map inputs;226 complete comparisons/90 unsupported. Real fixture
+  preparation JSONL172:90 MATCH,8 MATCH_DIAGNOSTICS,74 UNSUPPORTED, no mismatches.
+  All3 selected upstream skips remain flagged. Historical input selection only;
+  fresh Go parser/map and C# preparation, no full13006 selection rerun.
+- RED490fail/14936pass ->15426/15426; Node95/95, frozen29/29.
+  [Scope and evidence](progress/json-options-map.md). ParseOption call boundary,
+  not typed/effective CompilerOptions, config host or original compiler acceptance.
+
+## Lib enum-list integration — 2026-10-26
+
+- Connected the actual lib declaration/116 alias mappings to existing list and
+  enum converters. Preserves string filenames, order, null/nil/filter semantics
+  and full element diagnostics, including pinned converted-index behavior.
+- Actual private Go504 rows; all126 declarations retained. Product uses the
+  generated lib resource, not test-supplied expectations. Original failed-run
+  full-descriptor data retained losslessly; final rows share one declaration
+  table without changing any values/diagnostics/case identity.
+- RED486fail/14450pass ->14936/14936; Node89/89, frozen29/29.
+  [Scope/evidence](progress/json-lib-options.md). No standard-library loading,
+  new CLI lib acceptance, effective configuration or original compiler credit.
+
+## Enum config options — 2026-10-26
+
+- Added actual six enum maps/deprecated keys and product conversion: nullable/
+  empty string, pinned Go lowercase, valid values and TS5024/TS6046 diagnostics.
+  Native enum integers explicitly project to numeric config values.
+- Actual Go private converter324 rows across6 enum declarations, all126 retained.
+  Includes every real key/uppercase key, deprecated acceptance and ordered error
+  suggestions. CLI target invalid values now report syntax/config exit2; other
+  valid targets remain bootstrap unsupported, with no new emit/target capability.
+- RED300fail/14130pass, plus CLI RED302fail/14130pass ->14432/14432;
+  [scope/evidence](progress/json-enum-options.md). Full original acceptance NOT_RUN.
+
+## Primitive-element config lists — 2026-10-26
+
+- Added bounded list option conversion through the product scalar converter:
+  element diagnostics, actual element declaration names, null/nil/empty lists,
+  ordered filtering and moduleSuffixes preserve-falsy behavior.
+- Actual private Go:4 supported lists of126 retained declarations ×20 inputs
+  ×2 contexts =160 rows, including108 diagnostic-bearing and52 clean value
+  outcomes. All144 TS5024 diagnostics and their UTF16 spans retained.
+- RED160fail/13946pass ->14106/14106; Node89/89, frozen29/29.
+  [Scope/evidence](progress/json-list-options.md). No new CLI option or full
+  config-host/compiler acceptance; historical profiles keep original bindings.
+
+## Primitive config option conversion — 2026-10-26
+
+- Added actual convertJsonOption primitive/object conversion for declarations
+  without path/extra validation: command-line-only rejection precedes nullable
+  type validation; values retain UTF16, binary64 bits and ordered/nil semantics.
+- Actual Go private converter:100 of126 declarations ×15 values ×2 source
+  contexts =3000 rows; all126 declaration identities retained,26 excluded from
+  this bounded branch.2214 TS5024 /210 TS6266 /576 value outcomes matched.
+- CLI noEmit/noLib invalid types now report config TS5024/exit2. Null defaults
+  remain false with explicit CLI overrides; five default/false cases now locked.
+- RED2822fail/11124pass ->13946/13946; Node89/89, frozen29/29.
+  [Scope/evidence](progress/json-scalar-options.md). Full source profiles and
+  original compiler acceptance not rerun; releasefalse and all domains retained.
+
+## Config option value type admission — 2026-10-26
+
+- Added the pinned isCompilerOptionsValue shape predicate in the product:
+  nullable declarations, exact primitive/object kinds, list outer shape and
+  listOrElement scalar recursion. List element/enum membership/path validation
+  remains a later conversion step; acceptance here is not effective options.
+- Actual Go private helper:126 compiler declarations + extends + nil option +
+  missing-element case, each over14 parser/converter inputs =1806 rows.
+- CLI noEmit/noLib null values now mean unset/default false, allowing explicit
+  supported CLI flags to override them. Existing bootstrap restrictions remain.
+- Genuine RED412fail/10521pass ->10933/10933; [scope/evidence](progress/json-option-types.md).
+  No full source config profile or original compiler acceptance rerun/claim.
+
+## Config value evidence omission P2 — 2026-10-26
+
+- Fixed the fail-open artifact verifier: empty manifests or omitted required
+  payload/manifest entries now fail. Exact base/nested-oracle/shard sets, batch
+  coverage/IDs, selected reference bindings and recomputed results/totals are
+  required, including the original diagnostic outcome.
+- Negative regressions cover every required artifact, empty evidence, rehashed
+  calls/IDs and forged counters. Existing three raw profiles revalidate; their
+  historical execution/tree binding remains unchanged. No new compiler feature
+  or new full Go profile execution is claimed.
+- [Evidence](evidence/config-value-integrity.json). Full release still false.
+
+## Source-backed config values — 2026-10-26
+
+- Connected selected raw config units to the existing product converter through
+  JSONL, sharing one parsed AST. Actual Go selection retains13006 sources,
+ 42 upstream skips/8 non-raw-UTF8 blobs;172 selected config values executed on
+  both sides:171 MATCH/1 MATCH_DIAGNOSTICS, no mismatch/unsupported/crash.
+- The original TS1005 remains;12834 no-config sources receive no C# value or
+  compiler credit.3 selected configs retain upstream-skipped metadata.
+- Genuine missing-profile RED177/8949 ->9126/9126; Release0 warnings/errors,
+  Node81/81, frozen29/29, locked offline restore and Go scope pass. Full profile
+  intentionally exits1 for the retained syntax error. SDK coordinator NOT_RUN.
+- [Scope and evidence](progress/source-config-values.md). No option notifier,
+  host/effective options or original compiler acceptance. All domains/seven prior
+  reference fatals/unknown executable denominator remain; releasefalse.
+
+## Config AST to values — 2026-10-26
+
+- Added bounded convertToObject/convertToJson semantics: ordered last-wins
+  objects, omitted empty keys, scalar-null filtering and nil/empty array
+  distinction, lossless UTF16 strings/keys and exact binary64 values.
+- CLI uses the converter for supported boolean/target options; this is not the
+  whole config host, option callbacks or effective config.189 actual-Go vectors
+  RED189/8760 ->8949/8949; Node75/75, frozen29/29, Release0 warnings/errors.
+- [Scope and evidence](progress/config-values.md). Original compiler/reference/
+  acceptance NOT_RUN, all domains/seven reference fatals retained, releasefalse.
 
 ## Mixed JSON diagnostic event order — 2026-10-26
 

@@ -1,0 +1,16 @@
+{
+  "review": {
+    "sourceCommit": "ca49842f681c6914e84b11f7073f44d1b26877be",
+    "assemblyHashes": {
+      "tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.FixtureHarness.dll": "1bdeabbac6fe1226a1d6501628fa115e0731959281ff1517c156aeceee08c946",
+      "tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.Compiler.dll": "64e9c7e3b8785a8876bf80a869338fb55b4af4466319f0b54df59b85d9198a91"
+    }
+  },
+  "author": {
+    "sourceCommit": "ca49842f681c6914e84b11f7073f44d1b26877be",
+    "assemblyHashes": {
+      "tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.FixtureHarness.dll": "107b8ea62dd97a7ff25fa64a5e87230eb90307c31083f1cc9f3cddaee578b2a0",
+      "tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.Compiler.dll": "0510c1890bdf31fa4e810d90119555115f8369bdbd63e4f0a4166d667a154099"
+    }
+  }
+}

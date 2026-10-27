@@ -8,6 +8,25 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
 {
     private int position;
     public List<Diagnostic> Diagnostics { get; } = [];
+    private readonly List<(int Start,int End)> ignoredNextLines = [];
+    private readonly HashSet<int> referenceDirectiveStarts=jsonMode
+        ? []
+        : TripleSlashPathReferences.Collect(text).Select(r=>r.Start).ToHashSet();
+    // Only checker diagnostics on the immediately following physical line
+    // can be suppressed; parser and scanner diagnostics still fail normally.
+    public bool SuppressesSemanticDiagnostic(int offset)
+    {
+        int low=0,high=ignoredNextLines.Count-1;
+        while(low<=high)
+        {
+            int mid=low+(high-low)/2;
+            var range=ignoredNextLines[mid];
+            if(offset<range.Start)high=mid-1;
+            else if(offset>=range.End)low=mid+1;
+            else return true;
+        }
+        return false;
+    }
     // Cumulative lexical diagnostics available after each token was scanned.
     public List<int> DiagnosticCounts { get; } = [];
     public List<Token> Scan()
@@ -33,7 +52,14 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                     }
                     string comment = text[start..position];
                     if (!jsonMode && (comment.Contains("@ts-", StringComparison.Ordinal) || comment.StartsWith("///", StringComparison.Ordinal)))
-                        throw Error(new(TokenKind.Unsupported,comment,start,position-start),"TSCS1001","Comment directives are not supported yet.");
+                    {
+                        // A valid leading path reference is resolved by CompilerProgram.
+                        // Do not treat arbitrary triple-slash comments as implemented.
+                        if (!(comment.StartsWith("///",StringComparison.Ordinal) &&
+                              referenceDirectiveStarts.Contains(start)) &&
+                            !TryRegisterTsIgnore(start,position,block))
+                            throw Error(new(TokenKind.Unsupported,comment,start,position-start),"TSCS1001","Comment directives are not supported yet.");
+                    }
                     continue;
                 }
                 break;
@@ -44,8 +70,8 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
             {
                 while (position < text.Length && IsIdentifierPart(text[position])) position++;
                 string value = text[begin..position];
-                kind = value switch { "let"=>TokenKind.Let,"const"=>TokenKind.Const,"true"=>TokenKind.True,"false"=>TokenKind.False,
-                    "case" or "default" or "extends" or "super" or "catch" or "finally" or "in" or "instanceof" or "implements" or "package" or "private" or "protected" or "public" or "static" or "function" or "class" or "var" or "interface" or "type" or "import" or "export" or "declare" or "if" or "else" or "return" or "while" or "for" or "switch" or "new" or "null" or "undefined" or "this" or "throw" or "try" or "enum" or "async" or "await" or "yield" or "break" or "continue" or "do" or "delete" or "typeof" or "void" or "with" or "debugger" or "namespace" or "using" => TokenKind.Unsupported, _ => TokenKind.Identifier };
+                kind = value switch { "let"=>TokenKind.Let,"const"=>TokenKind.Const,"import"=>TokenKind.Import,"export"=>TokenKind.Export,"function"=>TokenKind.Function,"return"=>TokenKind.Return,"if"=>TokenKind.If,"else"=>TokenKind.Else,"true"=>TokenKind.True,"false"=>TokenKind.False,
+                    "case" or "default" or "extends" or "super" or "catch" or "finally" or "in" or "instanceof" or "implements" or "package" or "private" or "protected" or "public" or "static" or "class" or "var" or "interface" or "type" or "declare" or "while" or "for" or "switch" or "new" or "null" or "undefined" or "this" or "throw" or "try" or "enum" or "async" or "await" or "yield" or "break" or "continue" or "do" or "delete" or "typeof" or "void" or "with" or "debugger" or "namespace" or "using" => TokenKind.Unsupported, _ => TokenKind.Identifier };
                 if(jsonMode)
                 {
                     // The bootstrap identifier classifier uses host Unicode tables.
@@ -65,7 +91,51 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                 kind = TokenKind.String;
                 decodedValue = ScanString(first, out stringFlags);
             }
-            else kind = first switch { '[' when jsonMode=>TokenKind.OpenBracket,']' when jsonMode=>TokenKind.CloseBracket,'-' when jsonMode=>TokenKind.Minus, '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,_=>TokenKind.Unsupported };
+            else kind = first switch { '[' when jsonMode=>TokenKind.OpenBracket,']' when jsonMode=>TokenKind.CloseBracket,'(' when !jsonMode=>TokenKind.OpenParen,')' when !jsonMode=>TokenKind.CloseParen,'-'=>TokenKind.Minus, '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,'+' when !jsonMode=>TokenKind.Plus,'*' when !jsonMode=>TokenKind.Star,_=>TokenKind.Unsupported };
+            // Maximal-munch binary/logical operators only in source mode. Keep
+            // JSON scanning unchanged and refuse lone '&' or '|' as before.
+            if(!jsonMode)
+            {
+                if(first=='=' && position<text.Length && text[position]=='=')
+                {
+                    position++;
+                    kind=TokenKind.EqualEqual;
+                    if(position<text.Length && text[position]=='=') { position++;kind=TokenKind.StrictEqual; }
+                }
+                else if(first=='!')
+                {
+                    kind=TokenKind.Bang;
+                    if(position<text.Length && text[position]=='=')
+                    {
+                        position++;
+                        kind=TokenKind.BangEqual;
+                        if(position<text.Length && text[position]=='=') { position++;kind=TokenKind.StrictNotEqual; }
+                    }
+                }
+                else if(first=='&' && position<text.Length && text[position]=='&')
+                { position++;kind=TokenKind.AmpAmp; }
+                else if(first=='|' && position<text.Length && text[position]=='|')
+                { position++;kind=TokenKind.BarBar; }
+                else if(first=='<' || first=='>')
+                {
+                    kind=first=='<'?TokenKind.LessThan:TokenKind.GreaterThan;
+                    if(position<text.Length && text[position]=='=')
+                    { position++;kind=first=='<'?TokenKind.LessEqual:TokenKind.GreaterEqual; }
+                }
+            }
+            // Lex -- as an unsupported decrement token, never as two unary/binary
+            // minus operators. Whitespace-separated "- -" remains distinct.
+            if(!jsonMode && kind==TokenKind.Minus && position<text.Length && text[position]=='-')
+            { position++; kind=TokenKind.MinusMinus; }
+            if(!jsonMode && kind==TokenKind.MinusMinus)
+                throw Error(new(TokenKind.Unsupported,"--",begin,2,lineBreak),"TSCS1001","Decrement '--' is not supported yet.");
+            // Keep the lexical distinction between a single '+' (unary or
+            // binary, according to the parser) and the unsupported prefix '++'.
+            if(!jsonMode && kind==TokenKind.Plus && position<text.Length && text[position]=='+')
+            { position++; kind=TokenKind.PlusPlus; }
+            if(!jsonMode && kind==TokenKind.PlusPlus &&
+               (tokens.Count==0 || tokens[^1].Kind!=TokenKind.Identifier))
+                throw Error(new(TokenKind.Unsupported,"++",begin,2,lineBreak),"TSCS1001","Only identifier postfix '++' is supported yet.");
             var token = new Token(kind,text[begin..position],begin,position-begin,lineBreak,decodedValue,stringFlags);
             if (kind == TokenKind.Unsupported) throw Error(token,"TSCS1001",$"Unsupported syntax '{token.Text}'.");
             tokens.Add(token);DiagnosticCounts.Add(Diagnostics.Count);
@@ -157,6 +227,27 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                 {position++;return text[(position-2)..position];}
                 return escaped.ToString();
         }
+    }
+    private bool TryRegisterTsIgnore(int start,int end,bool block)
+    {
+        // A deliberately bounded subset: leading whole-line // @ts-ignore.
+        // Reject other @ts- directives and block/triple-slash forms.
+        if(block)return false;
+        var payload=text[(start+2)..end].TrimStart(' ','\t');
+        const string directive="@ts-ignore";
+        if(!payload.StartsWith(directive,StringComparison.Ordinal) ||
+           (payload.Length>directive.Length && !char.IsWhiteSpace(payload[directive.Length])))
+            return false;
+        int lineStart=start;
+        while(lineStart>0&&!IsLineBreak(text[lineStart-1]))lineStart--;
+        for(int i=lineStart;i<start;i++)
+            if(text[i] is not (' ' or '\t' or '\uFEFF'))return false;
+        if(end>=text.Length||!IsLineBreak(text[end]))return true;
+        int following=end+(text[end]=='\r'&&end+1<text.Length&&text[end+1]=='\n'?2:1);
+        int nextLineEnd=following;
+        while(nextLineEnd<text.Length&&!IsLineBreak(text[nextLineEnd]))nextLineEnd++;
+        ignoredNextLines.Add((following,nextLineEnd));
+        return true;
     }
     private static int HexDigit(char c)=>c is >= '0' and <= '9'?c-'0':c is >= 'a' and <= 'f'?c-'a'+10:c is >= 'A' and <= 'F'?c-'A'+10:-1;
     private void Report(string code,string message,int start,int length=0)=>Diagnostics.Add(Diagnostic.Error(file,new(TokenKind.String,"",start,length),code,message));

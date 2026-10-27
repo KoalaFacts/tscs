@@ -1,0 +1,38 @@
+name: Original pinned Go emptyFile reference
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  original-go-reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.27.3'
+          cache: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Fail-closed original Go event verifier regressions
+        run: node --test tools/verify-original-go-case.test.ts
+      - name: Execute complete original TestLocal/emptyFile.ts in the pinned Go reference
+        run: ./scripts/verify-original-emptyfile-go.sh
+      - name: Preserve immutable source and raw reference evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-original-emptyfile-go-${{ github.sha }}
+          path: |
+            .artifacts/original-empty-go/command.txt
+            .artifacts/original-empty-go/upstream-ref.txt
+            .artifacts/original-empty-go/upstream-sources.sha256
+            .artifacts/original-empty-go/modules-verify.log
+            .artifacts/original-empty-go/reference.jsonl
+            .artifacts/original-empty-go/reference.stderr
+            .artifacts/original-empty-go/exit-code.txt
+            .artifacts/original-empty-go/reference-summary.json
+          if-no-files-found: warn
+          retention-days: 30

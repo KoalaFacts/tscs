@@ -55,6 +55,57 @@ public class CommandLineTests : IDisposable
         if(exit==0)Assert.Empty(diagnostics);else {var error=Assert.Single(diagnostics);Assert.Equal(code,error.GetProperty("code").GetString());Assert.Equal(11,error.GetProperty("start").GetInt32());Assert.Equal(escape.Length,error.GetProperty("length").GetInt32());}
     }
     [Fact]
+    public void NullConfigBooleansAllowExplicitCommandLineOverrides()
+    {
+        Write("a.ts","let n = 1;");Lib();
+        var project=Write("tsconfig.json","{\"files\":[\"a.ts\",\"minimal.d.ts\"],\"compilerOptions\":{\"noEmit\":null,\"noLib\":null}}");
+        Assert.Equal(0,Run("-p",project,"--noEmit","--noLib").Code);
+    }
+    [Theory]
+    [InlineData("noEmit","0")]
+    [InlineData("noEmit","\"true\"")]
+    [InlineData("noEmit","{}")]
+    [InlineData("noEmit","[]")]
+    [InlineData("noLib","-0")]
+    [InlineData("noLib","\"false\"")]
+    [InlineData("noLib","{\"x\":false}")]
+    [InlineData("noLib","[null]")]
+    public void InvalidConfigBooleanReportsPinnedOptionDiagnostic(string name,string value)
+    {
+        string source="/*😀*/ {\"compilerOptions\": {\""+name+"\": /*value*/ "+value+"}}";
+        var project=Write("tsconfig.json",source);var result=Run("--json","-p",project,"--noEmit","--noLib");
+        Assert.Equal(2,result.Code);using var document=System.Text.Json.JsonDocument.Parse(result.Out);
+        var diagnostic=Assert.Single(document.RootElement.GetProperty("diagnostics").EnumerateArray());
+        Assert.Equal("TS5024",diagnostic.GetProperty("code").GetString());Assert.Equal("tsconfig.json",diagnostic.GetProperty("file").GetString());
+        Assert.Equal(source.IndexOf(value,StringComparison.Ordinal),diagnostic.GetProperty("start").GetInt32());
+        Assert.Equal(value.Length,diagnostic.GetProperty("length").GetInt32());
+        Assert.Equal("Compiler option '"+name+"' requires a value of type boolean.",diagnostic.GetProperty("message").GetString());
+    }
+    [Theory]
+    [InlineData("")]
+    [InlineData("--noEmit")]
+    [InlineData("--noLib")]
+    [InlineData("--noEmit false --noLib")]
+    [InlineData("--noEmit --noLib false")]
+    public void NullConfigBooleansKeepUnspecifiedBootstrapRequirements(string flags)
+    {
+        Write("a.ts","let n = 1;");Lib();
+        var project=Write("tsconfig.json","{\"files\":[\"a.ts\",\"minimal.d.ts\"],\"compilerOptions\":{\"noEmit\":null,\"noLib\":null}}");
+        var result=Run(new[]{"-p",project}.Concat(flags.Split(' ',StringSplitOptions.RemoveEmptyEntries)).ToArray());
+        Assert.Equal(1,result.Code);Assert.Contains("bootstrap requires",result.Out);
+    }
+    [Theory]
+    [InlineData("\"bogus\"")]
+    [InlineData("0")]
+    public void InvalidConfigTargetMatchesActualPinnedEnumDiagnostic(string literal)
+    {
+        using var golden=System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,"TestData/json-enum-options.json")));
+        var row=golden.RootElement.GetProperty("vectors").EnumerateArray().Single(r=>r.GetProperty("option").GetProperty("name").GetString()=="target"&&r.GetProperty("literal").GetString()==literal&&r.GetProperty("located").GetBoolean());
+        var result=Run("--json","-p",Write("tsconfig.json",row.GetProperty("source").GetString()!));Assert.Equal(2,result.Code);
+        using var output=System.Text.Json.JsonDocument.Parse(result.Out);var actual=Assert.Single(output.RootElement.GetProperty("diagnostics").EnumerateArray());var expected=Assert.Single(row.GetProperty("diagnostics").EnumerateArray());
+        foreach(var key in new[]{"code","message","start","length"})Assert.Equal(expected.GetProperty(key).ToString(),actual.GetProperty(key).ToString());
+    }
+    [Fact]
     public void ProjectUsesProductJsonStringDecoding()
     {
         Write("a.ts","let s = 1;");Lib();
@@ -95,7 +146,10 @@ public class CommandLineTests : IDisposable
     [InlineData("{\"files\":[],\"extends\":\"./base.json\"}")]
     [InlineData("{\"files\":[],\"compilerOptions\":{\"strict\":true}}")]
     public void InvalidOrUnsupportedConfigFails(string json)=>Assert.NotEqual(0,Run("-p",Write("tsconfig.json",json)).Code);
-    [Fact] public void UnsupportedCodeHasNoSuccessExit()=>Assert.Equal(1,Run("--noEmit","--noLib",Write("a.ts","let x = 1; x++;"),Lib()).Code);
+    [Fact] public void UnsupportedPrefixUpdateHasNoSuccessExit()=>
+        Assert.Equal(1,Run("--noEmit","--noLib",Write("a.ts","let x = 1; ++x;"),Lib()).Code);
+    [Fact] public void ImplementedPostfixUpdateHasSuccessExit()=>
+        Assert.Equal(0,Run("--noEmit","--noLib",Write("a.ts","let x = 1; x++;"),Lib()).Code);
     [Theory]
     [InlineData("globalThis;", "TSCS1001", 1)]
     [InlineData("{ let globalThis = 1; globalThis; globalThis = 2; }", "", 0)]
@@ -145,4 +199,172 @@ public class CommandLineTests : IDisposable
         using var json=System.Text.Json.JsonDocument.Parse(result.Out);
         Assert.Equal(codes.Split(','),json.RootElement.GetProperty("diagnostics").EnumerateArray().Select(d=>d.GetProperty("code").GetString()));
     }
+
+    // Pinned original TS7 fixture: tsc/testdata/tests/cases/compiler/emptyFile.ts
+    // Source SHA-256 a149b5cff5898a63f501618af2c01a132895281e03663831e76f6deb9f3b5bc7.
+    // Original configuration target configuration:c5f81e2689b2db32a694b7b3de45098f5d58941800bfe0683e2f68000e24c110
+    // Baseline: tsc/testdata/baselines/reference/compiler/emptyFile.js at the locked upstream commit.
+    [Fact]
+    public void OriginalEmptyFileProfileMatchesPinnedEs2015EmitBaseline()
+    {
+        const string fixture="// @target: es2015\n";
+        Assert.Equal("a149b5cff5898a63f501618af2c01a132895281e03663831e76f6deb9f3b5bc7",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(fixture))).ToLowerInvariant());
+        var input=Write("emptyFile.ts",fixture);
+        var result=Run("--target","es2015",input); // EXACT original profile: no added --noEmit or --noLib
+        Assert.Equal(0,result.Code);
+        Assert.Equal("",result.Out);
+        var js=Path.ChangeExtension(input,".js");
+        Assert.True(File.Exists(js),"Original profile must emit JavaScript; diagnostics alone are insufficient.");
+        Assert.Equal("\"use strict\";\r\n",File.ReadAllText(js));
+    }
+
+    [Theory]
+    [InlineData("no-target")]
+    [InlineData("noEmit-only")]
+    [InlineData("noLib-only")]
+    public void OriginalEmptyEmitSliceDoesNotUnlockOtherFlagCombinations(string mode)
+    {
+        var source=Write("emptyFile.ts","// @target: es2015\n");
+        var args=mode switch
+        {
+            "no-target" => Array.Empty<string>(),
+            "noEmit-only" => new[]{"--target","es2015","--noEmit"},
+            _ => new[]{"--target","es2015","--noLib"}
+        };
+        var result=Run(args.Append(source).ToArray());
+        Assert.Equal(1,result.Code);
+        Assert.Contains("bootstrap requires",result.Out);
+        Assert.False(File.Exists(Path.ChangeExtension(source,".js")));
+    }
+
+    [Fact]
+    public void OriginalEmptyEmitNeverOverwritesExistingJavaScript()
+    {
+        var source=Write("emptyFile.ts","// @target: es2015\n");
+        var emitted=Write("emptyFile.js","existing user content");
+        var result=Run("--target","es2015",source);
+        Assert.Equal(1,result.Code);
+        Assert.Contains("TSCS1002",result.Out);
+        Assert.Equal("existing user content",File.ReadAllText(emitted));
+    }
+    [Fact]
+    public void MultipleNoEmitScriptsResolveGlobalsAndProjectFiles()
+    {
+        var a=Write("a.ts","let first: number = second;");
+        var b=Write("b.ts","let second: number = 2;");
+        var lib=Lib();
+        Assert.Equal(0,Run("--noEmit","--noLib",a,b,lib).Code);
+        Assert.Equal(0,Run("--noEmit","--noLib",b,a,lib).Code);
+        var project=Write("tsconfig.json", "{\"files\":[\"a.ts\",\"b.ts\",\"minimal.d.ts\"],\"compilerOptions\":{\"noEmit\":true,\"noLib\":true}}");
+        Assert.Equal(0,Run("-p",project).Code);
+    }
+    [Fact]
+    public void MultiFileJsonDiagnosticsDisambiguateIdenticalBasenames()
+    {
+        var dirA=Directory.CreateDirectory(Path.Combine(directory,"a")).FullName;
+        var dirB=Directory.CreateDirectory(Path.Combine(directory,"b")).FullName;
+        var a=Path.Combine(dirA,"index.ts");
+        var b=Path.Combine(dirB,"index.ts");
+        File.WriteAllText(a,"let a = ;");
+        File.WriteAllText(b,"let b = ;");
+
+        var result=Run("--json","--noEmit","--noLib",a,b);
+        Assert.Equal(2,result.Code);
+        using(var json=System.Text.Json.JsonDocument.Parse(result.Out))
+        {
+            var diagnostics=json.RootElement.GetProperty("diagnostics").EnumerateArray().ToArray();
+            Assert.Equal(2,diagnostics.Length);
+            Assert.All(diagnostics,d=>Assert.Equal("TS1109",d.GetProperty("code").GetString()));
+            var identities=diagnostics.Select(d=>d.GetProperty("file").GetString()).ToArray();
+            Assert.Equal(2,identities.Distinct(StringComparer.Ordinal).Count());
+            Assert.Contains(Path.GetRelativePath(Environment.CurrentDirectory,a).Replace('\\','/'),identities);
+            Assert.Contains(Path.GetRelativePath(Environment.CurrentDirectory,b).Replace('\\','/'),identities);
+        }
+
+        var single=Run("--json","--noEmit","--noLib",a);
+        using var one=System.Text.Json.JsonDocument.Parse(single.Out);
+        Assert.Equal(2,single.Code);
+        Assert.Equal("index.ts",
+            Assert.Single(one.RootElement.GetProperty("diagnostics").EnumerateArray())
+                .GetProperty("file").GetString());
+    }
+
+    [Fact]
+    public void UnixLiteralBackslashesRemainDistinctInJsonAndTextDiagnostics()
+    {
+        if(OperatingSystem.IsWindows())return; // A backslash is a real separator there.
+        var unusual=Directory.CreateDirectory(Path.Combine(directory,"a\\b")).FullName;
+        var ordinary=Directory.CreateDirectory(Path.Combine(directory,"a","b")).FullName;
+        var a=Path.Combine(unusual,"index.ts");
+        var b=Path.Combine(ordinary,"index.ts");
+        File.WriteAllText(a,"let a = ;");
+        File.WriteAllText(b,"let b = ;");
+
+        var json=Run("--json","--noEmit","--noLib",a,b);
+        Assert.Equal(2,json.Code);
+        using(var result=System.Text.Json.JsonDocument.Parse(json.Out))
+        {
+            var errors=result.RootElement.GetProperty("diagnostics").EnumerateArray().ToArray();
+            Assert.Equal(2,errors.Length);
+            Assert.Equal(2,errors.Select(d=>d.GetProperty("file").GetString()).Distinct().Count());
+            Assert.Contains(Path.GetRelativePath(Environment.CurrentDirectory,a),
+                errors.Select(d=>d.GetProperty("file").GetString()));
+            Assert.Contains(Path.GetRelativePath(Environment.CurrentDirectory,b),
+                errors.Select(d=>d.GetProperty("file").GetString()));
+        }
+
+        var text=Run("--noEmit","--noLib",a,b);
+        Assert.Equal(2,text.Code);
+        Assert.Contains(Path.GetRelativePath(Environment.CurrentDirectory,a)+"(",text.Out);
+        Assert.Contains(Path.GetRelativePath(Environment.CurrentDirectory,b)+"(",text.Out);
+    }
+
+    [Fact]
+    public void WindowsModuleDiagnosticUsesLoadedCaseAndSourceCoordinates()
+    {
+        if(!OperatingSystem.IsWindows())return;
+        var a=Write("A.ts","export { value } from \"./b\";");
+        var b=Write("B.ts","\n\nexport { value } from \"./b\";");
+        var result=Run("--noEmit","--noLib",a,b);
+        Assert.Equal(1,result.Code);
+        Assert.Contains("B.ts(3,10): error TSCS1001:",result.Out);
+        Assert.DoesNotContain("b.ts(1,12)",result.Out);
+    }
+
+    [Fact]
+    public void CrossFileTypeErrorsRenderTheCorrectFile()
+    {
+        var a=Write("a.ts","let first: string = second;");
+        var b=Write("b.ts","let second: number = 2;");
+        var r=Run("--noEmit","--noLib",a,b,Lib());
+        Assert.Equal(2,r.Code);
+        Assert.Contains("a.ts(1,5): error TS2322:",r.Out);
+    }
+    [Fact]
+    public void CrossFileDuplicatesAndComplexInferenceNeverSucceedSilently()
+    {
+        var a=Write("a.ts","let repeated: number = 1;");
+        var b=Write("b.ts","let repeated: number = 2;");
+        var duplicate=Run("--noEmit","--noLib",a,b,Lib());
+        Assert.Equal(1,duplicate.Code);
+        Assert.Contains("TSCS1001",duplicate.Out);
+        Assert.Contains("b.ts(",duplicate.Out);
+
+        File.WriteAllText(a,"let result: boolean = inferred;");
+        File.WriteAllText(b,"let inferred = 1 + 2;");
+        var unknown=Run("--noEmit","--noLib",a,b,Path.Combine(directory,"minimal.d.ts"));
+        Assert.Equal(1,unknown.Code);
+        Assert.Contains("Cross-file inference",unknown.Out);
+    }
+    [Fact]
+    public void CrossFileRootGlobalThisStillRequiresIntrinsicHandling()
+    {
+        var a=Write("a.ts","let globalThis = 1;");
+        var b=Write("b.ts","let other: number = 2;");
+        var r=Run("--noEmit","--noLib",a,b,Lib());
+        Assert.Equal(2,r.Code);
+        Assert.Contains("TS2397",r.Out);
+    }
+
 }
