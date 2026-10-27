@@ -1,3 +1,28 @@
+# 2026-10-28 — PR #14 host-identity review repairs
+
+Directory discovery now constructs glob-relative paths from the host-validated
+immediate child components, instead of the operating system's case-sensitive
+relative-path algorithm. Root and entry directory separators are normalized
+before parent validation. This corrects independent P2 review findings for
+case-insensitive virtual hosts on Linux and directory names with trailing
+separators. Two focused tests exercise the real CompilerProgram analyzer.
+Exact amended-head CI and independent rereview are required before merge.
+Original pinned TS7 targets remain 0 PASS / 15,523 SKIP_UNIMPLEMENTED.
+
+# 2026-10-28 — Shared CompilerHost/VFS project enumeration (new bounded package)
+
+Project discovery now consumes `IProjectSourceHost.EnumerateDirectory` rather
+than walking disk directly. `FileSystemCompilerHost` implements the capability
+and the CLI uses that same host for source discovery and Program loading. Virtual
+hosts can supply canonical file/directory/link entries with host-specific case
+matching; focused in-memory tests carry discovered sources through the real
+CompilerProgram analyzer, including package isolation, exclusions and explicit
+root precedence. Directory entry scope is validated and links are never traversed.
+Old explicit-file `ICompilerHost` clients and CLR Program signatures remain.
+Virtual config JSON loading and full TS7 config expansion are not implemented.
+This source change needs exact-head build/CI and independent review; do not
+promote any of the 15,523 pinned original SKIPs on local regressions.
+
 # 2026-10-28 — Project-source glob package-boundary review repair (PR #13)
 
 Source discovery now matches package directories against the exact literal

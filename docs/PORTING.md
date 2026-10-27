@@ -293,3 +293,25 @@ current files-only bootstrap instead of silently claiming TypeScript's full
 implicit include, directory/extension policy, extends or VFS glob semantics.
 The next dependency is a host-aware project filesystem enumeration abstraction
 and a complete, reference-verified TS7 effective-config lifecycle.
+
+
+## Project source host enumeration (2026-10-28)
+
+`IProjectSourceHost` extends the existing `ICompilerHost` with immediate,
+canonical directory entries carrying directory and symbolic-link metadata.
+The filesystem implementation supplies OS entries while an in-memory VFS can
+supply the same paths and source text without touching disk. Project glob
+discovery now runs through this host boundary, using the host filename comparer
+for package boundaries, suffixes and matching, then passes discovered roots to
+the unchanged `CompilerProgram.Load` snapshot/binder/checker pipeline.
+CLI config discovery and Program loading share one `FileSystemCompilerHost`.
+
+The bounded matcher retains explicit-file precedence, excluded-directory
+pruning, scan/file limits and no-symlink traversal. Malformed providers cannot
+inject unrelated direct children. Legacy `ICompilerHost` and
+`CompilerProgram.Load(host,paths)` signatures remain valid; directory
+enumeration is an opt-in extension. The bounded JSON config parser still uses
+physical files, so fully virtual `tsconfig.json` loading, default includes,
+`extends`, symlink identity and full TS7 project configuration are **not**
+claimed. Focused virtual tests exercise real discovered-source analysis,
+case policy and explicit excluded roots; original TS7 acceptance is unchanged.

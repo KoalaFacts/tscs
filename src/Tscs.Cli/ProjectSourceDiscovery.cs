@@ -8,60 +8,85 @@ namespace Tscs;
 /// include/exclude globs. Explicit "files" roots are never excluded.
 /// This is not the full TS7 config expansion or symlink resolver.
 /// </summary>
-internal static class ProjectSourceDiscovery
+public static class ProjectSourceDiscovery
 {
     private const int MaxScannedEntries=50_000;
     private const int MaxSourceFiles=4_096;
     private const int MaxPatterns=64;
     private static StringComparison FileComparison => OperatingSystem.IsWindows()
         ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-    private static RegexOptions GlobOptions => RegexOptions.CultureInvariant|
-        RegexOptions.NonBacktracking|(OperatingSystem.IsWindows()?RegexOptions.IgnoreCase:RegexOptions.None);
+    private static RegexOptions GlobOptions(StringComparer comparer) => RegexOptions.CultureInvariant|
+        RegexOptions.NonBacktracking|(comparer.Equals("A","a")?RegexOptions.IgnoreCase:RegexOptions.None);
 
     internal static bool IsTypeScriptFile(string path)=>path.EndsWith(".ts",FileComparison);
     internal static bool IsDeclarationFile(string path)=>path.EndsWith(".d.ts",FileComparison);
-    private static bool IsPackageDirectory(string name)=>
-        name.Equals("node_modules",FileComparison)||
-        name.Equals("bower_components",FileComparison)||
-        name.Equals("jspm_packages",FileComparison);
+    private static bool HasSuffix(string path,string suffix,StringComparer comparer)=>
+        path.Length>=suffix.Length&&comparer.Equals(path[^suffix.Length..],suffix);
+    private static bool IsPackageDirectory(string name,StringComparer comparer)=>
+        comparer.Equals(name,"node_modules")||
+        comparer.Equals(name,"bower_components")||
+        comparer.Equals(name,"jspm_packages");
 
     public static IReadOnlyList<string> Discover(string configDirectory,
         IReadOnlyList<string> explicitFiles,
+        IReadOnlyList<string> includePatterns,IReadOnlyList<string> excludePatterns) =>
+        Discover(new FileSystemCompilerHost(),configDirectory,explicitFiles,includePatterns,excludePatterns);
+
+    // FileSystemCompilerHost and in-memory VFS hosts share one matching and
+    // exclusion policy. The host decides identity, case sensitivity, entries
+    // and which directories are symbolic links; the matcher never reads disk.
+    public static IReadOnlyList<string> Discover(IProjectSourceHost host,string configDirectory,
+        IReadOnlyList<string> explicitFiles,
         IReadOnlyList<string> includePatterns,IReadOnlyList<string> excludePatterns)
     {
+        ArgumentNullException.ThrowIfNull(host);
+        // Identity comparison must not depend on a trailing separator or the
+        // current operating system's pathname spelling.
+        configDirectory=Path.TrimEndingDirectorySeparator(host.GetCanonicalFileName(configDirectory));
         if(includePatterns.Count+excludePatterns.Count>MaxPatterns)
             throw new InputFailure("Project source pattern count exceeds the bootstrap limit.");
-        var includes=includePatterns.Select(Compile).ToArray();
-        var excludes=excludePatterns.Select(Compile).ToArray();
+        var comparer=host.FileNameComparer;
+        var includes=includePatterns.Select(p=>Compile(p,comparer)).ToArray();
+        var excludes=excludePatterns.Select(p=>Compile(p,comparer)).ToArray();
         if(includes.Length==0)return [];
 
-        var comparer=OperatingSystem.IsWindows()?StringComparer.OrdinalIgnoreCase:StringComparer.Ordinal;
-        var seenFiles=new HashSet<string>(explicitFiles,comparer);
+        var seenFiles=new HashSet<string>(explicitFiles.Select(host.GetCanonicalFileName),comparer);
         var discovered=new List<string>();
         int scanned=0;
         // Each include owns its traversal. A package path explicitly named
         // by one glob must never turn on package inclusion for other globs.
         foreach(var include in includes)
         {
-            var directories=new Stack<string>();
-            directories.Push(configDirectory);
+            // Carry host-validated relative components with each directory.
+            // Path.GetRelativePath applies the process OS case policy, which
+            // can disagree with the VFS FileNameComparer.
+            var directories=new Stack<(string Directory,string Relative)>();
+            directories.Push((configDirectory,string.Empty));
             while(directories.Count>0)
             {
-                string directory=directories.Pop();
-                foreach(string path in Directory.EnumerateFileSystemEntries(directory))
+                var (directory,parentRelative)=directories.Pop();
+                foreach(var entry in host.EnumerateDirectory(directory))
                 {
                     if(++scanned>MaxScannedEntries)
                         throw new InputFailure("Project source discovery exceeds the bootstrap scan limit.");
-                    var attributes=File.GetAttributes(path);
-                    // Do not traverse symlinks and then misattribute file
-                    // identity to a canonical path outside this source tree.
-                    if((attributes&FileAttributes.ReparsePoint)!=0)continue;
-                    string relative=Path.GetRelativePath(configDirectory,path)
-                        .Replace(Path.DirectorySeparatorChar,'/');
-                    if((attributes&FileAttributes.Directory)!=0)
+                    // The VFS decides whether an entry is a link. Never walk it.
+                    if(entry.IsSymbolicLink)continue;
+                    var path=Path.TrimEndingDirectorySeparator(host.GetCanonicalFileName(entry.Path));
+                    // Reject a malformed host that enumerates another directory
+                    // (including a parent/ancestor) as an immediate child.
+                    if(!comparer.Equals(Path.GetDirectoryName(path),directory))
+                        throw new InputFailure("Project source host returned an entry outside its directory.");
+                    // Every entry has already passed the immediate-parent
+                    // identity check above. Build relative glob paths from
+                    // its component rather than calling OS-dependent
+                    // Path.GetRelativePath on differently cased VFS aliases.
+                    var name=Path.GetFileName(path);
+                    if(string.IsNullOrEmpty(name)||name is "." or "..")
+                        throw new InputFailure("Project source host returned an invalid child name.");
+                    string relative=parentRelative.Length==0?name:parentRelative+"/"+name;
+                    if(entry.IsDirectory)
                     {
-                        var name=Path.GetFileName(path);
-                        if(name.Equals(".git",FileComparison)||name.Equals(".artifacts",FileComparison))continue;
+                        if(comparer.Equals(name,".git")||comparer.Equals(name,".artifacts"))continue;
                         // Package boundaries are checked against the actual
                         // matched glob component, not a global pattern flag.
                         // A whole excluded directory must be pruned before
@@ -71,12 +96,12 @@ internal static class ProjectSourceDiscovery
                         // Prune that whole subtree, like explicit directory excludes.
                         if(excludes.Any(g=>g.IsMatch(relative)||g.IsMatch(relative+"/"))||
                            !include.CanContainDirectory(relative))continue;
-                        directories.Push(path);
+                        directories.Push((path,relative));
                         continue;
                     }
-                    if(!IsTypeScriptFile(path)||!include.IsMatch(relative)||
+                    if(!HasSuffix(path,".ts",comparer)||!include.IsMatch(relative)||
                        excludes.Any(g=>g.IsMatch(relative)))continue;
-                    var canonical=Path.GetFullPath(path);
+                    var canonical=path;
                     if(!seenFiles.Add(canonical))continue;
                     discovered.Add(canonical);
                     if(seenFiles.Count>MaxSourceFiles)
@@ -88,7 +113,8 @@ internal static class ProjectSourceDiscovery
         return discovered;
     }
 
-    private sealed class Glob(string[] segments,Regex pathPattern,Regex[] segmentPatterns)
+    private sealed class Glob(string[] segments,Regex pathPattern,Regex[] segmentPatterns,
+        StringComparer comparer)
     {
         public bool IsMatch(string path)=>pathPattern.IsMatch(path);
 
@@ -109,7 +135,7 @@ internal static class ProjectSourceDiscovery
             foreach(var directorySegment in actual)
             {
                 var next=new bool[segments.Length+1];
-                bool isPackage=IsPackageDirectory(directorySegment);
+                bool isPackage=IsPackageDirectory(directorySegment,comparer);
                 for(int p=0;p<segments.Length;p++)
                 {
                     if(!states[p])continue;
@@ -121,7 +147,7 @@ internal static class ProjectSourceDiscovery
                         if(!isPackage)next[p]=true;
                     }
                     else if(p<segments.Length-1&&segmentPatterns[p].IsMatch(directorySegment)&&
-                        (!isPackage||string.Equals(segments[p],directorySegment,FileComparison)))
+                        (!isPackage||comparer.Equals(segments[p],directorySegment)))
                         next[p+1]=true;
                 }
                 states=next;
@@ -132,7 +158,7 @@ internal static class ProjectSourceDiscovery
         }
     }
 
-    private static Glob Compile(string input)
+    private static Glob Compile(string input,StringComparer comparer)
     {
         // "files" retains its old path behavior; globs are restricted to
         // project-local, unambiguous filesystem selectors.
@@ -166,9 +192,9 @@ internal static class ProjectSourceDiscovery
         }
         expression.Append('$');
         var segmentPatterns=segments.Select(s=>new Regex("^"+SegmentExpression(s)+"$",
-            GlobOptions,TimeSpan.FromSeconds(1))).ToArray();
+            GlobOptions(comparer),TimeSpan.FromSeconds(1))).ToArray();
         return new Glob(segments,new Regex(expression.ToString(),
-            GlobOptions,TimeSpan.FromSeconds(1)),segmentPatterns);
+            GlobOptions(comparer),TimeSpan.FromSeconds(1)),segmentPatterns,comparer);
     }
 
     private static string SegmentExpression(string segment)
