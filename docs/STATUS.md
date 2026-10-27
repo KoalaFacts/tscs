@@ -1,3 +1,21 @@
+# 2026-10-28 — Explicit tsconfig source discovery (bounded project architecture)
+
+The existing CLI tsconfig JSON AST now accepts explicit `include` and `exclude`
+source globs, alongside `files`, before constructing the same immutable
+CompilerProgram snapshot. Discovered .ts/.d.ts paths are deterministic, config-
+relative and deduplicated against explicit roots; excludes do not remove explicit
+`files` entries. A bounded, non-following filesystem walker avoids recursive
+symlink traversal and rejects unsafe glob spellings and oversized scans. Nested
+and nonrecursive includes, excludes, explicit-file precedence, overlap and
+rejection are exercised through real CLI/CompilerProgram regressions.
+
+This is explicitly *not* full TS7 config expansion: default inclusion without
+an `include` array, TSX/JS, extends, watch, project references, wildcard edge
+cases and VFS directory enumeration remain unimplemented. The existing 15,523
+original configuration targets are still SKIP_UNIMPLEMENTED, original accepted
+PASS remains 0, and full runtime expansion remains unknown. New-head build,
+review and CI are required before merge or acceptance claims.
+
 # 2026-10-28 — API compatibility review repair (PR #12 P1)
 
 Codex review identified the removed two-argument CLR Load signature despite

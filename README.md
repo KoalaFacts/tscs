@@ -85,8 +85,10 @@ acceptance; the corresponding generated upstream Fact remains SKIP pending
 a live independent pinned-Go reference and complete original runner checks. `--pretty false`, `--target es2015/es6`
 and a tscs-only `--json` diagnostic mode are available.
 
-A minimal `tsconfig.json` may specify `files` and `compilerOptions.noEmit`, `noLib`,
-and `target`. File paths resolve relative to the config. Run it with `-p path/to/tsconfig.json`.
+A bounded `tsconfig.json` may specify `files`, explicit `include`/`exclude` source globs, and `compilerOptions.noEmit`, `noLib`,
+and `target`. File paths resolve relative to the config.
+Project source discovery accepts project-local `*`, `?` and directory-segment `**` globs for `.ts`/minimal `.d.ts` files. Explicit `files` always take precedence over excludes. Absent `include` keeps the existing explicit-files-only bootstrap; general TS7 implicit includes, `extends`, symlink traversal and TSX/JS are not yet implemented.
+ Run it with `-p path/to/tsconfig.json`.
 The config path now uses the C# scanner and a bounded JSON AST reader for objects,
 arrays, strings, booleans/null and decimal integers (including unary minus).
 Numeric AST text uses binary64 rounding and JavaScript fixed/scientific formatting;
