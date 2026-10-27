@@ -1,3 +1,15 @@
+# 2026-10-28 — Host-owned tsconfig project loading (unmerged work package)
+
+Project JSON and explicit project roots now use the same IProjectSourceHost
+as source discovery and CompilerProgram; a host-owned directory existence
+query supports virtual -p directory entry points. Project CLI checks also
+respect host-specific extension and duplicate-path casing. Virtual output
+paths fail closed rather than writing to the process filesystem. Focused
+in-memory checks exercise end-to-end virtual config -> source -> checker,
+configuration errors, case policy and write protection. This is source work
+pending exact-head build, CI and review, not confirmed TS7 acceptance:
+0 original PASS / 15,523 SKIP_UNIMPLEMENTED, full expansion unknown.
+
 # 2026-10-28 — PR #14 host-identity review repairs
 
 Directory discovery now constructs glob-relative paths from the host-validated

@@ -47,11 +47,11 @@ internal sealed class Options
                 default:
                     if(arg.StartsWith('-'))throw new InputFailure($"Unsupported option '{arg}'.");
                     if(project!=null)throw new InputFailure("Cannot combine a project with source file arguments.");
-                    options.Files.Add(Path.GetFullPath(arg));break;
+                    options.Files.Add(projectHost.GetCanonicalFileName(arg));break;
             }
         }
         if(options.Files.Count==0)throw new InputFailure("No source files were specified.");
-        if(options.Files.Distinct(OperatingSystem.IsWindows()?StringComparer.OrdinalIgnoreCase:StringComparer.Ordinal).Count()!=options.Files.Count)throw new InputFailure("Duplicate input paths are not supported.");
+        if(options.Files.Distinct(projectHost.FileNameComparer).Count()!=options.Files.Count)throw new InputFailure("Duplicate input paths are not supported.");
         return options;
     }
     private static bool ReadBool(string[] args,ref int i)
@@ -61,9 +61,12 @@ internal sealed class Options
     }
     private void ReadConfig(string file,IProjectSourceHost projectHost)
     {
-        if(Directory.Exists(file))file=Path.Combine(file,"tsconfig.json");
-        file=Path.GetFullPath(file);
-        var text=File.ReadAllText(file);var parsed=JsonSyntax.Parse(file,text);
+        file=projectHost.GetCanonicalFileName(file);
+        if(projectHost.DirectoryExists(file))
+            file=projectHost.GetCanonicalFileName(Path.Combine(file,"tsconfig.json"));
+        // Read the configuration and its sources through the same host.
+        // The JSON AST diagnostics retain this canonical configuration name.
+        var text=projectHost.ReadFile(file);var parsed=JsonSyntax.Parse(file,text);
         if(parsed.Diagnostics.Count>0)throw new ConfigSyntaxFailure(text,parsed.Diagnostics);
         var root=parsed.Root;
         if(root?.Kind!="Object")throw new InputFailure("Configuration must be an object.");
@@ -78,7 +81,7 @@ internal sealed class Options
                 case "files":
                     if(p.Value.Kind!="Array")throw new InputFailure("files must be an array.");
                     foreach(var item in p.Value.Elements)
-                    {if(item.Kind!="String"||string.IsNullOrEmpty(item.Token.Value))throw new InputFailure("File paths must be nonempty strings.");Files.Add(Path.GetFullPath(item.Token.Value!,Path.GetDirectoryName(file)!));}
+                    {if(item.Kind!="String"||string.IsNullOrEmpty(item.Token.Value))throw new InputFailure("File paths must be nonempty strings.");Files.Add(projectHost.ResolveReferencePath(file,item.Token.Value!));}
                     break;
                 case "include":includes.AddRange(ProjectPatterns(p.Value,"include"));break;
                 case "exclude":excludes.AddRange(ProjectPatterns(p.Value,"exclude"));break;
