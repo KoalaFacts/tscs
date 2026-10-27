@@ -9,7 +9,8 @@ public sealed class ObjectPipelineTests
     [InlineData("const item = { quantity: 21, owner: \"Ada\" }; let answer: number = item.quantity * 2;")]
     [InlineData("let item: { quantity: number; owner: string } = { quantity: 21, owner: \"Ada\" }; item.quantity = item.quantity * 2;")]
     [InlineData("function double(item: { quantity: number }): { quantity: number } { return { quantity: item.quantity * 2 }; } let answer: number = double({ quantity: 21 }).quantity;")]
-    [InlineData("const full: { quantity: number } = { quantity: 21, label: \"extra\" };")]
+    [InlineData("const wide = { quantity: 21, label: \"extra\" }; const full: { quantity: number } = wide;")]
+    [InlineData("const wide = { details: { quantity: 21, label: \"extra\" } }; const full: { details: { quantity: number } } = wide;")]
     [InlineData("let nested: { details: { quantity: number } } = { details: { quantity: 42 } }; let total: number = nested.details.quantity;")]
     public void RequiredNamedObjectShapesWorkAcrossTheExistingPipeline(string source) =>
         Assert.Empty(Compilation.Check("source.ts",source));
@@ -23,6 +24,10 @@ public sealed class ObjectPipelineTests
     [InlineData("const item = { quantity: 1, quantity: 2 };","TS1117")]
     [InlineData("let item: { quantity: number; quantity: string } = { quantity: 1 };","TSCS1001")]
     [InlineData("const item = { quantity: 2 }; let n: number = item.quantity.extra;","TS2339")]
+    [InlineData("const item: { quantity: number } = { quantity: 21, label: \"extra\" };","TS2353")]
+    [InlineData("function read(item: { quantity: number }): number { return item.quantity; } let n: number = read({ quantity: 21, label: \"extra\" });","TS2353")]
+    [InlineData("function make(): { quantity: number } { return { quantity: 21, label: \"extra\" }; }","TS2353")]
+    [InlineData("const item: { details: { quantity: number } } = { details: { quantity: 21, label: \"extra\" } };","TS2353")]
     public void IncorrectObjectShapesAreRejected(string source,string expected) =>
         Assert.Contains(Compilation.Check("source.ts",source),d=>d.Code==expected);
 }

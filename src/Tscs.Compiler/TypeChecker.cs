@@ -49,6 +49,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     var returnType=TypeOf(returned.Value,scope);
                     if(returnType!=null && !CompilerTypes.IsAssignable(returnType,expectedReturn))
                         Mismatch(returned.Keyword,returnType,expectedReturn);
+                    CheckFreshObjectLiteral(returned.Value,expectedReturn);
                     break;
                 case Variable v:
                     if(v.Name.Text is "eval" or "arguments") Error(v.Name,"TS1100",$"Invalid use of '{v.Name.Text}' in strict mode.");
@@ -62,6 +63,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     if(v.Constant&&v.Initializer==null) Error(v.Name,"TS1155","'const' declarations must be initialized.");
                     if(annotatedType!=null&&source!=null&&!CompilerTypes.IsAssignable(source,annotatedType))
                         Mismatch(v.Name,source,annotatedType);
+                    if(annotatedType!=null && v.Initializer is { } initializer)
+                        CheckFreshObjectLiteral(initializer,annotatedType);
                     break;
                 case MemberAssignment memberAssignment:
                     var owner=TypeOf(memberAssignment.Target,scope);
@@ -77,6 +80,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     }
                     if(valueType!=null && !CompilerTypes.IsAssignable(valueType,propertyType))
                         Mismatch(memberAssignment.Member,valueType,propertyType);
+                    CheckFreshObjectLiteral(memberAssignment.Value,propertyType);
                     break;
                 case Assignment a:
                     var target=Resolve(a.Name,scope);var assigned=TypeOf(a.Value,scope);
@@ -85,6 +89,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     else if(target.IsConstant) Error(a.Name,"TS2588",$"Cannot assign to '{a.Name.Text}' because it is a constant.");
                     else if(target.Type!=null&&assigned!=null&&!CompilerTypes.IsAssignable(assigned,target.Type)) Mismatch(a.Name,assigned,target.Type);
                     else target.Initialized=true;
+                    if(target.Type is { } expectedType)
+                        CheckFreshObjectLiteral(a.Value,expectedType);
                     break;
                 case PostfixUpdate update:
                     var updated=Resolve(update.Name,scope);
@@ -232,10 +238,13 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     Error(call.Callee,"TS2554",$"Expected {signature.Parameters.Count} arguments, but got {arguments.Length}.");
                 else
                     for(int i=0;i<arguments.Length;i++)
-                        if(arguments[i] is { } actual &&
-                           !CompilerTypes.IsAssignable(actual,signature.Parameters[i]))
-                            Error(call.Callee,"TS2345",
-                                $"Argument of type '{actual.DisplayName}' is not assignable to parameter of type '{signature.Parameters[i].DisplayName}'.");
+                        if(arguments[i] is { } actual)
+                        {
+                            if(!CompilerTypes.IsAssignable(actual,signature.Parameters[i]))
+                                Error(call.Callee,"TS2345",
+                                    $"Argument of type '{actual.DisplayName}' is not assignable to parameter of type '{signature.Parameters[i].DisplayName}'.");
+                            CheckFreshObjectLiteral(call.Arguments[i],signature.Parameters[i]);
+                        }
                 types.Push(signature.ReturnType);
                 continue;
             }
@@ -357,6 +366,27 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         if(strictModule && (name.Text is "eval" or "arguments"))
             Error(name,"TS1100",$"Invalid use of '{name.Text}' in strict mode.");
     }
+    // Fresh object literals are checked against their immediate contextual shape.
+    // Width subtyping remains valid for a previously bound object variable.
+    // Nested inline object literals retain freshness when the containing shape
+    // supplies an expected property type. Keep unsupported computed members
+    // rejected in the parser rather than weakening this semantic check.
+    private void CheckFreshObjectLiteral(ValueNode value,TypeSymbol expected,int depth=0)
+    {
+        if(depth>16 || expected is not ObjectTypeSymbol target)return;
+        while(value is ValueParenthesized grouped)
+            value=grouped.Expression;
+        if(value is not ValueObject literal)return;
+        foreach(var property in literal.Properties)
+        {
+            var memberType=target.Member(property.Name.Text);
+            if(memberType==null)
+                Error(property.Name,"TS2353",
+                    $"Object literal may only specify known properties, and '{property.Name.Text}' does not exist in type '{target.DisplayName}'.");
+            else CheckFreshObjectLiteral(property.Value,memberType,depth+1);
+        }
+    }
+
     private void Mismatch(Token token,TypeSymbol source,TypeSymbol target)=>
         Error(token,"TS2322",$"Type '{source.DisplayName}' is not assignable to type '{target.DisplayName}'.");
     private void Error(Token token,string code,string message)=>diagnostics.Add(Diagnostic.Error(file,token,code,message));
