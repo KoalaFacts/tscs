@@ -92,6 +92,37 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                 decodedValue = ScanString(first, out stringFlags);
             }
             else kind = first switch { '[' when jsonMode=>TokenKind.OpenBracket,']' when jsonMode=>TokenKind.CloseBracket,'(' when !jsonMode=>TokenKind.OpenParen,')' when !jsonMode=>TokenKind.CloseParen,'-'=>TokenKind.Minus, '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,'+' when !jsonMode=>TokenKind.Plus,'*' when !jsonMode=>TokenKind.Star,_=>TokenKind.Unsupported };
+            // Maximal-munch binary/logical operators only in source mode. Keep
+            // JSON scanning unchanged and refuse lone '&' or '|' as before.
+            if(!jsonMode)
+            {
+                if(first=='=' && position<text.Length && text[position]=='=')
+                {
+                    position++;
+                    kind=TokenKind.EqualEqual;
+                    if(position<text.Length && text[position]=='=') { position++;kind=TokenKind.StrictEqual; }
+                }
+                else if(first=='!')
+                {
+                    kind=TokenKind.Bang;
+                    if(position<text.Length && text[position]=='=')
+                    {
+                        position++;
+                        kind=TokenKind.BangEqual;
+                        if(position<text.Length && text[position]=='=') { position++;kind=TokenKind.StrictNotEqual; }
+                    }
+                }
+                else if(first=='&' && position<text.Length && text[position]=='&')
+                { position++;kind=TokenKind.AmpAmp; }
+                else if(first=='|' && position<text.Length && text[position]=='|')
+                { position++;kind=TokenKind.BarBar; }
+                else if(first=='<' || first=='>')
+                {
+                    kind=first=='<'?TokenKind.LessThan:TokenKind.GreaterThan;
+                    if(position<text.Length && text[position]=='=')
+                    { position++;kind=first=='<'?TokenKind.LessEqual:TokenKind.GreaterEqual; }
+                }
+            }
             // Lex -- as an unsupported decrement token, never as two unary/binary
             // minus operators. Whitespace-separated "- -" remains distinct.
             if(!jsonMode && kind==TokenKind.Minus && position<text.Length && text[position]=='-')

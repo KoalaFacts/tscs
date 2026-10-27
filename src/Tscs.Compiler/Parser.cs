@@ -6,6 +6,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     private int position;
     private int callNesting;
     private int conditionalNesting;
+    private int groupNesting;
     private Token Current => tokens[position];
     public List<Diagnostic> Diagnostics { get; } = [];
     private Token Take() => tokens[position++];
@@ -248,10 +249,51 @@ internal sealed class Parser(string file, List<Token> tokens)
         return Take().Text;
     }
 
-    // Bounded numeric arithmetic: unary '+'/'-' bind more tightly than '*',
-    // which binds more tightly than additive '+'/'-'. Other unary forms,
-    // exponentiation or nonnumeric arithmetic is claimed as supported.
-    private ValueNode ParseValue()
+    // Single precedence ladder shared by variable, call, return, assignment
+    // and conditional expression sites. The bounded type checker must reject
+    // unsupported operand families rather than pretending JS coercion works.
+    private ValueNode ParseValue()=>ParseLogicalOr();
+    private ValueNode ParseLogicalOr()
+    {
+        ValueNode left=ParseLogicalAnd();
+        while(Current.Kind==TokenKind.BarBar)
+        {
+            var op=Take();
+            left=new ValueBinary(left,op,ParseLogicalAnd());
+        }
+        return left;
+    }
+    private ValueNode ParseLogicalAnd()
+    {
+        ValueNode left=ParseEquality();
+        while(Current.Kind==TokenKind.AmpAmp)
+        {
+            var op=Take();
+            left=new ValueBinary(left,op,ParseEquality());
+        }
+        return left;
+    }
+    private ValueNode ParseEquality()
+    {
+        ValueNode left=ParseRelational();
+        while(Current.Kind is TokenKind.EqualEqual or TokenKind.BangEqual or TokenKind.StrictEqual or TokenKind.StrictNotEqual)
+        {
+            var op=Take();
+            left=new ValueBinary(left,op,ParseRelational());
+        }
+        return left;
+    }
+    private ValueNode ParseRelational()
+    {
+        ValueNode left=ParseAdditive();
+        while(Current.Kind is TokenKind.LessThan or TokenKind.LessEqual or TokenKind.GreaterThan or TokenKind.GreaterEqual)
+        {
+            var op=Take();
+            left=new ValueBinary(left,op,ParseAdditive());
+        }
+        return left;
+    }
+    private ValueNode ParseAdditive()
     {
         ValueNode left=ParseProduct();
         while(Current.Kind is TokenKind.Plus or TokenKind.Minus)
@@ -276,7 +318,7 @@ internal sealed class Parser(string file, List<Token> tokens)
         // Avoid recursive parsing on input such as 20,000 whitespace-separated
         // prefix '+'/'-' operators; the TypeChecker also evaluates iteratively.
         var prefixes=new List<Token>();
-        while(Current.Kind is TokenKind.Minus or TokenKind.Plus)prefixes.Add(Take());
+        while(Current.Kind is TokenKind.Minus or TokenKind.Plus or TokenKind.Bang)prefixes.Add(Take());
         ValueNode value=ParsePrimary();
         for(int i=prefixes.Count-1;i>=0;i--)value=new ValueUnary(prefixes[i],value);
         return value;
@@ -284,6 +326,18 @@ internal sealed class Parser(string file, List<Token> tokens)
     private ValueNode ParsePrimary()
     {
         var token=Current;
+        if(token.Kind==TokenKind.OpenParen)
+        {
+            Take();
+            if(++groupNesting>128)Unsupported(token,"Parenthesized expression nesting exceeds the bootstrap limit.");
+            try
+            {
+                var inner=ParseValue();
+                if(Current.Kind!=TokenKind.CloseParen)Unsupported(Current,"Expected ')' to close a parenthesized expression.");
+                return new ValueParenthesized(token,inner,Take());
+            }
+            finally { groupNesting--; }
+        }
         if(token.Kind==TokenKind.Identifier)
         {
             Take();
@@ -312,7 +366,7 @@ internal sealed class Parser(string file, List<Token> tokens)
             Diagnostics.Add(Diagnostic.Error(file,token,"TS1109","Expression expected."));
             return new ValueAtom(new(TokenKind.Number,"0",token.Start,0));
         }
-        Unsupported(token,"Only primitive literals and identifier expressions are supported.");
+        Unsupported(token,"Only primitive, parenthesized and named-call expressions are supported.");
         return default!;
     }
     private void EndStatement()

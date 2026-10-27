@@ -57,6 +57,13 @@ internal static class CompilerTypes
     };
 
     public static bool IsNumber(TypeSymbol? type) => type is PrimitiveTypeSymbol { Kind: PrimitiveKind.Number };
+    public static bool IsBoolean(TypeSymbol? type) => type is PrimitiveTypeSymbol { Kind: PrimitiveKind.Boolean };
+
+    // This is only the bounded, same-primitive/any equality subset.
+    // Do not infer an overlap between unrelated or structural type forms.
+    public static bool CanCompareEquality(TypeSymbol left,TypeSymbol right) =>
+        left is PrimitiveTypeSymbol && right is PrimitiveTypeSymbol &&
+        (left.Equals(right) || left.Equals(Any) || right.Equals(Any));
 
     public static bool IsAssignable(TypeSymbol source,TypeSymbol target) =>
         source.Equals(target) || source.Equals(Any) || target.Equals(Any);

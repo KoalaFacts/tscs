@@ -194,3 +194,22 @@ Unbraced arms, general truthiness, complex predicates, control-flow
 narrowing, loops and the general TypeScript function model remain unsupported.
 No fixed TS7 upstream acceptance SKIP is removed without genuine product
 assertions and pinned reference results.
+
+## Shared primitive expression precedence (2026-10-27; PR #8)
+
+The same Scanner and AST expression pipeline now supports parenthesized groups,
+boolean unary negation, strict/loose equality and inequality, numeric relational
+comparisons and boolean `&&` / `||`. Parser precedence is multiplicative,
+additive, relational, equality, logical AND and logical OR, with iterative
+TypeChecker evaluation of left-deep operator chains. Grouping tokens stay in
+`ValueParenthesized` instead of being discarded, so future emission can share
+the same AST. These expressions work in existing conditional, variable,
+assignment, call and return contexts; this work does **not** add JavaScript emit.
+
+Semantic boundaries are explicit: logical binary operands must be boolean;
+relational operands must be number; equality accepts matching primitive types
+or `any`, but not unrelated/structural types; unary `!` accepts boolean or
+`any`. Other TS/JS coercions, truthiness, short-circuit flow side effects,
+operator overloading, optional chaining, nullish coalescing and generalized
+TypeScript expression inference remain unsupported and fail closed. No new
+upstream full-original acceptance target is credited by this local feature.

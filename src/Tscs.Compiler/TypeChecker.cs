@@ -142,6 +142,13 @@ internal sealed class TypeChecker(string file)
                 types.Push(TypeOfAtom(atom.Token,scope));
                 continue;
             }
+            if(node is ValueParenthesized grouped)
+            {
+                // Preserve grouping in the AST for eventual output, but its
+                // semantic type is exactly that of the enclosed expression.
+                pending.Push((grouped.Expression,false));
+                continue;
+            }
             if(node is ValueUnary unary)
             {
                 if(!combine)
@@ -152,11 +159,19 @@ internal sealed class TypeChecker(string file)
                 }
                 var operand=types.Pop();
                 if(operand==null)types.Push(null);
-                else if(CompilerTypes.IsNumber(operand))types.Push(CompilerTypes.Number);
+                else if(unary.Operator.Kind==TokenKind.Bang &&
+                    (CompilerTypes.IsBoolean(operand)||operand.Equals(CompilerTypes.Any)))
+                    types.Push(CompilerTypes.Boolean);
+                else if((unary.Operator.Kind is TokenKind.Plus or TokenKind.Minus) &&
+                    CompilerTypes.IsNumber(operand))
+                    types.Push(CompilerTypes.Number);
                 else throw new CompilationFailure(Diagnostic.Error(file,unary.Operator,"TSCS1001",
-                    unary.Operator.Kind==TokenKind.Plus
-                        ? "Only numeric unary plus is supported yet."
-                        : "Only numeric unary minus is supported yet."));
+                    unary.Operator.Kind switch
+                    {
+                        TokenKind.Plus => "Only numeric unary plus is supported yet.",
+                        TokenKind.Minus => "Only numeric unary minus is supported yet.",
+                        _ => "Only boolean or any logical negation is supported yet."
+                    }));
                 continue;
             }
             if(node is ValueCall call)
@@ -197,15 +212,40 @@ internal sealed class TypeChecker(string file)
             var right=types.Pop();
             var left=types.Pop();
             if(left==null||right==null)types.Push(null);
-            else if(CompilerTypes.IsNumber(left)&&CompilerTypes.IsNumber(right)&&binary.Operator.Kind is TokenKind.Plus or TokenKind.Minus or TokenKind.Star)
-                types.Push(CompilerTypes.Number);
-            else throw new CompilationFailure(Diagnostic.Error(file,binary.Operator,"TSCS1001",
-                binary.Operator.Kind switch
-                {
-                    TokenKind.Star => "Only numeric multiplication expressions are supported yet.",
-                    TokenKind.Minus => "Only numeric subtraction expressions are supported yet.",
-                    _ => "Only numeric addition expressions are supported yet."
-                }));
+            else if(binary.Operator.Kind is TokenKind.Plus or TokenKind.Minus or TokenKind.Star)
+            {
+                if(CompilerTypes.IsNumber(left)&&CompilerTypes.IsNumber(right))
+                    types.Push(CompilerTypes.Number);
+                else throw new CompilationFailure(Diagnostic.Error(file,binary.Operator,"TSCS1001",
+                    binary.Operator.Kind switch
+                    {
+                        TokenKind.Star => "Only numeric multiplication expressions are supported yet.",
+                        TokenKind.Minus => "Only numeric subtraction expressions are supported yet.",
+                        _ => "Only numeric addition expressions are supported yet."
+                    }));
+            }
+            else if(binary.Operator.Kind is TokenKind.LessThan or TokenKind.LessEqual or TokenKind.GreaterThan or TokenKind.GreaterEqual)
+            {
+                if(CompilerTypes.IsNumber(left)&&CompilerTypes.IsNumber(right))
+                    types.Push(CompilerTypes.Boolean);
+                else throw new CompilationFailure(Diagnostic.Error(file,binary.Operator,"TSCS1001",
+                    "Relational comparisons currently require two number operands."));
+            }
+            else if(binary.Operator.Kind is TokenKind.EqualEqual or TokenKind.BangEqual or TokenKind.StrictEqual or TokenKind.StrictNotEqual)
+            {
+                if(CompilerTypes.CanCompareEquality(left,right))
+                    types.Push(CompilerTypes.Boolean);
+                else throw new CompilationFailure(Diagnostic.Error(file,binary.Operator,"TSCS1001",
+                    "Equality comparisons currently require matching primitive or any operands."));
+            }
+            else if(binary.Operator.Kind is TokenKind.AmpAmp or TokenKind.BarBar)
+            {
+                if(CompilerTypes.IsBoolean(left)&&CompilerTypes.IsBoolean(right))
+                    types.Push(CompilerTypes.Boolean);
+                else throw new CompilationFailure(Diagnostic.Error(file,binary.Operator,"TSCS1001",
+                    "Logical binary expressions currently require boolean operands."));
+            }
+            else throw new InvalidOperationException("Unrecognized binary expression operator.");
         }
         return types.Pop();
     }
