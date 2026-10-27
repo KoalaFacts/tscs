@@ -29,6 +29,8 @@ internal static class ModuleLinker
             {
                 if(statement is Variable { Exported:true } variable)
                     Add(variable.Name,variable.Name,null);
+                else if(statement is FunctionDeclaration { Exported:true } function)
+                    Add(function.Name,function.Name,null);
                 else if(statement is ExportDeclaration declaration)
                     foreach(var specifier in declaration.Specifiers)
                         Add(specifier.Exported,specifier.Local,declaration.ModulePath);

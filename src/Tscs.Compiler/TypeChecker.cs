@@ -10,14 +10,30 @@ internal sealed class TypeChecker(string file)
         CheckBlock(block,global,true);
         return diagnostics;
     }
-    private void CheckBlock(Block block,Scope? parent,bool rootAlreadyBound=false)
+    private void CheckBlock(Block block,Scope? parent,bool rootAlreadyBound=false,TypeSymbol? expectedReturn=null)
     {
         var scope=rootAlreadyBound?parent!:Binder.Bind(file,block,parent);
         foreach(var statement in block.Statements)
         {
             switch(statement)
             {
-                case Block nested: CheckBlock(nested,scope);break;
+                case Block nested: CheckBlock(nested,scope,false,expectedReturn);break;
+                case FunctionDeclaration function:
+                    var functionSymbol=scope.Symbols[function.Name.Text];
+                    var functionType=(FunctionTypeSymbol)functionSymbol.Type!;
+                    var parameters=new Scope(scope);
+                    foreach(var parameter in function.Parameters)
+                        Binder.DeclareParameter(file,parameters,parameter);
+                    CheckBlock(function.Body,parameters,false,functionType.ReturnType);
+                    break;
+                case ReturnStatement returned:
+                    if(expectedReturn==null)
+                        throw new CompilationFailure(Diagnostic.Error(file,returned.Keyword,"TSCS1001",
+                            "Return statements outside functions are not supported."));
+                    var returnType=TypeOf(returned.Value,scope);
+                    if(returnType!=null && !CompilerTypes.IsAssignable(returnType,expectedReturn))
+                        Mismatch(returned.Keyword,returnType,expectedReturn);
+                    break;
                 case Variable v:
                     if(v.Name.Text is "eval" or "arguments") Error(v.Name,"TS1100",$"Invalid use of '{v.Name.Text}' in strict mode.");
                     if((parent==null || rootAlreadyBound) && v.Name.Text=="globalThis") Error(v.Name,"TS2397","Declaration name conflicts with built-in global identifier 'globalThis'.");
@@ -35,7 +51,7 @@ internal sealed class TypeChecker(string file)
                     var target=Resolve(a.Name,scope);var assigned=TypeOf(a.Value,scope);
                     if(target==null)break;
                     if(target.Imported) Error(a.Name,"TS2632",$"Cannot assign to '{a.Name.Text}' because it is an import.");
-                    else if(target.Declaration.Constant) Error(a.Name,"TS2588",$"Cannot assign to '{a.Name.Text}' because it is a constant.");
+                    else if(target.IsConstant) Error(a.Name,"TS2588",$"Cannot assign to '{a.Name.Text}' because it is a constant.");
                     else if(target.Type!=null&&assigned!=null&&!CompilerTypes.IsAssignable(assigned,target.Type)) Mismatch(a.Name,assigned,target.Type);
                     else target.Initialized=true;
                     break;
@@ -46,7 +62,7 @@ internal sealed class TypeChecker(string file)
                         throw new CompilationFailure(Diagnostic.Error(file,update.Name,"TSCS1001","Reads before initialization are not supported yet."));
                     if(updated.Imported)
                         Error(update.Name,"TS2632",$"Cannot assign to '{update.Name.Text}' because it is an import.");
-                    else if(updated.Declaration.Constant)
+                    else if(updated.IsConstant)
                         Error(update.Name,"TS2588",$"Cannot assign to '{update.Name.Text}' because it is a constant.");
                     else if(!CompilerTypes.IsNumber(updated.Type))
                         throw new CompilationFailure(Diagnostic.Error(file,update.Operator,"TSCS1001","Only number postfix updates are supported yet."));
@@ -91,6 +107,33 @@ internal sealed class TypeChecker(string file)
                         : "Only numeric unary minus is supported yet."));
                 continue;
             }
+            if(node is ValueCall call)
+            {
+                if(!combine)
+                {
+                    pending.Push((call,true));
+                    for(int i=call.Arguments.Count-1;i>=0;i--)
+                        pending.Push((call.Arguments[i],false));
+                    continue;
+                }
+                var arguments=new TypeSymbol?[call.Arguments.Count];
+                for(int i=arguments.Length-1;i>=0;i--)arguments[i]=types.Pop();
+                var callee=Resolve(call.Callee,scope);
+                if(callee==null) { types.Push(null); continue; }
+                if(callee.Type is not FunctionTypeSymbol signature)
+                    throw new CompilationFailure(Diagnostic.Error(file,call.Callee,"TSCS1001",
+                        "Calls currently require a declared function with an explicit signature."));
+                if(signature.Parameters.Count!=arguments.Length)
+                    Error(call.Callee,"TS2554",$"Expected {signature.Parameters.Count} arguments, but got {arguments.Length}.");
+                else
+                    for(int i=0;i<arguments.Length;i++)
+                        if(arguments[i] is { } actual &&
+                           !CompilerTypes.IsAssignable(actual,signature.Parameters[i]))
+                            Error(call.Callee,"TS2345",
+                                $"Argument of type '{actual.DisplayName}' is not assignable to parameter of type '{signature.Parameters[i].DisplayName}'.");
+                types.Push(signature.ReturnType);
+                continue;
+            }
             var binary=(ValueBinary)node;
             if(!combine)
             {
@@ -131,7 +174,7 @@ internal sealed class TypeChecker(string file)
         if(symbol==null) Error(name,"TS2304",$"Cannot find name '{name.Text}'.");
         else if(symbol.File!=file && !symbol.CrossFileTypeReady)
             throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001","Cross-file inference requires an explicit annotation or primitive literal initializer."));
-        else if(symbol.File==file && name.Start<=symbol.Declaration.Name.Start)
+        else if(symbol.File==file && symbol.Declaration is not FunctionDeclaration && name.Start<=symbol.DeclarationStart)
             throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001","References before declaration are not supported yet."));
         return symbol;
     }

@@ -153,3 +153,17 @@ declarations and assignments. Unknown inference remains `null` and is
 not promoted to `any`. This is a reusable architecture change, not support
 for functions, unions, generics or full TypeScript type relations.
 
+
+## Explicit function signatures and calls (2026-10-27; PR #8)
+
+The scanner/parser now admit named source-level functions with required parameter
+and return primitive annotations, a bounded statement body ending in a direct
+value `return`, and identifier call expressions with a bounded call nesting depth.
+Binder predeclares callable symbols alongside variables, creates distinct typed
+parameter scopes, and ModuleLinker shares the same symbol identity for exported
+functions. TypeChecker checks call arity, parameter assignability, and return
+assignability through `FunctionTypeSymbol`; ordinary functions are available
+before their textual declaration, unlike let/const. This is intentionally a
+small real working function family, not TypeScript's full callable type system,
+closures, overloads, defaults, recursion analysis, hoisting runtime semantics
+or JavaScript emit. The frozen upstream original test ledger remains separate.

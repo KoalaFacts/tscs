@@ -1,3 +1,20 @@
+# 2026-10-27 — Explicit-signature function pipeline (PR #8)
+
+Implemented a bounded, reusable function-declaration and call path across Scanner, AST,
+Parser, Binder, ModuleLinker, TypeSymbol and TypeChecker. Named source-level functions
+with explicit primitive/any parameters and return annotations can call/return primitive
+expressions, bind parameters in their own lexical scope, be referenced before their
+declaration and be imported through the existing named-value module graph. The shared
+checker validates arity, argument types and return assignability; missing annotations,
+unsupported bodies/call targets remain errors, not implicit any. No JavaScript emit,
+closures, overloads, default/rest/optional parameters, inference, generics, recursion
+soundness proof or complete TypeScript function semantics are claimed. This is a
+bounded implementation family, not acceptance of the general function-declaration
+local guard: `function f() {}` still fails closed. The existing 15,523 original
+upstream configuration-level SKIPs and original PASS=0 remain unchanged, with full
+dynamic scope still unknown. Exact-head C#/CI validation and independent review are
+required before considering the PR ready to merge.
+
 # 2026-10-27 — Shared semantic TypeSymbol foundation (PR #8)
 
 The bounded compiler now represents checked primitive/any types as semantic

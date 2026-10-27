@@ -22,6 +22,12 @@ internal sealed record PrimitiveTypeSymbol(PrimitiveKind Kind) : TypeSymbol
     };
 }
 
+internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType) : TypeSymbol
+{
+    public override string DisplayName =>
+        $"({string.Join(", ",Parameters.Select(p=>p.DisplayName))}) => {ReturnType.DisplayName}";
+}
+
 // These relations cover only the implemented primitive + any subset.
 // Unsupported TypeScript type forms remain parser/compiler errors; an unknown
 // type is represented by null, never silently treated as 'any'.

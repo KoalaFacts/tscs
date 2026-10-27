@@ -45,7 +45,7 @@ public static class Compilation
         try
         {
             bool IsModule(ParsedSource source) =>
-                source.Root.Statements.Any(s=>s is ImportDeclaration or ExportDeclaration || s is Variable { Exported:true });
+                source.Root.Statements.Any(s=>s is ImportDeclaration or ExportDeclaration || s is Variable { Exported:true } or FunctionDeclaration { Exported:true });
             var moduleSources=parsed.Where(IsModule).ToArray();
             var scriptSources=parsed.Where(s=>!IsModule(s)).ToArray();
             if(parsed.Count>1 || moduleSources.Length>0)

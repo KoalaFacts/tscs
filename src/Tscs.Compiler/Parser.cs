@@ -4,11 +4,12 @@ namespace Tscs;
 internal sealed class Parser(string file, List<Token> tokens)
 {
     private int position;
+    private int callNesting;
     private Token Current => tokens[position];
     public List<Diagnostic> Diagnostics { get; } = [];
     private Token Take() => tokens[position++];
     private bool Eat(TokenKind kind) { if(Current.Kind!=kind)return false; position++;return true; }
-    public Block Parse(int depth=0)
+    public Block Parse(int depth=0,bool inFunction=false)
     {
         if(depth>128) Unsupported(Current,"Block nesting exceeds the bootstrap limit.");
         var statements=new List<Statement>();
@@ -18,7 +19,7 @@ internal sealed class Parser(string file, List<Token> tokens)
             if(Eat(TokenKind.Semi))continue;
             if(Eat(TokenKind.Open))
             {
-                statements.Add(Parse(depth+1));
+                statements.Add(Parse(depth+1,inFunction));
                 if(!Eat(TokenKind.Close)) Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
                 continue;
             }
@@ -101,8 +102,50 @@ internal sealed class Parser(string file, List<Token> tokens)
                     EndStatement();
                     continue;
                 }
-                if(Current.Kind is not (TokenKind.Let or TokenKind.Const))
-                    Unsupported(Current,"Only exported variables or named local exports are supported yet.");
+                if(Current.Kind is not (TokenKind.Let or TokenKind.Const or TokenKind.Function))
+                    Unsupported(Current,"Only exported variables, functions or named local exports are supported yet.");
+            }
+            if(Current.Kind==TokenKind.Function)
+            {
+                if(depth!=0)Unsupported(Current,"Function declarations are currently supported only at source-file scope.");
+                Take();
+                var name=Current;
+                if(name.Kind!=TokenKind.Identifier)Unsupported(name,"Expected a named function declaration.");
+                Take();
+                if(!Eat(TokenKind.OpenParen))Unsupported(Current,"Expected '(' after function name.");
+                var parameters=new List<ParameterDeclaration>();
+                if(Current.Kind!=TokenKind.CloseParen)
+                {
+                    while(true)
+                    {
+                        var parameter=Current;
+                        if(parameter.Kind!=TokenKind.Identifier)Unsupported(parameter,"Expected a named parameter.");
+                        Take();
+                        if(!Eat(TokenKind.Colon))Unsupported(Current,"Function parameters require an explicit primitive type.");
+                        parameters.Add(new ParameterDeclaration(parameter,ReadPrimitiveAnnotation()));
+                        if(!Eat(TokenKind.Comma))break;
+                    }
+                }
+                if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after function parameters.");
+                if(!Eat(TokenKind.Colon))Unsupported(Current,"Function return types must be explicit in this compiler subset.");
+                var result=ReadPrimitiveAnnotation();
+                if(!Eat(TokenKind.Open))Unsupported(Current,"Expected '{' before function body.");
+                var body=Parse(depth+1,true);
+                if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+                if(body.Statements.LastOrDefault() is not ReturnStatement)
+                    Unsupported(name,"Only function bodies ending in a value return are supported yet.");
+                statements.Add(new FunctionDeclaration(name,parameters,result,body,exported));
+                continue;
+            }
+            if(Current.Kind==TokenKind.Return)
+            {
+                var keyword=Take();
+                if(!inFunction)Unsupported(keyword,"Return statements are supported only inside functions.");
+                if(Current.Kind is TokenKind.Semi or TokenKind.End or TokenKind.Close)
+                    Unsupported(keyword,"Only value-returning functions are supported yet.");
+                statements.Add(new ReturnStatement(keyword,ParseValue()));
+                EndStatement();
+                continue;
             }
             if(Current.Kind is TokenKind.Let or TokenKind.Const)
             {
@@ -114,8 +157,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                     Take(); string? annotation=null;
                     if(Eat(TokenKind.Colon))
                     {
-                        if(Current.Kind!=TokenKind.Identifier || Current.Text is not ("number" or "string" or "boolean" or "any")) Unsupported(Current,"Only primitive type annotations are supported.");
-                        annotation=Take().Text;
+                        annotation=ReadPrimitiveAnnotation();
                     }
                     ValueNode? initializer=Eat(TokenKind.Equal)?ParseValue():null;
                     if(annotation==null && initializer==null) Unsupported(name,"Variables without a type or initializer are not supported yet.");
@@ -156,6 +198,14 @@ internal sealed class Parser(string file, List<Token> tokens)
         }
         return new Block(statements);
     }
+    private string ReadPrimitiveAnnotation()
+    {
+        if(Current.Kind!=TokenKind.Identifier ||
+           Current.Text is not ("number" or "string" or "boolean" or "any"))
+            Unsupported(Current,"Only primitive type annotations are supported.");
+        return Take().Text;
+    }
+
     // Bounded numeric arithmetic: unary '+'/'-' bind more tightly than '*',
     // which binds more tightly than additive '+'/'-'. Other unary forms,
     // exponentiation or nonnumeric arithmetic is claimed as supported.
@@ -192,7 +242,28 @@ internal sealed class Parser(string file, List<Token> tokens)
     private ValueNode ParsePrimary()
     {
         var token=Current;
-        if(token.Kind is TokenKind.Identifier or TokenKind.Number or TokenKind.String or TokenKind.True or TokenKind.False)
+        if(token.Kind==TokenKind.Identifier)
+        {
+            Take();
+            if(!Eat(TokenKind.OpenParen))return new ValueAtom(token);
+            if(++callNesting>64)Unsupported(token,"Nested calls exceed the compiler subset depth limit.");
+            try
+            {
+                var arguments=new List<ValueNode>();
+                if(Current.Kind!=TokenKind.CloseParen)
+                {
+                    while(true)
+                    {
+                        arguments.Add(ParseValue());
+                        if(!Eat(TokenKind.Comma))break;
+                    }
+                }
+                if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after function arguments.");
+                return new ValueCall(token,arguments);
+            }
+            finally { callNesting--; }
+        }
+        if(token.Kind is TokenKind.Number or TokenKind.String or TokenKind.True or TokenKind.False)
             return new ValueAtom(Take());
         if(token.Kind is TokenKind.Semi or TokenKind.End or TokenKind.Close)
         {

@@ -70,8 +70,8 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
             {
                 while (position < text.Length && IsIdentifierPart(text[position])) position++;
                 string value = text[begin..position];
-                kind = value switch { "let"=>TokenKind.Let,"const"=>TokenKind.Const,"import"=>TokenKind.Import,"export"=>TokenKind.Export,"true"=>TokenKind.True,"false"=>TokenKind.False,
-                    "case" or "default" or "extends" or "super" or "catch" or "finally" or "in" or "instanceof" or "implements" or "package" or "private" or "protected" or "public" or "static" or "function" or "class" or "var" or "interface" or "type" or "declare" or "if" or "else" or "return" or "while" or "for" or "switch" or "new" or "null" or "undefined" or "this" or "throw" or "try" or "enum" or "async" or "await" or "yield" or "break" or "continue" or "do" or "delete" or "typeof" or "void" or "with" or "debugger" or "namespace" or "using" => TokenKind.Unsupported, _ => TokenKind.Identifier };
+                kind = value switch { "let"=>TokenKind.Let,"const"=>TokenKind.Const,"import"=>TokenKind.Import,"export"=>TokenKind.Export,"function"=>TokenKind.Function,"return"=>TokenKind.Return,"true"=>TokenKind.True,"false"=>TokenKind.False,
+                    "case" or "default" or "extends" or "super" or "catch" or "finally" or "in" or "instanceof" or "implements" or "package" or "private" or "protected" or "public" or "static" or "class" or "var" or "interface" or "type" or "declare" or "if" or "else" or "while" or "for" or "switch" or "new" or "null" or "undefined" or "this" or "throw" or "try" or "enum" or "async" or "await" or "yield" or "break" or "continue" or "do" or "delete" or "typeof" or "void" or "with" or "debugger" or "namespace" or "using" => TokenKind.Unsupported, _ => TokenKind.Identifier };
                 if(jsonMode)
                 {
                     // The bootstrap identifier classifier uses host Unicode tables.
@@ -91,7 +91,7 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                 kind = TokenKind.String;
                 decodedValue = ScanString(first, out stringFlags);
             }
-            else kind = first switch { '[' when jsonMode=>TokenKind.OpenBracket,']' when jsonMode=>TokenKind.CloseBracket,'-'=>TokenKind.Minus, '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,'+' when !jsonMode=>TokenKind.Plus,'*' when !jsonMode=>TokenKind.Star,_=>TokenKind.Unsupported };
+            else kind = first switch { '[' when jsonMode=>TokenKind.OpenBracket,']' when jsonMode=>TokenKind.CloseBracket,'(' when !jsonMode=>TokenKind.OpenParen,')' when !jsonMode=>TokenKind.CloseParen,'-'=>TokenKind.Minus, '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,'+' when !jsonMode=>TokenKind.Plus,'*' when !jsonMode=>TokenKind.Star,_=>TokenKind.Unsupported };
             // Lex -- as an unsupported decrement token, never as two unary/binary
             // minus operators. Whitespace-separated "- -" remains distinct.
             if(!jsonMode && kind==TokenKind.Minus && position<text.Length && text[position]=='-')

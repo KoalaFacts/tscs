@@ -1,9 +1,17 @@
 namespace Tscs;
 
-internal sealed class Symbol(string file,Variable declaration)
+internal sealed class Symbol(string file,Statement declaration)
 {
     public string File { get; } = file;
-    public Variable Declaration { get; } = declaration;
+    public Statement Declaration { get; } = declaration;
+    public bool IsConstant => Declaration is Variable { Constant:true };
+    public int DeclarationStart => Declaration switch
+    {
+        Variable v => v.Name.Start,
+        FunctionDeclaration f => f.Name.Start,
+        ParameterDeclaration p => p.Name.Start,
+        _ => throw new InvalidOperationException("Unsupported symbol declaration.")
+    };
     public TypeSymbol? Type { get; set; }
     public bool Initialized { get; set; }
     public bool CrossFileTypeReady { get; set; }
@@ -21,7 +29,9 @@ internal static class Binder
     public static Scope Bind(string file,Block block,Scope? parent)
     {
         var scope=new Scope(parent);
-        foreach(var variable in block.Statements.OfType<Variable>())Declare(file,scope,variable);
+        foreach(var statement in block.Statements)
+            if(statement is Variable or FunctionDeclaration)Declare(file,scope,statement);
+        InitializeDeclaredTypes(scope);
         return scope;
     }
 
@@ -29,8 +39,8 @@ internal static class Binder
     {
         var global=new Scope(null);
         foreach(var (file,root) in sources)
-            foreach(var variable in root.Statements.OfType<Variable>())
-                Declare(file,global,variable);
+            foreach(var statement in root.Statements)
+                if(statement is Variable or FunctionDeclaration)Declare(file,global,statement);
         InitializeDeclaredTypes(global);
         return global;
     }
@@ -42,11 +52,20 @@ internal static class Binder
         return local;
     }
 
+    public static void DeclareParameter(string file,Scope scope,ParameterDeclaration parameter)
+    {
+        Declare(file,scope,parameter);
+        var symbol=scope.Symbols[parameter.Name.Text];
+        symbol.Type=CompilerTypes.FromAnnotation(parameter.Annotation);
+        symbol.Initialized=true;
+        symbol.CrossFileTypeReady=true;
+    }
+
     public static void Import(string file,Scope scope,ImportSpecifier specifier,Symbol exported)
     {
         if(!exported.CrossFileTypeReady)
             throw new CompilationFailure(Diagnostic.Error(file,specifier.Imported,"TSCS1001",
-                "Imported declarations require an explicit primitive annotation or literal type."));
+                "Imported declarations require a known semantic type."));
         var imported=new Symbol(exported.File,exported.Declaration)
         {
             Type=exported.Type,
@@ -63,19 +82,37 @@ internal static class Binder
     {
         foreach(var symbol in scope.Symbols.Values)
         {
-            var declaration=symbol.Declaration;
-            TypeSymbol? literalType=declaration.Initializer is ValueAtom atom
-                ? CompilerTypes.FromLiteral(atom.Token) : null;
-            symbol.Type=declaration.Annotation is { } annotation
-                ? CompilerTypes.FromAnnotation(annotation) : literalType;
-            symbol.Initialized=declaration.Initializer!=null;
-            symbol.CrossFileTypeReady=symbol.Type!=null;
+            switch(symbol.Declaration)
+            {
+                case Variable declaration:
+                    TypeSymbol? literalType=declaration.Initializer is ValueAtom atom
+                        ? CompilerTypes.FromLiteral(atom.Token) : null;
+                    symbol.Type=declaration.Annotation is { } annotation
+                        ? CompilerTypes.FromAnnotation(annotation) : literalType;
+                    symbol.Initialized=declaration.Initializer!=null;
+                    symbol.CrossFileTypeReady=symbol.Type!=null;
+                    break;
+                case FunctionDeclaration function:
+                    symbol.Type=new FunctionTypeSymbol(
+                        function.Parameters.Select(p=>CompilerTypes.FromAnnotation(p.Annotation)).ToArray(),
+                        CompilerTypes.FromAnnotation(function.ReturnAnnotation));
+                    symbol.Initialized=true;
+                    symbol.CrossFileTypeReady=true;
+                    break;
+            }
         }
     }
-    private static void Declare(string file,Scope scope,Variable declaration)
+    private static void Declare(string file,Scope scope,Statement declaration)
     {
-        if(!scope.Symbols.TryAdd(declaration.Name.Text,new Symbol(file,declaration)))
-            throw new CompilationFailure(Diagnostic.Error(file,declaration.Name,"TSCS1001",
+        var name=declaration switch
+        {
+            Variable v => v.Name,
+            FunctionDeclaration f => f.Name,
+            ParameterDeclaration p => p.Name,
+            _ => throw new ArgumentOutOfRangeException(nameof(declaration))
+        };
+        if(!scope.Symbols.TryAdd(name.Text,new Symbol(file,declaration)))
+            throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
                 "Redeclaration diagnostics and declaration merging are not supported yet."));
     }
 }
