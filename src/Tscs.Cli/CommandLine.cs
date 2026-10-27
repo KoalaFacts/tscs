@@ -18,11 +18,11 @@ public static class CommandLine
                 throw new InputFailure("AST-backed output requires --emitJs --noLib --target es2015 and --noEmit false.");
             var host=new FileSystemCompilerHost();
             var inputs=options.Files.Select(host.GetCanonicalFileName).ToArray();
-            var codeFiles=inputs.Where(p=>!p.EndsWith(".d.ts",StringComparison.Ordinal)).ToArray();
+            var codeFiles=inputs.Where(p=>!ProjectSourceDiscovery.IsDeclarationFile(p)).ToArray();
             if(codeFiles.Length==0)throw new InputFailure("The bootstrap requires at least one .ts source file, plus optional minimal .d.ts globals.");
-            if(codeFiles.Any(p=>!p.EndsWith(".ts",StringComparison.Ordinal)))throw new InputFailure("Only .ts input is supported.");
+            if(codeFiles.Any(p=>!ProjectSourceDiscovery.IsTypeScriptFile(p)))throw new InputFailure("Only .ts input is supported.");
             var globals=new HashSet<string>(StringComparer.Ordinal);
-            foreach(var path in inputs.Where(p=>p.EndsWith(".d.ts",StringComparison.Ordinal)))
+            foreach(var path in inputs.Where(ProjectSourceDiscovery.IsDeclarationFile))
                 ReadGlobals(host.ReadFile(path),globals);
             var program=CompilerProgram.Load(host,codeFiles,options.EffectiveCompilerOptions);
             var analysis=program.Analyze();

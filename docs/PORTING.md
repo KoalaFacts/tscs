@@ -278,3 +278,18 @@ both emission paths enforce `NoEmit`. In-memory CompilerHost regressions cover t
 actual checked and emitted graph, negative module boundaries and noEmit.
 This is a bounded module/options dependency cleanup, not general TS7 defaults,
 extended config expansion, module mode support or upstream conformance.
+
+## Explicit project source discovery (2026-10-28)
+
+`Options.ReadConfig` reuses the C# JSON syntax and pinned option conversion,
+then passes explicit `files`, `include`, and `exclude` source selectors to
+`ProjectSourceDiscovery`. This filesystem-only, bounded selector passes one
+canonical set of roots to the existing `CompilerProgram.Load` and does not
+create an alternate checker or emitter. Explicit file entries survive excludes;
+relative glob matches are sorted deterministically and symlink traversal is
+not attempted. Supported globs cover literal project-local paths, `*`, `?`,
+and full-segment `**` for .ts source discovery. Absent `include` preserves the
+current files-only bootstrap instead of silently claiming TypeScript's full
+implicit include, directory/extension policy, extends or VFS glob semantics.
+The next dependency is a host-aware project filesystem enumeration abstraction
+and a complete, reference-verified TS7 effective-config lifecycle.

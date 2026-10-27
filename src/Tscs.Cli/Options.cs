@@ -48,7 +48,7 @@ internal sealed class Options
             }
         }
         if(options.Files.Count==0)throw new InputFailure("No source files were specified.");
-        if(options.Files.Distinct(StringComparer.Ordinal).Count()!=options.Files.Count)throw new InputFailure("Duplicate input paths are not supported.");
+        if(options.Files.Distinct(OperatingSystem.IsWindows()?StringComparer.OrdinalIgnoreCase:StringComparer.Ordinal).Count()!=options.Files.Count)throw new InputFailure("Duplicate input paths are not supported.");
         return options;
     }
     private static bool ReadBool(string[] args,ref int i)
@@ -65,6 +65,8 @@ internal sealed class Options
         var root=parsed.Root;
         if(root?.Kind!="Object")throw new InputFailure("Configuration must be an object.");
         var keys=new HashSet<string>(StringComparer.Ordinal);
+        var includes=new List<string>();
+        var excludes=new List<string>();
         foreach(var p in root!.Properties)
         {
             if(!keys.Add((p.Name.Token.Value??p.Name.Token.Text)))throw new InputFailure("Duplicate configuration keys are not supported.");
@@ -75,6 +77,8 @@ internal sealed class Options
                     foreach(var item in p.Value.Elements)
                     {if(item.Kind!="String"||string.IsNullOrEmpty(item.Token.Value))throw new InputFailure("File paths must be nonempty strings.");Files.Add(Path.GetFullPath(item.Token.Value!,Path.GetDirectoryName(file)!));}
                     break;
+                case "include":includes.AddRange(ProjectPatterns(p.Value,"include"));break;
+                case "exclude":excludes.AddRange(ProjectPatterns(p.Value,"exclude"));break;
                 case "compilerOptions":
                     if(p.Value.Kind!="Object")throw new InputFailure("compilerOptions must be an object.");
                     var optionKeys=new HashSet<string>(StringComparer.Ordinal);
@@ -109,6 +113,21 @@ internal sealed class Options
                 default:throw new InputFailure($"Unsupported configuration property '{(p.Name.Token.Value??p.Name.Token.Text)}'.");
             }
         }
+        // Explicit root files are retained; include globs add a deterministic
+        // bounded source set, while excludes apply only to discovered files.
+        Files.AddRange(ProjectSourceDiscovery.Discover(Path.GetDirectoryName(file)!,Files,includes,excludes));
+    }
+    private static IReadOnlyList<string> ProjectPatterns(JsonSyntaxNode value,string name)
+    {
+        if(value.Kind!="Array")throw new InputFailure($"{name} must be an array.");
+        var patterns=new List<string>();
+        foreach(var element in value.Elements)
+        {
+            if(element.Kind!="String"||string.IsNullOrWhiteSpace(element.Token.Value))
+                throw new InputFailure($"{name} entries must be nonempty strings.");
+            patterns.Add(element.Token.Value!);
+        }
+        return patterns;
     }
     private static bool Boolean(string name,JsonSyntaxNode value,string file,string text)
     {
