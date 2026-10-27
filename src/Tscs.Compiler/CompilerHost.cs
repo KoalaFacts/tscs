@@ -174,6 +174,11 @@ public sealed class CompilerProgram
     /// JavaScript. This cannot emit modules, declaration files, unsupported
     /// syntax or any program with errors. It never loads or reparses source.
     /// </summary>
+    // Preserve the original EmitJavaScript(bool) binary entry point for hosts
+    // built against the bootstrap API; the parameterless path reads Options.
+    public IReadOnlyList<JavaScriptOutput> EmitJavaScript(bool emitModules) =>
+        EmitJavaScript((bool?)emitModules);
+
     public IReadOnlyList<JavaScriptOutput> EmitJavaScript(bool? emitModules=null)
     {
         if(Options.NoEmit)

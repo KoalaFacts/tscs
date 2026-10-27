@@ -55,5 +55,6 @@ public sealed class CompilerOptionsTests
         });
         Assert.Empty(program.Analyze().Diagnostics);
         Assert.Throws<InvalidOperationException>(()=>program.EmitJavaScript());
+        Assert.Throws<InvalidOperationException>(()=>program.EmitJavaScript(true));
     }
 }
