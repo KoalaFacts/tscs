@@ -22,8 +22,15 @@ public class StringRecoveryTests
  [Fact]
  public void EarlierLexicalErrorsSurviveLaterUnsupportedSyntax()
  {
-  var analysis=Compilation.Analyze("case.ts","\"\\xG\"; function");
+  var analysis=Compilation.Analyze("case.ts","\"\\xG\"; class");
   Assert.True(analysis.HasSyntaxErrors);Assert.Equal(new[]{"TS1125","TSCS1001"},analysis.Diagnostics.Select(d=>d.Code));
+ }
+ [Fact]
+ public void EarlierLexicalErrorsAreNotHiddenBySupportedFunctionSyntax()
+ {
+  var analysis=Compilation.Analyze("case.ts","\"\\xG\"; function f(): number { return 1; }");
+  Assert.True(analysis.HasSyntaxErrors);
+  Assert.Equal("TS1125",Assert.Single(analysis.Diagnostics).Code);
  }
  [Fact]
  public void EarlierLexicalErrorsSurviveNowSupportedNumericUnaryPlus()
