@@ -9,6 +9,7 @@ internal sealed class Options
     public bool NoEmit=>noEmit;
     public bool NoLib=>noLib;
     public bool EmitJs {get;private set;}
+    public bool EmitEs2015Module {get;private set;}
     public bool ExplicitEs2015Target {get;private set;}
     public static Options Parse(string[] args)
     {
@@ -28,6 +29,11 @@ internal sealed class Options
                 case "-p":case "--project":i++;break;
                 case "--json":break;
                 case "--emitJs":options.EmitJs=true;break;
+                case "--module":
+                    if(++i==args.Length || (args[i]!="es2015" && args[i]!="es6"))
+                        throw new InputFailure("Only --module es2015/es6 is supported for named ES modules.");
+                    options.EmitEs2015Module=true;
+                    break;
                 case "--noEmit":options.noEmit=ReadBool(args,ref i);break;
                 case "--noLib":options.noLib=ReadBool(args,ref i);break;
                 case "--pretty":if(++i==args.Length||args[i]!="false")throw new InputFailure("Only --pretty false is supported.");break;

@@ -116,7 +116,12 @@ public sealed class CompilerProgram
                          !specifier.Contains('\\') && !specifier.Contains(':')))
                         throw new ArgumentException(
                             $"Only relative TypeScript module specifiers are supported: '{specifier}' in '{canonical}'.",nameof(paths));
+                    // TypeScript's source graph resolves runtime .js module
+                    // specifiers against .ts sources while preserving the
+                    // original .js specifier for ES2015 output.
                     if(Path.GetExtension(specifier).Length==0)specifier+=".ts";
+                    else if(specifier.EndsWith(".js",StringComparison.Ordinal))
+                        specifier=specifier[..^3]+".ts";
                     if(!specifier.EndsWith(".ts",StringComparison.Ordinal) ||
                        specifier.EndsWith(".d.ts",StringComparison.Ordinal))
                         throw new ArgumentException(
@@ -167,7 +172,7 @@ public sealed class CompilerProgram
     /// JavaScript. This cannot emit modules, declaration files, unsupported
     /// syntax or any program with errors. It never loads or reparses source.
     /// </summary>
-    public IReadOnlyList<JavaScriptOutput> EmitJavaScript()
+    public IReadOnlyList<JavaScriptOutput> EmitJavaScript(bool emitModules=false)
     {
         var checkedProgram=Analyze();
         if(checkedProgram.HasSyntaxErrors || checkedProgram.Diagnostics.Count>0)
@@ -178,10 +183,10 @@ public sealed class CompilerProgram
             var source=sources[i];
             if(!syntaxSnapshots.TryGetValue(source.File,out var syntax) || syntax.Source is not { } parsed)
                 throw new InvalidOperationException("No validated AST snapshot exists for the source.");
-            if(parsed.Root.Statements.Any(s=>
+            if(!emitModules && parsed.Root.Statements.Any(s=>
                 s is ImportDeclaration or ExportDeclaration or Variable { Exported: true } or FunctionDeclaration { Exported: true }))
-                throw new NotSupportedException("ES module JavaScript output is not implemented; the writer only supports global scripts.");
-            output[i]=new JavaScriptOutput(source.File,JavaScriptEmitter.Emit(parsed.Root));
+                throw new NotSupportedException("ES module JavaScript output is not implemented; specify --module es2015 for supported named modules.");
+            output[i]=new JavaScriptOutput(source.File,JavaScriptEmitter.Emit(parsed.Root,emitModules));
         }
         return Array.AsReadOnly(output);
     }

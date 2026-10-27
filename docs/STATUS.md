@@ -1,3 +1,32 @@
+# 2026-10-27 — ES module strict-mode binding safety (PR #10 review P2)
+
+The independent review identified a real output hazard: the TypeChecker permitted
+module function/parameter bindings named `eval` or `arguments`, or import local
+aliases with those names, even though emitted ES2015 modules are implicitly strict
+and Node rejects them with a SyntaxError. The existing per-source checker now
+receives the module identity from Compilation and rejects those module bindings
+with TS1100 before output preflight. Sloppy script function parameter behavior is
+preserved; existing variable binding restrictions remain unchanged. Focused emit
+regressions check function names, parameters, local exports and import aliases,
+and assert no JS is written when invalid. This fixes the identified P2 risk; it
+does not claim comprehensive strict-mode parsing or original TS7 acceptance.
+No original TS7 target is promoted; 0 original PASS, 15,523 SKIP_UNIMPLEMENTED,
+dynamic scope unknown. Exact new-head verification is required before merge.
+
+# 2026-10-27 — Bounded ES2015 named-module output (new single package)
+
+The existing AST-backed script emitter now handles the already linked named
+ES module syntax under an explicit `--module es2015` emit flag. The same
+CompilerProgram AST and ModuleLinker graph resolve relative `.js` specifiers
+against `.ts` files while retaining runtime `.js` import/export spelling.
+Source-wide diagnostics block all outputs; existing preflight/no-overwrite and
+rollback remain unchanged. Targeted xUnit tests and a native Node ESM execution
+probe cover a three-file named re-export graph, not just string snapshots.
+This is bounded production functionality; original TS7 accepted PASS stays
+0/15,523, all registered source-configuration targets remain SKIP_UNIMPLEMENTED,
+full dynamic scope unknown. CI/build and independent review must validate this
+new head before merge. No complete TS7 module-transform support is claimed.
+
 # 2026-10-27 — Preserve script directive boundaries in the AST (PR #9 review P2)
 
 An independently reported code review found that discarding a leading empty

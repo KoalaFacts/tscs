@@ -7,14 +7,14 @@ namespace Tscs;
 // this writer never reparses tokens or infers missing semantics.
 internal static class JavaScriptEmitter
 {
-    public static string Emit(Block root)
+    public static string Emit(Block root,bool emitModules=false)
     {
-        var writer=new Writer();
+        var writer=new Writer(emitModules);
         foreach(var statement in root.Statements)writer.WriteStatement(statement,0);
         return writer.Text;
     }
 
-    private sealed class Writer
+    private sealed class Writer(bool emitModules)
     {
         private readonly StringBuilder output=new();
         public string Text=>output.ToString();
@@ -31,6 +31,7 @@ internal static class JavaScriptEmitter
                     break;
                 case Variable variable:
                     Indent(depth);
+                    if(variable.Exported)output.Append("export ");
                     output.Append(variable.Constant?"const ":"let ").Append(variable.Name.Text);
                     if(variable.Initializer is { } initializer)
                     {
@@ -67,6 +68,7 @@ internal static class JavaScriptEmitter
                     break;
                 case FunctionDeclaration function:
                     Indent(depth);
+                    if(function.Exported)output.Append("export ");
                     output.Append("function ").Append(function.Name.Text).Append('(');
                     for(int i=0;i<function.Parameters.Count;i++)
                     {
@@ -81,6 +83,37 @@ internal static class JavaScriptEmitter
                     Indent(depth);
                     WriteConditional(conditional,depth);
                     output.Append('\n');
+                    break;
+                case ImportDeclaration import:
+                    if(!emitModules)throw new NotSupportedException("ES module JavaScript output requires an explicit ES2015 module option.");
+                    Indent(depth);
+                    output.Append("import { ");
+                    for(int i=0;i<import.Specifiers.Count;i++)
+                    {
+                        if(i>0)output.Append(", ");
+                        var specifier=import.Specifiers[i];
+                        output.Append(specifier.Imported.Text);
+                        if(specifier.Imported.Text!=specifier.Local.Text)
+                            output.Append(" as ").Append(specifier.Local.Text);
+                    }
+                    output.Append(" } from ").Append(import.ModulePath.Text).Append(";\n");
+                    break;
+                case ExportDeclaration export:
+                    if(!emitModules)throw new NotSupportedException("ES module JavaScript output requires an explicit ES2015 module option.");
+                    Indent(depth);
+                    output.Append("export { ");
+                    for(int i=0;i<export.Specifiers.Count;i++)
+                    {
+                        if(i>0)output.Append(", ");
+                        var specifier=export.Specifiers[i];
+                        output.Append(specifier.Local.Text);
+                        if(specifier.Local.Text!=specifier.Exported.Text)
+                            output.Append(" as ").Append(specifier.Exported.Text);
+                    }
+                    output.Append(" }");
+                    if(export.ModulePath is { } from)
+                        output.Append(" from ").Append(from.Text);
+                    output.Append(";\n");
                     break;
                 default:
                     throw new NotSupportedException("The AST-backed ES2015 writer only supports checked global-script statements.");

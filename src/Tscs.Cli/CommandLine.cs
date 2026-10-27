@@ -45,7 +45,7 @@ public static class CommandLine
             if(exitCode==0&&options.EmitJs)
             {
                 IReadOnlyList<JavaScriptOutput> emitted;
-                try { emitted=program.EmitJavaScript(); }
+                try { emitted=program.EmitJavaScript(options.EmitEs2015Module); }
                 catch(NotSupportedException error) { throw new InputFailure(error.Message); }
 
                 // Compute all outputs and reject existing files before writing any.

@@ -235,3 +235,15 @@ product/reference acceptance run matches all original expectations.
 
 Next dependency: typed emit options and full module-aware lowering with
 preserved module identities, before declaration/map generation.
+
+## Bounded named ES module output (2026-10-27)
+
+The shared cached module graph resolves relative `.js` module specifiers to
+corresponding `.ts` sources for type checking, while the emitter preserves
+the runtime `.js` spelling. Explicit `--emitJs --module es2015 --noLib
+--target es2015` uses the existing Binder/ModuleLinker identity and one checked
+Program snapshot; named imports, value exports and named re-exports are written
+as ES2015 module syntax, without inventing a second parser or treating internal
+passes as original TS7 acceptance. CLI preflight/rollback remains shared with
+script output. No commonjs, extension rewriting for arbitrary specifiers,
+non-named syntax, package resolution, source maps or declaration emission.
