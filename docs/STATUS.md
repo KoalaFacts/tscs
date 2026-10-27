@@ -1,3 +1,17 @@
+# 2026-10-27 — Bounded ES2015 named-module output (new single package)
+
+The existing AST-backed script emitter now handles the already linked named
+ES module syntax under an explicit `--module es2015` emit flag. The same
+CompilerProgram AST and ModuleLinker graph resolve relative `.js` specifiers
+against `.ts` files while retaining runtime `.js` import/export spelling.
+Source-wide diagnostics block all outputs; existing preflight/no-overwrite and
+rollback remain unchanged. Targeted xUnit tests and a native Node ESM execution
+probe cover a three-file named re-export graph, not just string snapshots.
+This is bounded production functionality; original TS7 accepted PASS stays
+0/15,523, all registered source-configuration targets remain SKIP_UNIMPLEMENTED,
+full dynamic scope unknown. CI/build and independent review must validate this
+new head before merge. No complete TS7 module-transform support is claimed.
+
 # 2026-10-27 — Preserve script directive boundaries in the AST (PR #9 review P2)
 
 An independently reported code review found that discarding a leading empty

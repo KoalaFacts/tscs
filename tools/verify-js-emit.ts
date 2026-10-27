@@ -59,7 +59,33 @@ try {
   ],{encoding:"utf8",timeout:15000});
   assert.equal(second.error,undefined,String(second.error));
   assert.equal(second.status,0,second.stdout+"\n"+second.stderr);
-  console.log("AST-backed ES2015 script emitted and executed successfully.");
+  // Cross-file compilation uses the same module-linked program and writes
+  // real ES2015 modules. .js specifiers resolve to .ts inputs during checking
+  // but remain .js at runtime; Node executes the emitted graph unmodified.
+  writeFileSync(join(temporary,"package.json"),'{"type":"module"}\n');
+  writeFileSync(join(temporary,"value.ts"),"export const value: number = 21;\n");
+  writeFileSync(join(temporary,"bridge.ts"),'export { value as answer } from "./value.js";\n');
+  const moduleEntry=join(temporary,"entry.ts");
+  writeFileSync(moduleEntry,'import { answer } from "./bridge.js"; export function twice(x: number): number { return x + x; } export const result: number = twice(answer);\n');
+  const moduleCompile=spawnSync(process.env.DOTNET??"dotnet",[
+    resolve("src/Tscs.Cli/bin/Release/net10.0/tscs.dll"),
+    "--emitJs","--module","es2015","--noLib","--target","es2015",moduleEntry,globals
+  ],{encoding:"utf8",timeout:30000,env:{
+    ...process.env,
+    DOTNET_CLI_TELEMETRY_OPTOUT:"1",
+    TESTINGPLATFORM_TELEMETRY_OPTOUT:"1"
+  }});
+  assert.equal(moduleCompile.error,undefined,String(moduleCompile.error));
+  assert.equal(moduleCompile.status,0,moduleCompile.stdout+"\n"+moduleCompile.stderr);
+  for(const file of ["value.js","bridge.js","entry.js"])
+    assert.ok(existsSync(join(temporary,file)),file+" was not emitted");
+  const moduleRun=spawnSync(process.execPath,[
+    "--input-type=module","--eval",
+    'import { result } from "./entry.js"; if (result !== 42) throw new Error("wrong ESM runtime result");'
+  ],{cwd:temporary,encoding:"utf8",timeout:15000});
+  assert.equal(moduleRun.error,undefined,String(moduleRun.error));
+  assert.equal(moduleRun.status,0,moduleRun.stdout+"\n"+moduleRun.stderr);
+  console.log("AST-backed ES2015 script and named module graphs emitted and executed successfully.");
 } finally {
   rmSync(temporary,{recursive:true,force:true});
 }

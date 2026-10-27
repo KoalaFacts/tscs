@@ -57,6 +57,47 @@ public sealed class JavaScriptEmitTests : IDisposable
     }
 
     [Fact]
+    public void EmitsLinkedNamedModulesWithRuntimeJsSpecifiersAndAliasReexports()
+    {
+        var value=Write("value.ts","export const value: number = 21;");
+        var bridge=Write("bridge.ts","export { value as answer } from \"./value.js\";");
+        var entry=Write("entry.ts",
+            "import { answer as input } from \"./bridge.js\"; export function twice(x: number): number { return x + x; } export const result: number = twice(input);");
+        var response=Run("--emitJs","--module","es2015","--noLib","--target","es2015",entry,Globals());
+        Assert.Equal(0,response.Code);
+        Assert.Equal("",response.Output);
+        Assert.Equal("export const value = 21;\n",File.ReadAllText(Path.ChangeExtension(value,".js")));
+        Assert.Equal("export { value as answer } from \"./value.js\";\n",
+            File.ReadAllText(Path.ChangeExtension(bridge,".js")));
+        Assert.Equal("import { answer as input } from \"./bridge.js\";\n"+
+            "export function twice(x) {\n  return x + x;\n}\n"+
+            "export const result = twice(input);\n",
+            File.ReadAllText(Path.ChangeExtension(entry,".js")));
+    }
+
+    [Fact]
+    public void TypeErrorInLinkedModulePreventsAllOutput()
+    {
+        var dependency=Write("bad-value.ts","export const value: number = \"incorrect\";");
+        var entry=Write("bad-entry.ts","import { value } from \"./bad-value.js\"; let result: number = value;");
+        var response=Run("--emitJs","--module","es2015","--noLib","--target","es2015",entry,Globals());
+        Assert.Equal(2,response.Code);
+        Assert.Contains("TS2322",response.Output);
+        Assert.False(File.Exists(Path.ChangeExtension(entry,".js")));
+        Assert.False(File.Exists(Path.ChangeExtension(dependency,".js")));
+    }
+
+    [Fact]
+    public void UnsupportedModuleModeDoesNotWriteOutput()
+    {
+        var source=Write("guard-module.ts","export const value: number = 1;");
+        var response=Run("--emitJs","--module","commonjs","--noLib","--target","es2015",source,Globals());
+        Assert.Equal(1,response.Code);
+        Assert.Contains("Only --module es2015/es6",response.Output);
+        Assert.False(File.Exists(Path.ChangeExtension(source,".js")));
+    }
+
+    [Fact]
     public void AnyTypeOrSyntaxErrorPreventsJavaScriptOutput()
     {
         var input=Write("bad.ts","let n: number = \"wrong\";");

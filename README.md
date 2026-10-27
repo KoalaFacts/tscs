@@ -36,6 +36,20 @@ JS/TS syntax, standard-library compilation, declarations or source maps.
 `--noEmit` and this explicit output mode are mutually exclusive.
 The original fixed TS7 acceptance register remains separate and unaccepted.
 
+### Bounded named ES2015 module output
+
+The same shared Program/AST also emits the existing **named-value ES module**
+subset when `--module es2015` is explicitly requested alongside `--emitJs`.
+For example, `import { answer } from "./values.js"` resolves against
+`values.ts` for checking, while the emitted `import` retains
+`"./values.js"`, so the resulting module graph runs in Node with an ESM
+package. Named imports, exported primitive variables/functions, local named
+exports and named re-exports reuse the existing linker. All .js outputs are
+preflighted, written only after the whole program checks, and never overwrite
+existing files. Other module modes, namespace/default/star imports, arbitrary
+path aliases and full TS7 emit remain unsupported. The fixed TS7 original
+acceptance remains unchanged.
+
 ## Build and check a file
 
 Install the .NET SDK specified in `global.json` (10.0.402). Node 24 runs the native `.ts` test tools directly, without a transpiler. Go 1.27.3 is also required for source-inventory tests. The compiler itself is C# and does not invoke Node, Go or another compiler.
