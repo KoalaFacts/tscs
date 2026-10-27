@@ -45,7 +45,7 @@ public static class Compilation
         try
         {
             bool IsModule(ParsedSource source) =>
-                source.Root.Statements.Any(s=>s is ImportDeclaration || s is Variable { Exported:true });
+                source.Root.Statements.Any(s=>s is ImportDeclaration or ExportDeclaration || s is Variable { Exported:true });
             var moduleSources=parsed.Where(IsModule).ToArray();
             var scriptSources=parsed.Where(s=>!IsModule(s)).ToArray();
             if(parsed.Count>1 || moduleSources.Length>0)
@@ -53,8 +53,11 @@ public static class Compilation
             if(moduleSources.Length>0)
             {
                 modules=new Dictionary<string,Scope>(comparer);
+                var exportTables=new Dictionary<string,IReadOnlyDictionary<string,Symbol>>(comparer);
                 foreach(var source in moduleSources)
                     modules.Add(source.File,Binder.BindModule(source.File,source.Root,global!));
+                foreach(var source in moduleSources)
+                    exportTables.Add(source.File,Binder.BindExports(source.File,source.Root,modules[source.File]));
                 foreach(var source in moduleSources)
                 {
                     foreach(var import in source.Root.Statements.OfType<ImportDeclaration>())
@@ -67,14 +70,12 @@ public static class Compilation
                         if(!modules.TryGetValue(targetFile,out var target))
                             throw new CompilationFailure(Diagnostic.Error(source.File,import.ModulePath,"TSCS1001",
                                 "The referenced source is not an ES module."));
-                        var targetSource=moduleSources.First(p=>comparer.Equals(p.File,targetFile));
                         foreach(var specifier in import.Specifiers)
                         {
-                            if(!targetSource.Root.Statements.OfType<Variable>().Any(
-                                   v=>v.Exported && v.Name.Text==specifier.Imported.Text))
+                            if(!exportTables[targetFile].TryGetValue(specifier.Imported.Text,out var exported))
                                 throw new CompilationFailure(Diagnostic.Error(source.File,specifier.Imported,"TS2305",
                                     $"Module '{import.ModulePath.Value}' has no exported member '{specifier.Imported.Text}'."));
-                            Binder.Import(source.File,modules[source.File],specifier,target.Symbols[specifier.Imported.Text]);
+                            Binder.Import(source.File,modules[source.File],specifier,exported);
                         }
                     }
                 }

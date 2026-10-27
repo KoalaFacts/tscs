@@ -84,7 +84,7 @@ public static class CommandLine
         return diagnostics.Select(d=>d.File.Length==0?d:d with
         {
             File=collisions.Contains(Path.GetFileName(d.File))
-                ? Path.GetRelativePath(Environment.CurrentDirectory,d.File).Replace('\\','/')
+                ? Path.GetRelativePath(Environment.CurrentDirectory,d.File).Replace(Path.DirectorySeparatorChar,'/')
                 : Path.GetFileName(d.File)
         }).ToArray();
     }
@@ -99,7 +99,7 @@ public static class CommandLine
             else if(text[i] is '\n' or '\u2028' or '\u2029'){line++;column=1;}
             else column++;
         }
-        var path=Path.GetRelativePath(Environment.CurrentDirectory,Path.GetFullPath(d.File)).Replace('\\','/');
+        var path=Path.GetRelativePath(Environment.CurrentDirectory,Path.GetFullPath(d.File)).Replace(Path.DirectorySeparatorChar,'/');
         return $"{path}({line},{column}): error {d.Code}: {d.Message}";
     }
     // Minimal ambient global shapes only. Members, inheritance and arbitrary declarations are rejected.

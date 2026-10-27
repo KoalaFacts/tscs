@@ -291,6 +291,36 @@ public class CommandLineTests : IDisposable
     }
 
     [Fact]
+    public void UnixLiteralBackslashesRemainDistinctInJsonAndTextDiagnostics()
+    {
+        if(OperatingSystem.IsWindows())return; // A backslash is a real separator there.
+        var unusual=Directory.CreateDirectory(Path.Combine(directory,"a\\b")).FullName;
+        var ordinary=Directory.CreateDirectory(Path.Combine(directory,"a","b")).FullName;
+        var a=Path.Combine(unusual,"index.ts");
+        var b=Path.Combine(ordinary,"index.ts");
+        File.WriteAllText(a,"let a = ;");
+        File.WriteAllText(b,"let b = ;");
+
+        var json=Run("--json","--noEmit","--noLib",a,b);
+        Assert.Equal(2,json.Code);
+        using(var result=System.Text.Json.JsonDocument.Parse(json.Out))
+        {
+            var errors=result.RootElement.GetProperty("diagnostics").EnumerateArray().ToArray();
+            Assert.Equal(2,errors.Length);
+            Assert.Equal(2,errors.Select(d=>d.GetProperty("file").GetString()).Distinct().Count());
+            Assert.Contains(Path.GetRelativePath(Environment.CurrentDirectory,a),
+                errors.Select(d=>d.GetProperty("file").GetString()));
+            Assert.Contains(Path.GetRelativePath(Environment.CurrentDirectory,b),
+                errors.Select(d=>d.GetProperty("file").GetString()));
+        }
+
+        var text=Run("--noEmit","--noLib",a,b);
+        Assert.Equal(2,text.Code);
+        Assert.Contains(Path.GetRelativePath(Environment.CurrentDirectory,a)+"(",text.Out);
+        Assert.Contains(Path.GetRelativePath(Environment.CurrentDirectory,b)+"(",text.Out);
+    }
+
+    [Fact]
     public void CrossFileTypeErrorsRenderTheCorrectFile()
     {
         var a=Write("a.ts","let first: string = second;");

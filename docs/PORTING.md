@@ -102,3 +102,16 @@ imported modules without adding a second syntax path. CLI JSON retains the
 existing basename contract for unambiguous inputs, using unique relative paths
 when loaded source basenames collide. Full TS7 module semantics are still
 unimplemented; these changes do not award upstream acceptance.
+
+## Bound local module exports (2026-10-27; PR #8)
+
+The shared Program AST now feeds a separate module export table in Binder.
+Local exports retain their declaring symbol across public aliases and source
+order; `export {}` creates a module boundary without exposing private globals.
+The importer uses this table rather than searching exported variable ASTs
+by name. This is a concrete prerequisite for later re-export graphs and richer
+symbol linking, not a claim that those features are implemented. Imported
+binding re-exports, `from` re-exports, default/namespace exports, packages,
+full module resolution and emit still fail closed. CLI source identities
+normalize only actual host-platform separators: Unix literal backslashes
+remain distinct source characters.

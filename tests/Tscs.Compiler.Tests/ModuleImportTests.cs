@@ -75,6 +75,49 @@ public sealed class ModuleImportTests
     }
 
     [Fact]
+    public void NamedLocalExportsAllowAliasesWithoutLeakingPrivateNames()
+    {
+        var host=new Host();
+        host.Files["/virtual/main.ts"]="import { count as result } from \"./values\"; let twice: number = result * 2;";
+        host.Files["/virtual/values.ts"]="let internalValue: number = 4; export { internalValue as count };";
+        Assert.Empty(CompilerProgram.Load(host,["main.ts"]).Analyze().Diagnostics);
+
+        host.Files["/virtual/main.ts"]="import { internalValue } from \"./values\"; let n: number = internalValue;";
+        Assert.Equal("TS2305",Assert.Single(CompilerProgram.Load(host,["main.ts"]).Analyze().Diagnostics).Code);
+    }
+
+    [Fact]
+    public void EmptyExportListMarksFileAsModuleWithPrivateScope()
+    {
+        var host=new Host();
+        host.Files["/virtual/main.ts"]="let n: number = secret;";
+        host.Files["/virtual/values.ts"]="let secret: number = 4; export {};";
+        Assert.Equal("TS2304",
+            Assert.Single(CompilerProgram.Load(host,["main.ts","values.ts"]).Analyze().Diagnostics).Code);
+    }
+
+    [Fact]
+    public void NamedExportsRejectUnknownNamesAndDuplicateAliases()
+    {
+        var host=new Host();
+        host.Files["/virtual/main.ts"]="export { missing as exposed };";
+        Assert.Equal("TS2304",Assert.Single(CompilerProgram.Load(host,["main.ts"]).Analyze().Diagnostics).Code);
+
+        host.Files["/virtual/main.ts"]="let x=1; let y=2; export { x as alias, y as alias };";
+        Assert.Equal("TSCS1001",Assert.Single(CompilerProgram.Load(host,["main.ts"]).Analyze().Diagnostics).Code);
+    }
+
+    [Fact]
+    public void ImportedBindingReexportsRemainExplicitlyUnsupported()
+    {
+        var host=new Host();
+        host.Files["/virtual/main.ts"]="import { value } from \"./values\"; export { value };";
+        host.Files["/virtual/values.ts"]="export const value: number = 4;";
+        var diagnostic=Assert.Single(CompilerProgram.Load(host,["main.ts"]).Analyze().Diagnostics);
+        Assert.Equal("TSCS1001",diagnostic.Code);
+    }
+
+    [Fact]
     public void MissingModuleFailsClosed()
     {
         var host=new Host();

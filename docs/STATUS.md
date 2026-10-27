@@ -1,3 +1,18 @@
+# 2026-10-27 — Explicit module export bindings and OS-correct diagnostic identities (PR #8)
+
+Named local `export { local as publicName }` lists now bind through a
+per-module export table sharing the declaration symbol, rather than treating
+all lexical locals as exports. `export {}` is a module boundary. Named imports
+resolve against these tables independent of source input order; duplicate and
+unknown exports fail closed. Imported-binding re-exports and
+`export {name} from "..."` remain unsupported, as do default/namespace exports,
+general module resolution, emit and TypeScript's complete symbol semantics.
+JSON and text diagnostics preserve literal Unix backslashes instead of
+collapsing them into directory separators. New targeted regressions exist;
+the new head still needs its own validation. Upstream accepted PASS remains
+0/15,523; SKIP_UNIMPLEMENTED=15,523; full dynamic scope unknown; no merge
+or independent review is asserted.
+
 # 2026-10-27 — Shared AST snapshots and multi-file diagnostic identity (PR #8)
 
 The host program now caches each canonical source's actual syntax result for

@@ -61,8 +61,40 @@ internal sealed class Parser(string file, List<Token> tokens)
                 if(depth!=0)Unsupported(Current,"Module exports must be at source-file scope.");
                 Take();
                 exported=true;
+                if(Eat(TokenKind.Open))
+                {
+                    // Named local exports share the module's already-bound symbols.
+                    // Re-exports from another module require a separate graph phase.
+                    var exports=new List<ExportSpecifier>();
+                    if(Current.Kind!=TokenKind.Close)
+                    {
+                        while(true)
+                        {
+                            if(Current.Kind!=TokenKind.Identifier)
+                                Unsupported(Current,"Expected a local name in a named export.");
+                            var local=Take();
+                            var exportedName=local;
+                            if(Current.Kind==TokenKind.Identifier && Current.Text=="as")
+                            {
+                                Take();
+                                if(Current.Kind!=TokenKind.Identifier)
+                                    Unsupported(Current,"Expected an exported alias after 'as'.");
+                                exportedName=Take();
+                            }
+                            exports.Add(new ExportSpecifier(local,exportedName));
+                            if(!Eat(TokenKind.Comma))break;
+                            if(Current.Kind==TokenKind.Close)break;
+                        }
+                    }
+                    if(!Eat(TokenKind.Close))Unsupported(Current,"Expected '}' after named exports.");
+                    if(Current.Kind==TokenKind.Identifier && Current.Text=="from")
+                        Unsupported(Current,"Re-exports from another module are not supported yet.");
+                    statements.Add(new ExportDeclaration(exports));
+                    EndStatement();
+                    continue;
+                }
                 if(Current.Kind is not (TokenKind.Let or TokenKind.Const))
-                    Unsupported(Current,"Only exported let/const declarations are supported yet.");
+                    Unsupported(Current,"Only exported variables or named local exports are supported yet.");
             }
             if(Current.Kind is TokenKind.Let or TokenKind.Const)
             {
