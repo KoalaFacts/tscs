@@ -14,8 +14,11 @@ internal sealed class Options
     public bool EmitJs {get;private set;}
     public bool EmitEs2015Module=>compilerOptions.Module==CompilerModule.Es2015;
     public bool ExplicitEs2015Target=>compilerOptions.Target==CompilerTarget.Es2015;
-    public static Options Parse(string[] args)
+    public static Options Parse(string[] args) => Parse(args,new FileSystemCompilerHost());
+
+    internal static Options Parse(string[] args,IProjectSourceHost projectHost)
     {
+        ArgumentNullException.ThrowIfNull(projectHost);
         var options=new Options();string? project=null;
         // Read config first; supported command-line flags then override it.
         for(int i=0;i<args.Length;i++)if(args[i] is "-p" or "--project")
@@ -23,7 +26,7 @@ internal sealed class Options
             if(project!=null||i+1==args.Length)throw new InputFailure("Specify one project configuration.");
             project=args[++i];
         }
-        if(project!=null)options.ReadConfig(project);
+        if(project!=null)options.ReadConfig(project,projectHost);
         for(int i=0;i<args.Length;i++)
         {
             var arg=args[i];
@@ -56,7 +59,7 @@ internal sealed class Options
         if(i+1<args.Length&&args[i+1] is "true" or "false")return args[++i]=="true";
         return true;
     }
-    private void ReadConfig(string file)
+    private void ReadConfig(string file,IProjectSourceHost projectHost)
     {
         if(Directory.Exists(file))file=Path.Combine(file,"tsconfig.json");
         file=Path.GetFullPath(file);
@@ -115,7 +118,7 @@ internal sealed class Options
         }
         // Explicit root files are retained; include globs add a deterministic
         // bounded source set, while excludes apply only to discovered files.
-        Files.AddRange(ProjectSourceDiscovery.Discover(Path.GetDirectoryName(file)!,Files,includes,excludes));
+        Files.AddRange(ProjectSourceDiscovery.Discover(projectHost,Path.GetDirectoryName(file)!,Files,includes,excludes));
     }
     private static IReadOnlyList<string> ProjectPatterns(JsonSyntaxNode value,string name)
     {

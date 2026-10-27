@@ -1,3 +1,17 @@
+# 2026-10-28 — Shared CompilerHost/VFS project enumeration (new bounded package)
+
+Project discovery now consumes `IProjectSourceHost.EnumerateDirectory` rather
+than walking disk directly. `FileSystemCompilerHost` implements the capability
+and the CLI uses that same host for source discovery and Program loading. Virtual
+hosts can supply canonical file/directory/link entries with host-specific case
+matching; focused in-memory tests carry discovered sources through the real
+CompilerProgram analyzer, including package isolation, exclusions and explicit
+root precedence. Directory entry scope is validated and links are never traversed.
+Old explicit-file `ICompilerHost` clients and CLR Program signatures remain.
+Virtual config JSON loading and full TS7 config expansion are not implemented.
+This source change needs exact-head build/CI and independent review; do not
+promote any of the 15,523 pinned original SKIPs on local regressions.
+
 # 2026-10-28 — Project-source glob package-boundary review repair (PR #13)
 
 Source discovery now matches package directories against the exact literal

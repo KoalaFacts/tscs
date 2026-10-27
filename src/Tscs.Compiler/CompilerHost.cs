@@ -23,16 +23,44 @@ public interface ICompilerHost
 }
 
 /// <summary>
+/// A single immediate directory child reported by a project-aware source host.
+/// Paths use the same canonical identity scheme as ReadFile; virtual hosts
+/// can report links without ever consulting the operating system.
+/// </summary>
+public readonly record struct CompilerDirectoryEntry(string Path,bool IsDirectory,bool IsSymbolicLink);
+
+/// <summary>
+/// Optional project directory traversal capability. Existing ICompilerHost
+/// implementations remain valid for explicit-file compilation. A VFS opts
+/// into glob discovery by implementing this interface with its own entries.
+/// </summary>
+public interface IProjectSourceHost : ICompilerHost
+{
+    IEnumerable<CompilerDirectoryEntry> EnumerateDirectory(string canonicalDirectoryName);
+}
+
+/// <summary>
 /// Filesystem implementation of the source host. Full paths normalize "." and
 /// ".."; symlink resolution and module resolution are intentionally not claimed.
 /// </summary>
-public sealed class FileSystemCompilerHost : ICompilerHost
+public sealed class FileSystemCompilerHost : IProjectSourceHost
 {
     public StringComparer FileNameComparer =>
         OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
 
     public string GetCanonicalFileName(string path) => Path.GetFullPath(path);
     public string ReadFile(string canonicalFileName) => File.ReadAllText(canonicalFileName);
+
+    public IEnumerable<CompilerDirectoryEntry> EnumerateDirectory(string canonicalDirectoryName)
+    {
+        foreach(var entry in Directory.EnumerateFileSystemEntries(canonicalDirectoryName))
+        {
+            var attributes=File.GetAttributes(entry);
+            yield return new CompilerDirectoryEntry(GetCanonicalFileName(entry),
+                (attributes & FileAttributes.Directory)!=0,
+                (attributes & FileAttributes.ReparsePoint)!=0);
+        }
+    }
 }
 
 /// <summary>
