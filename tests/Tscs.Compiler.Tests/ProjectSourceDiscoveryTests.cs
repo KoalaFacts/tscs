@@ -43,6 +43,37 @@ public sealed class ProjectSourceDiscoveryTests : IDisposable
         Assert.Contains("\"diagnostics\":[]",result.Output);
     }
 
+    [Theory]
+    [InlineData("src/gen*", "src/generated")]
+    [InlineData("src/*/gen*", "src/feature/generated")]
+    public void WildcardDirectoryExcludesPruneDescendantSources(string exclude,string excludedDirectory)
+    {
+        Globals();
+        Write("src/valid.ts","let valid: number = 21;");
+        Write(excludedDirectory+"/bad.ts","let bad: number = \"wrong\";");
+        var config=Write("tsconfig.json",
+            "{\"files\":[\"minimal.d.ts\"],\"include\":[\"src/**/*.ts\"],\"exclude\":[\""+exclude+
+            "\"],\"compilerOptions\":{\"noEmit\":true,\"noLib\":true}}");
+        var result=Run(config);
+        Assert.Equal(0,result.Exit);
+        Assert.Contains("\"diagnostics\":[]",result.Output);
+    }
+
+    [Fact]
+    public void ExplicitFilesRemainSelectedInsideWildcardExcludedDirectory()
+    {
+        Globals();
+        Write("src/generated/manual.ts","let manual: number = \"wrong\";");
+        Write("src/valid.ts","let valid: number = 1;");
+        var config=Write("tsconfig.json",
+            "{\"files\":[\"minimal.d.ts\",\"src/generated/manual.ts\"],\"include\":[\"src/**/*.ts\"],"+
+            "\"exclude\":[\"src/gen*\"],\"compilerOptions\":{\"noEmit\":true,\"noLib\":true}}");
+        var result=Run(config);
+        Assert.Equal(2,result.Exit);
+        Assert.Contains("TS2322",result.Output);
+        Assert.Contains("manual.ts",result.Output);
+    }
+
     [Fact]
     public void ExcludesDoNotRemoveExplicitFiles()
     {

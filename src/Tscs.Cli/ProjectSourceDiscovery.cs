@@ -66,7 +66,10 @@ internal static class ProjectSourceDiscovery
                         // matched glob component, not a global pattern flag.
                         // A whole excluded directory must be pruned before
                         // enumerating its children, not merely filtered later.
-                        if(excludes.Any(g=>g.IsMatch(relative+"/"))||
+                        // A wildcard exclude may match the directory name itself
+                        // (e.g. src/gen*) without matching a trailing slash.
+                        // Prune that whole subtree, like explicit directory excludes.
+                        if(excludes.Any(g=>g.IsMatch(relative)||g.IsMatch(relative+"/"))||
                            !include.CanContainDirectory(relative))continue;
                         directories.Push(path);
                         continue;
