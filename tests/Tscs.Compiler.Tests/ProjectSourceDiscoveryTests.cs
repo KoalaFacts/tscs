@@ -93,12 +93,18 @@ public sealed class ProjectSourceDiscoveryTests : IDisposable
     }
 
     [Fact]
-    public void DiscoveredSourceAndDeclarationSuffixesMatchCliHostCasing()
+    public void DiscoveredSourceAndCliClassifyExtensionCaseConsistently()
     {
-        Assert.True(ProjectSourceDiscovery.IsTypeScriptFile("example.ts"));
-        Assert.True(ProjectSourceDiscovery.IsDeclarationFile("example.d.ts"));
-        Assert.Equal(OperatingSystem.IsWindows(),ProjectSourceDiscovery.IsTypeScriptFile("example.TS"));
-        Assert.Equal(OperatingSystem.IsWindows(),ProjectSourceDiscovery.IsDeclarationFile("example.D.TS"));
+        Globals();
+        Write("src/extra.TS","let upperValue: number = 42;");
+        Write("src/main.ts","let result: number = upperValue;");
+        var config=Write("tsconfig.json",
+            "{\"files\":[\"minimal.d.ts\"],\"include\":[\"src/*.ts\"],\"compilerOptions\":{\"noEmit\":true,\"noLib\":true}}");
+        var result=Run(config);
+        // Windows hosts match and load .TS, Unix hosts correctly keep that
+        // suffix distinct and report the missing global symbol.
+        Assert.Equal(OperatingSystem.IsWindows()?0:2,result.Exit);
+        if(!OperatingSystem.IsWindows())Assert.Contains("TS2304",result.Output);
     }
 
     [Theory]
