@@ -256,6 +256,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                 if(properties.Count>=128)Unsupported(Current,"Object types are limited to 128 named members.");
                 var name=Current;
                 if(name.Kind!=TokenKind.Identifier)Unsupported(name,"Object types require named members.");
+                if(name.Text=="__proto__")Unsupported(name,"Prototype-sensitive object members are not supported.");
                 Take();
                 if(!names.Add(name.Text))Unsupported(name,"Duplicate object type members are not supported.");
                 if(!Eat(TokenKind.Colon))Unsupported(Current,"Expected ':' after object type member.");
@@ -356,6 +357,8 @@ internal sealed class Parser(string file, List<Token> tokens)
             {
                 if(Current.Kind!=TokenKind.Identifier)
                     Unsupported(Current,"Expected a named property after '.'.");
+                if(Current.Text=="__proto__")
+                    Unsupported(Current,"Prototype-sensitive property access is not supported.");
                 value=new ValueMember(value,Take());
                 continue;
             }
@@ -413,6 +416,11 @@ internal sealed class Parser(string file, List<Token> tokens)
                     var name=Current;
                     if(name.Kind!=TokenKind.Identifier)
                         Unsupported(name,"Object literals require named properties.");
+                    // JavaScript treats a literal __proto__ key as prototype
+                    // mutation, not an own data property. Refuse this form
+                    // until its runtime and TypeScript typing can agree.
+                    if(name.Text=="__proto__")
+                        Unsupported(name,"Prototype-sensitive object literal properties are not supported.");
                     Take();
                     if(!names.Add(name.Text))
                         throw new CompilationFailure(Diagnostic.Error(file,name,"TS1117",

@@ -28,6 +28,9 @@ public sealed class ObjectPipelineTests
     [InlineData("function read(item: { quantity: number }): number { return item.quantity; } let n: number = read({ quantity: 21, label: \"extra\" });","TS2353")]
     [InlineData("function make(): { quantity: number } { return { quantity: 21, label: \"extra\" }; }","TS2353")]
     [InlineData("const item: { details: { quantity: number } } = { details: { quantity: 21, label: \"extra\" } };","TS2353")]
+    [InlineData("const item = { __proto__: { quantity: 7 } };","TSCS1001")]
+    [InlineData("let item: { __proto__: number } = {};","TSCS1001")]
+    [InlineData("const item = { quantity: 1 }; item.__proto__ = { quantity: 7 };","TSCS1001")]
     public void IncorrectObjectShapesAreRejected(string source,string expected) =>
         Assert.Contains(Compilation.Check("source.ts",source),d=>d.Code==expected);
 }
