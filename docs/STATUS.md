@@ -1,3 +1,15 @@
+# 2026-10-28 — tsconfig named ES2015 module output (bounded architecture package)
+
+The CLI `compilerOptions.module` setting now flows through the pinned TS7 enum
+converter to the same existing checked Program/AST → JavaScriptEmitter path as
+`--module es2015`. Projects can supply source files, noLib, target and module
+in one `tsconfig.json`, then run explicit `--emitJs -p`. The project's
+cross-source module output is exercised by the native Node24 ESM runtime smoke;
+invalid/unsupported module options remain diagnostics or fail-closed and do not
+write outputs. Other TS7 module modes, full compiler option defaults/extends,
+and package resolution are not claimed. Original accepted case IDs unchanged:
+0 PASS / 15,523 SKIP_UNIMPLEMENTED, full executable scope unknown.
+
 # 2026-10-27 — ES module strict-mode binding safety (PR #10 review P2)
 
 The independent review identified a real output hazard: the TypeChecker permitted

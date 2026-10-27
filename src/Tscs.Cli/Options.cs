@@ -88,6 +88,17 @@ internal sealed class Options
                                 // Valid upstream targets beyond the bootstrap remain unsupported.
                                 if(target.Value.Kind=="Number"&&target.Value.Number==2){ExplicitEs2015Target=true;break;}
                                 throw new InputFailure("Only target es2015/es6 is supported by the bootstrap.");
+                            case "module":
+                                // Use the pinned TS7 declaration and its diagnostic mapping,
+                                // not a second unvalidated string/enum parser. The effective
+                                // module choice then feeds the same CLI/Program emit path.
+                                var module=JsonEnumOptions.Convert(JsonEnumOptions.Declarations["module"],
+                                    JsonConfigValues.Convert(option.Value),file,expression:option.Value.Token);
+                                if(module.Diagnostics.Count>0)throw new ConfigSyntaxFailure(text,module.Diagnostics);
+                                if(option.Value.Kind=="Null"){EmitEs2015Module=false;break;}
+                                // Pinned ModuleKind.ES2015=5; ES6 is the same enum value.
+                                if(module.Value.Kind=="Number"&&module.Value.Number==5){EmitEs2015Module=true;break;}
+                                throw new InputFailure("Only module es2015/es6 is supported by the bootstrap.");
                             default:throw new InputFailure($"Unsupported compiler option '{(option.Name.Token.Value??option.Name.Token.Text)}'.");
                         }
                     }

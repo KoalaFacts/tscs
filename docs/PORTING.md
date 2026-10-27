@@ -247,3 +247,19 @@ as ES2015 module syntax, without inventing a second parser or treating internal
 passes as original TS7 acceptance. CLI preflight/rollback remains shared with
 script output. No commonjs, extension rewriting for arbitrary specifiers,
 non-named syntax, package resolution, source maps or declaration emission.
+
+## Project ES2015 module option through the shared emit path (2026-10-28)
+
+The bounded `tsconfig.json` `compilerOptions.module` adapter now uses the frozen
+TS7 enum declaration and reports its diagnostics for invalid values. `es2015`
+and `es6` select the same effective module mode as the existing CLI
+`--module` flag, while `null` means unset; other module modes remain
+explicitly unsupported. The independent `--emitJs` opt-in is still required
+for output, and the existing `noLib`/`target` restrictions still apply.
+A project can now supply its `files`, `module`, `target` and `noLib` in
+one config, with `--emitJs -p tsconfig.json` emitting a checked multi-source
+named ESM graph. No second parser/emit pipeline or default output behavior was
+introduced. Project `extends`, `include`, module-resolution modes, CommonJS,
+source maps, declarations and general TS7 compiler options remain unsupported.
+A Node24 runtime smoke compiles from a project config and executes the output;
+this is not a full original upstream TS7 acceptance PASS.
