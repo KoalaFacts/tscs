@@ -272,8 +272,9 @@ The CLI converts pinned configuration values and explicit flags into one typed
 instance, then passes it to `CompilerProgram.Load`; `EmitJavaScript()`
 reads module mode from that same Program snapshot rather than a separate
 CLI boolean argument. The Program refuses emission if `NoEmit` is true.
-The original nonnullable `EmitJavaScript(bool)` entry point remains for
-already compiled Program API callers; both paths enforce `NoEmit`. In-memory CompilerHost regressions cover the
+The original two-argument `CompilerProgram.Load(host, paths)` and nonnullable
+`EmitJavaScript(bool)` CLR signatures remain available for binary callers;
+both emission paths enforce `NoEmit`. In-memory CompilerHost regressions cover the
 actual checked and emitted graph, negative module boundaries and noEmit.
 This is a bounded module/options dependency cleanup, not general TS7 defaults,
 extended config expansion, module mode support or upstream conformance.

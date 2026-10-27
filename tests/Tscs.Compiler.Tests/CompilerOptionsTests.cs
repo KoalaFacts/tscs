@@ -44,6 +44,24 @@ public sealed class CompilerOptionsTests
     }
 
     [Fact]
+    public void PreviouslyPublishedClrApiMethodSignaturesRemainCallable()
+    {
+        // Check exact CLR signatures, not only source-level optional argument binding.
+        var load=typeof(CompilerProgram).GetMethod(nameof(CompilerProgram.Load),
+            [typeof(ICompilerHost),typeof(IReadOnlyList<string>)]);
+        var emit=typeof(CompilerProgram).GetMethod(nameof(CompilerProgram.EmitJavaScript),
+            [typeof(bool)]);
+        Assert.NotNull(load);
+        Assert.NotNull(emit);
+        Assert.True(load.IsStatic);
+        var loaded=load.Invoke(null,[new MemoryHost(),new string[] {"value.ts"}]);
+        var program=Assert.IsType<CompilerProgram>(loaded);
+        Assert.Empty(program.Analyze().Diagnostics);
+        Assert.Equal("export const answer = 42;\n",
+            Assert.Single(program.EmitJavaScript(true)).Text);
+    }
+
+    [Fact]
     public void ProgramCannotEmitWhenEffectiveNoEmitIsTrue()
     {
         var program=CompilerProgram.Load(new MemoryHost(),["value.ts"],new CompilerOptions

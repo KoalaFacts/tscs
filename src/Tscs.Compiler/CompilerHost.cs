@@ -62,7 +62,12 @@ public sealed class CompilerProgram
 
     public IReadOnlyList<SourceInput> Sources { get; }
 
-    public static CompilerProgram Load(ICompilerHost host,IReadOnlyList<string> paths,CompilerOptions? options=null)
+    // Preserve the original two-parameter CLR method signature for hosts
+    // already compiled against the bootstrap CompilerProgram API.
+    public static CompilerProgram Load(ICompilerHost host,IReadOnlyList<string> paths) =>
+        Load(host,paths,null);
+
+    public static CompilerProgram Load(ICompilerHost host,IReadOnlyList<string> paths,CompilerOptions? options)
     {
         ArgumentNullException.ThrowIfNull(host);
         ArgumentNullException.ThrowIfNull(paths);

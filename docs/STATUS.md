@@ -1,3 +1,12 @@
+# 2026-10-28 — API compatibility review repair (PR #12 P1)
+
+Codex review identified the removed two-argument CLR Load signature despite
+source-compatible optional options. Restored the exact two-argument
+CompilerProgram.Load overload and preserved the original bool EmitJavaScript
+overload. A focused runtime reflection regression resolves and invokes both
+old CLR signatures against the actual checked Program. This is an important
+binary compatibility correction, not new TS7 syntax or original acceptance.
+
 # 2026-10-28 — Immutable CompilerOptions joined to CompilerProgram (bounded architecture)
 
 CLI project/flag configuration now produces one typed effective CompilerOptions
