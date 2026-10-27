@@ -27,3 +27,19 @@ requires exact-head compilation, CI and review before merge.
 Next dependency: common diagnostic provenance across virtual config/source
 paths, and host-owned output transactions (only when a real emit use case
 requires them), while preserving the existing no-overwrite guarantee.
+
+## Source-bound project configuration validation
+
+Unsupported/duplicate config keys, wrong `files` / `include` /
+`exclude` / `compilerOptions` value shapes, and valid-but-unimplemented
+module/target choices now use source-bound diagnostics with the canonical
+configuration file identity and UTF-16 token ranges. The existing
+`ConfigDiagnosticFailure` also carries scanner/parser and pinned converter
+results. Unsupported `TSCS1002` retains exit 1; pinned TypeScript diagnostics
+retain exit 2. In-memory CLI regressions cover the semantic failure families.
+
+This is not complete TS7 config semantics: discovery glob validation,
+`extends`, default includes and extra emit modes remain outside this
+bounded package. Exact-head CI and independent review are still required.
+Original accepted PASS remains 0 / 15,523 registered SKIP_UNIMPLEMENTED;
+dynamic expansion is unknown.

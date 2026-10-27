@@ -106,7 +106,7 @@ public static class CommandLine
             }
             return exitCode;
         }
-        catch(ConfigSyntaxFailure error)
+        catch(ConfigDiagnosticFailure error)
         {
             int exitCode=error.Diagnostics.Any(d=>d.Code.StartsWith("TSCS",StringComparison.Ordinal))?1:2;
             if(json)stdout.WriteLine(JsonSerializer.Serialize(new{diagnostics=error.Diagnostics.Select(d=>d with{File=Path.GetFileName(d.File)}),exitCode},JsonOptions));
