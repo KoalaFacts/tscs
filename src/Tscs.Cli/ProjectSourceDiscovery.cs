@@ -20,6 +20,10 @@ internal static class ProjectSourceDiscovery
 
     internal static bool IsTypeScriptFile(string path)=>path.EndsWith(".ts",FileComparison);
     internal static bool IsDeclarationFile(string path)=>path.EndsWith(".d.ts",FileComparison);
+    private static bool IsPackageDirectory(string name)=>
+        name.Equals("node_modules",FileComparison)||
+        name.Equals("bower_components",FileComparison)||
+        name.Equals("jspm_packages",FileComparison);
 
     public static IReadOnlyList<string> Discover(string configDirectory,
         IReadOnlyList<string> explicitFiles,
@@ -57,9 +61,9 @@ internal static class ProjectSourceDiscovery
                     if((attributes&FileAttributes.Directory)!=0)
                     {
                         var name=Path.GetFileName(path);
-                        if(name is ".git" or ".artifacts")continue;
-                        if(name is "node_modules" or "bower_components" or "jspm_packages")
-                            if(!include.ExplicitlyNamesPackageDirectory(name))continue;
+                        if(name.Equals(".git",FileComparison)||name.Equals(".artifacts",FileComparison))continue;
+                        // Package boundaries are checked against the actual
+                        // matched glob component, not a global pattern flag.
                         // A whole excluded directory must be pruned before
                         // enumerating its children, not merely filtered later.
                         if(excludes.Any(g=>g.IsMatch(relative+"/"))||
@@ -85,9 +89,6 @@ internal static class ProjectSourceDiscovery
     {
         public bool IsMatch(string path)=>pathPattern.IsMatch(path);
 
-        public bool ExplicitlyNamesPackageDirectory(string name)=>
-            segments.Take(segments.Length-1).Any(s=>string.Equals(s,name,FileComparison));
-
         // A directory can be entered only if a matching file could still
         // occur below it. Iterative glob-state propagation avoids recursion
         // through deeply nested paths (including full-segment "**").
@@ -105,11 +106,19 @@ internal static class ProjectSourceDiscovery
             foreach(var directorySegment in actual)
             {
                 var next=new bool[segments.Length+1];
+                bool isPackage=IsPackageDirectory(directorySegment);
                 for(int p=0;p<segments.Length;p++)
                 {
                     if(!states[p])continue;
-                    if(segments[p]=="**")next[p]=true;
-                    else if(p<segments.Length-1&&segmentPatterns[p].IsMatch(directorySegment))
+                    // A wildcard or "**" cannot descend through a package
+                    // directory. Only an explicitly spelled segment at
+                    // this precise glob position may consume its name.
+                    if(segments[p]=="**")
+                    {
+                        if(!isPackage)next[p]=true;
+                    }
+                    else if(p<segments.Length-1&&segmentPatterns[p].IsMatch(directorySegment)&&
+                        (!isPackage||string.Equals(segments[p],directorySegment,FileComparison)))
                         next[p+1]=true;
                 }
                 states=next;

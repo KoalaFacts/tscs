@@ -92,6 +92,48 @@ public sealed class ProjectSourceDiscoveryTests : IDisposable
         Assert.DoesNotContain("bad.ts",result.Output);
     }
 
+    [Theory]
+    [InlineData("node_modules")]
+    [InlineData("bower_components")]
+    [InlineData("jspm_packages")]
+    public void NamedPackageDirectoryDoesNotExemptNestedPackageBoundaries(string packageDirectory)
+    {
+        Globals();
+        Write(packageDirectory+"/special/main.ts","let good: number = 1;");
+        Write(packageDirectory+"/special/"+packageDirectory+"/bad.ts",
+            "let bad: number = \"wrong\";");
+        var config=Write("tsconfig.json",
+            "{\"files\":[\"minimal.d.ts\"],\"include\":[\""+packageDirectory+
+            "/special/**/*.ts\"],\"compilerOptions\":{\"noEmit\":true,\"noLib\":true}}");
+        var result=Run(config);
+        Assert.Equal(0,result.Exit);
+        Assert.Contains("\"diagnostics\":[]",result.Output);
+    }
+
+    [Fact]
+    public void WildcardComponentCannotOptIntoPackageDirectory()
+    {
+        Globals();
+        Write("src/main.ts","let good: number = 1;");
+        Write("src/node_modules/bad.ts","let bad: number = \"wrong\";");
+        var config=Write("tsconfig.json",
+            "{\"files\":[\"minimal.d.ts\"],\"include\":[\"src/main.ts\",\"src/n?de_modules/*.ts\"],\"compilerOptions\":{\"noEmit\":true,\"noLib\":true}}");
+        Assert.Equal(0,Run(config).Exit);
+    }
+
+    [Fact]
+    public void PackageDirectoryNameUsesHostCasePolicy()
+    {
+        Globals();
+        Write("src/main.ts","let good: number = 1;");
+        Write("src/NODE_MODULES/bad.ts","let bad: number = \"wrong\";");
+        var config=Write("tsconfig.json",
+            "{\"files\":[\"minimal.d.ts\"],\"include\":[\"src/**/*.ts\"],\"compilerOptions\":{\"noEmit\":true,\"noLib\":true}}");
+        var result=Run(config);
+        Assert.Equal(OperatingSystem.IsWindows()?0:2,result.Exit);
+        if(!OperatingSystem.IsWindows())Assert.Contains("TS2322",result.Output);
+    }
+
     [Fact]
     public void DiscoveredSourceAndCliClassifyExtensionCaseConsistently()
     {

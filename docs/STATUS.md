@@ -1,3 +1,15 @@
+# 2026-10-28 — Project-source glob package-boundary review repair (PR #13)
+
+Source discovery now matches package directories against the exact literal
+glob component currently consumed by the iterative matcher; wildcards and
+recursive `**` cannot cross nested dependency-package boundaries merely because
+another component (or another include pattern) spells `node_modules`.
+Reserved directory names follow the host's file-name case policy. The
+existing CLI-to-CompilerProgram path is unchanged. Focused package-boundary,
+wildcard and platform-casing regressions are added; latest-head CI and
+independent rereview must still complete before merge. Original TS7
+configuration acceptance remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED.
+
 # 2026-10-28 — Explicit tsconfig source discovery (bounded project architecture)
 
 The existing CLI tsconfig JSON AST now accepts explicit `include` and `exclude`
