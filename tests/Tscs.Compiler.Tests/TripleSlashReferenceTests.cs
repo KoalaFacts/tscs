@@ -54,6 +54,19 @@ public sealed class TripleSlashReferenceTests
     }
 
     [Fact]
+    public void ReferencedExplicitRootIsReadExactlyOnce()
+    {
+        var host=new MemoryHost();
+        host.Files["/virtual/main.ts"]="/// <reference path=\"./shared.ts\" />\nlet answer: number = shared;";
+        host.Files["/virtual/shared.ts"]="let shared: number = 1;";
+
+        var program=CompilerProgram.Load(host,["main.ts","shared.ts"]);
+        Assert.Equal(2,program.Sources.Count);
+        Assert.Equal(2,host.Reads.Count);
+        Assert.Empty(program.Analyze().Diagnostics);
+    }
+
+    [Fact]
     public void MissingReferenceFailsClosedBeforeChecking()
     {
         var host=new MemoryHost();

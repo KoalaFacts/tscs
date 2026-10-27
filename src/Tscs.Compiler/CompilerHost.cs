@@ -58,27 +58,18 @@ public sealed class CompilerProgram
         ArgumentNullException.ThrowIfNull(host);
         ArgumentNullException.ThrowIfNull(paths);
         if(paths.Count==0)throw new ArgumentException("At least one source file is required.",nameof(paths));
-        // Root aliases remain a caller error, while dependencies reached by
-        // several roots (or in cycles) are loaded exactly once.
+        // Root aliases remain a caller error, while transitive dependencies
+        // reached through diamonds or cycles are read exactly once. Load
+        // explicit roots in encounter order, preserving the pre-existing
+        // once-read-before-alias-rejection contract.
         var roots=new HashSet<string>(host.FileNameComparer);
         var scheduled=new HashSet<string>(host.FileNameComparer);
+        var loadedFiles=new HashSet<string>(host.FileNameComparer);
         var queue=new Queue<string>();
-        foreach(var path in paths)
-        {
-            if(string.IsNullOrWhiteSpace(path))
-                throw new ArgumentException("Source paths must not be empty.",nameof(paths));
-            var canonical=host.GetCanonicalFileName(path);
-            if(string.IsNullOrWhiteSpace(canonical))
-                throw new ArgumentException("The compiler host returned an empty canonical file name.",nameof(host));
-            if(!roots.Add(canonical))
-                throw new ArgumentException("Duplicate canonical source files are not supported.",nameof(paths));
-            if(scheduled.Add(canonical))queue.Enqueue(canonical);
-        }
-
         var loaded=new List<SourceInput>();
-        while(queue.Count>0)
+
+        void LoadOne(string canonical)
         {
-            var canonical=queue.Dequeue();
             var source=host.ReadFile(canonical);
             ArgumentNullException.ThrowIfNull(source);
             if(source.Length>1_000_000)
@@ -101,6 +92,25 @@ public sealed class CompilerProgram
                     throw new ArgumentException("The compiler host returned an empty dependency identity.",nameof(host));
                 if(scheduled.Add(dependency))queue.Enqueue(dependency);
             }
+        }
+
+        foreach(var path in paths)
+        {
+            if(string.IsNullOrWhiteSpace(path))
+                throw new ArgumentException("Source paths must not be empty.",nameof(paths));
+            var canonical=host.GetCanonicalFileName(path);
+            if(string.IsNullOrWhiteSpace(canonical))
+                throw new ArgumentException("The compiler host returned an empty canonical file name.",nameof(host));
+            if(!roots.Add(canonical))
+                throw new ArgumentException("Duplicate canonical source files are not supported.",nameof(paths));
+            scheduled.Add(canonical);
+            if(loadedFiles.Add(canonical))LoadOne(canonical);
+        }
+
+        while(queue.Count>0)
+        {
+            var canonical=queue.Dequeue();
+            if(loadedFiles.Add(canonical))LoadOne(canonical);
         }
         return new CompilerProgram([.. loaded]);
     }
