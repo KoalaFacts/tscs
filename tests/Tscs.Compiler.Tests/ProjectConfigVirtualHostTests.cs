@@ -143,6 +143,55 @@ public sealed class ProjectConfigVirtualHostTests
         Assert.Single(host.Reads);
     }
 
+
+    // These inputs reach real host-backed project loading; validation must
+    // preserve the specific JSON selector token instead of a fileless error.
+    [Theory]
+    [InlineData("""{"include":["../*.ts"]}""", "\"../*.ts\"")]
+    [InlineData("""{"exclude":["src/**thing.ts"]}""", "\"src/**thing.ts\"")]
+    [InlineData("""{"include":["src/**/*.ts"],"exclude":["/absolute/*.ts"]}""", "\"/absolute/*.ts\"")]
+    [InlineData("""{"include":["src/[bad].ts"]}""", "\"src/[bad].ts\"")]
+    public void VirtualSourceSelectorGlobErrorsKeepUtf16ConfigPositions(string config,string selector)
+    {
+        AssertSourceBoundProjectError(config,selector,"Unsupported project source pattern");
+    }
+
+    [Fact]
+    public void VirtualProjectSelectorCountLimitPointsToTheSixtyFifthPattern()
+    {
+        var patterns=Enumerable.Repeat("\"src/*.ts\"",64).Append("\"src/too-many.ts\"");
+        var config="{\"include\":["+string.Join(",",patterns)+"]}";
+        AssertSourceBoundProjectError(config,"\"src/too-many.ts\"",
+            "Project source pattern count exceeds the bootstrap limit");
+    }
+
+    [Fact]
+    public void VirtualProjectDuplicateExplicitFileUsesTheHostIdentityAndSecondToken()
+    {
+        AssertSourceBoundProjectError(
+            """{"files":["src/Main.ts","src/main.ts"]}""",
+            "\"src/main.ts\"","Duplicate input paths are not supported");
+    }
+
+    private static void AssertSourceBoundProjectError(string config,string token,string message)
+    {
+        var host=new MemoryProjectHost();
+        host.Add("tsconfig.json",config);
+        var result=Run(host,"-p",host.FileAt("tsconfig.json"));
+        Assert.Equal(1,result.Exit);
+        using var json=System.Text.Json.JsonDocument.Parse(result.Output);
+        Assert.Equal(1,json.RootElement.GetProperty("exitCode").GetInt32());
+        var diagnostic=Assert.Single(json.RootElement.GetProperty("diagnostics").EnumerateArray());
+        Assert.Equal("TSCS1002",diagnostic.GetProperty("code").GetString());
+        Assert.Equal("tsconfig.json",diagnostic.GetProperty("file").GetString());
+        int start=config.IndexOf(token,StringComparison.Ordinal);
+        Assert.True(start>=0);
+        Assert.Equal(start,diagnostic.GetProperty("start").GetInt32());
+        Assert.Equal(token.Length,diagnostic.GetProperty("length").GetInt32());
+        Assert.Contains(message,diagnostic.GetProperty("message").GetString()!);
+        Assert.Single(host.Reads);
+    }
+
     [Fact]
     public void VirtualProjectCannotAccidentallyWritePhysicalJavaScriptFiles()
     {
