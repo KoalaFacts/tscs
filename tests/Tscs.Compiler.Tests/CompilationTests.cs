@@ -12,6 +12,7 @@ public class CompilationTests
     [InlineData("let n = 1; n++;")]
     [InlineData("let n = 1 + 2;")]
     [InlineData("// @ts-ignore\nlet n: number = \"x\";")]
+    [InlineData("const a = { x: 1 };")]
     public void ValidPrimitiveCodeHasNoErrors(string source) => Assert.Empty(Compilation.Check("test.ts", source));
     [Theory]
     [InlineData("let n: number = \"x\";", "TS2322", 4, 1)]
@@ -28,7 +29,6 @@ public class CompilationTests
     }
     [Theory]
     [InlineData("let n = 1; function f() {}")]
-    [InlineData("const a = { x: 1 };")]
     public void UnsupportedSyntaxNeverSucceeds(string source) => Assert.Contains(Compilation.Check("test.ts",source),d=>d.Code=="TSCS1001");
 
     [Theory]

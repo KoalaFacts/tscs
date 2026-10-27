@@ -2,199 +2,122 @@
 
 A TypeScript compiler written in C#.
 
-**Experimental bootstrap.** The current implementation checks a small subset of
-TypeScript; it does not generally emit JavaScript or replace `tsc` for real projects.
-The goal is compatibility with a fixed upstream compiler before expanding coverage
-and optimizing the C# implementation.
+**Experimental, bounded implementation — not a replacement for `tsc`.**
+The goal is compatibility with the fixed TypeScript revision in
+[`upstream.lock.json`](upstream.lock.json), with original test scope retained.
+Internal regressions and local runtime examples are not original TS7 acceptance.
+See [`docs/STATUS.md`](docs/STATUS.md) for current delivery and remaining scope.
 
-## Bounded diagnostic directive support
+## Develop
 
-The current `noEmit/noLib` checker supports a restricted **leading, single-line**
-`// @ts-ignore` directive: it suppresses semantic checker diagnostics **only
-on the immediately following physical line**. It does not suppress scanner or
-parser errors, does not implement block-comment, trailing or
-`@ts-expect-error` variants, and does not establish full TS7 directive
-compatibility. The original pinned upstream acceptance remains NOT_RUN.
-
-## Bounded AST-backed ES2015 JavaScript output
-
-The shared CompilerProgram/Parser/Binder/TypeChecker AST supports an explicit,
-type-stripping global-script output mode for the already-checked subset.
-Primitive variables, arithmetic/boolean expressions, calls, named functions,
-value returns, braced conditionals and nested blocks can be emitted:
+On Linux x64, provision the exact repository toolchain and locked local NuGet feed:
 
 ```sh
+bash scripts/setup-dev-environment.sh
+source "${TSCS_DEV_ROOT:-${XDG_CACHE_HOME:-$HOME/.cache}/tscs/linux-x64}/env.sh"
+```
+
+The installer uses .NET SDK 10.0.402, Node 24.22.1 and Go 1.27.3, verifies official
+archives, disables telemetry, and supports offline cache reuse. It does not
+modify system runtimes or loosen dependency locks. See
+[`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) and [`AGENTS.md`](AGENTS.md).
+The compiler itself is C#; Node and Go are development/reference tools only.
+
+## Check or emit a supported program
+
+```sh
+dotnet build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false
 dotnet src/Tscs.Cli/bin/Release/net10.0/tscs.dll \
-  --emitJs --noLib --target es2015 \
+  --noEmit --noLib --target es2015 \
   fixtures/local/number-ok.ts fixtures/minimal.d.ts
 ```
 
-This writes the corresponding `.js` next to the `.ts` only when all input
-diagnostics are clear and the output does not exist. Existing files are never
-overwritten. The mode deliberately does **not** support ES modules, general
-JS/TS syntax, standard-library compilation, declarations or source maps.
-`--noEmit` and this explicit output mode are mutually exclusive.
-The original fixed TS7 acceptance register remains separate and unaccepted.
+For checked ES2015 output, use `--emitJs --noLib --target es2015` instead of
+`--noEmit`. Add `--module es2015` for the supported named-module subset.
+Generated files must not already exist. The compiler does not execute user code.
+`fixtures/minimal.d.ts` supplies empty interfaces for isolated tests, **not a
+usable standard library**. Full standard-library loading remains unsupported.
 
-### Bounded named ES2015 module output
-
-The same shared Program/AST also emits the existing **named-value ES module**
-subset when `--module es2015` is explicitly requested alongside `--emitJs`.
-For example, `import { answer } from "./values.js"` resolves against
-`values.ts` for checking, while the emitted `import` retains
-`"./values.js"`, so the resulting module graph runs in Node with an ESM
-package. Named imports, exported primitive variables/functions, local named
-exports and named re-exports reuse the existing linker. All .js outputs are
-preflighted, written only after the whole program checks, and never overwrite
-existing files. Other module modes, namespace/default/star imports, arbitrary
-path aliases and full TS7 emit remain unsupported. The fixed TS7 original
-acceptance remains unchanged.
-
-## Build and check a file
-
-Install the .NET SDK specified in `global.json` (10.0.402). Node 24 runs the native `.ts` test tools directly, without a transpiler. Go 1.27.3 is also required for source-inventory tests. The compiler itself is C# and does not invoke Node, Go or another compiler.
+A bounded `tsconfig.json` can specify `files`, explicit `include`/`exclude` globs,
+`noEmit`, `noLib`, `target: "es2015"` and `module: "es2015"`:
 
 ```sh
-dotnet build Tscs.slnx -c Release -m:1
-dotnet src/Tscs.Cli/bin/Release/net10.0/tscs.dll \
-  --noEmit --noLib --target es2015 \
-  fixtures/local/number-mismatch.ts fixtures/minimal.d.ts
+dotnet src/Tscs.Cli/bin/Release/net10.0/tscs.dll --emitJs -p path/to/tsconfig.json
 ```
 
-This intentionally reports TS2322 and exits 2. Use `fixtures/local/number-ok.ts`
-for a successful check. `fixtures/minimal.d.ts` supplies **empty global interfaces
-for isolated compiler tests**, not a usable standard library.
+Project configuration and source discovery share CompilerHost/VFS. Explicit
+files take precedence over excludes. Default implicit includes, `extends`,
+package resolution, symlink traversal and TSX/JS inputs are not complete.
 
-Supported initially: single-file `let`/`const` declarations, primitive annotations,
-primitive literal initializers, identifier references, simple assignments and
-nested lexical scopes. Bounded `any` variable annotations accept assignments to
-and from primitive types, without implementing the full TypeScript `any` type system. Bounded arithmetic supports numeric unary `+`/`-`, numeric binary `+`/`-`/`*`, numeric identifiers and assignments, with `*` binding more tightly than left-associative `+`/`-`. Long left-deep and `+`/`-` unary chains are checked iteratively instead of recursing the C# call stack. Numeric unary plus is a bounded `number`-only type-checker path, not JavaScript coercion or output. `--` decrement, nonnumeric unary-plus coercion, string concatenation, `any` arithmetic, parentheses, exponentiation and full expression grammar remain unsupported; this does not implement JavaScript emit. Integer decimal literals and quoted strings with simple escapes/line continuations are supported. Valid hexadecimal and Unicode escapes preserve UTF16 code units, including lone surrogates. Malformed hexadecimal/Unicode escapes now retain their spelling and report recoverable lexical diagnostics; unterminated strings preserve all lexical errors. Standalone NUL and identity escapes are supported; legacy octal and decimal escapes preserve decoded values while reporting TS1487/TS1488 syntax errors. This does not implement JSON-specific string validation. Compilation returns lexical errors before parser/checker work; this does not implement general parser recovery.
-An initialized, mutable `number` variable also supports a **statement-only**
-postfix update such as `let n = 1; n++;` under noEmit/noLib. The checker
-rejects `const` updates with TS2588. Prefix `++`, expression-position
-postfix updates, nonnumeric operands and emitted JavaScript remain unsupported.
-This check does not execute the increment.
+## Structural object data
 
-Both `--noEmit` and `--noLib` are required for every **nonempty** program.
-A separately tested first original-fixture slice now handles a *single trivia-only*
-ES2015 `.ts` program under the original default emit/library flags, provided
-the target is explicitly selected: it emits the pinned strict prologue to a
-new `.js` file, refusing to overwrite an existing file. This is **not**
-general JavaScript emission, standard-library checking or original harness
-acceptance; the corresponding generated upstream Fact remains SKIP pending
-a live independent pinned-Go reference and complete original runner checks. `--pretty false`, `--target es2015/es6`
-and a tscs-only `--json` diagnostic mode are available.
+Required named object members now use the same AST, Binder, semantic types,
+module linker, checker and JavaScript emitter as other supported code:
 
-A bounded `tsconfig.json` may specify `files`, explicit `include`/`exclude` source globs, and `compilerOptions.noEmit`, `noLib`,
-and `target`. File paths resolve relative to the config.
-Project source discovery accepts project-local `*`, `?` and directory-segment `**` globs for `.ts`/minimal `.d.ts` files. Explicit `files` always take precedence over excludes. Absent `include` keeps the existing explicit-files-only bootstrap; general TS7 implicit includes, `extends`, symlink traversal and TSX/JS are not yet implemented.
- Run it with `-p path/to/tsconfig.json`.
-The config path now uses the C# scanner and a bounded JSON AST reader for objects,
-arrays, strings, booleans/null and decimal integers (including unary minus).
-Numeric AST text uses binary64 rounding and JavaScript fixed/scientific formatting;
-raw source spelling and token ranges are retained.
-Comments/trailing commas are supported; names and string values get TS1327 quote
-validation. Other numeric forms, non-ASCII unquoted names, general syntax recovery
-and effective TypeScript configuration expansion remain unsupported. This is not
-full TS7 JSONC/config compatibility. System.Text.Json is used for diagnostic output,
-not configuration parsing.
-The primitive option converter preserves supported values and reports pinned
-TS5024 type errors / TS6266 command-line-only restrictions. Its CLI integration
-currently covers noEmit/noLib booleans, including null defaults and CLI overrides;
-other option types, paths, lists, enums and the config host remain incomplete.
+```typescript
+// data.ts
+export const seed = { value: 21, label: "seed" };
 
-One or more non-declaration `.ts` **global script** files are supported under
-`--noEmit --noLib`, with optional minimal global `.d.ts` files. Primitive
-top-level symbols can be referenced across files independently of input
-order. Complex cross-file inference and module linking still fail closed;
-this is not general TypeScript project compilation. Ambient files remain
-limited to the empty global interfaces shown in the example.
+// transform.ts
+export function twice(data: { value: number }): { value: number } {
+  return { value: data.value * 2 };
+}
 
-Unsupported constructs/options return a TSCS diagnostic and exit 1. Ordinary
-TypeScript diagnostics return 2; a successful supported check returns 0.
-Functions, imports, objects, generics, JSX, standard libraries, declaration merging,
-reads before initialization and JS output remain unsupported. This is not a sandbox
-for executing TypeScript; no code is executed.
+// entry.ts
+import { seed } from "./data.js";
+import { twice } from "./transform.js";
+seed.value = 21;
+export const result: number = twice(seed).value;
+```
 
-The intrinsic `globalThis` exists even with `--noLib`, but its type is not yet
-implemented here: reading or assigning it reports TSCS1001 and exits 1. Block-local
-variables named `globalThis` resolve normally; top-level declarations still report
-TS2397. Truly unresolved names report TS2304 and exit 2.
+Nested member reads/writes, inline shape annotations and structural width
+assignment are supported. Fresh object literals receive excess-property checks;
+wider values already held in variables can satisfy narrower required shapes.
+Writing a member of an imported or `const` object does not rebind that object.
+Missing members and incompatible assignments are rejected before emission.
 
-## Verify
+This does **not** implement optional/readonly members, methods/accessors,
+index signatures, spread, computed keys, prototype-setter literals, inheritance,
+generics or recursive type aliases. Such unimplemented forms fail explicitly.
+Parser depth and diagnostic display are bounded. Runtime and validation details:
+[`structural-object-data`](docs/progress/structural-object-data.md).
+
+## Other implemented subsets
+
+The current pipeline includes primitive/`any` variables, lexical scopes, selected
+arithmetic/boolean/comparison expressions, braced `if`/`else`, explicit supported
+function signatures, named imports/exports/re-exports, multi-file host-backed
+programs, and ES2015 AST-backed output. Function return inference, overloads,
+closures, general control flow, arrays, full type relations, declarations/maps,
+standard libraries and incremental/watch compilation remain incomplete.
+
+A leading whole-line `// @ts-ignore` suppresses semantic diagnostics only on the
+immediately following physical line; scanner/parser errors are not suppressed.
+Other directive forms are not generally supported. Intrinsic `globalThis` is
+recognized but its type remains unsupported. Unsupported constructs/options
+report a TSCS diagnostic and exit 1; ordinary TypeScript errors exit 2; successful
+supported compilations exit 0. `--json` is a tscs diagnostic extension.
+
+## Verification and honest scope
 
 ```sh
 ./scripts/verify.sh
 ```
 
-This restores locked dependencies, builds, runs xUnit and harness tests, and compares
-29 frozen cases against independently captured upstream diagnostics, CLI text and
-exit codes. Seven source fixtures are copied unchanged from upstream. They run with
-explicit `noEmit`/`noLib` isolation overrides; these are not full upstream harness runs.
-Results go to `.artifacts/conformance.json`. A passing cohort is not a percentage
-claim about the entire TypeScript language.
+The development gate builds with locked dependencies, runs xUnit 4/Microsoft
+Testing.Platform and native Node `.ts` tests, checks the frozen 29-case isolated
+cohort, and actually executes emitted JavaScript. Targeted development tests can
+run the built MTP executable directly; report that separately from the SDK
+`dotnet test` coordinator. Existing fail-skips and release gates remain strict.
 
-The C# suite has 15,488 verified cases at compiler implementation head `b69e30e` (xUnit 4/MTP, zero failures/skips) (including 764 byte-decoding, 535 directive, 151 state and 750 path and 55 file-map and 154 VFS read plus 534 accessible-entry and 1,414 option-value and 2,920 configuration-product and 36 source-configuration vectors) and uses xUnit 4.0.2 (the official package is still named
-`xunit.v3.mtp-v2`) with Microsoft.Testing.Platform 2.5.1, not VSTest.
-After building, run just this suite with:
+The [local guard register](docs/testing/ts7/implementation-coverage.json) has
+14 existing probes: 9 implemented and 5 explicitly unimplemented. Its static
+execution fields remain NOT_RUN; actual results are evidence-bound separately.
+This is not an upstream completion percentage. The independent generated suite
+retains 15,523 configuration-level targets as SKIP/UNIMPLEMENTED, with 0 original
+accepts. The full dynamic case denominator remains unknown; no release is claimed.
 
-```sh
-dotnet test --solution Tscs.slnx -c Release --no-build --no-restore -- --fail-skips on --minimum-expected-tests 15488
-```
-
-The .NET 10 MTP runner is selected in `global.json`. If an execution environment
-cannot launch the SDK's test coordinator, the same built MTP executable can also
-be run directly, without changing permissions or disabling isolation:
-
-```sh
-dotnet tests/Tscs.Compiler.Tests/bin/Release/net10.0/Tscs.Compiler.Tests.dll --fail-skips on --minimum-expected-tests 15488
-```
-
-Record direct execution separately from `dotnet test`; a direct pass is not a
-claim that the SDK coordinator ran. The unchanged test inventory is documented
-in [the migration map](docs/evidence/xunit-migration-inventory.json).
-
-To rebuild the independent reference (requires Git and Go 1.27.3):
-
-```sh
-./scripts/build-oracle.sh
-# Or use an existing clean checkout at the exact pin:
-TSCS_UPSTREAM=/path/to/TypeScript ./scripts/build-oracle.sh
-```
-
-The script compares the rebuilt reference against frozen results without rewriting
-them. Build hashes may differ across paths/platforms; they are recorded as provenance,
-not used as a cross-platform reproducible-binary guarantee.
-
-## Explicit implementation SKIPs (separate from internal tests)
-
-The [bounded implementation register](docs/testing/ts7/implementation-coverage.json) marks seven **already existing** local guard inputs as `SKIP / UNIMPLEMENTED` and seven positive inputs as `IMPLEMENTED / upstream NOT_RUN`. The guard tests still execute; their passing rejection assertions do not mean the missing TypeScript features work. A dedicated CI check binds this report to its exact source inputs and rejects unexpected skips, while the xUnit fail-skips gate remains active. This is a starter catalogue, **not the full upstream completion percentage or a release waiver**. [Details](docs/progress/implementation-coverage.md).
-
-## Pinned TS7 test-scope inventory
-
-The [source-configuration placeholder catalogue](docs/progress/upstream-placeholder-catalogue.md) generated **15,523 SKIP targets**. A [post-generation verifier now checks](docs/progress/upstream-placeholder-integrity.md) every target against all C# Fact identities and raw SHA-256 evidence. The generated .NET project is not yet compiled/discovered; these are not full runtime TS7 cases or accepted results.
-
-The [source-scope registry and roadmap](docs/testing/ts7/README.md) inventories all
-tracked upstream assets, Go declarations, JS test sources and fixture metadata:
-
-```sh
-node tools/inventory-ts7.ts /path/to/pinned-upstream .artifacts/ts7-scope
-```
-
-This static inventory is not full conformance: its original25 transpile inputs
-have28 source-bound named configurations. The separate complete source
-configuration profile records15523 runner configurations with12999 MATCH and
-7 reference fatals; effective options and runtime cases remain unresolved.
-The selected-config AST profile retains172 config sources (171 MATCH and one
-MATCH_DIAGNOSTICS), while12834 no-config sources are NOT_APPLICABLE. It is pre-VFS
-syntax preparation, not effective configuration or compiler acceptance. See the
-[source AST ledger](docs/testing/ts7/source-config-ast-progress.json).
-All original-scope compiler acceptance remains NOT_RUN. The
-[domain summary](docs/testing/ts7/inventory-summary.json) keeps assets, declarations,
-fixture inputs and upstream skips separate. The original 29-case cohort remains
-independent. Release still requires complete scope and executable acceptance with
-no missing cases.
-
-See [status](docs/STATUS.md), [source correspondence](docs/PORTING.md), and the
-[approved design](docs/superpowers/specs/2026-10-24-tscs-compiler-design.md).
+See the [full scope inventory](docs/testing/ts7/README.md),
+[source correspondence](docs/PORTING.md), [design](docs/superpowers/specs/2026-10-24-tscs-compiler-design.md)
+and [original evidence](docs/evidence/).
 Apache-2.0; see [NOTICE](NOTICE) for upstream attribution.

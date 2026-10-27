@@ -93,7 +93,53 @@ try {
   ],{cwd:temporary,encoding:"utf8",timeout:15000});
   assert.equal(moduleRun.error,undefined,String(moduleRun.error));
   assert.equal(moduleRun.status,0,moduleRun.stdout+"\n"+moduleRun.stderr);
-  console.log("AST-backed ES2015 script and named module graphs emitted and executed successfully.");
+  // Object data follows exactly that same project/compiler/ESM pipeline.
+  // Mutation of an imported const object's property must not be confused with
+  // rebinding its import. A wider variable may satisfy a narrower shape.
+  writeFileSync(join(temporary,"object-data.ts"),
+    'export const seed = { value: 20, label: "seed", nested: { enabled: true } };\n');
+  writeFileSync(join(temporary,"object-transform.ts"),
+    'export function twice(data: { value: number }): { value: number } { return { value: data.value * 2 }; }\n');
+  writeFileSync(join(temporary,"object-bridge.ts"),
+    'export { twice as transform } from "./object-transform.js";\n');
+  writeFileSync(join(temporary,"object-entry.ts"),[
+    'import { seed } from "./object-data.js";',
+    'import { transform } from "./object-bridge.js";',
+    'seed.value = 21;',
+    'seed.nested.enabled = false;',
+    'export const result: number = transform(seed).value;',
+    'export const label: string = seed.label;',
+    'export const enabled: boolean = seed.nested.enabled;'
+  ].join("\n"));
+  const objectProject=join(temporary,"objects.json");
+  writeFileSync(objectProject,JSON.stringify({
+    files:["object-entry.ts","minimal.d.ts"],
+    compilerOptions:{module:"es2015",target:"es2015",noLib:true}
+  }));
+  const objectCompile=spawnSync(process.env.DOTNET??"dotnet",[
+    resolve("src/Tscs.Cli/bin/Release/net10.0/tscs.dll"),"--emitJs","-p",objectProject
+  ],{encoding:"utf8",timeout:30000});
+  assert.equal(objectCompile.error,undefined,String(objectCompile.error));
+  assert.equal(objectCompile.status,0,objectCompile.stdout+"\n"+objectCompile.stderr);
+  const objectRun=spawnSync(process.execPath,["--input-type=module","--eval",
+    'import { result,label,enabled } from "./object-entry.js"; '+
+    'if (result !== 42 || label !== "seed" || enabled !== false) throw Error("object data runtime mismatch");'
+  ],{cwd:temporary,encoding:"utf8",timeout:15000});
+  assert.equal(objectRun.error,undefined,String(objectRun.error));
+  assert.equal(objectRun.status,0,objectRun.stdout+"\n"+objectRun.stderr);
+  // Errors must prevent all output, rather than merely returning exit 2 after
+  // partially writing an executable program.
+  const invalid=join(temporary,"invalid-object.ts");
+  writeFileSync(invalid,'const data = { value: 1 }; data.value = "wrong";');
+  const rejected=spawnSync(process.env.DOTNET??"dotnet",[
+    resolve("src/Tscs.Cli/bin/Release/net10.0/tscs.dll"),
+    "--emitJs","--noLib","--target","es2015",invalid,globals
+  ],{encoding:"utf8",timeout:30000});
+  assert.equal(rejected.error,undefined,String(rejected.error));
+  assert.equal(rejected.status,2,rejected.stdout+"\n"+rejected.stderr);
+  assert.match(rejected.stdout+rejected.stderr,/TS2322/);
+  assert.equal(existsSync(join(temporary,"invalid-object.js")),false);
+  console.log("AST-backed ES2015 scripts, module graphs and structural object data emitted and executed successfully (object result=42, label=seed, enabled=false).");
 } finally {
   rmSync(temporary,{recursive:true,force:true});
 }

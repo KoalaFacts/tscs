@@ -3,7 +3,7 @@
   "kind": "BOUNDED_LOCAL_GUARD_PROBES_NOT_UPSTREAM_ACCEPTANCE",
   "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
   "sourcePath": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
-  "sourceGitBlob": "663e44537aa2f9fac97f66708515624873930638",
+  "sourceGitBlob": "317d253a7e2925975481aeae2af166002669f03d",
   "cases": [
     {
       "id": "bootstrap:primitive-number-declaration",
@@ -107,12 +107,12 @@
     {
       "id": "bootstrap:object-literal",
       "source": "const a = { x: 1 };",
-      "guardMethod": "UnsupportedSyntaxNeverSucceeds",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
       "capability": "object-literals",
       "domain": "parser",
-      "implementation": "UNIMPLEMENTED",
-      "skipReason": "UNIMPLEMENTED",
-      "implementationLocation": null,
+      "implementation": "IMPLEMENTED",
+      "skipReason": null,
+      "implementationLocation": "src/Tscs.Compiler/Parser.cs",
       "upstreamExecutableCaseId": null
     },
     {

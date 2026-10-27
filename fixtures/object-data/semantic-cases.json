@@ -1,0 +1,184 @@
+{
+  "kind": "BOUNDED_OBJECT_SEMANTICS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "object-data:positive-01",
+      "source": "const data = { value: 21, label: \"ok\" }; let result: number = data.value + data.value; data.value = 42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-data:positive-02",
+      "source": "let data: { value: number; label: string } = { value: 1, label: \"ok\" }; let s: string = data.label;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-data:positive-03",
+      "source": "const data = { nested: { value: 21 } }; data.nested.value = 42; let n: number = data.nested.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-data:positive-04",
+      "source": "function twice(data: { value: number }): { value: number } { return { value: data.value * 2 }; } let n: number = twice({ value: 21 }).value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-data:positive-05",
+      "source": "const wide = { value: 21, label: \"ok\" }; let narrow: { value: number } = wide;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-data:positive-06",
+      "source": "const wide = { nested: { value: 21, label: \"ok\" } }; let narrow: { nested: { value: number } } = wide;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-data:positive-07",
+      "source": "const data = { \"value\": 21 }; let n: number = data.value; (data).value = 42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-data:positive-08",
+      "source": "let data: { value: number, nested: { flag: boolean, }, } = { value: 1, nested: { flag: true, }, };",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-data:positive-09",
+      "source": "const data = { value: 21 }; let boxed = { data: data }; let n: number = boxed.data.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-data:positive-10",
+      "source": "let data: {} = 1; const empty = {}; let other: {} = empty;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-data:positive-11",
+      "source": "let n: number = ({ value: 42 }).value; ({ value: n });",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-data:positive-12",
+      "source": "function pass(x: { value: number }): { value: number } { return x; } const wide = { value: 1, extra: true }; let n = pass(wide).value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-data:negative-01",
+      "source": "const data = { value: 1 }; data.missing;",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "object-data:negative-02",
+      "source": "const data = { value: 1 }; data.missing = 2;",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "object-data:negative-03",
+      "source": "const data = { value: 1 }; data.value = \"bad\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "object-data:negative-04",
+      "source": "const data: { value: number } = { value: \"bad\" };",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "object-data:negative-05",
+      "source": "const data: { value: number } = {};",
+      "expectedCodes": [
+        "TS2741"
+      ]
+    },
+    {
+      "id": "object-data:negative-06",
+      "source": "function f(x: { value: number }): number { return x.value; } f({ value: \"bad\" });",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "object-data:negative-07",
+      "source": "function f(): { value: number } { return { value: \"bad\" }; }",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "object-data:negative-08",
+      "source": "const data: { value: number } = { value: 1, extra: true };",
+      "expectedCodes": [
+        "TS2353"
+      ]
+    },
+    {
+      "id": "object-data:negative-09",
+      "source": "const data: { nested: { value: number } } = { nested: { value: 1, extra: true } };",
+      "expectedCodes": [
+        "TS2353"
+      ]
+    },
+    {
+      "id": "object-data:negative-10",
+      "source": "const data = { value: 1, value: 2 };",
+      "expectedCodes": [
+        "TS1117"
+      ]
+    },
+    {
+      "id": "object-data:negative-11",
+      "source": "const data = { value: 1 }; data = { value: 2 };",
+      "expectedCodes": [
+        "TS2588"
+      ]
+    },
+    {
+      "id": "object-data:negative-12",
+      "source": "let n = 1; n.value;",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "object-data:negative-13",
+      "source": "let x: { a: number } = ({ a: 1, extra: true });",
+      "expectedCodes": [
+        "TS2353"
+      ]
+    },
+    {
+      "id": "object-data:negative-14",
+      "source": "function f(x: { a: number }): number { return x.a; } f({ a: 1, extra: true });",
+      "expectedCodes": [
+        "TS2353"
+      ]
+    },
+    {
+      "id": "object-data:negative-15",
+      "source": "function f(): { a: number } { return { a: 1, extra: true }; }",
+      "expectedCodes": [
+        "TS2353"
+      ]
+    },
+    {
+      "id": "object-data:negative-16",
+      "source": "let x = { nested: { a: 1 } }; x.nested = { a: 1, extra: true };",
+      "expectedCodes": [
+        "TS2353"
+      ]
+    },
+    {
+      "id": "object-data:negative-17",
+      "source": "let x = { nested: { a: 1 } }; x.nested = { a: \"bad\" };",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}

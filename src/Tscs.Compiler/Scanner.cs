@@ -91,7 +91,7 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                 kind = TokenKind.String;
                 decodedValue = ScanString(first, out stringFlags);
             }
-            else kind = first switch { '[' when jsonMode=>TokenKind.OpenBracket,']' when jsonMode=>TokenKind.CloseBracket,'(' when !jsonMode=>TokenKind.OpenParen,')' when !jsonMode=>TokenKind.CloseParen,'-'=>TokenKind.Minus, '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,'+' when !jsonMode=>TokenKind.Plus,'*' when !jsonMode=>TokenKind.Star,_=>TokenKind.Unsupported };
+            else kind = first switch { '.' when !jsonMode=>TokenKind.Dot,'[' when jsonMode=>TokenKind.OpenBracket,']' when jsonMode=>TokenKind.CloseBracket,'(' when !jsonMode=>TokenKind.OpenParen,')' when !jsonMode=>TokenKind.CloseParen,'-'=>TokenKind.Minus, '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,'+' when !jsonMode=>TokenKind.Plus,'*' when !jsonMode=>TokenKind.Star,_=>TokenKind.Unsupported };
             // Maximal-munch binary/logical operators only in source mode. Keep
             // JSON scanning unchanged and refuse lone '&' or '|' as before.
             if(!jsonMode)

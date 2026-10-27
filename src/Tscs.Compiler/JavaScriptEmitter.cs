@@ -46,6 +46,13 @@ internal static class JavaScriptEmitter
                     WriteExpression(assignment.Value);
                     output.Append(";\n");
                     break;
+                case PropertyAssignment property:
+                    Indent(depth);
+                    WriteExpression(property.Target);
+                    output.Append(" = ");
+                    WriteExpression(property.Value);
+                    output.Append(";\n");
+                    break;
                 case PostfixUpdate update:
                     Indent(depth);
                     output.Append(update.Name.Text).Append(update.Operator.Text).Append(";\n");
@@ -165,8 +172,8 @@ internal static class JavaScriptEmitter
                 _ => throw new NotSupportedException("Unsupported binary operator in emitted AST.")
             },
             ValueUnary => 7,
-            ValueCall => 8,
-            ValueAtom or ValueParenthesized => 9,
+            ValueCall or ValuePropertyAccess => 8,
+            ValueAtom or ValueParenthesized or ValueObject => 9,
             _ => throw new NotSupportedException("Unsupported expression in emitted AST.")
         };
 
@@ -211,6 +218,23 @@ internal static class JavaScriptEmitter
                         Text(")");
                         Node(grouped.Expression);
                         Text("(");
+                        break;
+                    case ValuePropertyAccess property:
+                        Text("."+property.Name.Text);
+                        Node(property.Receiver,precedence);
+                        break;
+                    case ValueObject literalObject:
+                        // Parentheses keep an object literal an expression even
+                        // at statement start or as an immediate member receiver.
+                        Text(" })");
+                        for(int i=literalObject.Properties.Count-1;i>=0;i--)
+                        {
+                            var property=literalObject.Properties[i];
+                            Node(property.Value);
+                            Text(property.Name.Text+": ");
+                            if(i>0)Text(", ");
+                        }
+                        Text("({ ");
                         break;
                     case ValueCall call:
                         Text(")");

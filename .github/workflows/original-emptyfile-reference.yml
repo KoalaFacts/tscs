@@ -7,6 +7,9 @@ jobs:
   original-go-reference:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      TESTINGPLATFORM_TELEMETRY_OPTOUT: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v6
@@ -20,6 +23,28 @@ jobs:
         run: node --test tools/verify-original-go-case.test.ts
       - name: Execute complete original TestLocal/emptyFile.ts in the pinned Go reference
         run: ./scripts/verify-original-emptyfile-go.sh
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Build product and pinned reference for bounded object differential
+        shell: bash
+        run: |
+          set -euo pipefail
+          dotnet restore Tscs.slnx --locked-mode --disable-parallel -m:1 -p:NuGetAudit=false
+          dotnet build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false -p:NuGetAudit=false
+          export GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local GOWORK=off
+          test "$(go env GOTELEMETRY)" = off
+          reference="$GITHUB_WORKSPACE/.artifacts/object-reference"
+          (cd .artifacts/original-empty-go/TypeScript/tsc; timeout 180s go build -o "$reference" ./cmd/tsc)
+          node tools/verify-object-data-reference.ts "$reference" .artifacts/object-data-reference
+      - name: Preserve object differential inputs, outputs and raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-object-data-reference-${{ github.sha }}
+          path: .artifacts/object-data-reference/
+          retention-days: 30
+          if-no-files-found: warn
       - name: Preserve immutable source and raw reference evidence
         if: always()
         uses: actions/upload-artifact@v4
