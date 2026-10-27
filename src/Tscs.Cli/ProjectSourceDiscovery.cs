@@ -8,7 +8,7 @@ namespace Tscs;
 /// include/exclude globs. Explicit "files" roots are never excluded.
 /// This is not the full TS7 config expansion or symlink resolver.
 /// </summary>
-internal static class ProjectSourceDiscovery
+public static class ProjectSourceDiscovery
 {
     private const int MaxScannedEntries=50_000;
     private const int MaxSourceFiles=4_096;
