@@ -1,3 +1,13 @@
+# 2026-10-28 — Unified source-bound project configuration errors (unmerged)
+
+Project-config semantic validation now creates source-bound `TSCS1002`
+diagnostics instead of fileless errors for unsupported or duplicate keys,
+shape mismatches and recognized-but-unsupported module/target modes.
+Scanner/parser and fixed-upstream option conversion share the same
+configuration exception envelope. In-memory VFS CLI regressions verify
+canonical filenames and UTF-16 spans. This is code pending exact-head CI
+and independent review, not a new original TS7 acceptance PASS.
+
 # 2026-10-28 — Host-owned tsconfig project loading (unmerged work package)
 
 Project JSON and explicit project roots now use the same IProjectSourceHost

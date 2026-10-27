@@ -114,6 +114,35 @@ public sealed class ProjectConfigVirtualHostTests
         Assert.Single(host.Reads);
     }
 
+    [Theory]
+    [InlineData("""{"files":[42]}""", "42", false)]
+    [InlineData("""{"include":"src/**/*.ts"}""", "\"src/**/*.ts\"", false)]
+    [InlineData("""{"compilerOptions":{"strict":true}}""", "\"strict\"", false)]
+    [InlineData("""{"compilerOptions":{"noEmit":true,"noEmit":false}}""", "\"noEmit\"", true)]
+    [InlineData("""{"compilerOptions":{"module":"commonjs"}}""", "\"commonjs\"", false)]
+    [InlineData("""{"extends":"base.json"}""", "\"extends\"", false)]
+    [InlineData("""{"compilerOptions":[]}""", "[]", false)]
+    public void VirtualConfigValidationErrorsKeepSourceBoundUtf16Spans(
+        string config,string marker,bool last)
+    {
+        var host = new MemoryProjectHost();
+        host.Add("tsconfig.json", config);
+
+        var result = Run(host, "-p", host.FileAt("tsconfig.json"));
+        Assert.Equal(1, result.Exit);
+        using var json = System.Text.Json.JsonDocument.Parse(result.Output);
+        Assert.Equal(1, json.RootElement.GetProperty("exitCode").GetInt32());
+        var diagnostic = Assert.Single(json.RootElement.GetProperty("diagnostics").EnumerateArray());
+        Assert.Equal("TSCS1002", diagnostic.GetProperty("code").GetString());
+        Assert.Equal("tsconfig.json", diagnostic.GetProperty("file").GetString());
+        int expectedStart = last ? config.LastIndexOf(marker, StringComparison.Ordinal)
+            : config.IndexOf(marker, StringComparison.Ordinal);
+        Assert.True(expectedStart >= 0);
+        Assert.Equal(expectedStart, diagnostic.GetProperty("start").GetInt32());
+        Assert.Equal(marker.Length, diagnostic.GetProperty("length").GetInt32());
+        Assert.Single(host.Reads);
+    }
+
     [Fact]
     public void VirtualProjectCannotAccidentallyWritePhysicalJavaScriptFiles()
     {

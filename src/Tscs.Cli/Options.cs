@@ -67,78 +67,84 @@ internal sealed class Options
         // Read the configuration and its sources through the same host.
         // The JSON AST diagnostics retain this canonical configuration name.
         var text=projectHost.ReadFile(file);var parsed=JsonSyntax.Parse(file,text);
-        if(parsed.Diagnostics.Count>0)throw new ConfigSyntaxFailure(text,parsed.Diagnostics);
+        if(parsed.Diagnostics.Count>0)throw new ConfigDiagnosticFailure(text,parsed.Diagnostics);
         var root=parsed.Root;
-        if(root?.Kind!="Object")throw new InputFailure("Configuration must be an object.");
+        if(root?.Kind!="Object")throw InvalidConfig(file,text,root,"Configuration must be an object.");
         var keys=new HashSet<string>(StringComparer.Ordinal);
         var includes=new List<string>();
         var excludes=new List<string>();
         foreach(var p in root!.Properties)
         {
-            if(!keys.Add((p.Name.Token.Value??p.Name.Token.Text)))throw new InputFailure("Duplicate configuration keys are not supported.");
+            if(!keys.Add((p.Name.Token.Value??p.Name.Token.Text)))throw InvalidConfig(file,text,p.Name,"Duplicate configuration keys are not supported.");
             switch((p.Name.Token.Value??p.Name.Token.Text))
             {
                 case "files":
-                    if(p.Value.Kind!="Array")throw new InputFailure("files must be an array.");
+                    if(p.Value.Kind!="Array")throw InvalidConfig(file,text,p.Value,"files must be an array.");
                     foreach(var item in p.Value.Elements)
-                    {if(item.Kind!="String"||string.IsNullOrEmpty(item.Token.Value))throw new InputFailure("File paths must be nonempty strings.");Files.Add(projectHost.ResolveReferencePath(file,item.Token.Value!));}
+                    {if(item.Kind!="String"||string.IsNullOrEmpty(item.Token.Value))throw InvalidConfig(file,text,item,"File paths must be nonempty strings.");Files.Add(projectHost.ResolveReferencePath(file,item.Token.Value!));}
                     break;
-                case "include":includes.AddRange(ProjectPatterns(p.Value,"include"));break;
-                case "exclude":excludes.AddRange(ProjectPatterns(p.Value,"exclude"));break;
+                case "include":includes.AddRange(ProjectPatterns(p.Value,"include",file,text));break;
+                case "exclude":excludes.AddRange(ProjectPatterns(p.Value,"exclude",file,text));break;
                 case "compilerOptions":
-                    if(p.Value.Kind!="Object")throw new InputFailure("compilerOptions must be an object.");
+                    if(p.Value.Kind!="Object")throw InvalidConfig(file,text,p.Value,"compilerOptions must be an object.");
                     var optionKeys=new HashSet<string>(StringComparer.Ordinal);
                     foreach(var option in p.Value.Properties)
                     {
-                        if(!optionKeys.Add((option.Name.Token.Value??option.Name.Token.Text)))throw new InputFailure("Duplicate compiler options are not supported.");
+                        if(!optionKeys.Add((option.Name.Token.Value??option.Name.Token.Text)))throw InvalidConfig(file,text,option.Name,"Duplicate compiler options are not supported.");
                         switch((option.Name.Token.Value??option.Name.Token.Text))
                         {
                             case "noEmit":compilerOptions=compilerOptions with {NoEmit=Boolean("noEmit",option.Value,file,text)};break;
                             case "noLib":compilerOptions=compilerOptions with {NoLib=Boolean("noLib",option.Value,file,text)};break;
                             case "target":
                                 var target=JsonEnumOptions.Convert(JsonEnumOptions.Declarations["target"],JsonConfigValues.Convert(option.Value),file,expression:option.Value.Token);
-                                if(target.Diagnostics.Count>0)throw new ConfigSyntaxFailure(text,target.Diagnostics);
+                                if(target.Diagnostics.Count>0)throw new ConfigDiagnosticFailure(text,target.Diagnostics);
                                 // Valid upstream targets beyond the bootstrap remain unsupported.
                                 if(target.Value.Kind=="Number"&&target.Value.Number==2){compilerOptions=compilerOptions with {Target=CompilerTarget.Es2015};break;}
-                                throw new InputFailure("Only target es2015/es6 is supported by the bootstrap.");
+                                throw InvalidConfig(file,text,option.Value,"Only target es2015/es6 is supported by the bootstrap.");
                             case "module":
                                 // Use the pinned TS7 declaration and its diagnostic mapping,
                                 // not a second unvalidated string/enum parser. The effective
                                 // module choice then feeds the same CLI/Program emit path.
                                 var module=JsonEnumOptions.Convert(JsonEnumOptions.Declarations["module"],
                                     JsonConfigValues.Convert(option.Value),file,expression:option.Value.Token);
-                                if(module.Diagnostics.Count>0)throw new ConfigSyntaxFailure(text,module.Diagnostics);
+                                if(module.Diagnostics.Count>0)throw new ConfigDiagnosticFailure(text,module.Diagnostics);
                                 if(option.Value.Kind=="Null"){compilerOptions=compilerOptions with {Module=CompilerModule.Unspecified};break;}
                                 // Pinned ModuleKind.ES2015=5; ES6 is the same enum value.
                                 if(module.Value.Kind=="Number"&&module.Value.Number==5){compilerOptions=compilerOptions with {Module=CompilerModule.Es2015};break;}
-                                throw new InputFailure("Only module es2015/es6 is supported by the bootstrap.");
-                            default:throw new InputFailure($"Unsupported compiler option '{(option.Name.Token.Value??option.Name.Token.Text)}'.");
+                                throw InvalidConfig(file,text,option.Value,"Only module es2015/es6 is supported by the bootstrap.");
+                            default:throw InvalidConfig(file,text,option.Name,$"Unsupported compiler option '{(option.Name.Token.Value??option.Name.Token.Text)}'.");
                         }
                     }
                     break;
-                default:throw new InputFailure($"Unsupported configuration property '{(p.Name.Token.Value??p.Name.Token.Text)}'.");
+                default:throw InvalidConfig(file,text,p.Name,$"Unsupported configuration property '{(p.Name.Token.Value??p.Name.Token.Text)}'.");
             }
         }
         // Explicit root files are retained; include globs add a deterministic
         // bounded source set, while excludes apply only to discovered files.
         Files.AddRange(ProjectSourceDiscovery.Discover(projectHost,Path.GetDirectoryName(file)!,Files,includes,excludes));
     }
-    private static IReadOnlyList<string> ProjectPatterns(JsonSyntaxNode value,string name)
+    private static IReadOnlyList<string> ProjectPatterns(JsonSyntaxNode value,string name,string file,string text)
     {
-        if(value.Kind!="Array")throw new InputFailure($"{name} must be an array.");
+        if(value.Kind!="Array")throw InvalidConfig(file,text,value,$"{name} must be an array.");
         var patterns=new List<string>();
         foreach(var element in value.Elements)
         {
             if(element.Kind!="String"||string.IsNullOrWhiteSpace(element.Token.Value))
-                throw new InputFailure($"{name} entries must be nonempty strings.");
+                throw InvalidConfig(file,text,element,$"{name} entries must be nonempty strings.");
             patterns.Add(element.Token.Value!);
         }
         return patterns;
     }
+    // Keep semantic config validation in the same source-bound diagnostic
+    // envelope as JSON syntax and fixed-upstream option conversion.
+    // TSCS1002 is still an unsupported-input exit (1), not a TS exit (2).
+    private static ConfigDiagnosticFailure InvalidConfig(string file,string text,JsonSyntaxNode? node,string message) =>
+        new(text,[new Diagnostic("TSCS1002","error",file,node?.Token.Start??0,node?.Token.Length??0,message,[],[])]);
+
     private static bool Boolean(string name,JsonSyntaxNode value,string file,string text)
     {
         var result=JsonScalarOptions.Convert(new(name,new("boolean",false)),JsonConfigValues.Convert(value),file,expression:value.Token);
-        if(result.Diagnostics.Count>0)throw new ConfigSyntaxFailure(text,result.Diagnostics);
+        if(result.Diagnostics.Count>0)throw new ConfigDiagnosticFailure(text,result.Diagnostics);
         // Null remains unset/default false, then explicit CLI flags override.
         return result.Value.Kind=="True";
     }
@@ -146,4 +152,4 @@ internal sealed class Options
     {if(!target.Equals("es2015",StringComparison.OrdinalIgnoreCase)&&!target.Equals("es6",StringComparison.OrdinalIgnoreCase))throw new InputFailure("Only target es2015/es6 is supported by the bootstrap.");}
 }
 
-internal sealed class ConfigSyntaxFailure(string text,IReadOnlyList<Diagnostic> diagnostics):Exception("Configuration syntax failed."){public string Text {get;}=text;public IReadOnlyList<Diagnostic> Diagnostics {get;}=diagnostics;}
+internal sealed class ConfigDiagnosticFailure(string text,IReadOnlyList<Diagnostic> diagnostics):Exception("Configuration syntax failed."){public string Text {get;}=text;public IReadOnlyList<Diagnostic> Diagnostics {get;}=diagnostics;}
