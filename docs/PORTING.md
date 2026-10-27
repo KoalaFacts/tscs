@@ -141,3 +141,15 @@ The CLI uses ICompilerHost.FileNameComparer to retrieve diagnostic source text.
 This avoids attributing module-cycle diagnostics to an edge spelling while
 formatting UTF-16 offsets against another source. It does not add module
 resolution beyond the bounded relative paths or release acceptance.
+
+## Shared semantic type identity (2026-10-27; PR #8)
+
+`TypeSymbol` is the single semantic representation of the implemented
+`number`, `string`, `boolean` and bounded `any` types. Parser and AST
+preserve the source annotation spelling; Binder prebinds canonical types,
+ModuleLinker transfers typed symbol information across imports, and
+TypeChecker applies the same explicit primitive assignability relation to
+declarations and assignments. Unknown inference remains `null` and is
+not promoted to `any`. This is a reusable architecture change, not support
+for functions, unions, generics or full TypeScript type relations.
+

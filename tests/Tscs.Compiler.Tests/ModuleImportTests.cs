@@ -209,4 +209,19 @@ public sealed class ModuleImportTests
         host.Files["/virtual/main.ts"]="import { x } from \"package\"; let n = x;";
         Assert.Throws<ArgumentException>(()=>CompilerProgram.Load(host,["main.ts"]));
     }
+
+    [Fact]
+    public void CrossModuleSemanticTypesPreserveAnyAndPrimitiveMismatch()
+    {
+        var host=new Host();
+        host.Files["/virtual/values.ts"]="export const label: string = \"ok\"; export const loose: any = 1;";
+        host.Files["/virtual/main.ts"]="import { label, loose } from \"./values\"; let name: string = label; let count: number = loose;";
+        Assert.Empty(CompilerProgram.Load(host,["main.ts"]).Analyze().Diagnostics);
+
+        host.Files["/virtual/main.ts"]="import { label } from \"./values\"; let flag: boolean = label;";
+        var error=Assert.Single(CompilerProgram.Load(host,["main.ts"]).Analyze().Diagnostics);
+        Assert.Equal("TS2322",error.Code);
+        Assert.Equal("Type 'string' is not assignable to type 'boolean'.",error.Message);
+    }
+
 }

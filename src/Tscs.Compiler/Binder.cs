@@ -4,7 +4,7 @@ internal sealed class Symbol(string file,Variable declaration)
 {
     public string File { get; } = file;
     public Variable Declaration { get; } = declaration;
-    public string? Type { get; set; }
+    public TypeSymbol? Type { get; set; }
     public bool Initialized { get; set; }
     public bool CrossFileTypeReady { get; set; }
     public bool Imported { get; set; }
@@ -64,16 +64,10 @@ internal static class Binder
         foreach(var symbol in scope.Symbols.Values)
         {
             var declaration=symbol.Declaration;
-            string? literalType=declaration.Initializer is ValueAtom atom
-                ? atom.Token.Kind switch
-                {
-                    TokenKind.Number => "number",
-                    TokenKind.String => "string",
-                    TokenKind.True or TokenKind.False => "boolean",
-                    _ => null
-                }
-                : null;
-            symbol.Type=declaration.Annotation??literalType;
+            TypeSymbol? literalType=declaration.Initializer is ValueAtom atom
+                ? CompilerTypes.FromLiteral(atom.Token) : null;
+            symbol.Type=declaration.Annotation is { } annotation
+                ? CompilerTypes.FromAnnotation(annotation) : literalType;
             symbol.Initialized=declaration.Initializer!=null;
             symbol.CrossFileTypeReady=symbol.Type!=null;
         }

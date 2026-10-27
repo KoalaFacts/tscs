@@ -23,17 +23,20 @@ internal sealed class TypeChecker(string file)
                     if((parent==null || rootAlreadyBound) && v.Name.Text=="globalThis") Error(v.Name,"TS2397","Declaration name conflicts with built-in global identifier 'globalThis'.");
                     var symbol=scope.Symbols[v.Name.Text];
                     var source=v.Initializer is {} init?TypeOf(init,scope):null;
-                    symbol.Type=v.Annotation??source;
+                    var annotatedType=v.Annotation is { } annotation
+                        ? CompilerTypes.FromAnnotation(annotation) : null;
+                    symbol.Type=annotatedType??source;
                     symbol.Initialized=v.Initializer!=null;
                     if(v.Constant&&v.Initializer==null) Error(v.Name,"TS1155","'const' declarations must be initialized.");
-                    if(v.Annotation!=null&&source!=null&&!Assignable(source,v.Annotation)) Mismatch(v.Name,source,v.Annotation);
+                    if(annotatedType!=null&&source!=null&&!CompilerTypes.IsAssignable(source,annotatedType))
+                        Mismatch(v.Name,source,annotatedType);
                     break;
                 case Assignment a:
                     var target=Resolve(a.Name,scope);var assigned=TypeOf(a.Value,scope);
                     if(target==null)break;
                     if(target.Imported) Error(a.Name,"TS2632",$"Cannot assign to '{a.Name.Text}' because it is an import.");
                     else if(target.Declaration.Constant) Error(a.Name,"TS2588",$"Cannot assign to '{a.Name.Text}' because it is a constant.");
-                    else if(target.Type!=null&&assigned!=null&&!Assignable(assigned,target.Type)) Mismatch(a.Name,assigned,target.Type);
+                    else if(target.Type!=null&&assigned!=null&&!CompilerTypes.IsAssignable(assigned,target.Type)) Mismatch(a.Name,assigned,target.Type);
                     else target.Initialized=true;
                     break;
                 case PostfixUpdate update:
@@ -45,7 +48,7 @@ internal sealed class TypeChecker(string file)
                         Error(update.Name,"TS2632",$"Cannot assign to '{update.Name.Text}' because it is an import.");
                     else if(updated.Declaration.Constant)
                         Error(update.Name,"TS2588",$"Cannot assign to '{update.Name.Text}' because it is a constant.");
-                    else if(updated.Type!="number")
+                    else if(!CompilerTypes.IsNumber(updated.Type))
                         throw new CompilationFailure(Diagnostic.Error(file,update.Operator,"TSCS1001","Only number postfix updates are supported yet."));
                     else updated.Initialized=true;
                     break;
@@ -53,7 +56,7 @@ internal sealed class TypeChecker(string file)
             }
         }
     }
-    private string? TypeOf(ValueNode value,Scope scope)
+    private TypeSymbol? TypeOf(ValueNode value,Scope scope)
     {
         // The parser builds left-deep chains for numeric additions. Do not
         // recursively descend them: supported source can contain hundreds of
@@ -61,7 +64,7 @@ internal sealed class TypeChecker(string file)
         // Post-order evaluation preserves left-to-right binding diagnostics
         // and reports the first unsupported operand at the same operator.
         var pending=new Stack<(ValueNode Node,bool Combine)>();
-        var types=new Stack<string?>();
+        var types=new Stack<TypeSymbol?>();
         pending.Push((value,false));
         while(pending.Count>0)
         {
@@ -81,7 +84,7 @@ internal sealed class TypeChecker(string file)
                 }
                 var operand=types.Pop();
                 if(operand==null)types.Push(null);
-                else if(operand=="number")types.Push("number");
+                else if(CompilerTypes.IsNumber(operand))types.Push(CompilerTypes.Number);
                 else throw new CompilationFailure(Diagnostic.Error(file,unary.Operator,"TSCS1001",
                     unary.Operator.Kind==TokenKind.Plus
                         ? "Only numeric unary plus is supported yet."
@@ -99,7 +102,8 @@ internal sealed class TypeChecker(string file)
             var right=types.Pop();
             var left=types.Pop();
             if(left==null||right==null)types.Push(null);
-            else if(left=="number"&&right=="number"&&binary.Operator.Kind is TokenKind.Plus or TokenKind.Minus or TokenKind.Star)types.Push("number");
+            else if(CompilerTypes.IsNumber(left)&&CompilerTypes.IsNumber(right)&&binary.Operator.Kind is TokenKind.Plus or TokenKind.Minus or TokenKind.Star)
+                types.Push(CompilerTypes.Number);
             else throw new CompilationFailure(Diagnostic.Error(file,binary.Operator,"TSCS1001",
                 binary.Operator.Kind switch
                 {
@@ -110,11 +114,10 @@ internal sealed class TypeChecker(string file)
         }
         return types.Pop();
     }
-    private string? TypeOfAtom(Token token,Scope scope)
+    private TypeSymbol? TypeOfAtom(Token token,Scope scope)
     {
-        if(token.Kind==TokenKind.Number)return "number";
-        if(token.Kind==TokenKind.String)return "string";
-        if(token.Kind is TokenKind.True or TokenKind.False)return "boolean";
+        var literal=CompilerTypes.FromLiteral(token);
+        if(literal!=null)return literal;
         var symbol=Resolve(token,scope);
         if(symbol!=null&&!symbol.Initialized)throw new CompilationFailure(Diagnostic.Error(file,token,"TSCS1001","Reads before initialization are not supported yet."));
         return symbol?.Type;
@@ -132,8 +135,7 @@ internal sealed class TypeChecker(string file)
             throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001","References before declaration are not supported yet."));
         return symbol;
     }
-    // Bounded primitive/any assignment rule, not the full TS7 type relation.
-    private static bool Assignable(string source,string target)=>source==target || source=="any" || target=="any";
-    private void Mismatch(Token token,string source,string target)=>Error(token,"TS2322",$"Type '{source}' is not assignable to type '{target}'.");
+    private void Mismatch(Token token,TypeSymbol source,TypeSymbol target)=>
+        Error(token,"TS2322",$"Type '{source.DisplayName}' is not assignable to type '{target.DisplayName}'.");
     private void Error(Token token,string code,string message)=>diagnostics.Add(Diagnostic.Error(file,token,code,message));
 }

@@ -1,3 +1,16 @@
+# 2026-10-27 — Shared semantic TypeSymbol foundation (PR #8)
+
+The bounded compiler now represents checked primitive/any types as semantic
+`TypeSymbol` values shared by Binder, ModuleLinker and TypeChecker. AST type
+annotation spelling stays in syntax; binder prebinding, module imports and
+expression checking use one type identity and assignment relation. A
+cross-module regression exercises typed string and any imports plus TS2322
+mismatch text. This lays a real code path for future callable/object types,
+but functions and general TS7 type relations are still UNIMPLEMENTED.
+Existing 15,523 original configuration targets remain SKIP_UNIMPLEMENTED;
+no original acceptance PASS or release eligibility is newly claimed.
+Exact-head compilation and regression remain required.
+
 # 2026-10-27 — Host-canonical module diagnostic provenance (PR #8)
 
 Fixed the reviewed P2 on case-insensitive module hosts: module edges can spell
