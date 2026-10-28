@@ -17,7 +17,7 @@ public sealed class StringAdditionTests
     [InlineData("let n: 1 = 1; n += 1;")]
     [InlineData("let s: \"x\" = \"x\"; s += \"y\";")]
     [InlineData("let data: { count: 1 } = { count: 1 }; data.count += 2;")]
-    [InlineData("let values: 1[] = [1]; values[0] += 2;")]
+    [InlineData("function update(values: 1[]): number { values[0] += 2; return 1; }")]
     [InlineData("let values: number[] = [1, 2]; let s: string = \"size=\" + values.length;")]
     [InlineData("let a: any = 2; let s: string = \"x\" + a;")]
     [InlineData("let a: any = 2; let s: string = a + \"x\";")]
