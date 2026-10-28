@@ -41,6 +41,15 @@ jobs:
           node tools/verify-named-types-reference.ts "$reference" .artifacts/named-types-reference
           node tools/verify-literal-types-reference.ts "$reference" .artifacts/literal-types-reference
           node tools/verify-discriminant-reference.ts "$reference" .artifacts/discriminant-reference
+          node tools/verify-guard-reference.ts "$reference" .artifacts/guard-reference
+      - name: Preserve returning-guard reference inputs and raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-guard-flow-reference-${{ github.sha }}
+          path: .artifacts/guard-reference/
+          retention-days: 30
+          if-no-files-found: warn
       - name: Preserve bounded discriminant-flow reference inputs and raw results
         if: always()
         uses: actions/upload-artifact@v4

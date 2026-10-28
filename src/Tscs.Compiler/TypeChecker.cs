@@ -13,123 +13,142 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     private void CheckBlock(Block block,Scope? parent,bool rootAlreadyBound=false,TypeSymbol? expectedReturn=null)
     {
         var scope=rootAlreadyBound?parent!:Binder.Bind(file,block,parent);
-        foreach(var statement in block.Statements)
+        // Branch facts are lexical and never escape this block, including
+        // exits through malformed-source error diagnostics.
+        var originalFlowTypes=new Dictionary<Symbol,TypeSymbol?>();
+        try
         {
-            switch(statement)
+            foreach(var statement in block.Statements)
             {
-                case TypeAliasDeclaration or InterfaceDeclaration:
-                    // Checked as a separate type namespace during binding.
-                    break;
-                case Block nested: CheckBlock(nested,scope,false,expectedReturn);break;
-                case FunctionDeclaration function:
-                    CheckStrictModuleBinding(function.Name);
-                    var functionSymbol=scope.Symbols[function.Name.Text];
-                    var functionType=(FunctionTypeSymbol)functionSymbol.Type!;
-                    if(!FunctionControlFlow.DefinitelyReturnsValue(function.Body))
-                        throw new CompilationFailure(Diagnostic.Error(file,function.Name,"TSCS1001",
-                            "Only function bodies with a definite value return are supported yet."));
-                    var parameters=new Scope(scope);
-                    foreach(var parameter in function.Parameters)
-                    {
-                        CheckStrictModuleBinding(parameter.Name);
-                        Binder.DeclareParameter(file,parameters,parameter);
-                    }
-                    CheckBlock(function.Body,parameters,false,functionType.ReturnType);
-                    break;
-                case ImportDeclaration import:
-                    // The imported name is an export property; only the local
-                    // alias introduces a strict-mode module binding.
-                    foreach(var specifier in import.Specifiers)
-                        CheckStrictModuleBinding(specifier.Local);
-                    break;
-                case ConditionalStatement conditional:
-                    CheckConditional(conditional,scope,expectedReturn);
-                    break;
-                case ForOfStatement loop:
-                    CheckForOf(loop,scope,expectedReturn);
-                    break;
-                case ReturnStatement returned:
-                    if(expectedReturn==null)
-                        throw new CompilationFailure(Diagnostic.Error(file,returned.Keyword,"TSCS1001",
-                            "Return statements outside functions are not supported."));
-                    var returnType=TypeOf(returned.Value,scope);
-                    if(returnType!=null && CheckContextualLiteral(returned.Value,expectedReturn,returnType) &&
-                       !IsAssignableContextually(returned.Value,returnType,expectedReturn))
-                        Mismatch(returned.Keyword,returnType,expectedReturn);
-                    break;
-                case Variable v:
-                    if(v.Name.Text is "eval" or "arguments") Error(v.Name,"TS1100",$"Invalid use of '{v.Name.Text}' in strict mode.");
-                    if((parent==null || rootAlreadyBound) && v.Name.Text=="globalThis") Error(v.Name,"TS2397","Declaration name conflicts with built-in global identifier 'globalThis'.");
-                    var symbol=scope.Symbols[v.Name.Text];
-                    if(v.Annotation==null && v.Initializer is ValueArray { Elements.Count:0 })
-                        throw new CompilationFailure(Diagnostic.Error(file,v.Name,"TSCS1001",
-                            "Empty array inference requires an explicit element type in this compiler subset."));
-                    var source=v.Initializer is {} init?TypeOf(init,scope):null;
-                    var annotatedType=v.Annotation is { } annotation
-                        ? TypeResolver.Resolve(annotation,scope,file) : null;
-                    symbol.Type=annotatedType??source;
-                    symbol.Initialized=v.Initializer!=null;
-                    if(v.Constant&&v.Initializer==null) Error(v.Name,"TS1155","'const' declarations must be initialized.");
-                    if(annotatedType!=null && source!=null &&
-                       CheckContextualLiteral(v.Initializer!,annotatedType,source) &&
-                       !IsAssignableContextually(v.Initializer!,source,annotatedType))
-                        Mismatch(v.Name,source,annotatedType);
-                    break;
-                case Assignment a:
-                    var target=Resolve(a.Name,scope);var assigned=TypeOf(a.Value,scope);
-                    if(target==null)break;
-                    if(target.Imported) Error(a.Name,"TS2632",$"Cannot assign to '{a.Name.Text}' because it is an import.");
-                    else if(target.IsConstant) Error(a.Name,"TS2588",$"Cannot assign to '{a.Name.Text}' because it is a constant.");
-                    else if(target.Type!=null && assigned!=null)
-                    {
-                        if(CheckContextualLiteral(a.Value,target.Type,assigned) &&
-                           !IsAssignableContextually(a.Value,assigned,target.Type))Mismatch(a.Name,assigned,target.Type);
+                switch(statement)
+                {
+                    case TypeAliasDeclaration or InterfaceDeclaration:
+                        // Checked as a separate type namespace during binding.
+                        break;
+                    case Block nested: CheckBlock(nested,scope,false,expectedReturn);break;
+                    case FunctionDeclaration function:
+                        CheckStrictModuleBinding(function.Name);
+                        var functionSymbol=scope.Symbols[function.Name.Text];
+                        var functionType=(FunctionTypeSymbol)functionSymbol.Type!;
+                        if(!FunctionControlFlow.DefinitelyReturnsValue(function.Body))
+                            throw new CompilationFailure(Diagnostic.Error(file,function.Name,"TSCS1001",
+                                "Only function bodies with a definite value return are supported yet."));
+                        var parameters=new Scope(scope);
+                        foreach(var parameter in function.Parameters)
+                        {
+                            CheckStrictModuleBinding(parameter.Name);
+                            Binder.DeclareParameter(file,parameters,parameter);
+                        }
+                        CheckBlock(function.Body,parameters,false,functionType.ReturnType);
+                        break;
+                    case ImportDeclaration import:
+                        // The imported name is an export property; only the local
+                        // alias introduces a strict-mode module binding.
+                        foreach(var specifier in import.Specifiers)
+                            CheckStrictModuleBinding(specifier.Local);
+                        break;
+                    case ConditionalStatement conditional:
+                        var continuation=CheckConditional(conditional,scope,expectedReturn);
+                        if(continuation is { } afterGuard)
+                        {
+                            // Preserve original lexical type across all sibling
+                            // statements; subsequent guards can refine it further.
+                            originalFlowTypes.TryAdd(afterGuard.Symbol,afterGuard.Symbol.Type);
+                            afterGuard.Symbol.Type=afterGuard.FallthroughType;
+                        }
+                        break;
+                    case ForOfStatement loop:
+                        CheckForOf(loop,scope,expectedReturn);
+                        break;
+                    case ReturnStatement returned:
+                        if(expectedReturn==null)
+                            throw new CompilationFailure(Diagnostic.Error(file,returned.Keyword,"TSCS1001",
+                                "Return statements outside functions are not supported."));
+                        var returnType=TypeOf(returned.Value,scope);
+                        if(returnType!=null && CheckContextualLiteral(returned.Value,expectedReturn,returnType) &&
+                           !IsAssignableContextually(returned.Value,returnType,expectedReturn))
+                            Mismatch(returned.Keyword,returnType,expectedReturn);
+                        break;
+                    case Variable v:
+                        if(v.Name.Text is "eval" or "arguments") Error(v.Name,"TS1100",$"Invalid use of '{v.Name.Text}' in strict mode.");
+                        if((parent==null || rootAlreadyBound) && v.Name.Text=="globalThis") Error(v.Name,"TS2397","Declaration name conflicts with built-in global identifier 'globalThis'.");
+                        var symbol=scope.Symbols[v.Name.Text];
+                        if(v.Annotation==null && v.Initializer is ValueArray { Elements.Count:0 })
+                            throw new CompilationFailure(Diagnostic.Error(file,v.Name,"TSCS1001",
+                                "Empty array inference requires an explicit element type in this compiler subset."));
+                        var source=v.Initializer is {} init?TypeOf(init,scope):null;
+                        var annotatedType=v.Annotation is { } annotation
+                            ? TypeResolver.Resolve(annotation,scope,file) : null;
+                        symbol.Type=annotatedType??source;
+                        symbol.Initialized=v.Initializer!=null;
+                        if(v.Constant&&v.Initializer==null) Error(v.Name,"TS1155","'const' declarations must be initialized.");
+                        if(annotatedType!=null && source!=null &&
+                           CheckContextualLiteral(v.Initializer!,annotatedType,source) &&
+                           !IsAssignableContextually(v.Initializer!,source,annotatedType))
+                            Mismatch(v.Name,source,annotatedType);
+                        break;
+                    case Assignment a:
+                        var target=Resolve(a.Name,scope);var assigned=TypeOf(a.Value,scope);
+                        if(target==null)break;
+                        if(target.Imported) Error(a.Name,"TS2632",$"Cannot assign to '{a.Name.Text}' because it is an import.");
+                        else if(target.IsConstant) Error(a.Name,"TS2588",$"Cannot assign to '{a.Name.Text}' because it is a constant.");
+                        else if(target.Type!=null && assigned!=null)
+                        {
+                            if(CheckContextualLiteral(a.Value,target.Type,assigned) &&
+                               !IsAssignableContextually(a.Value,assigned,target.Type))Mismatch(a.Name,assigned,target.Type);
+                            else target.Initialized=true;
+                        }
                         else target.Initialized=true;
-                    }
-                    else target.Initialized=true;
-                    break;
-                case ElementAssignment elementAssignment:
-                    var elementType=TypeOf(elementAssignment.Target,scope);
-                    var elementValueType=TypeOf(elementAssignment.Value,scope);
-                    if(elementType!=null && elementValueType!=null &&
-                       CheckContextualLiteral(elementAssignment.Value,elementType,elementValueType) &&
-                       !IsAssignableContextually(elementAssignment.Value,elementValueType,elementType))
-                        Mismatch(elementAssignment.Target.Open,elementValueType,elementType);
-                    break;
-                case PropertyAssignment assignment:
-                    // Reading common members of a union is safe; writing one
-                    // requires intersection-like relations not yet represented.
-                    // Reject such writes rather than accepting an unsafe arm.
-                    if(TypeOf(assignment.Target.Receiver,scope) is UnionTypeSymbol)
-                        throw new CompilationFailure(Diagnostic.Error(file,assignment.Target.Name,"TSCS1001",
-                            "Writes through union-typed receivers are not supported yet."));
-                    // Mutating a property does not rebind a const or an import.
-                    // TypeOf still enforces initialization of the receiver.
-                    var propertyType=TypeOf(assignment.Target,scope);
-                    var valueType=TypeOf(assignment.Value,scope);
-                    if(propertyType!=null && valueType!=null &&
-                       CheckContextualLiteral(assignment.Value,propertyType,valueType) &&
-                       !IsAssignableContextually(assignment.Value,valueType,propertyType))
-                        Mismatch(assignment.Target.Name,valueType,propertyType);
-                    break;
-                case PostfixUpdate update:
-                    var updated=Resolve(update.Name,scope);
-                    if(updated==null)break;
-                    if(!updated.Initialized)
-                        throw new CompilationFailure(Diagnostic.Error(file,update.Name,"TSCS1001","Reads before initialization are not supported yet."));
-                    if(updated.Imported)
-                        Error(update.Name,"TS2632",$"Cannot assign to '{update.Name.Text}' because it is an import.");
-                    else if(updated.IsConstant)
-                        Error(update.Name,"TS2588",$"Cannot assign to '{update.Name.Text}' because it is a constant.");
-                    else if(!CompilerTypes.IsNumber(updated.Type))
-                        throw new CompilationFailure(Diagnostic.Error(file,update.Operator,"TSCS1001","Only number postfix updates are supported yet."));
-                    else updated.Initialized=true;
-                    break;
-                case Expression e: TypeOf(e.Value,scope);break;
+                        break;
+                    case ElementAssignment elementAssignment:
+                        var elementType=TypeOf(elementAssignment.Target,scope);
+                        var elementValueType=TypeOf(elementAssignment.Value,scope);
+                        if(elementType!=null && elementValueType!=null &&
+                           CheckContextualLiteral(elementAssignment.Value,elementType,elementValueType) &&
+                           !IsAssignableContextually(elementAssignment.Value,elementValueType,elementType))
+                            Mismatch(elementAssignment.Target.Open,elementValueType,elementType);
+                        break;
+                    case PropertyAssignment assignment:
+                        // Reading common members of a union is safe; writing one
+                        // requires intersection-like relations not yet represented.
+                        // Reject such writes rather than accepting an unsafe arm.
+                        if(TypeOf(assignment.Target.Receiver,scope) is UnionTypeSymbol)
+                            throw new CompilationFailure(Diagnostic.Error(file,assignment.Target.Name,"TSCS1001",
+                                "Writes through union-typed receivers are not supported yet."));
+                        // Mutating a property does not rebind a const or an import.
+                        // TypeOf still enforces initialization of the receiver.
+                        var propertyType=TypeOf(assignment.Target,scope);
+                        var valueType=TypeOf(assignment.Value,scope);
+                        if(propertyType!=null && valueType!=null &&
+                           CheckContextualLiteral(assignment.Value,propertyType,valueType) &&
+                           !IsAssignableContextually(assignment.Value,valueType,propertyType))
+                            Mismatch(assignment.Target.Name,valueType,propertyType);
+                        break;
+                    case PostfixUpdate update:
+                        var updated=Resolve(update.Name,scope);
+                        if(updated==null)break;
+                        if(!updated.Initialized)
+                            throw new CompilationFailure(Diagnostic.Error(file,update.Name,"TSCS1001","Reads before initialization are not supported yet."));
+                        if(updated.Imported)
+                            Error(update.Name,"TS2632",$"Cannot assign to '{update.Name.Text}' because it is an import.");
+                        else if(updated.IsConstant)
+                            Error(update.Name,"TS2588",$"Cannot assign to '{update.Name.Text}' because it is a constant.");
+                        else if(!CompilerTypes.IsNumber(updated.Type))
+                            throw new CompilationFailure(Diagnostic.Error(file,update.Operator,"TSCS1001","Only number postfix updates are supported yet."));
+                        else updated.Initialized=true;
+                        break;
+                    case Expression e: TypeOf(e.Value,scope);break;
+                }
             }
+
+        }
+        finally
+        {
+            foreach(var (symbol,originalType) in originalFlowTypes)
+                symbol.Type=originalType;
         }
     }
-    // for..of may execute zero times; assignments in its body cannot establish
+        // for..of may execute zero times; assignments in its body cannot establish
     // definite initialization after the loop. One element binding is scoped
     // to the loop and is always initialized during an iteration.
     private void CheckForOf(ForOfStatement loop,Scope scope,TypeSymbol? expectedReturn)
@@ -148,7 +167,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
 
     // Each branch runs against the same lexical parent, but writes to symbols
     // are joined conservatively; an unexecuted arm cannot initialize a value.
-    private void CheckConditional(ConditionalStatement conditional,Scope scope,TypeSymbol? expectedReturn)
+    private DiscriminantContinuation? CheckConditional(ConditionalStatement conditional,Scope scope,TypeSymbol? expectedReturn)
     {
         var conditionType=TypeOf(conditional.Condition,scope);
         if(conditionType!=null && !CompilerTypes.IsAssignable(conditionType,CompilerTypes.Boolean))
@@ -200,7 +219,16 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 // fabricating an initialized value in unreachable code.
                 _ => initialized
             };
+        // Facts survive to the next statement only if one branch
+        // definitely exits. Two fallthrough branches retain the union.
+        if(discriminant is not { } narrowed || thenFallsThrough==elseFallsThrough)
+            return null;
+        return new DiscriminantContinuation(narrowed.Symbol,
+            thenFallsThrough?narrowed.WhenTrue:narrowed.WhenFalse);
     }
+
+    private readonly record struct DiscriminantContinuation(
+        Symbol Symbol,TypeSymbol FallthroughType);
 
     // Bounded discriminated unions: a simple identifier's shared named member
     // must be a known literal in every object alternative. This explicitly
