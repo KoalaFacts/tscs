@@ -52,6 +52,10 @@ internal static class TypeDisplay
                     }
                     Text("{");
                     break;
+                case ArrayTypeSymbol array:
+                    Text("[]");
+                    Type(array.ElementType);
+                    break;
                 case FunctionTypeSymbol function:
                     Type(function.ReturnType);
                     Text(") => ");

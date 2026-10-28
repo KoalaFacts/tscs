@@ -37,6 +37,15 @@ jobs:
           reference="$GITHUB_WORKSPACE/.artifacts/object-reference"
           (cd .artifacts/original-empty-go/TypeScript/tsc; timeout 180s go build -o "$reference" ./cmd/tsc)
           node tools/verify-object-data-reference.ts "$reference" .artifacts/object-data-reference
+          node tools/verify-array-iteration-reference.ts "$reference" .artifacts/array-iteration-reference
+      - name: Preserve array iteration differential inputs, outputs and raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-array-iteration-reference-${{ github.sha }}
+          path: .artifacts/array-iteration-reference/
+          retention-days: 30
+          if-no-files-found: warn
       - name: Preserve object differential inputs, outputs and raw results
         if: always()
         uses: actions/upload-artifact@v4

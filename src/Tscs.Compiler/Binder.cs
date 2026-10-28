@@ -4,12 +4,13 @@ internal sealed class Symbol(string file,Statement declaration)
 {
     public string File { get; } = file;
     public Statement Declaration { get; } = declaration;
-    public bool IsConstant => Declaration is Variable { Constant:true };
+    public bool IsConstant => Declaration is Variable { Constant:true } or ForOfStatement { Constant:true };
     public int DeclarationStart => Declaration switch
     {
         Variable v => v.Name.Start,
         FunctionDeclaration f => f.Name.Start,
         ParameterDeclaration p => p.Name.Start,
+        ForOfStatement loop => loop.Name.Start,
         _ => throw new InvalidOperationException("Unsupported symbol declaration.")
     };
     public TypeSymbol? Type { get; set; }
@@ -60,6 +61,17 @@ internal static class Binder
         symbol.Type=CompilerTypes.FromAnnotation(parameter.Annotation);
         symbol.Initialized=true;
         symbol.CrossFileTypeReady=true;
+    }
+
+    public static void DeclareIterationVariable(string file,Scope scope,ForOfStatement loop,TypeSymbol type)
+    {
+        var symbol=new Symbol(file,loop)
+        {
+            Type=type, Initialized=true, CrossFileTypeReady=true
+        };
+        if(!scope.Symbols.TryAdd(loop.Name.Text,symbol))
+            throw new CompilationFailure(Diagnostic.Error(file,loop.Name,"TSCS1001",
+                "Duplicate for..of iteration binding is not supported."));
     }
 
     public static void Import(string file,Scope scope,ImportSpecifier specifier,Symbol exported)

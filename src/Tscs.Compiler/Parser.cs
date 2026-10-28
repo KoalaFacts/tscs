@@ -8,6 +8,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     private int conditionalNesting;
     private int groupNesting;
     private int objectNesting;
+    private int arrayNesting;
     private Token Current => tokens[position];
     public List<Diagnostic> Diagnostics { get; } = [];
     private Token Take() => tokens[position++];
@@ -143,6 +144,11 @@ internal sealed class Parser(string file, List<Token> tokens)
                 statements.Add(ParseConditional(depth,inFunction));
                 continue;
             }
+            if(Current.Kind==TokenKind.For)
+            {
+                statements.Add(ParseForOf(depth,inFunction));
+                continue;
+            }
             if(Current.Kind==TokenKind.Return)
             {
                 var keyword=Take();
@@ -199,13 +205,39 @@ internal sealed class Parser(string file, List<Token> tokens)
                     statements.Add(new Assignment(atom.Token,ParseValue()));
                 else if(value is ValuePropertyAccess property)
                     statements.Add(new PropertyAssignment(property,ParseValue()));
-                else Unsupported(Current,"Only identifier or named-property assignment targets are supported.");
+                else if(value is ValueElementAccess element)
+                    statements.Add(new ElementAssignment(element,ParseValue()));
+                else Unsupported(Current,"Only identifier, named-property or array-element assignment targets are supported.");
             }
             else statements.Add(new Expression(value));
             EndStatement();
         }
         return new Block(statements);
     }
+    // The first iteration family is explicit, braced for..of over array values.
+    // Unsupported classic for, for..in, destructuring and non-array iterables
+    // fail closed rather than being lowered into misleading JavaScript.
+    private ForOfStatement ParseForOf(int depth,bool inFunction)
+    {
+        var keyword=Take();
+        if(!Eat(TokenKind.OpenParen))Unsupported(Current,"Expected '(' after 'for'.");
+        if(Current.Kind is not (TokenKind.Let or TokenKind.Const))
+            Unsupported(Current,"Only let/const for..of array iteration is supported.");
+        bool constant=Take().Kind==TokenKind.Const;
+        var name=Current;
+        if(name.Kind!=TokenKind.Identifier)Unsupported(name,"for..of requires a named variable.");
+        Take();
+        if(Current.Kind!=TokenKind.Identifier || Current.Text!="of")
+            Unsupported(Current,"Only for..of is supported; classic for and for..in are not implemented.");
+        Take();
+        var source=ParseValue();
+        if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after for..of source.");
+        if(!Eat(TokenKind.Open))Unsupported(Current,"for..of bodies must be braced.");
+        var body=Parse(depth+1,inFunction);
+        if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+        return new ForOfStatement(keyword,name,constant,source,body);
+    }
+
     // Preserve distinct branch ASTs for later control flow and symbol analysis.
     // Single-statement arms remain unsupported until the parser can represent them.
     private ConditionalStatement ParseConditional(int depth,bool inFunction)
@@ -245,30 +277,47 @@ internal sealed class Parser(string file, List<Token> tokens)
     }
 
     // One annotation grammar is used by variables, parameters and returns.
+    // Postfix [] is attached to the same semantic type as an object member.
     private TypeSyntax ReadTypeAnnotation(int depth=0)
     {
-        if(depth>64)Unsupported(Current,"Object type nesting exceeds the compiler subset limit.");
+        if(depth>64)Unsupported(Current,"Type nesting exceeds the compiler subset limit.");
+        TypeSyntax type;
         if(Current.Kind==TokenKind.Identifier &&
            Current.Text is "number" or "string" or "boolean" or "any")
-            return new PrimitiveTypeSyntax(Take());
-        if(Current.Kind!=TokenKind.Open)
-            Unsupported(Current,"Only primitive and required named object shapes are supported.");
-        var open=Take();
-        var properties=new List<ObjectTypeProperty>();
-        var names=new HashSet<string>(StringComparer.Ordinal);
-        while(Current.Kind!=TokenKind.Close)
+            type=new PrimitiveTypeSyntax(Take());
+        else if(Current.Kind==TokenKind.Open)
         {
-            var name=ReadPropertyName(allowString:true);
-            if(!names.Add(PropertyName(name)))
-                Diagnostics.Add(Diagnostic.Error(file,name,"TS2300",$"Duplicate identifier '{PropertyName(name)}'."));
-            if(!Eat(TokenKind.Colon))
-                Unsupported(Current,"Object type members require ':' and a type; optional, readonly and method forms are not supported.");
-            properties.Add(new ObjectTypeProperty(name,ReadTypeAnnotation(depth+1)));
-            if(Eat(TokenKind.Semi)||Eat(TokenKind.Comma))continue;
-            if(Current.Kind==TokenKind.Close)break;
-            if(!Current.LineBreak)Unsupported(Current,"Expected a separator between object type members.");
+            var open=Take();
+            var properties=new List<ObjectTypeProperty>();
+            var names=new HashSet<string>(StringComparer.Ordinal);
+            while(Current.Kind!=TokenKind.Close)
+            {
+                var name=ReadPropertyName(allowString:true);
+                if(!names.Add(PropertyName(name)))
+                    Diagnostics.Add(Diagnostic.Error(file,name,"TS2300",$"Duplicate identifier '{PropertyName(name)}'."));
+                if(!Eat(TokenKind.Colon))
+                    Unsupported(Current,"Object type members require ':' and a type; optional, readonly and method forms are not supported.");
+                properties.Add(new ObjectTypeProperty(name,ReadTypeAnnotation(depth+1)));
+                if(Eat(TokenKind.Semi)||Eat(TokenKind.Comma))continue;
+                if(Current.Kind==TokenKind.Close)break;
+                if(!Current.LineBreak)Unsupported(Current,"Expected a separator between object type members.");
+            }
+            type=new ObjectTypeSyntax(open,properties,Take());
         }
-        return new ObjectTypeSyntax(open,properties,Take());
+        else
+        {
+            Unsupported(Current,"Only primitive, required object shapes and [] array types are supported.");
+            return default!;
+        }
+        while(Current.Kind==TokenKind.OpenBracket)
+        {
+            if(++depth>64)Unsupported(Current,"Array type nesting exceeds the compiler subset limit.");
+            var open=Take();
+            if(Current.Kind!=TokenKind.CloseBracket)
+                Unsupported(Current,"Only postfix T[] array annotations are supported; tuples and generic Array<T> are not implemented.");
+            type=new ArrayTypeSyntax(type,open,Take());
+        }
+        return type;
     }
 
     internal static string PropertyName(Token token)=>token.Kind==TokenKind.String
@@ -278,10 +327,31 @@ internal sealed class Parser(string file, List<Token> tokens)
     {
         if(Current.Kind is TokenKind.Identifier or TokenKind.Let or TokenKind.Const or
             TokenKind.Import or TokenKind.Export or TokenKind.Function or TokenKind.Return or
-            TokenKind.If or TokenKind.Else or TokenKind.True or TokenKind.False ||
+            TokenKind.If or TokenKind.Else or TokenKind.For or TokenKind.True or TokenKind.False ||
             (allowString && Current.Kind==TokenKind.String))return Take();
         Unsupported(Current,"Expected a supported named object property.");
         return default;
+    }
+
+    private ValueArray ParseArray()
+    {
+        var open=Take();
+        if(++arrayNesting>64)Unsupported(open,"Array literal nesting exceeds the compiler subset limit.");
+        try
+        {
+            var values=new List<ValueNode>();
+            while(Current.Kind!=TokenKind.CloseBracket)
+            {
+                if(Current.Kind==TokenKind.End)Unsupported(Current,"Expected ']' after array elements.");
+                if(Current.Kind==TokenKind.Comma)
+                    Unsupported(Current,"Sparse array holes are not supported yet.");
+                values.Add(ParseValue());
+                if(!Eat(TokenKind.Comma))break;
+            }
+            if(Current.Kind!=TokenKind.CloseBracket)Unsupported(Current,"Expected ']' after array elements.");
+            return new ValueArray(open,values,Take());
+        }
+        finally { arrayNesting--; }
     }
 
     private ValueObject ParseObject()
@@ -389,8 +459,20 @@ internal sealed class Parser(string file, List<Token> tokens)
         ValueNode value=ParsePrimaryValue();
         // Postfix access binds more tightly than unary/binary operators. Named
         // calls and grouped expressions can both produce object receivers.
-        while(Eat(TokenKind.Dot))
-            value=new ValuePropertyAccess(value,ReadPropertyName(allowString:false));
+        while(true)
+        {
+            if(Eat(TokenKind.Dot))
+                value=new ValuePropertyAccess(value,ReadPropertyName(allowString:false));
+            else if(Current.Kind==TokenKind.OpenBracket)
+            {
+                var open=Take();
+                var index=ParseValue();
+                if(Current.Kind!=TokenKind.CloseBracket)
+                    Unsupported(Current,"Expected ']' after indexed access.");
+                value=new ValueElementAccess(value,open,index,Take());
+            }
+            else break;
+        }
         return value;
     }
 
@@ -398,6 +480,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     {
         var token=Current;
         if(token.Kind==TokenKind.Open)return ParseObject();
+        if(token.Kind==TokenKind.OpenBracket)return ParseArray();
         if(token.Kind==TokenKind.OpenParen)
         {
             Take();
