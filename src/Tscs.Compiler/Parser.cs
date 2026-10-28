@@ -173,7 +173,7 @@ internal sealed class Parser(string file, List<Token> tokens)
             }
             if(Current.Kind==TokenKind.For)
             {
-                statements.Add(ParseForOf(depth,inFunction));
+                statements.Add(ParseFor(depth,inFunction));
                 continue;
             }
             if(Current.Kind==TokenKind.While)
@@ -310,28 +310,74 @@ internal sealed class Parser(string file, List<Token> tokens)
         return new SwitchStatement(keyword,selector,clauses);
     }
 
-    // The first iteration family is explicit, braced for..of over array values.
-    // Unsupported classic for, for..in, destructuring and non-array iterables
-    // fail closed rather than being lowered into misleading JavaScript.
-    private ForOfStatement ParseForOf(int depth,bool inFunction)
+    // Both loop styles share the checked expression AST and lexically scoped
+    // bindings. Only one mutable let initializer and supported mutations are
+    // admitted for classic for; unsupported forms fail closed.
+    private Statement ParseFor(int depth,bool inFunction)
     {
         var keyword=Take();
         if(!Eat(TokenKind.OpenParen))Unsupported(Current,"Expected '(' after 'for'.");
-        if(Current.Kind is not (TokenKind.Let or TokenKind.Const))
-            Unsupported(Current,"Only let/const for..of array iteration is supported.");
-        bool constant=Take().Kind==TokenKind.Const;
-        var name=Current;
-        if(name.Kind!=TokenKind.Identifier)Unsupported(name,"for..of requires a named variable.");
-        Take();
-        if(Current.Kind!=TokenKind.Identifier || Current.Text!="of")
-            Unsupported(Current,"Only for..of is supported; classic for and for..in are not implemented.");
-        Take();
-        var source=ParseValue();
-        if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after for..of source.");
-        if(!Eat(TokenKind.Open))Unsupported(Current,"for..of bodies must be braced.");
-        var body=Parse(depth+1,inFunction);
+        Statement? initializer=null;
+        if(Current.Kind is TokenKind.Let or TokenKind.Const)
+        {
+            bool constant=Take().Kind==TokenKind.Const;
+            var name=Current;
+            if(name.Kind!=TokenKind.Identifier)Unsupported(name,"for requires a named iteration variable.");
+            Take();
+            if(Current.Kind==TokenKind.Identifier && Current.Text=="of")
+            {
+                Take();
+                var source=ParseValue();
+                if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after for..of source.");
+                if(!Eat(TokenKind.Open))Unsupported(Current,"for..of bodies must be braced.");
+                var body=Parse(depth+1,inFunction);
+                if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+                return new ForOfStatement(keyword,name,constant,source,body);
+            }
+            if(constant)Unsupported(name,"Classic for currently requires a mutable let binding.");
+            TypeSyntax? annotation=Eat(TokenKind.Colon)?ReadTypeAnnotation():null;
+            ValueNode? initial=Eat(TokenKind.Equal)?ParseValue():null;
+            if(annotation==null && initial==null)
+                Unsupported(name,"Classic for declarations need an initializer or explicit type.");
+            initializer=new Variable(name,false,annotation,initial);
+        }
+        else if(Current.Kind!=TokenKind.Semi)
+            initializer=ParseForHeaderMutation();
+        if(!Eat(TokenKind.Semi))Unsupported(Current,"Expected first ';' in classic for header.");
+        ValueNode? condition=Current.Kind==TokenKind.Semi?null:ParseValue();
+        if(!Eat(TokenKind.Semi))Unsupported(Current,"Expected second ';' in classic for header.");
+        Statement? update=Current.Kind==TokenKind.CloseParen?null:ParseForHeaderMutation();
+        if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after classic for header.");
+        if(!Eat(TokenKind.Open))Unsupported(Current,"Classic for bodies must be braced.");
+        var statements=Parse(depth+1,inFunction);
         if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
-        return new ForOfStatement(keyword,name,constant,source,body);
+        return new ClassicForStatement(keyword,initializer,condition,update,statements);
+    }
+
+    private Statement ParseForHeaderMutation()
+    {
+        var expression=ParseValue();
+        if(Current.Kind==TokenKind.PlusPlus)
+        {
+            var increment=Take();
+            if(increment.LineBreak || expression is not ValueAtom { Token.Kind:TokenKind.Identifier })
+                Unsupported(increment,"Classic for postfix updates require one same-line identifier.");
+            return new PostfixUpdate(((ValueAtom)expression).Token,increment);
+        }
+        if(Eat(TokenKind.Equal))
+        {
+            var right=ParseValue();
+            return expression switch
+            {
+                ValueAtom { Token.Kind:TokenKind.Identifier } name=>new Assignment(name.Token,right),
+                ValuePropertyAccess property=>new PropertyAssignment(property,right),
+                ValueElementAccess element=>new ElementAssignment(element,right),
+                _=>throw new CompilationFailure(Diagnostic.Error(file,Current,"TSCS1001",
+                    "Classic for assignments require an identifier or named property or indexed element."))
+            };
+        }
+        Unsupported(Current,"Only assignment and postfix increment are supported in classic for headers.");
+        return default!;
     }
 
     // Braced while loops share the same checked condition and exit model as

@@ -1,0 +1,84 @@
+{
+  "kind": "BOUNDED_CLASSIC_FOR_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "cases": [
+    {
+      "id": "classic-for:positive-01",
+      "source": "function sum(values:number[]):number { let total:number=0; for(let i:number=0;i<values.length;i++){ total=total+values[i]; } return total; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "classic-for:positive-02",
+      "source": "function sum(values:number[]):number { let total:number=0; for(let i=0;i<values.length;i++){ if(values[i]<0){continue;} total=total+values[i]; } return total; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "classic-for:positive-03",
+      "source": "function f(n:number):number { let total:number=0; for(let i=0;i<n;i++){ total=total+i; if(total>10){break;} } return total; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "classic-for:positive-04",
+      "source": "function f(n:number):number { let total:number=0; for(let i=0;i<n;i++){ for(let j=0;j<2;j++){ total=total+1; } } return total; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "classic-for:positive-05",
+      "source": "function f(n:number):number { let total:number=0; for(let i=0;i<n;i=i+1){ total=total+2; } return total; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "classic-for:positive-06",
+      "source": "function f(n:number):number { let i:number=0; let result:number=0; for(i=0;i<n;i++){ result=result+i; } return result; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "classic-for:positive-07",
+      "source": "function f(n:number):number { let total:number=0; for(let i=0;i<n;i++){ switch(i){ case 1: {continue;} default: {break;} } total=total+i; } return total; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "classic-for:positive-08",
+      "source": "function f(values:number[]):number { let total:number=0; for(let i=0;i<values.length;i++){ total=total+values[i]; } return total; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "classic-for:positive-09",
+      "source": "function f(n:number):number { for(let i=0;i<n;i++){ if(i>3){break;} } let i:number=42; return i; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "classic-for:positive-10",
+      "source": "function f(n:number):number { let i:number=0; for(;i<n;i++){ if(i===2){continue;} } return i; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "classic-for:negative-01",
+      "source": "function f(n:number):number { for(let i=0;i<n;i++){ let s:string=i; } return n; }",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "classic-for:negative-02",
+      "source": "function f(n:number):number { for(let i=0;i<n;i++){} return i; }",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    },
+    {
+      "id": "classic-for:negative-03",
+      "source": "function f(n:number):number { for(let i=0;i<n;i=\"bad\"){} return n; }",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "classic-for:negative-04",
+      "source": "function f(values:number[]):number { for(let i=0;i<values.length;i++){ values[i]=\"bad\"; } return 0; }",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}

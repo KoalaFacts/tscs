@@ -10,7 +10,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         CheckBlock(block,global,true);
         return diagnostics;
     }
-    private void CheckBlock(Block block,Scope? parent,bool rootAlreadyBound=false,TypeSymbol? expectedReturn=null,bool allowBreak=false,bool allowContinue=false)
+    private void CheckBlock(Block block,Scope? parent,bool rootAlreadyBound=false,TypeSymbol? expectedReturn=null,bool allowBreak=false,bool allowContinue=false,bool preboundLocal=false)
     {
         var scope=rootAlreadyBound?parent!:Binder.Bind(file,block,parent);
         // Branch facts are lexical and never escape this block, including
@@ -63,6 +63,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     case WhileStatement whileLoop:
                         CheckWhile(whileLoop,scope,expectedReturn);
                         break;
+                    case ClassicForStatement classicLoop:
+                        CheckClassicFor(classicLoop,scope,expectedReturn);
+                        break;
                     case BreakStatement breaking:
                         if(!allowBreak)
                             throw new CompilationFailure(Diagnostic.Error(file,breaking.Keyword,"TSCS1001",
@@ -87,7 +90,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         break;
                     case Variable v:
                         if(v.Name.Text is "eval" or "arguments") Error(v.Name,"TS1100",$"Invalid use of '{v.Name.Text}' in strict mode.");
-                        if((parent==null || rootAlreadyBound) && v.Name.Text=="globalThis") Error(v.Name,"TS2397","Declaration name conflicts with built-in global identifier 'globalThis'.");
+                        if((parent==null || (rootAlreadyBound && !preboundLocal)) && v.Name.Text=="globalThis") Error(v.Name,"TS2397","Declaration name conflicts with built-in global identifier 'globalThis'.");
                         var symbol=scope.Symbols[v.Name.Text];
                         if(v.Annotation==null && v.Initializer is ValueArray { Elements.Count:0 })
                             throw new CompilationFailure(Diagnostic.Error(file,v.Name,"TSCS1001",
@@ -274,6 +277,37 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 "Only boolean or any while conditions are supported by the current flow checker."));
         var before=CaptureInitialized(scope);
         try { CheckBlock(loop.Body,scope,false,expectedReturn,true,true); }
+        finally { RestoreInitialized(before); }
+    }
+
+    // The initializer always runs, but body and increment effects do not
+    // establish definite initialization after a possibly empty loop.
+    private void CheckClassicFor(ClassicForStatement loop,Scope scope,TypeSymbol? expectedReturn)
+    {
+        Scope header=loop.Initializer is Variable declaration
+            ? Binder.Bind(file,new Block([declaration]),scope)
+            : new Scope(scope);
+        if(loop.Initializer is { } initializer)
+            CheckBlock(new Block([initializer]),header,true,expectedReturn,preboundLocal:true);
+        if(loop.Condition is { } condition)
+        {
+            var conditionType=TypeOf(condition,header);
+            if(conditionType!=null && !CompilerTypes.IsAssignable(conditionType,CompilerTypes.Boolean))
+                throw new CompilationFailure(Diagnostic.Error(file,loop.Keyword,"TSCS1001",
+                    "Classic for conditions currently require boolean or any."));
+        }
+        var before=CaptureInitialized(header);
+        try
+        {
+            // The update runs after the body (and after a continue), never
+            // before its first iteration. Check its types independently, then
+            // restore ALL initialization facts, including header locals, before
+            // checking the body. Do not let the update fabricate a first-read.
+            if(loop.Update is { } update)
+                CheckBlock(new Block([update]),header,true,expectedReturn);
+            RestoreInitialized(before);
+            CheckBlock(loop.Body,header,false,expectedReturn,true,true);
+        }
         finally { RestoreInitialized(before); }
     }
 

@@ -112,6 +112,18 @@ internal static class JavaScriptEmitter
                     WriteBlock(whileLoop.Body,depth);
                     output.Append('\n');
                     break;
+                case ClassicForStatement classic:
+                    Indent(depth);
+                    output.Append("for (");
+                    WriteForHeader(classic.Initializer);
+                    output.Append("; ");
+                    if(classic.Condition is { } forCondition)WriteExpression(forCondition);
+                    output.Append("; ");
+                    WriteForHeader(classic.Update);
+                    output.Append(") ");
+                    WriteBlock(classic.Body,depth);
+                    output.Append('\n');
+                    break;
                 case ForOfStatement loop:
                     Indent(depth);
                     output.Append("for (").Append(loop.Constant?"const ":"let ")
@@ -181,6 +193,41 @@ internal static class JavaScriptEmitter
                     break;
                 default:
                     throw new NotSupportedException("The AST-backed ES2015 writer only supports checked global-script statements.");
+            }
+        }
+
+        private void WriteForHeader(Statement? statement)
+        {
+            switch(statement)
+            {
+                case null: break;
+                case Variable variable:
+                    output.Append("let ").Append(variable.Name.Text);
+                    if(variable.Initializer is { } initial)
+                    {
+                        output.Append(" = ");
+                        WriteExpression(initial);
+                    }
+                    break;
+                case Assignment assignment:
+                    output.Append(assignment.Name.Text).Append(" = ");
+                    WriteExpression(assignment.Value);
+                    break;
+                case PostfixUpdate increment:
+                    output.Append(increment.Name.Text).Append(increment.Operator.Text);
+                    break;
+                case PropertyAssignment property:
+                    WriteExpression(property.Target);
+                    output.Append(" = ");
+                    WriteExpression(property.Value);
+                    break;
+                case ElementAssignment element:
+                    WriteExpression(element.Target);
+                    output.Append(" = ");
+                    WriteExpression(element.Value);
+                    break;
+                default:
+                    throw new NotSupportedException("Only checked classic-for header mutations can be emitted.");
             }
         }
 
