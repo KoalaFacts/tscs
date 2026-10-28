@@ -252,6 +252,7 @@ internal static class JavaScriptEmitter
                         pending.Push(conditional.WhenFalse);
                         break;
                     case ValueUnary unary: pending.Push(unary.Operand);break;
+                    case ValuePrefixUpdate prefix: pending.Push(prefix.Target);break;
                     case ValueParenthesized grouped:pending.Push(grouped.Expression);break;
                     case ValueTypeOperator typed:pending.Push(typed.Expression);break;
                     case ValueElementAccess indexed:
@@ -333,6 +334,9 @@ internal static class JavaScriptEmitter
                 case PostfixUpdate increment:
                     output.Append(increment.Name.Text).Append(increment.Operator.Text);
                     break;
+                case Expression { Value:ValuePrefixUpdate prefix }:
+                    WriteExpression(prefix);
+                    break;
                 case CompoundAssignment compound:
                     if(compound.Operator.Kind==TokenKind.PowerEqual)
                         WritePowerCompound(compound);
@@ -409,7 +413,7 @@ internal static class JavaScriptEmitter
                 TokenKind.Power => 13,
                 _ => throw new NotSupportedException("Unsupported binary operator in emitted AST.")
             },
-            ValueUnary => 11,
+            ValueUnary or ValuePrefixUpdate => 11,
             // Erasure is wrapped with grouping to keep the JS precedence.
             ValueTypeOperator => 14,
             ValueCall or ValuePropertyAccess or ValueElementAccess => 13,
@@ -477,6 +481,10 @@ internal static class JavaScriptEmitter
                     case ValueUnary unary:
                         Node(unary.Operand,precedence);
                         Text(unary.Operator.Text+(unary.Operator.Kind is TokenKind.Plus or TokenKind.Minus or TokenKind.Typeof?" ":""));
+                        break;
+                    case ValuePrefixUpdate prefix:
+                        Node(prefix.Target,precedence);
+                        Text(prefix.Operator.Text);
                         break;
                     case ValueTypeOperator typed:
                         Text(")");

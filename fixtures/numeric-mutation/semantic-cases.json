@@ -79,6 +79,60 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "numeric-mutation:positive-11",
+      "source": "function f():number { let n:number=1; let next:number=++n; return next; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-12",
+      "source": "function f():number { let n:number=2; return --n; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-13",
+      "source": "function f(xs:number[]):number { return ++xs[0]; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-14",
+      "source": "function f():number { let box:{ value:number }={ value:21 }; return ++box.value; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-15",
+      "source": "function f(xs:number[]):number { let i:number=-1; return ++xs[++i]; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-16",
+      "source": "function f():number { let n:number=0; for(let i:number=0;i<3;++i){ ++n; } return n; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-17",
+      "source": "function f():number { let n:number=1; return -++n; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-18",
+      "source": "function f():number { let n:number=0; let m:number=++n + ++n; return m; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:negative-05",
+      "source": "function f():number { const n:number=1; ++n; return n; }",
+      "expectedCodes": [
+        "TS2588"
+      ]
+    },
+    {
+      "id": "numeric-mutation:negative-06",
+      "source": "interface Sample { readonly value:number } function f():number { let item:Sample={value:21}; ++item.value; return 0; }",
+      "expectedCodes": [
+        "TS2540"
+      ]
     }
   ]
 }

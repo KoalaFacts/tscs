@@ -396,7 +396,8 @@ internal sealed class Parser(string file, List<Token> tokens)
                     "Classic for assignments require an identifier or named property or indexed element."))
             };
         }
-        Unsupported(Current,"Only assignment and postfix update are supported in classic for headers.");
+        if(expression is ValuePrefixUpdate)return new Expression(expression);
+        Unsupported(Current,"Only assignment and prefix/postfix updates are supported in classic for headers.");
         return default!;
     }
 
@@ -753,12 +754,15 @@ internal sealed class Parser(string file, List<Token> tokens)
         // Avoid recursive parsing on input such as 20,000 whitespace-separated
         // prefix '+'/'-' operators; the TypeChecker also evaluates iteratively.
         var prefixes=new List<Token>();
-        while(Current.Kind is TokenKind.Minus or TokenKind.Plus or TokenKind.Bang or TokenKind.Typeof or TokenKind.Tilde)prefixes.Add(Take());
+        while(Current.Kind is TokenKind.Minus or TokenKind.Plus or TokenKind.Bang or TokenKind.Typeof or TokenKind.Tilde or TokenKind.PlusPlus or TokenKind.MinusMinus)prefixes.Add(Take());
         ValueNode value=ParseExponentiation();
         // An unparenthesized unary left operand of ** is invalid in TS/JS.
         if(prefixes.Count>0 && value is ValueBinary { Operator.Kind:TokenKind.Power } exponent)
             Unsupported(exponent.Operator,"Unary left operands of ** must be parenthesized.");
-        for(int i=prefixes.Count-1;i>=0;i--)value=new ValueUnary(prefixes[i],value);
+        for(int i=prefixes.Count-1;i>=0;i--)
+            value=prefixes[i].Kind is TokenKind.PlusPlus or TokenKind.MinusMinus
+                ?new ValuePrefixUpdate(prefixes[i],value)
+                :new ValueUnary(prefixes[i],value);
         return value;
     }
     private ValueNode ParseExponentiation()

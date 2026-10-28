@@ -22,7 +22,7 @@ assert.equal(suite.kind,numeric?'BOUNDED_NUMERIC_MUTATION_DO_WHILE_NOT_ORIGINAL_
   ?'BOUNDED_WHILE_CONTINUE_BREAK_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :completion?'BOUNDED_SWITCH_COMPLETION_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :'BOUNDED_DISCRIMINANT_SWITCH_RETURN_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,completion?12:14,'do not shrink the registered cohort');
+assert.equal(suite.cases.length,completion?12:numeric?24:14,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 // Loop cases exercise number[] indexing, length and for..of element types.
 // The frozen bootstrap profile has an intentionally empty Array<T>; reuse
