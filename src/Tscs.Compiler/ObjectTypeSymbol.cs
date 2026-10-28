@@ -7,11 +7,14 @@ namespace Tscs;
 internal sealed record ObjectTypeSymbol : TypeSymbol
 {
     public IReadOnlyDictionary<string,TypeSymbol> Members { get; }
+    public IReadOnlySet<string> ReadonlyMembers { get; }
 
-    public ObjectTypeSymbol(IEnumerable<KeyValuePair<string,TypeSymbol>> members)
+    public ObjectTypeSymbol(IEnumerable<KeyValuePair<string,TypeSymbol>> members,
+        IEnumerable<string>? readonlyMembers=null)
     {
         Members=new ReadOnlyDictionary<string,TypeSymbol>(
             new Dictionary<string,TypeSymbol>(members,StringComparer.Ordinal));
+        ReadonlyMembers=new HashSet<string>(readonlyMembers??Array.Empty<string>(),StringComparer.Ordinal);
     }
 
     public override string DisplayName=>TypeDisplay.Format(this);
@@ -48,7 +51,7 @@ internal static class TypeDisplay
                     {
                         Text(";");
                         Type(member.Value);
-                        Text(" "+member.Key+": ");
+                        Text((shape.ReadonlyMembers.Contains(member.Key)?" readonly ":" ")+member.Key+": ");
                     }
                     Text("{");
                     break;

@@ -17,7 +17,7 @@ const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
 const suiteFile='fixtures/named-types/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suiteFile,'utf8'));
 assert.equal(suite.kind,'BOUNDED_NAMED_TYPES_UNION_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,19,'do not shrink the frozen named types cohort');
+assert.equal(suite.cases.length,25,'do not shrink the 19 original plus six readonly named-types cases');
 const minimal=readFileSync('fixtures/minimal.d.ts','utf8');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const compiler=resolve('src/Tscs.Compiler/bin/Release/net10.0/Tscs.Compiler.dll');

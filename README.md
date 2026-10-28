@@ -71,12 +71,13 @@ export const result: number = twice(seed).value;
 ```
 
 Nested member reads/writes, inline shape annotations and structural width
-assignment are supported. Fresh object literals receive excess-property checks;
+assignment are supported. Bounded `readonly` named properties in object types and
+interfaces retain compile-time read-only write checks across module imports. Fresh object literals receive excess-property checks;
 wider values already held in variables can satisfy narrower required shapes.
 Writing a member of an imported or `const` object does not rebind that object.
 Missing members and incompatible assignments are rejected before emission.
 
-This does **not** implement optional/readonly members, methods/accessors,
+This does **not** implement optional members, readonly arrays, methods/accessors,
 index signatures, spread, computed keys, prototype-setter literals, inheritance,
 generics or recursive type aliases. Such unimplemented forms fail explicitly.
 Parser depth and diagnostic display are bounded. Runtime and validation details:

@@ -1,5 +1,20 @@
 # tscs status
 
+## 2026-10-29 — Readonly named object/interface properties (source candidate; NOT_RUN)
+
+Required named properties in interface declarations and structural object types
+may now carry contextual `readonly` modifiers. The same semantic object model
+and binder preserve the metadata through aliases/imported type bindings and
+nested members; the checker rejects direct and compound property writes with
+TS2540, while reads and mutable non-readonly members still emit ES2015.
+The literal member named `readonly` remains valid, without being mistaken for a
+modifier. Existing 19 named-type reference IDs are unchanged; six stable
+positive/negative cases and four-module Node execution are wired to the
+normal gates. No local SDK or checkout is available: exact-head hosted checks
+are NOT_RUN at source creation. Original TS7 acceptance stays 0 PASS /
+15,523 SKIP_UNIMPLEMENTED; dynamic scope remains UNEXPANDED.
+
+
 ## 2026-10-29 — Numeric bitwise compound mutation (source candidate; NOT_RUN)
 
 The existing bitwise/shift expression pipeline now accepts six numeric compound

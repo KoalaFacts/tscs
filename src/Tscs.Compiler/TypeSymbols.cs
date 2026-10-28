@@ -122,7 +122,8 @@ internal static class CompilerTypes
         PrimitiveTypeSyntax primitive=>FromAnnotation(primitive.Name.Text),
         ArrayTypeSyntax array=>new ArrayTypeSymbol(FromAnnotation(array.Element)),
         ObjectTypeSyntax shape=>new ObjectTypeSymbol(shape.Properties.Select(p=>
-            new KeyValuePair<string,TypeSymbol>(Parser.PropertyName(p.Name),FromAnnotation(p.Type)))),
+            new KeyValuePair<string,TypeSymbol>(Parser.PropertyName(p.Name),FromAnnotation(p.Type))),
+            shape.Properties.Where(p=>p.Readonly).Select(p=>Parser.PropertyName(p.Name))),
         _=>throw new ArgumentOutOfRangeException(nameof(syntax))
     };
 
@@ -202,7 +203,7 @@ internal static class CompilerTypes
                 }
                 members.Add(new(name,selected));
             }
-            return new ObjectTypeSymbol(members);
+            return new ObjectTypeSymbol(members,data.ReadonlyMembers);
         }
         return actual;
     }

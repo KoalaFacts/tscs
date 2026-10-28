@@ -170,6 +170,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         if(CompilerTypes.IsStringFamily(propertyReceiver) && assignment.Target.Name.Text=="length")
                             throw new CompilationFailure(Diagnostic.Error(file,assignment.Target.Name,"TS2540",
                                 "Cannot assign to 'length' because it is a read-only property."));
+                        if(propertyReceiver is ObjectTypeSymbol readonlyShape &&
+                           readonlyShape.ReadonlyMembers.Contains(assignment.Target.Name.Text))
+                            throw new CompilationFailure(Diagnostic.Error(file,assignment.Target.Name,"TS2540",
+                                $"Cannot assign to '{assignment.Target.Name.Text}' because it is a read-only property."));
                         if(propertyReceiver is UnionTypeSymbol)
                             throw new CompilationFailure(Diagnostic.Error(file,assignment.Target.Name,"TSCS1001",
                                 "Writes through union-typed receivers are not supported yet."));
@@ -203,6 +207,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                                 if(CompilerTypes.IsStringFamily(compoundReceiver) && propertyTarget.Name.Text=="length")
                                     throw new CompilationFailure(Diagnostic.Error(file,propertyTarget.Name,"TS2540",
                                         "Cannot assign to 'length' because it is a read-only property."));
+                                if(compoundReceiver is ObjectTypeSymbol readonlyCompoundShape &&
+                                   readonlyCompoundShape.ReadonlyMembers.Contains(propertyTarget.Name.Text))
+                                    throw new CompilationFailure(Diagnostic.Error(file,propertyTarget.Name,"TS2540",
+                                        $"Cannot assign to '{propertyTarget.Name.Text}' because it is a read-only property."));
                                 if(compoundReceiver is UnionTypeSymbol)
                                     throw new CompilationFailure(Diagnostic.Error(file,propertyTarget.Name,"TSCS1001",
                                         "Writes through union-typed receivers are not supported yet."));
