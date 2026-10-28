@@ -1,5 +1,24 @@
 # tscs status
 
+## 2026-10-28 — Named types, interface shapes and unions (integrated candidate)
+
+The existing AST/binder/type checker/module linker/emitter now carries a
+separate lexical type namespace: bounded non-generic `type` aliases,
+required-member interfaces, unions and explicit cross-module `import type`.
+The compiler erases these declarations from ES2015 JS. Three modules produce
+`result=42`, `label=seed`, `count=2` under actual Node24 runtime execution.
+Invalid alias/interface assignments block all output, and unions do not
+pretend to support narrowing or intersection-safe property writes.
+
+Local focused tests/build and full strict verification results must be tied
+to the exact delivered head; independent pinned-Go diagnostics and review
+remain separate requirements. This is bounded language functionality, not
+full upstream compatibility or a release. Details: [work package](progress/named-types-union.md).
+
+Original TS7 acceptance remains **0 accepted** with **15,523 explicit
+SKIP_UNIMPLEMENTED configuration targets**; dynamically expanded scope
+remains unknown. No ledger, ID or gate was changed to make this package pass.
+
 ## 2026-10-28 — Array indexing and for..of (one work package, not yet merged)
 
 On top of merged PR #18, the shared compiler AST/binder/checker/emitter now

@@ -82,6 +82,29 @@ generics or recursive type aliases. Such unimplemented forms fail explicitly.
 Parser depth and diagnostic display are bounded. Runtime and validation details:
 [`structural-object-data`](docs/progress/structural-object-data.md).
 
+## Named aliases, interfaces and unions (bounded)
+
+The compiler supports non-generic `type` aliases, required named-member
+`interface` shapes, `number | string`-style unions, object unions, postfix
+array union annotations and explicit `import type` between modules:
+
+```typescript
+// model.ts
+export interface Reading { value: number; label: string }
+export type Payload = Reading | number;
+
+// logic.ts
+import type { Reading } from "./model.js";
+export function twice(x: Reading): Reading {
+  return { value: x.value * 2, label: x.label };
+}
+```
+
+These declarations are erased from emitted JavaScript. The runtime graph
+and semantic limits are documented in
+[`named-types-union`](docs/progress/named-types-union.md). This does not
+implement general generic, recursive, narrowing, mapped or intersection types.
+
 ## Other implemented subsets
 
 The current pipeline includes primitive/`any` variables, lexical scopes, selected

@@ -25,6 +25,9 @@ internal static class JavaScriptEmitter
         {
             switch(statement)
             {
+                case TypeAliasDeclaration or InterfaceDeclaration:
+                    // Type-only declarations have no JavaScript runtime identity.
+                    break;
                 case EmptyStatement:
                     Indent(depth);
                     output.Append(";\n");
@@ -108,6 +111,7 @@ internal static class JavaScriptEmitter
                     output.Append('\n');
                     break;
                 case ImportDeclaration import:
+                    if(import.TypeOnly)break;
                     if(!emitModules)throw new NotSupportedException("ES module JavaScript output requires an explicit ES2015 module option.");
                     Indent(depth);
                     output.Append("import { ");

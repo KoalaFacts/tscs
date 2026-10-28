@@ -28,6 +28,11 @@ internal sealed record ArrayTypeSymbol(TypeSymbol ElementType) : TypeSymbol
     public override string DisplayName=>TypeDisplay.Format(this);
 }
 
+internal sealed record UnionTypeSymbol(IReadOnlyList<TypeSymbol> Alternatives) : TypeSymbol
+{
+    public override string DisplayName=>TypeDisplay.Format(this);
+}
+
 internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType) : TypeSymbol
 {
     public override string DisplayName=>TypeDisplay.Format(this);
@@ -45,6 +50,22 @@ internal static class CompilerTypes
     // Internal inference for an empty literal. 'never' annotations and
     // evolving array inference remain outside this supported subset.
     public static readonly TypeSymbol Never=new PrimitiveTypeSymbol(PrimitiveKind.Never);
+
+    public static TypeSymbol Union(IEnumerable<TypeSymbol> variants)
+    {
+        var options=new List<TypeSymbol>();
+        foreach(var variant in variants)
+        {
+            foreach(var type in variant is UnionTypeSymbol nested ? nested.Alternatives : [variant])
+            {
+                if(type.Equals(Any))return Any;
+                if(type.Equals(Never))continue;
+                if(options.All(existing=>!IsEquivalent(existing,type)))options.Add(type);
+                if(options.Count>64)throw new InvalidOperationException("Too many union variants for the bounded compiler.");
+            }
+        }
+        return options.Count switch {0=>Never,1=>options[0],_=>new UnionTypeSymbol(options)};
+    }
 
     public static TypeSymbol FromAnnotation(string name) => name switch
     {
@@ -78,7 +99,11 @@ internal static class CompilerTypes
             {
                 if(FromInitializer(item) is not { } actual)return null;
                 if(element==Never)element=actual;
-                else if(!IsEquivalent(element,actual))return null;
+                else if(!IsEquivalent(element,actual))
+                {
+                    try {element=Union([element,actual]);}
+                    catch(InvalidOperationException) {return null;}
+                }
             }
             return new ArrayTypeSymbol(element!);
         }
@@ -103,6 +128,27 @@ internal static class CompilerTypes
     public static bool IsEquivalent(TypeSymbol a,TypeSymbol b)=>
         IsAssignable(a,b) && IsAssignable(b,a);
 
+    // A read through a union is safe only when every alternative has the
+    // requested property. Its result type is the union of member types.
+    public static TypeSymbol? TryGetProperty(TypeSymbol receiver,string name)
+    {
+        if(receiver.Equals(Any))return Any;
+        if(receiver is ArrayTypeSymbol && name=="length")return Number;
+        if(receiver is ObjectTypeSymbol shape)return shape.Members.GetValueOrDefault(name);
+        if(receiver is UnionTypeSymbol union)
+        {
+            var found=new List<TypeSymbol>(union.Alternatives.Count);
+            foreach(var variant in union.Alternatives)
+            {
+                var member=TryGetProperty(variant,name);
+                if(member==null)return null;
+                found.Add(member);
+            }
+            return Union(found);
+        }
+        return null;
+    }
+
     public static bool IsNumber(TypeSymbol? type) => type is PrimitiveTypeSymbol { Kind: PrimitiveKind.Number };
     public static bool IsBoolean(TypeSymbol? type) => type is PrimitiveTypeSymbol { Kind: PrimitiveKind.Boolean };
 
@@ -114,35 +160,39 @@ internal static class CompilerTypes
 
     public static bool IsAssignable(TypeSymbol source,TypeSymbol target)
     {
-        // Width subtyping walks target requirements. Fresh-literal excess
-        // checks are performed separately against the originating expression.
-        var pending=new Stack<(TypeSymbol Source,TypeSymbol Target)>();
-        var seen=new HashSet<(TypeSymbol Source,TypeSymbol Target)>(TypePairComparer.Instance);
-        pending.Push((source,target));
-        while(pending.Count>0)
+        // Union sources are universally quantified; union targets require an
+        // assignable alternative. Member/array relations use the same engine.
+        // Memoize by reference identity and bound work on malformed broad graphs.
+        int budget=16384;
+        var active=new HashSet<(TypeSymbol Source,TypeSymbol Target)>(TypePairComparer.Instance);
+        bool Check(TypeSymbol actual,TypeSymbol required)
         {
-            var (actual,required)=pending.Pop();
-            if(!seen.Add((actual,required)))continue;
-            if(ReferenceEquals(actual,required) || actual.Equals(Never) || actual.Equals(Any) || required.Equals(Any))continue;
-            if(required is ArrayTypeSymbol requiredArray)
+            if(--budget<0)return false; // fail closed on combinatorial input
+            if(ReferenceEquals(actual,required) || actual.Equals(Never) ||
+               actual.Equals(Any) || required.Equals(Any))return true;
+            var pair=(actual,required);
+            if(!active.Add(pair))return false; // circular structural cases are outside this subset
+            try
             {
-                if(actual is not ArrayTypeSymbol actualArray)return false;
-                pending.Push((actualArray.ElementType,requiredArray.ElementType));
-            }
-            else if(required is ObjectTypeSymbol shape)
-            {
-                // Within this non-nullish subset, {} accepts every value type.
-                if(shape.Members.Count==0)continue;
-                if(actual is not ObjectTypeSymbol data)return false;
-                foreach(var (name,type) in shape.Members)
+                if(actual is UnionTypeSymbol sourceUnion)
+                    return sourceUnion.Alternatives.All(variant=>Check(variant,required));
+                if(required is UnionTypeSymbol targetUnion)
+                    return targetUnion.Alternatives.Any(variant=>Check(actual,variant));
+                if(required is ArrayTypeSymbol requiredArray)
+                    return actual is ArrayTypeSymbol actualArray &&
+                        Check(actualArray.ElementType,requiredArray.ElementType);
+                if(required is ObjectTypeSymbol shape)
                 {
-                    if(!data.Members.TryGetValue(name,out var member))return false;
-                    pending.Push((member,type));
+                    if(shape.Members.Count==0)return true;
+                    if(actual is not ObjectTypeSymbol data)return false;
+                    return shape.Members.All(property=>data.Members.TryGetValue(property.Key,out var member) &&
+                        Check(member,property.Value));
                 }
+                return actual.Equals(required);
             }
-            else if(!actual.Equals(required))return false;
+            finally {active.Remove(pair);}
         }
-        return true;
+        return Check(source,target);
     }
     private sealed class TypePairComparer : IEqualityComparer<(TypeSymbol Source,TypeSymbol Target)>
     {

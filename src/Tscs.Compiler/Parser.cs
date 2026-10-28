@@ -31,7 +31,8 @@ internal sealed class Parser(string file, List<Token> tokens)
             {
                 if(depth!=0)Unsupported(Current,"Module imports must be at source-file scope.");
                 Take();
-                if(!Eat(TokenKind.Open))Unsupported(Current,"Only named module imports are supported yet.");
+                bool typeOnly=Eat(TokenKind.Type);
+                if(!Eat(TokenKind.Open))Unsupported(Current,"Only named module imports and import type are supported yet.");
                 var specifiers=new List<ImportSpecifier>();
                 while(true)
                 {
@@ -56,7 +57,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                 if(Current.Kind!=TokenKind.String)
                     Unsupported(Current,"Expected a string module specifier.");
                 var module=Take();
-                statements.Add(new ImportDeclaration(module,specifiers));
+                statements.Add(new ImportDeclaration(module,specifiers,typeOnly));
                 EndStatement();
                 continue;
             }
@@ -106,8 +107,34 @@ internal sealed class Parser(string file, List<Token> tokens)
                     EndStatement();
                     continue;
                 }
-                if(Current.Kind is not (TokenKind.Let or TokenKind.Const or TokenKind.Function))
-                    Unsupported(Current,"Only exported variables, functions or named local exports are supported yet.");
+                if(Current.Kind is not (TokenKind.Let or TokenKind.Const or TokenKind.Function or TokenKind.Type or TokenKind.Interface))
+                    Unsupported(Current,"Only exported variables, functions, type aliases and interfaces are supported yet.");
+            }
+            if(Current.Kind is TokenKind.Type or TokenKind.Interface)
+            {
+                if(depth!=0)Unsupported(Current,"Type declarations require source-file scope.");
+                bool alias=Take().Kind==TokenKind.Type;
+                var name=Current;
+                if(name.Kind!=TokenKind.Identifier)Unsupported(name,"Expected a named type declaration.");
+                Take();
+                if(alias)
+                {
+                    if(!Eat(TokenKind.Equal))Unsupported(Current,"Expected '=' in a type alias.");
+                    statements.Add(new TypeAliasDeclaration(name,ReadTypeAnnotation(),exported));
+                    EndStatement();
+                }
+                else
+                {
+                    // Interfaces have a single required-property body. There is
+                    // no `extends`, declaration merging or call/index signature.
+                    if(Current.Kind!=TokenKind.Open)Unsupported(Current,"Interface extensions and generic parameters are not supported yet.");
+                    var body=ReadTypeAnnotation();
+                    if(body is not ObjectTypeSyntax shape)
+                        Unsupported(Current,"Interfaces require a required-member object body.");
+                    statements.Add(new InterfaceDeclaration(name,(ObjectTypeSyntax)body,exported));
+                    Eat(TokenKind.Semi);
+                }
+                continue;
             }
             if(Current.Kind==TokenKind.Function)
             {
@@ -276,15 +303,34 @@ internal sealed class Parser(string file, List<Token> tokens)
         finally { conditionalNesting--; }
     }
 
-    // One annotation grammar is used by variables, parameters and returns.
-    // Postfix [] is attached to the same semantic type as an object member.
+    // The same bounded grammar handles aliases, interfaces, variables, function
+    // signatures and nested members: postfix [] binds tighter than union |.
     private TypeSyntax ReadTypeAnnotation(int depth=0)
     {
         if(depth>64)Unsupported(Current,"Type nesting exceeds the compiler subset limit.");
+        var alternatives=new List<TypeSyntax>{ ReadTypePart(depth+1) };
+        while(Eat(TokenKind.Bar))
+        {
+            if(alternatives.Count>=64)Unsupported(Current,"Unions with over 64 alternatives are not supported yet.");
+            alternatives.Add(ReadTypePart(depth+1));
+        }
+        return alternatives.Count==1?alternatives[0]:new UnionTypeSyntax(alternatives);
+    }
+    private TypeSyntax ReadTypePart(int depth)
+    {
+        if(depth>64)Unsupported(Current,"Type nesting exceeds the compiler subset limit.");
         TypeSyntax type;
-        if(Current.Kind==TokenKind.Identifier &&
-           Current.Text is "number" or "string" or "boolean" or "any")
-            type=new PrimitiveTypeSyntax(Take());
+        if(Current.Kind==TokenKind.Identifier)
+        {
+            var name=Take();
+            type=name.Text is "number" or "string" or "boolean" or "any"
+                ?new PrimitiveTypeSyntax(name):new NamedTypeSyntax(name);
+        }
+        else if(Eat(TokenKind.OpenParen))
+        {
+            type=ReadTypeAnnotation(depth+1);
+            if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' in parenthesized type.");
+        }
         else if(Current.Kind==TokenKind.Open)
         {
             var open=Take();
@@ -292,11 +338,12 @@ internal sealed class Parser(string file, List<Token> tokens)
             var names=new HashSet<string>(StringComparer.Ordinal);
             while(Current.Kind!=TokenKind.Close)
             {
+                if(Current.Kind==TokenKind.End)Unsupported(Current,"Expected '}' in object type.");
                 var name=ReadPropertyName(allowString:true);
                 if(!names.Add(PropertyName(name)))
                     Diagnostics.Add(Diagnostic.Error(file,name,"TS2300",$"Duplicate identifier '{PropertyName(name)}'."));
                 if(!Eat(TokenKind.Colon))
-                    Unsupported(Current,"Object type members require ':' and a type; optional, readonly and method forms are not supported.");
+                    Unsupported(Current,"Required object type members must have ':' and a type.");
                 properties.Add(new ObjectTypeProperty(name,ReadTypeAnnotation(depth+1)));
                 if(Eat(TokenKind.Semi)||Eat(TokenKind.Comma))continue;
                 if(Current.Kind==TokenKind.Close)break;
@@ -306,7 +353,7 @@ internal sealed class Parser(string file, List<Token> tokens)
         }
         else
         {
-            Unsupported(Current,"Only primitive, required object shapes and [] array types are supported.");
+            Unsupported(Current,"Only named, primitive, object, array and union types are supported.");
             return default!;
         }
         while(Current.Kind==TokenKind.OpenBracket)
@@ -314,7 +361,7 @@ internal sealed class Parser(string file, List<Token> tokens)
             if(++depth>64)Unsupported(Current,"Array type nesting exceeds the compiler subset limit.");
             var open=Take();
             if(Current.Kind!=TokenKind.CloseBracket)
-                Unsupported(Current,"Only postfix T[] array annotations are supported; tuples and generic Array<T> are not implemented.");
+                Unsupported(Current,"Only postfix T[] annotations are supported; tuples and generic Array<T> are not implemented.");
             type=new ArrayTypeSyntax(type,open,Take());
         }
         return type;
@@ -326,7 +373,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     private Token ReadPropertyName(bool allowString)
     {
         if(Current.Kind is TokenKind.Identifier or TokenKind.Let or TokenKind.Const or
-            TokenKind.Import or TokenKind.Export or TokenKind.Function or TokenKind.Return or
+            TokenKind.Import or TokenKind.Export or TokenKind.Type or TokenKind.Interface or TokenKind.Function or TokenKind.Return or
             TokenKind.If or TokenKind.Else or TokenKind.For or TokenKind.True or TokenKind.False ||
             (allowString && Current.Kind==TokenKind.String))return Take();
         Unsupported(Current,"Expected a supported named object property.");

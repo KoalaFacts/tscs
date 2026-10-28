@@ -53,8 +53,24 @@ internal static class TypeDisplay
                     Text("{");
                     break;
                 case ArrayTypeSymbol array:
-                    Text("[]");
-                    Type(array.ElementType);
+                    if(array.ElementType is UnionTypeSymbol)
+                    {
+                        Text(")[]");
+                        Type(array.ElementType);
+                        Text("(");
+                    }
+                    else
+                    {
+                        Text("[]");
+                        Type(array.ElementType);
+                    }
+                    break;
+                case UnionTypeSymbol union:
+                    for(int i=union.Alternatives.Count-1;i>=0;i--)
+                    {
+                        Type(union.Alternatives[i]);
+                        if(i>0)Text(" | ");
+                    }
                     break;
                 case FunctionTypeSymbol function:
                     Type(function.ReturnType);

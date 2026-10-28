@@ -17,6 +17,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         {
             switch(statement)
             {
+                case TypeAliasDeclaration or InterfaceDeclaration:
+                    // Checked as a separate type namespace during binding.
+                    break;
                 case Block nested: CheckBlock(nested,scope,false,expectedReturn);break;
                 case FunctionDeclaration function:
                     CheckStrictModuleBinding(function.Name);
@@ -63,7 +66,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             "Empty array inference requires an explicit element type in this compiler subset."));
                     var source=v.Initializer is {} init?TypeOf(init,scope):null;
                     var annotatedType=v.Annotation is { } annotation
-                        ? CompilerTypes.FromAnnotation(annotation) : null;
+                        ? TypeResolver.Resolve(annotation,scope,file) : null;
                     symbol.Type=annotatedType??source;
                     symbol.Initialized=v.Initializer!=null;
                     if(v.Constant&&v.Initializer==null) Error(v.Name,"TS1155","'const' declarations must be initialized.");
@@ -94,6 +97,12 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         Mismatch(elementAssignment.Target.Open,elementValueType,elementType);
                     break;
                 case PropertyAssignment assignment:
+                    // Reading common members of a union is safe; writing one
+                    // requires intersection-like relations not yet represented.
+                    // Reject such writes rather than accepting an unsafe arm.
+                    if(TypeOf(assignment.Target.Receiver,scope) is UnionTypeSymbol)
+                        throw new CompilationFailure(Diagnostic.Error(file,assignment.Target.Name,"TSCS1001",
+                            "Writes through union-typed receivers are not supported yet."));
                     // Mutating a property does not rebind a const or an import.
                     // TypeOf still enforces initialization of the receiver.
                     var propertyType=TypeOf(assignment.Target,scope);
@@ -231,8 +240,13 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     if(next==null)known=false;
                     else if(element==CompilerTypes.Never)element=next;
                     else if(!CompilerTypes.IsEquivalent(element,next))
-                        throw new CompilationFailure(Diagnostic.Error(file,arrayLiteral.Open,"TSCS1001",
-                            "Heterogeneous array union inference is not implemented yet."));
+                    {
+                        try {element=CompilerTypes.Union([element,next]);}
+                        catch(InvalidOperationException failure)
+                        {
+                            throw new CompilationFailure(Diagnostic.Error(file,arrayLiteral.Open,"TSCS1001",failure.Message));
+                        }
+                    }
                 }
                 types.Push(known?new ArrayTypeSymbol(element):null);
                 continue;
@@ -289,10 +303,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 var receiver=types.Pop();
                 if(receiver==null)types.Push(null);
                 else if(receiver.Equals(CompilerTypes.Any))types.Push(CompilerTypes.Any);
-                else if(receiver is ArrayTypeSymbol && property.Name.Text=="length")
-                    types.Push(CompilerTypes.Number);
-                else if(receiver is ObjectTypeSymbol shape &&
-                        shape.Members.TryGetValue(property.Name.Text,out var member))types.Push(member);
+                else if(CompilerTypes.TryGetProperty(receiver,property.Name.Text) is { } member)
+                    types.Push(member);
                 else
                 {
                     Error(property.Name,"TS2339",$"Property '{property.Name.Text}' does not exist on type '{receiver.DisplayName}'.");
@@ -441,6 +453,28 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     private bool CheckContextualLiteral(ValueNode value,TypeSymbol expected,TypeSymbol actual)
     {
         while(value is ValueParenthesized group)value=group.Expression;
+        if(value is ValueObject fresh && expected is UnionTypeSymbol alternatives &&
+           actual is ObjectTypeSymbol)
+        {
+            // TS's fresh literal check considers the set of properties from
+            // each object alternative; a property unknown to *all* arms is
+            // excess even if ordinary structural width would accept it.
+            var expectedObjects=alternatives.Alternatives.OfType<ObjectTypeSymbol>().ToArray();
+            if(expectedObjects.Length>0)
+            {
+                bool unionFreshValid=true;
+                foreach(var property in fresh.Properties)
+                {
+                    var name=Parser.PropertyName(property.Name);
+                    if(expectedObjects.All(shape=>!shape.Members.ContainsKey(name)))
+                    {
+                        Error(property.Name,"TS2353",$"Object literal may only specify known properties, and '{name}' does not exist in type '{expected.DisplayName}'.");
+                        unionFreshValid=false;
+                    }
+                }
+                return unionFreshValid;
+            }
+        }
         if(value is ValueArray literalArray && expected is ArrayTypeSymbol targetArray &&
            actual is ArrayTypeSymbol sourceArray)
         {
