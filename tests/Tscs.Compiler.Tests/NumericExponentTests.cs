@@ -6,6 +6,7 @@ namespace Tscs.Tests;
 public sealed class NumericExponentTests
 {
     [Theory]
+    [InlineData("let n = 2 ** 3;")]
     [InlineData("let n: number = 2 ** 3 ** 2;")]
     [InlineData("let n: number = (2 ** 3) ** 2;")]
     [InlineData("let n: number = 2 ** -2;")]
