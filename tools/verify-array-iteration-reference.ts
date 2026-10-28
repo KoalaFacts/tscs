@@ -43,7 +43,13 @@ save("reference-version.json",JSON.stringify(version,null,2));
 const sourceSha=run("git",["rev-parse","HEAD"],cwd).stdout.trim();
 const product=resolve("src/Tscs.Cli/bin/Release/net10.0/tscs.dll");
 const compiler=resolve("src/Tscs.Compiler/bin/Release/net10.0/Tscs.Compiler.dll");
-const minimal=readFileSync("fixtures/minimal.d.ts","utf8");
+// The original locked minimal declarations intentionally have an empty Array<T>.
+// TypeScript consequently reports TS7053 for indexing and TS2339 for length,
+// independent of this bounded language feature. Provide the real Array<T>
+// number index + length members in an isolated, symmetric reference profile.
+// This does not modify the pinned original test assets or acceptance oracle.
+const minimalProfile="fixtures/array-iteration/minimal.d.ts";
+const minimal=readFileSync(minimalProfile,"utf8");
 const codes=(r:ReturnType<typeof run>)=>
   [...(r.stdout+"\n"+r.stderr).matchAll(/error (TS\d+):/g)].map(m=>m[1]).sort();
 const seen=new Set<string>();
@@ -78,7 +84,7 @@ save("results.json",JSON.stringify(results,null,2));
 save("summary.json",JSON.stringify({kind:suite.kind,sourceSha,upstreamCommit:pin.commit,
   referenceVersion:version.stdout.trim(),referenceBinarySha256:hash(readFileSync(reference)),
   productCliSha256:hash(readFileSync(product)),productCompilerSha256:hash(readFileSync(compiler)),
-  cohortSha256:hash(readFileSync(suitePath)),scriptSha256:hash(readFileSync(import.meta.filename)),
+  cohortSha256:hash(readFileSync(suitePath)),minimalProfileSha256:hash(readFileSync(minimalProfile)),scriptSha256:hash(readFileSync(import.meta.filename)),
   matches:results.length-mismatches.length,mismatches:mismatches.length,
   comparison:"exit and code arrays only; NOT original TS7 assertions or full diagnostic parity",
   referenceExecutable:basename(reference),originalAcceptanceCredit:0,releaseEligible:false},null,2));

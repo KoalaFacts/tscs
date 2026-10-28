@@ -55,3 +55,20 @@ After package integration, use the established array element type and lexical
 scopes to build standard control-flow and union/interface/type-alias families,
 by whole feature group rather than one operator or configuration diagnostic at
 a time. Do not represent array and loop subsets as complete TypeScript support.
+
+## Reference-profile correctness correction (2026-10-28)
+
+The first real Go differential reported 6 mismatches: TS7053 for numeric
+indexing in five sources and TS2339 for `array.length`. They came from the
+shared `fixtures/minimal.d.ts` used for isolated early compiler smoke tests,
+whose `interface Array<T> {}` intentionally declares neither numeric index nor
+`length`. A production TypeScript Array interface does expose both.
+
+The bounded array differential now uses its own explicitly recorded
+`fixtures/array-iteration/minimal.d.ts`, adding `length: number` and
+`[index: number]: T` with the same declarations supplied to **both** Go and
+tscs. Original frozen sources, their expected diagnostics, stable IDs, and
+`fixtures/minimal.d.ts` remain unchanged. The first Go run remains FAIL; the
+corrected-profile result is NOT_RUN until a fresh fixed-Go CI completion.
+This is a missing reference fixture capability, **not** a corrected product
+semantic bug and not an original upstream acceptance PASS.
