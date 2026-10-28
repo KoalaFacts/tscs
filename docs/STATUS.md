@@ -1,3 +1,5 @@
+# tscs status
+
 ## 2026-10-29 — Prefix numeric updates (candidate, NOT_RUN)
 
 Checked prefix ++/-- numeric mutations now share the existing AST, mutable
@@ -7,8 +9,6 @@ execution and ten additive stable pinned-Go cases are wired to normal gates;
 exact-head hosted checks are NOT_RUN at source creation. Original TS7
 acceptance remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic
 scope UNEXPANDED. No full compatibility or release claim.
-
-# tscs status
 
 ## 2026-10-29 — Readonly named object/interface properties (source candidate; NOT_RUN)
 
