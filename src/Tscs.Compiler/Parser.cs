@@ -181,6 +181,11 @@ internal sealed class Parser(string file, List<Token> tokens)
                 statements.Add(ParseWhile(depth,inFunction));
                 continue;
             }
+            if(Current.Kind==TokenKind.Do)
+            {
+                statements.Add(ParseDoWhile(depth,inFunction));
+                continue;
+            }
             if(Current.Kind==TokenKind.Switch)
             {
                 statements.Add(ParseSwitch(depth,inFunction));
@@ -238,19 +243,25 @@ internal sealed class Parser(string file, List<Token> tokens)
                 continue;
             }
             var value=ParseValue();
-            if(Current.Kind==TokenKind.PlusPlus)
+            if(Current.Kind is TokenKind.PlusPlus or TokenKind.MinusMinus)
             {
                 var update=Take();
-                // Line terminators are forbidden between the operand and ++.
-                // Expressions such as (x)++, a.b++, x++ + 1 and x++ as an
-                // initializer remain unsupported until their grammar is ported.
+                // No newline between the identifier and postfix ++/--.
+                // Grouped/member updates and updates inside expressions remain unsupported.
                 if(!update.LineBreak && value is ValueAtom atom && atom.Token.Kind==TokenKind.Identifier)
                     statements.Add(new PostfixUpdate(atom.Token,update));
-                else Unsupported(update,"Only same-line identifier postfix '++' is supported yet.");
+                else Unsupported(update,"Only same-line identifier postfix updates are supported yet.");
                 EndStatement();
                 continue;
             }
-            if(Eat(TokenKind.Equal))
+            if(Current.Kind is TokenKind.PlusEqual or TokenKind.MinusEqual or TokenKind.StarEqual)
+            {
+                var op=Take();
+                if(value is not (ValueAtom { Token.Kind:TokenKind.Identifier } or ValuePropertyAccess or ValueElementAccess))
+                    Unsupported(op,"Compound assignment requires an identifier, named property or array element.");
+                statements.Add(new CompoundAssignment(value,op,ParseValue()));
+            }
+            else if(Eat(TokenKind.Equal))
             {
                 if(value is ValueAtom atom && atom.Token.Kind==TokenKind.Identifier)
                     statements.Add(new Assignment(atom.Token,ParseValue()));
@@ -357,12 +368,19 @@ internal sealed class Parser(string file, List<Token> tokens)
     private Statement ParseForHeaderMutation()
     {
         var expression=ParseValue();
-        if(Current.Kind==TokenKind.PlusPlus)
+        if(Current.Kind is TokenKind.PlusPlus or TokenKind.MinusMinus)
         {
             var increment=Take();
             if(increment.LineBreak || expression is not ValueAtom { Token.Kind:TokenKind.Identifier })
                 Unsupported(increment,"Classic for postfix updates require one same-line identifier.");
             return new PostfixUpdate(((ValueAtom)expression).Token,increment);
+        }
+        if(Current.Kind is TokenKind.PlusEqual or TokenKind.MinusEqual or TokenKind.StarEqual)
+        {
+            var op=Take();
+            if(expression is not (ValueAtom { Token.Kind:TokenKind.Identifier } or ValuePropertyAccess or ValueElementAccess))
+                Unsupported(op,"Compound for update requires an identifier, named property or array element.");
+            return new CompoundAssignment(expression,op,ParseValue());
         }
         if(Eat(TokenKind.Equal))
         {
@@ -376,7 +394,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                     "Classic for assignments require an identifier or named property or indexed element."))
             };
         }
-        Unsupported(Current,"Only assignment and postfix increment are supported in classic for headers.");
+        Unsupported(Current,"Only assignment and postfix update are supported in classic for headers.");
         return default!;
     }
 
@@ -392,6 +410,22 @@ internal sealed class Parser(string file, List<Token> tokens)
         var body=Parse(depth+1,inFunction);
         if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
         return new WhileStatement(keyword,condition,body);
+    }
+
+    // The body executes at least once. The condition is checked after the body,
+    // including when a continue skips to the next condition test.
+    private DoWhileStatement ParseDoWhile(int depth,bool inFunction)
+    {
+        var keyword=Take();
+        if(!Eat(TokenKind.Open))Unsupported(Current,"do/while bodies must be braced.");
+        var body=Parse(depth+1,inFunction);
+        if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+        if(!Eat(TokenKind.While))Unsupported(Current,"Expected 'while' after do body.");
+        if(!Eat(TokenKind.OpenParen))Unsupported(Current,"Expected '(' after do/while.");
+        var condition=ParseValue();
+        if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after do/while condition.");
+        EndStatement();
+        return new DoWhileStatement(keyword,body,condition);
     }
 
     // Preserve distinct branch ASTs for later control flow and symbol analysis.
@@ -514,7 +548,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     {
         if(Current.Kind is TokenKind.Identifier or TokenKind.Let or TokenKind.Const or
             TokenKind.Import or TokenKind.Export or TokenKind.Type or TokenKind.Interface or TokenKind.Function or TokenKind.Return or
-            TokenKind.If or TokenKind.Else or TokenKind.For or TokenKind.While or TokenKind.Break or TokenKind.Continue or TokenKind.True or TokenKind.False ||
+            TokenKind.If or TokenKind.Else or TokenKind.For or TokenKind.While or TokenKind.Do or TokenKind.Break or TokenKind.Continue or TokenKind.True or TokenKind.False ||
             (allowString && Current.Kind==TokenKind.String))return Take();
         Unsupported(Current,"Expected a supported named object property.");
         return default;

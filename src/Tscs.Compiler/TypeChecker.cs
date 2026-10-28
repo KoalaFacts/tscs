@@ -63,6 +63,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     case WhileStatement whileLoop:
                         CheckWhile(whileLoop,scope,expectedReturn);
                         break;
+                    case DoWhileStatement doLoop:
+                        CheckDoWhile(doLoop,scope,expectedReturn);
+                        break;
                     case ClassicForStatement classicLoop:
                         CheckClassicFor(classicLoop,scope,expectedReturn);
                         break;
@@ -142,6 +145,40 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                            CheckContextualLiteral(assignment.Value,propertyType,valueType) &&
                            !IsAssignableContextually(assignment.Value,valueType,propertyType))
                             Mismatch(assignment.Target.Name,valueType,propertyType);
+                        break;
+                    case CompoundAssignment compound:
+                        TypeSymbol? targetType;
+                        switch(compound.Target)
+                        {
+                            case ValueAtom { Token.Kind:TokenKind.Identifier } targetName:
+                                var targetSymbol=Resolve(targetName.Token,scope);
+                                if(targetSymbol is null) { targetType=null; break; }
+                                if(!targetSymbol.Initialized)
+                                    throw new CompilationFailure(Diagnostic.Error(file,targetName.Token,"TSCS1001",
+                                        "Reads before initialization are not supported yet."));
+                                if(targetSymbol.Imported)
+                                    Error(targetName.Token,"TS2632",$"Cannot assign to '{targetName.Token.Text}' because it is an import.");
+                                else if(targetSymbol.IsConstant)
+                                    Error(targetName.Token,"TS2588",$"Cannot assign to '{targetName.Token.Text}' because it is a constant.");
+                                targetType=targetSymbol.Type;
+                                break;
+                            case ValuePropertyAccess propertyTarget:
+                                if(TypeOf(propertyTarget.Receiver,scope) is UnionTypeSymbol)
+                                    throw new CompilationFailure(Diagnostic.Error(file,propertyTarget.Name,"TSCS1001",
+                                        "Writes through union-typed receivers are not supported yet."));
+                                targetType=TypeOf(propertyTarget,scope);
+                                break;
+                            case ValueElementAccess elementTarget:
+                                targetType=TypeOf(elementTarget,scope);
+                                break;
+                            default:
+                                throw new InvalidOperationException("Only parser-checked compound assignment targets are allowed.");
+                        }
+                        var operandType=TypeOf(compound.Value,scope);
+                        if(targetType!=null && operandType!=null &&
+                           !(IsNumericMutationOperand(targetType) && IsNumericMutationOperand(operandType)))
+                            throw new CompilationFailure(Diagnostic.Error(file,compound.Operator,"TSCS1001",
+                                "Compound arithmetic assignments currently require number or any operands."));
                         break;
                     case PostfixUpdate update:
                         var updated=Resolve(update.Name,scope);
@@ -278,6 +315,31 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         var before=CaptureInitialized(scope);
         try { CheckBlock(loop.Body,scope,false,expectedReturn,true,true); }
         finally { RestoreInitialized(before); }
+    }
+
+    private static bool IsNumericMutationOperand(TypeSymbol type)=>
+        CompilerTypes.IsNumber(type)||type.Equals(CompilerTypes.Any);
+
+    private void CheckDoWhile(DoWhileStatement loop,Scope scope,TypeSymbol? expectedReturn)
+    {
+        // Check the condition with entry-state facts. This deliberately
+        // rejects a do body that only *may* initialize a condition variable:
+        // a continue or break may bypass its write on the first iteration.
+        var conditionType=TypeOf(loop.Condition,scope);
+        if(conditionType!=null && !CompilerTypes.IsAssignable(conditionType,CompilerTypes.Boolean))
+            throw new CompilationFailure(Diagnostic.Error(file,loop.Keyword,"TSCS1001",
+                "Do/while conditions currently require boolean or any."));
+        var before=CaptureInitialized(scope);
+        try
+        {
+            CheckBlock(loop.Body,scope,false,expectedReturn,true,true);
+        }
+        finally
+        {
+            // In the bounded analysis, neither a loop iteration nor its
+            // continue/break paths may fabricate definite post-loop writes.
+            RestoreInitialized(before);
+        }
     }
 
     // The initializer always runs, but body and increment effects do not

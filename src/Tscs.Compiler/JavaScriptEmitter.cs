@@ -63,6 +63,13 @@ internal static class JavaScriptEmitter
                     WriteExpression(property.Value);
                     output.Append(";\n");
                     break;
+                case CompoundAssignment compound:
+                    Indent(depth);
+                    WriteExpression(compound.Target);
+                    output.Append(' ').Append(compound.Operator.Text).Append(' ');
+                    WriteExpression(compound.Value);
+                    output.Append(";\n");
+                    break;
                 case PostfixUpdate update:
                     Indent(depth);
                     output.Append(update.Name.Text).Append(update.Operator.Text).Append(";\n");
@@ -103,6 +110,14 @@ internal static class JavaScriptEmitter
                     output.Append(") ");
                     WriteBlock(function.Body,depth);
                     output.Append('\n');
+                    break;
+                case DoWhileStatement doLoop:
+                    Indent(depth);
+                    output.Append("do ");
+                    WriteBlock(doLoop.Body,depth);
+                    output.Append(" while (");
+                    WriteExpression(doLoop.Condition);
+                    output.Append(");\n");
                     break;
                 case WhileStatement whileLoop:
                     Indent(depth);
@@ -215,6 +230,11 @@ internal static class JavaScriptEmitter
                     break;
                 case PostfixUpdate increment:
                     output.Append(increment.Name.Text).Append(increment.Operator.Text);
+                    break;
+                case CompoundAssignment compound:
+                    WriteExpression(compound.Target);
+                    output.Append(' ').Append(compound.Operator.Text).Append(' ');
+                    WriteExpression(compound.Value);
                     break;
                 case PropertyAssignment property:
                     WriteExpression(property.Target);

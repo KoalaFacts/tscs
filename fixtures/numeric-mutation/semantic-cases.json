@@ -1,0 +1,84 @@
+{
+  "kind": "BOUNDED_NUMERIC_MUTATION_DO_WHILE_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "cases": [
+    {
+      "id": "numeric-mutation:positive-01",
+      "source": "function f(n:number):number { let i:number=0; let sum:number=0; do { sum+=i; i++; } while(i<n); return sum; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-02",
+      "source": "function f(n:number):number { let i:number=0; do { i++; if(i===2){continue;} if(i>n){break;} } while(i<10); return i; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-03",
+      "source": "function f():number { let i:number=1; i--; i++; return i; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-04",
+      "source": "function f():number { let result:number=0; do { result+=1; break; } while(true); return result; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-05",
+      "source": "function f(n:number):number { let count:number=0; for(let i=0;i<n;i+=1){ count+=i; } return count; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-06",
+      "source": "function f(n:number):number { let count:number=0; for(let i=n;i>0;i--){ count+=i; } return count; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-07",
+      "source": "function f(values:number[]):number { let total:number=0; for(let i=0;i<values.length;i++){ values[i]*=2; total+=values[i]; } return total; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-08",
+      "source": "function f():number { let holder={count:1}; holder.count+=2; holder.count*=3; holder.count-=5; return holder.count; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-09",
+      "source": "function f():number { let sum:number=0; let i:number=0; do { i++; switch(i){ case 1: { continue; } default: { break; } } sum+=i; } while(i<2); return sum; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-10",
+      "source": "function f():number { do { return 42; } while(false); }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:negative-01",
+      "source": "function f():number { const n:number=1; n+=1; return n; }",
+      "expectedCodes": [
+        "TS2588"
+      ]
+    },
+    {
+      "id": "numeric-mutation:negative-02",
+      "source": "function f():number { const n:number=1; n--; return n; }",
+      "expectedCodes": [
+        "TS2588"
+      ]
+    },
+    {
+      "id": "numeric-mutation:negative-03",
+      "source": "function f():number { let n:number=0; do { n=\"bad\"; } while(false); return n; }",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "numeric-mutation:negative-04",
+      "source": "function f():number { let n:number=0; do { let x:string=n; break; } while(false); return n; }",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}
