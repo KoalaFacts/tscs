@@ -108,7 +108,7 @@ public sealed class BitwiseNumericTests
         Assert.Contains(TokenKind.UnsignedRightShiftEqual,kinds);
         Assert.Contains(TokenKind.LessEqual,kinds);
         Assert.Contains(TokenKind.GreaterEqual,kinds);
-        Assert.Equal(">>>=",Assert.Single(tokens.Where(x=>x.Kind==TokenKind.UnsignedRightShiftEqual)).Text);
+        Assert.Equal(">>>=",Assert.Single(tokens, x=>x.Kind==TokenKind.UnsignedRightShiftEqual).Text);
     }
 
     [Fact]
