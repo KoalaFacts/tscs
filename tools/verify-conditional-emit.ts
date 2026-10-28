@@ -18,9 +18,9 @@ try {
     'export function describe(packet: Packet): string {',
     '  return packet.kind === "bad" ? packet.message : "ready";',
     '}',
+    'let calls: number = 0;',
+    'function hit(): number { calls += 1; return 100; }',
     'export function lazy(flag: boolean): number {',
-    '  let calls: number = 0;',
-    '  function hit(): number { calls += 1; return 100; }',
     '  const result: number = flag ? 42 : hit();',
     '  return result + calls;',
     '}'
