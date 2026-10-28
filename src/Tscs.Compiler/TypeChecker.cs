@@ -5,6 +5,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
 {
     private readonly List<Diagnostic> diagnostics=[];
     private readonly Dictionary<ValueConditional,(TypeSymbol? True,TypeSymbol? False)> conditionalResults = new(ReferenceEqualityComparer.Instance);
+    // Logical expressions use bounded recursion only to check the RHS in the
+    // appropriate short-circuit flow scope; other expression chains remain iterative.
+    private int logicalEvaluationDepth;
     public IReadOnlyList<Diagnostic> Check(Block block) { CheckBlock(block,null);return diagnostics; }
     public IReadOnlyList<Diagnostic> CheckBound(Block block,Scope global)
     {
@@ -532,9 +535,51 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     private readonly record struct DiscriminantBranches(
         Symbol Symbol,TypeSymbol WhenTrue,TypeSymbol WhenFalse);
 
-    private static DiscriminantBranches? TryNarrowDiscriminant(ValueNode condition,Scope scope)
+    private static DiscriminantBranches? TryNarrowDiscriminant(ValueNode condition,Scope scope,int depth=0)
     {
+        // A deeply nested boolean expression must never overflow the managed
+        // stack. Beyond this bound no refinement is inferred (never guess).
+        if(depth>=64)return null;
         while(condition is ValueParenthesized grouped)condition=grouped.Expression;
+        if(condition is ValueUnary { Operator.Kind:TokenKind.Bang } inverted)
+        {
+            var inner=TryNarrowDiscriminant(inverted.Operand,scope,depth+1);
+            return inner is { } branches
+                ?new DiscriminantBranches(branches.Symbol,branches.WhenFalse,branches.WhenTrue)
+                :null;
+        }
+        if(condition is ValueBinary logical &&
+           logical.Operator.Kind is TokenKind.AmpAmp or TokenKind.BarBar)
+        {
+            var first=TryNarrowDiscriminant(logical.Left,scope,depth+1);
+            if(first is not { } left)return null;
+            var original=left.Symbol.Type!;
+            DiscriminantBranches? next;
+            try
+            {
+                left.Symbol.Type=logical.Operator.Kind==TokenKind.AmpAmp
+                    ?left.WhenTrue:left.WhenFalse;
+                next=TryNarrowDiscriminant(logical.Right,scope,depth+1);
+            }
+            finally {left.Symbol.Type=original;}
+            // Right-only facts contribute only on the path that evaluates the
+            // RHS. With an unrelated/unknown RHS, leave the other exit broad.
+            if(next is { } right && ReferenceEquals(right.Symbol,left.Symbol))
+            {
+                try
+                {
+                    return logical.Operator.Kind==TokenKind.AmpAmp
+                        ?new DiscriminantBranches(left.Symbol,right.WhenTrue,
+                            CompilerTypes.Union([left.WhenFalse,right.WhenFalse]))
+                        :new DiscriminantBranches(left.Symbol,
+                            CompilerTypes.Union([left.WhenTrue,right.WhenTrue]),right.WhenFalse);
+                }
+                catch(InvalidOperationException) {return null;}
+            }
+            return logical.Operator.Kind==TokenKind.AmpAmp
+                ?new DiscriminantBranches(left.Symbol,left.WhenTrue,original)
+                :new DiscriminantBranches(left.Symbol,original,left.WhenFalse);
+        }
         if(condition is not ValueBinary comparison ||
            comparison.Operator.Kind is not (TokenKind.StrictEqual or TokenKind.StrictNotEqual))
             return null;
@@ -809,6 +854,46 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         while(pending.Count>0)
         {
             var (node,combine)=pending.Pop();
+            if(!combine && node is ValueBinary logical &&
+               logical.Operator.Kind is TokenKind.AmpAmp or TokenKind.BarBar)
+            {
+                if(++logicalEvaluationDepth>64)
+                {
+                    logicalEvaluationDepth--;
+                    throw new CompilationFailure(Diagnostic.Error(file,logical.Operator,"TSCS1001",
+                        "Compound guard nesting exceeds the compiler subset limit."));
+                }
+                try
+                {
+                    // For && the RHS executes only when the LHS is true; for ||
+                    // only when it is false. In particular, typecheck a member
+                    // read on the RHS under the precise discriminated union arm.
+                    var leftType=TypeOf(logical.Left,scope);
+                    if(leftType!=null && !CompilerTypes.IsBoolean(leftType))
+                        throw new CompilationFailure(Diagnostic.Error(file,logical.Operator,"TSCS1001",
+                            "Logical binary expressions currently require boolean operands."));
+                    var leftFacts=TryNarrowDiscriminant(logical.Left,scope);
+                    var original=leftFacts?.Symbol.Type;
+                    TypeSymbol? rightType;
+                    try
+                    {
+                        if(leftFacts is { } facts)
+                            facts.Symbol.Type=logical.Operator.Kind==TokenKind.AmpAmp
+                                ?facts.WhenTrue:facts.WhenFalse;
+                        rightType=TypeOf(logical.Right,scope);
+                    }
+                    finally
+                    {
+                        if(leftFacts is { } facts)facts.Symbol.Type=original;
+                    }
+                    if(rightType!=null && !CompilerTypes.IsBoolean(rightType))
+                        throw new CompilationFailure(Diagnostic.Error(file,logical.Operator,"TSCS1001",
+                            "Logical binary expressions currently require boolean operands."));
+                    types.Push(leftType!=null && rightType!=null?CompilerTypes.Boolean:null);
+                }
+                finally { logicalEvaluationDepth--; }
+                continue;
+            }
             if(node is ValueAtom atom)
             {
                 types.Push(TypeOfAtom(atom.Token,scope));
