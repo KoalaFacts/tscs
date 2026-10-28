@@ -5,6 +5,23 @@ namespace Tscs.Tests;
 
 public sealed class SwitchReturnFlowTests
 {
+    [Fact]
+    public void GroupedSwitchSelectorStillNarrowsDiscriminatedUnion()
+    {
+        const string source="type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; " +
+            "function f(e: E): number { switch (((e.kind))) { " +
+            "case \"ok\": { return e.value; } case \"error\": { return 0; } default: { return 0; } } }";
+        Assert.Empty(Compilation.Check("grouped-switch.ts",source));
+    }
+
+    [Fact]
+    public void GroupedSwitchSelectorDoesNotAllowWrongBranchMember()
+    {
+        const string source="type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; " +
+            "function f(e: E): number { switch ((e.kind)) { " +
+            "case \"error\": { return e.value; } default: { return 0; } } }";
+        Assert.Contains(Compilation.Check("grouped-switch.ts",source),d=>d.Code=="TS2339");
+    }
     [Theory]
     [InlineData("type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e: E): number { switch (e.kind) { case \"ok\": { return e.value; } case \"error\": { return 0; } default: { return 0; } } } const n: number = f({kind:\"ok\",value:42});")] // positive-01
     [InlineData("type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e: E): string { switch (e.kind) { case \"ok\": { return \"ready\"; } default: { return e.message; } } }")] // positive-02

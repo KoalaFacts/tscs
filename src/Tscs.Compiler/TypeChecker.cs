@@ -179,16 +179,17 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         Symbol? subject=null;
         UnionTypeSymbol? variants=null;
         string? memberName=null;
-        if(switching.Selector is ValuePropertyAccess { Receiver:ValueAtom atom } access &&
-           atom.Token.Kind==TokenKind.Identifier)
+        // Share the same parenthesis-aware discriminant recognizer as if/else.
+        // The selector's grouping must not erase the union branch information.
+        if(TryReadDiscriminant(switching.Selector,out var variable,out var property))
         {
-            var symbol=scope.Find(atom.Token.Text);
+            var symbol=scope.Find(variable.Text);
             if(symbol?.Type is UnionTypeSymbol union &&
                union.Alternatives.All(candidate=>candidate is ObjectTypeSymbol shape &&
-                   shape.Members.TryGetValue(access.Name.Text,out var member) &&
+                   shape.Members.TryGetValue(property,out var member) &&
                    member is LiteralTypeSymbol))
             {
-                subject=symbol;variants=union;memberName=access.Name.Text;
+                subject=symbol;variants=union;memberName=property;
             }
         }
 
