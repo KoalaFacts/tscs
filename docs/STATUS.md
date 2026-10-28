@@ -1,5 +1,14 @@
 # tscs status
 
+## 2026-10-29 — Numeric division and remainder (source candidate; NOT_RUN)
+
+The checked scanner/parser/AST/type checker/ES2015 emitter now carry source-mode
+`/`, `%`, `/=`, `%=` with left-associative product precedence, comments
+unaffected, correct numeric result types and existing const/import safeguards.
+The four-module Node execution and 24-case frozen Go semantic diagnostic/exit
+comparison are wired into strict gates, but are NOT_RUN at source creation.
+Original TS7 accepted 0, 15,523 SKIP_UNIMPLEMENTED, dynamic scope UNEXPANDED.
+
 ## 2026-10-29 — Numeric bitwise and shift expression family (source candidate; NOT_RUN)
 
 Scanner/parser/typechecker/ES2015 emitter now have bounded numeric & | ^ ~ << >> >>>,

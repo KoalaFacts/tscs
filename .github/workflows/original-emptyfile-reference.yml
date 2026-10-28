@@ -46,11 +46,20 @@ jobs:
           node tools/verify-conditional-reference.ts "$reference" .artifacts/conditional-values-reference
           node tools/verify-conditional-reference.ts "$reference" .artifacts/compound-guards-reference fixtures/compound-guards/semantic-cases.json
           node tools/verify-bitwise-reference.ts "$reference" .artifacts/numeric-bitwise-reference
+           node tools/verify-division-reference.ts "$reference" .artifacts/numeric-division-reference
           node tools/verify-switch-reference.ts "$reference" .artifacts/switch-reference
           node tools/verify-switch-reference.ts "$reference" .artifacts/switch-completion-reference fixtures/switch-completion/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/loop-control-reference fixtures/loop-control/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/classic-for-reference fixtures/classic-for/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/numeric-mutation-reference fixtures/numeric-mutation/semantic-cases.json
+      - name: Preserve division/remainder reference inputs and raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-numeric-division-reference-${{ github.sha }}
+          path: .artifacts/numeric-division-reference/
+          retention-days: 30
+          if-no-files-found: warn
       - name: Preserve numeric bitwise reference inputs and raw results
         if: always()
         uses: actions/upload-artifact@v4
