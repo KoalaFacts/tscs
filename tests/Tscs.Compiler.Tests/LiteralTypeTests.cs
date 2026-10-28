@@ -46,6 +46,13 @@ public sealed class LiteralTypeTests
     public void UnsupportedLiteralSyntaxDoesNotSilentlySucceed(string code)=>
         Assert.Contains(Compilation.Check("unsupported.ts",code),d=>d.Code=="TSCS1001");
 
+    [Theory]
+    [InlineData("type Flags = true | false; let bool: boolean = true; let flag: Flags = bool;")]
+    [InlineData("type Values = number | 21; let n: number = 1; let value: Values = n;")]
+    [InlineData("let s: \"ready\" = \"ready\"; let boxed: {} = s;")]
+    public void PrimitiveLiteralUnionsAndEmptyObjectRetainSoundWidening(string code) =>
+        Assert.Empty(Compilation.Check("literal-widening.ts",code));
+
     [Fact]
     public void ReusedLiteralUnionIsAssignableWithoutFreshExpressionSpecialCases()
     {

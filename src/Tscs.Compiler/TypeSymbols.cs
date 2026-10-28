@@ -80,6 +80,18 @@ internal static class CompilerTypes
                 if(options.Count>64)throw new InvalidOperationException("Too many union variants for the bounded compiler.");
             }
         }
+        // A primitive absorbs narrower literals; true | false is boolean.
+        // This also makes stored boolean/number values assignable to the
+        // corresponding fully covered primitive-literal union.
+        foreach(var kind in new[]{PrimitiveKind.Number,PrimitiveKind.String,PrimitiveKind.Boolean})
+            if(options.Any(x=>x is PrimitiveTypeSymbol primitive && primitive.Kind==kind))
+                options.RemoveAll(x=>x is LiteralTypeSymbol lit && lit.Kind==kind);
+        if(options.Any(x=>x is LiteralTypeSymbol { Kind:PrimitiveKind.Boolean,Value:"true" }) &&
+           options.Any(x=>x is LiteralTypeSymbol { Kind:PrimitiveKind.Boolean,Value:"false" }))
+        {
+            options.RemoveAll(x=>x is LiteralTypeSymbol { Kind:PrimitiveKind.Boolean });
+            options.Add(Boolean);
+        }
         return options.Count switch {0=>Never,1=>options[0],_=>new UnionTypeSymbol(options)};
     }
 
@@ -174,7 +186,8 @@ internal static class CompilerTypes
     // primitive family overlaps; unrelated structural comparisons fail closed.
     public static bool CanCompareEquality(TypeSymbol left,TypeSymbol right)
     {
-        var a=new HashSet<PrimitiveKind>(),b=new HashSet<PrimitiveKind>();
+        var a=new HashSet<PrimitiveKind>();
+        var b=new HashSet<PrimitiveKind>();
         static bool Collect(TypeSymbol type,HashSet<PrimitiveKind> kinds)
         {
             switch(type)
@@ -213,8 +226,9 @@ internal static class CompilerTypes
                     return targetUnion.Alternatives.Any(variant=>Check(actual,variant));
                 if(required is LiteralTypeSymbol exact)
                     return actual is LiteralTypeSymbol value && value.Equals(exact);
-                if(actual is LiteralTypeSymbol literal)
-                    return required is PrimitiveTypeSymbol primitive && primitive.Kind==literal.Kind;
+                if(actual is LiteralTypeSymbol literal &&
+                   required is PrimitiveTypeSymbol primitive)
+                    return primitive.Kind==literal.Kind;
                 if(required is ArrayTypeSymbol requiredArray)
                     return actual is ArrayTypeSymbol actualArray &&
                         Check(actualArray.ElementType,requiredArray.ElementType);
