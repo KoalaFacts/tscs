@@ -55,4 +55,24 @@ public sealed class TypeofPrimitiveNarrowingTests
     public void ConditionalAndZeroIterationWritesDoNotPreserveStaleFlow(string source,string code) =>
         Assert.Contains(Compilation.Check("flow-write.ts",source),d=>d.Code==code);
 
+    // Review P2s: a possibly repeated write invalidates pre-loop guard facts
+    // for body reads, repeated conditions, and for updates. Lexical guard
+    // cleanup must not reinstate stale facts after a checked nested write.
+    [Theory]
+    [InlineData("function f(v: number | string): number { if (typeof v !== \"number\") { return 0; } let result: number = 0; for (const n of [1, 2]) { result = v * 2; v = \"reset\"; } return result; }", "TSCS1001")]
+    [InlineData("function f(v: number | string): number { if (typeof v === \"number\") { return 0; } for (let i: number = 0; i < 1; v = 21) { return v * 2; } return 0; }", "TSCS1001")]
+    [InlineData("function f(v: number | string | boolean): number | string { if (typeof v === \"boolean\") { return 0; } { if (typeof v === \"string\") { return 0; } v = true; } return v; }", "TS2322")]
+    [InlineData("function f(v: number | string): number { if (typeof v !== \"number\") { return 0; } let result: number = 0; while (result < 2) { result = v * 2; v = \"reset\"; } return result; }", "TSCS1001")]
+    [InlineData("function f(v: number | string): number { if (typeof v !== \"number\") { return 0; } while (v > 0) { v = \"reset\"; } return 0; }", "TSCS1001")]
+    [InlineData("function f(v: number | string): number { if (typeof v !== \"number\") { return 0; } let result: number = 0; do { result = v * 2; v = \"reset\"; } while (result < 2); return result; }", "TSCS1001")]
+    public void BackedgesAndLexicalWritesCannotReuseStaleGuardFacts(string source,string code) =>
+        Assert.Contains(Compilation.Check("flow-backedge.ts",source),d=>d.Code==code);
+
+    [Fact]
+    public void ShadowedLoopLocalDoesNotInvalidateOuterGuard()
+    {
+        const string source="function f(v: number | string): number { if (typeof v !== \"number\") { return 0; } while (false) { let v: string = \"local\"; v = \"other\"; } return v * 2; }";
+        Assert.Empty(Compilation.Check("shadowed-loop.ts",source));
+    }
+
 }

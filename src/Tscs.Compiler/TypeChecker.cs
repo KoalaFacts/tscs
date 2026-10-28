@@ -15,7 +15,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         var scope=rootAlreadyBound?parent!:Binder.Bind(file,block,parent);
         // Branch facts are lexical and never escape this block, including
         // exits through malformed-source error diagnostics.
-        var originalFlowTypes=new Dictionary<Symbol,TypeSymbol?>();
+        var originalFlowTypes=new Dictionary<Symbol,(TypeSymbol? Type,int WriteVersion)>();
         try
         {
             foreach(var statement in block.Statements)
@@ -53,7 +53,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         {
                             // Preserve original lexical type across all sibling
                             // statements; subsequent guards can refine it further.
-                            originalFlowTypes.TryAdd(afterGuard.Symbol,afterGuard.Symbol.Type);
+                            originalFlowTypes.TryAdd(afterGuard.Symbol,(afterGuard.Symbol.Type,afterGuard.Symbol.FlowWriteVersion));
                             afterGuard.Symbol.Type=afterGuard.FallthroughType;
                         }
                         break;
@@ -225,8 +225,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         }
         finally
         {
-            foreach(var (symbol,originalType) in originalFlowTypes)
-                symbol.Type=originalType;
+            foreach(var (symbol,(originalType,writeVersion)) in originalFlowTypes)
+                symbol.Type=symbol.FlowWriteVersion!=writeVersion
+                    ?symbol.DeclaredType??originalType
+                    :originalType;
         }
     }
     
@@ -325,6 +327,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         var writesBefore=CaptureFlowWriteVersions(scope);
         var iteration=new Scope(scope);
         Binder.DeclareIterationVariable(file,iteration,loop,array.ElementType);
+        // Backedges can observe a write from a previous iteration. A
+        // narrower pre-loop read type is not a loop invariant.
+        InvalidateLoopBackedgeFlowTypes(scope,loop.Body,iterationName:loop.Name.Text);
         try { CheckBlock(loop.Body,iteration,false,expectedReturn,true,true); }
         finally
         {
@@ -338,6 +343,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     // boolean/any condition policy rather than inferring truthiness.
     private void CheckWhile(WhileStatement loop,Scope scope,TypeSymbol? expectedReturn)
     {
+        // Both the body and the condition may be evaluated after a backedge.
+        InvalidateLoopBackedgeFlowTypes(scope,loop.Body);
         var conditionType=TypeOf(loop.Condition,scope);
         if(conditionType!=null && !CompilerTypes.IsAssignable(conditionType,CompilerTypes.Boolean))
             throw new CompilationFailure(Diagnostic.Error(file,loop.Keyword,"TSCS1001",
@@ -357,6 +364,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
 
     private void CheckDoWhile(DoWhileStatement loop,Scope scope,TypeSymbol? expectedReturn)
     {
+        // The condition and body can run again after a rebinding on the
+        // previous iteration, so guard facts from before the loop are not
+        // reliable read types for their later evaluations.
+        InvalidateLoopBackedgeFlowTypes(scope,loop.Body);
         // Check the condition with entry-state facts. This deliberately
         // rejects a do body that only *may* initialize a condition variable:
         // a continue or break may bypass its write on the first iteration.
@@ -388,6 +399,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             : new Scope(scope);
         if(loop.Initializer is { } initializer)
             CheckBlock(new Block([initializer]),header,true,expectedReturn,preboundLocal:true);
+        // A for-update is speculative when checking the first body entry:
+        // join possible body/update rebindings before checking both, then
+        // restore that same read view after inspecting the update.
+        InvalidateLoopBackedgeFlowTypes(header,loop.Body,loop.Update);
         if(loop.Condition is { } condition)
         {
             var conditionType=TypeOf(condition,header);
@@ -403,9 +418,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             // before its first iteration. Check its types independently, then
             // restore ALL initialization facts, including header locals, before
             // checking the body. Do not let the update fabricate a first-read.
+            var entryTypes=CaptureFlowTypes(header);
             if(loop.Update is { } update)
                 CheckBlock(new Block([update]),header,true,expectedReturn);
             RestoreInitialized(before);
+            RestoreFlowTypes(entryTypes);
             CheckBlock(loop.Body,header,false,expectedReturn,true,true);
         }
         finally
@@ -683,6 +700,89 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             foreach(var symbol in current.Symbols.Values)
                 versions.TryAdd(symbol,symbol.FlowWriteVersion);
         return versions;
+    }
+
+
+    // A loop's backedge may repeat any checked rebinding in its body/update.
+    // Discover possible external writes from the parsed AST *before* type
+    // checking the first iteration, then use declared types to validate all
+    // reads, including while/for conditions and classic-for increments. This
+    // intentionally sacrifices precision for the bounded flow checker; it
+    // cannot prove a particular write is unreachable or that break prevents
+    // another iteration. Nested lexical declarations must not invalidate a
+    // shadowed outer variable. Function bodies are not executed by declaring
+    // a function, so this scan does not traverse them.
+    private static void InvalidateLoopBackedgeFlowTypes(
+        Scope scope,Block body,Statement? update=null,string? iterationName=null)
+    {
+        var mayWrite=new HashSet<Symbol>();
+        void Record(Token name,HashSet<string> shadowed)
+        {
+            if(!shadowed.Contains(name.Text) && scope.Find(name.Text) is { } symbol)
+                mayWrite.Add(symbol);
+        }
+        void Visit(Statement statement,HashSet<string> shadowed)
+        {
+            switch(statement)
+            {
+                case Block block:
+                    var locals=new HashSet<string>(shadowed,StringComparer.Ordinal);
+                    foreach(var child in block.Statements)
+                    {
+                        switch(child)
+                        {
+                            case Variable declaration: locals.Add(declaration.Name.Text);break;
+                            case FunctionDeclaration function: locals.Add(function.Name.Text);break;
+                        }
+                    }
+                    foreach(var child in block.Statements)Visit(child,locals);
+                    break;
+                case Assignment assignment:
+                    Record(assignment.Name,shadowed);
+                    break;
+                case CompoundAssignment { Target:ValueAtom atom } when atom.Token.Kind==TokenKind.Identifier:
+                    Record(atom.Token,shadowed);
+                    break;
+                case PostfixUpdate postfix:
+                    Record(postfix.Name,shadowed);
+                    break;
+                case ConditionalStatement branch:
+                    Visit(branch.Consequent,shadowed);
+                    if(branch.Alternate is { } alternate)Visit(alternate,shadowed);
+                    break;
+                case SwitchStatement switching:
+                    foreach(var clause in switching.Clauses)Visit(clause.Body,shadowed);
+                    break;
+                case ForOfStatement nestedForOf:
+                    var iterationLocals=new HashSet<string>(shadowed,StringComparer.Ordinal)
+                    {
+                        nestedForOf.Name.Text
+                    };
+                    Visit(nestedForOf.Body,iterationLocals);
+                    break;
+                case WhileStatement nestedWhile:
+                    Visit(nestedWhile.Body,shadowed);
+                    break;
+                case DoWhileStatement nestedDo:
+                    Visit(nestedDo.Body,shadowed);
+                    break;
+                case ClassicForStatement nestedClassic:
+                    var headerLocals=new HashSet<string>(shadowed,StringComparer.Ordinal);
+                    if(nestedClassic.Initializer is Variable loopLocal)
+                        headerLocals.Add(loopLocal.Name.Text);
+                    if(nestedClassic.Update is { } nestedUpdate)
+                        Visit(nestedUpdate,headerLocals);
+                    Visit(nestedClassic.Body,headerLocals);
+                    break;
+            }
+        }
+        var initialShadows=new HashSet<string>(StringComparer.Ordinal);
+        if(iterationName!=null)initialShadows.Add(iterationName);
+        Visit(body,initialShadows);
+        if(update is not null)Visit(update,initialShadows);
+        foreach(var symbol in mayWrite)
+            if(symbol.DeclaredType is { } declared)
+                symbol.Type=declared;
     }
 
     private static void InvalidateLoopWrittenFlowTypes(IReadOnlyDictionary<Symbol,int> before)
