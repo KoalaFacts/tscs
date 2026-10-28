@@ -15,7 +15,6 @@ public sealed class LiteralTypeTests
     [InlineData("type Event = { kind: \"ok\"; value: number } | { kind: \"bad\"; message: string }; let e: Event = { kind: \"ok\", value: 21 };")]
     [InlineData("type Event = { kind: \"ok\"; value: number } | { kind: \"bad\"; message: string }; let e: Event = { kind: \"bad\", message: \"why\" };")]
     [InlineData("interface Box { item: { tag: \"one\"; count: 21 } } let box: Box = { item: { tag: \"one\", count: 21 } };")]
-    [InlineData("type Tags = (\"ready\" | \"done\")[]; let xs: Tags = [\"ready\", \"done\"];")]
     [InlineData("type State = \"ready\" | \"done\"; let a: State = \"ready\"; let b: State = a;")]
     [InlineData("type Code = \"ab\"; let code: Code = \"a\\u0062\";")]
     [InlineData("type Status = \"ready\" | \"done\"; let s: Status = \"ready\"; if (s === \"ready\") { let tag: Status = s; }")]
@@ -33,6 +32,7 @@ public sealed class LiteralTypeTests
     [InlineData("function make(): \"ready\" {return \"wrong\";}", "TS2322")]
     [InlineData("let s: string = \"ready\"; let literal: \"ready\" = s;", "TS2322")]
     [InlineData("let xs: (\"ready\" | \"done\")[] = [\"ready\", \"wrong\"];", "TS2322")]
+    [InlineData("type Tags = (\"ready\" | \"done\")[]; let xs: Tags = [\"ready\", \"done\"];", "TS2322")]
     [InlineData("type State = \"ready\" | \"done\"; let s: State = \"ready\"; s = \"other\";", "TS2322")]
     [InlineData("type Event = {kind: \"ok\";value: number} | {kind: \"bad\";message: string}; let e: Event = {kind: \"ok\",value: 21}; e.message;", "TS2339")]
     public void IncompatibleLiteralsFailWithoutImplicitAny(string code,string expected) =>

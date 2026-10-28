@@ -5,8 +5,10 @@
 Source-level literal annotations for strings, numbers and booleans now pass through
 alias/interface/union/type-checker and ES2015 emit; a bounded contextual checker
 handles fresh objects and arrays without treating stored widened variables as
-literals. CI, fixed-Go comparison and independent review remain NOT_RUN for this
-candidate. No original TS7 acceptance is credited; full scope remains unknown.
+literals. Strict verify passed on an intermediate head; the first real pinned-Go differential
+found one widened primitive array mismatch (17/18). Source and stable ID retained;
+checker and expected TS2322 corrected from actual pinned Go output. The corrected
+head still requires exact-head CI and review closure. No original TS7 acceptance is credited; full scope remains unknown.
 See [the new work package](progress/primitive-literal-types.md).
 
 ## 2026-10-28 — Named types, interface shapes and unions (integrated candidate)

@@ -489,9 +489,22 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         }
         if(expression is ValueArray elements && actual is ArrayTypeSymbol sourceArray &&
            expected is ArrayTypeSymbol targetArray)
+        {
+            // The fixed TS7 Go compiler under the pinned --noLib/minimal
+            // profile widens directly inferred primitive array elements:
+            // ["ready","done"] has string[], not ("ready"|"done")[].
+            // Literal-only element requirements therefore need an already
+            // narrow source type. Preserve independent contextual object
+            // checking for arrays of structured object literals.
+            bool onlyLiteralMembers=targetArray.ElementType is LiteralTypeSymbol ||
+                targetArray.ElementType is UnionTypeSymbol options &&
+                options.Alternatives.All(option=>option is LiteralTypeSymbol);
+            if(onlyLiteralMembers && sourceArray.ElementType is PrimitiveTypeSymbol)
+                return CompilerTypes.IsAssignable(actual,expected);
             return elements.Elements.All(element=>IsAssignableContextually(element,
                 CompilerTypes.FromInitializer(element)??sourceArray.ElementType,
                 targetArray.ElementType,depth+1));
+        }
         return CompilerTypes.IsAssignable(actual,expected);
     }
 

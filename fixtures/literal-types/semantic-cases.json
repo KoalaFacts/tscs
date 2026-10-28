@@ -39,7 +39,9 @@
     {
       "id": "literal-types:positive-08",
       "source": "type Tags = (\"ready\" | \"done\")[]; let tags: Tags = [\"ready\", \"done\"];",
-      "expectedCodes": []
+      "expectedCodes": [
+        "TS2322"
+      ]
     },
     {
       "id": "literal-types:positive-09",
