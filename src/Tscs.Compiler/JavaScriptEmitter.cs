@@ -81,6 +81,10 @@ internal static class JavaScriptEmitter
                     Indent(depth);
                     output.Append("break;\n");
                     break;
+                case ContinueStatement:
+                    Indent(depth);
+                    output.Append("continue;\n");
+                    break;
                 case ReturnStatement returned:
                     Indent(depth);
                     output.Append("return ");
@@ -98,6 +102,14 @@ internal static class JavaScriptEmitter
                     }
                     output.Append(") ");
                     WriteBlock(function.Body,depth);
+                    output.Append('\n');
+                    break;
+                case WhileStatement whileLoop:
+                    Indent(depth);
+                    output.Append("while (");
+                    WriteExpression(whileLoop.Condition);
+                    output.Append(") ");
+                    WriteBlock(whileLoop.Body,depth);
                     output.Append('\n');
                     break;
                 case ForOfStatement loop:
