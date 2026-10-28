@@ -211,7 +211,7 @@ internal static class CompilerTypes
     public static TypeSymbol? TryGetProperty(TypeSymbol receiver,string name)
     {
         if(receiver.Equals(Any))return Any;
-        if(receiver is ArrayTypeSymbol && name=="length")return Number;
+        if(name=="length" && (receiver is ArrayTypeSymbol || IsStringFamily(receiver)))return Number;
         if(receiver is ObjectTypeSymbol shape)return shape.Members.GetValueOrDefault(name);
         if(receiver is UnionTypeSymbol union)
         {
@@ -230,6 +230,16 @@ internal static class CompilerTypes
     public static bool IsNumber(TypeSymbol? type) => type is PrimitiveTypeSymbol { Kind: PrimitiveKind.Number } or LiteralTypeSymbol { Kind: PrimitiveKind.Number };
     public static bool IsBoolean(TypeSymbol? type) => type is PrimitiveTypeSymbol { Kind: PrimitiveKind.Boolean } or LiteralTypeSymbol { Kind: PrimitiveKind.Boolean };
     public static bool IsString(TypeSymbol? type) => type is PrimitiveTypeSymbol { Kind: PrimitiveKind.String } or LiteralTypeSymbol { Kind: PrimitiveKind.String };
+
+    // A union of string literals is still guaranteed to have string semantics.
+    // Do not infer string behavior for mixed unions or unconstrained any.
+    public static bool IsStringFamily(TypeSymbol? type) =>
+        IsString(type) || type is UnionTypeSymbol union &&
+        union.Alternatives.Count>0 && union.Alternatives.All(IsStringFamily);
+
+    public static bool CanCompareRelational(TypeSymbol left,TypeSymbol right) =>
+        (IsNumber(left)&&IsNumber(right)) ||
+        (IsStringFamily(left)&&IsStringFamily(right));
 
     // Known strings concatenate with any supported value; an unconstrained
     // any + nonstring remains any, never guessed to be number or string.

@@ -1,5 +1,18 @@
 # tscs status
 
+## 2026-10-29 — String primitive reads and ordering (source candidate; NOT_RUN)
+
+The checked C# type model now recognizes primitive/literal string `length`,
+numeric character indexing, and lexical `< <= > >=` for two string-family
+operands, including string-literal unions. String element and `length` writes,
+including compound mutation, reject with TS2542/TS2540 rather than emitting
+unsafe JavaScript; mixed string/number ordering fails closed. The existing
+scanner, AST, module linker and ES2015 emitter are reused. An 18-source
+fixed-Go reference cohort plus four-module Node execution and explicit negative
+no-emit validation are wired to the normal gates but NOT_RUN at creation.
+The original TS7 source/configuration ledger remains 0 PASS /
+15,523 SKIP_UNIMPLEMENTED; unexpanded domains remain UNEXPANDED.
+
 ## 2026-10-29 — Numeric exponentiation work package (candidate; NOT_RUN)
 
 The checked scanner, parser, type checker and ES2015 emitter now carry numeric
