@@ -1,5 +1,16 @@
 # tscs status
 
+## 2026-10-28 — Switch completion and loop break (unmerged candidate)
+
+The same AST/checker/emitter now models a bounded exit set (normal completion,
+return, break) for braced switch arms and for..of loop bodies. Switch case
+fallthrough joins the previous arm's discriminated-union type with the next
+case's direct-entry types; a break exits the nearest construct, not the
+function. The release gate and original upstream acceptance ledger are
+unchanged. Hosted build, JS runtime and pinned-Go differential are NOT_RUN
+at candidate creation. Full break/continue/CFG support is not claimed.
+See [switch-completion](progress/switch-completion.md).
+
 ## Returning discriminant-switch arms — integration candidate
 
 AST/parser/checker/control-flow/ES2015 emitter now share a bounded switch

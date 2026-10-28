@@ -20,4 +20,5 @@ node tools/verify-literal-types-emit.ts
 node tools/verify-discriminant-emit.ts
 node tools/verify-guard-emit.ts
 node tools/verify-switch-emit.ts
+node tools/verify-switch-completion-emit.ts
 node tools/implementation-coverage.ts --check

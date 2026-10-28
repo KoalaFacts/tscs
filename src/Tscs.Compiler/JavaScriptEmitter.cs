@@ -77,6 +77,10 @@ internal static class JavaScriptEmitter
                     WriteBlock(block,depth);
                     output.Append('\n');
                     break;
+                case BreakStatement:
+                    Indent(depth);
+                    output.Append("break;\n");
+                    break;
                 case ReturnStatement returned:
                     Indent(depth);
                     output.Append("return ");
