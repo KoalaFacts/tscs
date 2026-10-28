@@ -126,6 +126,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             else
                             {
                                 target.Initialized=true;
+                                target.FlowWriteVersion++;
                                 if(target.DeclaredType!=null &&
                                    !ReferenceEquals(target.Type,target.DeclaredType))
                                 {
@@ -140,7 +141,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                                 }
                             }
                         }
-                        else target.Initialized=true;
+                        else
+                        {
+                            target.Initialized=true;
+                            target.FlowWriteVersion++;
+                        }
                         break;
                     case ElementAssignment elementAssignment:
                         var elementType=TypeOf(elementAssignment.Target,scope);
@@ -317,10 +322,15 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 "Only known array values are supported in for..of iteration."));
         CheckStrictModuleBinding(loop.Name);
         var before=CaptureInitialized(scope);
+        var writesBefore=CaptureFlowWriteVersions(scope);
         var iteration=new Scope(scope);
         Binder.DeclareIterationVariable(file,iteration,loop,array.ElementType);
         try { CheckBlock(loop.Body,iteration,false,expectedReturn,true,true); }
-        finally { RestoreInitialized(before); }
+        finally
+        {
+            RestoreInitialized(before);
+            InvalidateLoopWrittenFlowTypes(writesBefore);
+        }
     }
 
     // A while body can run zero times: no definite-initialisation effects
@@ -333,8 +343,13 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             throw new CompilationFailure(Diagnostic.Error(file,loop.Keyword,"TSCS1001",
                 "Only boolean or any while conditions are supported by the current flow checker."));
         var before=CaptureInitialized(scope);
+        var writesBefore=CaptureFlowWriteVersions(scope);
         try { CheckBlock(loop.Body,scope,false,expectedReturn,true,true); }
-        finally { RestoreInitialized(before); }
+        finally
+        {
+            RestoreInitialized(before);
+            InvalidateLoopWrittenFlowTypes(writesBefore);
+        }
     }
 
     private static bool IsNumericMutationOperand(TypeSymbol type)=>
@@ -350,6 +365,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             throw new CompilationFailure(Diagnostic.Error(file,loop.Keyword,"TSCS1001",
                 "Do/while conditions currently require boolean or any."));
         var before=CaptureInitialized(scope);
+        var writesBefore=CaptureFlowWriteVersions(scope);
         try
         {
             CheckBlock(loop.Body,scope,false,expectedReturn,true,true);
@@ -359,6 +375,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             // In the bounded analysis, neither a loop iteration nor its
             // continue/break paths may fabricate definite post-loop writes.
             RestoreInitialized(before);
+            InvalidateLoopWrittenFlowTypes(writesBefore);
         }
     }
 
@@ -379,6 +396,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     "Classic for conditions currently require boolean or any."));
         }
         var before=CaptureInitialized(header);
+        var writesBefore=CaptureFlowWriteVersions(header);
         try
         {
             // The update runs after the body (and after a continue), never
@@ -390,7 +408,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             RestoreInitialized(before);
             CheckBlock(loop.Body,header,false,expectedReturn,true,true);
         }
-        finally { RestoreInitialized(before); }
+        finally
+        {
+            RestoreInitialized(before);
+            InvalidateLoopWrittenFlowTypes(writesBefore);
+        }
     }
 
     // Each branch runs against the same lexical parent, but writes to symbols
@@ -406,6 +428,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         var discriminant=TryNarrowDiscriminant(conditional.Condition,scope);
         var before=CaptureInitialized(scope);
         var incomingTypes=CaptureFlowTypes(scope);
+        var writesBefore=CaptureFlowWriteVersions(scope);
+        var whenTrueWrites=writesBefore;
+        var whenFalseWrites=writesBefore;
         var whenTrue=before;
         var whenFalse=before;
         var typesWhenTrue=incomingTypes;
@@ -421,6 +446,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             CheckBlock(conditional.Consequent,scope,false,expectedReturn,allowBreak,allowContinue);
             whenTrue=CaptureInitialized(scope);
             typesWhenTrue=CaptureFlowTypes(scope);
+            whenTrueWrites=CaptureFlowWriteVersions(scope);
             RestoreInitialized(before);
             RestoreFlowTypes(incomingTypes);
             if(discriminant is { } narrowingFalse) narrowingFalse.Symbol.Type=narrowingFalse.WhenFalse;
@@ -435,6 +461,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             }
             whenFalse=CaptureInitialized(scope);
             typesWhenFalse=CaptureFlowTypes(scope);
+            whenFalseWrites=CaptureFlowWriteVersions(scope);
         }
         finally
         {
@@ -451,14 +478,29 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 // fabricating an initialized value in unreachable code.
                 _ => initialized
             };
-        // Facts survive to the next statement only if one branch
-        // definitely exits. Two fallthrough branches retain the union.
+        // Flow writes are may-effects, even if a nested block has restored
+        // its temporary narrowing. A possible surviving write invalidates
+        // the incoming read refinement; returning arms have no such effect.
+        var invalidated=new HashSet<Symbol>();
+        foreach(var (symbol,version) in writesBefore)
+        {
+            bool trueWrites=whenTrueWrites[symbol]!=version;
+            bool falseWrites=whenFalseWrites[symbol]!=whenTrueWrites[symbol];
+            if((thenFallsThrough && trueWrites)||(elseFallsThrough && falseWrites))
+            {
+                symbol.Type=symbol.DeclaredType??incomingTypes[symbol];
+                invalidated.Add(symbol);
+            }
+        }
         if(discriminant is not { } narrowed || thenFallsThrough==elseFallsThrough)
             return null;
-        // If the reachable branch rebounded the narrowed variable, its final
-        // flow type (not the pre-assignment branch fact) continues afterward.
+        // A changed branch discriminant must not be restored to an obsolete
+        // matched arm. Otherwise preserve the exact returning-guard refinement.
+        var retained=thenFallsThrough?typesWhenTrue[narrowed.Symbol]:typesWhenFalse[narrowed.Symbol];
         return new DiscriminantContinuation(narrowed.Symbol,
-            thenFallsThrough?typesWhenTrue[narrowed.Symbol]!:typesWhenFalse[narrowed.Symbol]!);
+            invalidated.Contains(narrowed.Symbol)
+                ?(narrowed.Symbol.DeclaredType??incomingTypes[narrowed.Symbol]??retained!)
+                :retained!);
     }
 
     private readonly record struct DiscriminantContinuation(
@@ -632,6 +674,25 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     private static void RestoreFlowTypes(IReadOnlyDictionary<Symbol,TypeSymbol?> values)
     {
         foreach(var (symbol,type) in values) symbol.Type=type;
+    }
+
+    private static Dictionary<Symbol,int> CaptureFlowWriteVersions(Scope scope)
+    {
+        var versions=new Dictionary<Symbol,int>();
+        for(Scope? current=scope;current!=null;current=current.Parent)
+            foreach(var symbol in current.Symbols.Values)
+                versions.TryAdd(symbol,symbol.FlowWriteVersion);
+        return versions;
+    }
+
+    private static void InvalidateLoopWrittenFlowTypes(IReadOnlyDictionary<Symbol,int> before)
+    {
+        // A loop may run zero times, while nested conditions can also return
+        // after zero successful writes. Neither case may manufacture a read
+        // narrowing outside the loop by checking its body speculatively.
+        foreach(var (symbol,version) in before)
+            if(symbol.FlowWriteVersion!=version)
+                symbol.Type=symbol.DeclaredType??symbol.Type;
     }
 
     private TypeSymbol? TypeOf(ValueNode value,Scope scope)

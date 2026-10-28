@@ -17,6 +17,9 @@ internal sealed class Symbol(string file,Statement declaration)
     // Type is the temporary read type used by branch/guard narrowing.
     public TypeSymbol? Type { get; set; }
     public TypeSymbol? DeclaredType { get; set; }
+    // Conservative may-write marker. Unlike temporary read types it is never
+    // rolled back when inspecting mutually exclusive control-flow paths.
+    public int FlowWriteVersion { get; set; }
     public bool Initialized { get; set; }
     public bool CrossFileTypeReady { get; set; }
     public bool Imported { get; set; }

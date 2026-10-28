@@ -45,4 +45,14 @@ public sealed class TypeofPrimitiveNarrowingTests
     public void RebindingInvalidatesStaleReadNarrowing(string source,string code) =>
         Assert.Contains(Compilation.Check("stale-flow.ts",source),d=>d.Code==code);
 
+    // A write in either surviving arm must invalidate an earlier guard.
+    // A loop write cannot establish a post-loop type on zero iterations.
+    [Theory]
+    [InlineData("function f(v: number | string, change: boolean): number { if (typeof v !== \"number\") { return 0; } if (change) { v = \"reset\"; } return v * 2; }", "TSCS1001")]
+    [InlineData("function f(v: number | string): string { if (typeof v !== \"number\") { return v; } while (false) { v = \"reset\"; } return v; }", "TS2322")]
+    [InlineData("function f(v: number | string): string { if (typeof v !== \"number\") { return v; } for (let i: number = 0; i < 0; i++) { v = \"reset\"; } return v; }", "TS2322")]
+    [InlineData("function f(v: number | string): string { if (typeof v !== \"number\") { return v; } for (const n of [1]) { v = \"reset\"; } return v; }", "TS2322")]
+    public void ConditionalAndZeroIterationWritesDoNotPreserveStaleFlow(string source,string code) =>
+        Assert.Contains(Compilation.Check("flow-write.ts",source),d=>d.Code==code);
+
 }
