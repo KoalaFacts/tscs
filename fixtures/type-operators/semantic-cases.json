@@ -1,0 +1,151 @@
+{
+  "kind": "BOUNDED_TYPE_ASSERTIONS_SATISFIES_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "upstream": "upstream.lock.json",
+  "cases": [
+    {
+      "id": "type-operators:positive-01",
+      "source": "let n: number = 21 as number;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-02",
+      "source": "let n: 21 = 21 as 21;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-03",
+      "source": "let n: number = (21 as number) + 21;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-04",
+      "source": "type Item = { value: number }; let raw: any = { value: 21 }; let p: Item = raw as Item;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-05",
+      "source": "let p = { value: 21, extra: 2 } as { value: number }; let n: number = p.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-06",
+      "source": "let n: number = ({ value: 21 } as { value: number }).value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-07",
+      "source": "let n: number = 21 satisfies number;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-08",
+      "source": "let n: number = (21 satisfies number) + 21;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-09",
+      "source": "let p = { value: 21 } satisfies { value: number }; let n: number = p.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-10",
+      "source": "type Item = { value: number }; let p = { value: 21 } satisfies Item;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-11",
+      "source": "let raw: any = { value: 21 }; let p = (raw as { value: number }) satisfies { value: number };",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-12",
+      "source": "let n: number = (21 as number) satisfies number;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-13",
+      "source": "let p = { value: 21 } satisfies { value: 21 }; let n: 21 = p.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-14",
+      "source": "let p = { kind: \"ok\" } satisfies { kind: \"ok\" | \"bad\" }; let s: \"ok\" = p.kind;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-15",
+      "source": "let n: 21 = 21 satisfies 21;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-01",
+      "source": "let n: number = \"oops\" as number;",
+      "expectedCodes": [
+        "TS2352"
+      ]
+    },
+    {
+      "id": "type-operators:negative-02",
+      "source": "let s: string = 21 as string;",
+      "expectedCodes": [
+        "TS2352"
+      ]
+    },
+    {
+      "id": "type-operators:negative-03",
+      "source": "let s = \"oops\" satisfies number;",
+      "expectedCodes": [
+        "TS1360"
+      ]
+    },
+    {
+      "id": "type-operators:negative-04",
+      "source": "let p = { value: \"oops\" } satisfies { value: number };",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-05",
+      "source": "let p = { value: 21, extra: 1 } satisfies { value: number };",
+      "expectedCodes": [
+        "TS2353"
+      ]
+    },
+    {
+      "id": "type-operators:negative-06",
+      "source": "let s: string = 21 satisfies number;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-07",
+      "source": "let x = 21 as MissingType;",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    },
+    {
+      "id": "type-operators:negative-08",
+      "source": "let x = 21 satisfies MissingType;",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    },
+    {
+      "id": "type-operators:negative-09",
+      "source": "let p = { value: 21 } as { label: string };",
+      "expectedCodes": [
+        "TS2352"
+      ]
+    },
+    {
+      "id": "type-operators:negative-10",
+      "source": "let p = { value: 21 } satisfies { value: number }; p.value = \"oops\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}

@@ -23,6 +23,9 @@ internal abstract record ValueNode;
 internal sealed record ValueAtom(Token Token) : ValueNode;
 internal sealed record ValueBinary(ValueNode Left, Token Operator, ValueNode Right) : ValueNode;
 internal sealed record ValueConditional(ValueNode Condition,Token Question,ValueNode WhenTrue,Token Colon,ValueNode WhenFalse) : ValueNode;
+// Contextual operators are erased in JS: 'as' asserts a new view,
+// 'satisfies' checks a constraint while retaining source inference.
+internal sealed record ValueTypeOperator(ValueNode Expression,Token Keyword,TypeSyntax Target) : ValueNode;
 internal sealed record ValueUnary(Token Operator, ValueNode Operand) : ValueNode;
 internal sealed record ValueParenthesized(Token Open, ValueNode Expression, Token Close) : ValueNode;
 internal sealed record ValueCall(Token Callee, IReadOnlyList<ValueNode> Arguments) : ValueNode;

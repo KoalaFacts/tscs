@@ -48,11 +48,20 @@ jobs:
           node tools/verify-bitwise-reference.ts "$reference" .artifacts/numeric-bitwise-reference
            node tools/verify-division-reference.ts "$reference" .artifacts/numeric-division-reference
            node tools/verify-division-reference.ts "$reference" .artifacts/string-addition-reference fixtures/string-addition/semantic-cases.json
+          node tools/verify-type-operators-reference.ts "$reference" .artifacts/type-operators-reference
           node tools/verify-switch-reference.ts "$reference" .artifacts/switch-reference
           node tools/verify-switch-reference.ts "$reference" .artifacts/switch-completion-reference fixtures/switch-completion/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/loop-control-reference fixtures/loop-control/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/classic-for-reference fixtures/classic-for/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/numeric-mutation-reference fixtures/numeric-mutation/semantic-cases.json
+      - name: Preserve type-operator reference inputs and raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-type-operators-reference-${{ github.sha }}
+          path: .artifacts/type-operators-reference/
+          retention-days: 30
+          if-no-files-found: warn
       - name: Preserve string addition reference inputs and raw results
         if: always()
         uses: actions/upload-artifact@v4
