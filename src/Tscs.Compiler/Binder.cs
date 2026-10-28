@@ -13,7 +13,10 @@ internal sealed class Symbol(string file,Statement declaration)
         ForOfStatement loop => loop.Name.Start,
         _ => throw new InvalidOperationException("Unsupported symbol declaration.")
     };
+    // Declared/widened assignment target is never replaced by a flow fact.
+    // Type is the temporary read type used by branch/guard narrowing.
     public TypeSymbol? Type { get; set; }
+    public TypeSymbol? DeclaredType { get; set; }
     public bool Initialized { get; set; }
     public bool CrossFileTypeReady { get; set; }
     public bool Imported { get; set; }
@@ -84,6 +87,7 @@ internal static class Binder
         Declare(file,scope,parameter);
         var symbol=scope.Symbols[parameter.Name.Text];
         symbol.Type=TypeResolver.Resolve(parameter.Annotation,scope,file);
+        symbol.DeclaredType=symbol.Type;
         symbol.Initialized=true;
         symbol.CrossFileTypeReady=true;
     }
@@ -92,7 +96,7 @@ internal static class Binder
     {
         var symbol=new Symbol(file,loop)
         {
-            Type=type, Initialized=true, CrossFileTypeReady=true
+            Type=type, DeclaredType=type, Initialized=true, CrossFileTypeReady=true
         };
         if(!scope.Symbols.TryAdd(loop.Name.Text,symbol))
             throw new CompilationFailure(Diagnostic.Error(file,loop.Name,"TSCS1001",
@@ -107,6 +111,7 @@ internal static class Binder
         var imported=new Symbol(exported.File,exported.Declaration)
         {
             Type=exported.Type,
+            DeclaredType=exported.DeclaredType,
             Initialized=exported.Initialized,
             CrossFileTypeReady=true,
             Imported=true
@@ -140,6 +145,7 @@ internal static class Binder
                     symbol.CrossFileTypeReady=true;
                     break;
             }
+            symbol.DeclaredType=symbol.Type;
         }
     }
     private static void Declare(string file,Scope scope,Statement declaration)

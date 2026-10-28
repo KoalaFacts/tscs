@@ -102,6 +102,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         var annotatedType=v.Annotation is { } annotation
                             ? TypeResolver.Resolve(annotation,scope,file) : null;
                         symbol.Type=annotatedType??source;
+                        symbol.DeclaredType=symbol.Type;
                         symbol.Initialized=v.Initializer!=null;
                         if(v.Constant&&v.Initializer==null) Error(v.Name,"TS1155","'const' declarations must be initialized.");
                         if(annotatedType!=null && source!=null &&
@@ -114,11 +115,30 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         if(target==null)break;
                         if(target.Imported) Error(a.Name,"TS2632",$"Cannot assign to '{a.Name.Text}' because it is an import.");
                         else if(target.IsConstant) Error(a.Name,"TS2588",$"Cannot assign to '{a.Name.Text}' because it is a constant.");
-                        else if(target.Type!=null && assigned!=null)
+                        else if((target.DeclaredType??target.Type) is { } assignmentType && assigned!=null)
                         {
-                            if(CheckContextualLiteral(a.Value,target.Type,assigned) &&
-                               !IsAssignableContextually(a.Value,assigned,target.Type))Mismatch(a.Name,assigned,target.Type);
-                            else target.Initialized=true;
+                            // A narrowed read is NOT the declared assignment constraint.
+                            // Rebinding can change the flow type, but must still satisfy
+                            // the original declaration (including literal contextual rules).
+                            if(CheckContextualLiteral(a.Value,assignmentType,assigned) &&
+                               !IsAssignableContextually(a.Value,assigned,assignmentType))
+                                Mismatch(a.Name,assigned,assignmentType);
+                            else
+                            {
+                                target.Initialized=true;
+                                if(target.DeclaredType!=null &&
+                                   !ReferenceEquals(target.Type,target.DeclaredType))
+                                {
+                                    // An exact primitive assignment may refine a
+                                    // primitive union; other writes conservatively
+                                    // invalidate the old branch fact.
+                                    bool primitiveUnion=target.DeclaredType is UnionTypeSymbol union &&
+                                        union.Alternatives.All(member=>member is PrimitiveTypeSymbol or LiteralTypeSymbol);
+                                    target.Type=primitiveUnion &&
+                                        CompilerTypes.IsAssignable(assigned,target.DeclaredType)
+                                        ?assigned:target.DeclaredType;
+                                }
+                            }
                         }
                         else target.Initialized=true;
                         break;
@@ -384,10 +404,12 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         // Discriminant types are a branch-local view of one existing symbol.
         // Never mutate the AST or permanently narrow the declaration type.
         var discriminant=TryNarrowDiscriminant(conditional.Condition,scope);
-        var originalType=discriminant?.Symbol.Type;
         var before=CaptureInitialized(scope);
+        var incomingTypes=CaptureFlowTypes(scope);
         var whenTrue=before;
         var whenFalse=before;
+        var typesWhenTrue=incomingTypes;
+        var typesWhenFalse=incomingTypes;
         // A returning arm cannot reach the statement after this conditional.
         // Only paths that can fall through contribute to definite assignment.
         bool thenFallsThrough=FunctionControlFlow.CanCompleteNormally(conditional.Consequent);
@@ -398,7 +420,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             if(discriminant is { } narrowing) narrowing.Symbol.Type=narrowing.WhenTrue;
             CheckBlock(conditional.Consequent,scope,false,expectedReturn,allowBreak,allowContinue);
             whenTrue=CaptureInitialized(scope);
+            typesWhenTrue=CaptureFlowTypes(scope);
             RestoreInitialized(before);
+            RestoreFlowTypes(incomingTypes);
             if(discriminant is { } narrowingFalse) narrowingFalse.Symbol.Type=narrowingFalse.WhenFalse;
             switch(conditional.Alternate)
             {
@@ -410,12 +434,12 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     break;
             }
             whenFalse=CaptureInitialized(scope);
+            typesWhenFalse=CaptureFlowTypes(scope);
         }
         finally
         {
             RestoreInitialized(before);
-            if(discriminant is { } narrowingRestored)
-                narrowingRestored.Symbol.Type=originalType;
+            RestoreFlowTypes(incomingTypes);
         }
         foreach(var (symbol,initialized) in before)
             symbol.Initialized=(thenFallsThrough,elseFallsThrough) switch
@@ -431,8 +455,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         // definitely exits. Two fallthrough branches retain the union.
         if(discriminant is not { } narrowed || thenFallsThrough==elseFallsThrough)
             return null;
+        // If the reachable branch rebounded the narrowed variable, its final
+        // flow type (not the pre-assignment branch fact) continues afterward.
         return new DiscriminantContinuation(narrowed.Symbol,
-            thenFallsThrough?narrowed.WhenTrue:narrowed.WhenFalse);
+            thenFallsThrough?typesWhenTrue[narrowed.Symbol]!:typesWhenFalse[narrowed.Symbol]!);
     }
 
     private readonly record struct DiscriminantContinuation(
@@ -592,6 +618,20 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     private static void RestoreInitialized(IReadOnlyDictionary<Symbol,bool> values)
     {
         foreach(var (symbol,initialized) in values) symbol.Initialized=initialized;
+    }
+
+    private static Dictionary<Symbol,TypeSymbol?> CaptureFlowTypes(Scope scope)
+    {
+        var values=new Dictionary<Symbol,TypeSymbol?>();
+        for(Scope? current=scope;current!=null;current=current.Parent)
+            foreach(var symbol in current.Symbols.Values)
+                values.TryAdd(symbol,symbol.Type);
+        return values;
+    }
+
+    private static void RestoreFlowTypes(IReadOnlyDictionary<Symbol,TypeSymbol?> values)
+    {
+        foreach(var (symbol,type) in values) symbol.Type=type;
     }
 
     private TypeSymbol? TypeOf(ValueNode value,Scope scope)

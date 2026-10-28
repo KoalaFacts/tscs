@@ -19,13 +19,19 @@ try {
     'export function describe(value: Input): string {',
     '  if (typeof value === "string") { return value; }',
     '  return "number";',
+    '}',
+    'export function reset(value: Input): string {',
+    '  if (typeof value !== "number") { return value; }',
+    '  value = "reset";',
+    '  return value;',
     '}'
   ].join('\n'));
-  writeFileSync(join(folder,'bridge.ts'),'export { twice as calculate, describe } from "./compute.js";\n');
+  writeFileSync(join(folder,'bridge.ts'),'export { twice as calculate, describe, reset } from "./compute.js";\n');
   writeFileSync(join(folder,'entry.ts'),[
-    'import { calculate, describe } from "./bridge.js";',
+    'import { calculate, describe, reset } from "./bridge.js";',
     'export const result: number = calculate(21);',
     'export const label: string = describe("ready");',
+    'export const rebound: string = reset(21);',
     'export const category: string = typeof result;'
   ].join('\n'));
   writeFileSync(join(folder,'project.json'),JSON.stringify({
@@ -42,7 +48,7 @@ try {
   for(const name of ['model','compute','bridge','entry'])
     assert.ok(existsSync(join(folder,name+'.js')),'missing '+name+'.js');
   const run=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,label,category} from "./entry.js"; if(result!==42||label!=="ready"||category!=="number") throw Error("typeof narrowing runtime mismatch");'],
+    'import {result,label,rebound,category} from "./entry.js"; if(result!==42||label!=="ready"||rebound!=="reset"||category!=="number") throw Error("typeof narrowing runtime mismatch");'],
     {cwd:folder,encoding:'utf8',timeout:15000});
   assert.equal(run.error,undefined,String(run.error));
   assert.equal(run.status,0,run.stdout+run.stderr);
@@ -56,7 +62,7 @@ try {
   assert.equal(rejected.status,2,rejected.stdout+rejected.stderr);
   assert.match(rejected.stdout+rejected.stderr,/TS2322/);
   assert.equal(existsSync(join(folder,'invalid.js')),false);
-  console.log('typeof primitive narrowing: four-module ES2015 runtime result=42 label=ready category=number; wrong-branch assignment rejected.');
+  console.log('typeof primitive narrowing: four-module ES2015 runtime result=42 label=ready rebound=reset category=number; wrong-branch assignment rejected.');
 } finally {
   rmSync(folder,{recursive:true,force:true});
 }

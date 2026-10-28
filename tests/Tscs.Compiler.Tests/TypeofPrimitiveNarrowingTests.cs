@@ -30,4 +30,19 @@ public sealed class TypeofPrimitiveNarrowingTests
     [InlineData("function wrong(value: number | string): number { if (\"number\" !== typeof value) { return value; } return 0; }", "TS2322")] // typeof-primitive:negative-06
     public void WrongBranchAndUnnarrowedWritesRemainErrors(string source,string code) =>
         Assert.Contains(Compilation.Check("typeof-negative.ts",source),d=>d.Code==code);
+    // Regression for review P2: narrowed *reads* may not overwrite the
+    // declared assignment target, and a successful rebinding invalidates
+    // the previous branch fact even when the if arm completes normally.
+    [Theory]
+    [InlineData("function reset(v: number | string): string { if (typeof v !== \"number\") { return v; } v = \"reset\"; return v; } let output: string = reset(1);")]
+    [InlineData("type State = { kind: \"ok\"; value: number } | { kind: \"bad\"; message: string }; function swap(v: State): string { if (v.kind === \"ok\") { v = { kind: \"bad\", message: \"changed\" }; return \"done\"; } return v.message; }")]
+    public void RebindingInsideGuardsUsesDeclaredTargetAndUpdatesFlow(string source) =>
+        Assert.Empty(Compilation.Check("guard-rebind.ts",source));
+
+    [Theory]
+    [InlineData("function wrong(v: number | string): number { if (typeof v === \"number\") { v = \"reset\"; } else { return 0; } return v * 2; }", "TSCS1001")]
+    [InlineData("type State = { kind: \"ok\"; value: number } | { kind: \"bad\"; message: string }; function wrong(v: State): number { if (v.kind === \"ok\") { v = { kind: \"bad\", message: \"changed\" }; } else { return 0; } return v.value; }", "TS2339")]
+    public void RebindingInvalidatesStaleReadNarrowing(string source,string code) =>
+        Assert.Contains(Compilation.Check("stale-flow.ts",source),d=>d.Code==code);
+
 }
