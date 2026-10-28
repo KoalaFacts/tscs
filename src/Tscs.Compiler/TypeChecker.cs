@@ -154,6 +154,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         if(conditionType!=null && !CompilerTypes.IsAssignable(conditionType,CompilerTypes.Boolean))
             throw new CompilationFailure(Diagnostic.Error(file,conditional.Keyword,"TSCS1001",
                 "Only boolean or any conditions are supported by the current flow checker."));
+        // Discriminant types are a branch-local view of one existing symbol.
+        // Never mutate the AST or permanently narrow the declaration type.
+        var discriminant=TryNarrowDiscriminant(conditional.Condition,scope);
+        var originalType=discriminant?.Symbol.Type;
         var before=CaptureInitialized(scope);
         var whenTrue=before;
         var whenFalse=before;
@@ -164,9 +168,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             FunctionControlFlow.CanCompleteNormally(conditional.Alternate);
         try
         {
+            if(discriminant is { } narrowing) narrowing.Symbol.Type=narrowing.WhenTrue;
             CheckBlock(conditional.Consequent,scope,false,expectedReturn);
             whenTrue=CaptureInitialized(scope);
             RestoreInitialized(before);
+            if(discriminant is { } narrowingFalse) narrowingFalse.Symbol.Type=narrowingFalse.WhenFalse;
             switch(conditional.Alternate)
             {
                 case Block alternate:
@@ -178,7 +184,12 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             }
             whenFalse=CaptureInitialized(scope);
         }
-        finally { RestoreInitialized(before); }
+        finally
+        {
+            RestoreInitialized(before);
+            if(discriminant is { } narrowingRestored)
+                narrowingRestored.Symbol.Type=originalType;
+        }
         foreach(var (symbol,initialized) in before)
             symbol.Initialized=(thenFallsThrough,elseFallsThrough) switch
             {
@@ -189,6 +200,78 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 // fabricating an initialized value in unreachable code.
                 _ => initialized
             };
+    }
+
+    // Bounded discriminated unions: a simple identifier's shared named member
+    // must be a known literal in every object alternative. This explicitly
+    // excludes broad/string/optional members and arbitrary boolean expressions.
+    // Both branch types must be nonempty to avoid inventing unreachable-flow
+    // handling before the full control-flow graph is implemented.
+    private readonly record struct DiscriminantBranches(
+        Symbol Symbol,TypeSymbol WhenTrue,TypeSymbol WhenFalse);
+
+    private static DiscriminantBranches? TryNarrowDiscriminant(ValueNode condition,Scope scope)
+    {
+        while(condition is ValueParenthesized grouped)condition=grouped.Expression;
+        if(condition is not ValueBinary comparison ||
+           comparison.Operator.Kind is not (TokenKind.StrictEqual or TokenKind.StrictNotEqual))
+            return null;
+
+        Token variable=default;
+        string property="";
+        LiteralTypeSymbol? expected=null;
+        if(TryReadDiscriminant(comparison.Left,out variable,out property))
+            expected=TryReadLiteral(comparison.Right);
+        if(expected==null && TryReadDiscriminant(comparison.Right,out variable,out property))
+            expected=TryReadLiteral(comparison.Left);
+        if(expected==null)return null;
+        var symbol=scope.Find(variable.Text);
+        if(symbol?.Type is not UnionTypeSymbol union)return null;
+
+        var equal=new List<TypeSymbol>();
+        var different=new List<TypeSymbol>();
+        foreach(var candidate in union.Alternatives)
+        {
+            if(candidate is not ObjectTypeSymbol shape ||
+               !shape.Members.TryGetValue(property,out var discriminator) ||
+               discriminator is not LiteralTypeSymbol literal)
+                return null; // no guessed narrowing of broad or unknown variants
+            if(literal.Equals(expected))equal.Add(candidate);
+            else different.Add(candidate);
+        }
+        if(equal.Count==0 || different.Count==0)return null;
+        var onEqual=CompilerTypes.Union(equal);
+        var onDifferent=CompilerTypes.Union(different);
+        return comparison.Operator.Kind==TokenKind.StrictEqual
+            ?new DiscriminantBranches(symbol,onEqual,onDifferent)
+            :new DiscriminantBranches(symbol,onDifferent,onEqual);
+    }
+
+    private static bool TryReadDiscriminant(ValueNode source,out Token variable,out string member)
+    {
+        while(source is ValueParenthesized group)source=group.Expression;
+        if(source is ValuePropertyAccess { Receiver:ValueAtom atom } access &&
+           atom.Token.Kind==TokenKind.Identifier)
+        {
+            variable=atom.Token;
+            member=access.Name.Text;
+            return true;
+        }
+        variable=default;
+        member="";
+        return false;
+    }
+
+    private static LiteralTypeSymbol? TryReadLiteral(ValueNode source)
+    {
+        while(source is ValueParenthesized group)source=group.Expression;
+        if(source is ValueAtom atom && atom.Token.Kind is
+                (TokenKind.String or TokenKind.Number or TokenKind.True or TokenKind.False))
+            return CompilerTypes.FromLiteralExact(atom.Token);
+        if(source is ValueUnary { Operator.Kind:TokenKind.Minus,Operand:ValueAtom number } &&
+           number.Token.Kind==TokenKind.Number)
+            return CompilerTypes.FromLiteralExact(number.Token,negative:true);
+        return null;
     }
 
     private static Dictionary<Symbol,bool> CaptureInitialized(Scope scope)

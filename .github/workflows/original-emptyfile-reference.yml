@@ -40,6 +40,15 @@ jobs:
           node tools/verify-array-iteration-reference.ts "$reference" .artifacts/array-iteration-reference
           node tools/verify-named-types-reference.ts "$reference" .artifacts/named-types-reference
           node tools/verify-literal-types-reference.ts "$reference" .artifacts/literal-types-reference
+          node tools/verify-discriminant-reference.ts "$reference" .artifacts/discriminant-reference
+      - name: Preserve bounded discriminant-flow reference inputs and raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-discriminant-flow-reference-${{ github.sha }}
+          path: .artifacts/discriminant-reference/
+          retention-days: 30
+          if-no-files-found: warn
       - name: Preserve literal type differential inputs, outputs and raw results
         if: always()
         uses: actions/upload-artifact@v4

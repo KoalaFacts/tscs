@@ -1,0 +1,73 @@
+{
+  "kind": "BOUNDED_DISCRIMINANT_FLOW_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "discriminant-flow:positive-01",
+      "source": "type Result = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function read(r: Result): number { if (r.kind === \"ok\") { return r.value; } else { return 0; } } let output: number = read({ kind: \"ok\", value: 42 });",
+      "expectedCodes": []
+    },
+    {
+      "id": "discriminant-flow:positive-02",
+      "source": "type Result = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function read(r: Result): string { if (r.kind !== \"ok\") { return r.message; } else { return \"ready\"; } } let output: string = read({ kind: \"error\", message: \"bad\" });",
+      "expectedCodes": []
+    },
+    {
+      "id": "discriminant-flow:positive-03",
+      "source": "type Result = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function read(r: Result): string { if (\"error\" === r.kind) { return r.message; } else { return \"ready\"; } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "discriminant-flow:positive-04",
+      "source": "type Tri = { kind: \"left\"; left: number } | { kind: \"right\"; right: number } | { kind: \"idle\"; other: number }; function read(r: Tri): number { if (r.kind === \"left\") { return r.left; } else if (r.kind === \"right\") { return r.right; } else { return r.other; } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "discriminant-flow:positive-05",
+      "source": "type Pair = { code: 1; first: number } | { code: 2; second: number }; function pick(p: Pair): number { if (p.code === 1) { return p.first; } else { return p.second; } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "discriminant-flow:positive-06",
+      "source": "type Flag = { ok: true; value: number } | { ok: false; reason: string }; function read(f: Flag): number { if (f.ok === true) { return f.value; } else { return 0; } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "discriminant-flow:positive-07",
+      "source": "type Result = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function read(r: Result): number { if (r.kind === \"ok\") { if (r.value > 0) { return r.value; } else { return 0; } } else { return 0; } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "discriminant-flow:positive-08",
+      "source": "type Result = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function sum(xs: Result[]): number { let total: number = 0; for (const r of xs) { if (r.kind === \"ok\") { total = total + r.value; } } return total; } let data: Result[] = [{ kind: \"ok\", value: 21 }, { kind: \"error\", message: \"bad\" }]; let output: number = sum(data);",
+      "expectedCodes": []
+    },
+    {
+      "id": "discriminant-flow:negative-01",
+      "source": "type Result = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function wrong(r: Result): number { if (r.kind === \"ok\") { return r.message; } else { return 0; } }",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "discriminant-flow:negative-02",
+      "source": "type Result = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function wrong(r: Result): number { if (r.kind !== \"ok\") { return r.value; } else { return 0; } }",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "discriminant-flow:negative-03",
+      "source": "type Result = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function wrong(r: Result): number { if (r.kind === \"ok\") { let n: number = r.value; } return r.value; }",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "discriminant-flow:negative-04",
+      "source": "type Result = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function wrong(r: Result): number { if (r.kind === \"ok\") { return r.value; } else { return r.value; } }",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    }
+  ]
+}
