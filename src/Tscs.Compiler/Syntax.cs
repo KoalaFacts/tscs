@@ -10,6 +10,8 @@ internal sealed record Block(List<Statement> Statements) : Statement;
 // Type syntax preserves source tokens; semantic types are built by the binder.
 internal abstract record TypeSyntax;
 internal sealed record PrimitiveTypeSyntax(Token Name) : TypeSyntax;
+// Literal annotations retain decoded source values independently from widened expressions.
+internal sealed record LiteralTypeSyntax(Token Literal,bool Negative=false) : TypeSyntax;
 internal sealed record ObjectTypeProperty(Token Name,TypeSyntax Type);
 internal sealed record ObjectTypeSyntax(Token Open,IReadOnlyList<ObjectTypeProperty> Properties,Token Close) : TypeSyntax;
 internal sealed record ArrayTypeSyntax(TypeSyntax Element,Token Open,Token Close) : TypeSyntax;

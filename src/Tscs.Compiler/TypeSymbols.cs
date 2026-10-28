@@ -23,6 +23,13 @@ internal sealed record PrimitiveTypeSymbol(PrimitiveKind Kind) : TypeSymbol
     };
 }
 
+// Literal types refine primitive values only at explicit/contextual type sites.
+internal sealed record LiteralTypeSymbol(PrimitiveKind Kind,string Value) : TypeSymbol
+{
+    public override string DisplayName=>Kind==PrimitiveKind.String
+        ?System.Text.Json.JsonSerializer.Serialize(Value):Value;
+}
+
 internal sealed record ArrayTypeSymbol(TypeSymbol ElementType) : TypeSymbol
 {
     public override string DisplayName=>TypeDisplay.Format(this);
@@ -51,6 +58,15 @@ internal static class CompilerTypes
     // evolving array inference remain outside this supported subset.
     public static readonly TypeSymbol Never=new PrimitiveTypeSymbol(PrimitiveKind.Never);
 
+    public static LiteralTypeSymbol FromLiteralExact(Token token,bool negative=false)=>token.Kind switch
+    {
+        TokenKind.String when !negative=>new(PrimitiveKind.String,token.Value??token.Text),
+        TokenKind.Number=>new(PrimitiveKind.Number,token.Text=="0"?"0":(negative?"-":"")+token.Text),
+        TokenKind.True when !negative=>new(PrimitiveKind.Boolean,"true"),
+        TokenKind.False when !negative=>new(PrimitiveKind.Boolean,"false"),
+        _=>throw new ArgumentOutOfRangeException(nameof(token),"Only parsed primitive literals may form literal types.")
+    };
+
     public static TypeSymbol Union(IEnumerable<TypeSymbol> variants)
     {
         var options=new List<TypeSymbol>();
@@ -63,6 +79,18 @@ internal static class CompilerTypes
                 if(options.All(existing=>!IsEquivalent(existing,type)))options.Add(type);
                 if(options.Count>64)throw new InvalidOperationException("Too many union variants for the bounded compiler.");
             }
+        }
+        // A primitive absorbs narrower literals; true | false is boolean.
+        // This also makes stored boolean/number values assignable to the
+        // corresponding fully covered primitive-literal union.
+        foreach(var kind in new[]{PrimitiveKind.Number,PrimitiveKind.String,PrimitiveKind.Boolean})
+            if(options.Any(x=>x is PrimitiveTypeSymbol primitive && primitive.Kind==kind))
+                options.RemoveAll(x=>x is LiteralTypeSymbol lit && lit.Kind==kind);
+        if(options.Any(x=>x is LiteralTypeSymbol { Kind:PrimitiveKind.Boolean,Value:"true" }) &&
+           options.Any(x=>x is LiteralTypeSymbol { Kind:PrimitiveKind.Boolean,Value:"false" }))
+        {
+            options.RemoveAll(x=>x is LiteralTypeSymbol { Kind:PrimitiveKind.Boolean });
+            options.Add(Boolean);
         }
         return options.Count switch {0=>Never,1=>options[0],_=>new UnionTypeSymbol(options)};
     }
@@ -149,14 +177,32 @@ internal static class CompilerTypes
         return null;
     }
 
-    public static bool IsNumber(TypeSymbol? type) => type is PrimitiveTypeSymbol { Kind: PrimitiveKind.Number };
-    public static bool IsBoolean(TypeSymbol? type) => type is PrimitiveTypeSymbol { Kind: PrimitiveKind.Boolean };
+    public static bool IsNumber(TypeSymbol? type) => type is PrimitiveTypeSymbol { Kind: PrimitiveKind.Number } or LiteralTypeSymbol { Kind: PrimitiveKind.Number };
+    public static bool IsBoolean(TypeSymbol? type) => type is PrimitiveTypeSymbol { Kind: PrimitiveKind.Boolean } or LiteralTypeSymbol { Kind: PrimitiveKind.Boolean };
 
     // This is only the bounded, same-primitive/any equality subset.
     // Do not infer an overlap between unrelated or structural type forms.
-    public static bool CanCompareEquality(TypeSymbol left,TypeSymbol right) =>
-        left is PrimitiveTypeSymbol && right is PrimitiveTypeSymbol &&
-        (left.Equals(right) || left.Equals(Any) || right.Equals(Any));
+    // Comparisons between primitive/literal unions are admitted only when a
+    // primitive family overlaps; unrelated structural comparisons fail closed.
+    public static bool CanCompareEquality(TypeSymbol left,TypeSymbol right)
+    {
+        var a=new HashSet<PrimitiveKind>();
+        var b=new HashSet<PrimitiveKind>();
+        static bool Collect(TypeSymbol type,HashSet<PrimitiveKind> kinds)
+        {
+            switch(type)
+            {
+                case PrimitiveTypeSymbol { Kind:PrimitiveKind.Any }: return true;
+                case PrimitiveTypeSymbol { Kind:PrimitiveKind.Never }: return true;
+                case PrimitiveTypeSymbol primitive: kinds.Add(primitive.Kind); return true;
+                case LiteralTypeSymbol literal: kinds.Add(literal.Kind); return true;
+                case UnionTypeSymbol union: return union.Alternatives.All(t=>Collect(t,kinds));
+                default: return false;
+            }
+        }
+        if(left.Equals(Any)||right.Equals(Any))return true;
+        return Collect(left,a)&&Collect(right,b)&&a.Overlaps(b);
+    }
 
     public static bool IsAssignable(TypeSymbol source,TypeSymbol target)
     {
@@ -178,6 +224,11 @@ internal static class CompilerTypes
                     return sourceUnion.Alternatives.All(variant=>Check(variant,required));
                 if(required is UnionTypeSymbol targetUnion)
                     return targetUnion.Alternatives.Any(variant=>Check(actual,variant));
+                if(required is LiteralTypeSymbol exact)
+                    return actual is LiteralTypeSymbol value && value.Equals(exact);
+                if(actual is LiteralTypeSymbol literal &&
+                   required is PrimitiveTypeSymbol primitive)
+                    return primitive.Kind==literal.Kind;
                 if(required is ArrayTypeSymbol requiredArray)
                     return actual is ArrayTypeSymbol actualArray &&
                         Check(actualArray.ElementType,requiredArray.ElementType);
