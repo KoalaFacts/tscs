@@ -1,0 +1,44 @@
+name: Offline development bundle
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/development-bundle.yml'
+permissions:
+  contents: read
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TSCS_DEV_ROOT: ${{ github.workspace }}/.artifacts/development-bundle-tools
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      TESTINGPLATFORM_TELEMETRY_OPTOUT: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Provision the existing pinned environment
+        run: bash scripts/setup-dev-environment.sh
+      - name: Package verified downloads and source without credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          bundle="$RUNNER_TEMP/tscs-development-bundle"
+          mkdir -p "$bundle/downloads" "$bundle/nuget-feed"
+          git bundle create "$bundle/source.bundle" --all
+          git rev-parse HEAD > "$bundle/SOURCE_SHA"
+          git rev-parse HEAD^{tree} > "$bundle/SOURCE_TREE"
+          cp "$TSCS_DEV_ROOT"/downloads/* "$bundle/downloads/"
+          cp "$TSCS_DEV_ROOT"/nuget-feed/*.nupkg "$bundle/nuget-feed/"
+          cp "$TSCS_DEV_ROOT/logs/versions.log" "$bundle/versions.log"
+          (cd "$bundle"; find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
+          echo "BUNDLE_PATH=$bundle" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tscs-offline-development-bundle
+          path: ${{ env.BUNDLE_PATH }}
+          compression-level: 0
+          retention-days: 1
+          if-no-files-found: error

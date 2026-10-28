@@ -47,7 +47,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         throw new CompilationFailure(Diagnostic.Error(file,returned.Keyword,"TSCS1001",
                             "Return statements outside functions are not supported."));
                     var returnType=TypeOf(returned.Value,scope);
-                    if(returnType!=null && !CompilerTypes.IsAssignable(returnType,expectedReturn))
+                    if(returnType!=null && CheckContextualLiteral(returned.Value,expectedReturn,returnType) &&
+                       !CompilerTypes.IsAssignable(returnType,expectedReturn))
                         Mismatch(returned.Keyword,returnType,expectedReturn);
                     break;
                 case Variable v:
@@ -60,7 +61,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     symbol.Type=annotatedType??source;
                     symbol.Initialized=v.Initializer!=null;
                     if(v.Constant&&v.Initializer==null) Error(v.Name,"TS1155","'const' declarations must be initialized.");
-                    if(annotatedType!=null&&source!=null&&!CompilerTypes.IsAssignable(source,annotatedType))
+                    if(annotatedType!=null && source!=null &&
+                       CheckContextualLiteral(v.Initializer!,annotatedType,source) &&
+                       !CompilerTypes.IsAssignable(source,annotatedType))
                         Mismatch(v.Name,source,annotatedType);
                     break;
                 case Assignment a:
@@ -68,8 +71,23 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     if(target==null)break;
                     if(target.Imported) Error(a.Name,"TS2632",$"Cannot assign to '{a.Name.Text}' because it is an import.");
                     else if(target.IsConstant) Error(a.Name,"TS2588",$"Cannot assign to '{a.Name.Text}' because it is a constant.");
-                    else if(target.Type!=null&&assigned!=null&&!CompilerTypes.IsAssignable(assigned,target.Type)) Mismatch(a.Name,assigned,target.Type);
+                    else if(target.Type!=null && assigned!=null)
+                    {
+                        if(CheckContextualLiteral(a.Value,target.Type,assigned) &&
+                           !CompilerTypes.IsAssignable(assigned,target.Type))Mismatch(a.Name,assigned,target.Type);
+                        else target.Initialized=true;
+                    }
                     else target.Initialized=true;
+                    break;
+                case PropertyAssignment assignment:
+                    // Mutating a property does not rebind a const or an import.
+                    // TypeOf still enforces initialization of the receiver.
+                    var propertyType=TypeOf(assignment.Target,scope);
+                    var valueType=TypeOf(assignment.Value,scope);
+                    if(propertyType!=null && valueType!=null &&
+                       CheckContextualLiteral(assignment.Value,propertyType,valueType) &&
+                       !CompilerTypes.IsAssignable(valueType,propertyType))
+                        Mismatch(assignment.Target.Name,valueType,propertyType);
                     break;
                 case PostfixUpdate update:
                     var updated=Resolve(update.Name,scope);
@@ -165,6 +183,47 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 types.Push(TypeOfAtom(atom.Token,scope));
                 continue;
             }
+            if(node is ValueObject literal)
+            {
+                if(!combine)
+                {
+                    pending.Push((literal,true));
+                    for(int i=literal.Properties.Count-1;i>=0;i--)
+                        pending.Push((literal.Properties[i].Value,false));
+                    continue;
+                }
+                var members=new KeyValuePair<string,TypeSymbol>[literal.Properties.Count];
+                bool known=true;
+                for(int i=members.Length-1;i>=0;i--)
+                {
+                    var memberType=types.Pop();
+                    if(memberType==null)known=false;
+                    else members[i]=new(Parser.PropertyName(literal.Properties[i].Name),memberType);
+                }
+                // Do not turn an unresolved property into an implicit any.
+                types.Push(known?new ObjectTypeSymbol(members):null);
+                continue;
+            }
+            if(node is ValuePropertyAccess property)
+            {
+                if(!combine)
+                {
+                    pending.Push((property,true));
+                    pending.Push((property.Receiver,false));
+                    continue;
+                }
+                var receiver=types.Pop();
+                if(receiver==null)types.Push(null);
+                else if(receiver.Equals(CompilerTypes.Any))types.Push(CompilerTypes.Any);
+                else if(receiver is ObjectTypeSymbol shape &&
+                        shape.Members.TryGetValue(property.Name.Text,out var member))types.Push(member);
+                else
+                {
+                    Error(property.Name,"TS2339",$"Property '{property.Name.Text}' does not exist on type '{receiver.DisplayName}'.");
+                    types.Push(null);
+                }
+                continue;
+            }
             if(node is ValueParenthesized grouped)
             {
                 // Preserve grouping in the AST for eventual output, but its
@@ -218,6 +277,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 else
                     for(int i=0;i<arguments.Length;i++)
                         if(arguments[i] is { } actual &&
+                           CheckContextualLiteral(call.Arguments[i],signature.Parameters[i],actual) &&
                            !CompilerTypes.IsAssignable(actual,signature.Parameters[i]))
                             Error(call.Callee,"TS2345",
                                 $"Argument of type '{actual.DisplayName}' is not assignable to parameter of type '{signature.Parameters[i].DisplayName}'.");
@@ -300,7 +360,50 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         if(strictModule && (name.Text is "eval" or "arguments"))
             Error(name,"TS1100",$"Invalid use of '{name.Text}' in strict mode.");
     }
-    private void Mismatch(Token token,TypeSymbol source,TypeSymbol target)=>
+    // Fresh literal checks are use-site rules, not properties of stored object
+    // types: a wider value in a variable remains structurally assignable.
+    private bool CheckContextualLiteral(ValueNode value,TypeSymbol expected,TypeSymbol actual)
+    {
+        while(value is ValueParenthesized group)value=group.Expression;
+        if(value is not ValueObject literal || expected is not ObjectTypeSymbol shape ||
+           actual is not ObjectTypeSymbol data || shape.Members.Count==0)return true;
+        bool valid=true;
+        foreach(var property in literal.Properties)
+        {
+            var name=Parser.PropertyName(property.Name);
+            if(!shape.Members.TryGetValue(name,out var required))
+            {
+                Error(property.Name,"TS2353",$"Object literal may only specify known properties, and '{name}' does not exist in type '{shape.DisplayName}'.");
+                valid=false;
+            }
+            else if(data.Members.TryGetValue(name,out var member))
+            {
+                // Contextual checking diagnoses a fresh literal's property,
+                // not the whole function argument. Reuse its computed type so
+                // nested name-resolution errors are not evaluated twice.
+                if(!CheckContextualLiteral(property.Value,required,member))valid=false;
+                else if(!CompilerTypes.IsAssignable(member,required))
+                {
+                    Mismatch(property.Name,member,required);
+                    valid=false;
+                }
+            }
+        }
+        return valid;
+    }
+
+    private void Mismatch(Token token,TypeSymbol source,TypeSymbol target)
+    {
+        if(source is ObjectTypeSymbol data && target is ObjectTypeSymbol shape)
+        {
+            var missing=shape.Members.Keys.Where(name=>!data.Members.ContainsKey(name)).ToArray();
+            if(missing.Length==1)
+            {
+                Error(token,"TS2741",$"Property '{missing[0]}' is missing in type '{source.DisplayName}' but required in type '{target.DisplayName}'.");
+                return;
+            }
+        }
         Error(token,"TS2322",$"Type '{source.DisplayName}' is not assignable to type '{target.DisplayName}'.");
+    }
     private void Error(Token token,string code,string message)=>diagnostics.Add(Diagnostic.Error(file,token,code,message));
 }

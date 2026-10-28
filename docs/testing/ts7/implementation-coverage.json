@@ -3,7 +3,7 @@
   "kind": "BOUNDED_LOCAL_GUARD_PROBES_NOT_UPSTREAM_ACCEPTANCE",
   "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
   "sourcePath": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
-  "sourceGitBlob": "663e44537aa2f9fac97f66708515624873930638",
+  "sourceGitBlob": "317d253a7e2925975481aeae2af166002669f03d",
   "scope": "LOCAL_GUARD_PROBES_ONLY",
   "concreteUpstreamCases": null,
   "upstreamCaseExpansion": "UNEXPANDED",
@@ -12,10 +12,10 @@
   "releaseEligible": false,
   "counts": {
     "registered": 14,
-    "implemented": 8,
+    "implemented": 9,
     "verifiedUpstream": 0,
-    "skippedUnimplemented": 6,
-    "notRun": 8,
+    "skippedUnimplemented": 5,
+    "notRun": 9,
     "fail": 0,
     "mismatch": 0,
     "crash": 0,
@@ -24,8 +24,7 @@
   },
   "uniqueUnimplementedCapabilities": [
     "function-declarations",
-    "intrinsic-globalthis",
-    "object-literals"
+    "intrinsic-globalthis"
   ],
   "byDomain": {
     "binder": {
@@ -45,8 +44,8 @@
     },
     "parser": {
       "registered": 4,
-      "implemented": 2,
-      "skipUnimplemented": 2
+      "implemented": 3,
+      "skipUnimplemented": 1
     }
   },
   "cases": [
@@ -170,13 +169,13 @@
     {
       "id": "bootstrap:object-literal",
       "source": "const a = { x: 1 };",
-      "guardMethod": "UnsupportedSyntaxNeverSucceeds",
+      "guardMethod": "ValidPrimitiveCodeHasNoErrors",
       "capability": "object-literals",
       "domain": "parser",
-      "implementation": "UNIMPLEMENTED",
-      "implementationLocation": null,
-      "status": "SKIP",
-      "reason": "UNIMPLEMENTED",
+      "implementation": "IMPLEMENTED",
+      "implementationLocation": "src/Tscs.Compiler/Parser.cs",
+      "status": "NOT_RUN",
+      "reason": null,
       "executed": false,
       "upstreamExecutableCaseId": null
     },

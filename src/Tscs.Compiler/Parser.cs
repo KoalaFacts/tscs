@@ -7,6 +7,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     private int callNesting;
     private int conditionalNesting;
     private int groupNesting;
+    private int objectNesting;
     private Token Current => tokens[position];
     public List<Diagnostic> Diagnostics { get; } = [];
     private Token Take() => tokens[position++];
@@ -123,14 +124,14 @@ internal sealed class Parser(string file, List<Token> tokens)
                         var parameter=Current;
                         if(parameter.Kind!=TokenKind.Identifier)Unsupported(parameter,"Expected a named parameter.");
                         Take();
-                        if(!Eat(TokenKind.Colon))Unsupported(Current,"Function parameters require an explicit primitive type.");
-                        parameters.Add(new ParameterDeclaration(parameter,ReadPrimitiveAnnotation()));
+                        if(!Eat(TokenKind.Colon))Unsupported(Current,"Function parameters require an explicit supported type.");
+                        parameters.Add(new ParameterDeclaration(parameter,ReadTypeAnnotation()));
                         if(!Eat(TokenKind.Comma))break;
                     }
                 }
                 if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after function parameters.");
                 if(!Eat(TokenKind.Colon))Unsupported(Current,"Function return types must be explicit in this compiler subset.");
-                var result=ReadPrimitiveAnnotation();
+                var result=ReadTypeAnnotation();
                 if(!Eat(TokenKind.Open))Unsupported(Current,"Expected '{' before function body.");
                 var body=Parse(depth+1,true);
                 if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
@@ -159,10 +160,10 @@ internal sealed class Parser(string file, List<Token> tokens)
                 {
                     var name=Current;
                     if(name.Kind!=TokenKind.Identifier) Unsupported(name,"Only named variable declarations are supported.");
-                    Take(); string? annotation=null;
+                    Take(); TypeSyntax? annotation=null;
                     if(Eat(TokenKind.Colon))
                     {
-                        annotation=ReadPrimitiveAnnotation();
+                        annotation=ReadTypeAnnotation();
                     }
                     ValueNode? initializer=Eat(TokenKind.Equal)?ParseValue():null;
                     if(annotation==null && initializer==null) Unsupported(name,"Variables without a type or initializer are not supported yet.");
@@ -196,7 +197,9 @@ internal sealed class Parser(string file, List<Token> tokens)
             {
                 if(value is ValueAtom atom && atom.Token.Kind==TokenKind.Identifier)
                     statements.Add(new Assignment(atom.Token,ParseValue()));
-                else Unsupported(Current,"Only identifier assignment targets are supported.");
+                else if(value is ValuePropertyAccess property)
+                    statements.Add(new PropertyAssignment(property,ParseValue()));
+                else Unsupported(Current,"Only identifier or named-property assignment targets are supported.");
             }
             else statements.Add(new Expression(value));
             EndStatement();
@@ -241,12 +244,70 @@ internal sealed class Parser(string file, List<Token> tokens)
         finally { conditionalNesting--; }
     }
 
-    private string ReadPrimitiveAnnotation()
+    // One annotation grammar is used by variables, parameters and returns.
+    private TypeSyntax ReadTypeAnnotation(int depth=0)
     {
-        if(Current.Kind!=TokenKind.Identifier ||
-           Current.Text is not ("number" or "string" or "boolean" or "any"))
-            Unsupported(Current,"Only primitive type annotations are supported.");
-        return Take().Text;
+        if(depth>64)Unsupported(Current,"Object type nesting exceeds the compiler subset limit.");
+        if(Current.Kind==TokenKind.Identifier &&
+           Current.Text is "number" or "string" or "boolean" or "any")
+            return new PrimitiveTypeSyntax(Take());
+        if(Current.Kind!=TokenKind.Open)
+            Unsupported(Current,"Only primitive and required named object shapes are supported.");
+        var open=Take();
+        var properties=new List<ObjectTypeProperty>();
+        var names=new HashSet<string>(StringComparer.Ordinal);
+        while(Current.Kind!=TokenKind.Close)
+        {
+            var name=ReadPropertyName(allowString:true);
+            if(!names.Add(PropertyName(name)))
+                Diagnostics.Add(Diagnostic.Error(file,name,"TS2300",$"Duplicate identifier '{PropertyName(name)}'."));
+            if(!Eat(TokenKind.Colon))
+                Unsupported(Current,"Object type members require ':' and a type; optional, readonly and method forms are not supported.");
+            properties.Add(new ObjectTypeProperty(name,ReadTypeAnnotation(depth+1)));
+            if(Eat(TokenKind.Semi)||Eat(TokenKind.Comma))continue;
+            if(Current.Kind==TokenKind.Close)break;
+            if(!Current.LineBreak)Unsupported(Current,"Expected a separator between object type members.");
+        }
+        return new ObjectTypeSyntax(open,properties,Take());
+    }
+
+    internal static string PropertyName(Token token)=>token.Kind==TokenKind.String
+        ? token.Value??token.Text : token.Text;
+
+    private Token ReadPropertyName(bool allowString)
+    {
+        if(Current.Kind is TokenKind.Identifier or TokenKind.Let or TokenKind.Const or
+            TokenKind.Import or TokenKind.Export or TokenKind.Function or TokenKind.Return or
+            TokenKind.If or TokenKind.Else or TokenKind.True or TokenKind.False ||
+            (allowString && Current.Kind==TokenKind.String))return Take();
+        Unsupported(Current,"Expected a supported named object property.");
+        return default;
+    }
+
+    private ValueObject ParseObject()
+    {
+        var open=Take();
+        if(++objectNesting>64)Unsupported(open,"Object literal nesting exceeds the compiler subset limit.");
+        try
+        {
+            var properties=new List<ObjectProperty>();
+            var names=new HashSet<string>(StringComparer.Ordinal);
+            while(Current.Kind!=TokenKind.Close)
+            {
+                var name=ReadPropertyName(allowString:true);
+                if(PropertyName(name)=="__proto__")
+                    Unsupported(name,"Object prototype setter syntax is not supported.");
+                if(!names.Add(PropertyName(name)))
+                    Diagnostics.Add(Diagnostic.Error(file,name,"TS1117","An object literal cannot have multiple properties with the same name."));
+                if(!Eat(TokenKind.Colon))
+                    Unsupported(Current,"Object literals currently require explicit named property values.");
+                properties.Add(new ObjectProperty(name,ParseValue()));
+                if(!Eat(TokenKind.Comma))break;
+            }
+            if(Current.Kind!=TokenKind.Close)Unsupported(Current,"Expected '}' after object properties.");
+            return new ValueObject(open,properties,Take());
+        }
+        finally { objectNesting--; }
     }
 
     // Single precedence ladder shared by variable, call, return, assignment
@@ -325,7 +386,18 @@ internal sealed class Parser(string file, List<Token> tokens)
     }
     private ValueNode ParsePrimary()
     {
+        ValueNode value=ParsePrimaryValue();
+        // Postfix access binds more tightly than unary/binary operators. Named
+        // calls and grouped expressions can both produce object receivers.
+        while(Eat(TokenKind.Dot))
+            value=new ValuePropertyAccess(value,ReadPropertyName(allowString:false));
+        return value;
+    }
+
+    private ValueNode ParsePrimaryValue()
+    {
         var token=Current;
+        if(token.Kind==TokenKind.Open)return ParseObject();
         if(token.Kind==TokenKind.OpenParen)
         {
             Take();
@@ -366,7 +438,7 @@ internal sealed class Parser(string file, List<Token> tokens)
             Diagnostics.Add(Diagnostic.Error(file,token,"TS1109","Expression expected."));
             return new ValueAtom(new(TokenKind.Number,"0",token.Start,0));
         }
-        Unsupported(token,"Only primitive, parenthesized and named-call expressions are supported.");
+        Unsupported(token,"Only primitive, object, named-property, parenthesized and named-call expressions are supported.");
         return default!;
     }
     private void EndStatement()
