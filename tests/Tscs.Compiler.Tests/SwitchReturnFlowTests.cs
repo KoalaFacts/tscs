@@ -46,8 +46,17 @@ public sealed class SwitchReturnFlowTests
 
     [Theory]
     [InlineData("function f(n: number): number { switch(n) { case 1: return 1; default: { return 0; } } }")]
-    [InlineData("function f(n: number): number { switch(n) { case 1: { let x = 1; } default: { return 0; } } }")]
+
     [InlineData("function f(n: number): number { switch(n) { case 1: { return 1; } case 1: { return 2; } default: { return 0; } } }")]
-    public void UnsupportedFallthroughAndUnbracedArmsFailClosed(string source) =>
+    public void UnsupportedUnbracedArmsAndDuplicateCasesStillFailClosed(string source) =>
         Assert.Contains(Compilation.Check("switch.ts",source),d=>d.Code=="TSCS1001");
+
+    [Fact]
+    public void FormerlyUnsupportedBracedFallthroughMustNowCompile()
+    {
+        // Preserve the exact original negative input now that its behavior is
+        // implemented; a real runtime fallthrough is checked separately.
+        const string source="function f(n: number): number { switch(n) { case 1: { let x = 1; } default: { return 0; } } }";
+        Assert.Empty(Compilation.Check("switch.ts",source));
+    }
 }
