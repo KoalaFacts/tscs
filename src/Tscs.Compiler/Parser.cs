@@ -176,6 +176,11 @@ internal sealed class Parser(string file, List<Token> tokens)
                 statements.Add(ParseForOf(depth,inFunction));
                 continue;
             }
+            if(Current.Kind==TokenKind.Switch)
+            {
+                statements.Add(ParseSwitch(depth,inFunction));
+                continue;
+            }
             if(Current.Kind==TokenKind.Return)
             {
                 var keyword=Take();
@@ -241,6 +246,51 @@ internal sealed class Parser(string file, List<Token> tokens)
         }
         return new Block(statements);
     }
+
+    // Initial switch family: literal cases with braced, terminating arms.
+    // No implicit fallthrough or shared-case lexical declarations: these
+    // require CFG and switch-scope binding before being safe to support.
+    private SwitchStatement ParseSwitch(int depth,bool inFunction)
+    {
+        var keyword=Take();
+        if(!inFunction)Unsupported(keyword,"Returning switch statements are currently supported only inside functions.");
+        if(!Eat(TokenKind.OpenParen))Unsupported(Current,"Expected '(' after 'switch'.");
+        var selector=ParseValue();
+        if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after switch selector.");
+        if(!Eat(TokenKind.Open))Unsupported(Current,"Expected '{' before switch clauses.");
+        var clauses=new List<SwitchClause>();
+        bool hasDefault=false;
+        while(Current.Kind!=TokenKind.Close)
+        {
+            if(Current.Kind==TokenKind.End)Unsupported(Current,"Expected '}' after switch clauses.");
+            if(clauses.Count>=64)Unsupported(Current,"Switches with over 64 clauses are not supported yet.");
+            var keywordClause=Current;
+            if(keywordClause.Kind is not (TokenKind.Case or TokenKind.Default))
+                Unsupported(keywordClause,"Expected 'case' or 'default' in switch.");
+            Take();
+            ValueNode? label=null;
+            if(keywordClause.Kind==TokenKind.Case)
+            {
+                label=ParseValue();
+                if(label is not ValueAtom { Token.Kind:TokenKind.String or TokenKind.Number or TokenKind.True or TokenKind.False } &&
+                   label is not ValueUnary { Operator.Kind:TokenKind.Minus, Operand:ValueAtom { Token.Kind:TokenKind.Number } })
+                    Unsupported(keywordClause,"Only primitive literal switch case labels are supported yet.");
+            }
+            else if(hasDefault)Unsupported(keywordClause,"Duplicate switch defaults are not supported.");
+            else hasDefault=true;
+            if(!Eat(TokenKind.Colon))Unsupported(Current,"Expected ':' after switch clause.");
+            if(!Eat(TokenKind.Open))
+                Unsupported(Current,"Each switch clause currently requires a braced block.");
+            var body=Parse(depth+1,inFunction);
+            if(!Eat(TokenKind.Close))
+                Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+            clauses.Add(new SwitchClause(keywordClause,label,body));
+        }
+        if(!Eat(TokenKind.Close))Unsupported(Current,"Expected '}' after switch clauses.");
+        if(clauses.Count==0)Unsupported(keyword,"An empty switch has no supported returning control flow.");
+        return new SwitchStatement(keyword,selector,clauses);
+    }
+
     // The first iteration family is explicit, braced for..of over array values.
     // Unsupported classic for, for..in, destructuring and non-array iterables
     // fail closed rather than being lowered into misleading JavaScript.

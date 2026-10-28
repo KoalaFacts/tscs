@@ -1,5 +1,14 @@
 # tscs status
 
+## Returning discriminant-switch arms — integration candidate
+
+AST/parser/checker/control-flow/ES2015 emitter now share a bounded switch
+statement for braced literal case arms that return on all paths. Cross-module
+runtime and fixed-Go semantic cases are wired into normal CI but NOT_RUN at
+candidate creation. Break, fallthrough, dynamic labels and full CFG remain
+unsupported. Original TS7 acceptance/SKIP numbers are unchanged.
+See [switch-flow](progress/switch-flow.md).
+
 ## Returning-guard control-flow types — candidate, not yet accepted
 
 The checker now carries a discriminant type to following statements only
