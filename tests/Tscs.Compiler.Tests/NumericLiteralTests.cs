@@ -59,6 +59,6 @@ public sealed class NumericLiteralTests
         Assert.Throws<CompilationFailure>(()=>new Scanner("settings.json",
             "{\"value\":1.5}",jsonMode:true).Scan());
         Assert.Equal(TokenKind.Number,Assert.Single(new Scanner("settings.json",
-            "12",jsonMode:true).Scan().Where(t=>t.Kind==TokenKind.Number)).Kind);
+            "12",jsonMode:true).Scan(),t=>t.Kind==TokenKind.Number).Kind);
     }
 }
