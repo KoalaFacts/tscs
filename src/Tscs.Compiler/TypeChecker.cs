@@ -258,17 +258,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         }
                         break;
                     case PostfixUpdate update:
-                        var updated=Resolve(update.Name,scope);
-                        if(updated==null)break;
-                        if(!updated.Initialized)
-                            throw new CompilationFailure(Diagnostic.Error(file,update.Name,"TSCS1001","Reads before initialization are not supported yet."));
-                        if(updated.Imported)
-                            Error(update.Name,"TS2632",$"Cannot assign to '{update.Name.Text}' because it is an import.");
-                        else if(updated.IsConstant)
-                            Error(update.Name,"TS2588",$"Cannot assign to '{update.Name.Text}' because it is a constant.");
-                        else if(!CompilerTypes.IsNumber(updated.Type))
-                            throw new CompilationFailure(Diagnostic.Error(file,update.Operator,"TSCS1001","Only number postfix updates are supported yet."));
-                        else updated.Initialized=true;
+                        // Legacy statement AST shares the same checked lvalue path.
+                        CheckNumericUpdate(new ValueAtom(update.Name),update.Operator,scope);
                         break;
                     case Expression e: TypeOf(e.Value,scope);break;
                 }
@@ -412,11 +403,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     }
 
     // Do not type-check a receiver/index twice: a computed index can itself mutate state.
-    private TypeSymbol? CheckPrefixUpdate(ValuePrefixUpdate update,Scope scope)
+    private TypeSymbol? CheckNumericUpdate(ValueNode target,Token op,Scope scope)
     {
         TypeSymbol? current;
         Symbol? binding=null;
-        switch(update.Target)
+        switch(target)
         {
             case ValueAtom { Token.Kind:TokenKind.Identifier } atom:
                 binding=Resolve(atom.Token,scope);
@@ -454,8 +445,16 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     throw new CompilationFailure(Diagnostic.Error(file,element.Open,"TSCS1001",
                         "Indexed updates currently require a number expression."));
                 if(CompilerTypes.IsStringFamily(elementReceiver))
-                    throw new CompilationFailure(Diagnostic.Error(file,element.Open,"TS2542",
-                        "Index signature in type 'String' only permits reading."));
+                {
+                    // The pinned compiler reports both the non-numeric operand
+                    // and readonly String index for ++/--. Keep both diagnostics
+                    // rather than throwing away the first when checking writes.
+                    Error(op,"TS2356",
+                        "An arithmetic operand must be of type 'any', 'number', 'bigint' or an enum type.");
+                    Error(element.Open,"TS2542",
+                        "Index signature in type 'String' only permits reading.");
+                    return null;
+                }
                 if(elementReceiver is ArrayTypeSymbol array)
                     current=array.ElementType;
                 else if(elementReceiver==null || indexType==null)
@@ -464,13 +463,13 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     "Indexed updates currently support arrays only."));
                 break;
             default:
-                throw new CompilationFailure(Diagnostic.Error(file,update.Operator,"TSCS1001",
-                    "Prefix updates require an identifier, property or indexed array element."));
+                throw new CompilationFailure(Diagnostic.Error(file,op,"TSCS1001",
+                    "Numeric updates require an identifier, property or indexed array element."));
         }
         if(current==null)return null;
         if(!IsNumericMutationOperand(current))
-            throw new CompilationFailure(Diagnostic.Error(file,update.Operator,"TSCS1001",
-                "Prefix updates require a number or any operand."));
+            throw new CompilationFailure(Diagnostic.Error(file,op,"TSCS1001",
+                "Numeric updates require a number or any operand."));
         if(binding is { Imported:false,IsConstant:false })
         {
             binding.Initialized=true;
@@ -884,6 +883,51 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             if(!shadowed.Contains(name.Text) && scope.Find(name.Text) is { } symbol)
                 mayWrite.Add(symbol);
         }
+        // Value-producing mutations can be nested inside array indices, calls,
+        // initializers and returns. Inspect the AST without evaluating expressions.
+        void RecordValueWrites(ValueNode root,HashSet<string> shadowed)
+        {
+            var pending=new Stack<ValueNode>();
+            pending.Push(root);
+            while(pending.Count>0)
+            {
+                switch(pending.Pop())
+                {
+                    case ValuePrefixUpdate prefix:
+                        if(prefix.Target is ValueAtom { Token.Kind:TokenKind.Identifier } prefixAtom)
+                            Record(prefixAtom.Token,shadowed);
+                        pending.Push(prefix.Target);
+                        break;
+                    case ValuePostfixUpdate postfix:
+                        if(postfix.Target is ValueAtom { Token.Kind:TokenKind.Identifier } postfixAtom)
+                            Record(postfixAtom.Token,shadowed);
+                        pending.Push(postfix.Target);
+                        break;
+                    case ValueBinary binary:
+                        pending.Push(binary.Right);pending.Push(binary.Left);break;
+                    case ValueConditional chosen:
+                        pending.Push(chosen.WhenFalse);
+                        pending.Push(chosen.WhenTrue);
+                        pending.Push(chosen.Condition);
+                        break;
+                    case ValueUnary unary:pending.Push(unary.Operand);break;
+                    case ValueParenthesized grouped:pending.Push(grouped.Expression);break;
+                    case ValueTypeOperator typed:pending.Push(typed.Expression);break;
+                    case ValueCall call:
+                        foreach(var arg in call.Arguments)pending.Push(arg);
+                        break;
+                    case ValueElementAccess indexed:
+                        pending.Push(indexed.Receiver);pending.Push(indexed.Index);break;
+                    case ValuePropertyAccess property:pending.Push(property.Receiver);break;
+                    case ValueArray array:
+                        foreach(var entry in array.Elements)pending.Push(entry);
+                        break;
+                    case ValueObject literal:
+                        foreach(var property in literal.Properties)pending.Push(property.Value);
+                        break;
+                }
+            }
+        }
         void Visit(Statement statement,HashSet<string> shadowed)
         {
             switch(statement)
@@ -900,26 +944,51 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     }
                     foreach(var child in block.Statements)Visit(child,locals);
                     break;
+                case Variable { Initializer: { } initial }:
+                    RecordValueWrites(initial,shadowed);
+                    break;
                 case Assignment assignment:
                     Record(assignment.Name,shadowed);
+                    RecordValueWrites(assignment.Value,shadowed);
                     break;
-                case CompoundAssignment { Target:ValueAtom atom } when atom.Token.Kind==TokenKind.Identifier:
-                    Record(atom.Token,shadowed);
+                case PropertyAssignment propertyAssignment:
+                    RecordValueWrites(propertyAssignment.Target,shadowed);
+                    RecordValueWrites(propertyAssignment.Value,shadowed);
                     break;
-                case PostfixUpdate postfix:
-                    Record(postfix.Name,shadowed);
+                case ElementAssignment elementAssignment:
+                    RecordValueWrites(elementAssignment.Target,shadowed);
+                    RecordValueWrites(elementAssignment.Value,shadowed);
                     break;
-                case Expression { Value:ValuePrefixUpdate { Target:ValueAtom { Token.Kind:TokenKind.Identifier } atom } }:
-                    Record(atom.Token,shadowed);
+                case CompoundAssignment compound:
+                    if(compound.Target is ValueAtom { Token.Kind:TokenKind.Identifier } compoundAtom)
+                        Record(compoundAtom.Token,shadowed);
+                    RecordValueWrites(compound.Target,shadowed);
+                    RecordValueWrites(compound.Value,shadowed);
+                    break;
+                case PostfixUpdate postfixStatement:
+                    Record(postfixStatement.Name,shadowed);
+                    break;
+                case Expression expression:
+                    RecordValueWrites(expression.Value,shadowed);
+                    break;
+                case ReturnStatement returned:
+                    RecordValueWrites(returned.Value,shadowed);
                     break;
                 case ConditionalStatement branch:
+                    RecordValueWrites(branch.Condition,shadowed);
                     Visit(branch.Consequent,shadowed);
                     if(branch.Alternate is { } alternate)Visit(alternate,shadowed);
                     break;
                 case SwitchStatement switching:
-                    foreach(var clause in switching.Clauses)Visit(clause.Body,shadowed);
+                    RecordValueWrites(switching.Selector,shadowed);
+                    foreach(var clause in switching.Clauses)
+                    {
+                        if(clause.Label is { } label)RecordValueWrites(label,shadowed);
+                        Visit(clause.Body,shadowed);
+                    }
                     break;
                 case ForOfStatement nestedForOf:
+                    RecordValueWrites(nestedForOf.Source,shadowed);
                     var iterationLocals=new HashSet<string>(shadowed,StringComparer.Ordinal)
                     {
                         nestedForOf.Name.Text
@@ -927,15 +996,21 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     Visit(nestedForOf.Body,iterationLocals);
                     break;
                 case WhileStatement nestedWhile:
+                    RecordValueWrites(nestedWhile.Condition,shadowed);
                     Visit(nestedWhile.Body,shadowed);
                     break;
                 case DoWhileStatement nestedDo:
+                    RecordValueWrites(nestedDo.Condition,shadowed);
                     Visit(nestedDo.Body,shadowed);
                     break;
                 case ClassicForStatement nestedClassic:
                     var headerLocals=new HashSet<string>(shadowed,StringComparer.Ordinal);
                     if(nestedClassic.Initializer is Variable loopLocal)
                         headerLocals.Add(loopLocal.Name.Text);
+                    if(nestedClassic.Initializer is { } nestedInit)
+                        Visit(nestedInit,headerLocals);
+                    if(nestedClassic.Condition is { } nestedCondition)
+                        RecordValueWrites(nestedCondition,headerLocals);
                     if(nestedClassic.Update is { } nestedUpdate)
                         Visit(nestedUpdate,headerLocals);
                     Visit(nestedClassic.Body,headerLocals);
@@ -1021,7 +1096,12 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             }
             if(node is ValuePrefixUpdate prefix)
             {
-                types.Push(CheckPrefixUpdate(prefix,scope));
+                types.Push(CheckNumericUpdate(prefix.Target,prefix.Operator,scope));
+                continue;
+            }
+            if(node is ValuePostfixUpdate postfix)
+            {
+                types.Push(CheckNumericUpdate(postfix.Target,postfix.Operator,scope));
                 continue;
             }
             if(node is ValueConditional chosen)

@@ -245,17 +245,6 @@ internal sealed class Parser(string file, List<Token> tokens)
                 continue;
             }
             var value=ParseValue();
-            if(Current.Kind is TokenKind.PlusPlus or TokenKind.MinusMinus)
-            {
-                var update=Take();
-                // No newline between the identifier and postfix ++/--.
-                // Grouped/member updates and updates inside expressions remain unsupported.
-                if(!update.LineBreak && value is ValueAtom atom && atom.Token.Kind==TokenKind.Identifier)
-                    statements.Add(new PostfixUpdate(atom.Token,update));
-                else Unsupported(update,"Only same-line identifier postfix updates are supported yet.");
-                EndStatement();
-                continue;
-            }
             if(Current.Kind is TokenKind.PlusEqual or TokenKind.MinusEqual or TokenKind.StarEqual or TokenKind.PowerEqual or TokenKind.SlashEqual or TokenKind.PercentEqual or TokenKind.AmpEqual or TokenKind.BarEqual or TokenKind.CaretEqual or TokenKind.LeftShiftEqual or TokenKind.RightShiftEqual or TokenKind.UnsignedRightShiftEqual)
             {
                 var op=Take();
@@ -370,13 +359,6 @@ internal sealed class Parser(string file, List<Token> tokens)
     private Statement ParseForHeaderMutation()
     {
         var expression=ParseValue();
-        if(Current.Kind is TokenKind.PlusPlus or TokenKind.MinusMinus)
-        {
-            var increment=Take();
-            if(increment.LineBreak || expression is not ValueAtom { Token.Kind:TokenKind.Identifier })
-                Unsupported(increment,"Classic for postfix updates require one same-line identifier.");
-            return new PostfixUpdate(((ValueAtom)expression).Token,increment);
-        }
         if(Current.Kind is TokenKind.PlusEqual or TokenKind.MinusEqual or TokenKind.StarEqual or TokenKind.PowerEqual or TokenKind.SlashEqual or TokenKind.PercentEqual or TokenKind.AmpEqual or TokenKind.BarEqual or TokenKind.CaretEqual or TokenKind.LeftShiftEqual or TokenKind.RightShiftEqual or TokenKind.UnsignedRightShiftEqual)
         {
             var op=Take();
@@ -396,7 +378,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                     "Classic for assignments require an identifier or named property or indexed element."))
             };
         }
-        if(expression is ValuePrefixUpdate)return new Expression(expression);
+        if(expression is ValuePrefixUpdate or ValuePostfixUpdate)return new Expression(expression);
         Unsupported(Current,"Only assignment and prefix/postfix updates are supported in classic for headers.");
         return default!;
     }
@@ -793,6 +775,10 @@ internal sealed class Parser(string file, List<Token> tokens)
             }
             else break;
         }
+        // Same-line postfix binds after property/index access and before unary/binary.
+        // A line break invokes statement separation instead.
+        if(!Current.LineBreak && Current.Kind is TokenKind.PlusPlus or TokenKind.MinusMinus)
+            value=new ValuePostfixUpdate(value,Take());
         return value;
     }
 

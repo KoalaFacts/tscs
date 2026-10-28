@@ -1,5 +1,17 @@
 # tscs status
 
+## 2026-10-29 — Numeric postfix value expressions (source candidate; NOT_RUN)
+
+Native ES2015 postfix ++/-- now produces the prior numeric value in nested
+checked expressions, including object/array targets and indices with their
+own side-effect updates. The existing lvalue restrictions and conservative loop
+backedge write analysis are reused. Focused C# regressions, four-module Node
+execution and thirteen additive stable pinned-Go cases are wired into existing
+strict gates, but execution is NOT_RUN at source creation. Original TS7
+acceptance remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED; dynamic scope UNEXPANDED.
+See [work package](progress/postfix-numeric-expressions.md).
+
+
 ## 2026-10-29 — Prefix numeric updates (candidate, NOT_RUN)
 
 Checked prefix ++/-- numeric mutations now share the existing AST, mutable
