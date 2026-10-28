@@ -31,6 +31,15 @@ public sealed class PostfixExpressionTests
         Assert.Contains(Compilation.Check("invalid-postfix.ts",source),d=>d.Code==diagnostic);
 
     [Fact]
+    public void StringIndexUpdateRetainsBothPinnedDiagnostics()
+    {
+        const string source="function f():number { let s:string=\"ab\"; return s[0]++; }";
+        var codes=Compilation.Check("string-postfix.ts",source)
+            .Select(d=>d.Code).OrderBy(code=>code,StringComparer.Ordinal).ToArray();
+        Assert.Equal(new[]{"TS2356","TS2542"},codes);
+    }
+
+    [Fact]
     public void LineBreakSeparatesPostfixAndFollowingPrefix()
     {
         const string source="function f():number { let a:number=1; let b:number=2; a\n++b; return a+b; }";

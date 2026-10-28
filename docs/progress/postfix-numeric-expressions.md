@@ -23,3 +23,10 @@ DNS resolution fails. CI and reference are NOT_RUN pending exact-head hosted
 checks; this is not original TS7 case acceptance. Original upstream ledger is
 0 PASS, 15,523 SKIP_UNIMPLEMENTED configuration targets; remaining dynamic
 cases and other domains UNEXPANDED.
+
+The pinned-Go reference exposed a real two-diagnostic string-index update:
+`TS2356` (non-numeric arithmetic operand) plus `TS2542` (readonly index).
+The product originally reported only `TS2542`. The checker now preserves
+both diagnostics and a dedicated exact-code test; the frozen source and ID
+`numeric-mutation:negative-09` remain unchanged. The earlier mismatching
+reference logs/artifacts are retained, not counted as passing.

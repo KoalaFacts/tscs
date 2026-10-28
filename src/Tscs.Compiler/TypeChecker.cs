@@ -445,8 +445,16 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     throw new CompilationFailure(Diagnostic.Error(file,element.Open,"TSCS1001",
                         "Indexed updates currently require a number expression."));
                 if(CompilerTypes.IsStringFamily(elementReceiver))
-                    throw new CompilationFailure(Diagnostic.Error(file,element.Open,"TS2542",
-                        "Index signature in type 'String' only permits reading."));
+                {
+                    // The pinned compiler reports both the non-numeric operand
+                    // and readonly String index for ++/--. Keep both diagnostics
+                    // rather than throwing away the first when checking writes.
+                    Error(op,"TS2356",
+                        "An arithmetic operand must be of type 'any', 'number', 'bigint' or an enum type.");
+                    Error(element.Open,"TS2542",
+                        "Index signature in type 'String' only permits reading.");
+                    return null;
+                }
                 if(elementReceiver is ArrayTypeSymbol array)
                     current=array.ElementType;
                 else if(elementReceiver==null || indexType==null)
