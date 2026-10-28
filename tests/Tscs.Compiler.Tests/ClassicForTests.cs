@@ -27,6 +27,21 @@ public sealed class ClassicForTests
     public void TypeErrorsAndLoopBindingLeaksAreRejected(string source,string expected) =>
         Assert.Contains(Compilation.Check("classic.ts",source),d=>d.Code==expected);
 
+    [Fact]
+    public void ForHeaderLocalCanShadowIntrinsicGlobal()
+    {
+        const string source="function f():number { for(let globalThis=0;globalThis<1;globalThis++){return globalThis;} return 0; }";
+        Assert.Empty(Compilation.Check("classic.ts",source));
+    }
+
+    [Fact]
+    public void UpdateCannotInitializeABodyReadBeforeFirstIteration()
+    {
+        const string source="function f():number { let x:number; for(let i=0;i<1;x=1){return x;} return 0; }";
+        Assert.Contains(Compilation.Check("classic.ts",source),
+            d=>d.Code=="TSCS1001" && d.Message.Contains("Reads before initialization",StringComparison.Ordinal));
+    }
+
     [Theory]
     [InlineData("for(const i=0;i<3;i++){}")]
     [InlineData("for(let i=0;i<3;i--){}")]
