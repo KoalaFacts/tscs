@@ -72,4 +72,49 @@ public sealed class BitwiseNumericTests
     {
         Assert.Empty(Compilation.Check("types.ts","type Value = number | string; let n: Value = 2; let bits: number = 1 | 2;"));
     }
+
+    [Theory]
+    [InlineData("let n: number = 10; n &= 7;")]
+    [InlineData("let n: number = 2; n |= 8;")]
+    [InlineData("let n: number = 7; n ^= 2;")]
+    [InlineData("let n: number = 1; n <<= 3;")]
+    [InlineData("let n: number = 32; n >>= 2;")]
+    [InlineData("let n: number = -2; n >>>= 1;")]
+    [InlineData("type Packet = { value: number }; let p: Packet = { value: 7 }; p.value &= 3;")]
+    [InlineData("let numbers: number[] = [7, 3]; numbers[0] <<= 2;")]
+    [InlineData("for (let i: number = 16; i > 1; i >>= 1) {}")]
+    [InlineData("let n: number = 7; n &= 3; n |= 8; n ^= 2; n <<= 1; n >>= 2; n >>>= 1;")]
+    public void BitwiseCompoundMutationCompiles(string source) =>
+        Assert.Empty(Compilation.Check("bitwise-mutation.ts",source));
+
+    [Theory]
+    [InlineData("const n: number = 3; n &= 2;", "TS2588")]
+    [InlineData("const n: number = 3; n >>>= 1;", "TS2588")]
+    [InlineData("let n: string = \"x\"; n &= 1;", "TSCS1001")]
+    [InlineData("let n: number = 3; n |= true;", "TSCS1001")]
+    public void InvalidBitwiseCompoundMutationFailsClosed(string source,string code) =>
+        Assert.Contains(Compilation.Check("invalid-bitwise-mutation.ts",source),d=>d.Code==code);
+
+    [Fact]
+    public void ScannerRecognizesBitwiseCompoundsWithoutConsumingComparisons()
+    {
+        var tokens=new Scanner("tokens.ts","a &= 1; b |= 2; c ^= 3; d <<= 4; e >>= 5; f >>>= 6; g <= 7; h >= 8;").Scan();
+        var kinds=tokens.Select(x=>x.Kind).ToArray();
+        Assert.Contains(TokenKind.AmpEqual,kinds);
+        Assert.Contains(TokenKind.BarEqual,kinds);
+        Assert.Contains(TokenKind.CaretEqual,kinds);
+        Assert.Contains(TokenKind.LeftShiftEqual,kinds);
+        Assert.Contains(TokenKind.RightShiftEqual,kinds);
+        Assert.Contains(TokenKind.UnsignedRightShiftEqual,kinds);
+        Assert.Contains(TokenKind.LessEqual,kinds);
+        Assert.Contains(TokenKind.GreaterEqual,kinds);
+        Assert.Equal(">>>=",Assert.Single(tokens.Where(x=>x.Kind==TokenKind.UnsignedRightShiftEqual)).Text);
+    }
+
+    [Fact]
+    public void JsonModeStillRejectsBitwiseCompounds()
+    {
+        Assert.Throws<CompilationFailure>(()=>
+            new Scanner("options.json","{\"value\": 1 >>= 2}",jsonMode:true).Scan());
+    }
 }

@@ -1,5 +1,18 @@
 # tscs status
 
+## 2026-10-29 — Numeric bitwise compound mutation (source candidate; NOT_RUN)
+
+The existing bitwise/shift expression pipeline now accepts six numeric compound
+assignment operators (`&=`, `|=`, `^=`, `<<=`, `>>=`, `>>>=`) on checked
+identifier, property and array targets, including classic `for` updates.
+This reuses the original type-checker mutation safeguards and ES2015 compound
+assignment emission without duplicate lvalue evaluation. The existing bitwise
+pinned-Go cohort grows from 18 to 30 source-bound cases without reassigning
+existing IDs; four-module Node execution covers mutations and iteration.
+At source creation .NET/Node/Go validation is NOT_RUN locally, so no pass is
+claimed before exact-head hosted results. Original upstream acceptance remains
+0 PASS / 15,523 SKIP_UNIMPLEMENTED; dynamic scope UNEXPANDED.
+
 ## 2026-10-29 — Fractional/exponent numeric syntax (source candidate; NOT_RUN)
 
 The C# scanner now tokenizes finite decimal fractions, leading/trailing decimal

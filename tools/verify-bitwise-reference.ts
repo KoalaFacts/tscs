@@ -14,7 +14,7 @@ const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
 const suitePath='fixtures/numeric-bitwise/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
 assert.equal(suite.kind,'BOUNDED_NUMERIC_BITWISE_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,18,'do not shrink the registered cohort');
+assert.equal(suite.cases.length,30,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 // The cohort includes number[] indexing and length. Use the already
 // verified array profile for BOTH compilers, not the empty bootstrap Array<T>.

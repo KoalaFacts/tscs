@@ -103,6 +103,70 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "numeric-bitwise:positive-13",
+      "source": "let n: number = 10; n &= 7;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-bitwise:positive-14",
+      "source": "let n: number = 2; n |= 8;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-bitwise:positive-15",
+      "source": "let n: number = 7; n ^= 2;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-bitwise:positive-16",
+      "source": "let n: number = 1; n <<= 3;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-bitwise:positive-17",
+      "source": "let n: number = 32; n >>= 2;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-bitwise:positive-18",
+      "source": "let n: number = -2; n >>>= 1;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-bitwise:positive-19",
+      "source": "type Packet = { value: number }; let p: Packet = { value: 7 }; p.value &= 3;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-bitwise:positive-20",
+      "source": "let values: number[] = [7,3]; values[0] <<= 2;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-bitwise:positive-21",
+      "source": "for (let i: number = 16; i > 1; i >>= 1) {}",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-bitwise:positive-22",
+      "source": "let n: number = 7; n &= 3; n |= 8; n ^= 2; n <<= 1; n >>= 2; n >>>= 1;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-bitwise:negative-07",
+      "source": "const n: number = 3; n &= 2;",
+      "expectedCodes": [
+        "TS2588"
+      ]
+    },
+    {
+      "id": "numeric-bitwise:negative-08",
+      "source": "const n: number = 3; n >>>= 1;",
+      "expectedCodes": [
+        "TS2588"
+      ]
     }
   ]
 }
