@@ -70,8 +70,8 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
             {
                 while (position < text.Length && IsIdentifierPart(text[position])) position++;
                 string value = text[begin..position];
-                kind = value switch { "let"=>TokenKind.Let,"const"=>TokenKind.Const,"import"=>TokenKind.Import,"export"=>TokenKind.Export,"function"=>TokenKind.Function,"return"=>TokenKind.Return,"if"=>TokenKind.If,"else"=>TokenKind.Else,"for"=>TokenKind.For,"while"=>TokenKind.While,"switch"=>TokenKind.Switch,"case"=>TokenKind.Case,"default"=>TokenKind.Default,"break"=>TokenKind.Break,"continue"=>TokenKind.Continue,"type"=>TokenKind.Type,"interface"=>TokenKind.Interface,"true"=>TokenKind.True,"false"=>TokenKind.False,
-                    "extends" or "super" or "catch" or "finally" or "in" or "instanceof" or "implements" or "package" or "private" or "protected" or "public" or "static" or "class" or "var" or "declare" or "new" or "null" or "undefined" or "this" or "throw" or "try" or "enum" or "async" or "await" or "yield" or "do" or "delete" or "typeof" or "void" or "with" or "debugger" or "namespace" or "using" => TokenKind.Unsupported, _ => TokenKind.Identifier };
+                kind = value switch { "let"=>TokenKind.Let,"const"=>TokenKind.Const,"import"=>TokenKind.Import,"export"=>TokenKind.Export,"function"=>TokenKind.Function,"return"=>TokenKind.Return,"if"=>TokenKind.If,"else"=>TokenKind.Else,"for"=>TokenKind.For,"while"=>TokenKind.While,"do"=>TokenKind.Do,"switch"=>TokenKind.Switch,"case"=>TokenKind.Case,"default"=>TokenKind.Default,"break"=>TokenKind.Break,"continue"=>TokenKind.Continue,"type"=>TokenKind.Type,"interface"=>TokenKind.Interface,"true"=>TokenKind.True,"false"=>TokenKind.False,
+                    "extends" or "super" or "catch" or "finally" or "in" or "instanceof" or "implements" or "package" or "private" or "protected" or "public" or "static" or "class" or "var" or "declare" or "new" or "null" or "undefined" or "this" or "throw" or "try" or "enum" or "async" or "await" or "yield" or "delete" or "typeof" or "void" or "with" or "debugger" or "namespace" or "using" => TokenKind.Unsupported, _ => TokenKind.Identifier };
                 if(jsonMode)
                 {
                     // The bootstrap identifier classifier uses host Unicode tables.
@@ -116,6 +116,11 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                 { position++;kind=TokenKind.AmpAmp; }
                 else if(first=='|' && position<text.Length && text[position]=='|')
                 { position++;kind=TokenKind.BarBar; }
+                else if((first=='+' || first=='-' || first=='*') && position<text.Length && text[position]=='=')
+                {
+                    position++;
+                    kind=first=='+'?TokenKind.PlusEqual:first=='-'?TokenKind.MinusEqual:TokenKind.StarEqual;
+                }
                 else if(first=='<' || first=='>')
                 {
                     kind=first=='<'?TokenKind.LessThan:TokenKind.GreaterThan;
@@ -123,12 +128,13 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                     { position++;kind=first=='<'?TokenKind.LessEqual:TokenKind.GreaterEqual; }
                 }
             }
-            // Lex -- as an unsupported decrement token, never as two unary/binary
-            // minus operators. Whitespace-separated "- -" remains distinct.
+            // Lex -- as one postfix token (only after a named identifier), never as
+            // two unary/binary minuses. Whitespace-separated "- -" remains distinct.
             if(!jsonMode && kind==TokenKind.Minus && position<text.Length && text[position]=='-')
             { position++; kind=TokenKind.MinusMinus; }
-            if(!jsonMode && kind==TokenKind.MinusMinus)
-                throw Error(new(TokenKind.Unsupported,"--",begin,2,lineBreak),"TSCS1001","Decrement '--' is not supported yet.");
+            if(!jsonMode && kind==TokenKind.MinusMinus &&
+               (tokens.Count==0 || tokens[^1].Kind!=TokenKind.Identifier))
+                throw Error(new(TokenKind.Unsupported,"--",begin,2,lineBreak),"TSCS1001","Only identifier postfix '--' is supported yet.");
             // Keep the lexical distinction between a single '+' (unary or
             // binary, according to the parser) and the unsupported prefix '++'.
             if(!jsonMode && kind==TokenKind.Plus && position<text.Length && text[position]=='+')

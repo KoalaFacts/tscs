@@ -27,6 +27,12 @@ public sealed class ClassicForTests
     public void TypeErrorsAndLoopBindingLeaksAreRejected(string source,string expected) =>
         Assert.Contains(Compilation.Check("classic.ts",source),d=>d.Code==expected);
 
+    [Theory]
+    [InlineData("function f(n:number):number { let sum:number=0; for(let i=0;i<n;i+=1){sum+=i;} return sum; }")]
+    [InlineData("function f(n:number):number { let sum:number=0; for(let i=n;i>0;i--){sum+=i;} return sum; }")]
+    public void NumericMutationForHeadersNowCompile(string source)=>
+        Assert.Empty(Compilation.Check("classic.ts",source));
+
     [Fact]
     public void ForHeaderLocalCanShadowIntrinsicGlobal()
     {
@@ -44,10 +50,8 @@ public sealed class ClassicForTests
 
     [Theory]
     [InlineData("for(const i=0;i<3;i++){}")]
-    [InlineData("for(let i=0;i<3;i--){}")]
     [InlineData("for(let i=0;i<3;i++) i++;")]
     [InlineData("for(var i=0;i<3;i++){}")]
-    [InlineData("for(let i=0;i<3;i+=1){}")]
     public void UnsupportedVariantsRemainExplicit(string source) =>
         Assert.Contains(Compilation.Check("classic.ts",source),d=>d.Code=="TSCS1001");
 }

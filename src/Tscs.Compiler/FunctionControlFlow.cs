@@ -38,9 +38,19 @@ internal static class FunctionControlFlow
         // Bounded while conditions may be false initially. Both breaks and
         // continues are consumed; only an actual body return exits the function.
         WhileStatement loop => FlowExit.Next | (Analyze(loop.Body)&FlowExit.Return),
+        DoWhileStatement loop => AnalyzeDoWhile(loop),
         ClassicForStatement loop => FlowExit.Next | (Analyze(loop.Body)&FlowExit.Return),
         _ => FlowExit.Next
     };
+
+    private static FlowExit AnalyzeDoWhile(DoWhileStatement loop)
+    {
+        var body=Analyze(loop.Body);
+        // Unlike while, a do body always executes: a guaranteed return does
+        // not acquire an invented normal-exit path from its condition.
+        return (body&FlowExit.Return) |
+            ((body&(FlowExit.Next|FlowExit.Break|FlowExit.Continue))!=0?FlowExit.Next:FlowExit.None);
+    }
 
     private static FlowExit AnalyzeSwitch(SwitchStatement switching)
     {

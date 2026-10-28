@@ -1,5 +1,18 @@
 # tscs status
 
+## 2026-10-28 — Numeric compound mutation and do/while (source candidate, NOT_RUN)
+
+One bounded product package introduces braced `do/while` with break/continue,
+numeric `+=`/`-=`/`*=` mutations of identifier/property/array element and
+postfix `--` beside existing `++`. It reuses the checked scopes, structured
+control-flow exits and ES2015 output, with classic `for` update support. The
+first do condition is checked conservatively against entry-state initialization
+to prevent unsafe writes hidden behind `continue`. Runtime and 14 fixed-Go
+diagnostic cases are wired into existing gates but **NOT_RUN at source creation**.
+No TS7 original-case acceptance is added; 15,523 targets remain
+SKIP_UNIMPLEMENTED and all unexpanded domains are preserved.
+See [bounded package](progress/numeric-loop-mutation.md).
+
 ## 2026-10-28 — Bounded while/continue and general break (integration candidate)
 
 A single candidate extends the existing compiler pipeline with braced while
