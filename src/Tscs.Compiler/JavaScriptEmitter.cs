@@ -298,13 +298,14 @@ internal static class JavaScriptEmitter
                 TokenKind.LeftShift or TokenKind.RightShift or TokenKind.UnsignedRightShift => 8,
                 TokenKind.Plus or TokenKind.Minus => 9,
                 TokenKind.Star or TokenKind.Slash or TokenKind.Percent => 10,
+                TokenKind.Power => 12,
                 _ => throw new NotSupportedException("Unsupported binary operator in emitted AST.")
             },
             ValueUnary => 11,
             // Erasure is wrapped with grouping to keep the JS precedence.
-            ValueTypeOperator => 13,
-            ValueCall or ValuePropertyAccess or ValueElementAccess => 12,
-            ValueAtom or ValueParenthesized or ValueObject or ValueArray => 13,
+            ValueTypeOperator => 14,
+            ValueCall or ValuePropertyAccess or ValueElementAccess => 13,
+            ValueAtom or ValueParenthesized or ValueObject or ValueArray => 14,
             _ => throw new NotSupportedException("Unsupported expression in emitted AST.")
         };
 
@@ -348,9 +349,11 @@ internal static class JavaScriptEmitter
                         Text("(");
                         break;
                     case ValueBinary binary:
-                        Node(binary.Right,precedence,true);
+                        // ** is right associative; group same-level left powers.
+                        bool power=binary.Operator.Kind==TokenKind.Power;
+                        Node(binary.Right,precedence,!power);
                         Text(" "+binary.Operator.Text+" ");
-                        Node(binary.Left,precedence);
+                        Node(binary.Left,precedence,power);
                         break;
                     case ValueUnary unary:
                         Node(unary.Operand,precedence);
