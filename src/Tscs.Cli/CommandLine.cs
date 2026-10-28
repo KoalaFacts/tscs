@@ -149,21 +149,59 @@ public static class CommandLine
         var path=Path.GetRelativePath(Environment.CurrentDirectory,Path.GetFullPath(d.File)).Replace(Path.DirectorySeparatorChar,'/');
         return $"{path}({line},{column}): error {d.Code}: {d.Message}";
     }
-    // Minimal ambient global shapes only. Members, inheritance and arbitrary declarations are rejected.
+    // Ambient declarations are deliberately bounded, but arrays can now be
+    // supplied with the standard numeric index and length contract used by
+    // typed element access. Do not claim general .d.ts semantic support:
+    // everything other than empty built-in interfaces or this exact *shape*
+    // is rejected instead of being silently ignored.
     private static void ReadGlobals(string text,HashSet<string> globals)
     {
-        var pattern=new Regex(@"\G\s*interface\s+([A-Za-z_$][A-Za-z0-9_$]*)(\s*<\s*T\s*>)?\s*\{\s*\}\s*",RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
+        var pattern=new Regex(@"\G\s*interface\s+([A-Za-z_$][A-Za-z0-9_$]*)(\s*<\s*T\s*>)?\s*\{([^{}]*)\}\s*",
+            RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         int position=0;
         while(position<text.Length)
         {
             if(string.IsNullOrWhiteSpace(text[position..]))break;
             var match=pattern.Match(text,position);
-            if(!match.Success)throw new InputFailure("Only empty bootstrap global interfaces are supported in .d.ts files.");
+            if(!match.Success)throw new InputFailure("Only bounded bootstrap global interfaces are supported in .d.ts files.");
             string name=match.Groups[1].Value;
             if(!GlobalTypes.Contains(name,StringComparer.Ordinal)||(name=="Array")!=match.Groups[2].Success||!globals.Add(name))
                 throw new InputFailure("Unsupported or duplicate bootstrap global declaration.");
+            var members=match.Groups[3].Value;
+            if(!string.IsNullOrWhiteSpace(members) && (name!="Array" || !IsSupportedArrayContract(members)))
+                throw new InputFailure("Only the required Array<T> numeric index and length members are supported in ambient globals.");
             position+=match.Length;
         }
+    }
+
+    // Member order and numeric-index parameter spelling are irrelevant.
+    // Both members must be present exactly once. This is validation of a
+    // source-level ambient contract, not a magic source filename or an AST
+    // pass that infers arbitrary declaration types from regexes.
+    private static bool IsSupportedArrayContract(string body)
+    {
+        var memberPattern=new Regex(@"\G\s*(?:(?<length>length\s*:\s*number)|(?<index>\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T))\s*;",
+            RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
+        int position=0;
+        bool length=false,index=false;
+        while(position<body.Length)
+        {
+            if(string.IsNullOrWhiteSpace(body[position..]))break;
+            var member=memberPattern.Match(body,position);
+            if(!member.Success)return false;
+            if(member.Groups["length"].Success)
+            {
+                if(length)return false;
+                length=true;
+            }
+            else
+            {
+                if(index)return false;
+                index=true;
+            }
+            position+=member.Length;
+        }
+        return length&&index;
     }
 }
 internal sealed class InputFailure(string message):Exception(message);
