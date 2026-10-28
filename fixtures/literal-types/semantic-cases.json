@@ -1,0 +1,113 @@
+{
+  "kind": "BOUNDED_LITERAL_TYPES_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "literal-types:positive-01",
+      "source": "type State = \"ready\" | \"done\"; let s: State = \"ready\"; s = \"done\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "literal-types:positive-02",
+      "source": "type N = 21 | 42; let n: N = 42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "literal-types:positive-03",
+      "source": "type Neg = -1 | 0; let n: Neg = -1;",
+      "expectedCodes": []
+    },
+    {
+      "id": "literal-types:positive-04",
+      "source": "type Flag = true | false; let flag: Flag = true;",
+      "expectedCodes": []
+    },
+    {
+      "id": "literal-types:positive-05",
+      "source": "interface Task { phase: \"ready\"; value: number } let task: Task = { phase: \"ready\", value: 21 };",
+      "expectedCodes": []
+    },
+    {
+      "id": "literal-types:positive-06",
+      "source": "type Event = { kind: \"ok\"; value: number } | { kind: \"bad\"; message: string }; let e: Event = { kind: \"ok\", value: 21 };",
+      "expectedCodes": []
+    },
+    {
+      "id": "literal-types:positive-07",
+      "source": "type Event = { kind: \"ok\"; value: number } | { kind: \"bad\"; message: string }; let e: Event = { kind: \"bad\", message: \"why\" };",
+      "expectedCodes": []
+    },
+    {
+      "id": "literal-types:positive-08",
+      "source": "type Tags = (\"ready\" | \"done\")[]; let tags: Tags = [\"ready\", \"done\"];",
+      "expectedCodes": []
+    },
+    {
+      "id": "literal-types:positive-09",
+      "source": "function make(): \"ready\" { return \"ready\"; } let s: \"ready\" = make();",
+      "expectedCodes": []
+    },
+    {
+      "id": "literal-types:negative-01",
+      "source": "type State = \"ready\"; let s: State = \"wrong\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "literal-types:negative-02",
+      "source": "type N = 21 | 42; let n: N = 0;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "literal-types:negative-03",
+      "source": "type Neg = -1; let n: Neg = -2;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "literal-types:negative-04",
+      "source": "type Flag = true; let flag: Flag = false;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "literal-types:negative-05",
+      "source": "interface Task { phase: \"ready\"; value: number } let task: Task = { phase: \"invalid\", value: 21 };",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "literal-types:negative-06",
+      "source": "function take(s: \"ready\"): number { return 42; } take(\"wrong\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "literal-types:negative-07",
+      "source": "function make(): \"ready\" { return \"wrong\"; }",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "literal-types:negative-08",
+      "source": "let s: string = \"ready\"; let literal: \"ready\" = s;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "literal-types:negative-09",
+      "source": "let tags: (\"ready\" | \"done\")[] = [\"ready\", \"wrong\"];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}

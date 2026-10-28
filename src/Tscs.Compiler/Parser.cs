@@ -326,6 +326,17 @@ internal sealed class Parser(string file, List<Token> tokens)
             type=name.Text is "number" or "string" or "boolean" or "any"
                 ?new PrimitiveTypeSyntax(name):new NamedTypeSyntax(name);
         }
+        else if(Current.Kind is TokenKind.String or TokenKind.Number or TokenKind.True or TokenKind.False)
+        {
+            type=new LiteralTypeSyntax(Take());
+        }
+        else if(Current.Kind==TokenKind.Minus)
+        {
+            var sign=Take();
+            if(Current.Kind!=TokenKind.Number)
+                Unsupported(sign,"Only negative numeric literal annotations are supported after '-'.");
+            type=new LiteralTypeSyntax(Take(),Negative:true);
+        }
         else if(Eat(TokenKind.OpenParen))
         {
             type=ReadTypeAnnotation(depth+1);
@@ -353,7 +364,7 @@ internal sealed class Parser(string file, List<Token> tokens)
         }
         else
         {
-            Unsupported(Current,"Only named, primitive, object, array and union types are supported.");
+            Unsupported(Current,"Only named, primitive, literal, object, array and union types are supported.");
             return default!;
         }
         while(Current.Kind==TokenKind.OpenBracket)

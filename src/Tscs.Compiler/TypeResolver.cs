@@ -33,6 +33,7 @@ internal static class TypeResolver
         switch(syntax)
         {
             case PrimitiveTypeSyntax primitive: return CompilerTypes.FromAnnotation(primitive.Name.Text);
+            case LiteralTypeSyntax literal: return CompilerTypes.FromLiteralExact(literal.Literal,literal.Negative);
             case NamedTypeSyntax named:
                 if(scope.FindType(named.Name.Text) is not { } binding)
                     throw new CompilationFailure(Diagnostic.Error(file,named.Name,"TS2304",
@@ -54,6 +55,7 @@ internal static class TypeResolver
     private static Token Location(TypeSyntax syntax)=>syntax switch
     {
         PrimitiveTypeSyntax value=>value.Name,
+        LiteralTypeSyntax value=>value.Literal,
         NamedTypeSyntax value=>value.Name,
         ObjectTypeSyntax value=>value.Open,
         ArrayTypeSyntax value=>value.Open,

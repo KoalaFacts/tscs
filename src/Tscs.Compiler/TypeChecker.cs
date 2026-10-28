@@ -54,7 +54,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             "Return statements outside functions are not supported."));
                     var returnType=TypeOf(returned.Value,scope);
                     if(returnType!=null && CheckContextualLiteral(returned.Value,expectedReturn,returnType) &&
-                       !CompilerTypes.IsAssignable(returnType,expectedReturn))
+                       !IsAssignableContextually(returned.Value,returnType,expectedReturn))
                         Mismatch(returned.Keyword,returnType,expectedReturn);
                     break;
                 case Variable v:
@@ -72,7 +72,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     if(v.Constant&&v.Initializer==null) Error(v.Name,"TS1155","'const' declarations must be initialized.");
                     if(annotatedType!=null && source!=null &&
                        CheckContextualLiteral(v.Initializer!,annotatedType,source) &&
-                       !CompilerTypes.IsAssignable(source,annotatedType))
+                       !IsAssignableContextually(v.Initializer!,source,annotatedType))
                         Mismatch(v.Name,source,annotatedType);
                     break;
                 case Assignment a:
@@ -83,7 +83,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     else if(target.Type!=null && assigned!=null)
                     {
                         if(CheckContextualLiteral(a.Value,target.Type,assigned) &&
-                           !CompilerTypes.IsAssignable(assigned,target.Type))Mismatch(a.Name,assigned,target.Type);
+                           !IsAssignableContextually(a.Value,assigned,target.Type))Mismatch(a.Name,assigned,target.Type);
                         else target.Initialized=true;
                     }
                     else target.Initialized=true;
@@ -93,7 +93,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     var elementValueType=TypeOf(elementAssignment.Value,scope);
                     if(elementType!=null && elementValueType!=null &&
                        CheckContextualLiteral(elementAssignment.Value,elementType,elementValueType) &&
-                       !CompilerTypes.IsAssignable(elementValueType,elementType))
+                       !IsAssignableContextually(elementAssignment.Value,elementValueType,elementType))
                         Mismatch(elementAssignment.Target.Open,elementValueType,elementType);
                     break;
                 case PropertyAssignment assignment:
@@ -109,7 +109,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     var valueType=TypeOf(assignment.Value,scope);
                     if(propertyType!=null && valueType!=null &&
                        CheckContextualLiteral(assignment.Value,propertyType,valueType) &&
-                       !CompilerTypes.IsAssignable(valueType,propertyType))
+                       !IsAssignableContextually(assignment.Value,valueType,propertyType))
                         Mismatch(assignment.Target.Name,valueType,propertyType);
                     break;
                 case PostfixUpdate update:
@@ -366,7 +366,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     for(int i=0;i<arguments.Length;i++)
                         if(arguments[i] is { } actual &&
                            CheckContextualLiteral(call.Arguments[i],signature.Parameters[i],actual) &&
-                           !CompilerTypes.IsAssignable(actual,signature.Parameters[i]))
+                           !IsAssignableContextually(call.Arguments[i],actual,signature.Parameters[i]))
                             Error(call.Callee,"TS2345",
                                 $"Argument of type '{actual.DisplayName}' is not assignable to parameter of type '{signature.Parameters[i].DisplayName}'.");
                 types.Push(signature.ReturnType);
@@ -448,6 +448,53 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         if(strictModule && (name.Text is "eval" or "arguments"))
             Error(name,"TS1100",$"Invalid use of '{name.Text}' in strict mode.");
     }
+    // Literal values are widened during general expression inference, but a
+    // syntactic literal can inhabit an explicitly required literal type. Never
+    // narrow an already-stored string/number/boolean variable by guessing.
+    private static bool IsAssignableContextually(ValueNode expression,TypeSymbol actual,TypeSymbol expected,int depth=0)
+    {
+        if(depth>64)return false;
+        // A stored union remains assignable to itself; only fresh source
+        // literals need contextual refinement beyond ordinary type relations.
+        if(CompilerTypes.IsAssignable(actual,expected))return true;
+        while(expression is ValueParenthesized group)expression=group.Expression;
+        if(expected is UnionTypeSymbol union)
+            return union.Alternatives.Any(part=>IsAssignableContextually(expression,actual,part,depth+1));
+        if(expected is LiteralTypeSymbol literal)
+        {
+            if(CompilerTypes.IsAssignable(actual,literal))return true;
+            if(expression is ValueAtom atom && atom.Token.Kind is
+                    (TokenKind.String or TokenKind.Number or TokenKind.True or TokenKind.False))
+                return CompilerTypes.FromLiteralExact(atom.Token).Equals(literal);
+            if(expression is ValueUnary { Operator.Kind:TokenKind.Minus,Operand:ValueAtom number } &&
+               number.Token.Kind==TokenKind.Number)
+                return CompilerTypes.FromLiteralExact(number.Token,negative:true).Equals(literal);
+            return false;
+        }
+        if(expression is ValueObject fresh && actual is ObjectTypeSymbol data &&
+           expected is ObjectTypeSymbol shape)
+        {
+            foreach(var (name,required) in shape.Members)
+            {
+                if(!data.Members.TryGetValue(name,out var member))return false;
+                var property=fresh.Properties.FirstOrDefault(p=>Parser.PropertyName(p.Name)==name);
+                if(property is null)
+                {
+                    if(!CompilerTypes.IsAssignable(member,required))return false;
+                }
+                else if(!IsAssignableContextually(property.Value,member,required,depth+1))
+                    return false;
+            }
+            return true;
+        }
+        if(expression is ValueArray elements && actual is ArrayTypeSymbol sourceArray &&
+           expected is ArrayTypeSymbol targetArray)
+            return elements.Elements.All(element=>IsAssignableContextually(element,
+                CompilerTypes.FromInitializer(element)??sourceArray.ElementType,
+                targetArray.ElementType,depth+1));
+        return CompilerTypes.IsAssignable(actual,expected);
+    }
+
     // Fresh literal checks are use-site rules, not properties of stored object
     // types: a wider value in a variable remains structurally assignable.
     private bool CheckContextualLiteral(ValueNode value,TypeSymbol expected,TypeSymbol actual)
@@ -482,7 +529,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             foreach(var element in literalArray.Elements)
             {
                 if(!CheckContextualLiteral(element,targetArray.ElementType,sourceArray.ElementType))arrayValid=false;
-                else if(!CompilerTypes.IsAssignable(sourceArray.ElementType,targetArray.ElementType))
+                else if(!IsAssignableContextually(element,sourceArray.ElementType,targetArray.ElementType))
                 {
                     Mismatch(literalArray.Open,sourceArray.ElementType,targetArray.ElementType);
                     arrayValid=false;
@@ -507,7 +554,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 // not the whole function argument. Reuse its computed type so
                 // nested name-resolution errors are not evaluated twice.
                 if(!CheckContextualLiteral(property.Value,required,member))valid=false;
-                else if(!CompilerTypes.IsAssignable(member,required))
+                else if(!IsAssignableContextually(property.Value,member,required))
                 {
                     Mismatch(property.Name,member,required);
                     valid=false;

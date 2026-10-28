@@ -82,6 +82,9 @@ internal static class TypeDisplay
                     }
                     Text("(");
                     break;
+                case LiteralTypeSymbol literal:
+                    Text(literal.DisplayName);
+                    break;
                 case PrimitiveTypeSymbol primitive:
                     Text(primitive.DisplayName);
                     break;
