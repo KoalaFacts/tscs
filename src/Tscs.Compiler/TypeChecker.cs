@@ -1160,10 +1160,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         {
             // Freshness is a property of the source arms, not the joined
             // structural union. Keep per-property excess diagnostics.
-            bool valid=true;
-            if(branches.True is { } t && !CheckContextualLiteral(chosen.WhenTrue,expected,t))valid=false;
-            if(branches.False is { } f && !CheckContextualLiteral(chosen.WhenFalse,expected,f))valid=false;
-            return valid;
+            bool armsValid=true;
+            if(branches.True is { } t && !CheckContextualLiteral(chosen.WhenTrue,expected,t))armsValid=false;
+            if(branches.False is { } f && !CheckContextualLiteral(chosen.WhenFalse,expected,f))armsValid=false;
+            return armsValid;
         }
         if(value is ValueObject fresh && expected is UnionTypeSymbol alternatives &&
            actual is ObjectTypeSymbol)

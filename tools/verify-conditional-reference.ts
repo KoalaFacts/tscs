@@ -16,7 +16,10 @@ const suite=JSON.parse(readFileSync(suitePath,'utf8'));
 assert.equal(suite.kind,'BOUNDED_CONDITIONAL_VALUES_NOT_ORIGINAL_TS7_ACCEPTANCE');
 assert.equal(suite.cases.length,23,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
-const minimal=readFileSync('fixtures/minimal.d.ts','utf8');
+// The cohort includes number[] indexing and length. Use the already
+// verified array profile for BOTH compilers, not the empty bootstrap Array<T>.
+const minimalProfile='fixtures/array-iteration/minimal.d.ts';
+const minimal=readFileSync(minimalProfile,'utf8');
 const hash=(data:string|Buffer)=>createHash('sha256').update(data).digest('hex');
 const manifest:{path:string;length:number;sha256:string}[]=[];
 function save(name:string,contents:string) {
@@ -71,6 +74,7 @@ save('results.json',JSON.stringify(results,null,2));
 save('summary.json',JSON.stringify({sourceSha,upstreamCommit:pin.commit,referenceVersion:version.stdout.trim(),
   referenceSha256:hash(readFileSync(reference)),productCliSha256:hash(readFileSync(product)),
   suiteSha256:hash(readFileSync(suitePath)),scriptSha256:hash(readFileSync(import.meta.filename)),
+  minimalProfile,minimalProfileSha256:hash(minimal),
   matches:results.length-mismatches.length,mismatches:mismatches.length,originalAcceptanceCredit:0,
   fullOriginalScope:'UNEXPANDED',comparison:'bounded code arrays and exits, not original harness',
   referenceExecutable:basename(reference)},null,2));
