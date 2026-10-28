@@ -258,17 +258,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         }
                         break;
                     case PostfixUpdate update:
-                        var updated=Resolve(update.Name,scope);
-                        if(updated==null)break;
-                        if(!updated.Initialized)
-                            throw new CompilationFailure(Diagnostic.Error(file,update.Name,"TSCS1001","Reads before initialization are not supported yet."));
-                        if(updated.Imported)
-                            Error(update.Name,"TS2632",$"Cannot assign to '{update.Name.Text}' because it is an import.");
-                        else if(updated.IsConstant)
-                            Error(update.Name,"TS2588",$"Cannot assign to '{update.Name.Text}' because it is a constant.");
-                        else if(!CompilerTypes.IsNumber(updated.Type))
-                            throw new CompilationFailure(Diagnostic.Error(file,update.Operator,"TSCS1001","Only number postfix updates are supported yet."));
-                        else updated.Initialized=true;
+                        // Legacy statement AST shares the same checked lvalue path.
+                        CheckNumericUpdate(new ValueAtom(update.Name),update.Operator,scope);
                         break;
                     case Expression e: TypeOf(e.Value,scope);break;
                 }
@@ -412,11 +403,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     }
 
     // Do not type-check a receiver/index twice: a computed index can itself mutate state.
-    private TypeSymbol? CheckPrefixUpdate(ValuePrefixUpdate update,Scope scope)
+    private TypeSymbol? CheckNumericUpdate(ValueNode target,Token op,Scope scope)
     {
         TypeSymbol? current;
         Symbol? binding=null;
-        switch(update.Target)
+        switch(target)
         {
             case ValueAtom { Token.Kind:TokenKind.Identifier } atom:
                 binding=Resolve(atom.Token,scope);
@@ -464,13 +455,13 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     "Indexed updates currently support arrays only."));
                 break;
             default:
-                throw new CompilationFailure(Diagnostic.Error(file,update.Operator,"TSCS1001",
-                    "Prefix updates require an identifier, property or indexed array element."));
+                throw new CompilationFailure(Diagnostic.Error(file,op,"TSCS1001",
+                    "Numeric updates require an identifier, property or indexed array element."));
         }
         if(current==null)return null;
         if(!IsNumericMutationOperand(current))
-            throw new CompilationFailure(Diagnostic.Error(file,update.Operator,"TSCS1001",
-                "Prefix updates require a number or any operand."));
+            throw new CompilationFailure(Diagnostic.Error(file,op,"TSCS1001",
+                "Numeric updates require a number or any operand."));
         if(binding is { Imported:false,IsConstant:false })
         {
             binding.Initialized=true;
@@ -1021,7 +1012,12 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             }
             if(node is ValuePrefixUpdate prefix)
             {
-                types.Push(CheckPrefixUpdate(prefix,scope));
+                types.Push(CheckNumericUpdate(prefix.Target,prefix.Operator,scope));
+                continue;
+            }
+            if(node is ValuePostfixUpdate postfix)
+            {
+                types.Push(CheckNumericUpdate(postfix.Target,postfix.Operator,scope));
                 continue;
             }
             if(node is ValueConditional chosen)
