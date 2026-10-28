@@ -1,5 +1,20 @@
 # tscs status
 
+## Returning-guard control-flow types — candidate, not yet accepted
+
+The checker now carries a discriminant type to following statements only
+when exactly one arm completes normally (early-return guard clauses). It
+restores lexical types at the end of each block, even on errors; consecutive
+guards narrow three-way unions before final member reads. The checked AST and
+ES2015 emitter are unchanged.
+
+Real source tests, Node ESM smoke and pinned-Go code/exit comparison are in
+`DiscriminantGuardFlowTests.cs`, `tools/verify-guard-emit.ts` and
+`fixtures/guard-flow/semantic-cases.json`. These are **NOT_RUN** at candidate
+creation. Compound predicates, arbitrary writes, loops and full reachability
+are not claimed. Original TS7 acceptance remains 0, with 15,523 skips.
+
+
 ## Discriminated union branch narrowing — integration candidate (NOT_RUN)
 
 The initial fixed-Go run revealed a separate heterogeneous raw-object-array

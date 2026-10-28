@@ -1,0 +1,83 @@
+{
+  "kind": "BOUNDED_DISCRIMINANT_GUARD_FLOW_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "guard-flow:positive-01",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e: E): number { if (e.kind !== \"ok\") { return 0; } return e.value; } let result: number = f({ kind: \"ok\", value: 42 });",
+      "expectedCodes": []
+    },
+    {
+      "id": "guard-flow:positive-02",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e: E): string { if (e.kind === \"ok\") { return \"ready\"; } return e.message; } let result: string = f({ kind: \"error\", message: \"bad\" });",
+      "expectedCodes": []
+    },
+    {
+      "id": "guard-flow:positive-03",
+      "source": "type T = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string } | { kind: \"idle\"; idle: boolean }; function f(e: T): number { if (e.kind === \"error\") { return 0; } if (e.kind === \"idle\") { return 0; } return e.value; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "guard-flow:positive-04",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e: E): number { if (\"ok\" !== e.kind) { return 0; } return e.value; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "guard-flow:positive-05",
+      "source": "type B = { active: true; value: number } | { active: false; reason: string }; function f(b: B): number { if (b.active === false) { return 0; } return b.value; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "guard-flow:positive-06",
+      "source": "type N = { code: 1; value: number } | { code: 2; message: string }; function f(n: N): number { if (n.code !== 1) { return 0; } return n.value; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "guard-flow:positive-07",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e: E): number { if (e.kind !== \"ok\") { return 0; } { let n: number = e.value; } return e.value; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "guard-flow:positive-08",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e: E): string { if (e.kind === \"ok\") { return \"ready\"; } else { return e.message; } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "guard-flow:positive-09",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e: E): number { if (e.kind === \"ok\") { let n: number = e.value; } else { return 0; } return e.value; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "guard-flow:positive-10",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e: E): number { if (e.kind !== \"ok\") { return 0; } if (e.value > 0) { return e.value; } return 0; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "guard-flow:negative-01",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e: E): number { if (e.kind !== \"ok\") { let n: number = 0; } return e.value; }",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "guard-flow:negative-02",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e: E): string { if (e.kind !== \"ok\") { return \"bad\"; } return e.message; }",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "guard-flow:negative-03",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e: E): number { if (e.kind === \"ok\") { return 0; } return e.value; }",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "guard-flow:negative-04",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function good(e: E): number { if (e.kind !== \"ok\") { return 0; } return e.value; } function bad(e: E): number { return e.value; }",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    }
+  ]
+}
