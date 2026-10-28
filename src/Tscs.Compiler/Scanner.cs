@@ -80,11 +80,36 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                     kind=value switch {"true"=>TokenKind.True,"false"=>TokenKind.False,"null"=>TokenKind.Null,_=>TokenKind.Identifier};
                 }
             }
-            else if (first is >= '0' and <= '9')
+            else if (first is >= '0' and <= '9' ||
+                     (!jsonMode && first == '.' && position < text.Length && text[position] is >= '0' and <= '9'))
             {
+                // Preserve JSON mode's original integer-only bootstrap tokenization.
+                // TS source mode accepts finite decimal/exponent spellings as a
+                // single number token: .5, 2., 2.e1, 2.5E-1.
+                bool leadingDot = first == '.';
                 while (position < text.Length && text[position] is >= '0' and <= '9') position++;
+                int integerEnd = position;
+                if (!jsonMode && !leadingDot && position < text.Length && text[position] == '.')
+                {
+                    position++;
+                    while (position < text.Length && text[position] is >= '0' and <= '9') position++;
+                }
+                bool exponentComplete = true;
+                if (!jsonMode && position < text.Length && text[position] is 'e' or 'E')
+                {
+                    position++;
+                    if (position < text.Length && text[position] is '+' or '-') position++;
+                    int exponentStart = position;
+                    while (position < text.Length && text[position] is >= '0' and <= '9') position++;
+                    exponentComplete = position > exponentStart;
+                }
                 kind = TokenKind.Number;
-                if ((first == '0' && position > begin + 1) || (position < text.Length && (IsIdentifierPart(text[position]) || text[position] == '.'))) kind = TokenKind.Unsupported;
+                if ((!leadingDot && first == '0' && integerEnd > begin + 1) ||
+                    !exponentComplete ||
+                    (position < text.Length && (IsIdentifierPart(text[position]) || text[position] == '.')) ||
+                    (!jsonMode && (!double.TryParse(text[begin..position], NumberStyles.Float,
+                        CultureInfo.InvariantCulture, out var numeric) || !double.IsFinite(numeric))))
+                    kind = TokenKind.Unsupported;
             }
             else if (first is '\'' or '"')
             {

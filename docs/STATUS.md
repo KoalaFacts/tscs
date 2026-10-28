@@ -1,5 +1,19 @@
 # tscs status
 
+## 2026-10-29 — Fractional/exponent numeric syntax (source candidate; NOT_RUN)
+
+The C# scanner now tokenizes finite decimal fractions, leading/trailing decimal
+points and e/E signed exponents as one numeric literal in TS source mode.
+The shared type system canonicalizes numeric literal types by Number value
+(e.g. `1.0` and `1e0`), including negative zero, so aliases, unions, arguments
+and contextual member checking do not invent distinct spelled-number types.
+The existing parser/binder/checker/ES2015 emitter and module graph are reused.
+JSON mode and unsupported radix/separator forms are not widened. A 22-source
+fixed-Go diagnostic/exit cohort, four-module Node runtime and negative no-emit
+verification are wired to the normal CI gates, but are NOT_RUN at source
+creation. Original TS7 acceptance remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED;
+the full dynamic scope is UNEXPANDED. No release is claimed.
+
 ## 2026-10-29 — String primitive reads and ordering (source candidate; NOT_RUN)
 
 The checked C# type model now recognizes primitive/literal string `length`,

@@ -61,11 +61,23 @@ internal static class CompilerTypes
     public static LiteralTypeSymbol FromLiteralExact(Token token,bool negative=false)=>token.Kind switch
     {
         TokenKind.String when !negative=>new(PrimitiveKind.String,token.Value??token.Text),
-        TokenKind.Number=>new(PrimitiveKind.Number,token.Text=="0"?"0":(negative?"-":"")+token.Text),
+        TokenKind.Number=>new(PrimitiveKind.Number,CanonicalNumericLiteral(token.Text,negative)),
         TokenKind.True when !negative=>new(PrimitiveKind.Boolean,"true"),
         TokenKind.False when !negative=>new(PrimitiveKind.Boolean,"false"),
         _=>throw new ArgumentOutOfRangeException(nameof(token),"Only parsed primitive literals may form literal types.")
     };
+
+    // Literal identity follows the ECMAScript Number value, not source spelling:
+    // 1, 1.0 and 1e0 share one semantic literal type; -0 is identical to 0.
+    private static string CanonicalNumericLiteral(string text,bool negative)
+    {
+        if (!double.TryParse(text,System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture,out var number) ||
+            !double.IsFinite(number))
+            throw new InvalidOperationException("Scanner must reject malformed and nonfinite numeric tokens.");
+        if (negative) number=-number;
+        return number==0?"0":number.ToString("R",System.Globalization.CultureInfo.InvariantCulture);
+    }
 
     public static TypeSymbol Union(IEnumerable<TypeSymbol> variants)
     {

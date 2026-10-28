@@ -1,0 +1,128 @@
+{
+  "kind": "BOUNDED_NUMERIC_LITERALS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "upstream": "upstream.lock.json",
+  "cases": [
+    {
+      "id": "numeric-literals:positive-01",
+      "source": "let n: number = 0.25;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-02",
+      "source": "let n: number = .5;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-03",
+      "source": "let n: number = 3.;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-04",
+      "source": "let n: number = 1e3;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-05",
+      "source": "let n: number = 2E-3;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-06",
+      "source": "let n: number = 1.25e+2;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-07",
+      "source": "let n: number = 1.e2;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-08",
+      "source": "function scale(v: number): number { return v * 0.5; } let n: number = scale(84);",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-09",
+      "source": "type Half = 0.5; let n: Half = .5;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-10",
+      "source": "type Hundred = 100; let n: Hundred = 1e2;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-11",
+      "source": "type Choice = .5 | 1; let n: Choice = 0.50;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-12",
+      "source": "type Zero = -0; let n: Zero = 0.0;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-13",
+      "source": "type Negative = -1.5; let n: Negative = -1.50;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-14",
+      "source": "let numbers: number[] = [.25, 1e1, .5]; let n: number = numbers[0] * numbers[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-15",
+      "source": "let record: { rate: number } = { rate: 1.5 }; record.rate += .25;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-16",
+      "source": "let n: number = .1 + .2;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:negative-01",
+      "source": "let n: string = 0.25;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "numeric-literals:negative-02",
+      "source": "let n: boolean = 2e3;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "numeric-literals:negative-03",
+      "source": "type Half = 0.5; let n: Half = 0.25;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "numeric-literals:negative-04",
+      "source": "let n: 2 = 1e0;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "numeric-literals:negative-05",
+      "source": "type Negative = -0.5; let n: Negative = 0.5;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "numeric-literals:negative-06",
+      "source": "function take(n: 1.5): number { return n; } let result: number = take(1.25);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    }
+  ]
+}
