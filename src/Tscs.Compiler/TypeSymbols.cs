@@ -61,7 +61,7 @@ internal static class CompilerTypes
     public static LiteralTypeSymbol FromLiteralExact(Token token,bool negative=false)=>token.Kind switch
     {
         TokenKind.String when !negative=>new(PrimitiveKind.String,token.Value??token.Text),
-        TokenKind.Number=>new(PrimitiveKind.Number,(negative?"-":"")+token.Text),
+        TokenKind.Number=>new(PrimitiveKind.Number,token.Text=="0"?"0":(negative?"-":"")+token.Text),
         TokenKind.True when !negative=>new(PrimitiveKind.Boolean,"true"),
         TokenKind.False when !negative=>new(PrimitiveKind.Boolean,"false"),
         _=>throw new ArgumentOutOfRangeException(nameof(token),"Only parsed primitive literals may form literal types.")
@@ -177,8 +177,8 @@ internal static class CompilerTypes
         return null;
     }
 
-    public static bool IsNumber(TypeSymbol? type) => type is PrimitiveTypeSymbol { Kind: PrimitiveKind.Number };
-    public static bool IsBoolean(TypeSymbol? type) => type is PrimitiveTypeSymbol { Kind: PrimitiveKind.Boolean };
+    public static bool IsNumber(TypeSymbol? type) => type is PrimitiveTypeSymbol { Kind: PrimitiveKind.Number } or LiteralTypeSymbol { Kind: PrimitiveKind.Number };
+    public static bool IsBoolean(TypeSymbol? type) => type is PrimitiveTypeSymbol { Kind: PrimitiveKind.Boolean } or LiteralTypeSymbol { Kind: PrimitiveKind.Boolean };
 
     // This is only the bounded, same-primitive/any equality subset.
     // Do not infer an overlap between unrelated or structural type forms.

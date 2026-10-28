@@ -53,6 +53,16 @@ public sealed class LiteralTypeTests
     public void PrimitiveLiteralUnionsAndEmptyObjectRetainSoundWidening(string code) =>
         Assert.Empty(Compilation.Check("literal-widening.ts",code));
 
+    [Theory]
+    [InlineData("function twice(x: 21): number { return x * 2; } let n: number = twice(21);")]
+    [InlineData("function negate(x: true): boolean { return !x; } let result: boolean = negate(true);")]
+    [InlineData("let zero: 0 = -0; let negativeZero: -0 = 0;")]
+    [InlineData("function pass(x: boolean): true | false { return x; } let f: boolean = pass(true);")]
+    [InlineData("let n: 21 = 21; let data: {} = n;")]
+    [InlineData("let xs: { tag: \"ready\" | \"done\"; value: number | string }[] = [{ tag: \"ready\", value: 1 }, { tag: \"done\", value: \"x\" }];")]
+    public void LiteralSubtypesAndFreshArrayItemsRetainPrimitiveSemantics(string code) =>
+        Assert.Empty(Compilation.Check("literal-extensions.ts",code));
+
     [Fact]
     public void ReusedLiteralUnionIsAssignableWithoutFreshExpressionSpecialCases()
     {

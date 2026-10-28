@@ -528,10 +528,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             bool arrayValid=true;
             foreach(var element in literalArray.Elements)
             {
-                if(!CheckContextualLiteral(element,targetArray.ElementType,sourceArray.ElementType))arrayValid=false;
-                else if(!IsAssignableContextually(element,sourceArray.ElementType,targetArray.ElementType))
+                // A heterogeneous array's aggregate union is not the type of
+                // each fresh element. Retain that element's own inferred
+                // shape when checking contextual literal properties.
+                var elementType=CompilerTypes.FromInitializer(element)??sourceArray.ElementType;
+                if(!CheckContextualLiteral(element,targetArray.ElementType,elementType))arrayValid=false;
+                else if(!IsAssignableContextually(element,elementType,targetArray.ElementType))
                 {
-                    Mismatch(literalArray.Open,sourceArray.ElementType,targetArray.ElementType);
+                    Mismatch(literalArray.Open,elementType,targetArray.ElementType);
                     arrayValid=false;
                 }
             }
