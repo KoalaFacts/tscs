@@ -152,6 +152,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         }
                         break;
                     case ElementAssignment elementAssignment:
+                        if(CompilerTypes.IsStringFamily(TypeOf(elementAssignment.Target.Receiver,scope)))
+                            throw new CompilationFailure(Diagnostic.Error(file,elementAssignment.Target.Open,"TS2542",
+                                "Index signature in type 'String' only permits reading."));
                         var elementType=TypeOf(elementAssignment.Target,scope);
                         var elementValueType=TypeOf(elementAssignment.Value,scope);
                         if(elementType!=null && elementValueType!=null &&
@@ -163,7 +166,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         // Reading common members of a union is safe; writing one
                         // requires intersection-like relations not yet represented.
                         // Reject such writes rather than accepting an unsafe arm.
-                        if(TypeOf(assignment.Target.Receiver,scope) is UnionTypeSymbol)
+                        var propertyReceiver=TypeOf(assignment.Target.Receiver,scope);
+                        if(CompilerTypes.IsStringFamily(propertyReceiver) && assignment.Target.Name.Text=="length")
+                            throw new CompilationFailure(Diagnostic.Error(file,assignment.Target.Name,"TS2540",
+                                "Cannot assign to 'length' because it is a read-only property."));
+                        if(propertyReceiver is UnionTypeSymbol)
                             throw new CompilationFailure(Diagnostic.Error(file,assignment.Target.Name,"TSCS1001",
                                 "Writes through union-typed receivers are not supported yet."));
                         // Mutating a property does not rebind a const or an import.
@@ -192,12 +199,19 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                                 targetType=targetSymbol.Type;
                                 break;
                             case ValuePropertyAccess propertyTarget:
-                                if(TypeOf(propertyTarget.Receiver,scope) is UnionTypeSymbol)
+                                var compoundReceiver=TypeOf(propertyTarget.Receiver,scope);
+                                if(CompilerTypes.IsStringFamily(compoundReceiver) && propertyTarget.Name.Text=="length")
+                                    throw new CompilationFailure(Diagnostic.Error(file,propertyTarget.Name,"TS2540",
+                                        "Cannot assign to 'length' because it is a read-only property."));
+                                if(compoundReceiver is UnionTypeSymbol)
                                     throw new CompilationFailure(Diagnostic.Error(file,propertyTarget.Name,"TSCS1001",
                                         "Writes through union-typed receivers are not supported yet."));
                                 targetType=TypeOf(propertyTarget,scope);
                                 break;
                             case ValueElementAccess elementTarget:
+                                if(CompilerTypes.IsStringFamily(TypeOf(elementTarget.Receiver,scope)))
+                                    throw new CompilationFailure(Diagnostic.Error(file,elementTarget.Open,"TS2542",
+                                        "Index signature in type 'String' only permits reading."));
                                 targetType=TypeOf(elementTarget,scope);
                                 break;
                             default:
@@ -1044,11 +1058,12 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 var receiverType=types.Pop();
                 if(indexType!=null && !CompilerTypes.IsNumber(indexType))
                     throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
-                        "Array indices currently require a number expression."));
+                        "Indexed reads currently require a number expression."));
                 if(receiverType is ArrayTypeSymbol array)types.Push(array.ElementType);
+                else if(CompilerTypes.IsStringFamily(receiverType))types.Push(CompilerTypes.String);
                 else if(receiverType==null || indexType==null)types.Push(null);
                 else throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
-                    "Index access currently supports arrays only; object index signatures are not implemented."));
+                    "Index access currently supports arrays and strings only; object index signatures are not implemented."));
                 continue;
             }
             if(node is ValueObject literal)
@@ -1210,10 +1225,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             }
             else if(binary.Operator.Kind is TokenKind.LessThan or TokenKind.LessEqual or TokenKind.GreaterThan or TokenKind.GreaterEqual)
             {
-                if(CompilerTypes.IsNumber(left)&&CompilerTypes.IsNumber(right))
+                if(CompilerTypes.CanCompareRelational(left,right))
                     types.Push(CompilerTypes.Boolean);
                 else throw new CompilationFailure(Diagnostic.Error(file,binary.Operator,"TSCS1001",
-                    "Relational comparisons currently require two number operands."));
+                    "Relational comparisons require two number operands or two string operands."));
             }
             else if(binary.Operator.Kind is TokenKind.EqualEqual or TokenKind.BangEqual or TokenKind.StrictEqual or TokenKind.StrictNotEqual)
             {

@@ -50,6 +50,47 @@ public sealed class AmbientArrayGlobalsTests : IDisposable
         Assert.Contains("TSCS1002",output);
     }
 
+    [Theory]
+    [InlineData("interface String { readonly length: number; readonly [index: number]: string; }")]
+    [InlineData("interface String { readonly [position:number]:string;readonly length:number; }")]
+    public void ExactReadonlyStringContractIsAccepted(string declaration)
+    {
+        var source=Path.Combine(directory,"string-global.d.ts");
+        var program=Path.Combine(directory,"index.ts");
+        File.WriteAllText(source,"interface Array<T> {}\n"+declaration+"\n"+
+            "interface Boolean {} interface Function {} interface CallableFunction {} interface NewableFunction {} "+
+            "interface IArguments {} interface Number {} interface Object {} interface RegExp {}");
+        File.WriteAllText(program,"let s: string = \"abc\"; let c: string = s[0]; let n: number = s.length;");
+        using var stdout=new StringWriter();
+        using var stderr=new StringWriter();
+        var result=CommandLine.Run(["--noEmit","--noLib","--target","es2015",program,source],stdout,stderr);
+        Assert.Equal(0,result);
+        Assert.Equal("",stdout.ToString()+stderr.ToString());
+    }
+
+    [Theory]
+    [InlineData("interface String { length: number; readonly [index:number]:string; }")]
+    [InlineData("interface String { readonly length:number; [index:number]:string; }")]
+    [InlineData("interface String { readonly length:string; readonly [index:number]:string; }")]
+    [InlineData("interface String { readonly length:number; readonly [index:string]:string; }")]
+    [InlineData("interface String { readonly length:number; readonly [index:number]:any; }")]
+    [InlineData("interface String { readonly length:number; readonly [index:number]:string; pop():string; }")]
+    [InlineData("interface String { readonly length:number; readonly length:number; readonly [index:number]:string; }")]
+    public void MutatingOrUnexpectedStringAmbientContractsAreRejected(string declaration)
+    {
+        var source=Path.Combine(directory,"string-global.d.ts");
+        var program=Path.Combine(directory,"index.ts");
+        File.WriteAllText(source,"interface Array<T> {}\n"+declaration+"\n"+
+            "interface Boolean {} interface Function {} interface CallableFunction {} interface NewableFunction {} "+
+            "interface IArguments {} interface Number {} interface Object {} interface RegExp {}");
+        File.WriteAllText(program,"let s: string = \"abc\"; let c: string = s[0];");
+        using var stdout=new StringWriter();
+        using var stderr=new StringWriter();
+        var result=CommandLine.Run(["--noEmit","--noLib","--target","es2015",program,source],stdout,stderr);
+        Assert.Equal(1,result);
+        Assert.Contains("TSCS1002",stdout.ToString()+stderr.ToString());
+    }
+
     [Fact]
     public void OriginalEmptyAmbientArrayContractRemainsAccepted()
     {

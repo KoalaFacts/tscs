@@ -1,0 +1,104 @@
+{
+  "kind": "BOUNDED_STRING_PRIMITIVES_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "upstream": "upstream.lock.json",
+  "cases": [
+    {
+      "id": "string-primitives:positive-01",
+      "source": "let ok: boolean = \"alpha\" < \"beta\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-primitives:positive-02",
+      "source": "let ok: boolean = \"z\" > \"a\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-primitives:positive-03",
+      "source": "let ok: boolean = \"a\" <= \"a\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-primitives:positive-04",
+      "source": "let ok: boolean = \"z\" >= \"a\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-primitives:positive-05",
+      "source": "function earlier(a: string, b: string): boolean { return a < b; } let ok: boolean = earlier(\"a\", \"b\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-primitives:positive-06",
+      "source": "let s: string = \"hello\"; let n: number = s.length;",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-primitives:positive-07",
+      "source": "let s: string = \"hello\"; let c: string = s[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-primitives:positive-08",
+      "source": "let s: string = \"hello\"; let ok: boolean = s[0] <= \"b\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-primitives:positive-09",
+      "source": "type Label = \"a\" | \"b\"; function compare(label: Label): boolean { return label < \"z\"; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-primitives:positive-10",
+      "source": "let s: string = \"ab\"; let result: string = s[0] + s[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-primitives:positive-11",
+      "source": "let s: string = \"abc\"; let x: number = s.length + 3;",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-primitives:positive-12",
+      "source": "function count(s: string): number { let n: number = 0; for (let i: number = 0; i < s.length; i++) { if (s[i] > \"a\") { n += 1; } } return n; } let total: number = count(\"abc\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-primitives:positive-13",
+      "source": "let s: string = \"abc\"; let b: boolean = s[0] >= \"a\" && s[1] < \"c\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-primitives:positive-14",
+      "source": "let s: \"abc\" = \"abc\"; let x: number = s.length;",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-primitives:negative-01",
+      "source": "let n: number = \"a\" < \"b\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-primitives:negative-02",
+      "source": "let value: number = \"abc\"[0];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-primitives:negative-03",
+      "source": "let value: string = \"abc\".length;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-primitives:negative-04",
+      "source": "let value: number = \"a\" >= \"b\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}

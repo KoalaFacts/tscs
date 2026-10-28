@@ -149,11 +149,9 @@ public static class CommandLine
         var path=Path.GetRelativePath(Environment.CurrentDirectory,Path.GetFullPath(d.File)).Replace(Path.DirectorySeparatorChar,'/');
         return $"{path}({line},{column}): error {d.Code}: {d.Message}";
     }
-    // Ambient declarations are deliberately bounded, but arrays can now be
-    // supplied with the standard numeric index and length contract used by
-    // typed element access. Do not claim general .d.ts semantic support:
-    // everything other than empty built-in interfaces or this exact *shape*
-    // is rejected instead of being silently ignored.
+    // Ambient globals are deliberately bounded. Recognize only the exact
+    // array and immutable string shapes consumed by our checked compiler.
+    // Other nonempty interface declarations fail closed, not silently ignored.
     private static void ReadGlobals(string text,HashSet<string> globals)
     {
         var pattern=new Regex(@"\G\s*interface\s+([A-Za-z_$][A-Za-z0-9_$]*)(\s*<\s*T\s*>)?\s*\{([^{}]*)\}\s*",
@@ -168,8 +166,10 @@ public static class CommandLine
             if(!GlobalTypes.Contains(name,StringComparer.Ordinal)||(name=="Array")!=match.Groups[2].Success||!globals.Add(name))
                 throw new InputFailure("Unsupported or duplicate bootstrap global declaration.");
             var members=match.Groups[3].Value;
-            if(!string.IsNullOrWhiteSpace(members) && (name!="Array" || !IsSupportedArrayContract(members)))
-                throw new InputFailure("Only the required Array<T> numeric index and length members are supported in ambient globals.");
+            if(!string.IsNullOrWhiteSpace(members) &&
+                !(name=="Array" && IsSupportedArrayContract(members)) &&
+                !(name=="String" && IsSupportedStringContract(members)))
+                throw new InputFailure("Only bounded Array<T> and readonly String member contracts are supported in ambient globals.");
             position+=match.Length;
         }
     }
@@ -181,6 +181,35 @@ public static class CommandLine
     private static bool IsSupportedArrayContract(string body)
     {
         var memberPattern=new Regex(@"\G\s*(?:(?<length>length\s*:\s*number)|(?<index>\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T))\s*;",
+            RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
+        int position=0;
+        bool length=false,index=false;
+        while(position<body.Length)
+        {
+            if(string.IsNullOrWhiteSpace(body[position..]))break;
+            var member=memberPattern.Match(body,position);
+            if(!member.Success)return false;
+            if(member.Groups["length"].Success)
+            {
+                if(length)return false;
+                length=true;
+            }
+            else
+            {
+                if(index)return false;
+                index=true;
+            }
+            position+=member.Length;
+        }
+        return length&&index;
+    }
+
+    // The String shape is intentionally read-only. Parsing exact source
+    // members prevents an ambient declaration from granting unsupported
+    // mutable indices, arbitrary methods, or unconstrained value types.
+    private static bool IsSupportedStringContract(string body)
+    {
+        var memberPattern=new Regex(@"\G\s*(?:(?<length>readonly\s+length\s*:\s*number)|(?<index>readonly\s+\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*string))\s*;",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         int position=0;
         bool length=false,index=false;

@@ -49,6 +49,7 @@ jobs:
            node tools/verify-division-reference.ts "$reference" .artifacts/numeric-division-reference
           node tools/verify-division-reference.ts "$reference" .artifacts/numeric-exponent-reference fixtures/numeric-exponent/semantic-cases.json
            node tools/verify-division-reference.ts "$reference" .artifacts/string-addition-reference fixtures/string-addition/semantic-cases.json
+          node tools/verify-division-reference.ts "$reference" .artifacts/string-primitives-reference fixtures/string-primitives/semantic-cases.json
           node tools/verify-type-operators-reference.ts "$reference" .artifacts/type-operators-reference
           node tools/verify-switch-reference.ts "$reference" .artifacts/switch-reference
           node tools/verify-switch-reference.ts "$reference" .artifacts/switch-completion-reference fixtures/switch-completion/semantic-cases.json
@@ -61,6 +62,14 @@ jobs:
         with:
           name: pinned-type-operators-reference-${{ github.sha }}
           path: .artifacts/type-operators-reference/
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Preserve string primitive reference inputs and raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-string-primitives-reference-${{ github.sha }}
+          path: .artifacts/string-primitives-reference/
           retention-days: 30
           if-no-files-found: warn
       - name: Preserve string addition reference inputs and raw results
