@@ -65,9 +65,14 @@ internal static class JavaScriptEmitter
                     break;
                 case CompoundAssignment compound:
                     Indent(depth);
-                    WriteExpression(compound.Target);
-                    output.Append(' ').Append(compound.Operator.Text).Append(' ');
-                    WriteExpression(compound.Value);
+                    if(compound.Operator.Kind==TokenKind.PowerEqual)
+                        WritePowerCompound(compound);
+                    else
+                    {
+                        WriteExpression(compound.Target);
+                        output.Append(' ').Append(compound.Operator.Text).Append(' ');
+                        WriteExpression(compound.Value);
+                    }
                     output.Append(";\n");
                     break;
                 case PostfixUpdate update:
@@ -211,6 +216,103 @@ internal static class JavaScriptEmitter
             }
         }
 
+        private int powerTemporaryIndex;
+
+        private string FreshPowerTemporary(HashSet<string> used)
+        {
+            // RHS lexical references must not be shadowed by an arrow parameter.
+            // Name allocation is deterministic within a generated module.
+            string name;
+            do { name="__tscs_power_"+powerTemporaryIndex++; }
+            while(!used.Add(name));
+            return name;
+        }
+
+        private static HashSet<string> ReferencedValueNames(ValueNode root)
+        {
+            var names=new HashSet<string>(StringComparer.Ordinal);
+            var pending=new Stack<ValueNode>();
+            pending.Push(root);
+            while(pending.Count>0)
+            {
+                switch(pending.Pop())
+                {
+                    case ValueAtom atom:
+                        if(atom.Token.Kind==TokenKind.Identifier)names.Add(atom.Token.Text);
+                        break;
+                    case ValueCall call:
+                        names.Add(call.Callee.Text);
+                        foreach(var arg in call.Arguments)pending.Push(arg);
+                        break;
+                    case ValueBinary binary:
+                        pending.Push(binary.Left);pending.Push(binary.Right);break;
+                    case ValueConditional conditional:
+                        pending.Push(conditional.Condition);
+                        pending.Push(conditional.WhenTrue);
+                        pending.Push(conditional.WhenFalse);
+                        break;
+                    case ValueUnary unary: pending.Push(unary.Operand);break;
+                    case ValueParenthesized grouped:pending.Push(grouped.Expression);break;
+                    case ValueTypeOperator typed:pending.Push(typed.Expression);break;
+                    case ValueElementAccess indexed:
+                        pending.Push(indexed.Receiver);pending.Push(indexed.Index);break;
+                    case ValuePropertyAccess property:pending.Push(property.Receiver);break;
+                    case ValueArray array:
+                        foreach(var element in array.Elements)pending.Push(element);
+                        break;
+                    case ValueObject obj:
+                        foreach(var property in obj.Properties)pending.Push(property.Value);
+                        break;
+                }
+            }
+            return names;
+        }
+
+        private void WritePowerCompound(CompoundAssignment compound)
+        {
+            // ES2015 has no ** or **=. Use Math.pow, preserving one evaluation
+            // of any receiver/index and reading the old lvalue before the RHS.
+            // The generated arrow is an expression, so it also works in for headers.
+            switch(compound.Target)
+            {
+                case ValueAtom identifier:
+                    output.Append(identifier.Token.Text).Append(" = Math.pow(").Append(identifier.Token.Text).Append(", ");
+                    WriteExpression(compound.Value);
+                    output.Append(')');
+                    break;
+                case ValuePropertyAccess property:
+                    {
+                        var receiver=FreshPowerTemporary(ReferencedValueNames(compound.Value));
+                        output.Append("((").Append(receiver).Append(") => (")
+                            .Append(receiver).Append('.').Append(property.Name.Text)
+                            .Append(" = Math.pow(").Append(receiver).Append('.').Append(property.Name.Text).Append(", ");
+                        WriteExpression(compound.Value);
+                        output.Append(")))(");
+                        WriteExpression(property.Receiver);
+                        output.Append(')');
+                        break;
+                    }
+                case ValueElementAccess element:
+                    {
+                        var names=ReferencedValueNames(compound.Value);
+                        var receiver=FreshPowerTemporary(names);
+                        var index=FreshPowerTemporary(names);
+                        output.Append("((").Append(receiver).Append(", ").Append(index).Append(") => (")
+                            .Append(receiver).Append('[').Append(index).Append("] = Math.pow(")
+                            .Append(receiver).Append('[').Append(index).Append("], ");
+                        WriteExpression(compound.Value);
+                        output.Append(")))(");
+                        WriteExpression(element.Receiver);
+                        output.Append(", ");
+                        WriteExpression(element.Index);
+                        output.Append(')');
+                        break;
+                    }
+                default:
+                    throw new NotSupportedException("Unsupported exponentiation compound target.");
+            }
+        }
+
         private void WriteForHeader(Statement? statement)
         {
             switch(statement)
@@ -232,9 +334,14 @@ internal static class JavaScriptEmitter
                     output.Append(increment.Name.Text).Append(increment.Operator.Text);
                     break;
                 case CompoundAssignment compound:
-                    WriteExpression(compound.Target);
-                    output.Append(' ').Append(compound.Operator.Text).Append(' ');
-                    WriteExpression(compound.Value);
+                    if(compound.Operator.Kind==TokenKind.PowerEqual)
+                        WritePowerCompound(compound);
+                    else
+                    {
+                        WriteExpression(compound.Target);
+                        output.Append(' ').Append(compound.Operator.Text).Append(' ');
+                        WriteExpression(compound.Value);
+                    }
                     break;
                 case PropertyAssignment property:
                     WriteExpression(property.Target);
@@ -298,13 +405,15 @@ internal static class JavaScriptEmitter
                 TokenKind.LeftShift or TokenKind.RightShift or TokenKind.UnsignedRightShift => 8,
                 TokenKind.Plus or TokenKind.Minus => 9,
                 TokenKind.Star or TokenKind.Slash or TokenKind.Percent => 10,
+                // Lowered to a Math.pow call, which binds as a primary/call.
+                TokenKind.Power => 13,
                 _ => throw new NotSupportedException("Unsupported binary operator in emitted AST.")
             },
             ValueUnary => 11,
             // Erasure is wrapped with grouping to keep the JS precedence.
-            ValueTypeOperator => 13,
-            ValueCall or ValuePropertyAccess or ValueElementAccess => 12,
-            ValueAtom or ValueParenthesized or ValueObject or ValueArray => 13,
+            ValueTypeOperator => 14,
+            ValueCall or ValuePropertyAccess or ValueElementAccess => 13,
+            ValueAtom or ValueParenthesized or ValueObject or ValueArray => 14,
             _ => throw new NotSupportedException("Unsupported expression in emitted AST.")
         };
 
@@ -348,9 +457,22 @@ internal static class JavaScriptEmitter
                         Text("(");
                         break;
                     case ValueBinary binary:
-                        Node(binary.Right,precedence,true);
-                        Text(" "+binary.Operator.Text+" ");
-                        Node(binary.Left,precedence);
+                        if(binary.Operator.Kind==TokenKind.Power)
+                        {
+                            // Right-associative AST nesting is retained by nested
+                            // Math.pow calls, valid in the ES2015 target.
+                            Text(")");
+                            Node(binary.Right);
+                            Text(", ");
+                            Node(binary.Left);
+                            Text("Math.pow(");
+                        }
+                        else
+                        {
+                            Node(binary.Right,precedence,true);
+                            Text(" "+binary.Operator.Text+" ");
+                            Node(binary.Left,precedence);
+                        }
                         break;
                     case ValueUnary unary:
                         Node(unary.Operand,precedence);

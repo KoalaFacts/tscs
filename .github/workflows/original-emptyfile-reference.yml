@@ -47,6 +47,7 @@ jobs:
           node tools/verify-conditional-reference.ts "$reference" .artifacts/compound-guards-reference fixtures/compound-guards/semantic-cases.json
           node tools/verify-bitwise-reference.ts "$reference" .artifacts/numeric-bitwise-reference
            node tools/verify-division-reference.ts "$reference" .artifacts/numeric-division-reference
+          node tools/verify-division-reference.ts "$reference" .artifacts/numeric-exponent-reference fixtures/numeric-exponent/semantic-cases.json
            node tools/verify-division-reference.ts "$reference" .artifacts/string-addition-reference fixtures/string-addition/semantic-cases.json
           node tools/verify-type-operators-reference.ts "$reference" .artifacts/type-operators-reference
           node tools/verify-switch-reference.ts "$reference" .artifacts/switch-reference
@@ -68,6 +69,14 @@ jobs:
         with:
           name: pinned-string-addition-reference-${{ github.sha }}
           path: .artifacts/string-addition-reference/
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Preserve numeric exponent reference inputs and raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-numeric-exponent-reference-${{ github.sha }}
+          path: .artifacts/numeric-exponent-reference/
           retention-days: 30
           if-no-files-found: warn
       - name: Preserve division/remainder reference inputs and raw results

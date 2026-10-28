@@ -4,7 +4,7 @@ using Xunit;
 namespace Tscs.Tests;
 
 // Compiler feature boundary: numeric multiplication with TypeScript's
-// multiplicative precedence. No string/any arithmetic, exponentiation or emit.
+// multiplicative precedence. Unsupported operand and malformed-star guards remain.
 public sealed class NumericMultiplicationTests
 {
     [Theory]
@@ -37,7 +37,7 @@ public sealed class NumericMultiplicationTests
 
     [Theory]
     [InlineData("let n = *2;")]
-    [InlineData("let n = 2 ** 3;")]
+    [InlineData("let n = 2 *** 3;")]
     public void UnsupportedStarFormsRemainFailClosed(string source) =>
         Assert.Contains(Compilation.Check("test.ts",source),d=>d.Code=="TSCS1001");
 
