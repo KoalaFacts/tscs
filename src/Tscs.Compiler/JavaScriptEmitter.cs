@@ -336,7 +336,7 @@ internal static class JavaScriptEmitter
                         break;
                     case ValueUnary unary:
                         Node(unary.Operand,precedence);
-                        Text(unary.Operator.Text+(unary.Operator.Kind is TokenKind.Plus or TokenKind.Minus?" ":""));
+                        Text(unary.Operator.Text+(unary.Operator.Kind is TokenKind.Plus or TokenKind.Minus or TokenKind.Typeof?" ":""));
                         break;
                     case ValueParenthesized grouped:
                         Text(")");

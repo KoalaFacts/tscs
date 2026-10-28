@@ -1,5 +1,18 @@
 # tscs status
 
+## 2026-10-28 — Primitive typeof narrowing (source candidate; NOT_RUN)
+
+The scanner, unary AST/parser, semantic checker, existing discriminant/guard
+flow and ES2015 emitter now carry `typeof` runtime expressions and
+`===`/`!==` narrowing over bounded primitive/literal unions, including
+reversed comparisons, early-return guards and imported type aliases.
+Unknown, object/function and mixed unions are not guessed as narrowed.
+The 18-source fixed-Go differential and real four-module Node runtime are
+wired into existing strict gates; **at creation NOT_RUN**, not a pass.
+No original TS7 configuration acceptance, upstream pin or release gate changed;
+0 original PASS and 15,523 SKIP_UNIMPLEMENTED remain. Full scope UNEXPANDED.
+See [the work package](progress/typeof-primitive-narrowing.md).
+
 ## 2026-10-28 — Numeric compound mutation and do/while (source candidate, NOT_RUN)
 
 One bounded product package introduces braced `do/while` with break/continue,

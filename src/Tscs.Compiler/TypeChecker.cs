@@ -453,6 +453,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
            comparison.Operator.Kind is not (TokenKind.StrictEqual or TokenKind.StrictNotEqual))
             return null;
 
+        // typeof guards share existing branch-local and returning-guard flow.
+        if(TryNarrowPrimitiveTypeof(comparison,scope) is { } primitive)
+            return primitive;
+
         Token variable=default;
         string property="";
         LiteralTypeSymbol? expected=null;
@@ -481,6 +485,72 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         return comparison.Operator.Kind==TokenKind.StrictEqual
             ?new DiscriminantBranches(symbol,onEqual,onDifferent)
             :new DiscriminantBranches(symbol,onDifferent,onEqual);
+    }
+
+
+    // Bounded checkTypeOfExpression/narrowTypeByTypeof: split only unions of
+    // primitive families and their literals. Do not guess about any/objects.
+    private static DiscriminantBranches? TryNarrowPrimitiveTypeof(ValueBinary comparison,Scope scope)
+    {
+        Token variable=default;
+        PrimitiveKind? expected=null;
+        if(TryReadTypeofVariable(comparison.Left,out variable))
+            expected=TryReadTypeofTag(comparison.Right);
+        if(expected==null && TryReadTypeofVariable(comparison.Right,out variable))
+            expected=TryReadTypeofTag(comparison.Left);
+        if(expected==null)return null;
+        var symbol=scope.Find(variable.Text);
+        if(symbol?.Type is not UnionTypeSymbol union)return null;
+
+        var matching=new List<TypeSymbol>();
+        var remaining=new List<TypeSymbol>();
+        foreach(var alternative in union.Alternatives)
+        {
+            PrimitiveKind? family=alternative switch
+            {
+                PrimitiveTypeSymbol { Kind:PrimitiveKind.Number or PrimitiveKind.String or PrimitiveKind.Boolean } primitive=>primitive.Kind,
+                LiteralTypeSymbol { Kind:PrimitiveKind.Number or PrimitiveKind.String or PrimitiveKind.Boolean } literal=>literal.Kind,
+                _=>null
+            };
+            if(family==null)return null;
+            (family==expected?matching:remaining).Add(alternative);
+        }
+        if(matching.Count==0 || remaining.Count==0)return null;
+        var equal=CompilerTypes.Union(matching);
+        var other=CompilerTypes.Union(remaining);
+        return comparison.Operator.Kind==TokenKind.StrictEqual
+            ?new DiscriminantBranches(symbol,equal,other)
+            :new DiscriminantBranches(symbol,other,equal);
+    }
+
+    private static bool TryReadTypeofVariable(ValueNode source,out Token variable)
+    {
+        while(source is ValueParenthesized group)source=group.Expression;
+        if(source is ValueUnary { Operator.Kind:TokenKind.Typeof } expression)
+        {
+            var operand=expression.Operand;
+            while(operand is ValueParenthesized nested)operand=nested.Expression;
+            if(operand is ValueAtom atom && atom.Token.Kind==TokenKind.Identifier)
+            {
+                variable=atom.Token;
+                return true;
+            }
+        }
+        variable=default;
+        return false;
+    }
+
+    private static PrimitiveKind? TryReadTypeofTag(ValueNode source)
+    {
+        while(source is ValueParenthesized group)source=group.Expression;
+        if(source is not ValueAtom { Token.Kind:TokenKind.String } literal)return null;
+        return literal.Token.Value switch
+        {
+            "number"=>PrimitiveKind.Number,
+            "string"=>PrimitiveKind.String,
+            "boolean"=>PrimitiveKind.Boolean,
+            _=>null
+        };
     }
 
     private static bool TryReadDiscriminant(ValueNode source,out Token variable,out string member)
@@ -651,6 +721,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 else if(unary.Operator.Kind==TokenKind.Bang &&
                     (CompilerTypes.IsBoolean(operand)||operand.Equals(CompilerTypes.Any)))
                     types.Push(CompilerTypes.Boolean);
+                else if(unary.Operator.Kind==TokenKind.Typeof)
+                    types.Push(CompilerTypes.String);
                 else if((unary.Operator.Kind is TokenKind.Plus or TokenKind.Minus) &&
                     CompilerTypes.IsNumber(operand))
                     types.Push(CompilerTypes.Number);
