@@ -88,8 +88,18 @@ The current pipeline includes primitive/`any` variables, lexical scopes, selecte
 arithmetic/boolean/comparison expressions, braced `if`/`else`, explicit supported
 function signatures, named imports/exports/re-exports, multi-file host-backed
 programs, and ES2015 AST-backed output. Function return inference, overloads,
-closures, general control flow, arrays, full type relations, declarations/maps,
+closures, general control flow, full type relations, declarations/maps,
 standard libraries and incremental/watch compilation remain incomplete.
+
+A bounded array and iteration family is being integrated: homogeneous array
+literals, `T[]` annotations, numeric indexed reads/writes, `.length`, and braced
+`for (const/let item of array)` with lexical iteration bindings. It also works
+with named object members and across ES2015 modules through the same checked
+AST and emitter. Empty evolving inference, heterogeneous unions, tuples,
+non-array iterables, index signatures, classic `for`/`for..in`, destructuring,
+and general array methods are **not** implemented. See
+[`array-index-forof`](docs/progress/array-index-forof.md) for validation and
+current merge status.
 
 A leading whole-line `// @ts-ignore` suppresses semantic diagnostics only on the
 immediately following physical line; scanner/parser errors are not suppressed.

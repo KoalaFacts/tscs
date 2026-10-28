@@ -42,6 +42,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 case ConditionalStatement conditional:
                     CheckConditional(conditional,scope,expectedReturn);
                     break;
+                case ForOfStatement loop:
+                    CheckForOf(loop,scope,expectedReturn);
+                    break;
                 case ReturnStatement returned:
                     if(expectedReturn==null)
                         throw new CompilationFailure(Diagnostic.Error(file,returned.Keyword,"TSCS1001",
@@ -55,6 +58,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     if(v.Name.Text is "eval" or "arguments") Error(v.Name,"TS1100",$"Invalid use of '{v.Name.Text}' in strict mode.");
                     if((parent==null || rootAlreadyBound) && v.Name.Text=="globalThis") Error(v.Name,"TS2397","Declaration name conflicts with built-in global identifier 'globalThis'.");
                     var symbol=scope.Symbols[v.Name.Text];
+                    if(v.Annotation==null && v.Initializer is ValueArray { Elements.Count:0 })
+                        throw new CompilationFailure(Diagnostic.Error(file,v.Name,"TSCS1001",
+                            "Empty array inference requires an explicit element type in this compiler subset."));
                     var source=v.Initializer is {} init?TypeOf(init,scope):null;
                     var annotatedType=v.Annotation is { } annotation
                         ? CompilerTypes.FromAnnotation(annotation) : null;
@@ -78,6 +84,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         else target.Initialized=true;
                     }
                     else target.Initialized=true;
+                    break;
+                case ElementAssignment elementAssignment:
+                    var elementType=TypeOf(elementAssignment.Target,scope);
+                    var elementValueType=TypeOf(elementAssignment.Value,scope);
+                    if(elementType!=null && elementValueType!=null &&
+                       CheckContextualLiteral(elementAssignment.Value,elementType,elementValueType) &&
+                       !CompilerTypes.IsAssignable(elementValueType,elementType))
+                        Mismatch(elementAssignment.Target.Open,elementValueType,elementType);
                     break;
                 case PropertyAssignment assignment:
                     // Mutating a property does not rebind a const or an import.
@@ -106,6 +120,23 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             }
         }
     }
+    // for..of may execute zero times; assignments in its body cannot establish
+    // definite initialization after the loop. One element binding is scoped
+    // to the loop and is always initialized during an iteration.
+    private void CheckForOf(ForOfStatement loop,Scope scope,TypeSymbol? expectedReturn)
+    {
+        var sourceType=TypeOf(loop.Source,scope);
+        if(sourceType is not ArrayTypeSymbol array)
+            throw new CompilationFailure(Diagnostic.Error(file,loop.Keyword,"TSCS1001",
+                "Only known array values are supported in for..of iteration."));
+        CheckStrictModuleBinding(loop.Name);
+        var before=CaptureInitialized(scope);
+        var iteration=new Scope(scope);
+        Binder.DeclareIterationVariable(file,iteration,loop,array.ElementType);
+        try { CheckBlock(loop.Body,iteration,false,expectedReturn); }
+        finally { RestoreInitialized(before); }
+    }
+
     // Each branch runs against the same lexical parent, but writes to symbols
     // are joined conservatively; an unexecuted arm cannot initialize a value.
     private void CheckConditional(ConditionalStatement conditional,Scope scope,TypeSymbol? expectedReturn)
@@ -183,6 +214,49 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 types.Push(TypeOfAtom(atom.Token,scope));
                 continue;
             }
+            if(node is ValueArray arrayLiteral)
+            {
+                if(!combine)
+                {
+                    pending.Push((arrayLiteral,true));
+                    for(int i=arrayLiteral.Elements.Count-1;i>=0;i--)
+                        pending.Push((arrayLiteral.Elements[i],false));
+                    continue;
+                }
+                TypeSymbol element=CompilerTypes.Never;
+                bool known=true;
+                for(int i=arrayLiteral.Elements.Count-1;i>=0;i--)
+                {
+                    var next=types.Pop();
+                    if(next==null)known=false;
+                    else if(element==CompilerTypes.Never)element=next;
+                    else if(!CompilerTypes.IsEquivalent(element,next))
+                        throw new CompilationFailure(Diagnostic.Error(file,arrayLiteral.Open,"TSCS1001",
+                            "Heterogeneous array union inference is not implemented yet."));
+                }
+                types.Push(known?new ArrayTypeSymbol(element):null);
+                continue;
+            }
+            if(node is ValueElementAccess indexed)
+            {
+                if(!combine)
+                {
+                    pending.Push((indexed,true));
+                    pending.Push((indexed.Index,false));
+                    pending.Push((indexed.Receiver,false));
+                    continue;
+                }
+                var indexType=types.Pop();
+                var receiverType=types.Pop();
+                if(indexType!=null && !CompilerTypes.IsNumber(indexType))
+                    throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
+                        "Array indices currently require a number expression."));
+                if(receiverType is ArrayTypeSymbol array)types.Push(array.ElementType);
+                else if(receiverType==null || indexType==null)types.Push(null);
+                else throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
+                    "Index access currently supports arrays only; object index signatures are not implemented."));
+                continue;
+            }
             if(node is ValueObject literal)
             {
                 if(!combine)
@@ -215,6 +289,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 var receiver=types.Pop();
                 if(receiver==null)types.Push(null);
                 else if(receiver.Equals(CompilerTypes.Any))types.Push(CompilerTypes.Any);
+                else if(receiver is ArrayTypeSymbol && property.Name.Text=="length")
+                    types.Push(CompilerTypes.Number);
                 else if(receiver is ObjectTypeSymbol shape &&
                         shape.Members.TryGetValue(property.Name.Text,out var member))types.Push(member);
                 else
@@ -365,6 +441,21 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     private bool CheckContextualLiteral(ValueNode value,TypeSymbol expected,TypeSymbol actual)
     {
         while(value is ValueParenthesized group)value=group.Expression;
+        if(value is ValueArray literalArray && expected is ArrayTypeSymbol targetArray &&
+           actual is ArrayTypeSymbol sourceArray)
+        {
+            bool arrayValid=true;
+            foreach(var element in literalArray.Elements)
+            {
+                if(!CheckContextualLiteral(element,targetArray.ElementType,sourceArray.ElementType))arrayValid=false;
+                else if(!CompilerTypes.IsAssignable(sourceArray.ElementType,targetArray.ElementType))
+                {
+                    Mismatch(literalArray.Open,sourceArray.ElementType,targetArray.ElementType);
+                    arrayValid=false;
+                }
+            }
+            return arrayValid;
+        }
         if(value is not ValueObject literal || expected is not ObjectTypeSymbol shape ||
            actual is not ObjectTypeSymbol data || shape.Members.Count==0)return true;
         bool valid=true;

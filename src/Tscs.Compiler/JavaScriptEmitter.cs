@@ -46,6 +46,13 @@ internal static class JavaScriptEmitter
                     WriteExpression(assignment.Value);
                     output.Append(";\n");
                     break;
+                case ElementAssignment element:
+                    Indent(depth);
+                    WriteExpression(element.Target);
+                    output.Append(" = ");
+                    WriteExpression(element.Value);
+                    output.Append(";\n");
+                    break;
                 case PropertyAssignment property:
                     Indent(depth);
                     WriteExpression(property.Target);
@@ -84,6 +91,15 @@ internal static class JavaScriptEmitter
                     }
                     output.Append(") ");
                     WriteBlock(function.Body,depth);
+                    output.Append('\n');
+                    break;
+                case ForOfStatement loop:
+                    Indent(depth);
+                    output.Append("for (").Append(loop.Constant?"const ":"let ")
+                        .Append(loop.Name.Text).Append(" of ");
+                    WriteExpression(loop.Source);
+                    output.Append(") ");
+                    WriteBlock(loop.Body,depth);
                     output.Append('\n');
                     break;
                 case ConditionalStatement conditional:
@@ -172,8 +188,8 @@ internal static class JavaScriptEmitter
                 _ => throw new NotSupportedException("Unsupported binary operator in emitted AST.")
             },
             ValueUnary => 7,
-            ValueCall or ValuePropertyAccess => 8,
-            ValueAtom or ValueParenthesized or ValueObject => 9,
+            ValueCall or ValuePropertyAccess or ValueElementAccess => 8,
+            ValueAtom or ValueParenthesized or ValueObject or ValueArray => 9,
             _ => throw new NotSupportedException("Unsupported expression in emitted AST.")
         };
 
@@ -218,6 +234,21 @@ internal static class JavaScriptEmitter
                         Text(")");
                         Node(grouped.Expression);
                         Text("(");
+                        break;
+                    case ValueElementAccess indexed:
+                        Text("]");
+                        Node(indexed.Index);
+                        Text("[");
+                        Node(indexed.Receiver,precedence);
+                        break;
+                    case ValueArray array:
+                        Text("]");
+                        for(int i=array.Elements.Count-1;i>=0;i--)
+                        {
+                            Node(array.Elements[i]);
+                            if(i>0)Text(", ");
+                        }
+                        Text("[");
                         break;
                     case ValuePropertyAccess property:
                         Text("."+property.Name.Text);

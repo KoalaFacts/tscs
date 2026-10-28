@@ -8,7 +8,7 @@ internal abstract record TypeSymbol
     public abstract string DisplayName { get; }
 }
 
-internal enum PrimitiveKind { Number, String, Boolean, Any }
+internal enum PrimitiveKind { Number, String, Boolean, Any, Never }
 
 internal sealed record PrimitiveTypeSymbol(PrimitiveKind Kind) : TypeSymbol
 {
@@ -18,8 +18,14 @@ internal sealed record PrimitiveTypeSymbol(PrimitiveKind Kind) : TypeSymbol
         PrimitiveKind.String => "string",
         PrimitiveKind.Boolean => "boolean",
         PrimitiveKind.Any => "any",
+        PrimitiveKind.Never => "never",
         _ => throw new ArgumentOutOfRangeException(nameof(Kind))
     };
+}
+
+internal sealed record ArrayTypeSymbol(TypeSymbol ElementType) : TypeSymbol
+{
+    public override string DisplayName=>TypeDisplay.Format(this);
 }
 
 internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType) : TypeSymbol
@@ -36,6 +42,9 @@ internal static class CompilerTypes
     public static readonly TypeSymbol String=new PrimitiveTypeSymbol(PrimitiveKind.String);
     public static readonly TypeSymbol Boolean=new PrimitiveTypeSymbol(PrimitiveKind.Boolean);
     public static readonly TypeSymbol Any=new PrimitiveTypeSymbol(PrimitiveKind.Any);
+    // Internal inference for an empty literal. 'never' annotations and
+    // evolving array inference remain outside this supported subset.
+    public static readonly TypeSymbol Never=new PrimitiveTypeSymbol(PrimitiveKind.Never);
 
     public static TypeSymbol FromAnnotation(string name) => name switch
     {
@@ -50,6 +59,7 @@ internal static class CompilerTypes
     public static TypeSymbol FromAnnotation(TypeSyntax syntax)=>syntax switch
     {
         PrimitiveTypeSyntax primitive=>FromAnnotation(primitive.Name.Text),
+        ArrayTypeSyntax array=>new ArrayTypeSymbol(FromAnnotation(array.Element)),
         ObjectTypeSyntax shape=>new ObjectTypeSymbol(shape.Properties.Select(p=>
             new KeyValuePair<string,TypeSymbol>(Parser.PropertyName(p.Name),FromAnnotation(p.Type)))),
         _=>throw new ArgumentOutOfRangeException(nameof(syntax))
@@ -61,6 +71,17 @@ internal static class CompilerTypes
     {
         while(value is ValueParenthesized group)value=group.Expression;
         if(value is ValueAtom atom)return FromLiteral(atom.Token);
+        if(value is ValueArray array)
+        {
+            TypeSymbol? element=Never;
+            foreach(var item in array.Elements)
+            {
+                if(FromInitializer(item) is not { } actual)return null;
+                if(element==Never)element=actual;
+                else if(!IsEquivalent(element,actual))return null;
+            }
+            return new ArrayTypeSymbol(element!);
+        }
         if(value is not ValueObject literal)return null;
         var members=new List<KeyValuePair<string,TypeSymbol>>();
         foreach(var property in literal.Properties)
@@ -78,6 +99,9 @@ internal static class CompilerTypes
         TokenKind.True or TokenKind.False => Boolean,
         _ => null
     };
+
+    public static bool IsEquivalent(TypeSymbol a,TypeSymbol b)=>
+        IsAssignable(a,b) && IsAssignable(b,a);
 
     public static bool IsNumber(TypeSymbol? type) => type is PrimitiveTypeSymbol { Kind: PrimitiveKind.Number };
     public static bool IsBoolean(TypeSymbol? type) => type is PrimitiveTypeSymbol { Kind: PrimitiveKind.Boolean };
@@ -99,8 +123,13 @@ internal static class CompilerTypes
         {
             var (actual,required)=pending.Pop();
             if(!seen.Add((actual,required)))continue;
-            if(ReferenceEquals(actual,required) || actual.Equals(Any) || required.Equals(Any))continue;
-            if(required is ObjectTypeSymbol shape)
+            if(ReferenceEquals(actual,required) || actual.Equals(Never) || actual.Equals(Any) || required.Equals(Any))continue;
+            if(required is ArrayTypeSymbol requiredArray)
+            {
+                if(actual is not ArrayTypeSymbol actualArray)return false;
+                pending.Push((actualArray.ElementType,requiredArray.ElementType));
+            }
+            else if(required is ObjectTypeSymbol shape)
             {
                 // Within this non-nullish subset, {} accepts every value type.
                 if(shape.Members.Count==0)continue;

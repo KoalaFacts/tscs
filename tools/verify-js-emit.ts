@@ -139,7 +139,55 @@ try {
   assert.equal(rejected.status,2,rejected.stdout+"\n"+rejected.stderr);
   assert.match(rejected.stdout+rejected.stderr,/TS2322/);
   assert.equal(existsSync(join(temporary,"invalid-object.js")),false);
-  console.log("AST-backed ES2015 scripts, module graphs and structural object data emitted and executed successfully (object result=42, label=seed, enabled=false).");
+  // Indexed arrays and for..of share the same checked module-graph output.
+  writeFileSync(join(temporary,"array-data.ts"),
+    'export const values = [20, 21];\n');
+  writeFileSync(join(temporary,"array-sum.ts"),[
+    'export function sum(values: number[]): number {',
+    '  let total: number = 0;',
+    '  for (const current of values) { total = total + current; }',
+    '  return total;',
+    '}'
+  ].join("\n"));
+  writeFileSync(join(temporary,"array-bridge.ts"),
+    'export { sum as accumulate } from "./array-sum.js";\n');
+  writeFileSync(join(temporary,"array-entry.ts"),[
+    'import { values } from "./array-data.js";',
+    'import { accumulate } from "./array-bridge.js";',
+    'values[0] = 21;',
+    'export const result: number = accumulate(values);',
+    'export const first: number = values[0];',
+    'export const length: number = values.length;'
+  ].join("\n"));
+  const arrayProject=join(temporary,"arrays.json");
+  writeFileSync(arrayProject,JSON.stringify({
+    files:["array-entry.ts","minimal.d.ts"],
+    compilerOptions:{module:"es2015",target:"es2015",noLib:true}
+  }));
+  const arrayCompile=spawnSync(process.env.DOTNET??"dotnet",[
+    resolve("src/Tscs.Cli/bin/Release/net10.0/tscs.dll"),"--emitJs","-p",arrayProject
+  ],{encoding:"utf8",timeout:30000});
+  assert.equal(arrayCompile.error,undefined,String(arrayCompile.error));
+  assert.equal(arrayCompile.status,0,arrayCompile.stdout+"\n"+arrayCompile.stderr);
+  for(const name of ["array-data","array-sum","array-bridge","array-entry"])
+    assert.ok(existsSync(join(temporary,name+".js")),name+" was not emitted");
+  const arrayRun=spawnSync(process.execPath,["--input-type=module","--eval",
+    'import { result, first, length } from "./array-entry.js"; ' +
+    'if (result !== 42 || first !== 21 || length !== 2) throw Error("array iteration runtime mismatch");'
+  ],{cwd:temporary,encoding:"utf8",timeout:15000});
+  assert.equal(arrayRun.error,undefined,String(arrayRun.error));
+  assert.equal(arrayRun.status,0,arrayRun.stdout+"\n"+arrayRun.stderr);
+  const invalidArray=join(temporary,"invalid-array.ts");
+  writeFileSync(invalidArray,'const xs = [1,2]; xs[0] = "bad";');
+  const rejectedArray=spawnSync(process.env.DOTNET??"dotnet",[
+    resolve("src/Tscs.Cli/bin/Release/net10.0/tscs.dll"),
+    "--emitJs","--noLib","--target","es2015",invalidArray,globals
+  ],{encoding:"utf8",timeout:30000});
+  assert.equal(rejectedArray.error,undefined,String(rejectedArray.error));
+  assert.equal(rejectedArray.status,2,rejectedArray.stdout+"\n"+rejectedArray.stderr);
+  assert.match(rejectedArray.stdout+rejectedArray.stderr,/TS2322/);
+  assert.equal(existsSync(join(temporary,"invalid-array.js")),false);
+  console.log("AST-backed ES2015 scripts, objects and array for..of emitted and executed (array sum=42, first=21, length=2).");
 } finally {
   rmSync(temporary,{recursive:true,force:true});
 }
