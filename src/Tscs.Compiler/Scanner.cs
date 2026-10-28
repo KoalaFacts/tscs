@@ -91,7 +91,7 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                 kind = TokenKind.String;
                 decodedValue = ScanString(first, out stringFlags);
             }
-            else kind = first switch { '.' when !jsonMode=>TokenKind.Dot,'['=>TokenKind.OpenBracket,']'=>TokenKind.CloseBracket,'(' when !jsonMode=>TokenKind.OpenParen,')' when !jsonMode=>TokenKind.CloseParen,'-'=>TokenKind.Minus, '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,'?' when !jsonMode=>TokenKind.Question,'+' when !jsonMode=>TokenKind.Plus,'*' when !jsonMode=>TokenKind.Star,'|' when !jsonMode=>TokenKind.Bar,_=>TokenKind.Unsupported };
+            else kind = first switch { '.' when !jsonMode=>TokenKind.Dot,'['=>TokenKind.OpenBracket,']'=>TokenKind.CloseBracket,'(' when !jsonMode=>TokenKind.OpenParen,')' when !jsonMode=>TokenKind.CloseParen,'-'=>TokenKind.Minus, '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,'?' when !jsonMode=>TokenKind.Question,'+' when !jsonMode=>TokenKind.Plus,'*' when !jsonMode=>TokenKind.Star,'|' when !jsonMode=>TokenKind.Bar,'&' when !jsonMode=>TokenKind.Amp,'^' when !jsonMode=>TokenKind.Caret,'~' when !jsonMode=>TokenKind.Tilde,_=>TokenKind.Unsupported };
             // Maximal-munch binary/logical operators only in source mode. Keep
             // JSON scanning unchanged and refuse lone '&' or '|' as before.
             if(!jsonMode)
@@ -124,7 +124,14 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                 else if(first=='<' || first=='>')
                 {
                     kind=first=='<'?TokenKind.LessThan:TokenKind.GreaterThan;
-                    if(position<text.Length && text[position]=='=')
+                    if(position<text.Length && text[position]==first)
+                    {
+                        position++;
+                        kind=first=='<'?TokenKind.LeftShift:TokenKind.RightShift;
+                        if(first=='>' && position<text.Length && text[position]=='>')
+                        { position++;kind=TokenKind.UnsignedRightShift; }
+                    }
+                    else if(position<text.Length && text[position]=='=')
                     { position++;kind=first=='<'?TokenKind.LessEqual:TokenKind.GreaterEqual; }
                 }
             }

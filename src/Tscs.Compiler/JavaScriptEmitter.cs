@@ -290,15 +290,19 @@ internal static class JavaScriptEmitter
             {
                 TokenKind.BarBar => 1,
                 TokenKind.AmpAmp => 2,
-                TokenKind.EqualEqual or TokenKind.BangEqual or TokenKind.StrictEqual or TokenKind.StrictNotEqual => 3,
-                TokenKind.LessThan or TokenKind.LessEqual or TokenKind.GreaterThan or TokenKind.GreaterEqual => 4,
-                TokenKind.Plus or TokenKind.Minus => 5,
-                TokenKind.Star => 6,
+                TokenKind.Bar => 3,
+                TokenKind.Caret => 4,
+                TokenKind.Amp => 5,
+                TokenKind.EqualEqual or TokenKind.BangEqual or TokenKind.StrictEqual or TokenKind.StrictNotEqual => 6,
+                TokenKind.LessThan or TokenKind.LessEqual or TokenKind.GreaterThan or TokenKind.GreaterEqual => 7,
+                TokenKind.LeftShift or TokenKind.RightShift or TokenKind.UnsignedRightShift => 8,
+                TokenKind.Plus or TokenKind.Minus => 9,
+                TokenKind.Star => 10,
                 _ => throw new NotSupportedException("Unsupported binary operator in emitted AST.")
             },
-            ValueUnary => 7,
-            ValueCall or ValuePropertyAccess or ValueElementAccess => 8,
-            ValueAtom or ValueParenthesized or ValueObject or ValueArray => 9,
+            ValueUnary => 11,
+            ValueCall or ValuePropertyAccess or ValueElementAccess => 12,
+            ValueAtom or ValueParenthesized or ValueObject or ValueArray => 13,
             _ => throw new NotSupportedException("Unsupported expression in emitted AST.")
         };
 
