@@ -25,6 +25,7 @@ node tools/verify-compound-guards-emit.ts
 node tools/verify-bitwise-emit.ts
 node tools/verify-division-emit.ts
 node tools/verify-exponent-emit.ts
+node tools/verify-numeric-literal-emit.ts
 node tools/verify-string-add-emit.ts
 node tools/verify-string-primitive-emit.ts
 node tools/verify-type-operators-emit.ts

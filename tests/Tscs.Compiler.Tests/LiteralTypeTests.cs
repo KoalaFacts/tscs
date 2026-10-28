@@ -9,6 +9,7 @@ public sealed class LiteralTypeTests
     [InlineData("type State = \"ready\" | \"done\"; let s: State = \"ready\"; s = \"done\";")]
     [InlineData("type N = 21 | 42; let a: N = 42;")]
     [InlineData("type Negative = -1 | 0; let x: Negative = -1;")]
+    [InlineData("type Decimal = 1.25; let x: Decimal = 1.250e0;")]
     [InlineData("type Flag = true | false; let x: Flag = false;")]
     [InlineData("type State = \"ready\"; function make(): State { return \"ready\"; } let s: State = make();")]
     [InlineData("interface Task { phase: \"ready\"; value: number } let task: Task = { phase: \"ready\", value: 21 };")]
@@ -39,7 +40,7 @@ public sealed class LiteralTypeTests
         Assert.Contains(Compilation.Check("wrong.ts",code),d=>d.Code==expected);
 
     [Theory]
-    [InlineData("type X = 1.2;")]
+    [InlineData("type X = 1e;")]
     [InlineData("type X = `template`;")]
     [InlineData("type X = -\"wrong\";")]
     [InlineData("type X = \"yes\" & \"no\";")]
