@@ -4,7 +4,7 @@ namespace Tscs;
 // switch fallthrough and guard continuation. Break is consumed by the nearest
 // switch/for..of; it must never be mistaken for a function return.
 [Flags]
-internal enum FlowExit { None=0, Next=1, Return=2, Break=4 }
+internal enum FlowExit { None=0, Next=1, Return=2, Break=4, Continue=8 }
 
 internal static class FunctionControlFlow
 {
@@ -27,6 +27,7 @@ internal static class FunctionControlFlow
     {
         ReturnStatement => FlowExit.Return,
         BreakStatement => FlowExit.Break,
+        ContinueStatement => FlowExit.Continue,
         Block body => Analyze(body),
         ConditionalStatement branch => Analyze(branch.Consequent) |
             (branch.Alternate is { } alternate?Analyze(alternate):FlowExit.Next),
@@ -34,6 +35,9 @@ internal static class FunctionControlFlow
         // An array loop can iterate zero times. A return inside its body may
         // exit the function, but any break is consumed by the loop itself.
         ForOfStatement loop => FlowExit.Next | (Analyze(loop.Body)&FlowExit.Return),
+        // Bounded while conditions may be false initially. Both breaks and
+        // continues are consumed; only an actual body return exits the function.
+        WhileStatement loop => FlowExit.Next | (Analyze(loop.Body)&FlowExit.Return),
         _ => FlowExit.Next
     };
 
@@ -46,7 +50,9 @@ internal static class FunctionControlFlow
         for(int index=switching.Clauses.Count-1;index>=0;index--)
         {
             var local=Analyze(switching.Clauses[index].Body);
-            var current=(local&FlowExit.Return) |
+            // Continue skips the enclosing loop iteration, not merely the
+            // switch clause. Propagate it until an enclosing loop consumes it.
+            var current=(local&(FlowExit.Return|FlowExit.Continue)) |
                 ((local&FlowExit.Break)!=0?FlowExit.Next:FlowExit.None) |
                 ((local&FlowExit.Next)!=0?downstream:FlowExit.None);
             downstream=current;

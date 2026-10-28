@@ -1,0 +1,84 @@
+{
+  "kind": "BOUNDED_WHILE_CONTINUE_BREAK_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "cases": [
+    {
+      "id": "loop-control:positive-01",
+      "source": "function sum(values:number[]):number { let i:number=0; let total:number=0; while(i<values.length) { total=total+values[i]; i++; if(total>20){break;} } return total; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "loop-control:positive-02",
+      "source": "function sum(values:number[]):number { let i:number=0; let total:number=0; while(i<values.length) { const x:number=values[i]; i++; if(x<0){continue;} total=total+x; } return total; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "loop-control:positive-03",
+      "source": "function sum(values:number[]):number { let total:number=0; for(const x of values) { if(x<0){continue;} total=total+x; } return total; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "loop-control:positive-04",
+      "source": "function sum(values:number[]):number { let i:number=0; let total:number=0; while(i<values.length) { const x:number=values[i]; i++; switch(x) { case 0: { continue; } default: { break; } } total=total+x; } return total; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "loop-control:positive-05",
+      "source": "function f(n:number):number { let i:number=0; while(i<n) { i++; if(i===2){continue;} if(i>4){break;} } return i; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "loop-control:positive-06",
+      "source": "function sum(values:number[]):number { let total:number=0; for(const x of values) { if(x>10){break;} if(x<0){continue;} total=total+x; } return total; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "loop-control:positive-07",
+      "source": "function f(n:number):number { let i:number=0; while(i<n) { i++; for(const x of [1,2]) { if(x===1){continue;} if(x===2){break;} } if(i===2){break;} } return i; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "loop-control:positive-08",
+      "source": "function f(n:number):number { let i:number=0; while(i<n) { if(i>5){break;} i++; } return i; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "loop-control:positive-09",
+      "source": "const data={ while:1, continue:2 }; let n:number=data.while+data.continue;",
+      "expectedCodes": []
+    },
+    {
+      "id": "loop-control:positive-10",
+      "source": "function f(n:number):number { let i:number=0; while(i<n) { i++; if(i<2){continue;} return i; } return 0; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "loop-control:negative-01",
+      "source": "function f(n:number):number { let i:number=0; while(i<n) { let s:string=i; i++; } return i; }",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "loop-control:negative-02",
+      "source": "function f(values:number[]):number { let n:number=0; for(const x of values) { let s:string=x; continue; } return n; }",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "loop-control:negative-03",
+      "source": "function f(n:number):number { while(n>0) { n=\"bad\"; break; } return n; }",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "loop-control:negative-04",
+      "source": "function f(values:number[]):number { let i:number=0; while(i<values.length) { i++; let s:string=values[i]; continue; } return i; }",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}

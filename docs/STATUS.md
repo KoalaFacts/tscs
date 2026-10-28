@@ -1,5 +1,16 @@
 # tscs status
 
+## 2026-10-28 — Bounded while/continue and general break (integration candidate)
+
+A single candidate extends the existing compiler pipeline with braced while
+loops, continue in for..of/while (including a nested switch), and arbitrary
+position break in braced branches. The common flow exits now carry distinct
+Next/Return/Break/Continue and consume loop/switch exits at their proper
+boundaries. Parser/checker/ES2015 emitter and 14 stable Go comparison sources
+are changed together. Exact-head CI/Go/runtime are NOT_RUN at candidate
+creation; no new original TS7 PASS claimed. See
+[bounded work package](progress/loop-control.md).
+
 ## 2026-10-28 — Switch completion and loop break (unmerged candidate)
 
 The same AST/checker/emitter now models a bounded exit set (normal completion,

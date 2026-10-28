@@ -13,14 +13,21 @@ mkdirSync(out,{recursive:true});
 const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
 const suitePath=optionalSuitePath??'fixtures/switch-flow/semantic-cases.json';
 const completion=optionalSuitePath==='fixtures/switch-completion/semantic-cases.json';
-assert.ok(optionalSuitePath==null||completion,'unknown frozen switch reference cohort');
+const loop=optionalSuitePath==='fixtures/loop-control/semantic-cases.json';
+assert.ok(optionalSuitePath==null||completion||loop,'unknown frozen bounded reference cohort');
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
-assert.equal(suite.kind,completion
-  ?'BOUNDED_SWITCH_COMPLETION_NOT_ORIGINAL_TS7_ACCEPTANCE'
+assert.equal(suite.kind,loop
+  ?'BOUNDED_WHILE_CONTINUE_BREAK_NOT_ORIGINAL_TS7_ACCEPTANCE'
+  :completion?'BOUNDED_SWITCH_COMPLETION_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :'BOUNDED_DISCRIMINANT_SWITCH_RETURN_NOT_ORIGINAL_TS7_ACCEPTANCE');
 assert.equal(suite.cases.length,completion?12:14,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
-const minimal=readFileSync('fixtures/minimal.d.ts','utf8');
+// Loop cases exercise number[] indexing, length and for..of element types.
+// The frozen bootstrap profile has an intentionally empty Array<T>; reuse
+// the existing bounded array profile symmetrically for both compilers.
+// Keep the original switch profiles and every case/expectation unchanged.
+const minimalProfile=loop?'fixtures/array-iteration/minimal.d.ts':'fixtures/minimal.d.ts';
+const minimal=readFileSync(minimalProfile,'utf8');
 const hash=(data:string|Buffer)=>createHash('sha256').update(data).digest('hex');
 const manifest:{path:string;length:number;sha256:string}[]=[];
 function save(name:string,contents:string) {
@@ -48,7 +55,7 @@ const diagnosticCodes=(r:ReturnType<typeof run>)=>
 const ids=new Set<string>(),results:object[]=[],mismatches:object[]=[];
 for(let i=0;i<suite.cases.length;i++){
   const item=suite.cases[i];
-  assert.match(item.id,completion?/^switch-completion:(positive|negative)-\d+$/:/^switch-flow:(positive|negative)-\d+$/);
+  assert.match(item.id,loop?/^loop-control:(positive|negative)-\d+$/:completion?/^switch-completion:(positive|negative)-\d+$/:/^switch-flow:(positive|negative)-\d+$/);
   assert.ok(!ids.has(item.id),'duplicate stable case ID');ids.add(item.id);
   assert.equal(typeof item.source,'string');
   assert.ok(Array.isArray(item.expectedCodes));
@@ -75,6 +82,7 @@ save('results.json',JSON.stringify(results,null,2));
 save('summary.json',JSON.stringify({sourceSha,upstreamCommit:pin.commit,referenceVersion:version.stdout.trim(),
   referenceSha256:hash(readFileSync(reference)),productCliSha256:hash(readFileSync(product)),
   suiteSha256:hash(readFileSync(suitePath)),scriptSha256:hash(readFileSync(import.meta.filename)),
+  minimalProfile,minimalProfileSha256:hash(minimal),
   matches:results.length-mismatches.length,mismatches:mismatches.length,originalAcceptanceCredit:0,
   fullOriginalScope:'UNEXPANDED',comparison:'bounded code arrays and exits, not original harness',
   referenceExecutable:basename(reference)},null,2));
@@ -82,4 +90,4 @@ for(const row of manifest){const bytes=readFileSync(join(out,row.path));
   assert.equal(bytes.length,row.length);assert.equal(hash(bytes),row.sha256);}
 writeFileSync(join(out,'manifest.json'),JSON.stringify({files:manifest},null,2),{flag:'wx',flush:true});
 assert.deepEqual(mismatches,[],'genuine pinned-Go mismatches; raw outputs preserved');
-console.log(String(results.length)+' bounded switch-flow sources matched pinned Go codes/exits; no original TS7 acceptance.');
+console.log(String(results.length)+' bounded '+(loop?'loop-control':completion?'switch-completion':'switch-flow')+' sources matched pinned Go codes/exits; no original TS7 acceptance.');

@@ -176,6 +176,11 @@ internal sealed class Parser(string file, List<Token> tokens)
                 statements.Add(ParseForOf(depth,inFunction));
                 continue;
             }
+            if(Current.Kind==TokenKind.While)
+            {
+                statements.Add(ParseWhile(depth,inFunction));
+                continue;
+            }
             if(Current.Kind==TokenKind.Switch)
             {
                 statements.Add(ParseSwitch(depth,inFunction));
@@ -186,6 +191,13 @@ internal sealed class Parser(string file, List<Token> tokens)
                 var keyword=Take();
                 EndStatement();
                 statements.Add(new BreakStatement(keyword));
+                continue;
+            }
+            if(Current.Kind==TokenKind.Continue)
+            {
+                var keyword=Take();
+                EndStatement();
+                statements.Add(new ContinueStatement(keyword));
                 continue;
             }
             if(Current.Kind==TokenKind.Return)
@@ -322,6 +334,20 @@ internal sealed class Parser(string file, List<Token> tokens)
         return new ForOfStatement(keyword,name,constant,source,body);
     }
 
+    // Braced while loops share the same checked condition and exit model as
+    // if/else, switch and for..of. Unbraced bodies remain outside this subset.
+    private WhileStatement ParseWhile(int depth,bool inFunction)
+    {
+        var keyword=Take();
+        if(!Eat(TokenKind.OpenParen))Unsupported(Current,"Expected '(' after 'while'.");
+        var condition=ParseValue();
+        if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after while condition.");
+        if(!Eat(TokenKind.Open))Unsupported(Current,"while bodies must be braced.");
+        var body=Parse(depth+1,inFunction);
+        if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+        return new WhileStatement(keyword,condition,body);
+    }
+
     // Preserve distinct branch ASTs for later control flow and symbol analysis.
     // Single-statement arms remain unsupported until the parser can represent them.
     private ConditionalStatement ParseConditional(int depth,bool inFunction)
@@ -442,7 +468,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     {
         if(Current.Kind is TokenKind.Identifier or TokenKind.Let or TokenKind.Const or
             TokenKind.Import or TokenKind.Export or TokenKind.Type or TokenKind.Interface or TokenKind.Function or TokenKind.Return or
-            TokenKind.If or TokenKind.Else or TokenKind.For or TokenKind.Break or TokenKind.True or TokenKind.False ||
+            TokenKind.If or TokenKind.Else or TokenKind.For or TokenKind.While or TokenKind.Break or TokenKind.Continue or TokenKind.True or TokenKind.False ||
             (allowString && Current.Kind==TokenKind.String))return Take();
         Unsupported(Current,"Expected a supported named object property.");
         return default;

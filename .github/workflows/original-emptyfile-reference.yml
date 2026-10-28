@@ -44,6 +44,15 @@ jobs:
           node tools/verify-guard-reference.ts "$reference" .artifacts/guard-reference
           node tools/verify-switch-reference.ts "$reference" .artifacts/switch-reference
           node tools/verify-switch-reference.ts "$reference" .artifacts/switch-completion-reference fixtures/switch-completion/semantic-cases.json
+          node tools/verify-switch-reference.ts "$reference" .artifacts/loop-control-reference fixtures/loop-control/semantic-cases.json
+      - name: Preserve while/continue reference inputs and raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-loop-control-reference-${{ github.sha }}
+          path: .artifacts/loop-control-reference/
+          retention-days: 30
+          if-no-files-found: warn
       - name: Preserve switch completion reference inputs and raw results
         if: always()
         uses: actions/upload-artifact@v4
