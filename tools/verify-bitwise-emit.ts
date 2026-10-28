@@ -81,6 +81,15 @@ try {
   assert.equal(rejected.status,2,rejected.stdout+rejected.stderr);
   assert.match(rejected.stdout+rejected.stderr,/TS2322/);
   assert.equal(existsSync(join(folder,'invalid.js')),false);
+  // A rejected compound mutation must not leave partial JavaScript behind.
+  writeFileSync(join(folder,'invalid-mutation.ts'),'const value: number = 7; value &= 3;');
+  const rejectedMutation=spawnSync(process.env.DOTNET??'dotnet',
+    [compiler,'--emitJs','--noLib','--target','es2015',join(folder,'invalid-mutation.ts'),join(folder,'minimal.d.ts')],
+    {cwd:folder,encoding:'utf8',timeout:30000,env:environment});
+  assert.equal(rejectedMutation.error,undefined,String(rejectedMutation.error));
+  assert.equal(rejectedMutation.status,2,rejectedMutation.stdout+rejectedMutation.stderr);
+  assert.match(rejectedMutation.stdout+rejectedMutation.stderr,/TS2588/);
+  assert.equal(existsSync(join(folder,'invalid-mutation.js')),false);
   console.log('numeric bitwise: four-module ES2015 runtime result=42 mutated=43 indexed=5 iterations=5; invalid assignment refused without output.');
 } finally {
   rmSync(folder,{recursive:true,force:true});
