@@ -19,6 +19,9 @@ internal static class FunctionControlFlow
         Block nested => CanCompleteNormally(nested),
         ConditionalStatement { Alternate: { } alternate } branch =>
             CanCompleteNormally(branch.Consequent) || CanCompleteNormally(alternate),
+        SwitchStatement switching =>
+            !switching.Clauses.Any(clause=>clause.Label==null) ||
+            switching.Clauses.Any(clause=>CanCompleteNormally(clause.Body)),
         _ => true
     };
 }

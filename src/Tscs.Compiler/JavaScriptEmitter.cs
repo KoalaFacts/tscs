@@ -110,6 +110,27 @@ internal static class JavaScriptEmitter
                     WriteConditional(conditional,depth);
                     output.Append('\n');
                     break;
+                case SwitchStatement switching:
+                    Indent(depth);
+                    output.Append("switch (");
+                    WriteExpression(switching.Selector);
+                    output.Append(") {\n");
+                    foreach(var clause in switching.Clauses)
+                    {
+                        Indent(depth+1);
+                        if(clause.Label is { } label)
+                        {
+                            output.Append("case ");
+                            WriteExpression(label);
+                        }
+                        else output.Append("default");
+                        output.Append(": ");
+                        WriteBlock(clause.Body,depth+1);
+                        output.Append('\n');
+                    }
+                    Indent(depth);
+                    output.Append("}\n");
+                    break;
                 case ImportDeclaration import:
                     if(import.TypeOnly)break;
                     if(!emitModules)throw new NotSupportedException("ES module JavaScript output requires an explicit ES2015 module option.");

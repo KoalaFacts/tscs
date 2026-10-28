@@ -60,6 +60,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     case ForOfStatement loop:
                         CheckForOf(loop,scope,expectedReturn);
                         break;
+                    case SwitchStatement switching:
+                        CheckSwitch(switching,scope,expectedReturn);
+                        break;
                     case ReturnStatement returned:
                         if(expectedReturn==null)
                             throw new CompilationFailure(Diagnostic.Error(file,returned.Keyword,"TSCS1001",
@@ -148,7 +151,81 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 symbol.Type=originalType;
         }
     }
-        // for..of may execute zero times; assignments in its body cannot establish
+    
+    // Case-local types are a view over the existing binder symbol. Each
+    // braced arm must terminate; fallthrough/hoisted shared switch bindings
+    // are deliberately refused until the general control-flow graph exists.
+    private void CheckSwitch(SwitchStatement switching,Scope scope,TypeSymbol? expectedReturn)
+    {
+        var selectorType=TypeOf(switching.Selector,scope);
+        var labels=new Dictionary<SwitchClause,LiteralTypeSymbol>();
+        var selected=new HashSet<LiteralTypeSymbol>();
+        foreach(var clause in switching.Clauses)
+        {
+            if(clause.Label is not { } label)continue;
+            var type=TryReadLiteral(label);
+            if(type==null)
+                throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
+                    "Only primitive literal switch case labels are supported."));
+            if(!selected.Add(type))
+                throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
+                    "Duplicate switch case labels are not supported yet."));
+            labels.Add(clause,type);
+            if(selectorType!=null && !CompilerTypes.IsAssignable(type,selectorType))
+                Error(clause.Keyword,"TS2678",
+                    $"Type '{type.DisplayName}' is not comparable to type '{selectorType.DisplayName}'.");
+        }
+
+        Symbol? subject=null;
+        UnionTypeSymbol? variants=null;
+        string? memberName=null;
+        // Share the same parenthesis-aware discriminant recognizer as if/else.
+        // The selector's grouping must not erase the union branch information.
+        if(TryReadDiscriminant(switching.Selector,out var variable,out var property))
+        {
+            var symbol=scope.Find(variable.Text);
+            if(symbol?.Type is UnionTypeSymbol union &&
+               union.Alternatives.All(candidate=>candidate is ObjectTypeSymbol shape &&
+                   shape.Members.TryGetValue(property,out var member) &&
+                   member is LiteralTypeSymbol))
+            {
+                subject=symbol;variants=union;memberName=property;
+            }
+        }
+
+        foreach(var clause in switching.Clauses)
+        {
+            var before=CaptureInitialized(scope);
+            var originalType=subject?.Type;
+            try
+            {
+                if(subject!=null && variants!=null && memberName!=null)
+                {
+                    var matching=new List<TypeSymbol>();
+                    foreach(var candidate in variants.Alternatives)
+                    {
+                        var literal=(LiteralTypeSymbol)((ObjectTypeSymbol)candidate).Members[memberName];
+                        if(clause.Label==null ? !selected.Contains(literal) : literal.Equals(labels[clause]))
+                            matching.Add(candidate);
+                    }
+                    if(matching.Count>0)subject.Type=CompilerTypes.Union(matching);
+                    // An unreachable clause retains the broad type, rather
+                    // than inventing 'never' or silently accepting bad reads.
+                }
+                CheckBlock(clause.Body,scope,false,expectedReturn);
+                if(FunctionControlFlow.CanCompleteNormally(clause.Body))
+                    throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
+                        "Switch arms must return on every path; implicit fallthrough and break are not supported."));
+            }
+            finally
+            {
+                RestoreInitialized(before);
+                if(subject!=null)subject.Type=originalType;
+            }
+        }
+    }
+
+    // for..of may execute zero times; assignments in its body cannot establish
     // definite initialization after the loop. One element binding is scoped
     // to the loop and is always initialized during an iteration.
     private void CheckForOf(ForOfStatement loop,Scope scope,TypeSymbol? expectedReturn)

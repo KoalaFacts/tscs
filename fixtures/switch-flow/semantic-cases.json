@@ -1,0 +1,83 @@
+{
+  "kind": "BOUNDED_DISCRIMINANT_SWITCH_RETURN_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "switch-flow:positive-01",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e: E): number { switch (e.kind) { case \"ok\": { return e.value; } case \"error\": { return 0; } default: { return 0; } } } const n: number = f({kind:\"ok\",value:42});",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-flow:positive-02",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e: E): string { switch (e.kind) { case \"ok\": { return \"ready\"; } default: { return e.message; } } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-flow:positive-03",
+      "source": "type N = { code: 1; value: number } | { code: 2; message: string }; function f(n: N): number { switch (n.code) { case 1: { return n.value; } case 2: { return 0; } default: { return 0; } } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-flow:positive-04",
+      "source": "type B = { active: true; value: number } | { active: false; reason: string }; function f(b: B): number { switch (b.active) { case true: { return b.value; } default: { return 0; } } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-flow:positive-05",
+      "source": "type T = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string } | { kind: \"idle\"; flag: boolean }; function f(t: T): number { switch (t.kind) { case \"ok\": { return t.value; } case \"error\": { return 0; } case \"idle\": { return 0; } default: { return 0; } } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-flow:positive-06",
+      "source": "function f(n: number): number { switch (n) { case 1: { return 11; } default: { return 22; } } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-flow:positive-07",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e: E): number { switch (e.kind) { case \"ok\": { if (e.value > 0) { return e.value; } return 0; } default: { return 0; } } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-flow:positive-08",
+      "source": "type N = { code: -1; value: number } | { code: 1; message: string }; function f(n: N): number { switch (n.code) { case -1: { return n.value; } default: { return 0; } } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-flow:positive-09",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e: E): number { switch (e.kind) { case \"ok\": { return e.value; } case \"error\": { return 0; } } return 0; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-flow:positive-10",
+      "source": "interface Ok { kind: \"ok\"; value: number } type E = Ok | { kind: \"error\"; message: string }; function f(e: E): number { switch(e.kind) { case \"ok\": { return e.value; } default: { return 0; } } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-flow:negative-01",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e: E): number { switch(e.kind) { case \"error\": { return e.value; } default: { return 0; } } }",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "switch-flow:negative-02",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e: E): number { switch(e.kind) { case \"ok\": { return 0; } default: { return e.value; } } }",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "switch-flow:negative-03",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e: E): number { switch(e.kind) { case \"other\": { return 1; } default: { return 0; } } }",
+      "expectedCodes": [
+        "TS2678"
+      ]
+    },
+    {
+      "id": "switch-flow:negative-04",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function good(e: E): number { switch(e.kind) { case \"ok\": { return e.value; } default: { return 0; } } } function bad(e: E): number { switch(e.kind) { case \"ok\": { return e.message; } default: { return 0; } } }",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    }
+  ]
+}
