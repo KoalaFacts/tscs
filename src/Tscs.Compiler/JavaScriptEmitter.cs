@@ -297,7 +297,7 @@ internal static class JavaScriptEmitter
                 TokenKind.LessThan or TokenKind.LessEqual or TokenKind.GreaterThan or TokenKind.GreaterEqual => 7,
                 TokenKind.LeftShift or TokenKind.RightShift or TokenKind.UnsignedRightShift => 8,
                 TokenKind.Plus or TokenKind.Minus => 9,
-                TokenKind.Star => 10,
+                TokenKind.Star or TokenKind.Slash or TokenKind.Percent => 10,
                 _ => throw new NotSupportedException("Unsupported binary operator in emitted AST.")
             },
             ValueUnary => 11,

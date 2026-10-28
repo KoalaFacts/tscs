@@ -1113,6 +1113,17 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         _ => "Only numeric addition expressions are supported yet."
                     }));
             }
+            else if(binary.Operator.Kind is TokenKind.Slash or TokenKind.Percent)
+            {
+                // Division and remainder evaluate to a number, including when
+                // a bounded 'any' operand participates. Preserve JavaScript
+                // floating-point quotient and signed-remainder runtime behavior.
+                if((CompilerTypes.IsNumber(left)||left.Equals(CompilerTypes.Any)) &&
+                   (CompilerTypes.IsNumber(right)||right.Equals(CompilerTypes.Any)))
+                    types.Push(CompilerTypes.Number);
+                else throw new CompilationFailure(Diagnostic.Error(file,binary.Operator,"TSCS1001",
+                    "Division and remainder require number or any operands."));
+            }
             else if(binary.Operator.Kind is TokenKind.Amp or TokenKind.Bar or TokenKind.Caret
                 or TokenKind.LeftShift or TokenKind.RightShift or TokenKind.UnsignedRightShift)
             {

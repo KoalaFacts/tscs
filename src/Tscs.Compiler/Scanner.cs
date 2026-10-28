@@ -91,7 +91,7 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                 kind = TokenKind.String;
                 decodedValue = ScanString(first, out stringFlags);
             }
-            else kind = first switch { '.' when !jsonMode=>TokenKind.Dot,'['=>TokenKind.OpenBracket,']'=>TokenKind.CloseBracket,'(' when !jsonMode=>TokenKind.OpenParen,')' when !jsonMode=>TokenKind.CloseParen,'-'=>TokenKind.Minus, '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,'?' when !jsonMode=>TokenKind.Question,'+' when !jsonMode=>TokenKind.Plus,'*' when !jsonMode=>TokenKind.Star,'|' when !jsonMode=>TokenKind.Bar,'&' when !jsonMode=>TokenKind.Amp,'^' when !jsonMode=>TokenKind.Caret,'~' when !jsonMode=>TokenKind.Tilde,_=>TokenKind.Unsupported };
+            else kind = first switch { '.' when !jsonMode=>TokenKind.Dot,'['=>TokenKind.OpenBracket,']'=>TokenKind.CloseBracket,'(' when !jsonMode=>TokenKind.OpenParen,')' when !jsonMode=>TokenKind.CloseParen,'-'=>TokenKind.Minus, '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,'?' when !jsonMode=>TokenKind.Question,'+' when !jsonMode=>TokenKind.Plus,'*' when !jsonMode=>TokenKind.Star,'/' when !jsonMode=>TokenKind.Slash,'%' when !jsonMode=>TokenKind.Percent,'|' when !jsonMode=>TokenKind.Bar,'&' when !jsonMode=>TokenKind.Amp,'^' when !jsonMode=>TokenKind.Caret,'~' when !jsonMode=>TokenKind.Tilde,_=>TokenKind.Unsupported };
             // Maximal-munch binary/logical operators only in source mode. Keep
             // JSON scanning unchanged and refuse lone '&' or '|' as before.
             if(!jsonMode)
@@ -116,10 +116,15 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                 { position++;kind=TokenKind.AmpAmp; }
                 else if(first=='|' && position<text.Length && text[position]=='|')
                 { position++;kind=TokenKind.BarBar; }
-                else if((first=='+' || first=='-' || first=='*') && position<text.Length && text[position]=='=')
+                else if((first is '+' or '-' or '*' or '/' or '%') && position<text.Length && text[position]=='=')
                 {
                     position++;
-                    kind=first=='+'?TokenKind.PlusEqual:first=='-'?TokenKind.MinusEqual:TokenKind.StarEqual;
+                    kind=first switch
+                    {
+                        '+'=>TokenKind.PlusEqual, '-'=>TokenKind.MinusEqual, '*'=>TokenKind.StarEqual,
+                        '/'=>TokenKind.SlashEqual, '%'=>TokenKind.PercentEqual,
+                        _=>throw new InvalidOperationException("Unexpected compound arithmetic token.")
+                    };
                 }
                 else if(first=='<' || first=='>')
                 {

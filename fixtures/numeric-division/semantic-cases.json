@@ -1,0 +1,138 @@
+{
+  "kind": "BOUNDED_NUMERIC_DIVISION_REMAINDER_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "upstream": "upstream.lock.json",
+  "cases": [
+    {
+      "id": "numeric-division:positive-01",
+      "source": "let q: number = 12 / 3;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-division:positive-02",
+      "source": "let r: number = 13 % 5;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-division:positive-03",
+      "source": "let n: number = 21 / 3 * 2 % 5;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-division:positive-04",
+      "source": "let fraction: number = 11 / 2;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-division:positive-05",
+      "source": "let signed: number = -8 % 3;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-division:positive-06",
+      "source": "let infinity: number = 1 / 0;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-division:positive-07",
+      "source": "function half(x: number): number { return x / 2; } let n: number = half(42);",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-division:positive-08",
+      "source": "let n: number = 1 + 9 / 3;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-division:positive-09",
+      "source": "let n: number = 12 / 3 << 2;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-division:positive-10",
+      "source": "let a: number = 84; a /= 2;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-division:positive-11",
+      "source": "let a: number = 8; a %= 3;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-division:positive-12",
+      "source": "type Data = { value: number }; let data: Data = { value: 81 }; data.value /= 3;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-division:positive-13",
+      "source": "let values: number[] = [40, 6]; values[0] /= 2; values[1] %= 4;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-division:positive-14",
+      "source": "for (let i: number = 16; i > 1; i /= 2) {}",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-division:positive-15",
+      "source": "let a: number = 100; a /= 4; a %= 7;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-division:positive-16",
+      "source": "let n: number = (3 + 9) % 5;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-division:positive-17",
+      "source": "let n: number = 9 % 4 * 2;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-division:positive-18",
+      "source": "let n: number = (100 / 2) % 3;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-division:negative-01",
+      "source": "let q: string = 12 / 3;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "numeric-division:negative-02",
+      "source": "let r: boolean = 8 % 3;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "numeric-division:negative-03",
+      "source": "let q: string = 2 % 2 / 1;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "numeric-division:negative-04",
+      "source": "let q: boolean = 2 / 1;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "numeric-division:negative-05",
+      "source": "const q: number = 6; q /= 2;",
+      "expectedCodes": [
+        "TS2588"
+      ]
+    },
+    {
+      "id": "numeric-division:negative-06",
+      "source": "const q: number = 6; q %= 2;",
+      "expectedCodes": [
+        "TS2588"
+      ]
+    }
+  ]
+}
