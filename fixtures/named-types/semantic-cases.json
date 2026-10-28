@@ -11,6 +11,9 @@
     {"id":"named-types:positive-08","source":"type Mixed = (number | string)[]; let data: Mixed = [1, \"two\"];","expectedCodes":[]},
     {"id":"named-types:positive-09","source":"interface Wrapped {value: Scalar} type Scalar = number; let x: Wrapped = {value: 21};","expectedCodes":[]},
     {"id":"named-types:positive-10","source":"type Result = number; let Result: Result = 42; let answer: number = Result;","expectedCodes":[]},
+    {"id":"named-types:positive-11","source":"interface Reading { readonly value: number; label: string } const data: Reading = {value: 21,label: \"ok\"}; let result: number = data.value;","expectedCodes":[]},
+    {"id":"named-types:positive-12","source":"type Inner = { readonly score: number }; let outer: {inner: Inner} = {inner: {score: 42}}; let result: number = outer.inner.score;","expectedCodes":[]},
+    {"id":"named-types:positive-13","source":"type Weird = { readonly: number }; let data: Weird = { readonly: 21 }; data.readonly = 42;","expectedCodes":[]},
     {"id":"named-types:negative-01","source":"type Value = number; let x: Value = \"bad\";","expectedCodes":["TS2322"]},
     {"id":"named-types:negative-02","source":"interface Item {value: number} let x: Item = {value: \"bad\"};","expectedCodes":["TS2322"]},
     {"id":"named-types:negative-03","source":"type Value = number | string; let x: Value = false;","expectedCodes":["TS2322"]},
@@ -19,6 +22,9 @@
     {"id":"named-types:negative-06","source":"interface Item {value: number} const x: Item = {};","expectedCodes":["TS2741"]},
     {"id":"named-types:negative-07","source":"type Choice = {a: number} | {b: number}; let x: Choice = {a: 1, unknown: true};","expectedCodes":["TS2353"]},
     {"id":"named-types:negative-08","source":"type Choice = {a: number} | {b: number}; let x: Choice = {a: 1}; x.b;","expectedCodes":["TS2339"]},
-    {"id":"named-types:negative-09","source":"type Choice = number | string; function f(x: Choice): number { return x; }","expectedCodes":["TS2322"]}
+    {"id":"named-types:negative-09","source":"type Choice = number | string; function f(x: Choice): number { return x; }","expectedCodes":["TS2322"]},
+    {"id":"named-types:negative-10","source":"interface Reading { readonly value: number } let data: Reading = {value: 21}; data.value = 42;","expectedCodes":["TS2540"]},
+    {"id":"named-types:negative-11","source":"type Reading = { readonly value: number }; let data: Reading = {value: 21}; data.value += 1;","expectedCodes":["TS2540"]},
+    {"id":"named-types:negative-12","source":"interface Inner { readonly value: number } let data: { inner: Inner } = {inner: {value: 21}}; data.inner.value = 42;","expectedCodes":["TS2540"]}
   ]
 }

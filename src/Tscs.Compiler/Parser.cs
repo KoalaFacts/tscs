@@ -515,12 +515,17 @@ internal sealed class Parser(string file, List<Token> tokens)
             while(Current.Kind!=TokenKind.Close)
             {
                 if(Current.Kind==TokenKind.End)Unsupported(Current,"Expected '}' in object type.");
+                // Contextual readonly; "readonly: number" remains an ordinary property name.
+                bool readonlyMember=Current.Kind==TokenKind.Identifier &&
+                    Current.Text=="readonly" && position+1<tokens.Count &&
+                    tokens[position+1].Kind!=TokenKind.Colon;
+                if(readonlyMember)Take();
                 var name=ReadPropertyName(allowString:true);
                 if(!names.Add(PropertyName(name)))
                     Diagnostics.Add(Diagnostic.Error(file,name,"TS2300",$"Duplicate identifier '{PropertyName(name)}'."));
                 if(!Eat(TokenKind.Colon))
                     Unsupported(Current,"Required object type members must have ':' and a type.");
-                properties.Add(new ObjectTypeProperty(name,ReadTypeAnnotation(depth+1)));
+                properties.Add(new ObjectTypeProperty(name,ReadTypeAnnotation(depth+1),readonlyMember));
                 if(Eat(TokenKind.Semi)||Eat(TokenKind.Comma))continue;
                 if(Current.Kind==TokenKind.Close)break;
                 if(!Current.LineBreak)Unsupported(Current,"Expected a separator between object type members.");

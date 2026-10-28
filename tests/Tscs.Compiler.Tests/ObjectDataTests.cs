@@ -17,6 +17,7 @@ public sealed class ObjectDataTests
     [InlineData("const data = { value: 21 }; let boxed = { data: data }; let n: number = boxed.data.value;")]
     [InlineData("let data: {} = 1; const empty = {}; let other: {} = empty;")]
     [InlineData("let n: number = ({ value: 42 }).value; ({ value: n });")]
+    [InlineData("let x: { readonly value: number } = { value: 1 };")]
     [InlineData("function pass(x: { value: number }): { value: number } { return x; } const wide = { value: 1, extra: true }; let n = pass(wide).value;")]
     public void ObjectProgramsUseTheExistingCompilerPipeline(string source) =>
         Assert.Empty(Compilation.Check("objects.ts",source));
@@ -40,7 +41,6 @@ public sealed class ObjectDataTests
 
     [Theory]
     [InlineData("let x: { value?: number } = {};")]
-    [InlineData("let x: { readonly value: number } = { value: 1 };")]
     [InlineData("const x = { get value() { return 1; } };")]
     [InlineData("const x = { value() { return 1; } };")]
     [InlineData("const x = { ...other };")]

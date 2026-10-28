@@ -41,7 +41,8 @@ internal static class TypeResolver
                 return ResolveBinding(binding,depth+1);
             case ArrayTypeSyntax array:return new ArrayTypeSymbol(Resolve(array.Element,scope,file,depth+1));
             case ObjectTypeSyntax shape:return new ObjectTypeSymbol(shape.Properties.Select(p=>
-                new KeyValuePair<string,TypeSymbol>(Parser.PropertyName(p.Name),Resolve(p.Type,scope,file,depth+1))));
+                new KeyValuePair<string,TypeSymbol>(Parser.PropertyName(p.Name),Resolve(p.Type,scope,file,depth+1))),
+                shape.Properties.Where(p=>p.Readonly).Select(p=>Parser.PropertyName(p.Name)));
             case UnionTypeSyntax union:
                 try {return CompilerTypes.Union(union.Members.Select(member=>Resolve(member,scope,file,depth+1)));}
                 catch(InvalidOperationException failure)
