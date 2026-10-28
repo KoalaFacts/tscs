@@ -875,6 +875,51 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             if(!shadowed.Contains(name.Text) && scope.Find(name.Text) is { } symbol)
                 mayWrite.Add(symbol);
         }
+        // Value-producing mutations can be nested inside array indices, calls,
+        // initializers and returns. Inspect the AST without evaluating expressions.
+        void RecordValueWrites(ValueNode root,HashSet<string> shadowed)
+        {
+            var pending=new Stack<ValueNode>();
+            pending.Push(root);
+            while(pending.Count>0)
+            {
+                switch(pending.Pop())
+                {
+                    case ValuePrefixUpdate prefix:
+                        if(prefix.Target is ValueAtom { Token.Kind:TokenKind.Identifier } prefixAtom)
+                            Record(prefixAtom.Token,shadowed);
+                        pending.Push(prefix.Target);
+                        break;
+                    case ValuePostfixUpdate postfix:
+                        if(postfix.Target is ValueAtom { Token.Kind:TokenKind.Identifier } postfixAtom)
+                            Record(postfixAtom.Token,shadowed);
+                        pending.Push(postfix.Target);
+                        break;
+                    case ValueBinary binary:
+                        pending.Push(binary.Right);pending.Push(binary.Left);break;
+                    case ValueConditional chosen:
+                        pending.Push(chosen.WhenFalse);
+                        pending.Push(chosen.WhenTrue);
+                        pending.Push(chosen.Condition);
+                        break;
+                    case ValueUnary unary:pending.Push(unary.Operand);break;
+                    case ValueParenthesized grouped:pending.Push(grouped.Expression);break;
+                    case ValueTypeOperator typed:pending.Push(typed.Expression);break;
+                    case ValueCall call:
+                        foreach(var arg in call.Arguments)pending.Push(arg);
+                        break;
+                    case ValueElementAccess indexed:
+                        pending.Push(indexed.Receiver);pending.Push(indexed.Index);break;
+                    case ValuePropertyAccess property:pending.Push(property.Receiver);break;
+                    case ValueArray array:
+                        foreach(var entry in array.Elements)pending.Push(entry);
+                        break;
+                    case ValueObject literal:
+                        foreach(var property in literal.Properties)pending.Push(property.Value);
+                        break;
+                }
+            }
+        }
         void Visit(Statement statement,HashSet<string> shadowed)
         {
             switch(statement)
@@ -891,26 +936,51 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     }
                     foreach(var child in block.Statements)Visit(child,locals);
                     break;
+                case Variable { Initializer: { } initial }:
+                    RecordValueWrites(initial,shadowed);
+                    break;
                 case Assignment assignment:
                     Record(assignment.Name,shadowed);
+                    RecordValueWrites(assignment.Value,shadowed);
                     break;
-                case CompoundAssignment { Target:ValueAtom atom } when atom.Token.Kind==TokenKind.Identifier:
-                    Record(atom.Token,shadowed);
+                case PropertyAssignment propertyAssignment:
+                    RecordValueWrites(propertyAssignment.Target,shadowed);
+                    RecordValueWrites(propertyAssignment.Value,shadowed);
                     break;
-                case PostfixUpdate postfix:
-                    Record(postfix.Name,shadowed);
+                case ElementAssignment elementAssignment:
+                    RecordValueWrites(elementAssignment.Target,shadowed);
+                    RecordValueWrites(elementAssignment.Value,shadowed);
                     break;
-                case Expression { Value:ValuePrefixUpdate { Target:ValueAtom { Token.Kind:TokenKind.Identifier } atom } }:
-                    Record(atom.Token,shadowed);
+                case CompoundAssignment compound:
+                    if(compound.Target is ValueAtom { Token.Kind:TokenKind.Identifier } compoundAtom)
+                        Record(compoundAtom.Token,shadowed);
+                    RecordValueWrites(compound.Target,shadowed);
+                    RecordValueWrites(compound.Value,shadowed);
+                    break;
+                case PostfixUpdate postfixStatement:
+                    Record(postfixStatement.Name,shadowed);
+                    break;
+                case Expression expression:
+                    RecordValueWrites(expression.Value,shadowed);
+                    break;
+                case ReturnStatement returned:
+                    RecordValueWrites(returned.Value,shadowed);
                     break;
                 case ConditionalStatement branch:
+                    RecordValueWrites(branch.Condition,shadowed);
                     Visit(branch.Consequent,shadowed);
                     if(branch.Alternate is { } alternate)Visit(alternate,shadowed);
                     break;
                 case SwitchStatement switching:
-                    foreach(var clause in switching.Clauses)Visit(clause.Body,shadowed);
+                    RecordValueWrites(switching.Selector,shadowed);
+                    foreach(var clause in switching.Clauses)
+                    {
+                        if(clause.Label is { } label)RecordValueWrites(label,shadowed);
+                        Visit(clause.Body,shadowed);
+                    }
                     break;
                 case ForOfStatement nestedForOf:
+                    RecordValueWrites(nestedForOf.Source,shadowed);
                     var iterationLocals=new HashSet<string>(shadowed,StringComparer.Ordinal)
                     {
                         nestedForOf.Name.Text
@@ -918,15 +988,21 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     Visit(nestedForOf.Body,iterationLocals);
                     break;
                 case WhileStatement nestedWhile:
+                    RecordValueWrites(nestedWhile.Condition,shadowed);
                     Visit(nestedWhile.Body,shadowed);
                     break;
                 case DoWhileStatement nestedDo:
+                    RecordValueWrites(nestedDo.Condition,shadowed);
                     Visit(nestedDo.Body,shadowed);
                     break;
                 case ClassicForStatement nestedClassic:
                     var headerLocals=new HashSet<string>(shadowed,StringComparer.Ordinal);
                     if(nestedClassic.Initializer is Variable loopLocal)
                         headerLocals.Add(loopLocal.Name.Text);
+                    if(nestedClassic.Initializer is { } nestedInit)
+                        Visit(nestedInit,headerLocals);
+                    if(nestedClassic.Condition is { } nestedCondition)
+                        RecordValueWrites(nestedCondition,headerLocals);
                     if(nestedClassic.Update is { } nestedUpdate)
                         Visit(nestedUpdate,headerLocals);
                     Visit(nestedClassic.Body,headerLocals);
