@@ -214,8 +214,21 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                                 if(resultType==null)
                                     throw new CompilationFailure(Diagnostic.Error(file,compound.Operator,"TSCS1001",
                                         "Addition requires compatible numeric, string or any operands."));
-                                if(!CompilerTypes.IsAssignable(resultType,targetType))
-                                    Mismatch(compound.Operator,resultType,targetType);
+                                // TypeScript checks compound addition against the
+                                // primitive family of a literal target: a literal
+                                // may be changed by += while ordinary = remains exact.
+                                // Keep number += string rejected as TS2322.
+                                TypeSymbol required=targetType is LiteralTypeSymbol literal
+                                    ? literal.Kind switch
+                                    {
+                                        PrimitiveKind.Number=>CompilerTypes.Number,
+                                        PrimitiveKind.String=>CompilerTypes.String,
+                                        PrimitiveKind.Boolean=>CompilerTypes.Boolean,
+                                        _=>targetType
+                                    }
+                                    : targetType;
+                                if(!CompilerTypes.IsAssignable(resultType,required))
+                                    Mismatch(compound.Operator,resultType,required);
                             }
                             else if(!(IsNumericMutationOperand(targetType) && IsNumericMutationOperand(operandType)))
                                 throw new CompilationFailure(Diagnostic.Error(file,compound.Operator,"TSCS1001",

@@ -19,6 +19,10 @@ public class NumericAdditionTests
         Assert.Empty(Compilation.Check("test.ts", source));
 
     [Fact]
+    public void NumericLiteralCompoundAdditionRetainsExistingValidBehavior() =>
+        Assert.Empty(Compilation.Check("test.ts", "let n: 1 = 1; n += 1;"));
+
+    [Fact]
     public void AdditionInfersNumberAndPreservesMismatchDiagnostic()
     {
         var diagnostic = Assert.Single(Compilation.Check("test.ts", "let n: string = 1 + 2;"));
