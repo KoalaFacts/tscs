@@ -63,6 +63,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     case WhileStatement whileLoop:
                         CheckWhile(whileLoop,scope,expectedReturn);
                         break;
+                    case ClassicForStatement classicLoop:
+                        CheckClassicFor(classicLoop,scope,expectedReturn);
+                        break;
                     case BreakStatement breaking:
                         if(!allowBreak)
                             throw new CompilationFailure(Diagnostic.Error(file,breaking.Keyword,"TSCS1001",
@@ -274,6 +277,34 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 "Only boolean or any while conditions are supported by the current flow checker."));
         var before=CaptureInitialized(scope);
         try { CheckBlock(loop.Body,scope,false,expectedReturn,true,true); }
+        finally { RestoreInitialized(before); }
+    }
+
+    // The initializer always runs, but body and increment effects do not
+    // establish definite initialization after a possibly empty loop.
+    private void CheckClassicFor(ClassicForStatement loop,Scope scope,TypeSymbol? expectedReturn)
+    {
+        Scope header=loop.Initializer is Variable declaration
+            ? Binder.Bind(file,new Block([declaration]),scope)
+            : new Scope(scope);
+        if(loop.Initializer is { } initializer)
+            CheckBlock(new Block([initializer]),header,true,expectedReturn);
+        if(loop.Condition is { } condition)
+        {
+            var conditionType=TypeOf(condition,header);
+            if(conditionType!=null && !CompilerTypes.IsAssignable(conditionType,CompilerTypes.Boolean))
+                throw new CompilationFailure(Diagnostic.Error(file,loop.Keyword,"TSCS1001",
+                    "Classic for conditions currently require boolean or any."));
+        }
+        var before=CaptureInitialized(scope);
+        try
+        {
+            // Validate the update before the body to avoid claiming unsupported
+            // body-to-update definite assignment without fixed-point analysis.
+            if(loop.Update is { } update)
+                CheckBlock(new Block([update]),header,true,expectedReturn);
+            CheckBlock(loop.Body,header,false,expectedReturn,true,true);
+        }
         finally { RestoreInitialized(before); }
     }
 

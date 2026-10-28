@@ -44,6 +44,8 @@ internal sealed record BreakStatement(Token Keyword) : Statement;
 internal sealed record ContinueStatement(Token Keyword) : Statement;
 internal sealed record ForOfStatement(Token Keyword,Token Name,bool Constant,ValueNode Source,Block Body) : Statement;
 internal sealed record WhileStatement(Token Keyword,ValueNode Condition,Block Body) : Statement;
+// A classic for declaration is scoped to the header, body and increment.
+internal sealed record ClassicForStatement(Token Keyword,Statement? Initializer,ValueNode? Condition,Statement? Update,Block Body) : Statement;
 internal sealed record ImportSpecifier(Token Imported,Token Local);
 internal sealed record ImportDeclaration(Token ModulePath,IReadOnlyList<ImportSpecifier> Specifiers,bool TypeOnly=false) : Statement;
 internal sealed record ExportSpecifier(Token Local,Token Exported);

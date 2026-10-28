@@ -38,6 +38,7 @@ internal static class FunctionControlFlow
         // Bounded while conditions may be false initially. Both breaks and
         // continues are consumed; only an actual body return exits the function.
         WhileStatement loop => FlowExit.Next | (Analyze(loop.Body)&FlowExit.Return),
+        ClassicForStatement loop => FlowExit.Next | (Analyze(loop.Body)&FlowExit.Return),
         _ => FlowExit.Next
     };
 
