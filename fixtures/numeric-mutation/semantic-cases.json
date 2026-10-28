@@ -133,6 +133,77 @@
       "expectedCodes": [
         "TS2540"
       ]
+    },
+    {
+      "id": "numeric-mutation:positive-19",
+      "source": "function f():number { let n:number=2; let old:number=n++; return old+n; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-20",
+      "source": "function f():number { let n:number=2; return n--; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-21",
+      "source": "function f(xs:number[]):number { let i:number=0; return xs[i++]; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-22",
+      "source": "function f(xs:number[]):number { let old:number=xs[0]++; return old; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-23",
+      "source": "function f():number { let box:{value:number}={value:21}; return box.value++; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-24",
+      "source": "function f():number { let n:number=0; let old:number=n++ + n++; return old; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-25",
+      "source": "function f():number { let n:number=0; for(let i:number=0;i<3;i++){ n++; } return n; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-26",
+      "source": "function f():number { let n:number=1; return ++n + n++; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-27",
+      "source": "function f(xs:number[]):number { let i:number=0; return xs[i++]++ + xs[0]; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:positive-28",
+      "source": "function f():number { let n:number=4; let prev:number=n--; return prev+n; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-mutation:negative-07",
+      "source": "function f():number { const n:number=1; return n++; }",
+      "expectedCodes": [
+        "TS2588"
+      ]
+    },
+    {
+      "id": "numeric-mutation:negative-08",
+      "source": "interface D { readonly x:number } function f(d:D):number { return d.x++; }",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "numeric-mutation:negative-09",
+      "source": "function f():number { let s:string=\"ab\"; return s[0]++; }",
+      "expectedCodes": [
+        "TS2542"
+      ]
     }
   ]
 }
