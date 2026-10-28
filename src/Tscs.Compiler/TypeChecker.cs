@@ -961,6 +961,48 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 }
                 continue;
             }
+            if(node is ValueTypeOperator typeOperator)
+            {
+                if(!combine)
+                {
+                    pending.Push((typeOperator,true));
+                    pending.Push((typeOperator.Expression,false));
+                    continue;
+                }
+                var actual=types.Pop();
+                var expected=TypeResolver.Resolve(typeOperator.Target,scope,file);
+                if(actual==null) { types.Push(null);continue; }
+                if(typeOperator.Keyword.Text=="as")
+                {
+                    // One-direction assignability is enough for an assertion;
+                    // unrelated primitive/structural forms must not silently
+                    // become casts that TypeScript itself would reject.
+                    if(!CompilerTypes.IsAssignable(actual,expected) &&
+                       !CompilerTypes.IsAssignable(expected,actual))
+                        Error(typeOperator.Keyword,"TS2352",
+                            $"Conversion of type '{actual.DisplayName}' to type '{expected.DisplayName}' may be a mistake because neither type sufficiently overlaps with the other.");
+                    types.Push(expected);
+                }
+                else
+                {
+                    // Discriminated object-union contextual inference has not
+                    // been implemented. Do not widen the result and then allow
+                    // an unsafe subsequent write through a lost literal type.
+                    if(expected is UnionTypeSymbol objectUnion &&
+                       objectUnion.Alternatives.OfType<ObjectTypeSymbol>().Any(shape=>
+                           shape.Members.Values.Any(member=>member is LiteralTypeSymbol ||
+                               member is UnionTypeSymbol nested && nested.Alternatives.Any(
+                                   variant=>variant is LiteralTypeSymbol))))
+                        throw new CompilationFailure(Diagnostic.Error(file,typeOperator.Keyword,"TSCS1001",
+                            "Satisfies with discriminated object unions requires contextual union inference."));
+                    if(CheckContextualLiteral(typeOperator.Expression,expected,actual) &&
+                       !IsAssignableContextually(typeOperator.Expression,actual,expected))
+                        Error(typeOperator.Keyword,"TS1360",
+                            $"Type '{actual.DisplayName}' does not satisfy expected type '{expected.DisplayName}'.");
+                    types.Push(CompilerTypes.PreserveSatisfiedLiteralTypes(typeOperator.Expression,actual,expected));
+                }
+                continue;
+            }
             if(node is ValueArray arrayLiteral)
             {
                 if(!combine)

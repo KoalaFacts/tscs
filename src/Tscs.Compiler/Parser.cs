@@ -687,13 +687,29 @@ internal sealed class Parser(string file, List<Token> tokens)
     }
     private ValueNode ParseRelational()
     {
-        ValueNode left=ParseShift();
+        ValueNode left=ParseTypeOperator();
         while(Current.Kind is TokenKind.LessThan or TokenKind.LessEqual or TokenKind.GreaterThan or TokenKind.GreaterEqual)
         {
             var op=Take();
-            left=new ValueBinary(left,op,ParseShift());
+            left=new ValueBinary(left,op,ParseTypeOperator());
         }
         return left;
+    }
+
+    // 'as' and 'satisfies' are contextual identifiers. Do not reserve them in
+    // the scanner: import/export aliases and ordinary properties still work.
+    // The bounded grammar allows subsequent arithmetic via explicit grouping.
+    private ValueNode ParseTypeOperator()
+    {
+        ValueNode value=ParseShift();
+        int count=0;
+        while(Current.Kind==TokenKind.Identifier && (Current.Text is "as" or "satisfies"))
+        {
+            var keyword=Take();
+            if(++count>64)Unsupported(keyword,"Type assertion nesting exceeds the compiler subset limit.");
+            value=new ValueTypeOperator(value,keyword,ReadTypeAnnotation());
+        }
+        return value;
     }
     // Shifts bind more weakly than addition but more tightly than comparisons.
     private ValueNode ParseShift()

@@ -134,7 +134,22 @@ internal static class Binder
             switch(symbol.Declaration)
             {
                 case Variable declaration:
-                    TypeSymbol? literalType=CompilerTypes.FromInitializer(declaration.Initializer);
+                    // Prebind cross-module assertion exports from their type,
+                    // without changing the runtime initializer or skipping
+                    // the later checked expression. Satisfies keeps inference.
+                    ValueNode? initial=declaration.Initializer;
+                    while(initial is ValueParenthesized group)initial=group.Expression;
+                    TypeSymbol? literalType=initial switch
+                    {
+                        ValueTypeOperator { Keyword.Text:"as" } asserted =>
+                            TypeResolver.Resolve(asserted.Target,scope,symbol.File),
+                        ValueTypeOperator { Keyword.Text:"satisfies" } satisfied =>
+                            CompilerTypes.FromInitializer(satisfied.Expression) is { } source
+                                ? CompilerTypes.PreserveSatisfiedLiteralTypes(satisfied.Expression,source,
+                                    TypeResolver.Resolve(satisfied.Target,scope,symbol.File))
+                                : null,
+                        _=>CompilerTypes.FromInitializer(initial)
+                    };
                     symbol.Type=declaration.Annotation is { } annotation
                         ? TypeResolver.Resolve(annotation,scope,symbol.File) : literalType;
                     symbol.Initialized=declaration.Initializer!=null;

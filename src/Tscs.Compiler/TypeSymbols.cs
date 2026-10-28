@@ -119,6 +119,8 @@ internal static class CompilerTypes
     public static TypeSymbol? FromInitializer(ValueNode? value)
     {
         while(value is ValueParenthesized group)value=group.Expression;
+        if(value is ValueTypeOperator { Keyword.Text:"satisfies" } verified)
+            return FromInitializer(verified.Expression);
         if(value is ValueAtom atom)return FromLiteral(atom.Token);
         if(value is ValueArray array)
         {
@@ -143,6 +145,54 @@ internal static class CompilerTypes
             members.Add(new(Parser.PropertyName(property.Name),type));
         }
         return new ObjectTypeSymbol(members);
+    }
+
+    // A successful satisfies expression preserves the source's inferred shape,
+    // with contextual exact literal members retained for later writes.
+    // Stored variables are not narrowed just because they satisfy a constraint.
+    public static TypeSymbol PreserveSatisfiedLiteralTypes(
+        ValueNode expression,TypeSymbol actual,TypeSymbol constraint,int depth=0)
+    {
+        if(depth>=64)return actual;
+        while(expression is ValueParenthesized group)expression=group.Expression;
+        if(expression is ValueAtom atom && atom.Token.Kind is
+            (TokenKind.Number or TokenKind.String or TokenKind.True or TokenKind.False))
+        {
+            var literal=FromLiteralExact(atom.Token);
+            if(constraint is LiteralTypeSymbol expected && literal.Equals(expected))
+                return literal;
+            if(constraint is UnionTypeSymbol alternatives &&
+               alternatives.Alternatives.Any(option=>option.Equals(literal)))
+                return literal;
+        }
+        if(expression is ValueUnary { Operator.Kind:TokenKind.Minus,Operand:ValueAtom number } &&
+           number.Token.Kind==TokenKind.Number)
+        {
+            var literal=FromLiteralExact(number.Token,negative:true);
+            if(constraint is LiteralTypeSymbol expected && literal.Equals(expected))
+                return literal;
+            if(constraint is UnionTypeSymbol alternatives &&
+               alternatives.Alternatives.Any(option=>option.Equals(literal)))
+                return literal;
+        }
+        if(expression is ValueObject fresh && actual is ObjectTypeSymbol data &&
+           constraint is ObjectTypeSymbol shape)
+        {
+            var members=new List<KeyValuePair<string,TypeSymbol>>(data.Members.Count);
+            foreach(var (name,type) in data.Members)
+            {
+                TypeSymbol selected=type;
+                if(shape.Members.TryGetValue(name,out var required))
+                {
+                    var property=fresh.Properties.FirstOrDefault(p=>Parser.PropertyName(p.Name)==name);
+                    if(property!=null)
+                        selected=PreserveSatisfiedLiteralTypes(property.Value,type,required,depth+1);
+                }
+                members.Add(new(name,selected));
+            }
+            return new ObjectTypeSymbol(members);
+        }
+        return actual;
     }
 
     public static TypeSymbol? FromLiteral(Token token) => token.Kind switch

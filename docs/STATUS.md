@@ -1,5 +1,19 @@
 # tscs status
 
+## 2026-10-29 — Bounded as/satisfies compile-time type operators (source candidate; NOT_RUN)
+
+Contextual type assertions now reuse the existing named/structural/union type
+resolver and check for sufficient overlap (TS2352); checked satisfies constraints
+retain inferred types, fresh-object excess errors and contextual literal members,
+with TS1360 for incompatible primitive constraints. Both operators erase in
+ES2015 output with safe grouping; cross-module export prebinding supports the
+new annotation-bearing initializer path. Discriminated object-union satisfies
+contextual inference remains explicitly unsupported rather than unsafely widened.
+The new 25-source pinned-Go code/exit lane and real four-module Node runtime lane
+are wired into existing gates but NOT_RUN at source creation. Full original TS7
+acceptance remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED and dynamic scope UNEXPANDED.
+
+
 ## 2026-10-29 — Bounded string addition and compound mutation (source; NOT_RUN)
 
 Shared semantic addition distinguishes numeric, definite-string and any

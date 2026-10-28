@@ -301,6 +301,8 @@ internal static class JavaScriptEmitter
                 _ => throw new NotSupportedException("Unsupported binary operator in emitted AST.")
             },
             ValueUnary => 11,
+            // Erasure is wrapped with grouping to keep the JS precedence.
+            ValueTypeOperator => 13,
             ValueCall or ValuePropertyAccess or ValueElementAccess => 12,
             ValueAtom or ValueParenthesized or ValueObject or ValueArray => 13,
             _ => throw new NotSupportedException("Unsupported expression in emitted AST.")
@@ -353,6 +355,11 @@ internal static class JavaScriptEmitter
                     case ValueUnary unary:
                         Node(unary.Operand,precedence);
                         Text(unary.Operator.Text+(unary.Operator.Kind is TokenKind.Plus or TokenKind.Minus or TokenKind.Typeof?" ":""));
+                        break;
+                    case ValueTypeOperator typed:
+                        Text(")");
+                        Node(typed.Expression);
+                        Text("(");
                         break;
                     case ValueParenthesized grouped:
                         Text(")");
