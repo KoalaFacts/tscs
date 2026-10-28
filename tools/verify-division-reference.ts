@@ -5,16 +5,19 @@ import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {join,resolve,basename} from 'node:path';
 
 // Independent bounded oracle, NOT full original TS7 harness acceptance.
-const [referenceArg,outputArg]=process.argv.slice(2);
-assert.ok(referenceArg&&outputArg,'usage: node tools/verify-bitwise-reference.ts <pinned-go-tsc> <new-evidence-directory>');
+const [referenceArg,outputArg,optionalSuitePath]=process.argv.slice(2);
+assert.ok(referenceArg&&outputArg,'usage: node tools/verify-division-reference.ts <pinned-go-tsc> <new-evidence-directory> [frozen-suite]');
 const reference=resolve(referenceArg),out=resolve(outputArg),root=process.cwd();
 assert.ok(!existsSync(out),'refusing to overwrite source-bound evidence');
 mkdirSync(out,{recursive:true});
 const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
-const suitePath='fixtures/numeric-division/semantic-cases.json';
+const suitePath=optionalSuitePath??'fixtures/numeric-division/semantic-cases.json';
+const strings=suitePath==='fixtures/string-addition/semantic-cases.json';
+assert.ok(optionalSuitePath==null||strings,'unknown bounded reference cohort');
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
-assert.equal(suite.kind,'BOUNDED_NUMERIC_DIVISION_REMAINDER_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,24,'do not shrink the registered cohort');
+assert.equal(suite.kind,strings?'BOUNDED_STRING_ADDITION_MUTATION_NOT_ORIGINAL_TS7_ACCEPTANCE'
+  :'BOUNDED_NUMERIC_DIVISION_REMAINDER_NOT_ORIGINAL_TS7_ACCEPTANCE');
+assert.equal(suite.cases.length,strings?25:24,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 // The cohort includes number[] indexing and length. Use the already
 // verified array profile for BOTH compilers, not the empty bootstrap Array<T>.
@@ -47,7 +50,7 @@ const diagnosticCodes=(r:ReturnType<typeof run>)=>
 const ids=new Set<string>(),results:object[]=[],mismatches:object[]=[];
 for(let i=0;i<suite.cases.length;i++){
   const item=suite.cases[i];
-  assert.match(item.id,/^numeric-division:(positive|negative)-\d+$/);
+  assert.match(item.id,strings?/^string-addition:(positive|negative)-\d+$/:/^numeric-division:(positive|negative)-\d+$/);
   assert.ok(!ids.has(item.id),'duplicate stable case ID');ids.add(item.id);
   assert.equal(typeof item.source,'string');
   assert.ok(Array.isArray(item.expectedCodes));
@@ -82,4 +85,4 @@ for(const row of manifest){const bytes=readFileSync(join(out,row.path));
   assert.equal(bytes.length,row.length);assert.equal(hash(bytes),row.sha256);}
 writeFileSync(join(out,'manifest.json'),JSON.stringify({files:manifest},null,2),{flag:'wx',flush:true});
 assert.deepEqual(mismatches,[],'genuine pinned-Go mismatches; raw outputs preserved');
-console.log(String(results.length)+' bounded numeric division and remainder sources matched pinned Go codes/exits; no original TS7 acceptance.');
+console.log(String(results.length)+' bounded '+(strings?'string addition and mutation':'numeric division and remainder')+' sources matched pinned Go codes/exits; no original TS7 acceptance.');

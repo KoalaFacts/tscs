@@ -1,0 +1,145 @@
+{
+  "kind": "BOUNDED_STRING_ADDITION_MUTATION_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "upstream": "upstream.lock.json",
+  "cases": [
+    {
+      "id": "string-addition:positive-01",
+      "source": "let s: string = \"hello\" + \" world\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-addition:positive-02",
+      "source": "let s: string = \"item-\" + 21;",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-addition:positive-03",
+      "source": "let s: string = 21 + \" items\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-addition:positive-04",
+      "source": "let s: string = \"ready=\" + true;",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-addition:positive-05",
+      "source": "let s: string = false + \"-ready\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-addition:positive-06",
+      "source": "let a: string = \"x\"; a += 2;",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-addition:positive-07",
+      "source": "let a: string = \"x\"; a += false;",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-addition:positive-08",
+      "source": "let a: any = 2; let s: string = \"x\" + a;",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-addition:positive-09",
+      "source": "let a: any = 2; let s: string = a + \"x\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-addition:positive-10",
+      "source": "let a: any = 2; let n: number = a + 1;",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-addition:positive-11",
+      "source": "let a: any = 2; let s: string = a + 1;",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-addition:positive-12",
+      "source": "let data: { count: number } = { count: 7 }; let s: string = \"n=\" + data.count;",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-addition:positive-13",
+      "source": "let data: { label: string } = { label: \"x\" }; data.label += 21;",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-addition:positive-14",
+      "source": "function label(n: number): string { return \"item-\" + n; } let s: string = label(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-addition:positive-15",
+      "source": "let values: number[] = [1, 2]; let s: string = \"size=\" + values.length;",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-addition:positive-16",
+      "source": "let s: string = \"object=\" + ({ value: 21 });",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-addition:positive-17",
+      "source": "let a: string = \"x\"; a += true; a += \"z\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-addition:positive-18",
+      "source": "let s: string = \"ready=\" + (1 < 2);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-addition:negative-01",
+      "source": "let bad: number = \"x\" + 1;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-addition:negative-02",
+      "source": "let bad: number = 1 + \"x\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-addition:negative-03",
+      "source": "let bad: boolean = \"x\" + false;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-addition:negative-04",
+      "source": "let n: number = 1; n += \"x\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-addition:negative-05",
+      "source": "let info: { count: number } = { count: 2 }; info.count += \"x\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-addition:negative-06",
+      "source": "let values: number[] = [2]; values[0] += \"x\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-addition:negative-07",
+      "source": "const s: string = \"x\"; s += 2;",
+      "expectedCodes": [
+        "TS2588"
+      ]
+    }
+  ]
+}

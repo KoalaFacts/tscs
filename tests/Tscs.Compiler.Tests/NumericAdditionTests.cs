@@ -29,10 +29,10 @@ public class NumericAdditionTests
     }
 
     [Theory]
-    [InlineData("let x = \"a\" + 2;")]
     [InlineData("let x = true + 2;")]
-    [InlineData("let x: any = 1; let y = x + 2;")]
-    public void NonNumericAdditionIsNotClaimedAsImplemented(string source) =>
+    [InlineData("let x = 2 + false;")]
+    [InlineData("let x = true + false;")]
+    public void UnsupportedNonStringAdditionRemainsExplicitlyRejected(string source) =>
         Assert.Contains(Compilation.Check("test.ts", source), d => d.Code == "TSCS1001");
 
     // Genuine positive compiler assertions: source is parsed and type-checked.
@@ -93,7 +93,7 @@ public class NumericAdditionTests
     [Fact]
     public void EarlierUnsupportedOperandStopsBeforeLaterUnresolvedName()
     {
-        var diagnostic=Assert.Single(Compilation.Check("test.ts", "let n = \"x\" + 2 + missing;"));
+        var diagnostic=Assert.Single(Compilation.Check("test.ts", "let n = true + 2 + missing;"));
         Assert.Equal("TSCS1001", diagnostic.Code);
     }
 
