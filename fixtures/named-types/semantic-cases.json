@@ -1,0 +1,24 @@
+{
+  "kind": "BOUNDED_NAMED_TYPES_UNION_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {"id":"named-types:positive-01","source":"type Value = number; let n: Value = 21;","expectedCodes":[]},
+    {"id":"named-types:positive-02","source":"interface Item { value: number; label: string } let x: Item = {value: 21,label: \"ok\"};","expectedCodes":[]},
+    {"id":"named-types:positive-03","source":"type Item = {value: number}; interface Container {item: Item} let x: Container = {item: {value: 1}};","expectedCodes":[]},
+    {"id":"named-types:positive-04","source":"type Choice = number | string; let x: Choice = 2; x = \"ok\";","expectedCodes":[]},
+    {"id":"named-types:positive-05","source":"type Choice = number | string; function pass(x: Choice): Choice { return x; } let x: Choice = pass(1);","expectedCodes":[]},
+    {"id":"named-types:positive-06","source":"type Choice = {value: number; a: boolean} | {value: number; b: boolean}; function read(x: Choice): number { return x.value; } let result: number = read({value: 21,a: true});","expectedCodes":[]},
+    {"id":"named-types:positive-07","source":"interface Small {value: number} const wide = {value: 42,label: \"extra\"}; let small: Small = wide;","expectedCodes":[]},
+    {"id":"named-types:positive-08","source":"type Mixed = (number | string)[]; let data: Mixed = [1, \"two\"];","expectedCodes":[]},
+    {"id":"named-types:positive-09","source":"interface Wrapped {value: Scalar} type Scalar = number; let x: Wrapped = {value: 21};","expectedCodes":[]},
+    {"id":"named-types:positive-10","source":"type Result = number; let Result: Result = 42; let answer: number = Result;","expectedCodes":[]},
+    {"id":"named-types:negative-01","source":"type Value = number; let x: Value = \"bad\";","expectedCodes":["TS2322"]},
+    {"id":"named-types:negative-02","source":"interface Item {value: number} let x: Item = {value: \"bad\"};","expectedCodes":["TS2322"]},
+    {"id":"named-types:negative-03","source":"type Value = number | string; let x: Value = false;","expectedCodes":["TS2322"]},
+    {"id":"named-types:negative-04","source":"type Alias = Missing; let x: Alias;","expectedCodes":["TS2304"]},
+    {"id":"named-types:negative-05","source":"type Circular = Circular; let x: Circular;","expectedCodes":["TS2456"]},
+    {"id":"named-types:negative-06","source":"interface Item {value: number} const x: Item = {};","expectedCodes":["TS2741"]},
+    {"id":"named-types:negative-07","source":"type Choice = {a: number} | {b: number}; let x: Choice = {a: 1, unknown: true};","expectedCodes":["TS2353"]},
+    {"id":"named-types:negative-08","source":"type Choice = {a: number} | {b: number}; let x: Choice = {a: 1}; x.b;","expectedCodes":["TS2339"]},
+    {"id":"named-types:negative-09","source":"type Choice = number | string; function f(x: Choice): number { return x; }","expectedCodes":["TS2322"]}
+  ]
+}

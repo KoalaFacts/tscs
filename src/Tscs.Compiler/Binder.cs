@@ -22,18 +22,25 @@ internal sealed class Scope(Scope? parent)
 {
     public Scope? Parent { get; } = parent;
     public Dictionary<string,Symbol> Symbols { get; } = new(StringComparer.Ordinal);
+    // Value and type declarations have separate namespaces; import type is
+    // never fabricated as a runtime symbol or emitted JavaScript binding.
+    public Dictionary<string,TypeBinding> Types { get; } = new(StringComparer.Ordinal);
     public Symbol? Find(string name)=>Symbols.GetValueOrDefault(name)??Parent?.Find(name);
+    public TypeBinding? FindType(string name)=>Types.GetValueOrDefault(name)??Parent?.FindType(name);
 }
 // A shared global scope is prebound for all .ts scripts before type checking.
 // Complex cross-file inference and declaration merging intentionally fail closed.
 internal static class Binder
 {
-    public static Scope Bind(string file,Block block,Scope? parent)
+    public static Scope Bind(string file,Block block,Scope? parent,bool initialize=true)
     {
         var scope=new Scope(parent);
         foreach(var statement in block.Statements)
+        {
             if(statement is Variable or FunctionDeclaration)Declare(file,scope,statement);
-        InitializeDeclaredTypes(scope);
+            else if(statement is TypeAliasDeclaration or InterfaceDeclaration)DeclareType(file,scope,statement);
+        }
+        if(initialize)InitializeDeclaredTypes(scope);
         return scope;
     }
 
@@ -42,23 +49,41 @@ internal static class Binder
         var global=new Scope(null);
         foreach(var (file,root) in sources)
             foreach(var statement in root.Statements)
+            {
                 if(statement is Variable or FunctionDeclaration)Declare(file,global,statement);
+                else if(statement is TypeAliasDeclaration or InterfaceDeclaration)DeclareType(file,global,statement);
+            }
         InitializeDeclaredTypes(global);
         return global;
     }
 
-    public static Scope BindModule(string file,Block block,Scope global)
+    public static Scope BindModule(string file,Block block,Scope global)=>Bind(file,block,global,initialize:false);
+
+    public static void ImportType(string file,Scope scope,ImportSpecifier specifier,TypeBinding exported)
     {
-        var local=Bind(file,block,global);
-        InitializeDeclaredTypes(local);
-        return local;
+        if(!scope.Types.TryAdd(specifier.Local.Text,exported))
+            throw new CompilationFailure(Diagnostic.Error(file,specifier.Local,"TSCS1001",
+                "Duplicate type import or declaration is not supported yet."));
+    }
+
+    private static void DeclareType(string file,Scope scope,Statement declaration)
+    {
+        var (name,syntax)=declaration switch
+        {
+            TypeAliasDeclaration alias=>(alias.Name,alias.Target),
+            InterfaceDeclaration iface=>(iface.Name,(TypeSyntax)iface.Body),
+            _=>throw new InvalidOperationException("Not a type declaration.")
+        };
+        if(!scope.Types.TryAdd(name.Text,new TypeBinding(file,name,syntax,scope)))
+            throw new CompilationFailure(Diagnostic.Error(file,name,"TS2300",
+                $"Duplicate identifier '{name.Text}'."));
     }
 
     public static void DeclareParameter(string file,Scope scope,ParameterDeclaration parameter)
     {
         Declare(file,scope,parameter);
         var symbol=scope.Symbols[parameter.Name.Text];
-        symbol.Type=CompilerTypes.FromAnnotation(parameter.Annotation);
+        symbol.Type=TypeResolver.Resolve(parameter.Annotation,scope,file);
         symbol.Initialized=true;
         symbol.CrossFileTypeReady=true;
     }
@@ -91,8 +116,11 @@ internal static class Binder
                 "Duplicate import or local declaration is not supported yet."));
     }
 
-    private static void InitializeDeclaredTypes(Scope scope)
+    public static void InitializeDeclaredTypes(Scope scope)
     {
+        // Validate all declarations even when nothing references their aliases.
+        // The scope is complete before any named type is resolved.
+        foreach(var binding in scope.Types.Values.Distinct())_ = TypeResolver.ResolveBinding(binding);
         foreach(var symbol in scope.Symbols.Values)
         {
             switch(symbol.Declaration)
@@ -100,14 +128,14 @@ internal static class Binder
                 case Variable declaration:
                     TypeSymbol? literalType=CompilerTypes.FromInitializer(declaration.Initializer);
                     symbol.Type=declaration.Annotation is { } annotation
-                        ? CompilerTypes.FromAnnotation(annotation) : literalType;
+                        ? TypeResolver.Resolve(annotation,scope,symbol.File) : literalType;
                     symbol.Initialized=declaration.Initializer!=null;
                     symbol.CrossFileTypeReady=symbol.Type!=null;
                     break;
                 case FunctionDeclaration function:
                     symbol.Type=new FunctionTypeSymbol(
-                        function.Parameters.Select(p=>CompilerTypes.FromAnnotation(p.Annotation)).ToArray(),
-                        CompilerTypes.FromAnnotation(function.ReturnAnnotation));
+                        function.Parameters.Select(p=>TypeResolver.Resolve(p.Annotation,scope,symbol.File)).ToArray(),
+                        TypeResolver.Resolve(function.ReturnAnnotation,scope,symbol.File));
                     symbol.Initialized=true;
                     symbol.CrossFileTypeReady=true;
                     break;

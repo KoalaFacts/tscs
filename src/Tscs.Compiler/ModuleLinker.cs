@@ -10,6 +10,7 @@ internal static class ModuleLinker
         public ParsedSource Source { get; }=source;
         public Scope Scope { get; }=scope;
         public Dictionary<string,ExportBinding> Exports { get; }=new(StringComparer.Ordinal);
+        public Dictionary<string,TypeBinding> TypeExports { get; }=new(StringComparer.Ordinal);
     }
 
     public static Dictionary<string,Scope> Link(IReadOnlyList<ParsedSource> sources,Scope global,
@@ -31,6 +32,10 @@ internal static class ModuleLinker
                     Add(variable.Name,variable.Name,null);
                 else if(statement is FunctionDeclaration { Exported:true } function)
                     Add(function.Name,function.Name,null);
+                else if(statement is TypeAliasDeclaration { Exported:true } alias)
+                    node.TypeExports.Add(alias.Name.Text,node.Scope.Types[alias.Name.Text]);
+                else if(statement is InterfaceDeclaration { Exported:true } iface)
+                    node.TypeExports.Add(iface.Name.Text,node.Scope.Types[iface.Name.Text]);
                 else if(statement is ExportDeclaration declaration)
                     foreach(var specifier in declaration.Specifiers)
                         Add(specifier.Exported,specifier.Local,declaration.ModulePath);
@@ -75,7 +80,7 @@ internal static class ModuleLinker
                 }
                 if(module.Scope.Symbols.TryGetValue(entry.Local.Text,out var local))
                     return local;
-                foreach(var import in module.Source.Root.Statements.OfType<ImportDeclaration>())
+                foreach(var import in module.Source.Root.Statements.OfType<ImportDeclaration>().Where(x=>!x.TypeOnly))
                 {
                     foreach(var specifier in import.Specifiers)
                     {
@@ -95,6 +100,27 @@ internal static class ModuleLinker
             finally { active.RemoveAt(active.Count-1); }
         }
 
+        // Type imports are linked before any value signatures are prebound:
+        // exported functions may reference type names imported from another file.
+        // The original declaring scope stays attached to each TypeBinding.
+        foreach(var (file,node) in nodes)
+        {
+            foreach(var import in node.Source.Root.Statements.OfType<ImportDeclaration>().Where(x=>x.TypeOnly))
+            {
+                var target=Target(file,import.ModulePath);
+                foreach(var specifier in import.Specifiers)
+                {
+                    if(!nodes[target].TypeExports.TryGetValue(specifier.Imported.Text,out var binding))
+                        throw new CompilationFailure(Diagnostic.Error(file,specifier.Imported,"TS2305",
+                            $"Module '{import.ModulePath.Value}' has no exported type member '{specifier.Imported.Text}'."));
+                    Binder.ImportType(file,node.Scope,specifier,binding);
+                }
+            }
+        }
+        // Every module has its complete type namespace before semantic types
+        // are resolved, including cross-file aliases and interface members.
+        foreach(var node in nodes.Values)Binder.InitializeDeclaredTypes(node.Scope);
+
         // Invalid public names cannot hide just because no consumer requests them.
         foreach(var (file,node) in nodes)
             foreach(var name in node.Exports.Keys)
@@ -104,7 +130,7 @@ internal static class ModuleLinker
         // export identities regardless of source order.
         foreach(var (file,node) in nodes)
         {
-            foreach(var import in node.Source.Root.Statements.OfType<ImportDeclaration>())
+            foreach(var import in node.Source.Root.Statements.OfType<ImportDeclaration>().Where(x=>!x.TypeOnly))
             {
                 var target=Target(file,import.ModulePath);
                 foreach(var specifier in import.Specifiers)

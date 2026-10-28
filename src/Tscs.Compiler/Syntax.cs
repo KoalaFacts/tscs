@@ -1,6 +1,6 @@
 namespace Tscs;
 
-internal enum TokenKind { End, Identifier, Number, String, Let, Const, True, False, Open, Close, Colon, Semi, Equal, Comma, Unsupported, Null, OpenBracket, CloseBracket, Minus, MinusMinus, Plus, PlusPlus, Star, Import, Export, Function, Return, If, Else, For, OpenParen, CloseParen, Bang, AmpAmp, BarBar, EqualEqual, BangEqual, StrictEqual, StrictNotEqual, LessThan, LessEqual, GreaterThan, GreaterEqual, Dot }
+internal enum TokenKind { End, Identifier, Number, String, Let, Const, True, False, Open, Close, Colon, Semi, Equal, Comma, Unsupported, Null, OpenBracket, CloseBracket, Minus, MinusMinus, Plus, PlusPlus, Star, Import, Export, Function, Return, If, Else, For, Type, Interface, OpenParen, CloseParen, Bang, AmpAmp, BarBar, Bar, EqualEqual, BangEqual, StrictEqual, StrictNotEqual, LessThan, LessEqual, GreaterThan, GreaterEqual, Dot }
 [Flags]
 internal enum StringTokenFlags { None=0, Unterminated=1<<2, ExtendedUnicodeEscape=1<<3, UnicodeEscape=1<<10, ContainsInvalidEscape=1<<11, HexEscape=1<<12, SingleQuote=1<<16 }
 internal readonly record struct Token(TokenKind Kind, string Text, int Start, int Length, bool LineBreak = false,string? Value = null, StringTokenFlags Flags = StringTokenFlags.None);
@@ -13,6 +13,10 @@ internal sealed record PrimitiveTypeSyntax(Token Name) : TypeSyntax;
 internal sealed record ObjectTypeProperty(Token Name,TypeSyntax Type);
 internal sealed record ObjectTypeSyntax(Token Open,IReadOnlyList<ObjectTypeProperty> Properties,Token Close) : TypeSyntax;
 internal sealed record ArrayTypeSyntax(TypeSyntax Element,Token Open,Token Close) : TypeSyntax;
+internal sealed record NamedTypeSyntax(Token Name) : TypeSyntax;
+internal sealed record UnionTypeSyntax(IReadOnlyList<TypeSyntax> Members) : TypeSyntax;
+internal sealed record TypeAliasDeclaration(Token Name,TypeSyntax Target,bool Exported=false) : Statement;
+internal sealed record InterfaceDeclaration(Token Name,ObjectTypeSyntax Body,bool Exported=false) : Statement;
 internal abstract record ValueNode;
 internal sealed record ValueAtom(Token Token) : ValueNode;
 internal sealed record ValueBinary(ValueNode Left, Token Operator, ValueNode Right) : ValueNode;
@@ -33,7 +37,7 @@ internal sealed record ReturnStatement(Token Keyword,ValueNode Value) : Statemen
 internal sealed record ConditionalStatement(Token Keyword,ValueNode Condition,Block Consequent,Statement? Alternate) : Statement;
 internal sealed record ForOfStatement(Token Keyword,Token Name,bool Constant,ValueNode Source,Block Body) : Statement;
 internal sealed record ImportSpecifier(Token Imported,Token Local);
-internal sealed record ImportDeclaration(Token ModulePath,IReadOnlyList<ImportSpecifier> Specifiers) : Statement;
+internal sealed record ImportDeclaration(Token ModulePath,IReadOnlyList<ImportSpecifier> Specifiers,bool TypeOnly=false) : Statement;
 internal sealed record ExportSpecifier(Token Local,Token Exported);
 internal sealed record ExportDeclaration(IReadOnlyList<ExportSpecifier> Specifiers,Token? ModulePath=null) : Statement;
 internal sealed record Assignment(Token Name, ValueNode Value) : Statement;

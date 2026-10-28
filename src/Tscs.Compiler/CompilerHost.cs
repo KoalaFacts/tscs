@@ -236,7 +236,8 @@ public sealed class CompilerProgram
             if(!syntaxSnapshots.TryGetValue(source.File,out var syntax) || syntax.Source is not { } parsed)
                 throw new InvalidOperationException("No validated AST snapshot exists for the source.");
             if(!emitNamedModules && parsed.Root.Statements.Any(s=>
-                s is ImportDeclaration or ExportDeclaration or Variable { Exported: true } or FunctionDeclaration { Exported: true }))
+                s is ImportDeclaration or ExportDeclaration or Variable { Exported: true } or FunctionDeclaration { Exported: true } or
+                TypeAliasDeclaration { Exported:true } or InterfaceDeclaration { Exported:true }))
                 throw new NotSupportedException("ES module JavaScript output is not implemented; specify --module es2015 for supported named modules.");
             output[i]=new JavaScriptOutput(source.File,JavaScriptEmitter.Emit(parsed.Root,emitNamedModules));
         }
