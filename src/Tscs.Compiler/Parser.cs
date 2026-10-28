@@ -256,7 +256,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                 EndStatement();
                 continue;
             }
-            if(Current.Kind is TokenKind.PlusEqual or TokenKind.MinusEqual or TokenKind.StarEqual or TokenKind.PowerEqual or TokenKind.SlashEqual or TokenKind.PercentEqual)
+            if(Current.Kind is TokenKind.PlusEqual or TokenKind.MinusEqual or TokenKind.StarEqual or TokenKind.PowerEqual or TokenKind.SlashEqual or TokenKind.PercentEqual or TokenKind.AmpEqual or TokenKind.BarEqual or TokenKind.CaretEqual or TokenKind.LeftShiftEqual or TokenKind.RightShiftEqual or TokenKind.UnsignedRightShiftEqual)
             {
                 var op=Take();
                 if(value is not (ValueAtom { Token.Kind:TokenKind.Identifier } or ValuePropertyAccess or ValueElementAccess))
@@ -377,7 +377,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                 Unsupported(increment,"Classic for postfix updates require one same-line identifier.");
             return new PostfixUpdate(((ValueAtom)expression).Token,increment);
         }
-        if(Current.Kind is TokenKind.PlusEqual or TokenKind.MinusEqual or TokenKind.StarEqual or TokenKind.PowerEqual or TokenKind.SlashEqual or TokenKind.PercentEqual)
+        if(Current.Kind is TokenKind.PlusEqual or TokenKind.MinusEqual or TokenKind.StarEqual or TokenKind.PowerEqual or TokenKind.SlashEqual or TokenKind.PercentEqual or TokenKind.AmpEqual or TokenKind.BarEqual or TokenKind.CaretEqual or TokenKind.LeftShiftEqual or TokenKind.RightShiftEqual or TokenKind.UnsignedRightShiftEqual)
         {
             var op=Take();
             if(expression is not (ValueAtom { Token.Kind:TokenKind.Identifier } or ValuePropertyAccess or ValueElementAccess))

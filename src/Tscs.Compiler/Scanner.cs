@@ -141,6 +141,17 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                 { position++;kind=TokenKind.AmpAmp; }
                 else if(first=='|' && position<text.Length && text[position]=='|')
                 { position++;kind=TokenKind.BarBar; }
+                else if((first is '&' or '|' or '^') && position<text.Length && text[position]=='=')
+                {
+                    position++;
+                    kind=first switch
+                    {
+                        '&'=>TokenKind.AmpEqual,
+                        '|'=>TokenKind.BarEqual,
+                        '^'=>TokenKind.CaretEqual,
+                        _=>throw new InvalidOperationException("Unexpected bitwise compound token.")
+                    };
+                }
                 else if(first=='*' && position<text.Length && text[position]=='*')
                 {
                     position++;
@@ -166,6 +177,17 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                         kind=first=='<'?TokenKind.LeftShift:TokenKind.RightShift;
                         if(first=='>' && position<text.Length && text[position]=='>')
                         { position++;kind=TokenKind.UnsignedRightShift; }
+                        if(position<text.Length && text[position]=='=')
+                        {
+                            position++;
+                            kind=kind switch
+                            {
+                                TokenKind.LeftShift=>TokenKind.LeftShiftEqual,
+                                TokenKind.RightShift=>TokenKind.RightShiftEqual,
+                                TokenKind.UnsignedRightShift=>TokenKind.UnsignedRightShiftEqual,
+                                _=>throw new InvalidOperationException("Unexpected shift compound token.")
+                            };
+                        }
                     }
                     else if(position<text.Length && text[position]=='=')
                     { position++;kind=first=='<'?TokenKind.LessEqual:TokenKind.GreaterEqual; }
