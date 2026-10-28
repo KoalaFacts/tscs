@@ -204,10 +204,36 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                                 throw new InvalidOperationException("Only parser-checked compound assignment targets are allowed.");
                         }
                         var operandType=TypeOf(compound.Value,scope);
-                        if(targetType!=null && operandType!=null &&
-                           !(IsNumericMutationOperand(targetType) && IsNumericMutationOperand(operandType)))
-                            throw new CompilationFailure(Diagnostic.Error(file,compound.Operator,"TSCS1001",
-                                "Compound arithmetic assignments currently require number or any operands."));
+                        if(targetType!=null && operandType!=null)
+                        {
+                            if(compound.Operator.Kind==TokenKind.PlusEqual)
+                            {
+                                // Unlike numeric-only operators, += can concatenate,
+                                // but its resulting string must still fit the target.
+                                var resultType=CompilerTypes.AdditionResult(targetType,operandType);
+                                if(resultType==null)
+                                    throw new CompilationFailure(Diagnostic.Error(file,compound.Operator,"TSCS1001",
+                                        "Addition requires compatible numeric, string or any operands."));
+                                // TypeScript checks compound addition against the
+                                // primitive family of a literal target: a literal
+                                // may be changed by += while ordinary = remains exact.
+                                // Keep number += string rejected as TS2322.
+                                TypeSymbol required=targetType is LiteralTypeSymbol literal
+                                    ? literal.Kind switch
+                                    {
+                                        PrimitiveKind.Number=>CompilerTypes.Number,
+                                        PrimitiveKind.String=>CompilerTypes.String,
+                                        PrimitiveKind.Boolean=>CompilerTypes.Boolean,
+                                        _=>targetType
+                                    }
+                                    : targetType;
+                                if(!CompilerTypes.IsAssignable(resultType,required))
+                                    Mismatch(compound.Operator,resultType,required);
+                            }
+                            else if(!(IsNumericMutationOperand(targetType) && IsNumericMutationOperand(operandType)))
+                                throw new CompilationFailure(Diagnostic.Error(file,compound.Operator,"TSCS1001",
+                                    "Compound arithmetic assignments currently require number or any operands."));
+                        }
                         break;
                     case PostfixUpdate update:
                         var updated=Resolve(update.Name,scope);
@@ -1101,17 +1127,21 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             var right=types.Pop();
             var left=types.Pop();
             if(left==null||right==null)types.Push(null);
-            else if(binary.Operator.Kind is TokenKind.Plus or TokenKind.Minus or TokenKind.Star)
+            else if(binary.Operator.Kind==TokenKind.Plus)
+            {
+                var resultType=CompilerTypes.AdditionResult(left,right);
+                if(resultType!=null)types.Push(resultType);
+                else throw new CompilationFailure(Diagnostic.Error(file,binary.Operator,"TSCS1001",
+                    "Addition requires compatible numeric, string or any operands."));
+            }
+            else if(binary.Operator.Kind is TokenKind.Minus or TokenKind.Star)
             {
                 if(CompilerTypes.IsNumber(left)&&CompilerTypes.IsNumber(right))
                     types.Push(CompilerTypes.Number);
                 else throw new CompilationFailure(Diagnostic.Error(file,binary.Operator,"TSCS1001",
-                    binary.Operator.Kind switch
-                    {
-                        TokenKind.Star => "Only numeric multiplication expressions are supported yet.",
-                        TokenKind.Minus => "Only numeric subtraction expressions are supported yet.",
-                        _ => "Only numeric addition expressions are supported yet."
-                    }));
+                    binary.Operator.Kind==TokenKind.Star
+                        ? "Only numeric multiplication expressions are supported yet."
+                        : "Only numeric subtraction expressions are supported yet."));
             }
             else if(binary.Operator.Kind is TokenKind.Slash or TokenKind.Percent)
             {

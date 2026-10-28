@@ -179,6 +179,17 @@ internal static class CompilerTypes
 
     public static bool IsNumber(TypeSymbol? type) => type is PrimitiveTypeSymbol { Kind: PrimitiveKind.Number } or LiteralTypeSymbol { Kind: PrimitiveKind.Number };
     public static bool IsBoolean(TypeSymbol? type) => type is PrimitiveTypeSymbol { Kind: PrimitiveKind.Boolean } or LiteralTypeSymbol { Kind: PrimitiveKind.Boolean };
+    public static bool IsString(TypeSymbol? type) => type is PrimitiveTypeSymbol { Kind: PrimitiveKind.String } or LiteralTypeSymbol { Kind: PrimitiveKind.String };
+
+    // Known strings concatenate with any supported value; an unconstrained
+    // any + nonstring remains any, never guessed to be number or string.
+    public static TypeSymbol? AdditionResult(TypeSymbol left,TypeSymbol right)
+    {
+        if(IsString(left)||IsString(right))return String;
+        if(left.Equals(Any)||right.Equals(Any))return Any;
+        if(IsNumber(left)&&IsNumber(right))return Number;
+        return null;
+    }
 
     // This is only the bounded, same-primitive/any equality subset.
     // Do not infer an overlap between unrelated or structural type forms.

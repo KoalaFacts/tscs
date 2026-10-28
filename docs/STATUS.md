@@ -1,5 +1,15 @@
 # tscs status
 
+## 2026-10-29 — Bounded string addition and compound mutation (source; NOT_RUN)
+
+Shared semantic addition distinguishes numeric, definite-string and any
+results, including string concatenation of structured values. Existing AST
+and emitter carry += for strings and refuse numeric targets that would
+become strings with TS2322. Four-module runtime and 25 stable pinned-Go
+code/exit cases are wired into strict gates but NOT_RUN at creation.
+Original TS7 accepted remains 0 / 15,523 SKIP_UNIMPLEMENTED;
+unexpanded dynamic scope remains UNEXPANDED.
+
 ## 2026-10-29 — Numeric division and remainder (source candidate; NOT_RUN)
 
 The checked scanner/parser/AST/type checker/ES2015 emitter now carry source-mode
