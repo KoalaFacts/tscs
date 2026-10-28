@@ -21,6 +21,7 @@ public sealed class ArrayIterationTests
     [InlineData("const xs: number[][] = [[21, 21]]; for (const pair of xs) { let n: number = pair[0] + pair[1]; }")]
     [InlineData("const data = { for: 21 }; let x: number = data.for;")]
     [InlineData("for (let i = 0; i < 2; i++) {}")]
+    [InlineData("const xs = [1]; xs[0]++;")]
     public void ArrayProgramsFollowTheSharedCompilerPipeline(string source) =>
         Assert.Empty(Compilation.Check("arrays.ts", source));
 
@@ -39,7 +40,7 @@ public sealed class ArrayIterationTests
     [InlineData("const xs = [, 1];", "TSCS1001")]
     [InlineData("const xs = [1, 2;", "TSCS1001")]
     [InlineData("let xs: [number, string] = [1, \"x\"];", "TSCS1001")]
-    [InlineData("const xs = [1]; xs[0]++;", "TSCS1001")]
+    [InlineData("const xs = [\"text\"]; xs[0]++;", "TSCS1001")]
     public void UnsupportedOrIncorrectArrayProgramsDoNotSucceed(string source, string diagnostic) =>
         Assert.Contains(Compilation.Check("arrays.ts",source), d=>d.Code==diagnostic);
 

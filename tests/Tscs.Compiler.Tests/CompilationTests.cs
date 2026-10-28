@@ -52,6 +52,8 @@ public class CompilationTests
     [InlineData("let n = 1; n++;\nlet m: number = n;")]
     [InlineData("let n = 1; n++")]
     [InlineData("let n = 1; n++; n = 2;")]
+    [InlineData("let n = 1; let m = n++;")]
+    [InlineData("let n = 1; n++ + 2;")]
     public void NumericPostfixUpdatesAreWritable(string source) =>
         Assert.Empty(Compilation.Check("test.ts", source));
 
@@ -62,8 +64,6 @@ public class CompilationTests
     [Theory]
     [InlineData("let s: string = \"x\"; s++;")]
     [InlineData("let b: boolean = true; b++;")]
-    [InlineData("let n = 1; let m = n++;")]
-    [InlineData("let n = 1; n++ + 2;")]
     public void UnsupportedPostfixBoundaryRemainsExplicit(string source) =>
         Assert.Contains(Compilation.Check("test.ts", source), d => d.Code == "TSCS1001");
 
