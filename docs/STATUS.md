@@ -1,5 +1,17 @@
 # tscs status
 
+## 2026-10-29 — Numeric exponentiation work package (candidate; NOT_RUN)
+
+The checked scanner, parser, type checker and ES2015 emitter now carry numeric
+`**` and `**=`, with right-associativity, precedence above product/unary,
+unparenthesized unary-left rejection, depth limits, and existing mutable
+identifier/property/array target checks. The same four-module runtime and
+20-source fixed-Go comparison are wired to the strict gates. They are
+NOT_RUN at source creation; do not count as original TS7 acceptance.
+Original TS7 PASS remains 0, 15,523 SKIP_UNIMPLEMENTED targets and
+unexpanded dynamic scope remain unchanged.
+
+
 ## 2026-10-29 — Bounded as/satisfies compile-time type operators (source candidate; NOT_RUN)
 
 Contextual type assertions now reuse the existing named/structural/union type
