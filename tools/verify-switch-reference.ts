@@ -30,6 +30,9 @@ const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 // Keep the original switch profiles and every case/expectation unchanged.
 const minimalProfile=(loop||classic||numeric)?'fixtures/array-iteration/minimal.d.ts':'fixtures/minimal.d.ts';
 const minimal=readFileSync(minimalProfile,'utf8');
+// An explicitly registered case may choose the already-checked readonly String
+// ambient profile. Both compilers receive identical file bytes for that case.
+const allowedProfiles=new Set([minimalProfile,'fixtures/string-primitives/minimal.d.ts']);
 const hash=(data:string|Buffer)=>createHash('sha256').update(data).digest('hex');
 const manifest:{path:string;length:number;sha256:string}[]=[];
 function save(name:string,contents:string) {
@@ -63,7 +66,10 @@ for(let i=0;i<suite.cases.length;i++){
   assert.ok(Array.isArray(item.expectedCodes));
   const folder=join(out,'case-'+String(i).padStart(3,'0'));mkdirSync(folder);
   save('case-'+String(i).padStart(3,'0')+'/input.ts',item.source);
-  save('case-'+String(i).padStart(3,'0')+'/minimal.d.ts',minimal);
+  const caseProfile=item.minimalProfile??minimalProfile;
+  assert.ok(allowedProfiles.has(caseProfile),'unknown registered minimal declaration profile');
+  const caseMinimal=caseProfile===minimalProfile?minimal:readFileSync(caseProfile,'utf8');
+  save('case-'+String(i).padStart(3,'0')+'/minimal.d.ts',caseMinimal);
   const args=['--noEmit','--noLib','--target','es2015','--pretty','false','input.ts','minimal.d.ts'];
   const expected=run(reference,args,folder);
   const actual=run(process.env.DOTNET??'dotnet',[product,...args],folder);
@@ -74,7 +80,9 @@ for(let i=0;i<suite.cases.length;i++){
   const match=expected.exit===exit && actual.exit===exit &&
     JSON.stringify(codes)===JSON.stringify(refCodes) &&
     JSON.stringify(codes)===JSON.stringify(actualCodes);
-  const row={id:item.id,inputSha256:hash(item.source),expectedCodes:codes,referenceCodes:refCodes,
+  const row={id:item.id,inputSha256:hash(item.source),
+    minimalProfile:caseProfile,minimalProfileSha256:hash(caseMinimal),
+    expectedCodes:codes,referenceCodes:refCodes,
     productCodes:actualCodes,referenceExit:expected.exit,productExit:actual.exit,
     status:match?'MATCH_EXIT_AND_CODES':'MISMATCH',originalAcceptanceCredit:false};
   results.push(row);
@@ -85,6 +93,7 @@ save('summary.json',JSON.stringify({sourceSha,upstreamCommit:pin.commit,referenc
   referenceSha256:hash(readFileSync(reference)),productCliSha256:hash(readFileSync(product)),
   suiteSha256:hash(readFileSync(suitePath)),scriptSha256:hash(readFileSync(import.meta.filename)),
   minimalProfile,minimalProfileSha256:hash(minimal),
+  registeredProfiles:[...new Set(results.map(row=>(row as {minimalProfile:string}).minimalProfile))].sort(),
   matches:results.length-mismatches.length,mismatches:mismatches.length,originalAcceptanceCredit:0,
   fullOriginalScope:'UNEXPANDED',comparison:'bounded code arrays and exits, not original harness',
   referenceExecutable:basename(reference)},null,2));

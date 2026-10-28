@@ -203,7 +203,8 @@
       "source": "function f():number { let s:string=\"ab\"; return s[0]++; }",
       "expectedCodes": [
         "TS2542"
-      ]
+      ],
+      "minimalProfile": "fixtures/string-primitives/minimal.d.ts"
     }
   ]
 }
