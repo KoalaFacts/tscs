@@ -39,6 +39,13 @@
     {
       "id": "discriminant-flow:positive-08",
       "source": "type Result = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function sum(xs: Result[]): number { let total: number = 0; for (const r of xs) { if (r.kind === \"ok\") { total = total + r.value; } } return total; } let data: Result[] = [{ kind: \"ok\", value: 21 }, { kind: \"error\", message: \"bad\" }]; let output: number = sum(data);",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "discriminant-flow:positive-09",
+      "source": "type Result = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; let first: Result = { kind: \"ok\", value: 21 }; let second: Result = { kind: \"error\", message: \"bad\" }; let data: Result[] = [first, second]; function sum(xs: Result[]): number { let total: number = 0; for (const r of xs) { if (r.kind === \"ok\") { total = total + r.value; } } return total; } let output: number = sum(data);",
       "expectedCodes": []
     },
     {

@@ -41,3 +41,25 @@ Go reference, CodeQL and independent review are required before normal merge.
 No upstream original acceptance IDs are changed: 15,523 configuration
 SKIP_UNIMPLEMENTED targets, 0 original accepted, full dynamic denominator
 UNEXPANDED. Do not conflate internal xUnit/Node cases with original acceptance.
+
+## Actual pinned-Go correction (2026-10-28)
+
+The initial exact-head reference run `40622934807` (artifact `12788302317`)
+found **11/12** matching bounded cases. Stable source ID
+`discriminant-flow:positive-08`, SHA-256
+`2dde477f24602cc14128575710156a07186fa8840269154bd2a058ecd99a6384`,
+produced Go TS2322 while the product incorrectly returned success:
+under this frozen `--noLib --target es2015` profile a directly inferred
+heterogeneous array widens its object-tag properties to `string`, preventing
+assignment to `Result[]`. The source and ID were **not** removed or changed;
+its expected **negative** execution now follows the actual raw oracle, and the
+product checks the general array-element-type relation instead of allowing
+contextual refinement through a union of distinct object shapes. Existing
+homogeneous contextual object-array checks remain independent.
+
+A new separate stable ID `discriminant-flow:positive-09` tests the supported
+array path with individually annotated union values, including a narrowed
+`for..of` body, for **13 total** registered bounded sources (scope delta +1).
+The first run remains recorded as MISMATCH, never retroactively rewritten to
+PASS. This correction requires new-head focused validation and a fresh fixed-Go
+run. Original TS7 acceptance and all SKIP identities remain unchanged.

@@ -1,0 +1,37 @@
+{
+  "kind": "PINNED_GO_DISCRIMINANT_FLOW_MISMATCH_AND_GENERAL_CORRECTION",
+  "initialProductHead": "b93dbfab1c856c227f0f94aae4c7407478e1f490",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "runId": 40622934807,
+  "artifactId": 12788302317,
+  "initialComparison": {
+    "match": 11,
+    "mismatch": 1,
+    "case": "discriminant-flow:positive-08",
+    "inputSha256": "2dde477f24602cc14128575710156a07186fa8840269154bd2a058ecd99a6384",
+    "pinnedGo": {
+      "exit": 2,
+      "codes": [
+        "TS2322"
+      ],
+      "message": "Type '({ kind: string; value: number; } | { kind: string; message: string; })[]' is not assignable to type 'Result[]'."
+    },
+    "product": {
+      "exit": 0,
+      "codes": []
+    }
+  },
+  "correction": "General raw heterogeneous object array inference for union-of-object element targets, not filename or ID special case.",
+  "unchangedIds": [
+    "discriminant-flow:positive-08"
+  ],
+  "scopeDelta": {
+    "newIds": [
+      "discriminant-flow:positive-09"
+    ],
+    "registeredCases": 13
+  },
+  "newHeadReference": "NOT_RUN",
+  "originalAcceptanceCredit": 0,
+  "releaseEligible": false
+}

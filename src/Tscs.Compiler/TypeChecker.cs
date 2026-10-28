@@ -573,6 +573,15 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         if(expression is ValueArray elements && actual is ArrayTypeSymbol sourceArray &&
            expected is ArrayTypeSymbol targetArray)
         {
+            // The fixed TS7 Go compiler also widens the primitive-tagged
+            // members of freshly inferred heterogeneous object arrays.
+            // A union of distinct object shapes is not an individual element's
+            // contextual shape. For that case use ordinary source-array
+            // assignability, not per-element fresh-literal narrowing. An
+            // array of already-typed union values remains assignable.
+            if(targetArray.ElementType is UnionTypeSymbol objectUnion &&
+               objectUnion.Alternatives.All(part=>part is ObjectTypeSymbol))
+                return CompilerTypes.IsAssignable(actual,expected);
             // The fixed TS7 Go compiler under the pinned --noLib/minimal
             // profile widens directly inferred primitive array elements:
             // ["ready","done"] has string[], not ("ready"|"done")[].
@@ -621,6 +630,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         if(value is ValueArray literalArray && expected is ArrayTypeSymbol targetArray &&
            actual is ArrayTypeSymbol sourceArray)
         {
+            // Do not apply contextual literal refinement when the expected
+            // element is a union of distinct object alternatives. The pinned
+            // Go source profile widens raw array member discriminants before
+            // the outer structural assignment. Defer this one relation to
+            // IsAssignableContextually so it reports one true TS2322.
+            if(targetArray.ElementType is UnionTypeSymbol objectUnion &&
+               objectUnion.Alternatives.All(part=>part is ObjectTypeSymbol))
+                return true;
             bool arrayValid=true;
             foreach(var element in literalArray.Elements)
             {

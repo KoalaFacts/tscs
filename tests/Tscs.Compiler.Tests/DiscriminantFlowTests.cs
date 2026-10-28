@@ -14,11 +14,12 @@ public sealed class DiscriminantFlowTests
     [InlineData("type Pair = { code: 1; first: number } | { code: 2; second: number }; function pick(p: Pair): number { if (p.code === 1) { return p.first; } else { return p.second; } }")]
     [InlineData("type Flag = { ok: true; value: number } | { ok: false; reason: string }; function read(f: Flag): number { if (f.ok === true) { return f.value; } else { return 0; } }")]
     [InlineData("type Result = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function read(r: Result): number { if (r.kind === \"ok\") { if (r.value > 0) { return r.value; } else { return 0; } } else { return 0; } }")]
-    [InlineData("type Result = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function sum(xs: Result[]): number { let total: number = 0; for (const r of xs) { if (r.kind === \"ok\") { total = total + r.value; } } return total; } let data: Result[] = [{ kind: \"ok\", value: 21 }, { kind: \"error\", message: \"bad\" }]; let output: number = sum(data);")]
+    [InlineData("type Result = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; let first: Result = { kind: \"ok\", value: 21 }; let second: Result = { kind: \"error\", message: \"bad\" }; let data: Result[] = [first, second]; function sum(xs: Result[]): number { let total: number = 0; for (const r of xs) { if (r.kind === \"ok\") { total = total + r.value; } } return total; } let output: number = sum(data);")]
     public void NarrowedBranchesCompileWithoutInventingAny(string source) =>
         Assert.Empty(Compilation.Check("discriminant.ts",source));
 
     [Theory]
+    [InlineData("type Result = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function sum(xs: Result[]): number { let total: number = 0; for (const r of xs) { if (r.kind === \"ok\") { total = total + r.value; } } return total; } let data: Result[] = [{ kind: \"ok\", value: 21 }, { kind: \"error\", message: \"bad\" }]; let output: number = sum(data);", "TS2322")]
     [InlineData("type Result = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function wrong(r: Result): number { if (r.kind === \"ok\") { return r.message; } else { return 0; } }", "TS2339")]
     [InlineData("type Result = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function wrong(r: Result): number { if (r.kind !== \"ok\") { return r.value; } else { return 0; } }", "TS2339")]
     [InlineData("type Result = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function wrong(r: Result): number { if (r.kind === \"ok\") { let n: number = r.value; } return r.value; }", "TS2339")]

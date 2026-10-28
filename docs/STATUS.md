@@ -2,6 +2,11 @@
 
 ## Discriminated union branch narrowing — integration candidate (NOT_RUN)
 
+The initial fixed-Go run revealed a separate heterogeneous raw-object-array
+widening mismatch (11/12); original mismatch evidence is preserved. The new
+candidate follows pinned array inference and retains the unchanged failing
+source as a TS2322 negative; a positive annotated-value array/for..of input
+has been added (13 total bounded profiles). New-head CI/reference is NOT_RUN.
 The shared type checker now branches the existing named object-union type when a
 strict equality/inequality condition checks a known literal discriminant on a
 simple identifier. This supports safe per-arm member reads in if/else and
