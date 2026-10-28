@@ -1,5 +1,18 @@
 # tscs status
 
+## 2026-10-28 — Conditional value expressions (single integration candidate; NOT_RUN)
+
+The existing scanner/parser/AST/checker/emitter now carry right-associative
+`condition ? whenTrue : whenFalse` below `||`, with required boolean/any
+condition, established primitive/structural union joins and branch-local
+discriminant/typeof narrowing restored after each expression. Contextual
+literal checks inspect both arms, and ES2015 output preserves lazy evaluation.
+The 23-source fixed-Go differential and four-module Node execution are wired
+into the strict gates but **NOT_RUN at source creation**. Unsupported numeric
+truthiness, expression assignment and full CFG are not claimed.
+Original TS7 PASS 0, SKIP_UNIMPLEMENTED 15,523, scope UNEXPANDED.
+See [conditional values](progress/conditional-values.md).
+
 ## 2026-10-28 — Primitive typeof narrowing (source candidate; NOT_RUN)
 
 The scanner, unary AST/parser, semantic checker, existing discriminant/guard

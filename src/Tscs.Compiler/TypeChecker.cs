@@ -4,6 +4,7 @@ namespace Tscs;
 internal sealed class TypeChecker(string file,bool strictModule=false)
 {
     private readonly List<Diagnostic> diagnostics=[];
+    private readonly Dictionary<ValueConditional,(TypeSymbol? True,TypeSymbol? False)> conditionalResults = new(ReferenceEqualityComparer.Instance);
     public IReadOnlyList<Diagnostic> Check(Block block) { CheckBlock(block,null);return diagnostics; }
     public IReadOnlyList<Diagnostic> CheckBound(Block block,Scope global)
     {
@@ -813,6 +814,42 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 types.Push(TypeOfAtom(atom.Token,scope));
                 continue;
             }
+            if(node is ValueConditional chosen)
+            {
+                var conditionType=TypeOf(chosen.Condition,scope);
+                if(conditionType!=null && !CompilerTypes.IsAssignable(conditionType,CompilerTypes.Boolean))
+                    throw new CompilationFailure(Diagnostic.Error(file,chosen.Question,"TSCS1001",
+                        "Conditional values currently require boolean or any conditions."));
+                // Reuse statement-branch discriminant and typeof narrowing.
+                // Both arms are independently checked; temporary read views
+                // are restored even if an arm reports an error.
+                var partition=TryNarrowDiscriminant(chosen.Condition,scope);
+                var original=partition?.Symbol.Type;
+                TypeSymbol? whenTrue,whenFalse;
+                try
+                {
+                    if(partition is { } narrowed) narrowed.Symbol.Type=narrowed.WhenTrue;
+                    whenTrue=TypeOf(chosen.WhenTrue,scope);
+                    if(partition is { } narrowedFalse) narrowedFalse.Symbol.Type=narrowedFalse.WhenFalse;
+                    whenFalse=TypeOf(chosen.WhenFalse,scope);
+                }
+                finally
+                {
+                    if(partition is { } narrowed) narrowed.Symbol.Type=original;
+                }
+                conditionalResults[chosen]=(whenTrue,whenFalse);
+                if(conditionType==null || whenTrue==null || whenFalse==null)
+                    types.Push(null);
+                else
+                {
+                    try {types.Push(CompilerTypes.Union([whenTrue,whenFalse]));}
+                    catch(InvalidOperationException failure)
+                    {
+                        throw new CompilationFailure(Diagnostic.Error(file,chosen.Question,"TSCS1001",failure.Message));
+                    }
+                }
+                continue;
+            }
             if(node is ValueArray arrayLiteral)
             {
                 if(!combine)
@@ -1043,13 +1080,18 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     // Literal values are widened during general expression inference, but a
     // syntactic literal can inhabit an explicitly required literal type. Never
     // narrow an already-stored string/number/boolean variable by guessing.
-    private static bool IsAssignableContextually(ValueNode expression,TypeSymbol actual,TypeSymbol expected,int depth=0)
+    private bool IsAssignableContextually(ValueNode expression,TypeSymbol actual,TypeSymbol expected,int depth=0)
     {
         if(depth>64)return false;
         // A stored union remains assignable to itself; only fresh source
         // literals need contextual refinement beyond ordinary type relations.
         if(CompilerTypes.IsAssignable(actual,expected))return true;
         while(expression is ValueParenthesized group)expression=group.Expression;
+        // The two arms may inhabit different alternatives of an expected union.
+        if(expression is ValueConditional chosen && conditionalResults.TryGetValue(chosen,out var branches))
+            return branches.True is { } t && branches.False is { } f &&
+                IsAssignableContextually(chosen.WhenTrue,t,expected,depth+1) &&
+                IsAssignableContextually(chosen.WhenFalse,f,expected,depth+1);
         if(expected is UnionTypeSymbol union)
             return union.Alternatives.Any(part=>IsAssignableContextually(expression,actual,part,depth+1));
         if(expected is LiteralTypeSymbol literal)
@@ -1114,6 +1156,15 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     private bool CheckContextualLiteral(ValueNode value,TypeSymbol expected,TypeSymbol actual)
     {
         while(value is ValueParenthesized group)value=group.Expression;
+        if(value is ValueConditional chosen && conditionalResults.TryGetValue(chosen,out var branches))
+        {
+            // Freshness is a property of the source arms, not the joined
+            // structural union. Keep per-property excess diagnostics.
+            bool valid=true;
+            if(branches.True is { } t && !CheckContextualLiteral(chosen.WhenTrue,expected,t))valid=false;
+            if(branches.False is { } f && !CheckContextualLiteral(chosen.WhenFalse,expected,f))valid=false;
+            return valid;
+        }
         if(value is ValueObject fresh && expected is UnionTypeSymbol alternatives &&
            actual is ObjectTypeSymbol)
         {

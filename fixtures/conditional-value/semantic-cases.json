@@ -1,0 +1,136 @@
+{
+  "kind": "BOUNDED_CONDITIONAL_VALUES_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "conditional-value:positive-01",
+      "source": "let n: number = true ? 42 : 0;",
+      "expectedCodes": []
+    },
+    {
+      "id": "conditional-value:positive-02",
+      "source": "function choose(flag: boolean): number { return flag ? 21 : 0; } let n: number = choose(true);",
+      "expectedCodes": []
+    },
+    {
+      "id": "conditional-value:positive-03",
+      "source": "function choose(a: boolean,b: boolean): number { return a ? 1 : b ? 2 : 3; } let n: number = choose(false,true);",
+      "expectedCodes": []
+    },
+    {
+      "id": "conditional-value:positive-04",
+      "source": "function calculate(flag: boolean): number { return (flag ? 21 : 0) * 2; } let n: number = calculate(true);",
+      "expectedCodes": []
+    },
+    {
+      "id": "conditional-value:positive-05",
+      "source": "let o: { value: number } = true ? { value: 21 } : { value: 42 }; let n: number = o.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "conditional-value:positive-06",
+      "source": "let list: number[] = false ? [1,2] : [21,42]; let n: number = list[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "conditional-value:positive-07",
+      "source": "const result = true ? 21 : \"bad\"; let value: number | string = result;",
+      "expectedCodes": []
+    },
+    {
+      "id": "conditional-value:positive-08",
+      "source": "let n: number = true || false ? 42 : 0;",
+      "expectedCodes": []
+    },
+    {
+      "id": "conditional-value:positive-09",
+      "source": "let n: number = true ? (false ? 1 : 42) : 0;",
+      "expectedCodes": []
+    },
+    {
+      "id": "conditional-value:positive-10",
+      "source": "type Result = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function read(r: Result): number { return r.kind === \"ok\" ? r.value : 0; } let n: number = read({ kind: \"ok\", value: 42 });",
+      "expectedCodes": []
+    },
+    {
+      "id": "conditional-value:positive-11",
+      "source": "type Input = number | string; function score(v: Input): number { return typeof v === \"number\" ? v * 2 : 0; } let n: number = score(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "conditional-value:positive-12",
+      "source": "type Label = \"ready\" | \"done\"; function label(flag: boolean): Label { return flag ? \"ready\" : \"done\"; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "conditional-value:positive-13",
+      "source": "let n: number = 21 > 0 ? 42 : 0;",
+      "expectedCodes": []
+    },
+    {
+      "id": "conditional-value:positive-14",
+      "source": "const v = false ? { count: 1 } : { count: 42 }; let n: number = v.count;",
+      "expectedCodes": []
+    },
+    {
+      "id": "conditional-value:positive-15",
+      "source": "let flag: boolean = false ? true : false;",
+      "expectedCodes": []
+    },
+    {
+      "id": "conditional-value:negative-01",
+      "source": "let n: number = true ? \"bad\" : 0;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "conditional-value:negative-02",
+      "source": "function wrong(flag: boolean): number { return flag ? 0 : \"bad\"; }",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "conditional-value:negative-03",
+      "source": "let n: number = true ? false : 42;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "conditional-value:negative-04",
+      "source": "let value: string = false ? \"ok\" : 42;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "conditional-value:negative-05",
+      "source": "let n: number = true ? { value: 1 } : 42;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "conditional-value:negative-06",
+      "source": "type Packet = { kind: \"ok\"; value: number } | { kind: \"bad\"; message: string }; function wrong(p: Packet): number { return p.kind === \"ok\" ? p.message : 0; }",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "conditional-value:negative-07",
+      "source": "let shape: { value: number } = true ? { value: 21, extra: 1 } : { value: 42 };",
+      "expectedCodes": [
+        "TS2353"
+      ]
+    },
+    {
+      "id": "conditional-value:negative-08",
+      "source": "let n: number = true ? missingIdentifier : 0;",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    }
+  ]
+}
