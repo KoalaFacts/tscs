@@ -67,7 +67,10 @@ try {
       [compiler,'--emitJs','--noLib','--target','es2015',path,join(folder,'minimal.d.ts')],
       {cwd:folder,encoding:'utf8',timeout:30000,env});
     assert.equal(rejected.error,undefined,String(rejected.error));
-    assert.equal(rejected.status,2,rejected.stdout+rejected.stderr);
+    // TSCS1001 reports an unsupported subset operation (CLI exit 1);
+    // TS diagnostics report semantic mismatches (exit 2). Both must fail
+    // without emitting output and carry their exact non-swallowed code.
+    assert.equal(rejected.status,expected.startsWith('TSCS')?1:2,rejected.stdout+rejected.stderr);
     assert.match(rejected.stdout+rejected.stderr,new RegExp(expected));
     assert.equal(existsSync(join(folder,name+'.js')),false,name+' unexpectedly emitted JavaScript');
   }
