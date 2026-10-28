@@ -181,6 +181,13 @@ internal sealed class Parser(string file, List<Token> tokens)
                 statements.Add(ParseSwitch(depth,inFunction));
                 continue;
             }
+            if(Current.Kind==TokenKind.Break)
+            {
+                var keyword=Take();
+                EndStatement();
+                statements.Add(new BreakStatement(keyword));
+                continue;
+            }
             if(Current.Kind==TokenKind.Return)
             {
                 var keyword=Take();
@@ -247,9 +254,9 @@ internal sealed class Parser(string file, List<Token> tokens)
         return new Block(statements);
     }
 
-    // Initial switch family: literal cases with braced, terminating arms.
-    // No implicit fallthrough or shared-case lexical declarations: these
-    // require CFG and switch-scope binding before being safe to support.
+    // Literal-labelled, braced clauses provide separate lexical scopes.
+    // Normal completion falls through to the next case; break exits the
+    // switch. Non-braced clauses and dynamic labels still fail closed.
     private SwitchStatement ParseSwitch(int depth,bool inFunction)
     {
         var keyword=Take();
@@ -435,7 +442,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     {
         if(Current.Kind is TokenKind.Identifier or TokenKind.Let or TokenKind.Const or
             TokenKind.Import or TokenKind.Export or TokenKind.Type or TokenKind.Interface or TokenKind.Function or TokenKind.Return or
-            TokenKind.If or TokenKind.Else or TokenKind.For or TokenKind.True or TokenKind.False ||
+            TokenKind.If or TokenKind.Else or TokenKind.For or TokenKind.Break or TokenKind.True or TokenKind.False ||
             (allowString && Current.Kind==TokenKind.String))return Take();
         Unsupported(Current,"Expected a supported named object property.");
         return default;

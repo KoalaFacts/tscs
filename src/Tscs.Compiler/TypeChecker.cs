@@ -10,7 +10,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         CheckBlock(block,global,true);
         return diagnostics;
     }
-    private void CheckBlock(Block block,Scope? parent,bool rootAlreadyBound=false,TypeSymbol? expectedReturn=null)
+    private void CheckBlock(Block block,Scope? parent,bool rootAlreadyBound=false,TypeSymbol? expectedReturn=null,bool allowBreak=false)
     {
         var scope=rootAlreadyBound?parent!:Binder.Bind(file,block,parent);
         // Branch facts are lexical and never escape this block, including
@@ -25,7 +25,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     case TypeAliasDeclaration or InterfaceDeclaration:
                         // Checked as a separate type namespace during binding.
                         break;
-                    case Block nested: CheckBlock(nested,scope,false,expectedReturn);break;
+                    case Block nested: CheckBlock(nested,scope,false,expectedReturn,allowBreak);break;
                     case FunctionDeclaration function:
                         CheckStrictModuleBinding(function.Name);
                         var functionSymbol=scope.Symbols[function.Name.Text];
@@ -48,7 +48,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             CheckStrictModuleBinding(specifier.Local);
                         break;
                     case ConditionalStatement conditional:
-                        var continuation=CheckConditional(conditional,scope,expectedReturn);
+                        var continuation=CheckConditional(conditional,scope,expectedReturn,allowBreak);
                         if(continuation is { } afterGuard)
                         {
                             // Preserve original lexical type across all sibling
@@ -59,6 +59,15 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         break;
                     case ForOfStatement loop:
                         CheckForOf(loop,scope,expectedReturn);
+                        break;
+                    case BreakStatement breaking:
+                        // This bounded grammar permits a break as the final
+                        // direct statement of a switch/loop arm or a nested
+                        // braced/conditional branch. Reject trailing statements
+                        // rather than modelling unreachable-code side effects.
+                        if(!allowBreak || !ReferenceEquals(statement,block.Statements[^1]))
+                            throw new CompilationFailure(Diagnostic.Error(file,breaking.Keyword,"TSCS1001",
+                                "Break is supported only as the final statement of a switch or for..of branch."));
                         break;
                     case SwitchStatement switching:
                         CheckSwitch(switching,scope,expectedReturn);
@@ -152,9 +161,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         }
     }
     
-    // Case-local types are a view over the existing binder symbol. Each
-    // braced arm must terminate; fallthrough/hoisted shared switch bindings
-    // are deliberately refused until the general control-flow graph exists.
+    // Case-local types view the existing symbol. A normally completing
+    // clause can fall into the next one, so its effective incoming union
+    // must be joined with the next case's direct-entry variants.
     private void CheckSwitch(SwitchStatement switching,Scope scope,TypeSymbol? expectedReturn)
     {
         var selectorType=TypeOf(switching.Selector,scope);
@@ -193,12 +202,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             }
         }
 
+        TypeSymbol? incomingFallthrough=null;
         foreach(var clause in switching.Clauses)
         {
             var before=CaptureInitialized(scope);
             var originalType=subject?.Type;
             try
             {
+                TypeSymbol? effectiveType=null;
                 if(subject!=null && variants!=null && memberName!=null)
                 {
                     var matching=new List<TypeSymbol>();
@@ -208,14 +219,20 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         if(clause.Label==null ? !selected.Contains(literal) : literal.Equals(labels[clause]))
                             matching.Add(candidate);
                     }
-                    if(matching.Count>0)subject.Type=CompilerTypes.Union(matching);
+                    if(incomingFallthrough is { } flowing)matching.Add(flowing);
+                    if(matching.Count>0)
+                    {
+                        effectiveType=CompilerTypes.Union(matching);
+                        subject.Type=effectiveType;
+                    }
                     // An unreachable clause retains the broad type, rather
                     // than inventing 'never' or silently accepting bad reads.
                 }
-                CheckBlock(clause.Body,scope,false,expectedReturn);
-                if(FunctionControlFlow.CanCompleteNormally(clause.Body))
-                    throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
-                        "Switch arms must return on every path; implicit fallthrough and break are not supported."));
+                CheckBlock(clause.Body,scope,false,expectedReturn,true);
+                // Only a normal exit enters the next clause. Return and break
+                // do not leak their branch-local symbol types into that path.
+                incomingFallthrough=FunctionControlFlow.CanCompleteNormally(clause.Body)
+                    ? effectiveType : null;
             }
             finally
             {
@@ -238,13 +255,13 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         var before=CaptureInitialized(scope);
         var iteration=new Scope(scope);
         Binder.DeclareIterationVariable(file,iteration,loop,array.ElementType);
-        try { CheckBlock(loop.Body,iteration,false,expectedReturn); }
+        try { CheckBlock(loop.Body,iteration,false,expectedReturn,true); }
         finally { RestoreInitialized(before); }
     }
 
     // Each branch runs against the same lexical parent, but writes to symbols
     // are joined conservatively; an unexecuted arm cannot initialize a value.
-    private DiscriminantContinuation? CheckConditional(ConditionalStatement conditional,Scope scope,TypeSymbol? expectedReturn)
+    private DiscriminantContinuation? CheckConditional(ConditionalStatement conditional,Scope scope,TypeSymbol? expectedReturn,bool allowBreak)
     {
         var conditionType=TypeOf(conditional.Condition,scope);
         if(conditionType!=null && !CompilerTypes.IsAssignable(conditionType,CompilerTypes.Boolean))
@@ -265,17 +282,17 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         try
         {
             if(discriminant is { } narrowing) narrowing.Symbol.Type=narrowing.WhenTrue;
-            CheckBlock(conditional.Consequent,scope,false,expectedReturn);
+            CheckBlock(conditional.Consequent,scope,false,expectedReturn,allowBreak);
             whenTrue=CaptureInitialized(scope);
             RestoreInitialized(before);
             if(discriminant is { } narrowingFalse) narrowingFalse.Symbol.Type=narrowingFalse.WhenFalse;
             switch(conditional.Alternate)
             {
                 case Block alternate:
-                    CheckBlock(alternate,scope,false,expectedReturn);
+                    CheckBlock(alternate,scope,false,expectedReturn,allowBreak);
                     break;
                 case ConditionalStatement chained:
-                    CheckConditional(chained,scope,expectedReturn);
+                    CheckConditional(chained,scope,expectedReturn,allowBreak);
                     break;
             }
             whenFalse=CaptureInitialized(scope);

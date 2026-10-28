@@ -43,6 +43,15 @@ jobs:
           node tools/verify-discriminant-reference.ts "$reference" .artifacts/discriminant-reference
           node tools/verify-guard-reference.ts "$reference" .artifacts/guard-reference
           node tools/verify-switch-reference.ts "$reference" .artifacts/switch-reference
+          node tools/verify-switch-reference.ts "$reference" .artifacts/switch-completion-reference fixtures/switch-completion/semantic-cases.json
+      - name: Preserve switch completion reference inputs and raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-switch-completion-reference-${{ github.sha }}
+          path: .artifacts/switch-completion-reference/
+          retention-days: 30
+          if-no-files-found: warn
       - name: Preserve switch-return reference inputs and raw results
         if: always()
         uses: actions/upload-artifact@v4

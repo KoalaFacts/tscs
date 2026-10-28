@@ -1,27 +1,60 @@
 namespace Tscs;
 
-// The only supported terminating statement is a value return. A successor
-// is reachable if any path through the supported blocks can fall through.
+// A bounded structured-flow transfer shared by function-return validation,
+// switch fallthrough and guard continuation. Break is consumed by the nearest
+// switch/for..of; it must never be mistaken for a function return.
+[Flags]
+internal enum FlowExit { None=0, Next=1, Return=2, Break=4 }
+
 internal static class FunctionControlFlow
 {
-    public static bool DefinitelyReturnsValue(Block body) => !CanCompleteNormally(body);
+    public static bool DefinitelyReturnsValue(Block body) => Analyze(body)==FlowExit.Return;
+    public static bool CanCompleteNormally(Block body) => (Analyze(body)&FlowExit.Next)!=0;
+    public static bool CanCompleteNormally(Statement statement) => (Analyze(statement)&FlowExit.Next)!=0;
 
-    public static bool CanCompleteNormally(Block body)
+    private static FlowExit Analyze(Block block)
     {
-        foreach(var statement in body.Statements)
-            if(!CanCompleteNormally(statement))return false;
-        return true;
+        var paths=FlowExit.Next;
+        foreach(var statement in block.Statements)
+        {
+            if((paths&FlowExit.Next)==0)break;
+            paths=(paths&~FlowExit.Next)|Analyze(statement);
+        }
+        return paths;
     }
 
-    public static bool CanCompleteNormally(Statement statement) => statement switch
+    private static FlowExit Analyze(Statement statement) => statement switch
     {
-        ReturnStatement => false,
-        Block nested => CanCompleteNormally(nested),
-        ConditionalStatement { Alternate: { } alternate } branch =>
-            CanCompleteNormally(branch.Consequent) || CanCompleteNormally(alternate),
-        SwitchStatement switching =>
-            !switching.Clauses.Any(clause=>clause.Label==null) ||
-            switching.Clauses.Any(clause=>CanCompleteNormally(clause.Body)),
-        _ => true
+        ReturnStatement => FlowExit.Return,
+        BreakStatement => FlowExit.Break,
+        Block body => Analyze(body),
+        ConditionalStatement branch => Analyze(branch.Consequent) |
+            (branch.Alternate is { } alternate?Analyze(alternate):FlowExit.Next),
+        SwitchStatement switching => AnalyzeSwitch(switching),
+        // An array loop can iterate zero times. A return inside its body may
+        // exit the function, but any break is consumed by the loop itself.
+        ForOfStatement loop => FlowExit.Next | (Analyze(loop.Body)&FlowExit.Return),
+        _ => FlowExit.Next
     };
+
+    private static FlowExit AnalyzeSwitch(SwitchStatement switching)
+    {
+        // Any case label can be the entry point. A normally completed clause
+        // enters its immediate successor; break exits this switch as Next.
+        var downstream=FlowExit.Next;
+        var exits=FlowExit.None;
+        for(int index=switching.Clauses.Count-1;index>=0;index--)
+        {
+            var local=Analyze(switching.Clauses[index].Body);
+            var current=(local&FlowExit.Return) |
+                ((local&FlowExit.Break)!=0?FlowExit.Next:FlowExit.None) |
+                ((local&FlowExit.Next)!=0?downstream:FlowExit.None);
+            downstream=current;
+            exits|=current;
+        }
+        // With no default, an unmatched selector can bypass every clause.
+        if(!switching.Clauses.Any(clause=>clause.Label==null))
+            exits|=FlowExit.Next;
+        return exits;
+    }
 }

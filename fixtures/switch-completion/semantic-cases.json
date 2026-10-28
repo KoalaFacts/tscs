@@ -1,0 +1,73 @@
+{
+  "kind": "BOUNDED_SWITCH_COMPLETION_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "switch-completion:positive-01",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e:E):number { let n:number=0; switch(e.kind) { case \"ok\": { n=e.value; break; } case \"error\": { n=0; break; } default: { break; } } return n; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-completion:positive-02",
+      "source": "function f(n:number):number { let result:number=0; switch(n){ case 1: { result=20; } case 2: { result=result+1; break; } default: { break; } } return result; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-completion:positive-03",
+      "source": "function f(n:number):number { let result:number=0; switch(n){ default: {result=7;break;} case 1: {result=21;break;} } return result; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-completion:positive-04",
+      "source": "function f(n:number):number { let n2:number=0; for(const x of [21,22]) { n2=n2+x; break; } return n2; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-completion:positive-05",
+      "source": "function f(n:number):number { let n2:number=0; for(const x of [21,22]) { if(x>20) { break; } n2=n2+x; } return n2; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-completion:positive-06",
+      "source": "function f(n:number):number { switch(n) { case 1: { if(n>0) {break;} return 0; } default: {return 0;} } return 42; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-completion:positive-07",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e:E):number { switch(e.kind) { case \"ok\": {return e.value;} case \"error\": {return 0;} default: {return 0;} } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-completion:positive-08",
+      "source": "function f(n:number):number { switch(n) {case 1: {break;} default: {return 0;} } return 42; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-completion:negative-01",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e:E):number { switch(e.kind) {case \"ok\": {} case \"error\": {return e.value;} default: {return 0;} } }",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "switch-completion:negative-02",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e:E):number { switch(e.kind) {case \"ok\": {return e.value;} case \"error\": {return e.value;} default: {return 0;} } }",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "switch-completion:negative-03",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e:E):number { let n:number=0; switch(e.kind) {case \"ok\": {n=\"bad\";break;} default: {break;} } return n; }",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "switch-completion:negative-04",
+      "source": "type E = { kind: \"ok\"; value: number } | { kind: \"error\"; message: string }; function f(e:E):number { switch(e.kind) {case \"other\": {return 0;} default: {return 0;} } }",
+      "expectedCodes": [
+        "TS2678"
+      ]
+    }
+  ]
+}

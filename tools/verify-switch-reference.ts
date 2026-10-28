@@ -5,16 +5,20 @@ import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {join,resolve,basename} from 'node:path';
 
 // Independent bounded oracle, NOT full original TS7 harness acceptance.
-const [referenceArg,outputArg]=process.argv.slice(2);
+const [referenceArg,outputArg,optionalSuitePath]=process.argv.slice(2);
 assert.ok(referenceArg&&outputArg,'usage: node tools/verify-switch-reference.ts <pinned-go-tsc> <new-evidence-directory>');
 const reference=resolve(referenceArg),out=resolve(outputArg),root=process.cwd();
 assert.ok(!existsSync(out),'refusing to overwrite source-bound evidence');
 mkdirSync(out,{recursive:true});
 const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
-const suitePath='fixtures/switch-flow/semantic-cases.json';
+const suitePath=optionalSuitePath??'fixtures/switch-flow/semantic-cases.json';
+const completion=optionalSuitePath==='fixtures/switch-completion/semantic-cases.json';
+assert.ok(optionalSuitePath==null||completion,'unknown frozen switch reference cohort');
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
-assert.equal(suite.kind,'BOUNDED_DISCRIMINANT_SWITCH_RETURN_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,14,'do not shrink the registered cohort');
+assert.equal(suite.kind,completion
+  ?'BOUNDED_SWITCH_COMPLETION_NOT_ORIGINAL_TS7_ACCEPTANCE'
+  :'BOUNDED_DISCRIMINANT_SWITCH_RETURN_NOT_ORIGINAL_TS7_ACCEPTANCE');
+assert.equal(suite.cases.length,completion?12:14,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const minimal=readFileSync('fixtures/minimal.d.ts','utf8');
 const hash=(data:string|Buffer)=>createHash('sha256').update(data).digest('hex');
@@ -44,7 +48,7 @@ const diagnosticCodes=(r:ReturnType<typeof run>)=>
 const ids=new Set<string>(),results:object[]=[],mismatches:object[]=[];
 for(let i=0;i<suite.cases.length;i++){
   const item=suite.cases[i];
-  assert.match(item.id,/^switch-flow:(positive|negative)-\d+$/);
+  assert.match(item.id,completion?/^switch-completion:(positive|negative)-\d+$/:/^switch-flow:(positive|negative)-\d+$/);
   assert.ok(!ids.has(item.id),'duplicate stable case ID');ids.add(item.id);
   assert.equal(typeof item.source,'string');
   assert.ok(Array.isArray(item.expectedCodes));
