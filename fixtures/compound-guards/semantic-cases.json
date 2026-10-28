@@ -1,0 +1,107 @@
+{
+  "kind": "BOUNDED_COMPOUND_GUARDS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "compound-guards:positive-01",
+      "source": "type Packet = { kind: \"ok\"; value: number } | { kind: \"bad\"; message: string }; function read(p: Packet): number { if (p.kind === \"ok\" && p.value > 0) { return p.value * 2; } return 0; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "compound-guards:positive-02",
+      "source": "function read(v: number | string): number { if (typeof v === \"number\" && v > 0) { return v * 2; } return 0; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "compound-guards:positive-03",
+      "source": "function read(v: number | string): number { if (!(typeof v !== \"number\")) { return v * 2; } return 0; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "compound-guards:positive-04",
+      "source": "function read(v: number | string | boolean): boolean { if (typeof v === \"number\" || typeof v === \"string\") { return true; } return v; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "compound-guards:positive-05",
+      "source": "function read(v: number | string | boolean): boolean { if (typeof v !== \"number\" && typeof v !== \"string\") { return v; } return false; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "compound-guards:positive-06",
+      "source": "type Packet = { kind: \"ok\"; value: number } | { kind: \"bad\"; message: string }; function read(p: Packet): string { if (!(p.kind !== \"ok\")) { return \"ready\"; } return p.message; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "compound-guards:positive-07",
+      "source": "type Packet = { kind: \"ok\"; value: number } | { kind: \"bad\"; message: string }; function read(p: Packet): number { if (p.kind === \"bad\" || p.value > 0) { return 1; } return 0; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "compound-guards:positive-08",
+      "source": "type Packet = { kind: \"ok\"; value: number } | { kind: \"bad\"; message: string }; function read(p: Packet): number { if (p.kind === \"ok\" || p.message === \"bad\") { return 1; } return 0; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "compound-guards:positive-09",
+      "source": "function read(v: number | string): number { return typeof v === \"number\" && v > 0 ? v * 2 : 0; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "compound-guards:positive-10",
+      "source": "type Packet = { kind: \"ok\"; value: number } | { kind: \"bad\"; message: string }; function read(p: Packet): number { return p.kind === \"ok\" && p.value > 0 ? p.value : 0; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "compound-guards:positive-11",
+      "source": "type Packet = { kind: \"ok\"; value: number } | { kind: \"bad\"; message: string }; function read(p: Packet): number { if (((p.kind === \"ok\") && (p.value > 0))) { return p.value; } return 0; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "compound-guards:positive-12",
+      "source": "type Packet = { kind: \"ok\"; value: number } | { kind: \"bad\"; message: string }; function read(p: Packet): number { if (p.kind !== \"ok\" || p.value <= 0) { return 0; } return p.value; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "compound-guards:negative-01",
+      "source": "type Packet = { kind: \"ok\"; value: number } | { kind: \"bad\"; message: string }; function wrong(p: Packet): number { if (p.kind === \"ok\" && p.message === \"bad\") { return 1; } return 0; }",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "compound-guards:negative-02",
+      "source": "type Packet = { kind: \"ok\"; value: number } | { kind: \"bad\"; message: string }; function wrong(p: Packet): number { if (p.kind === \"bad\" || p.message === \"bad\") { return 1; } return 0; }",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "compound-guards:negative-03",
+      "source": "type Packet = { kind: \"ok\"; value: number } | { kind: \"bad\"; message: string }; function wrong(p: Packet): number { if (!(p.kind === \"ok\")) { return p.value; } return 0; }",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "compound-guards:negative-04",
+      "source": "type Packet = { kind: \"ok\"; value: number } | { kind: \"bad\"; message: string }; function wrong(p: Packet): number { if (p.kind === \"ok\" || p.message === \"bad\") { return p.value; } return 0; }",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "compound-guards:negative-05",
+      "source": "type Packet = { kind: \"ok\"; value: number } | { kind: \"bad\"; message: string }; function wrong(p: Packet): string { if (p.kind !== \"ok\" || p.value > 0) { return p.message; } return \"safe\"; }",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "compound-guards:negative-06",
+      "source": "function wrong(v: number | string): number { if (!(typeof v === \"number\")) { return v; } return 0; }",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}

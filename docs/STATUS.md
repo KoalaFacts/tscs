@@ -1,5 +1,16 @@
 # tscs status
 
+## 2026-10-28 — Compound Boolean guard flow (source candidate; NOT_RUN)
+
+The checker now evaluates short-circuit RHS expressions under their true/false
+LHS type views, combines same-variable compound `typeof` facts, recognizes
+negation and carries guarded types into `if` and `?:`. It reuses the emitted
+ES2015 short-circuit syntax. Dedicated 18-case fixed-Go and four-module runtime
+evidence are wired into existing gates, **NOT_RUN at source creation**.
+Original TS7 PASS remains 0; 15,523 configuration targets stay SKIP_UNIMPLEMENTED.
+See [bounded work package](progress/compound-guards.md).
+
+
 ## 2026-10-28 — Conditional value expressions (single integration candidate; NOT_RUN)
 
 The existing scanner/parser/AST/checker/emitter now carry right-associative
