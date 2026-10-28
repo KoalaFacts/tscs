@@ -6,6 +6,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     private int position;
     private int callNesting;
     private int conditionalNesting;
+    private int conditionalValueNesting;
     private int groupNesting;
     private int objectNesting;
     private int arrayNesting;
@@ -604,7 +605,24 @@ internal sealed class Parser(string file, List<Token> tokens)
     // Single precedence ladder shared by variable, call, return, assignment
     // and conditional expression sites. The bounded type checker must reject
     // unsupported operand families rather than pretending JS coercion works.
-    private ValueNode ParseValue()=>ParseLogicalOr();
+    private ValueNode ParseValue()=>ParseConditionalValue();
+    // Lower precedence than ||; the false arm is right-associative.
+    private ValueNode ParseConditionalValue()
+    {
+        var condition=ParseLogicalOr();
+        if(Current.Kind!=TokenKind.Question)return condition;
+        var question=Take();
+        if(++conditionalValueNesting>64)Unsupported(question,"Conditional expression nesting exceeds the compiler subset limit.");
+        try
+        {
+            var whenTrue=ParseValue();
+            if(Current.Kind!=TokenKind.Colon)Unsupported(Current,"Expected ':' after conditional expression branch.");
+            var colon=Take();
+            var whenFalse=ParseConditionalValue();
+            return new ValueConditional(condition,question,whenTrue,colon,whenFalse);
+        }
+        finally { conditionalValueNesting--; }
+    }
     private ValueNode ParseLogicalOr()
     {
         ValueNode left=ParseLogicalAnd();

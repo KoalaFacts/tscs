@@ -285,6 +285,7 @@ internal static class JavaScriptEmitter
 
         private static int Precedence(ValueNode node) => node switch
         {
+            ValueConditional => 0,
             ValueBinary binary => binary.Operator.Kind switch
             {
                 TokenKind.BarBar => 1,
@@ -328,6 +329,17 @@ internal static class JavaScriptEmitter
                 {
                     case ValueAtom atom:
                         Text(atom.Token.Text);
+                        break;
+                    case ValueConditional chosen:
+                        // Parenthesize the complete conditional: nested values
+                        // retain right-associativity and JS evaluates one arm.
+                        Text(")");
+                        Node(chosen.WhenFalse);
+                        Text(" : ");
+                        Node(chosen.WhenTrue);
+                        Text(" ? ");
+                        Node(chosen.Condition);
+                        Text("(");
                         break;
                     case ValueBinary binary:
                         Node(binary.Right,precedence,true);
