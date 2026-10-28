@@ -635,8 +635,40 @@ internal sealed class Parser(string file, List<Token> tokens)
     }
     private ValueNode ParseLogicalAnd()
     {
-        ValueNode left=ParseEquality();
+        ValueNode left=ParseBitwiseOr();
         while(Current.Kind==TokenKind.AmpAmp)
+        {
+            var op=Take();
+            left=new ValueBinary(left,op,ParseBitwiseOr());
+        }
+        return left;
+    }
+    // JavaScript/TypeScript precedence: logical && > bitwise | > ^ > & > equality.
+    // Keep type-annotation union parsing separate from the expression grammar.
+    private ValueNode ParseBitwiseOr()
+    {
+        ValueNode left=ParseBitwiseXor();
+        while(Current.Kind==TokenKind.Bar)
+        {
+            var op=Take();
+            left=new ValueBinary(left,op,ParseBitwiseXor());
+        }
+        return left;
+    }
+    private ValueNode ParseBitwiseXor()
+    {
+        ValueNode left=ParseBitwiseAnd();
+        while(Current.Kind==TokenKind.Caret)
+        {
+            var op=Take();
+            left=new ValueBinary(left,op,ParseBitwiseAnd());
+        }
+        return left;
+    }
+    private ValueNode ParseBitwiseAnd()
+    {
+        ValueNode left=ParseEquality();
+        while(Current.Kind==TokenKind.Amp)
         {
             var op=Take();
             left=new ValueBinary(left,op,ParseEquality());
@@ -655,8 +687,19 @@ internal sealed class Parser(string file, List<Token> tokens)
     }
     private ValueNode ParseRelational()
     {
-        ValueNode left=ParseAdditive();
+        ValueNode left=ParseShift();
         while(Current.Kind is TokenKind.LessThan or TokenKind.LessEqual or TokenKind.GreaterThan or TokenKind.GreaterEqual)
+        {
+            var op=Take();
+            left=new ValueBinary(left,op,ParseShift());
+        }
+        return left;
+    }
+    // Shifts bind more weakly than addition but more tightly than comparisons.
+    private ValueNode ParseShift()
+    {
+        ValueNode left=ParseAdditive();
+        while(Current.Kind is TokenKind.LeftShift or TokenKind.RightShift or TokenKind.UnsignedRightShift)
         {
             var op=Take();
             left=new ValueBinary(left,op,ParseAdditive());
@@ -688,7 +731,7 @@ internal sealed class Parser(string file, List<Token> tokens)
         // Avoid recursive parsing on input such as 20,000 whitespace-separated
         // prefix '+'/'-' operators; the TypeChecker also evaluates iteratively.
         var prefixes=new List<Token>();
-        while(Current.Kind is TokenKind.Minus or TokenKind.Plus or TokenKind.Bang or TokenKind.Typeof)prefixes.Add(Take());
+        while(Current.Kind is TokenKind.Minus or TokenKind.Plus or TokenKind.Bang or TokenKind.Typeof or TokenKind.Tilde)prefixes.Add(Take());
         ValueNode value=ParsePrimary();
         for(int i=prefixes.Count-1;i>=0;i--)value=new ValueUnary(prefixes[i],value);
         return value;

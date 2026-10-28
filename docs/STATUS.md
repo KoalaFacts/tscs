@@ -1,5 +1,13 @@
 # tscs status
 
+## 2026-10-29 — Numeric bitwise and shift expression family (source candidate; NOT_RUN)
+
+Scanner/parser/typechecker/ES2015 emitter now have bounded numeric & | ^ ~ << >> >>>,
+with checked precedence, fixed-Go differential and cross-module runtime lanes.
+Both validations are NOT_RUN at source creation; original upstream accepted
+cases remain 0, and 15,523 configuration targets remain SKIP_UNIMPLEMENTED.
+See [numeric bitwise package](progress/numeric-bitwise.md).
+
 ## 2026-10-28 — Compound Boolean guard flow (source candidate; NOT_RUN)
 
 The checker now evaluates short-circuit RHS expressions under their true/false

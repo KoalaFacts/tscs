@@ -22,6 +22,7 @@ node tools/verify-guard-emit.ts
 node tools/verify-typeof-emit.ts
 node tools/verify-conditional-emit.ts
 node tools/verify-compound-guards-emit.ts
+node tools/verify-bitwise-emit.ts
 node tools/verify-switch-emit.ts
 node tools/verify-switch-completion-emit.ts
 node tools/verify-loop-control-emit.ts

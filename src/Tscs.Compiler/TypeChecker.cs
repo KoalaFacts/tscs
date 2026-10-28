@@ -1046,6 +1046,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     types.Push(CompilerTypes.Boolean);
                 else if(unary.Operator.Kind==TokenKind.Typeof)
                     types.Push(CompilerTypes.String);
+                else if(unary.Operator.Kind==TokenKind.Tilde &&
+                    (CompilerTypes.IsNumber(operand)||operand.Equals(CompilerTypes.Any)))
+                    types.Push(CompilerTypes.Number);
                 else if((unary.Operator.Kind is TokenKind.Plus or TokenKind.Minus) &&
                     CompilerTypes.IsNumber(operand))
                     types.Push(CompilerTypes.Number);
@@ -1054,6 +1057,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     {
                         TokenKind.Plus => "Only numeric unary plus is supported yet.",
                         TokenKind.Minus => "Only numeric unary minus is supported yet.",
+                        TokenKind.Tilde => "Bitwise complement requires a number or any operand.",
                         _ => "Only boolean or any logical negation is supported yet."
                     }));
                 continue;
@@ -1108,6 +1112,18 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         TokenKind.Minus => "Only numeric subtraction expressions are supported yet.",
                         _ => "Only numeric addition expressions are supported yet."
                     }));
+            }
+            else if(binary.Operator.Kind is TokenKind.Amp or TokenKind.Bar or TokenKind.Caret
+                or TokenKind.LeftShift or TokenKind.RightShift or TokenKind.UnsignedRightShift)
+            {
+                // TS numeric bitwise operators convert to 32-bit integers at
+                // runtime, but their static result type is always 'number'.
+                // Do not model JavaScript coercion of strings/booleans as TS support.
+                if((CompilerTypes.IsNumber(left)||left.Equals(CompilerTypes.Any)) &&
+                   (CompilerTypes.IsNumber(right)||right.Equals(CompilerTypes.Any)))
+                    types.Push(CompilerTypes.Number);
+                else throw new CompilationFailure(Diagnostic.Error(file,binary.Operator,"TSCS1001",
+                    "Bitwise and shift operators require number or any operands."));
             }
             else if(binary.Operator.Kind is TokenKind.LessThan or TokenKind.LessEqual or TokenKind.GreaterThan or TokenKind.GreaterEqual)
             {
