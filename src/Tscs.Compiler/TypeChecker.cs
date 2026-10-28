@@ -411,6 +411,75 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         }
     }
 
+    // Do not type-check a receiver/index twice: a computed index can itself mutate state.
+    private TypeSymbol? CheckPrefixUpdate(ValuePrefixUpdate update,Scope scope)
+    {
+        TypeSymbol? current;
+        Symbol? binding=null;
+        switch(update.Target)
+        {
+            case ValueAtom { Token.Kind:TokenKind.Identifier } atom:
+                binding=Resolve(atom.Token,scope);
+                if(binding==null)return null;
+                if(!binding.Initialized)
+                    throw new CompilationFailure(Diagnostic.Error(file,atom.Token,"TSCS1001",
+                        "Reads before initialization are not supported yet."));
+                if(binding.Imported)
+                    Error(atom.Token,"TS2632",$"Cannot assign to '{atom.Token.Text}' because it is an import.");
+                else if(binding.IsConstant)
+                    Error(atom.Token,"TS2588",$"Cannot assign to '{atom.Token.Text}' because it is a constant.");
+                current=binding.Type;
+                break;
+            case ValuePropertyAccess property:
+                var propertyReceiver=TypeOf(property.Receiver,scope);
+                if(propertyReceiver==null)return null;
+                if(CompilerTypes.IsStringFamily(propertyReceiver) && property.Name.Text=="length")
+                    throw new CompilationFailure(Diagnostic.Error(file,property.Name,"TS2540",
+                        "Cannot assign to 'length' because it is a read-only property."));
+                if(propertyReceiver is ObjectTypeSymbol shape && shape.ReadonlyMembers.Contains(property.Name.Text))
+                    throw new CompilationFailure(Diagnostic.Error(file,property.Name,"TS2540",
+                        $"Cannot assign to '{property.Name.Text}' because it is a read-only property."));
+                if(propertyReceiver is UnionTypeSymbol)
+                    throw new CompilationFailure(Diagnostic.Error(file,property.Name,"TSCS1001",
+                        "Writes through union-typed receivers are not supported yet."));
+                current=CompilerTypes.TryGetProperty(propertyReceiver,property.Name.Text);
+                if(current==null)
+                    Error(property.Name,"TS2339",
+                        $"Property '{property.Name.Text}' does not exist on type '{propertyReceiver.DisplayName}'.");
+                break;
+            case ValueElementAccess element:
+                var elementReceiver=TypeOf(element.Receiver,scope);
+                var indexType=TypeOf(element.Index,scope);
+                if(indexType!=null && !CompilerTypes.IsNumber(indexType))
+                    throw new CompilationFailure(Diagnostic.Error(file,element.Open,"TSCS1001",
+                        "Indexed updates currently require a number expression."));
+                if(CompilerTypes.IsStringFamily(elementReceiver))
+                    throw new CompilationFailure(Diagnostic.Error(file,element.Open,"TS2542",
+                        "Index signature in type 'String' only permits reading."));
+                if(elementReceiver is ArrayTypeSymbol array)
+                    current=array.ElementType;
+                else if(elementReceiver==null || indexType==null)
+                    current=null;
+                else throw new CompilationFailure(Diagnostic.Error(file,element.Open,"TSCS1001",
+                    "Indexed updates currently support arrays only."));
+                break;
+            default:
+                throw new CompilationFailure(Diagnostic.Error(file,update.Operator,"TSCS1001",
+                    "Prefix updates require an identifier, property or indexed array element."));
+        }
+        if(current==null)return null;
+        if(!IsNumericMutationOperand(current))
+            throw new CompilationFailure(Diagnostic.Error(file,update.Operator,"TSCS1001",
+                "Prefix updates require a number or any operand."));
+        if(binding is { Imported:false,IsConstant:false })
+        {
+            binding.Initialized=true;
+            binding.FlowWriteVersion++;
+            binding.Type=binding.DeclaredType??binding.Type;
+        }
+        return CompilerTypes.Number;
+    }
+
     private static bool IsNumericMutationOperand(TypeSymbol type)=>
         CompilerTypes.IsNumber(type)||type.Equals(CompilerTypes.Any);
 
@@ -840,6 +909,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 case PostfixUpdate postfix:
                     Record(postfix.Name,shadowed);
                     break;
+                case Expression { Value:ValuePrefixUpdate { Target:ValueAtom { Token.Kind:TokenKind.Identifier } atom } }:
+                    Record(atom.Token,shadowed);
+                    break;
                 case ConditionalStatement branch:
                     Visit(branch.Consequent,shadowed);
                     if(branch.Alternate is { } alternate)Visit(alternate,shadowed);
@@ -945,6 +1017,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             if(node is ValueAtom atom)
             {
                 types.Push(TypeOfAtom(atom.Token,scope));
+                continue;
+            }
+            if(node is ValuePrefixUpdate prefix)
+            {
+                types.Push(CheckPrefixUpdate(prefix,scope));
                 continue;
             }
             if(node is ValueConditional chosen)

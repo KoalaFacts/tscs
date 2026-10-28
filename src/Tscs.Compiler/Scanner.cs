@@ -193,20 +193,12 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                     { position++;kind=first=='<'?TokenKind.LessEqual:TokenKind.GreaterEqual; }
                 }
             }
-            // Lex -- as one postfix token (only after a named identifier), never as
-            // two unary/binary minuses. Whitespace-separated "- -" remains distinct.
+            // Lex -- as a prefix or postfix update; whitespace-separated "- -" is distinct.
             if(!jsonMode && kind==TokenKind.Minus && position<text.Length && text[position]=='-')
             { position++; kind=TokenKind.MinusMinus; }
-            if(!jsonMode && kind==TokenKind.MinusMinus &&
-               (tokens.Count==0 || tokens[^1].Kind!=TokenKind.Identifier))
-                throw Error(new(TokenKind.Unsupported,"--",begin,2,lineBreak),"TSCS1001","Only identifier postfix '--' is supported yet.");
-            // Keep the lexical distinction between a single '+' (unary or
-            // binary, according to the parser) and the unsupported prefix '++'.
+            // Distinguish unary/binary '+' from prefix/postfix '++'.
             if(!jsonMode && kind==TokenKind.Plus && position<text.Length && text[position]=='+')
             { position++; kind=TokenKind.PlusPlus; }
-            if(!jsonMode && kind==TokenKind.PlusPlus &&
-               (tokens.Count==0 || tokens[^1].Kind!=TokenKind.Identifier))
-                throw Error(new(TokenKind.Unsupported,"++",begin,2,lineBreak),"TSCS1001","Only identifier postfix '++' is supported yet.");
             var token = new Token(kind,text[begin..position],begin,position-begin,lineBreak,decodedValue,stringFlags);
             if (kind == TokenKind.Unsupported) throw Error(token,"TSCS1001",$"Unsupported syntax '{token.Text}'.");
             tokens.Add(token);DiagnosticCounts.Add(Diagnostics.Count);

@@ -27,6 +27,8 @@ internal sealed record ValueConditional(ValueNode Condition,Token Question,Value
 // 'satisfies' checks a constraint while retaining source inference.
 internal sealed record ValueTypeOperator(ValueNode Expression,Token Keyword,TypeSyntax Target) : ValueNode;
 internal sealed record ValueUnary(Token Operator, ValueNode Operand) : ValueNode;
+// Value-producing checked prefix mutation of an existing numeric lvalue.
+internal sealed record ValuePrefixUpdate(Token Operator,ValueNode Target) : ValueNode;
 internal sealed record ValueParenthesized(Token Open, ValueNode Expression, Token Close) : ValueNode;
 internal sealed record ValueCall(Token Callee, IReadOnlyList<ValueNode> Arguments) : ValueNode;
 internal sealed record ObjectProperty(Token Name,ValueNode Value);

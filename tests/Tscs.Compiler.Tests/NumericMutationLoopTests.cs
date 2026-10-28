@@ -10,6 +10,7 @@ public sealed class NumericMutationLoopTests
     [InlineData("function f(n:number):number { let i:number=0; let sum:number=0; do { sum+=i; i++; } while(i<n); return sum; }")]
     [InlineData("function f(n:number):number { let i:number=0; do { i++; if(i===2){continue;} if(i>n){break;} } while(i<10); return i; }")]
     [InlineData("function f():number { let i:number=1; i--; i++; return i; }")]
+    [InlineData("function f():number { let n:number=0; --n; ++n; return n; }")]
     [InlineData("function f():number { let result:number=0; do { result+=1; break; } while(true); return result; }")]
     [InlineData("function f():number { do { return 42; } while(false); }")]
     [InlineData("function f(n:number):number { let count:number=0; for(let i=0;i<n;i+=1){ count+=i; } return count; }")]
@@ -29,7 +30,7 @@ public sealed class NumericMutationLoopTests
     [InlineData("function f():number { let n:number; n+=1; return 0; }","TSCS1001")]
     [InlineData("function f():number { let xs:number[]=[1]; xs[0]*=\"bad\"; return 0; }","TSCS1001")]
     [InlineData("function f():number { let n:number=0; do { n++; } while(1); return n; }","TSCS1001")]
-    [InlineData("function f():number { let n:number=0; --n; return n; }","TSCS1001")]
+    [InlineData("function f():number { let n:number=0; --(n + 1); return n; }","TSCS1001")]
     [InlineData("function f():number { let n:number=0; do n++; while(n<2); return n; }","TSCS1001")]
     public void TypeAndGrammarErrorsRemainBlocking(string source,string code)=>
         Assert.Contains(Compilation.Check("invalid-mutation.ts",source),d=>d.Code==code);
