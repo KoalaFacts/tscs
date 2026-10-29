@@ -39,7 +39,7 @@ internal static class FunctionControlFlow
         ConditionalStatement branch => Analyze(branch.Consequent) |
             (branch.Alternate is { } alternate?Analyze(alternate):FlowExit.Next),
         SwitchStatement switching => AnalyzeSwitch(switching),
-        TryFinallyStatement guarded => AnalyzeTryFinally(guarded),
+        TryStatement guarded => AnalyzeTry(guarded),
         // An array loop can iterate zero times. A return inside its body may
         // exit the function, but any break is consumed by the loop itself.
         ForOfStatement loop => FlowExit.Next | (Analyze(loop.Body)&(FlowExit.Return|FlowExit.Throw)),
@@ -51,13 +51,20 @@ internal static class FunctionControlFlow
         _ => FlowExit.Next
     };
 
-    private static FlowExit AnalyzeTryFinally(TryFinallyStatement statement)
+    private static FlowExit AnalyzeTry(TryStatement statement)
     {
-        // Abrupt cleanup overrides a pending return, throw, break or continue.
-        // When cleanup can complete normally, the original transfer also survives.
-        var cleanup=Analyze(statement.FinallyBody);
+        var exits=Analyze(statement.Body);
+        if(statement.CatchBody is { } caught)
+        {
+            // A catch is reachable through runtime exceptions from property
+            // access and calls, not only an explicit source throw.
+            exits=(exits&~FlowExit.Throw)|Analyze(caught);
+        }
+        if(statement.FinallyBody is not { } cleanupBody)return exits;
+        // Abrupt cleanup overrides return, throw, break or continue.
+        var cleanup=Analyze(cleanupBody);
         return (cleanup&~FlowExit.Next) |
-            ((cleanup&FlowExit.Next)!=0?Analyze(statement.Body):FlowExit.None);
+            ((cleanup&FlowExit.Next)!=0?exits:FlowExit.None);
     }
 
     private static FlowExit AnalyzeDoWhile(DoWhileStatement loop)

@@ -89,8 +89,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     case ThrowStatement thrown:
                         TypeOf(thrown.Value,scope);
                         break;
-                    case TryFinallyStatement guarded:
-                        CheckTryFinally(guarded,scope,expectedReturn,allowBreak,allowContinue);
+                    case TryStatement guarded:
+                        CheckTry(guarded,scope,expectedReturn,allowBreak,allowContinue);
                         break;
                     case ReturnStatement returned:
                         if(expectedReturn==null)
@@ -833,14 +833,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         return null;
     }
 
-    private void CheckTryFinally(TryFinallyStatement statement,Scope scope,
+    private void CheckTry(TryStatement statement,Scope scope,
         TypeSymbol? expectedReturn,bool allowBreak,bool allowContinue)
     {
-        // Cleanup can run after a throw before any try-body assignment.
-        // Validate its reads against the incoming state, not a speculative
-        // definitely-initialized state created by checking the try body.
+        // A throw can interrupt the body before a write. Neither the try nor
+        // catch path may grant the other speculative definite assignment.
         var initialized=CaptureInitialized(scope);
         var types=CaptureFlowTypes(scope);
+        var writes=CaptureFlowWriteVersions(scope);
         try
         {
             CheckBlock(statement.Body,scope,false,expectedReturn,allowBreak,allowContinue);
@@ -850,9 +850,40 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             RestoreInitialized(initialized);
             RestoreFlowTypes(types);
         }
-        // Finally is guaranteed to execute, including on abrupt exits.
-        // Post-try definite assignment is deliberately conservative.
-        CheckBlock(statement.FinallyBody,scope,false,expectedReturn,allowBreak,allowContinue);
+        if(statement.CatchBody is { } caught)
+        {
+            try
+            {
+                // Prebind the catch body so its lexical declarations share the
+                // binding's scope, rejecting duplicate let/const declarations.
+                var catchScope=Binder.Bind(file,caught,scope,initialize:false);
+                if(statement.CatchBinding is { } binding)
+                {
+                    CheckStrictModuleBinding(binding);
+                    if(binding.Text is "eval" or "arguments")
+                        throw new CompilationFailure(Diagnostic.Error(file,binding,"TS1100",
+                            "Invalid catch binding in strict-mode output."));
+                    // The CLI's default non-strict catch policy uses any;
+                    // strict useUnknownInCatchVariables remains unsupported.
+                    Binder.DeclareParameter(file,catchScope,new ParameterDeclaration(binding,
+                        new PrimitiveTypeSyntax(new Token(TokenKind.Identifier,"any",binding.Start,3))));
+                }
+                Binder.InitializeDeclaredTypes(catchScope);
+                CheckBlock(caught,catchScope,rootAlreadyBound:true,
+                    expectedReturn:expectedReturn,allowBreak:allowBreak,
+                    allowContinue:allowContinue,preboundLocal:true);
+            }
+            finally
+            {
+                RestoreInitialized(initialized);
+                RestoreFlowTypes(types);
+            }
+        }
+        InvalidateLoopWrittenFlowTypes(writes);
+        // Cleanup executes for caught and uncaught exceptions, even when
+        // return/break/continue is pending. Post-try joins are conservative.
+        if(statement.FinallyBody is { } cleanup)
+            CheckBlock(cleanup,scope,false,expectedReturn,allowBreak,allowContinue);
     }
 
     private static Dictionary<Symbol,bool> CaptureInitialized(Scope scope)
@@ -1005,9 +1036,17 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 case ThrowStatement thrown:
                     RecordValueWrites(thrown.Value,shadowed);
                     break;
-                case TryFinallyStatement guarded:
+                case TryStatement guarded:
                     Visit(guarded.Body,shadowed);
-                    Visit(guarded.FinallyBody,shadowed);
+                    if(guarded.CatchBody is { } caught)
+                    {
+                        var catchShadowed=new HashSet<string>(shadowed,StringComparer.Ordinal);
+                        if(guarded.CatchBinding is { } binding)
+                            catchShadowed.Add(binding.Text);
+                        Visit(caught,catchShadowed);
+                    }
+                    if(guarded.FinallyBody is { } cleanup)
+                        Visit(cleanup,shadowed);
                     break;
                 case ConditionalStatement branch:
                     RecordValueWrites(branch.Condition,shadowed);

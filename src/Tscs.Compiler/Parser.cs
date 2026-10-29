@@ -209,7 +209,7 @@ internal sealed class Parser(string file, List<Token> tokens)
             }
             if(Current.Kind==TokenKind.Try)
             {
-                statements.Add(ParseTryFinally(depth,inFunction));
+                statements.Add(ParseTry(depth,inFunction));
                 continue;
             }
             if(Current.Kind==TokenKind.Throw)
@@ -285,21 +285,43 @@ internal sealed class Parser(string file, List<Token> tokens)
         return new Block(statements);
     }
 
-    // A bounded ES2015 try/finally has two braced lexical blocks; catch is not accepted.
-    private TryFinallyStatement ParseTryFinally(int depth,bool inFunction)
+    // ES2015 braced try/catch/finally. Catch accepts a single identifier
+    // or an omitted binding. Typed/destructured bindings remain unsupported.
+    private TryStatement ParseTry(int depth,bool inFunction)
     {
         var keyword=Take();
         if(!Eat(TokenKind.Open))Unsupported(Current,"try requires a braced block.");
         var body=Parse(depth+1,inFunction);
         if(!Eat(TokenKind.Close))
             Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
-        if(!Eat(TokenKind.Finally))
-            Unsupported(Current,"Only try/finally without catch is supported in this compiler subset.");
-        if(!Eat(TokenKind.Open))Unsupported(Current,"finally requires a braced block.");
-        var cleanup=Parse(depth+1,inFunction);
-        if(!Eat(TokenKind.Close))
-            Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
-        return new TryFinallyStatement(keyword,body,cleanup);
+        Token? binding=null;
+        Block? caught=null;
+        if(Eat(TokenKind.Catch))
+        {
+            if(Eat(TokenKind.OpenParen))
+            {
+                if(Current.Kind!=TokenKind.Identifier)
+                    Unsupported(Current,"Catch binding must be a single identifier.");
+                binding=Take();
+                if(!Eat(TokenKind.CloseParen))
+                    Unsupported(Current,"Typed or destructured catch bindings are not supported.");
+            }
+            if(!Eat(TokenKind.Open))Unsupported(Current,"catch requires a braced block.");
+            caught=Parse(depth+1,inFunction);
+            if(!Eat(TokenKind.Close))
+                Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+        }
+        Block? cleanup=null;
+        if(Eat(TokenKind.Finally))
+        {
+            if(!Eat(TokenKind.Open))Unsupported(Current,"finally requires a braced block.");
+            cleanup=Parse(depth+1,inFunction);
+            if(!Eat(TokenKind.Close))
+                Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+        }
+        if(caught==null && cleanup==null)
+            Unsupported(Current,"A try statement requires catch or finally.");
+        return new TryStatement(keyword,body,binding,caught,cleanup);
     }
 
     // Literal-labelled, braced clauses provide separate lexical scopes.
@@ -571,7 +593,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     private Token ReadPropertyName(bool allowString)
     {
         if(Current.Kind is TokenKind.Identifier or TokenKind.Let or TokenKind.Const or
-            TokenKind.Import or TokenKind.Export or TokenKind.Type or TokenKind.Interface or TokenKind.Function or TokenKind.Return or TokenKind.Throw or TokenKind.Try or TokenKind.Finally or
+            TokenKind.Import or TokenKind.Export or TokenKind.Type or TokenKind.Interface or TokenKind.Function or TokenKind.Return or TokenKind.Throw or TokenKind.Try or TokenKind.Catch or TokenKind.Finally or
             TokenKind.If or TokenKind.Else or TokenKind.For or TokenKind.While or TokenKind.Do or TokenKind.Break or TokenKind.Continue or TokenKind.Typeof or TokenKind.True or TokenKind.False ||
             (allowString && Current.Kind==TokenKind.String))return Take();
         Unsupported(Current,"Expected a supported named object property.");

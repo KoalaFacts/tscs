@@ -1,3 +1,18 @@
+## 2026-10-29 — Braced try/catch/finally with lexical error binding (source candidate; NOT_RUN)
+
+The existing checked C# AST and compiler now handle braced try/catch, optional
+single catch identifier or omitted binding, and optional finally. A catch
+binding is local to that block and uses the default non-strict any policy.
+Typed/destructured catch parameters and duplicate catch-local declarations
+fail closed. Try/catch initialization is conservatively joined: no branch
+donates speculative initialization to its sibling or cleanup. Finally retains
+abrupt-override semantics. Four-module Node 24 execution covers real throw,
+catch, rethrow and finally behaviour, plus negative no-emit programs.
+14 new stable bounded Go reference sources run independently alongside the
+unchanged 22 throw-flow sources and preserve raw per-case evidence.
+Hosted verification is NOT_RUN at source creation; original TS7 acceptance
+remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic scope UNEXPANDED.
+
 ## 2026-10-29 — Checked try/finally abrupt cleanup (source candidate; NOT_RUN)
 
 The existing throw/return/break/continue flow model now accepts braced

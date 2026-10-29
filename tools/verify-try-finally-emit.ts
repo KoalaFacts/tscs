@@ -65,7 +65,7 @@ try {
   assert.equal(executed.status,0,executed.stdout+executed.stderr);
   const invalid=[
     ['missing-finally','function f():number {try {return 42;}}','TSCS1001'],
-    ['catch-unsupported','function f():number {try {return 42;}catch(e){return 21;}}','TSCS1001'],
+    ['destructured-catch-unsupported','function f():number {try {return 42;}catch({code}){return 21;}}','TSCS1001'],
     ['wrong-return','function f():number {try {return 42;}finally{return "bad";}}','TS2322'],
     ['unresolved-cleanup','function f():number {try{return 42;}finally{throw missing;}}','TS2304'],
     ['wrong-try','function f():number {try{return "bad";}finally{let x:number=1;}}','TS2322']

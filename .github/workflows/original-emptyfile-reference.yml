@@ -58,6 +58,15 @@ jobs:
           node tools/verify-switch-reference.ts "$reference" .artifacts/classic-for-reference fixtures/classic-for/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/numeric-mutation-reference fixtures/numeric-mutation/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/throw-flow-reference fixtures/throw-flow/semantic-cases.json
+          node tools/verify-switch-reference.ts "$reference" .artifacts/try-catch-reference fixtures/try-catch/semantic-cases.json
+      - name: Preserve bounded try-catch reference inputs and raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-try-catch-reference-${{ github.sha }}
+          path: .artifacts/try-catch-reference/
+          retention-days: 30
+          if-no-files-found: warn
       - name: Preserve bounded throw-flow reference inputs and raw results
         if: always()
         uses: actions/upload-artifact@v4
