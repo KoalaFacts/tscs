@@ -1,0 +1,71 @@
+{
+  "kind": "BOUNDED_OBJECT_INDEX_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "object-index:positive-01",
+      "source": "let x={value:21};let n:number=x[\"value\"];",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-index:positive-02",
+      "source": "let x={\"data-key\":42};let n:number=x[\"data-key\"];",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-index:positive-03",
+      "source": "let x={inner:{value:42}};let n:number=x[\"inner\"][\"value\"];",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-index:positive-04",
+      "source": "let x:{value:number}={value:21};x[\"value\"]=42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-index:positive-05",
+      "source": "let x:{value:number}={value:20};x[\"value\"]+=1;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-index:positive-06",
+      "source": "let x:{value:number}={value:20};x[\"value\"]++;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-index:positive-07",
+      "source": "interface Item { readonly value: number } let x:Item={value:42};let n:number=x[\"value\"];",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-index:positive-08",
+      "source": "let x={value:21};let n:number=x[(\"value\")];",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-index:positive-09",
+      "source": "let x:any={value:42};let n:number=x[\"value\"];",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-index:negative-01",
+      "source": "let x:{value:number}={value:21};x[\"value\"]=\"wrong\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "object-index:negative-02",
+      "source": "let x:{readonly value:number}={value:21};x[\"value\"]=42;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "object-index:negative-03",
+      "source": "let x:{readonly value:number}={value:21};x[\"value\"]+=1;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    }
+  ]
+}
