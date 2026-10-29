@@ -1,3 +1,14 @@
+## 2026-10-29 — Optional typed function parameters (candidate; NOT_RUN)
+
+This bounded compiler package supports trailing `name?: T` parameters with checked
+minimum/maximum call arity, type checking for supplied arguments, cross-module
+function signatures and erased ES2015 annotations. It does not implement
+strict-null-aware parameter flow, defaults, rest, generic functions or a general
+`undefined` type. Four-module runtime, five negative no-emit programs and twelve
+new immutable pinned-Go comparisons are wired into CI; NOT_RUN at commit creation.
+Original TS7 acceptance remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED; dynamic
+case scope UNEXPANDED.
+
 ## 2026-10-29 — Pinned TS7 catch-unknown semantic correction (candidate; NOT_RUN)
 
 Initial PR #45's exact-head Go differential run 40806731638 failed for

@@ -147,6 +147,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                 Take();
                 if(!Eat(TokenKind.OpenParen))Unsupported(Current,"Expected '(' after function name.");
                 var parameters=new List<ParameterDeclaration>();
+                bool sawOptionalParameter=false;
                 if(Current.Kind!=TokenKind.CloseParen)
                 {
                     while(true)
@@ -154,8 +155,14 @@ internal sealed class Parser(string file, List<Token> tokens)
                         var parameter=Current;
                         if(parameter.Kind!=TokenKind.Identifier)Unsupported(parameter,"Expected a named parameter.");
                         Take();
+                        bool optional=Eat(TokenKind.Question);
                         if(!Eat(TokenKind.Colon))Unsupported(Current,"Function parameters require an explicit supported type.");
-                        parameters.Add(new ParameterDeclaration(parameter,ReadTypeAnnotation()));
+                        var annotation=ReadTypeAnnotation();
+                        if(sawOptionalParameter && !optional)
+                            Diagnostics.Add(Diagnostic.Error(file,parameter,"TS1016",
+                                "A required parameter cannot follow an optional parameter."));
+                        sawOptionalParameter|=optional;
+                        parameters.Add(new ParameterDeclaration(parameter,annotation,optional));
                         if(!Eat(TokenKind.Comma))break;
                     }
                 }

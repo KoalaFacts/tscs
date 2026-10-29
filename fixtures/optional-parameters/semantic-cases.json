@@ -1,0 +1,73 @@
+{
+  "kind": "BOUNDED_OPTIONAL_PARAMETERS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "optional-parameters:positive-01",
+      "source": "function f(n?:number):void{return;}f();",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-parameters:positive-02",
+      "source": "function f(n?:number):void{return;}f(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-parameters:positive-03",
+      "source": "function f(n:number,x?:number):number{return n;}let v:number=f(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-parameters:positive-04",
+      "source": "function f(n:number,x?:number):number{return n;}let v:number=f(21,2);",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-parameters:positive-05",
+      "source": "function f(a?:number,b?:number):number{return 42;}let v:number=f();",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-parameters:positive-06",
+      "source": "function f(a?:number,b?:number):number{return 42;}let v:number=f(1,2);",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-parameters:positive-07",
+      "source": "function f(n:number,s?:string):number{return n;}let v:number=f(21,\"okay\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-parameters:positive-08",
+      "source": "export function f(n?:number):void{return;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-parameters:negative-01",
+      "source": "function f(n:number,x?:number):number{return n;}f();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "optional-parameters:negative-02",
+      "source": "function f(n:number,x?:number):number{return n;}f(1,2,3);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "optional-parameters:negative-03",
+      "source": "function f(n?:number):void{return;}f(\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "optional-parameters:negative-04",
+      "source": "function f(n?:number,x:number):number{return x;}",
+      "expectedCodes": [
+        "TS1016"
+      ]
+    }
+  ]
+}

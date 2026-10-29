@@ -172,7 +172,8 @@ internal static class Binder
                 case FunctionDeclaration function:
                     symbol.Type=new FunctionTypeSymbol(
                         function.Parameters.Select(p=>TypeResolver.Resolve(p.Annotation,scope,symbol.File)).ToArray(),
-                        TypeResolver.Resolve(function.ReturnAnnotation,scope,symbol.File));
+                        TypeResolver.Resolve(function.ReturnAnnotation,scope,symbol.File),
+                        function.Parameters.TakeWhile(p=>!p.Optional).Count());
                     symbol.Initialized=true;
                     symbol.CrossFileTypeReady=true;
                     break;
