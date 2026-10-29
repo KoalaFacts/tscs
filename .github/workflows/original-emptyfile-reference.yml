@@ -62,6 +62,15 @@ jobs:
           node tools/verify-switch-reference.ts "$reference" .artifacts/void-return-reference fixtures/void-return/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/optional-parameters-reference fixtures/optional-parameters/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/default-parameters-reference fixtures/default-parameters/semantic-cases.json
+          node tools/verify-switch-reference.ts "$reference" .artifacts/rest-parameters-reference fixtures/rest-parameters/semantic-cases.json
+      - name: Preserve bounded rest-parameters reference inputs and raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-rest-parameters-reference-${{ github.sha }}
+          path: .artifacts/rest-parameters-reference/
+          if-no-files-found: warn
+          retention-days: 30
       - name: Preserve bounded default-parameters reference inputs and raw results
         if: always()
         uses: actions/upload-artifact@v4

@@ -140,6 +140,7 @@ internal static class JavaScriptEmitter
                     {
                         if(i>0)output.Append(", ");
                         var parameter=function.Parameters[i];
+                        if(parameter.Rest)output.Append("...");
                         output.Append(parameter.Name.Text);
                         if(parameter.DefaultValue is { } defaultExpression)
                         {
