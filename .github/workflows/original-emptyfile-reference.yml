@@ -75,6 +75,15 @@ jobs:
           node tools/verify-indexed-access-reference.ts "$reference" .artifacts/indexed-access-reference
           node tools/verify-indexed-access-reference.ts "$reference" .artifacts/object-intersection-reference fixtures/object-intersection/semantic-cases.json
           node tools/verify-type-query-reference.ts "$reference" .artifacts/type-query-reference
+          node tools/verify-interface-inheritance-reference.ts "$reference" .artifacts/interface-inheritance-reference
+      - name: Preserve bounded interface heritage raw reference evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-interface-inheritance-reference-${{ github.sha }}
+          path: .artifacts/interface-inheritance-reference/
+          if-no-files-found: warn
+          retention-days: 30
       - name: Preserve bounded type-query reference inputs and raw results
         if: always()
         uses: actions/upload-artifact@v4

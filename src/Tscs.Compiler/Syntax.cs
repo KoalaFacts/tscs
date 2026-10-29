@@ -26,7 +26,9 @@ internal sealed record IndexedAccessTypeSyntax(TypeSyntax Target,Token Open,Type
 internal sealed record IntersectionTypeSyntax(IReadOnlyList<TypeSyntax> Members) : TypeSyntax;
 internal sealed record UnionTypeSyntax(IReadOnlyList<TypeSyntax> Members) : TypeSyntax;
 internal sealed record TypeAliasDeclaration(Token Name,TypeSyntax Target,bool Exported=false) : Statement;
-internal sealed record InterfaceDeclaration(Token Name,ObjectTypeSyntax Body,bool Exported=false) : Statement;
+// Interface heritage is type-only and retains its declaring type namespace.
+internal sealed record InterfaceExtensionTypeSyntax(Token Name,IReadOnlyList<NamedTypeSyntax> Bases,ObjectTypeSyntax Body) : TypeSyntax;
+internal sealed record InterfaceDeclaration(Token Name,ObjectTypeSyntax Body,bool Exported=false,IReadOnlyList<NamedTypeSyntax>? Bases=null) : Statement;
 internal abstract record ValueNode;
 // Object shorthand needs its own missing-binding diagnostic.
 internal sealed record ValueAtom(Token Token,bool Shorthand=false) : ValueNode;

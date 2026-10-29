@@ -1,0 +1,80 @@
+{
+  "kind": "BOUNDED_INTERFACE_INHERITANCE_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "interface-inheritance:positive-01",
+      "source": "interface A{value:number}interface B extends A{extra:number}let b:B={value:20,extra:22};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-02",
+      "source": "interface A{value:number}interface B{label:string}interface C extends A,B{}let c:C={value:42,label:\"ok\"};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-03",
+      "source": "interface A{value:number}interface B extends A{}type K=keyof B;let k:K=\"value\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-04",
+      "source": "interface A{value:number}interface B extends A{}type V=B[\"value\"];let v:V=42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-05",
+      "source": "interface A{readonly value:number}interface B extends A{}let b:B={value:42};let v:number=b.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-06",
+      "source": "interface Child extends Root{extra:number}interface Root{value:number}let c:Child={value:20,extra:22};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-07",
+      "source": "import type {Child} from \"./model.js\";let c:Child={value:20,extra:22};",
+      "files": {
+        "model.ts": "export interface Root{value:number}export interface Child extends Root{extra:number}"
+      },
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-08",
+      "source": "import type {Child} from \"./child.js\";let c:Child={value:20,extra:22};",
+      "files": {
+        "base.ts": "export interface Root{value:number}",
+        "child.ts": "import type {Root} from \"./base.js\";export interface Child extends Root{extra:number}"
+      },
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:negative-01",
+      "source": "interface A{value:number}interface B extends A{}let b:B={value:\"bad\"};",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "interface-inheritance:negative-02",
+      "source": "interface A{readonly value:number}interface B extends A{}let b:B={value:21};b.value=42;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "interface-inheritance:negative-03",
+      "source": "interface B extends Missing{value:number}",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    },
+    {
+      "id": "interface-inheritance:negative-04",
+      "source": "interface A{value:number}interface B extends A{}let key:keyof B=\"missing\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}

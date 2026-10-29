@@ -80,7 +80,9 @@ internal static class Binder
         var (name,syntax)=declaration switch
         {
             TypeAliasDeclaration alias=>(alias.Name,alias.Target),
-            InterfaceDeclaration iface=>(iface.Name,(TypeSyntax)iface.Body),
+            InterfaceDeclaration iface=>(iface.Name,iface.Bases is { Count:>0 }
+                ?(TypeSyntax)new InterfaceExtensionTypeSyntax(iface.Name,iface.Bases,iface.Body)
+                :iface.Body),
             _=>throw new InvalidOperationException("Not a type declaration.")
         };
         if(!scope.Types.TryAdd(name.Text,new TypeBinding(file,name,syntax,scope)))

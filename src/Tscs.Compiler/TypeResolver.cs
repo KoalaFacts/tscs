@@ -139,6 +139,60 @@ internal static class TypeResolver
                 }
             }
             case ArrayTypeSyntax array:return new ArrayTypeSymbol(Resolve(array.Element,scope,file,depth+1));
+            case InterfaceExtensionTypeSyntax inherited:
+            {
+                // Never erase missing or incompatible inherited members. Each
+                // imported base resolves in this declaration's original scope.
+                var members=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
+                var readonlyKeys=new HashSet<string>(StringComparer.Ordinal);
+                var numericKeys=new HashSet<string>(StringComparer.Ordinal);
+                foreach(var named in inherited.Bases)
+                {
+                    if(Resolve(named,scope,file,depth+1) is not ObjectTypeSymbol parent)
+                        throw new CompilationFailure(Diagnostic.Error(file,named.Name,"TSCS1001",
+                            "Interface heritage requires a finite structural object base."));
+                    foreach(var member in parent.Members)
+                    {
+                        bool numeric=parent.NumericMembers.Contains(member.Key);
+                        bool isReadonly=parent.ReadonlyMembers.Contains(member.Key);
+                        if(members.TryGetValue(member.Key,out var previous))
+                        {
+                            if(numericKeys.Contains(member.Key)!=numeric ||
+                               readonlyKeys.Contains(member.Key)!=isReadonly ||
+                               !CompilerTypes.IsEquivalent(previous,member.Value))
+                                throw new CompilationFailure(Diagnostic.Error(file,named.Name,"TSCS1001",
+                                    $"Inherited member '{member.Key}' has incompatible base declarations."));
+                        }
+                        else
+                        {
+                            members.Add(member.Key,member.Value);
+                            if(numeric)numericKeys.Add(member.Key);
+                            if(isReadonly)readonlyKeys.Add(member.Key);
+                        }
+                        if(members.Count>128)
+                            throw new CompilationFailure(Diagnostic.Error(file,named.Name,"TSCS1001",
+                                "Interface heritage exceeds the finite 128-member limit."));
+                    }
+                }
+                foreach(var property in inherited.Body.Properties)
+                {
+                    var name=Parser.PropertyName(property.Name);
+                    var propertyType=Resolve(property.Type,scope,file,depth+1);
+                    bool numeric=property.Name.Kind==TokenKind.Number;
+                    if(members.TryGetValue(name,out var inheritedType) &&
+                        (numericKeys.Contains(name)!=numeric ||
+                         !CompilerTypes.IsAssignable(propertyType,inheritedType)))
+                        throw new CompilationFailure(Diagnostic.Error(file,inherited.Name,"TS2430",
+                            $"Interface '{inherited.Name.Text}' incorrectly extends its base interface at '{name}'."));
+                    members[name]=propertyType;
+                    if(numeric)numericKeys.Add(name);else numericKeys.Remove(name);
+                    if(property.Readonly)readonlyKeys.Add(name);else readonlyKeys.Remove(name);
+                    if(members.Count>128)
+                        throw new CompilationFailure(Diagnostic.Error(file,property.Name,"TSCS1001",
+                            "Extended interface exceeds the finite 128-member limit."));
+                }
+                return new ObjectTypeSymbol(members,readonlyKeys,numericKeys);
+            }
             case ObjectTypeSyntax shape:return new ObjectTypeSymbol(shape.Properties.Select(p=>
                 new KeyValuePair<string,TypeSymbol>(Parser.PropertyName(p.Name),Resolve(p.Type,scope,file,depth+1))),
                 shape.Properties.Where(p=>p.Readonly).Select(p=>Parser.PropertyName(p.Name)),
@@ -223,6 +277,7 @@ internal static class TypeResolver
         TypeQuerySyntax value=>value.Keyword,
         IndexedAccessTypeSyntax value=>value.Open,
         ObjectTypeSyntax value=>value.Open,
+        InterfaceExtensionTypeSyntax value=>value.Name,
         ArrayTypeSyntax value=>value.Open,
         IntersectionTypeSyntax value=>Location(value.Members[0]),
         UnionTypeSyntax value=>Location(value.Members[0]),
