@@ -863,10 +863,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     if(binding.Text is "eval" or "arguments")
                         throw new CompilationFailure(Diagnostic.Error(file,binding,"TS1100",
                             "Invalid catch binding in strict-mode output."));
-                    // The CLI's default non-strict catch policy uses any;
-                    // strict useUnknownInCatchVariables remains unsupported.
-                    Binder.DeclareParameter(file,catchScope,new ParameterDeclaration(binding,
-                        new PrimitiveTypeSyntax(new Token(TokenKind.Identifier,"any",binding.Start,3))));
+                    // Match pinned TS7: a caught exception has unknown type
+                    // until proven safe, never unsound implicit any.
+                    Binder.DeclareCatchBinding(file,catchScope,binding);
                 }
                 Binder.InitializeDeclaredTypes(catchScope);
                 CheckBlock(caught,catchScope,rootAlreadyBound:true,
@@ -1337,6 +1336,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 var receiver=types.Pop();
                 if(receiver==null)types.Push(null);
                 else if(receiver.Equals(CompilerTypes.Any))types.Push(CompilerTypes.Any);
+                else if(receiver.Equals(CompilerTypes.Unknown))
+                {
+                    Error(property.Name,"TS18046","Caught value is of type 'unknown'.");
+                    types.Push(null);
+                }
                 else if(CompilerTypes.TryGetProperty(receiver,property.Name.Text) is { } member)
                     types.Push(member);
                 else

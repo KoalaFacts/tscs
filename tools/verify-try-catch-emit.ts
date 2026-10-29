@@ -18,20 +18,20 @@ try {
     'export function recover(n:number):number {',
     '  const item:Item={value:n};',
     '  try {if(n<0){throw item.value;}return item.value+1;}',
-    '  catch(error) {visits+=1;const value:number=error;return value+42;}',
+    '  catch(error) {visits+=1;return 41;}',
     '  finally {visits+=10;}',
     '}',
     'export function optional(n:number):number {',
     '  try {if(n<0){throw n;}return n;}catch{return 42;}',
     '}',
     'export function override(n:number):number {',
-    '  try {throw n;}catch(error){return error;}finally{return 42;}',
+    '  try {throw n;}catch(error){return 21;}finally{return 42;}',
     '}',
     'export function rethrow(n:number):number {',
     '  try {throw n;}catch(error){throw error;}finally{visits+=1;}',
     '}',
     'export function nested(n:number):number {',
-    '  try {try{throw n;}catch(inner){throw inner;}}catch(outer){return outer;}',
+    '  try {try{throw n;}catch(inner){throw inner;}}catch(outer){return 42;}',
     '}'
   ].join('\n'));
   writeFileSync(join(folder,'bridge.ts'),
@@ -74,7 +74,9 @@ try {
     ['catch-out-of-scope','try{throw 1;}catch(error){let n:number=error;}let n:number=error;','TS2304'],
     ['catch-redeclaration','try{throw 1;}catch(error){let error:number=21;}','TSCS1001'],
     ['bad-return','function f():number {try{throw 21;}catch(e){return "wrong";}}','TS2322'],
-    ['typed-binding','try{throw 1;}catch(error:number){let n:number=21;}','TSCS1001']
+    ['typed-binding','try{throw 1;}catch(error:number){let n:number=21;}','TSCS1001'],
+    ['unknown-assignment','try{throw 21;}catch(error){let n:number=error;}','TS2322'],
+    ['unknown-member','try{throw {code:21};}catch(error){let n:number=error.code;}','TS18046']
   ] as const;
   for(const [name,source,code] of invalid){
     writeFileSync(join(folder,name+'.ts'),source);
@@ -83,5 +85,5 @@ try {
     assert.match(result.stdout+result.stderr,new RegExp(code));
     assert.equal(existsSync(join(folder,name+'.js')),false,'invalid source emitted JavaScript');
   }
-  console.log('Try/catch: four-module ES2015 result=42, recovered=41, optional=42; finally/rethrow verified; 6 no-emit negatives.');
+  console.log('Try/catch: four-module ES2015 result=42, recovered=41, optional=42; finally/rethrow verified; 8 no-emit negatives.');
 } finally {rmSync(folder,{recursive:true,force:true});}

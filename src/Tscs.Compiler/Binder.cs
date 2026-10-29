@@ -95,6 +95,20 @@ internal static class Binder
         symbol.CrossFileTypeReady=true;
     }
 
+    // Catch bindings are initialized unknown values scoped to their block;
+    // this internal semantic type does not enable arbitrary unknown syntax.
+    public static void DeclareCatchBinding(string file,Scope scope,Token name)
+    {
+        var declaration=new ParameterDeclaration(name,
+            new PrimitiveTypeSyntax(new Token(TokenKind.Identifier,"unknown",name.Start,name.Length)));
+        Declare(file,scope,declaration);
+        var symbol=scope.Symbols[name.Text];
+        symbol.Type=CompilerTypes.Unknown;
+        symbol.DeclaredType=CompilerTypes.Unknown;
+        symbol.Initialized=true;
+        symbol.CrossFileTypeReady=true;
+    }
+
     public static void DeclareIterationVariable(string file,Scope scope,ForOfStatement loop,TypeSymbol type)
     {
         var symbol=new Symbol(file,loop)

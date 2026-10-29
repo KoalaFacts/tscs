@@ -19,12 +19,16 @@
     {
       "id": "try-catch:positive-04",
       "source": "function f():number {try{throw 21;}catch(error){let n:number=error;return n;}}",
-      "expectedCodes": []
+      "expectedCodes": [
+        "TS2322"
+      ]
     },
     {
       "id": "try-catch:positive-05",
       "source": "try{throw {code:21};}catch(error){let n:number=error.code;}",
-      "expectedCodes": []
+      "expectedCodes": [
+        "TS18046"
+      ]
     },
     {
       "id": "try-catch:positive-06",
@@ -39,12 +43,16 @@
     {
       "id": "try-catch:positive-08",
       "source": "function f(n:number):number {try{try{throw n;}catch(inner){throw inner;}}catch(outer){return outer;}}",
-      "expectedCodes": []
+      "expectedCodes": [
+        "TS2322"
+      ]
     },
     {
       "id": "try-catch:positive-09",
       "source": "let n:number=0;try{throw 21;}catch(error){n=error;}finally{n+=21;}",
-      "expectedCodes": []
+      "expectedCodes": [
+        "TS2322"
+      ]
     },
     {
       "id": "try-catch:negative-01",
@@ -78,7 +86,8 @@
       "id": "try-catch:negative-05",
       "source": "try{throw 21;}catch(error){let n:number=error;}let x:number=error;",
       "expectedCodes": [
-        "TS2304"
+        "TS2304",
+        "TS2322"
       ]
     }
   ]

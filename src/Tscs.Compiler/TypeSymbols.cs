@@ -8,7 +8,7 @@ internal abstract record TypeSymbol
     public abstract string DisplayName { get; }
 }
 
-internal enum PrimitiveKind { Number, String, Boolean, Any, Never }
+internal enum PrimitiveKind { Number, String, Boolean, Any, Unknown, Never }
 
 internal sealed record PrimitiveTypeSymbol(PrimitiveKind Kind) : TypeSymbol
 {
@@ -18,6 +18,7 @@ internal sealed record PrimitiveTypeSymbol(PrimitiveKind Kind) : TypeSymbol
         PrimitiveKind.String => "string",
         PrimitiveKind.Boolean => "boolean",
         PrimitiveKind.Any => "any",
+        PrimitiveKind.Unknown => "unknown",
         PrimitiveKind.Never => "never",
         _ => throw new ArgumentOutOfRangeException(nameof(Kind))
     };
@@ -46,14 +47,16 @@ internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,T
 }
 
 // These relations cover primitives, any and required structural object data.
-// Unsupported TypeScript type forms remain parser/compiler errors; an unknown
-// type is represented by null, never silently treated as 'any'.
+// Unsupported type forms remain errors; unresolved inference is null, while
+// the caught runtime exception has a real unknown semantic type.
 internal static class CompilerTypes
 {
     public static readonly TypeSymbol Number=new PrimitiveTypeSymbol(PrimitiveKind.Number);
     public static readonly TypeSymbol String=new PrimitiveTypeSymbol(PrimitiveKind.String);
     public static readonly TypeSymbol Boolean=new PrimitiveTypeSymbol(PrimitiveKind.Boolean);
     public static readonly TypeSymbol Any=new PrimitiveTypeSymbol(PrimitiveKind.Any);
+    // The immutable pinned Go reference treats catch bindings as unknown.
+    public static readonly TypeSymbol Unknown=new PrimitiveTypeSymbol(PrimitiveKind.Unknown);
     // Internal inference for an empty literal. 'never' annotations and
     // evolving array inference remain outside this supported subset.
     public static readonly TypeSymbol Never=new PrimitiveTypeSymbol(PrimitiveKind.Never);
@@ -300,6 +303,10 @@ internal static class CompilerTypes
             if(--budget<0)return false; // fail closed on combinatorial input
             if(ReferenceEquals(actual,required) || actual.Equals(Never) ||
                actual.Equals(Any) || required.Equals(Any))return true;
+            // Every value can enter unknown; unknown cannot flow into a
+            // number/object/string until a real narrowing proves it safe.
+            if(required.Equals(Unknown))return true;
+            if(actual.Equals(Unknown))return false;
             var pair=(actual,required);
             if(!active.Add(pair))return false; // circular structural cases are outside this subset
             try
