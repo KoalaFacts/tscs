@@ -1,3 +1,17 @@
+## 2026-10-29 — Checked try/finally abrupt cleanup (source candidate; NOT_RUN)
+
+The existing throw/return/break/continue flow model now accepts braced
+try/finally without a catch clause. Cleanup executes on normal and abrupt
+exits; abrupt cleanup overrides a pending control transfer. The type
+checker checks try and finally separately, restoring incoming definite-
+assignment and flow facts before cleanup, rather than assuming an
+assignment happened before a throw. This intentionally rejects some
+safe post-try initialization cases; catch and precise try-join analysis
+are not implemented. A four-module Node execution and 9 additional
+pinned-Go source-bound cases (13 to 22, original IDs unchanged) are
+wired into existing gates, NOT_RUN at source creation. Original TS7:
+0 PASS, 15,523 SKIP_UNIMPLEMENTED; dynamic scope UNEXPANDED.
+
 ## 2026-10-29 — Checked throw statements and abrupt function exits (source candidate; NOT_RUN)
 
 The scanner, AST/parser, type checker, function/switch/loop abrupt-exit analysis

@@ -39,6 +39,7 @@ internal static class FunctionControlFlow
         ConditionalStatement branch => Analyze(branch.Consequent) |
             (branch.Alternate is { } alternate?Analyze(alternate):FlowExit.Next),
         SwitchStatement switching => AnalyzeSwitch(switching),
+        TryFinallyStatement guarded => AnalyzeTryFinally(guarded),
         // An array loop can iterate zero times. A return inside its body may
         // exit the function, but any break is consumed by the loop itself.
         ForOfStatement loop => FlowExit.Next | (Analyze(loop.Body)&(FlowExit.Return|FlowExit.Throw)),
@@ -49,6 +50,15 @@ internal static class FunctionControlFlow
         ClassicForStatement loop => FlowExit.Next | (Analyze(loop.Body)&(FlowExit.Return|FlowExit.Throw)),
         _ => FlowExit.Next
     };
+
+    private static FlowExit AnalyzeTryFinally(TryFinallyStatement statement)
+    {
+        // Abrupt cleanup overrides a pending return, throw, break or continue.
+        // When cleanup can complete normally, the original transfer also survives.
+        var cleanup=Analyze(statement.FinallyBody);
+        return (cleanup&~FlowExit.Next) |
+            ((cleanup&FlowExit.Next)!=0?Analyze(statement.Body):FlowExit.None);
+    }
 
     private static FlowExit AnalyzeDoWhile(DoWhileStatement loop)
     {

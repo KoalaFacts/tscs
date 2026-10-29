@@ -207,6 +207,11 @@ internal sealed class Parser(string file, List<Token> tokens)
                 statements.Add(new ContinueStatement(keyword));
                 continue;
             }
+            if(Current.Kind==TokenKind.Try)
+            {
+                statements.Add(ParseTryFinally(depth,inFunction));
+                continue;
+            }
             if(Current.Kind==TokenKind.Throw)
             {
                 var keyword=Take();
@@ -278,6 +283,23 @@ internal sealed class Parser(string file, List<Token> tokens)
             EndStatement();
         }
         return new Block(statements);
+    }
+
+    // A bounded ES2015 try/finally has two braced lexical blocks; catch is not accepted.
+    private TryFinallyStatement ParseTryFinally(int depth,bool inFunction)
+    {
+        var keyword=Take();
+        if(!Eat(TokenKind.Open))Unsupported(Current,"try requires a braced block.");
+        var body=Parse(depth+1,inFunction);
+        if(!Eat(TokenKind.Close))
+            Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+        if(!Eat(TokenKind.Finally))
+            Unsupported(Current,"Only try/finally without catch is supported in this compiler subset.");
+        if(!Eat(TokenKind.Open))Unsupported(Current,"finally requires a braced block.");
+        var cleanup=Parse(depth+1,inFunction);
+        if(!Eat(TokenKind.Close))
+            Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+        return new TryFinallyStatement(keyword,body,cleanup);
     }
 
     // Literal-labelled, braced clauses provide separate lexical scopes.
@@ -549,7 +571,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     private Token ReadPropertyName(bool allowString)
     {
         if(Current.Kind is TokenKind.Identifier or TokenKind.Let or TokenKind.Const or
-            TokenKind.Import or TokenKind.Export or TokenKind.Type or TokenKind.Interface or TokenKind.Function or TokenKind.Return or TokenKind.Throw or
+            TokenKind.Import or TokenKind.Export or TokenKind.Type or TokenKind.Interface or TokenKind.Function or TokenKind.Return or TokenKind.Throw or TokenKind.Try or TokenKind.Finally or
             TokenKind.If or TokenKind.Else or TokenKind.For or TokenKind.While or TokenKind.Do or TokenKind.Break or TokenKind.Continue or TokenKind.Typeof or TokenKind.True or TokenKind.False ||
             (allowString && Current.Kind==TokenKind.String))return Take();
         Unsupported(Current,"Expected a supported named object property.");
