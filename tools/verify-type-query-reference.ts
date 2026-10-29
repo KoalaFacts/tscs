@@ -56,7 +56,7 @@ for(let i=0;i<suite.cases.length;i++) {
   const extraFiles=item.files??{};
   assert.ok(extraFiles && typeof extraFiles==='object' && !Array.isArray(extraFiles));
   for(const [name,code] of Object.entries(extraFiles)) {
-    assert.match(name,/^[A-Za-z][A-Za-z0-9_-]*\\.ts$/,'unsafe referenced source file');
+    assert.match(name,/^[A-Za-z][A-Za-z0-9_-]*\.ts$/,'unsafe referenced source file');
     assert.equal(typeof code,'string');
     save(dir+'/'+name,code as string);
   }
