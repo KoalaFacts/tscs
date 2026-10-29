@@ -14,7 +14,7 @@ const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
 const suitePath='fixtures/indexed-access/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
 assert.equal(suite.kind,'BOUNDED_INDEXED_ACCESS_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,12,'do not shrink frozen or additive reference cases');
+assert.equal(suite.cases.length,20,'do not shrink frozen or additive reference cases');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const profilePath='fixtures/minimal.d.ts',profile=readFileSync(profilePath,'utf8');
 const hash=(v:string|Buffer)=>createHash('sha256').update(v).digest('hex');

@@ -62,6 +62,12 @@ try {
     ['unbound','type V={x:number}[Missing];let n:V=42;','TS2304',2],
     ['union','type V=({x:number}|{y:string})["x"];let n:V=42;','TS2339',2]
   ];
+  invalid.push(
+    ['nested-numeric',"type A={nested:{0:number}};type B={nested:{\"0\":number}};type V=(A|B)[\"nested\"];let k:keyof V=0;",'TS2322',2],
+    ['nested-string',"type A={nested:{0:number}};type B={nested:{\"0\":number}};type V=(A|B)[\"nested\"];let k:keyof V=\"0\";",'TS2322',2],
+    ['nested-reversed-numeric',"type A={nested:{0:number}};type B={nested:{\"0\":number}};type V=(B|A)[\"nested\"];let k:keyof V=0;",'TS2322',2],
+    ['nested-reversed-string',"type A={nested:{0:number}};type B={nested:{\"0\":number}};type V=(B|A)[\"nested\"];let k:keyof V=\"0\";",'TS2322',2]
+  );
   for(const [name,code,diagnostic,exit] of invalid) {
     const file=join(dir,'bad-'+name+'.ts');
     writeFileSync(file,code);

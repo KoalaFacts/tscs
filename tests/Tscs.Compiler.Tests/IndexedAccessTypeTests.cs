@@ -16,6 +16,8 @@ public sealed class IndexedAccessTypeTests
     [InlineData("type V={value:number}[\"value\"][];let x:V=[42];")]
     [InlineData("type V={readonly value:number}[\"value\"];let x:V=42;")]
     [InlineData("type Bag={value:number};type K=\"value\";type V=Bag[K];let x:V=42;")]
+    [InlineData("type A={nested:{0:number}};type B={nested:{\"0\":number}};type V=(A|B)[\"nested\"];let key:keyof V;")]
+    [InlineData("type A={nested:{0:number}};type B={nested:{\"0\":number}};type V=(B|A)[\"nested\"];let key:keyof V;")]
     public void ExactIndexedTypesCompile(string source) =>
         Assert.Empty(Compilation.Check("indexed-types.ts",source));
 
@@ -28,6 +30,12 @@ public sealed class IndexedAccessTypeTests
     [InlineData("type V={value:number}[Missing];let x:V=42;", "TS2304")]
     [InlineData("type V={value:number}[true];let x:V=42;", "TSCS1001")]
     [InlineData("type V=({a:number}|{b:string})[\"a\"];let x:V=42;", "TS2339")]
+    [InlineData("type A={nested:{0:number}};type B={nested:{\"0\":number}};type V=(A|B)[\"nested\"];let key:keyof V=0;", "TS2322")]
+    [InlineData("type A={nested:{0:number}};type B={nested:{\"0\":number}};type V=(A|B)[\"nested\"];let key:keyof V=\"0\";", "TS2322")]
+    [InlineData("type A={nested:{0:number}};type B={nested:{\"0\":number}};type V=(B|A)[\"nested\"];let key:keyof V=0;", "TS2322")]
+    [InlineData("type A={nested:{0:number}};type B={nested:{\"0\":number}};type V=(B|A)[\"nested\"];let key:keyof V=\"0\";", "TS2322")]
+    [InlineData("type A={0:number};type B={\"0\":number};let key:keyof (A|B)=0;", "TS2322")]
+    [InlineData("type A={0:number};type B={\"0\":number};let key:keyof (B|A)=\"0\";", "TS2322")]
     public void MissingOrUnimplementedIndexedTypesFailClosed(string source,string code) =>
         Assert.Contains(Compilation.Check("indexed-types-bad.ts",source),d=>d.Code==code);
 }

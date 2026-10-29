@@ -246,11 +246,54 @@ internal static class CompilerTypes
     };
 
     public static bool IsEquivalent(TypeSymbol a,TypeSymbol b)=>
-        // Structural assignability treats 0 and "0" as the same JS property.
-        // Union normalization must preserve their different keyof identities.
-        !(a is ObjectTypeSymbol left && b is ObjectTypeSymbol right &&
-            !left.NumericMembers.SetEquals(right.NumericMembers)) &&
-        IsAssignable(a,b) && IsAssignable(b,a);
+        // Assignment may treat runtime property 0 and "0" alike, whereas
+        // keyof distinguishes their *source* identity at every nested level.
+        // Never collapse union alternatives with different nested key types.
+        PreservesNumericKeyIdentity(a,b) && IsAssignable(a,b) && IsAssignable(b,a);
+
+    private static bool PreservesNumericKeyIdentity(TypeSymbol left,TypeSymbol right)
+    {
+        var pending=new Stack<(TypeSymbol Left,TypeSymbol Right)>();
+        var visited=new HashSet<(TypeSymbol Source,TypeSymbol Target)>(TypePairComparer.Instance);
+        pending.Push((left,right));
+        int budget=16384;
+        while(pending.Count>0)
+        {
+            if(--budget<0)return false; // preserve separate alternatives if uncertain
+            var (actual,required)=pending.Pop();
+            if(ReferenceEquals(actual,required) || !visited.Add((actual,required)))continue;
+            switch(actual,required)
+            {
+                case (ObjectTypeSymbol a,ObjectTypeSymbol b):
+                    if(!a.NumericMembers.SetEquals(b.NumericMembers))return false;
+                    foreach(var (name,member) in a.Members)
+                        if(b.Members.TryGetValue(name,out var other))
+                            pending.Push((member,other));
+                    break;
+                case (ArrayTypeSymbol a,ArrayTypeSymbol b):
+                    pending.Push((a.ElementType,b.ElementType));
+                    break;
+                case (FunctionTypeSymbol a,FunctionTypeSymbol b):
+                    if(a.Parameters.Count!=b.Parameters.Count)return false;
+                    for(int i=0;i<a.Parameters.Count;i++)
+                        pending.Push((a.Parameters[i],b.Parameters[i]));
+                    pending.Push((a.ReturnType,b.ReturnType));
+                    if(a.RestElementType is { } restA && b.RestElementType is { } restB)
+                        pending.Push((restA,restB));
+                    else if((a.RestElementType is null)!=(b.RestElementType is null))
+                        return false;
+                    break;
+                case (UnionTypeSymbol a,UnionTypeSymbol b):
+                    if(a.Alternatives.Count!=b.Alternatives.Count)return false;
+                    // Conservatively keep alternatives rather than coalesce
+                    // when different ordering prevents a simple safe pairing.
+                    for(int i=0;i<a.Alternatives.Count;i++)
+                        pending.Push((a.Alternatives[i],b.Alternatives[i]));
+                    break;
+            }
+        }
+        return true;
+    }
 
     // A read through a union is safe only when every alternative has the
     // requested property. Its result type is the union of member types.
