@@ -610,6 +610,20 @@ internal sealed class Parser(string file, List<Token> tokens)
             var keyword=Take();
             type=new KeyofTypeSyntax(keyword,ReadTypePart(depth+1));
         }
+        else if(Current.Kind==TokenKind.Typeof)
+        {
+            var keyword=Take();
+            if(Current.Kind!=TokenKind.Identifier)
+                Unsupported(Current,"A typeof type query requires a named value.");
+            var root=Take();
+            var members=new List<Token>();
+            while(Eat(TokenKind.Dot))
+            {
+                if(members.Count>=32)Unsupported(Current,"Type query property path exceeds the supported limit.");
+                members.Add(ReadPropertyName(allowString:false));
+            }
+            type=new TypeQuerySyntax(keyword,root,members);
+        }
         else if(Current.Kind is TokenKind.Identifier or TokenKind.Void)
         {
             var name=Take();
