@@ -178,9 +178,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         }
                         break;
                     case ElementAssignment elementAssignment:
-                        if(CompilerTypes.IsStringFamily(TypeOf(elementAssignment.Target.Receiver,scope)))
-                            throw new CompilationFailure(Diagnostic.Error(file,elementAssignment.Target.Open,"TS2542",
-                                "Index signature in type 'String' only permits reading."));
+                        EnsureWritableIndex(elementAssignment.Target,TypeOf(elementAssignment.Target.Receiver,scope));
                         var elementType=TypeOf(elementAssignment.Target,scope);
                         var elementValueType=TypeOf(elementAssignment.Value,scope);
                         if(elementType!=null && elementValueType!=null &&
@@ -243,9 +241,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                                 targetType=TypeOf(propertyTarget,scope);
                                 break;
                             case ValueElementAccess elementTarget:
-                                if(CompilerTypes.IsStringFamily(TypeOf(elementTarget.Receiver,scope)))
-                                    throw new CompilationFailure(Diagnostic.Error(file,elementTarget.Open,"TS2542",
-                                        "Index signature in type 'String' only permits reading."));
+                                EnsureWritableIndex(elementTarget,TypeOf(elementTarget.Receiver,scope));
                                 targetType=TypeOf(elementTarget,scope);
                                 break;
                             default:
@@ -428,6 +424,34 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         }
     }
 
+    // A literal string index names a structural member. Dynamic computed
+    // names still need index signatures, which are not yet supported.
+    private static bool TryStaticStringIndex(ValueNode index,out string name)
+    {
+        while(index is ValueParenthesized group)index=group.Expression;
+        if(index is ValueAtom { Token.Kind:TokenKind.String } atom)
+        {
+            name=Parser.PropertyName(atom.Token);
+            return true;
+        }
+        name=string.Empty;
+        return false;
+    }
+
+    private void EnsureWritableIndex(ValueElementAccess target,TypeSymbol? receiver)
+    {
+        if(CompilerTypes.IsStringFamily(receiver))
+            throw new CompilationFailure(Diagnostic.Error(file,target.Open,"TS2542",
+                "Index signature in type 'String' only permits reading."));
+        if(!TryStaticStringIndex(target.Index,out var key))return;
+        if(receiver is ObjectTypeSymbol shape && shape.ReadonlyMembers.Contains(key))
+            throw new CompilationFailure(Diagnostic.Error(file,target.Open,"TS2540",
+                $"Cannot assign to '{key}' because it is a read-only property."));
+        if(receiver is UnionTypeSymbol)
+            throw new CompilationFailure(Diagnostic.Error(file,target.Open,"TSCS1001",
+                "Writes through union-typed receivers are not supported yet."));
+    }
+
     // Do not type-check a receiver/index twice: a computed index can itself mutate state.
     private TypeSymbol? CheckNumericUpdate(ValueNode target,Token op,Scope scope)
     {
@@ -467,26 +491,33 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             case ValueElementAccess element:
                 var elementReceiver=TypeOf(element.Receiver,scope);
                 var indexType=TypeOf(element.Index,scope);
-                if(indexType!=null && !CompilerTypes.IsNumber(indexType))
+                bool namedObjectIndex=TryStaticStringIndex(element.Index,out var propertyName) &&
+                    elementReceiver is ObjectTypeSymbol;
+                if(indexType!=null && !CompilerTypes.IsNumber(indexType) && !namedObjectIndex)
                     throw new CompilationFailure(Diagnostic.Error(file,element.Open,"TSCS1001",
                         "Indexed updates currently require a number expression."));
                 if(CompilerTypes.IsStringFamily(elementReceiver))
                 {
-                    // The pinned compiler reports both the non-numeric operand
-                    // and readonly String index for ++/--. Keep both diagnostics
-                    // rather than throwing away the first when checking writes.
                     Error(op,"TS2356",
                         "An arithmetic operand must be of type 'any', 'number', 'bigint' or an enum type.");
                     Error(element.Open,"TS2542",
                         "Index signature in type 'String' only permits reading.");
                     return null;
                 }
-                if(elementReceiver is ArrayTypeSymbol array)
+                EnsureWritableIndex(element,elementReceiver);
+                if(namedObjectIndex && elementReceiver is ObjectTypeSymbol namedObject)
+                {
+                    current=CompilerTypes.TryGetProperty(namedObject,propertyName);
+                    if(current==null)
+                        Error(element.Open,"TS2339",
+                            $"Property '{propertyName}' does not exist on type '{namedObject.DisplayName}'.");
+                }
+                else if(elementReceiver is ArrayTypeSymbol array)
                     current=array.ElementType;
                 else if(elementReceiver==null || indexType==null)
                     current=null;
                 else throw new CompilationFailure(Diagnostic.Error(file,element.Open,"TSCS1001",
-                    "Indexed updates currently support arrays only."));
+                    "Indexed updates currently support arrays or literal-key object properties only."));
                 break;
             default:
                 throw new CompilationFailure(Diagnostic.Error(file,op,"TSCS1001",
@@ -1333,6 +1364,20 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 }
                 var indexType=types.Pop();
                 var receiverType=types.Pop();
+                if(receiverType!=null && TryStaticStringIndex(indexed.Index,out var key) &&
+                   (receiverType is ObjectTypeSymbol or UnionTypeSymbol ||
+                    receiverType.Equals(CompilerTypes.Any)))
+                {
+                    if(CompilerTypes.TryGetProperty(receiverType,key) is { } member)
+                        types.Push(member);
+                    else
+                    {
+                        Error(indexed.Open,"TS2339",
+                            $"Property '{key}' does not exist on type '{receiverType.DisplayName}'.");
+                        types.Push(null);
+                    }
+                    continue;
+                }
                 if(indexType!=null && !CompilerTypes.IsNumber(indexType))
                     throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
                         "Indexed reads currently require a number expression."));

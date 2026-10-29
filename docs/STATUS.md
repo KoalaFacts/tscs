@@ -1,3 +1,15 @@
+## 2026-10-29 — Literal-string object bracket access (source candidate; NOT_RUN)
+
+Checked structural objects support statically named bracket reads/writes
+(`object["key"]`) with decoded string keys, readonly diagnostics, compound
+and prefix/postfix updates. It reuses existing parser AST and ES2015 emitter;
+missing members do not become implicit any. Dynamic index expressions and
+general index signatures remain unsupported. Four-module emitted Node runtime,
+real no-emit negatives and twelve pinned-Go code/exit sources are wired to CI.
+This source candidate has NOT_RUN; exact-head hosted checks are necessary.
+Original upstream acceptance remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED,
+dynamic case scope UNEXPANDED.
+
 ## 2026-10-29 — Checked object shorthand members (candidate; NOT_RUN)
 
 Object literal shorthand `{value}` now reuses the same lexical value binding,
