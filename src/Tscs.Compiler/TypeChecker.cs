@@ -1352,13 +1352,28 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         pending.Push((literal.Properties[i].Value,false));
                     continue;
                 }
-                var members=new KeyValuePair<string,TypeSymbol>[literal.Properties.Count];
+                var inferred=new TypeSymbol?[literal.Properties.Count];
                 bool known=true;
-                for(int i=members.Length-1;i>=0;i--)
+                for(int i=inferred.Length-1;i>=0;i--)
                 {
-                    var memberType=types.Pop();
-                    if(memberType==null)known=false;
-                    else members[i]=new(Parser.PropertyName(literal.Properties[i].Name),memberType);
+                    inferred[i]=types.Pop();
+                    if(inferred[i]==null)known=false;
+                }
+                var members=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
+                for(int i=0;i<inferred.Length;i++)
+                {
+                    var entry=literal.Properties[i];
+                    var memberType=inferred[i];
+                    if(memberType==null)continue;
+                    if(entry.Spread)
+                    {
+                        if(memberType is not ObjectTypeSymbol source)
+                            throw new CompilationFailure(Diagnostic.Error(file,entry.Name,"TSCS1001",
+                                "Object spread requires a statically checked object operand."));
+                        foreach(var member in source.Members)
+                            members[member.Key]=member.Value;
+                    }
+                    else members[Parser.PropertyName(entry.Name)]=memberType;
                 }
                 // Do not turn an unresolved property into an implicit any.
                 types.Push(known?new ObjectTypeSymbol(members):null);
@@ -1634,7 +1649,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             foreach(var (name,required) in shape.Members)
             {
                 if(!data.Members.TryGetValue(name,out var member))return false;
-                var property=fresh.Properties.FirstOrDefault(p=>Parser.PropertyName(p.Name)==name);
+                var property=fresh.Properties.LastOrDefault(p=>!p.Spread && Parser.PropertyName(p.Name)==name);
                 if(property is null)
                 {
                     if(!CompilerTypes.IsAssignable(member,required))return false;
@@ -1700,6 +1715,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 bool unionFreshValid=true;
                 foreach(var property in fresh.Properties)
                 {
+                    if(property.Spread)continue;
                     var name=Parser.PropertyName(property.Name);
                     if(expectedObjects.All(shape=>!shape.Members.ContainsKey(name)))
                     {
@@ -1742,6 +1758,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         bool valid=true;
         foreach(var property in literal.Properties)
         {
+            if(property.Spread)continue;
             var name=Parser.PropertyName(property.Name);
             if(!shape.Members.TryGetValue(name,out var required))
             {

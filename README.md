@@ -78,7 +78,7 @@ Writing a member of an imported or `const` object does not rebind that object.
 Missing members and incompatible assignments are rejected before emission.
 
 This does **not** implement optional members, readonly arrays, methods/accessors,
-index signatures, spread, computed keys, prototype-setter literals, inheritance,
+index signatures, general iterable spreads, computed keys, prototype-setter literals, inheritance,
 generics or recursive type aliases. Such unimplemented forms fail explicitly.
 Parser depth and diagnostic display are bounded. Runtime and validation details:
 [`structural-object-data`](docs/progress/structural-object-data.md).

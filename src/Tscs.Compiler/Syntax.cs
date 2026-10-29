@@ -34,7 +34,8 @@ internal sealed record ValuePostfixUpdate(ValueNode Target,Token Operator) : Val
 internal sealed record ValueParenthesized(Token Open, ValueNode Expression, Token Close) : ValueNode;
 // A single trailing array spread is tracked at its call site; all operands remain normal checked values.
 internal sealed record ValueCall(Token Callee, IReadOnlyList<ValueNode> Arguments,int SpreadIndex=-1) : ValueNode;
-internal sealed record ObjectProperty(Token Name,ValueNode Value);
+// Ordered object spread entries carry their ellipsis as Name.
+internal sealed record ObjectProperty(Token Name,ValueNode Value,bool Spread=false);
 internal sealed record ValueObject(Token Open,IReadOnlyList<ObjectProperty> Properties,Token Close) : ValueNode;
 internal sealed record ValueArray(Token Open,IReadOnlyList<ValueNode> Elements,Token Close) : ValueNode;
 // Spread operands are evaluated once, in element order, and must have a checked array type.

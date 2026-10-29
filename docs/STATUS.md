@@ -1,3 +1,16 @@
+## 2026-10-29 — Checked object literal spreads (source candidate; NOT_RUN)
+
+Ordered `{...source, value: replacement}` copies statically checked object members
+through the existing C# parser, checker and ES2015 writer. Later spreads and named
+fields replace earlier member types; explicit excess-property checks remain
+active while spread-source keys are not fresh explicit members. Non-object
+spread operands fail closed. Four-module Node runtime, negative xUnit cases and
+12 bounded pinned Go source comparisons are wired into strict gates. Local
+execution is NOT_RUN at source creation; exact-head hosted checks are required.
+Generic iterable/array spreads, getters, computed keys and descriptor semantics
+remain unsupported. Original TS7: 0 PASS / 15,523 SKIP_UNIMPLEMENTED,
+dynamic scope UNEXPANDED.
+
 ## 2026-10-29 — Checked array literal spreads (candidate; validation pending)
 
 The C# parser, semantic checker and ES2015 writer accept array literals with

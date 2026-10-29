@@ -162,11 +162,16 @@ internal static class CompilerTypes
             return new ArrayTypeSymbol(element!);
         }
         if(value is not ValueObject literal)return null;
-        var members=new List<KeyValuePair<string,TypeSymbol>>();
+        var members=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
         foreach(var property in literal.Properties)
         {
             if(FromInitializer(property.Value) is not { } type)return null;
-            members.Add(new(Parser.PropertyName(property.Name),type));
+            if(property.Spread)
+            {
+                if(type is not ObjectTypeSymbol source)return null;
+                foreach(var member in source.Members)members[member.Key]=member.Value;
+            }
+            else members[Parser.PropertyName(property.Name)]=type;
         }
         return new ObjectTypeSymbol(members);
     }
@@ -208,7 +213,7 @@ internal static class CompilerTypes
                 TypeSymbol selected=type;
                 if(shape.Members.TryGetValue(name,out var required))
                 {
-                    var property=fresh.Properties.FirstOrDefault(p=>Parser.PropertyName(p.Name)==name);
+                    var property=fresh.Properties.LastOrDefault(p=>!p.Spread && Parser.PropertyName(p.Name)==name);
                     if(property!=null)
                         selected=PreserveSatisfiedLiteralTypes(property.Value,type,required,depth+1);
                 }

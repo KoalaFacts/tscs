@@ -1,0 +1,71 @@
+{
+  "kind": "BOUNDED_OBJECT_SPREADS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "object-spreads:positive-01",
+      "source": "let base={value:21,label:\"ok\"};let x={...base,value:42};let n:number=x.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-spreads:positive-02",
+      "source": "let x={...{value:20},...{value:22}};let n:number=x.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-spreads:positive-03",
+      "source": "let x={...{nested:{value:21}}};let n:number=x.nested.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-spreads:positive-04",
+      "source": "let x={...{value:20},label:\"ok\"};let s:string=x.label;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-spreads:positive-05",
+      "source": "let x={...{},value:42};let n:number=x.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-spreads:positive-06",
+      "source": "let x={...{value:21},value:42};let n:number=x.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-spreads:positive-07",
+      "source": "let x:{value:number}={...{value:21,extra:true}};",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-spreads:positive-08",
+      "source": "function f():{value:number}{return {value:21};}let x={...f(),value:42};",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-spreads:positive-09",
+      "source": "let x={...{value:21},...{label:\"ok\"}};let s:string=x.label;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-spreads:negative-01",
+      "source": "let x:{value:number}={...{value:\"bad\"}};",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "object-spreads:negative-02",
+      "source": "let x:{value:number}={...{value:21},value:\"bad\"};",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "object-spreads:negative-03",
+      "source": "let x={...missing};",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    }
+  ]
+}
