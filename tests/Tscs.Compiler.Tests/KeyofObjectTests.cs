@@ -15,6 +15,13 @@ public sealed class KeyofObjectTests
     [InlineData("type Keys = keyof ({ a: number; b: string }); let k: Keys = \"a\";")]
     [InlineData("type Keys = keyof {name: string}; function echo(k: Keys): Keys {return k;} let result: Keys = echo(\"name\");")]
     [InlineData("let keyof: number = 42; let n: number = keyof;")]
+    [InlineData("type Keys = keyof {0:number}; let x: Keys = 0;")]
+    [InlineData("type Keys = keyof {\"0\":number}; let x: Keys = \"0\";")]
+    [InlineData("interface Slot {readonly 0:number; name:string} let key: keyof Slot = 0;")]
+    [InlineData("type K = keyof {0:number; \"1\":string; name:number}; let k: K = 0; k = \"1\";")]
+    [InlineData("type A = {0:number; left:string}; type B = {0:string; right:number}; let k:keyof (A|B)=0;")]
+    [InlineData("type A = {\"0\":number; left:string}; type B = {\"0\":string; right:number}; let k:keyof (A|B)=\"0\";")]
+    [InlineData("type A = {0:number}; type B = {\"0\":number}; let k:keyof (A|B);")]
     public void CheckedObjectKeyTypesCompile(string source) =>
         Assert.Empty(Compilation.Check("keyof.ts",source));
 
@@ -44,10 +51,13 @@ public sealed class KeyofObjectTests
     [InlineData("type Keys = keyof {value: number}; let x: Keys = \"missing\";", "TS2322")]
     [InlineData("interface Data {label: string} let x: keyof Data = 42;", "TS2322")]
     [InlineData("type Keys = keyof {a: number}; let x: Keys = true;", "TS2322")]
+    [InlineData("type K = keyof {0:number}; let x: K = \"0\";", "TS2322")]
+    [InlineData("type K = keyof {\"0\":number}; let x: K = 0;", "TS2322")]
+    [InlineData("type K = keyof {0:number}; let x: K = 1;", "TS2322")]
+    [InlineData("type A={0:number}; type B={\"0\":number}; let x:keyof (A|B)=0;", "TS2322")]
     [InlineData("type Keys = keyof {}; let x: Keys = \"not-present\";", "TS2322")]
     [InlineData("type Keys = keyof number; let x: Keys = \"toString\";", "TSCS1001")]
     [InlineData("type Keys = keyof (number | string); let x: Keys = \"length\";", "TSCS1001")]
-    [InlineData("type Keys = keyof {0: number}; let x: Keys = 0;", "TSCS1001")]
     public void InvalidOrUnimplementedKeyTypesFailClosed(string source,string code) =>
         Assert.Contains(Compilation.Check("keyof-bad.ts",source),d=>d.Code==code);
 }

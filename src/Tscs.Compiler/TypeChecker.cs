@@ -1449,6 +1449,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     if(inferred[i]==null)known=false;
                 }
                 var members=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
+                var numericMembers=new HashSet<string>(StringComparer.Ordinal);
                 for(int i=0;i<inferred.Length;i++)
                 {
                     var entry=literal.Properties[i];
@@ -1460,12 +1461,22 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             throw new CompilationFailure(Diagnostic.Error(file,entry.Name,"TSCS1001",
                                 "Object spread requires a statically checked object operand."));
                         foreach(var member in source.Members)
+                        {
                             members[member.Key]=member.Value;
+                            if(source.NumericMembers.Contains(member.Key))numericMembers.Add(member.Key);
+                            else numericMembers.Remove(member.Key);
+                        }
                     }
-                    else members[Parser.PropertyName(entry.Name)]=memberType;
+                    else
+                    {
+                        var name=Parser.PropertyName(entry.Name);
+                        members[name]=memberType;
+                        if(entry.Name.Kind==TokenKind.Number)numericMembers.Add(name);
+                        else numericMembers.Remove(name);
+                    }
                 }
                 // Do not turn an unresolved property into an implicit any.
-                types.Push(known?new ObjectTypeSymbol(members):null);
+                types.Push(known?new ObjectTypeSymbol(members,numericMembers:numericMembers):null);
                 continue;
             }
             if(node is ValuePropertyAccess property)

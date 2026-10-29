@@ -2,19 +2,24 @@ using System.Collections.ObjectModel;
 
 namespace Tscs;
 
-// Required data properties only. Source spelling and freshness belong to the
-// syntax/checking context, not to this reusable semantic identity.
+// Required data properties. Runtime lookup uses canonical names, while numeric
+// source-key identity survives for keyof (0 and "0" have distinct key types).
+// Freshness remains a syntax/checking concern.
 internal sealed record ObjectTypeSymbol : TypeSymbol
 {
     public IReadOnlyDictionary<string,TypeSymbol> Members { get; }
     public IReadOnlySet<string> ReadonlyMembers { get; }
+    public IReadOnlySet<string> NumericMembers { get; }
 
     public ObjectTypeSymbol(IEnumerable<KeyValuePair<string,TypeSymbol>> members,
-        IEnumerable<string>? readonlyMembers=null)
+        IEnumerable<string>? readonlyMembers=null,IEnumerable<string>? numericMembers=null)
     {
         Members=new ReadOnlyDictionary<string,TypeSymbol>(
             new Dictionary<string,TypeSymbol>(members,StringComparer.Ordinal));
         ReadonlyMembers=new HashSet<string>(readonlyMembers??Array.Empty<string>(),StringComparer.Ordinal);
+        NumericMembers=new HashSet<string>(numericMembers??Array.Empty<string>(),StringComparer.Ordinal);
+        if(NumericMembers.Any(name=>!Members.ContainsKey(name)))
+            throw new ArgumentException("Numeric member identities must belong to the object.",nameof(numericMembers));
     }
 
     public override string DisplayName=>TypeDisplay.Format(this);

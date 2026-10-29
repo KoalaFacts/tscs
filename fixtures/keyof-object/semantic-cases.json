@@ -137,6 +137,74 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "keyof-object:positive-17",
+      "source": "type K = keyof {0:number}; let k:K=0;",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:positive-18",
+      "source": "type K = keyof {\"0\":number}; let k:K=\"0\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:positive-19",
+      "source": "interface Slot {readonly 0:number; label:string} let k:keyof Slot=0;",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:positive-20",
+      "source": "type K=keyof {0:number; \"1\":string}; let k:K=0; k=\"1\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:positive-21",
+      "source": "type A={0:number;left:string};type B={0:string;right:number}; let k:keyof (A|B)=0;",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:positive-22",
+      "source": "type A={\"0\":number;left:string};type B={\"0\":string;right:number}; let k:keyof (A|B)=\"0\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:positive-23",
+      "source": "type K=keyof {0:number;name:string}; function echo(k:K):K{return k;}let result:K=echo(0);",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:positive-24",
+      "source": "type A={0:number;a:string};type B={0:number;b:string};type U=A|B;let k:keyof U=0;",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:negative-09",
+      "source": "type K=keyof {0:number}; let k:K=\"0\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "keyof-object:negative-10",
+      "source": "type K=keyof {\"0\":number}; let k:K=0;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "keyof-object:negative-11",
+      "source": "type K=keyof {0:number}; let k:K=1;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "keyof-object:negative-12",
+      "source": "type A={0:number};type B={\"0\":number};let k:keyof (A|B)=0;",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }

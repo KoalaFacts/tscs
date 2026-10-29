@@ -52,18 +52,17 @@ internal static class TypeResolver
                     _=>throw new CompilationFailure(Diagnostic.Error(file,keyed.Keyword,"TSCS1001",
                         "keyof requires a known structural object or union of structural objects."))
                 };
-                // Numeric vs quoted numeric-looking key identity has not yet
-                // been retained by the structural semantic model. Fail closed.
-                if(alternatives.Any(shape=>shape.Members.Keys.Any(name=>name.Length>0 &&
-                    name.All(c=>c is >= '0' and <= '9'))))
-                    throw new CompilationFailure(Diagnostic.Error(file,keyed.Keyword,"TSCS1001",
-                        "keyof numeric-looking properties requires source key identity."));
                 try
                 {
-                    var shared=alternatives[0].Members.Keys.Where(name=>
-                        alternatives.Skip(1).All(shape=>shape.Members.ContainsKey(name)));
+                    var first=alternatives[0];
+                    // JavaScript lookup aliases 0 and "0"; keyof must not.
+                    // Each union arm must agree on both runtime name and key identity.
+                    var shared=first.Members.Keys.Where(name=>
+                        alternatives.Skip(1).All(shape=>shape.Members.ContainsKey(name) &&
+                            shape.NumericMembers.Contains(name)==first.NumericMembers.Contains(name)));
                     return CompilerTypes.Union(shared.Select(name=>
-                        (TypeSymbol)new LiteralTypeSymbol(PrimitiveKind.String,name)));
+                        (TypeSymbol)new LiteralTypeSymbol(first.NumericMembers.Contains(name)
+                            ?PrimitiveKind.Number:PrimitiveKind.String,name)));
                 }
                 catch(InvalidOperationException failure)
                 {
@@ -73,7 +72,8 @@ internal static class TypeResolver
             case ArrayTypeSyntax array:return new ArrayTypeSymbol(Resolve(array.Element,scope,file,depth+1));
             case ObjectTypeSyntax shape:return new ObjectTypeSymbol(shape.Properties.Select(p=>
                 new KeyValuePair<string,TypeSymbol>(Parser.PropertyName(p.Name),Resolve(p.Type,scope,file,depth+1))),
-                shape.Properties.Where(p=>p.Readonly).Select(p=>Parser.PropertyName(p.Name)));
+                shape.Properties.Where(p=>p.Readonly).Select(p=>Parser.PropertyName(p.Name)),
+                shape.Properties.Where(p=>p.Name.Kind==TokenKind.Number).Select(p=>Parser.PropertyName(p.Name)));
             case UnionTypeSyntax union:
                 try {return CompilerTypes.Union(union.Members.Select(member=>Resolve(member,scope,file,depth+1)));}
                 catch(InvalidOperationException failure)

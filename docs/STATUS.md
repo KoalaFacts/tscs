@@ -1,3 +1,16 @@
+## 2026-10-30 — Numeric and quoted-numeric keyof identity (candidate; NOT_RUN)
+
+C# structural object types now preserve numeric source-token keys independently
+of canonical JavaScript member lookup. Bounded `keyof` yields numeric literals
+for `{0:T}`, string literals for `{"0":T}`, and intersects object unions by
+both key name and numeric/string identity. Metadata is carried through aliases,
+interfaces, inferred literals, spreads, and type-preserving contextual checking.
+The existing 24 fixed-Go reference IDs/sources/expectations are unchanged;
+12 additive source-bound cases and four-module Node execution are wired to
+the existing strict gates. **Source creation is NOT_RUN; exact-head hosted
+results are required before merge.** Original TS7 remains 0 PASS / 15,523
+SKIP_UNIMPLEMENTED, dynamic cases UNEXPANDED, no release claim.
+
 ## 2026-10-30 — Common keys of structural object unions (candidate; NOT_RUN)
 
 The bounded C# resolver now evaluates `keyof (A | B)` as the intersection of

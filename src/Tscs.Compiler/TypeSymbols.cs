@@ -130,7 +130,8 @@ internal static class CompilerTypes
         ArrayTypeSyntax array=>new ArrayTypeSymbol(FromAnnotation(array.Element)),
         ObjectTypeSyntax shape=>new ObjectTypeSymbol(shape.Properties.Select(p=>
             new KeyValuePair<string,TypeSymbol>(Parser.PropertyName(p.Name),FromAnnotation(p.Type))),
-            shape.Properties.Where(p=>p.Readonly).Select(p=>Parser.PropertyName(p.Name))),
+            shape.Properties.Where(p=>p.Readonly).Select(p=>Parser.PropertyName(p.Name)),
+            shape.Properties.Where(p=>p.Name.Kind==TokenKind.Number).Select(p=>Parser.PropertyName(p.Name))),
         _=>throw new ArgumentOutOfRangeException(nameof(syntax))
     };
 
@@ -163,17 +164,29 @@ internal static class CompilerTypes
         }
         if(value is not ValueObject literal)return null;
         var members=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
+        var numericMembers=new HashSet<string>(StringComparer.Ordinal);
         foreach(var property in literal.Properties)
         {
             if(FromInitializer(property.Value) is not { } type)return null;
             if(property.Spread)
             {
                 if(type is not ObjectTypeSymbol source)return null;
-                foreach(var member in source.Members)members[member.Key]=member.Value;
+                foreach(var member in source.Members)
+                {
+                    members[member.Key]=member.Value;
+                    if(source.NumericMembers.Contains(member.Key))numericMembers.Add(member.Key);
+                    else numericMembers.Remove(member.Key);
+                }
             }
-            else members[Parser.PropertyName(property.Name)]=type;
+            else
+            {
+                var name=Parser.PropertyName(property.Name);
+                members[name]=type;
+                if(property.Name.Kind==TokenKind.Number)numericMembers.Add(name);
+                else numericMembers.Remove(name);
+            }
         }
-        return new ObjectTypeSymbol(members);
+        return new ObjectTypeSymbol(members,numericMembers:numericMembers);
     }
 
     // A successful satisfies expression preserves the source's inferred shape,
@@ -219,7 +232,7 @@ internal static class CompilerTypes
                 }
                 members.Add(new(name,selected));
             }
-            return new ObjectTypeSymbol(members,data.ReadonlyMembers);
+            return new ObjectTypeSymbol(members,data.ReadonlyMembers,data.NumericMembers);
         }
         return actual;
     }
@@ -233,6 +246,10 @@ internal static class CompilerTypes
     };
 
     public static bool IsEquivalent(TypeSymbol a,TypeSymbol b)=>
+        // Structural assignability treats 0 and "0" as the same JS property.
+        // Union normalization must preserve their different keyof identities.
+        !(a is ObjectTypeSymbol left && b is ObjectTypeSymbol right &&
+            !left.NumericMembers.SetEquals(right.NumericMembers)) &&
         IsAssignable(a,b) && IsAssignable(b,a);
 
     // A read through a union is safe only when every alternative has the
