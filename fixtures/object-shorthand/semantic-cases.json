@@ -1,0 +1,73 @@
+{
+  "kind": "BOUNDED_OBJECT_SHORTHAND_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "object-shorthand:positive-01",
+      "source": "let value=21;let x={value};let n:number=x.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-shorthand:positive-02",
+      "source": "let value=21;let label=\"ok\";let x={value,label};let s:string=x.label;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-shorthand:positive-03",
+      "source": "function box(value:number):{value:number}{return {value};}let n:number=box(42).value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-shorthand:positive-04",
+      "source": "let value=21;let x={nested:{value}};let n:number=x.nested.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-shorthand:positive-05",
+      "source": "let value=21;let x={value,...{other:1}};let n:number=x.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-shorthand:positive-06",
+      "source": "let value=21;let x={...{value:0},value};let n:number=x.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-shorthand:positive-07",
+      "source": "let value=21;let x:{value:number}={value};",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-shorthand:positive-08",
+      "source": "let value=21;let x={value,other:value+1};let n:number=x.other;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-shorthand:negative-01",
+      "source": "let x={missing};",
+      "expectedCodes": [
+        "TS18004"
+      ]
+    },
+    {
+      "id": "object-shorthand:negative-02",
+      "source": "let value=21;let x={value,value};",
+      "expectedCodes": [
+        "TS1117"
+      ]
+    },
+    {
+      "id": "object-shorthand:negative-03",
+      "source": "let value=\"bad\";let x:{value:number}={value};",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "object-shorthand:negative-04",
+      "source": "let value=21;let x:{value:number}={value,extra:1};",
+      "expectedCodes": [
+        "TS2353"
+      ]
+    }
+  ]
+}

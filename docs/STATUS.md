@@ -1,3 +1,17 @@
+## 2026-10-29 — Checked object shorthand members (candidate; NOT_RUN)
+
+Object literal shorthand `{value}` now reuses the same lexical value binding,
+structural object inference, module linker and ES2015 output as explicit
+`{value:value}`. Missing shorthand bindings report TS18004 rather than
+normal identifier TS2304; duplicate and fresh excess-property checks remain
+active. Named imports, function parameters, ordered object spreads and nested
+members share the same implementation. A four-module Node runtime, fail-closed
+negative cases and twelve pinned-Go code/exit sources are wired to normal gates.
+These are NOT_RUN at source creation; this is not original TS7 acceptance.
+Original upstream ledger remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED;
+dynamic case scope UNEXPANDED. Methods, computed names, accessors and general
+destructuring remain unsupported.
+
 ## 2026-10-29 — Checked object literal spreads (source candidate; NOT_RUN)
 
 Ordered `{...source, value: replacement}` copies statically checked object members
