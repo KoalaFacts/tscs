@@ -103,6 +103,12 @@ internal static class JavaScriptEmitter
                     WriteExpression(returned.Value);
                     output.Append(";\n");
                     break;
+                case ThrowStatement thrown:
+                    Indent(depth);
+                    output.Append("throw ");
+                    WriteExpression(thrown.Value);
+                    output.Append(";\n");
+                    break;
                 case FunctionDeclaration function:
                     Indent(depth);
                     if(function.Exported)output.Append("export ");

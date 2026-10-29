@@ -1,3 +1,14 @@
+## 2026-10-29 — Checked throw statements and abrupt function exits (source candidate; NOT_RUN)
+
+The scanner, AST/parser, type checker, function/switch/loop abrupt-exit analysis
+and ES2015 emitter now carry checked `throw expression;`. A throw may terminate
+a typed function path without inventing a return value; thrown operands remain
+fully checked. A line terminator after throw and a missing operand are errors.
+Try/catch, new and arbitrary exceptions remain outside the supported subset.
+Exact-head CI, four-module Node execution and 13 pinned-Go diagnostic/exit cases
+are NOT_RUN at source creation. This is not original acceptance; original 0 PASS,
+15,523 SKIP_UNIMPLEMENTED, dynamic scope UNEXPANDED.
+
 # tscs status
 
 ## 2026-10-29 — Numeric postfix value expressions (source candidate; NOT_RUN)

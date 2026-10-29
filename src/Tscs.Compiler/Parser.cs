@@ -207,6 +207,18 @@ internal sealed class Parser(string file, List<Token> tokens)
                 statements.Add(new ContinueStatement(keyword));
                 continue;
             }
+            if(Current.Kind==TokenKind.Throw)
+            {
+                var keyword=Take();
+                if(Current.LineBreak)
+                    throw new CompilationFailure(Diagnostic.Error(file,keyword,"TS1142",
+                        "Line break not permitted here."));
+                if(Current.Kind is TokenKind.Semi or TokenKind.End or TokenKind.Close)
+                    throw new CompilationFailure(Diagnostic.Error(file,Current,"TS1109","Expression expected."));
+                statements.Add(new ThrowStatement(keyword,ParseValue()));
+                EndStatement();
+                continue;
+            }
             if(Current.Kind==TokenKind.Return)
             {
                 var keyword=Take();
@@ -537,7 +549,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     private Token ReadPropertyName(bool allowString)
     {
         if(Current.Kind is TokenKind.Identifier or TokenKind.Let or TokenKind.Const or
-            TokenKind.Import or TokenKind.Export or TokenKind.Type or TokenKind.Interface or TokenKind.Function or TokenKind.Return or
+            TokenKind.Import or TokenKind.Export or TokenKind.Type or TokenKind.Interface or TokenKind.Function or TokenKind.Return or TokenKind.Throw or
             TokenKind.If or TokenKind.Else or TokenKind.For or TokenKind.While or TokenKind.Do or TokenKind.Break or TokenKind.Continue or TokenKind.Typeof or TokenKind.True or TokenKind.False ||
             (allowString && Current.Kind==TokenKind.String))return Take();
         Unsupported(Current,"Expected a supported named object property.");
