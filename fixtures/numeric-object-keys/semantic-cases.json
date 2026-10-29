@@ -1,0 +1,71 @@
+{
+  "kind": "BOUNDED_NUMERIC_OBJECT_KEYS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "numeric-object-keys:positive-01",
+      "source": "const slots={0:20,1:22};let total:number=slots[0]+slots[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-object-keys:positive-02",
+      "source": "let slots:{0:number;1:number}={0:20,1:22};let total:number=slots[0]+slots[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-object-keys:positive-03",
+      "source": "type Slots={0:number;1:number};const slots:Slots={0:20,1:22};let n:number=slots[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-object-keys:positive-04",
+      "source": "interface Slots{readonly 0:number;1:number}const slots:Slots={0:20,1:22};let n:number=slots[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-object-keys:positive-05",
+      "source": "function sum(s:{0:number;1:number}):number{return s[0]+s[1];}let n:number=sum({0:20,1:22});",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-object-keys:positive-06",
+      "source": "let x={nested:{0:42}};let result:number=x.nested[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-object-keys:positive-07",
+      "source": "let x={\"0\":20,1:22};let n:number=x[0]+x[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-object-keys:positive-08",
+      "source": "let x:{0:number}={0:20};x[0]+=1;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-object-keys:positive-09",
+      "source": "let x:{0:number}={0:20};x[0]++;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-object-keys:negative-01",
+      "source": "let x:{0:number}={0:20};x[0]=\"bad\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "numeric-object-keys:negative-02",
+      "source": "let x:{readonly 0:number}={0:20};x[0]=21;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "numeric-object-keys:negative-03",
+      "source": "let x:{0:number}={0:\"bad\"};",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}
