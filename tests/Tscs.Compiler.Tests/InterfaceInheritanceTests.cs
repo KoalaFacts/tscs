@@ -17,6 +17,13 @@ public sealed class InterfaceInheritanceTests
     public void NamedStructuralInheritanceCompiles(string source)=>
         Assert.Empty(Compilation.Check("heritage.ts",source));
 
+    // Explicit narrower members satisfy all parents regardless of extends order.
+    [Theory]
+    [InlineData("interface A{value:number}interface B{value:42}interface C extends A,B{value:42}let c:C={value:42};")]
+    [InlineData("interface A{value:number}interface B{value:42}interface C extends B,A{value:42}let c:C={value:42};")]
+    public void ExplicitMemberSatisfiesEveryBaseInEitherOrder(string source)=>
+        Assert.Empty(Compilation.Check("heritage-compatible.ts",source));
+
     [Theory]
     [InlineData("interface A{value:number}interface B extends A{}let b:B={value:\"wrong\"};","TS2322")]
     [InlineData("interface A{readonly value:number}interface B extends A{}let b:B={value:1};b.value=2;","TS2540")]
@@ -27,6 +34,8 @@ public sealed class InterfaceInheritanceTests
     [InlineData("interface A{value:number}interface B{value:string}interface C extends A,B{}","TSCS1001")]
     [InlineData("interface A extends B{}interface B extends A{}","TS2456")]
     [InlineData("interface A<T>{value:T}","TSCS1001")]
+    [InlineData("interface A{value:number}interface B{value:string}interface C extends A,B{value:42}","TS2430")]
+    [InlineData("interface A{value:number}interface B{value:42}interface C extends A,B{value:string}","TS2430")]
     public void InvalidHeritageFailsClosed(string source,string code)=>
         Assert.Contains(Compilation.Check("heritage-bad.ts",source),d=>d.Code==code);
 

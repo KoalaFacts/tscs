@@ -75,6 +75,16 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "interface-inheritance:positive-09",
+      "source": "interface A{value:number}interface B{value:42}interface C extends A,B{value:42}let c:C={value:42};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-10",
+      "source": "interface A{value:number}interface B{value:42}interface C extends B,A{value:42}let c:C={value:42};",
+      "expectedCodes": []
     }
   ]
 }

@@ -146,6 +146,20 @@ internal static class TypeResolver
                 var members=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
                 var readonlyKeys=new HashSet<string>(StringComparer.Ordinal);
                 var numericKeys=new HashSet<string>(StringComparer.Ordinal);
+                // Own members can resolve otherwise different inherited types,
+                // but each explicit member must satisfy EVERY base constraint.
+                var declared=new HashSet<string>(StringComparer.Ordinal);
+                foreach(var property in inherited.Body.Properties)
+                {
+                    var name=Parser.PropertyName(property.Name);
+                    members.Add(name,Resolve(property.Type,scope,file,depth+1));
+                    declared.Add(name);
+                    if(property.Name.Kind==TokenKind.Number)numericKeys.Add(name);
+                    if(property.Readonly)readonlyKeys.Add(name);
+                    if(members.Count>128)
+                        throw new CompilationFailure(Diagnostic.Error(file,property.Name,"TSCS1001",
+                            "Extended interface exceeds the finite 128-member limit."));
+                }
                 foreach(var named in inherited.Bases)
                 {
                     if(Resolve(named,scope,file,depth+1) is not ObjectTypeSymbol parent)
@@ -157,9 +171,16 @@ internal static class TypeResolver
                         bool isReadonly=parent.ReadonlyMembers.Contains(member.Key);
                         if(members.TryGetValue(member.Key,out var previous))
                         {
-                            if(numericKeys.Contains(member.Key)!=numeric ||
-                               readonlyKeys.Contains(member.Key)!=isReadonly ||
-                               !CompilerTypes.IsEquivalent(previous,member.Value))
+                            if(declared.Contains(member.Key))
+                            {
+                                if(numericKeys.Contains(member.Key)!=numeric ||
+                                   !CompilerTypes.IsAssignable(previous,member.Value))
+                                    throw new CompilationFailure(Diagnostic.Error(file,inherited.Name,"TS2430",
+                                        $"Interface '{inherited.Name.Text}' incorrectly extends its base interface at '{member.Key}'."));
+                            }
+                            else if(numericKeys.Contains(member.Key)!=numeric ||
+                                    readonlyKeys.Contains(member.Key)!=isReadonly ||
+                                    !CompilerTypes.IsEquivalent(previous,member.Value))
                                 throw new CompilationFailure(Diagnostic.Error(file,named.Name,"TSCS1001",
                                     $"Inherited member '{member.Key}' has incompatible base declarations."));
                         }
@@ -173,23 +194,6 @@ internal static class TypeResolver
                             throw new CompilationFailure(Diagnostic.Error(file,named.Name,"TSCS1001",
                                 "Interface heritage exceeds the finite 128-member limit."));
                     }
-                }
-                foreach(var property in inherited.Body.Properties)
-                {
-                    var name=Parser.PropertyName(property.Name);
-                    var propertyType=Resolve(property.Type,scope,file,depth+1);
-                    bool numeric=property.Name.Kind==TokenKind.Number;
-                    if(members.TryGetValue(name,out var inheritedType) &&
-                        (numericKeys.Contains(name)!=numeric ||
-                         !CompilerTypes.IsAssignable(propertyType,inheritedType)))
-                        throw new CompilationFailure(Diagnostic.Error(file,inherited.Name,"TS2430",
-                            $"Interface '{inherited.Name.Text}' incorrectly extends its base interface at '{name}'."));
-                    members[name]=propertyType;
-                    if(numeric)numericKeys.Add(name);else numericKeys.Remove(name);
-                    if(property.Readonly)readonlyKeys.Add(name);else readonlyKeys.Remove(name);
-                    if(members.Count>128)
-                        throw new CompilationFailure(Diagnostic.Error(file,property.Name,"TSCS1001",
-                            "Extended interface exceeds the finite 128-member limit."));
                 }
                 return new ObjectTypeSymbol(members,readonlyKeys,numericKeys);
             }
