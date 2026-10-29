@@ -69,6 +69,15 @@ jobs:
           node tools/verify-switch-reference.ts "$reference" .artifacts/object-shorthand-reference fixtures/object-shorthand/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/object-index-reference fixtures/object-index/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/in-operator-reference fixtures/in-operator/semantic-cases.json
+          node tools/verify-switch-reference.ts "$reference" .artifacts/for-in-reference fixtures/for-in/semantic-cases.json
+      - name: Preserve bounded for-in reference inputs and raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-for-in-reference-${{ github.sha }}
+          path: .artifacts/for-in-reference/
+          if-no-files-found: warn
+          retention-days: 30
       - name: Preserve bounded in-operator reference inputs and raw results
         if: always()
         uses: actions/upload-artifact@v4

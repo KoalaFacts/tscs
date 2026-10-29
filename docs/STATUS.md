@@ -1,3 +1,14 @@
+## 2026-10-29 — Checked lexical `for..in` enumeration (source candidate; NOT_RUN)
+
+One bounded C# core feature: braced `for(const/let key in object)` over known
+object/array or any source types, typed string iteration keys, lexical shadowing,
+break/continue, conservative loop writes and native ES2015 output. A four-module
+Node execution, fail-closed negatives and 12 new immutable pinned Go references
+are wired to normal CI. Source creation alone is NOT_RUN. Full original TS7
+remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED; dynamic scope UNEXPANDED.
+General index signatures, `var`/assignment targets and unbraced loops remain
+unsupported.
+
 ## 2026-10-29 — Checked property-existence `in` expressions (candidate; NOT_RUN)
 
 C# Scanner, Parser, TypeChecker, semantic types and ES2015 emitter now carry

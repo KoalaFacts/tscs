@@ -180,6 +180,15 @@ internal static class JavaScriptEmitter
                     WriteBlock(classic.Body,depth);
                     output.Append('\n');
                     break;
+                case ForInStatement enumerator:
+                    Indent(depth);
+                    output.Append("for (").Append(enumerator.Constant?"const ":"let ")
+                        .Append(enumerator.Name.Text).Append(" in ");
+                    WriteExpression(enumerator.Source);
+                    output.Append(") ");
+                    WriteBlock(enumerator.Body,depth);
+                    output.Append('\n');
+                    break;
                 case ForOfStatement loop:
                     Indent(depth);
                     output.Append("for (").Append(loop.Constant?"const ":"let ")

@@ -433,6 +433,15 @@ internal sealed class Parser(string file, List<Token> tokens)
                 if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
                 return new ForOfStatement(keyword,name,constant,source,body);
             }
+            if(Eat(TokenKind.In))
+            {
+                var source=ParseValue();
+                if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after for..in source.");
+                if(!Eat(TokenKind.Open))Unsupported(Current,"for..in bodies must be braced.");
+                var body=Parse(depth+1,inFunction);
+                if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+                return new ForInStatement(keyword,name,constant,source,body);
+            }
             if(constant)Unsupported(name,"Classic for currently requires a mutable let binding.");
             TypeSyntax? annotation=Eat(TokenKind.Colon)?ReadTypeAnnotation():null;
             ValueNode? initial=Eat(TokenKind.Equal)?ParseWithInDisallowed(ParseValue):null;
