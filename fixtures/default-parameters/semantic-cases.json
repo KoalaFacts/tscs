@@ -1,0 +1,102 @@
+{
+  "kind": "BOUNDED_DEFAULT_PARAMETERS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "default-parameters:positive-01",
+      "source": "function f(n:number=21):number{return n;}let v:number=f();",
+      "expectedCodes": []
+    },
+    {
+      "id": "default-parameters:positive-02",
+      "source": "function f(n:number=21):number{return n;}let v:number=f(42);",
+      "expectedCodes": []
+    },
+    {
+      "id": "default-parameters:positive-03",
+      "source": "function f(a:number,b:number=1):number{return a+b;}let v:number=f(41);",
+      "expectedCodes": []
+    },
+    {
+      "id": "default-parameters:positive-04",
+      "source": "function f(a:number,b:number=a):number{return a+b;}let v:number=f(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "default-parameters:positive-05",
+      "source": "function f(a:number,b:number=a+1):number{return a+b;}let v:number=f(20);",
+      "expectedCodes": []
+    },
+    {
+      "id": "default-parameters:positive-06",
+      "source": "function f(a:number=21,b:number=21):number{return a+b;}let v:number=f();",
+      "expectedCodes": []
+    },
+    {
+      "id": "default-parameters:positive-07",
+      "source": "function f(s:string=\"ok\"):string{return s;}let x:string=f();",
+      "expectedCodes": []
+    },
+    {
+      "id": "default-parameters:positive-08",
+      "source": "function f(flag:boolean=true):boolean{return flag;}let v:boolean=f();",
+      "expectedCodes": []
+    },
+    {
+      "id": "default-parameters:positive-09",
+      "source": "function f(n:number=21):void{return;}f();",
+      "expectedCodes": []
+    },
+    {
+      "id": "default-parameters:positive-10",
+      "source": "export function f(n:number=21):number{return n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "default-parameters:positive-11",
+      "source": "function f(a:number,b:number=a*2):number{return b;}let v:number=f(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "default-parameters:negative-01",
+      "source": "function f(n:number=\"wrong\"):number{return n;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "default-parameters:negative-02",
+      "source": "function f(n:number=true):number{return n;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "default-parameters:negative-03",
+      "source": "function f(n:number=21):number{return n;}f(\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "default-parameters:negative-04",
+      "source": "function f(n:number=21):number{return n;}f(21,2);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "default-parameters:negative-05",
+      "source": "function f(n:number,b:number=1):number{return n;}f();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "default-parameters:negative-06",
+      "source": "function f(n?:number=21):number{return 21;}",
+      "expectedCodes": [
+        "TS1015"
+      ]
+    }
+  ]
+}
