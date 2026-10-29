@@ -228,9 +228,11 @@ internal sealed class Parser(string file, List<Token> tokens)
             {
                 var keyword=Take();
                 if(!inFunction)Unsupported(keyword,"Return statements are supported only inside functions.");
-                if(Current.LineBreak || Current.Kind is TokenKind.Semi or TokenKind.End or TokenKind.Close)
-                    Unsupported(keyword,"Only value-returning functions are supported yet.");
-                statements.Add(new ReturnStatement(keyword,ParseValue()));
+                // A line terminator after return ends the statement (ASI).
+                // The checker validates a bare return against the declared result type.
+                var value=Current.LineBreak || Current.Kind is TokenKind.Semi or TokenKind.End or TokenKind.Close
+                    ? null : ParseValue();
+                statements.Add(new ReturnStatement(keyword,value));
                 EndStatement();
                 continue;
             }
@@ -527,7 +529,7 @@ internal sealed class Parser(string file, List<Token> tokens)
         if(Current.Kind==TokenKind.Identifier)
         {
             var name=Take();
-            type=name.Text is "number" or "string" or "boolean" or "any"
+            type=name.Text is "number" or "string" or "boolean" or "any" or "void"
                 ?new PrimitiveTypeSyntax(name):new NamedTypeSyntax(name);
         }
         else if(Current.Kind is TokenKind.String or TokenKind.Number or TokenKind.True or TokenKind.False)

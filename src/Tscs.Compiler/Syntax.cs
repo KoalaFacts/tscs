@@ -43,7 +43,7 @@ internal sealed record ElementAssignment(ValueElementAccess Target,ValueNode Val
 internal sealed record Variable(Token Name, bool Constant, TypeSyntax? Annotation, ValueNode? Initializer, bool Exported=false) : Statement;
 internal sealed record ParameterDeclaration(Token Name,TypeSyntax Annotation) : Statement;
 internal sealed record FunctionDeclaration(Token Name,IReadOnlyList<ParameterDeclaration> Parameters,TypeSyntax ReturnAnnotation,Block Body,bool Exported=false) : Statement;
-internal sealed record ReturnStatement(Token Keyword,ValueNode Value) : Statement;
+internal sealed record ReturnStatement(Token Keyword,ValueNode? Value) : Statement;
 internal sealed record ThrowStatement(Token Keyword,ValueNode Value) : Statement;
 // Catch has its own lexical binding; optional cleanup runs on normal and abrupt exits.
 internal sealed record TryStatement(Token Keyword,Block Body,Token? CatchBinding,Block? CatchBody,Block? FinallyBody) : Statement;

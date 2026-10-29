@@ -34,7 +34,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         CheckStrictModuleBinding(function.Name);
                         var functionSymbol=scope.Symbols[function.Name.Text];
                         var functionType=(FunctionTypeSymbol)functionSymbol.Type!;
-                        if(!FunctionControlFlow.DefinitelyReturnsValue(function.Body))
+                        // Only value-returning functions need definite exit.
+                        if(!functionType.ReturnType.Equals(CompilerTypes.Void) &&
+                           !FunctionControlFlow.DefinitelyReturnsValue(function.Body))
                             throw new CompilationFailure(Diagnostic.Error(file,function.Name,"TSCS1001",
                                 "Only function bodies with a definite value return are supported yet."));
                         var parameters=new Scope(scope);
@@ -96,9 +98,16 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         if(expectedReturn==null)
                             throw new CompilationFailure(Diagnostic.Error(file,returned.Keyword,"TSCS1001",
                                 "Return statements outside functions are not supported."));
-                        var returnType=TypeOf(returned.Value,scope);
-                        if(returnType!=null && CheckContextualLiteral(returned.Value,expectedReturn,returnType) &&
-                           !IsAssignableContextually(returned.Value,returnType,expectedReturn))
+                        if(returned.Value is not { } returnValue)
+                        {
+                            if(!expectedReturn.Equals(CompilerTypes.Void))
+                                throw new CompilationFailure(Diagnostic.Error(file,returned.Keyword,"TSCS1001",
+                                    "A bare return requires a void-returning function in this compiler subset."));
+                            break;
+                        }
+                        var returnType=TypeOf(returnValue,scope);
+                        if(returnType!=null && CheckContextualLiteral(returnValue,expectedReturn,returnType) &&
+                           !IsAssignableContextually(returnValue,returnType,expectedReturn))
                             Mismatch(returned.Keyword,returnType,expectedReturn);
                         break;
                     case Variable v:
@@ -1030,7 +1039,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     RecordValueWrites(expression.Value,shadowed);
                     break;
                 case ReturnStatement returned:
-                    RecordValueWrites(returned.Value,shadowed);
+                    if(returned.Value is { } returnedValue)RecordValueWrites(returnedValue,shadowed);
                     break;
                 case ThrowStatement thrown:
                     RecordValueWrites(thrown.Value,shadowed);

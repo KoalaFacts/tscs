@@ -1,0 +1,69 @@
+{
+  "kind": "BOUNDED_VOID_RETURN_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "void-return:positive-01",
+      "source": "function f():void { return; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "void-return:positive-02",
+      "source": "function f():void { let value:number=21; value+=21; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "void-return:positive-03",
+      "source": "function f(n:number):void { if(n>0){return;} let x:number=n+1; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "void-return:positive-04",
+      "source": "function g():void {return;} function f():void {return g();}",
+      "expectedCodes": []
+    },
+    {
+      "id": "void-return:positive-05",
+      "source": "function f(n:number):void {try{if(n<0){return;}let x:number=n;}finally{let clean:number=1;}}",
+      "expectedCodes": []
+    },
+    {
+      "id": "void-return:positive-06",
+      "source": "function f(n:number):void {let x:number=0;for(let i:number=0;i<n;i++){x+=i;}}",
+      "expectedCodes": []
+    },
+    {
+      "id": "void-return:positive-07",
+      "source": "function f():void {return;} let result:void=f();",
+      "expectedCodes": []
+    },
+    {
+      "id": "void-return:positive-08",
+      "source": "function f():void {return;} f();",
+      "expectedCodes": []
+    },
+    {
+      "id": "void-return:positive-09",
+      "source": "export function f(n:number):void {let x:number=n+1;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "void-return:positive-10",
+      "source": "function f():void {return;} let x:any=f();",
+      "expectedCodes": []
+    },
+    {
+      "id": "void-return:negative-01",
+      "source": "function f():void {return 21;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "void-return:negative-02",
+      "source": "function f():void {} let x:number=f();",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}

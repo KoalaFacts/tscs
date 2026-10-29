@@ -99,8 +99,12 @@ internal static class JavaScriptEmitter
                     break;
                 case ReturnStatement returned:
                     Indent(depth);
-                    output.Append("return ");
-                    WriteExpression(returned.Value);
+                    output.Append("return");
+                    if(returned.Value is { } returnValue)
+                    {
+                        output.Append(' ');
+                        WriteExpression(returnValue);
+                    }
                     output.Append(";\n");
                     break;
                 case ThrowStatement thrown:
