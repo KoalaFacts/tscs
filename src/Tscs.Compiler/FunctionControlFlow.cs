@@ -4,11 +4,17 @@ namespace Tscs;
 // switch fallthrough and guard continuation. Break is consumed by the nearest
 // switch/for..of; it must never be mistaken for a function return.
 [Flags]
-internal enum FlowExit { None=0, Next=1, Return=2, Break=4, Continue=8 }
+internal enum FlowExit { None=0, Next=1, Return=2, Break=4, Continue=8, Throw=16 }
 
 internal static class FunctionControlFlow
 {
-    public static bool DefinitelyReturnsValue(Block body) => Analyze(body)==FlowExit.Return;
+    // Every path must terminate abruptly; a throw need not fabricate a return value.
+    public static bool DefinitelyReturnsValue(Block body)
+    {
+        var exits=Analyze(body);
+        return (exits&(FlowExit.Next|FlowExit.Break|FlowExit.Continue))==FlowExit.None &&
+            (exits&(FlowExit.Return|FlowExit.Throw))!=FlowExit.None;
+    }
     public static bool CanCompleteNormally(Block body) => (Analyze(body)&FlowExit.Next)!=0;
     public static bool CanCompleteNormally(Statement statement) => (Analyze(statement)&FlowExit.Next)!=0;
 
@@ -26,6 +32,7 @@ internal static class FunctionControlFlow
     private static FlowExit Analyze(Statement statement) => statement switch
     {
         ReturnStatement => FlowExit.Return,
+        ThrowStatement => FlowExit.Throw,
         BreakStatement => FlowExit.Break,
         ContinueStatement => FlowExit.Continue,
         Block body => Analyze(body),
@@ -34,12 +41,12 @@ internal static class FunctionControlFlow
         SwitchStatement switching => AnalyzeSwitch(switching),
         // An array loop can iterate zero times. A return inside its body may
         // exit the function, but any break is consumed by the loop itself.
-        ForOfStatement loop => FlowExit.Next | (Analyze(loop.Body)&FlowExit.Return),
+        ForOfStatement loop => FlowExit.Next | (Analyze(loop.Body)&(FlowExit.Return|FlowExit.Throw)),
         // Bounded while conditions may be false initially. Both breaks and
         // continues are consumed; only an actual body return exits the function.
-        WhileStatement loop => FlowExit.Next | (Analyze(loop.Body)&FlowExit.Return),
+        WhileStatement loop => FlowExit.Next | (Analyze(loop.Body)&(FlowExit.Return|FlowExit.Throw)),
         DoWhileStatement loop => AnalyzeDoWhile(loop),
-        ClassicForStatement loop => FlowExit.Next | (Analyze(loop.Body)&FlowExit.Return),
+        ClassicForStatement loop => FlowExit.Next | (Analyze(loop.Body)&(FlowExit.Return|FlowExit.Throw)),
         _ => FlowExit.Next
     };
 
@@ -48,7 +55,7 @@ internal static class FunctionControlFlow
         var body=Analyze(loop.Body);
         // Unlike while, a do body always executes: a guaranteed return does
         // not acquire an invented normal-exit path from its condition.
-        return (body&FlowExit.Return) |
+        return (body&(FlowExit.Return|FlowExit.Throw)) |
             ((body&(FlowExit.Next|FlowExit.Break|FlowExit.Continue))!=0?FlowExit.Next:FlowExit.None);
     }
 
@@ -63,7 +70,7 @@ internal static class FunctionControlFlow
             var local=Analyze(switching.Clauses[index].Body);
             // Continue skips the enclosing loop iteration, not merely the
             // switch clause. Propagate it until an enclosing loop consumes it.
-            var current=(local&(FlowExit.Return|FlowExit.Continue)) |
+            var current=(local&(FlowExit.Return|FlowExit.Continue|FlowExit.Throw)) |
                 ((local&FlowExit.Break)!=0?FlowExit.Next:FlowExit.None) |
                 ((local&FlowExit.Next)!=0?downstream:FlowExit.None);
             downstream=current;

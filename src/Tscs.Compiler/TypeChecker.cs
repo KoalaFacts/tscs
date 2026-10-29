@@ -86,6 +86,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     case SwitchStatement switching:
                         CheckSwitch(switching,scope,expectedReturn,allowContinue);
                         break;
+                    case ThrowStatement thrown:
+                        TypeOf(thrown.Value,scope);
+                        break;
                     case ReturnStatement returned:
                         if(expectedReturn==null)
                             throw new CompilationFailure(Diagnostic.Error(file,returned.Keyword,"TSCS1001",
@@ -973,6 +976,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     break;
                 case ReturnStatement returned:
                     RecordValueWrites(returned.Value,shadowed);
+                    break;
+                case ThrowStatement thrown:
+                    RecordValueWrites(thrown.Value,shadowed);
                     break;
                 case ConditionalStatement branch:
                     RecordValueWrites(branch.Condition,shadowed);

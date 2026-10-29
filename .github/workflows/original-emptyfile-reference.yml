@@ -57,6 +57,15 @@ jobs:
           node tools/verify-switch-reference.ts "$reference" .artifacts/loop-control-reference fixtures/loop-control/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/classic-for-reference fixtures/classic-for/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/numeric-mutation-reference fixtures/numeric-mutation/semantic-cases.json
+          node tools/verify-switch-reference.ts "$reference" .artifacts/throw-flow-reference fixtures/throw-flow/semantic-cases.json
+      - name: Preserve bounded throw-flow reference inputs and raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-throw-flow-reference-${{ github.sha }}
+          path: .artifacts/throw-flow-reference/
+          retention-days: 30
+          if-no-files-found: warn
       - name: Preserve type-operator reference inputs and raw results
         if: always()
         uses: actions/upload-artifact@v4

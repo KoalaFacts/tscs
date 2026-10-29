@@ -37,4 +37,5 @@ node tools/verify-classic-for-emit.ts
 node tools/verify-numeric-mutation-emit.ts
 node tools/verify-prefix-update-emit.ts
 node tools/verify-postfix-update-emit.ts
+node tools/verify-throw-emit.ts
 node tools/implementation-coverage.ts --check
