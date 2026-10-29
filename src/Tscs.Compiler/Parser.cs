@@ -228,9 +228,11 @@ internal sealed class Parser(string file, List<Token> tokens)
             {
                 var keyword=Take();
                 if(!inFunction)Unsupported(keyword,"Return statements are supported only inside functions.");
-                if(Current.LineBreak || Current.Kind is TokenKind.Semi or TokenKind.End or TokenKind.Close)
-                    Unsupported(keyword,"Only value-returning functions are supported yet.");
-                statements.Add(new ReturnStatement(keyword,ParseValue()));
+                // A line terminator after return ends the statement (ASI).
+                // The checker validates a bare return against the declared result type.
+                var returnExpression=Current.LineBreak || Current.Kind is TokenKind.Semi or TokenKind.End or TokenKind.Close
+                    ? null : ParseValue();
+                statements.Add(new ReturnStatement(keyword,returnExpression));
                 EndStatement();
                 continue;
             }
@@ -524,10 +526,10 @@ internal sealed class Parser(string file, List<Token> tokens)
     {
         if(depth>64)Unsupported(Current,"Type nesting exceeds the compiler subset limit.");
         TypeSyntax type;
-        if(Current.Kind==TokenKind.Identifier)
+        if(Current.Kind is TokenKind.Identifier or TokenKind.Void)
         {
             var name=Take();
-            type=name.Text is "number" or "string" or "boolean" or "any"
+            type=name.Text is "number" or "string" or "boolean" or "any" or "void"
                 ?new PrimitiveTypeSyntax(name):new NamedTypeSyntax(name);
         }
         else if(Current.Kind is TokenKind.String or TokenKind.Number or TokenKind.True or TokenKind.False)
@@ -593,7 +595,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     private Token ReadPropertyName(bool allowString)
     {
         if(Current.Kind is TokenKind.Identifier or TokenKind.Let or TokenKind.Const or
-            TokenKind.Import or TokenKind.Export or TokenKind.Type or TokenKind.Interface or TokenKind.Function or TokenKind.Return or TokenKind.Throw or TokenKind.Try or TokenKind.Catch or TokenKind.Finally or
+            TokenKind.Import or TokenKind.Export or TokenKind.Type or TokenKind.Interface or TokenKind.Function or TokenKind.Return or TokenKind.Void or TokenKind.Throw or TokenKind.Try or TokenKind.Catch or TokenKind.Finally or
             TokenKind.If or TokenKind.Else or TokenKind.For or TokenKind.While or TokenKind.Do or TokenKind.Break or TokenKind.Continue or TokenKind.Typeof or TokenKind.True or TokenKind.False ||
             (allowString && Current.Kind==TokenKind.String))return Take();
         Unsupported(Current,"Expected a supported named object property.");

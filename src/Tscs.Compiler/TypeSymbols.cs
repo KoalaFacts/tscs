@@ -8,7 +8,7 @@ internal abstract record TypeSymbol
     public abstract string DisplayName { get; }
 }
 
-internal enum PrimitiveKind { Number, String, Boolean, Any, Unknown, Never }
+internal enum PrimitiveKind { Number, String, Boolean, Any, Void, Unknown, Never }
 
 internal sealed record PrimitiveTypeSymbol(PrimitiveKind Kind) : TypeSymbol
 {
@@ -18,6 +18,7 @@ internal sealed record PrimitiveTypeSymbol(PrimitiveKind Kind) : TypeSymbol
         PrimitiveKind.String => "string",
         PrimitiveKind.Boolean => "boolean",
         PrimitiveKind.Any => "any",
+        PrimitiveKind.Void => "void",
         PrimitiveKind.Unknown => "unknown",
         PrimitiveKind.Never => "never",
         _ => throw new ArgumentOutOfRangeException(nameof(Kind))
@@ -55,6 +56,7 @@ internal static class CompilerTypes
     public static readonly TypeSymbol String=new PrimitiveTypeSymbol(PrimitiveKind.String);
     public static readonly TypeSymbol Boolean=new PrimitiveTypeSymbol(PrimitiveKind.Boolean);
     public static readonly TypeSymbol Any=new PrimitiveTypeSymbol(PrimitiveKind.Any);
+    public static readonly TypeSymbol Void=new PrimitiveTypeSymbol(PrimitiveKind.Void);
     // The immutable pinned Go reference treats catch bindings as unknown.
     public static readonly TypeSymbol Unknown=new PrimitiveTypeSymbol(PrimitiveKind.Unknown);
     // Internal inference for an empty literal. 'never' annotations and
@@ -116,6 +118,7 @@ internal static class CompilerTypes
         "string" => String,
         "boolean" => Boolean,
         "any" => Any,
+        "void" => Void,
         _ => throw new ArgumentOutOfRangeException(nameof(name),
             "Only parser-validated primitive annotations may reach the semantic type model.")
     };
