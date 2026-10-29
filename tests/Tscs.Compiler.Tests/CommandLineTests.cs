@@ -363,7 +363,7 @@ public class CommandLineTests : IDisposable
         const string profile="interface SymbolConstructor { readonly iterator: unique symbol; }\n"+
             "declare const Symbol: SymbolConstructor;\n"+
             "interface IteratorResult<T> { done?: boolean; value: T; }\n"+
-            "interface Iterator<T> { next(): IteratorResult<T>; }\n"+
+            "interface Iterator<T, TReturn = any, TNext = any> { next(): IteratorResult<T>; }\n"+
             "interface Array<T> { length: number; [index: number]: T; [Symbol.iterator](): Iterator<T>; }\n"+
             "interface Boolean {} interface Function {} interface IArguments {} interface Number {} "+
             "interface Object {} interface RegExp {} interface String {} "+

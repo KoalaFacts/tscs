@@ -155,7 +155,7 @@ public static class CommandLine
     // symmetrically, without treating arbitrary .d.ts declarations as accepted.
     private static void ReadGlobals(string text,HashSet<string> globals)
     {
-        var pattern=new Regex(@"\G\s*interface\s+([A-Za-z_$][A-Za-z0-9_$]*)(\s*<\s*T\s*>)?\s*\{([^{}]*)\}\s*",
+        var pattern=new Regex(@"\G\s*interface\s+([A-Za-z_$][A-Za-z0-9_$]*)(\s*<\s*T\s*(?:,\s*TReturn\s*=\s*any\s*,\s*TNext\s*=\s*any\s*)?>)?\s*\{([^{}]*)\}\s*",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         var symbolPattern=new Regex(@"\G\s*declare\s+const\s+Symbol\s*:\s*SymbolConstructor\s*;\s*",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
@@ -177,6 +177,7 @@ public static class CommandLine
             if(!match.Success)throw new InputFailure("Only bounded bootstrap global interfaces are supported in .d.ts files.");
             string name=match.Groups[1].Value;
             bool generic=match.Groups[2].Success;
+            string genericParameters=Regex.Replace(match.Groups[2].Value,@"\s+","");
             var members=match.Groups[3].Value;
             if(name is "SymbolConstructor" or "IteratorResult" or "Iterator")
             {
@@ -186,8 +187,9 @@ public static class CommandLine
                 bool valid=name switch
                 {
                     "SymbolConstructor"=>!generic && compact=="readonlyiterator:uniquesymbol;",
-                    "IteratorResult"=>generic && compact=="done?:boolean;value:T;",
-                    "Iterator"=>generic && compact=="next():IteratorResult<T>;",
+                    "IteratorResult"=>genericParameters=="<T>" && compact=="done?:boolean;value:T;",
+                    "Iterator"=>genericParameters=="<T,TReturn=any,TNext=any>" &&
+                        compact=="next():IteratorResult<T>;",
                     _=>false
                 };
                 if(!valid||!extras.Add(name))
@@ -196,7 +198,7 @@ public static class CommandLine
             else
             {
                 if(!GlobalTypes.Contains(name,StringComparer.Ordinal) ||
-                   (name=="Array")!=generic || !globals.Add(name))
+                   (name=="Array"?genericParameters!="<T>":generic) || !globals.Add(name))
                     throw new InputFailure("Unsupported or duplicate bootstrap global declaration.");
                 if(!string.IsNullOrWhiteSpace(members))
                 {
