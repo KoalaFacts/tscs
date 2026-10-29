@@ -89,6 +89,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     case ThrowStatement thrown:
                         TypeOf(thrown.Value,scope);
                         break;
+                    case TryFinallyStatement guarded:
+                        CheckTryFinally(guarded,scope,expectedReturn,allowBreak,allowContinue);
+                        break;
                     case ReturnStatement returned:
                         if(expectedReturn==null)
                             throw new CompilationFailure(Diagnostic.Error(file,returned.Keyword,"TSCS1001",
@@ -830,6 +833,28 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         return null;
     }
 
+    private void CheckTryFinally(TryFinallyStatement statement,Scope scope,
+        TypeSymbol? expectedReturn,bool allowBreak,bool allowContinue)
+    {
+        // Cleanup can run after a throw before any try-body assignment.
+        // Validate its reads against the incoming state, not a speculative
+        // definitely-initialized state created by checking the try body.
+        var initialized=CaptureInitialized(scope);
+        var types=CaptureFlowTypes(scope);
+        try
+        {
+            CheckBlock(statement.Body,scope,false,expectedReturn,allowBreak,allowContinue);
+        }
+        finally
+        {
+            RestoreInitialized(initialized);
+            RestoreFlowTypes(types);
+        }
+        // Finally is guaranteed to execute, including on abrupt exits.
+        // Post-try definite assignment is deliberately conservative.
+        CheckBlock(statement.FinallyBody,scope,false,expectedReturn,allowBreak,allowContinue);
+    }
+
     private static Dictionary<Symbol,bool> CaptureInitialized(Scope scope)
     {
         var values=new Dictionary<Symbol,bool>();
@@ -979,6 +1004,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     break;
                 case ThrowStatement thrown:
                     RecordValueWrites(thrown.Value,shadowed);
+                    break;
+                case TryFinallyStatement guarded:
+                    Visit(guarded.Body,shadowed);
+                    Visit(guarded.FinallyBody,shadowed);
                     break;
                 case ConditionalStatement branch:
                     RecordValueWrites(branch.Condition,shadowed);

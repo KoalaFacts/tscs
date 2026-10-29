@@ -109,6 +109,14 @@ internal static class JavaScriptEmitter
                     WriteExpression(thrown.Value);
                     output.Append(";\n");
                     break;
+                case TryFinallyStatement guarded:
+                    Indent(depth);
+                    output.Append("try ");
+                    WriteBlock(guarded.Body,depth);
+                    output.Append(" finally ");
+                    WriteBlock(guarded.FinallyBody,depth);
+                    output.Append('\n');
+                    break;
                 case FunctionDeclaration function:
                     Indent(depth);
                     if(function.Exported)output.Append("export ");

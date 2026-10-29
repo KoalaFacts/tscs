@@ -71,6 +71,57 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "throw-flow:positive-11",
+      "source": "function f(n:number):number { try { return n+1; } finally { let count:number=1; } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "throw-flow:positive-12",
+      "source": "function f(n:number):number { try { throw n; } finally { return 42; } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "throw-flow:positive-13",
+      "source": "function f(n:number):number { try { return n; } finally { throw \"cleanup\"; } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "throw-flow:positive-14",
+      "source": "function f(n:number):number { try { if(n<0){throw n;} return n+1; } finally { let flag:boolean=true; } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "throw-flow:positive-15",
+      "source": "let count:number=0; try { count=41; } finally { count+=1; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "throw-flow:positive-16",
+      "source": "function f(n:number):number { let count:number=0; try { while(n>0){n--;break;} } finally { count+=1; } return count+41; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "throw-flow:negative-04",
+      "source": "function f():number { try { return \"wrong\"; } finally {let n:number=1;} }",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "throw-flow:negative-05",
+      "source": "function f():number { try { return 42; } finally { throw missing; } }",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    },
+    {
+      "id": "throw-flow:negative-06",
+      "source": "try { let n:number=\"wrong\"; } finally { let x:number=1; }",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }
