@@ -580,13 +580,26 @@ internal sealed class Parser(string file, List<Token> tokens)
     private TypeSyntax ReadTypeAnnotation(int depth=0)
     {
         if(depth>64)Unsupported(Current,"Type nesting exceeds the compiler subset limit.");
-        var alternatives=new List<TypeSyntax>{ ReadTypePart(depth+1) };
+        var alternatives=new List<TypeSyntax>{ ReadTypeIntersection(depth+1) };
         while(Eat(TokenKind.Bar))
         {
             if(alternatives.Count>=64)Unsupported(Current,"Unions with over 64 alternatives are not supported yet.");
-            alternatives.Add(ReadTypePart(depth+1));
+            alternatives.Add(ReadTypeIntersection(depth+1));
         }
         return alternatives.Count==1?alternatives[0]:new UnionTypeSyntax(alternatives);
+    }
+    // Postfix [] and keyof bind before &, while & binds before union |.
+    // Bitwise & in value expressions continues to use the existing expression grammar.
+    private TypeSyntax ReadTypeIntersection(int depth)
+    {
+        if(depth>64)Unsupported(Current,"Type nesting exceeds the compiler subset limit.");
+        var parts=new List<TypeSyntax>{ReadTypePart(depth+1)};
+        while(Eat(TokenKind.Amp))
+        {
+            if(parts.Count>=64)Unsupported(Current,"Intersections with over 64 operands are not supported yet.");
+            parts.Add(ReadTypePart(depth+1));
+        }
+        return parts.Count==1?parts[0]:new IntersectionTypeSyntax(parts);
     }
     private TypeSyntax ReadTypePart(int depth)
     {

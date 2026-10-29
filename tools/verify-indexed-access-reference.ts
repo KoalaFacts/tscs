@@ -5,16 +5,19 @@ import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {join,resolve,basename} from 'node:path';
 
 // Fixed pinned TypeScript Go reference, independently from original TS7 acceptance.
-const [referenceArg,outputArg]=process.argv.slice(2);
+const [referenceArg,outputArg,optionalSuitePath]=process.argv.slice(2);
 assert.ok(referenceArg&&outputArg,'usage: node tools/verify-indexed-access-reference.ts <pinned-go-tsc> <new-evidence-directory>');
 const reference=resolve(referenceArg),out=resolve(outputArg),root=process.cwd();
 assert.ok(!existsSync(out),'refusing to overwrite source-bound run evidence');
 mkdirSync(out,{recursive:true});
 const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
-const suitePath='fixtures/indexed-access/semantic-cases.json';
+const intersection=optionalSuitePath==='fixtures/object-intersection/semantic-cases.json';
+assert.ok(optionalSuitePath==null||intersection,'unknown bounded source cohort');
+const suitePath=optionalSuitePath??'fixtures/indexed-access/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
-assert.equal(suite.kind,'BOUNDED_INDEXED_ACCESS_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,20,'do not shrink frozen or additive reference cases');
+assert.equal(suite.kind,intersection?'BOUNDED_OBJECT_INTERSECTION_NOT_ORIGINAL_TS7_ACCEPTANCE':
+  'BOUNDED_INDEXED_ACCESS_NOT_ORIGINAL_TS7_ACCEPTANCE');
+assert.equal(suite.cases.length,intersection?12:20,'do not shrink registered source cases');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const profilePath='fixtures/minimal.d.ts',profile=readFileSync(profilePath,'utf8');
 const hash=(v:string|Buffer)=>createHash('sha256').update(v).digest('hex');
@@ -43,7 +46,7 @@ const codes=(r:ReturnType<typeof run>)=>
 const ids=new Set<string>(),rows:object[]=[],mismatch:object[]=[];
 for(let i=0;i<suite.cases.length;i++) {
   const item=suite.cases[i];
-  assert.match(item.id,/^indexed-access:(positive|negative)-\d{2}$/);
+  assert.match(item.id,intersection?/^object-intersection:(positive|negative)-\d{2}$/:/^indexed-access:(positive|negative)-\d{2}$/);
   assert.ok(!ids.has(item.id),'duplicate case ID');ids.add(item.id);
   assert.equal(typeof item.source,'string');
   assert.ok(Array.isArray(item.expectedCodes));
@@ -82,4 +85,4 @@ for(const file of manifest) {
 }
 writeFileSync(join(out,'manifest.json'),JSON.stringify({files:manifest},null,2),{flag:'wx',flush:true});
 assert.deepEqual(mismatch,[],'genuine pinned Go mismatch; raw per-case results preserved');
-console.log('indexed access types: '+rows.length+' stable source/code/exit cases matched pinned Go; original TS7 credit=0.');
+console.log((intersection?'object intersections':'indexed access types')+': '+rows.length+' stable source/code/exit cases matched pinned Go; original TS7 credit=0.');

@@ -115,6 +115,67 @@ internal static class TypeResolver
                 new KeyValuePair<string,TypeSymbol>(Parser.PropertyName(p.Name),Resolve(p.Type,scope,file,depth+1))),
                 shape.Properties.Where(p=>p.Readonly).Select(p=>Parser.PropertyName(p.Name)),
                 shape.Properties.Where(p=>p.Name.Kind==TokenKind.Number).Select(p=>Parser.PropertyName(p.Name)));
+            case IntersectionTypeSyntax intersection:
+            {
+                // Finite, required structural shapes can be safely flattened and
+                // checked by the existing binder/checker without a new type escape hatch.
+                // Unions/primitive operands, conflicting keys, methods and index
+                // signatures stay explicitly unsupported rather than guessed.
+                var properties=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
+                var numeric=new HashSet<string>(StringComparer.Ordinal);
+                var readonlyKeys=new HashSet<string>(StringComparer.Ordinal);
+                foreach(var part in intersection.Members)
+                {
+                    var shape=Resolve(part,scope,file,depth+1) as ObjectTypeSymbol;
+                    if(shape is null)
+                        throw new CompilationFailure(Diagnostic.Error(file,Location(part),"TSCS1001",
+                            "Intersections currently require finite structural object operands."));
+                    foreach(var member in shape.Members)
+                    {
+                        var name=member.Key;
+                        bool isNumeric=shape.NumericMembers.Contains(name);
+                        bool isReadonly=shape.ReadonlyMembers.Contains(name);
+                        if(properties.TryGetValue(name,out var previous))
+                        {
+                            // Runtime names may alias 0 and "0" while keyof does
+                            // not. Do not erase that distinction during flattening.
+                            if(numeric.Contains(name)!=isNumeric)
+                                throw new CompilationFailure(Diagnostic.Error(file,Location(part),"TSCS1001",
+                                    $"Intersected property '{name}' has incompatible numeric/string key identities."));
+                            if(CompilerTypes.IsEquivalent(previous,member.Value))
+                            {
+                                // Equivalent required member types stay unchanged.
+                            }
+                            else if(previous is LiteralTypeSymbol &&
+                                member.Value is PrimitiveTypeSymbol &&
+                                CompilerTypes.IsAssignable(previous,member.Value))
+                            {
+                                // Exact member constraint already narrows the primitive.
+                            }
+                            else if(member.Value is LiteralTypeSymbol &&
+                                previous is PrimitiveTypeSymbol &&
+                                CompilerTypes.IsAssignable(member.Value,previous))
+                                properties[name]=member.Value;
+                            else
+                                throw new CompilationFailure(Diagnostic.Error(file,Location(part),"TSCS1001",
+                                    $"Intersected property '{name}' has unsupported incompatible member types."));
+                            // A mutable occurrence permits assignment to an
+                            // otherwise readonly overlapping required member.
+                            if(!isReadonly)readonlyKeys.Remove(name);
+                        }
+                        else
+                        {
+                            properties.Add(name,member.Value);
+                            if(isNumeric)numeric.Add(name);
+                            if(isReadonly)readonlyKeys.Add(name);
+                            if(properties.Count>128)
+                                throw new CompilationFailure(Diagnostic.Error(file,Location(part),"TSCS1001",
+                                    "Intersected object exceeds the supported property bound."));
+                        }
+                    }
+                }
+                return new ObjectTypeSymbol(properties,readonlyKeys,numeric);
+            }
             case UnionTypeSyntax union:
                 try {return CompilerTypes.Union(union.Members.Select(member=>Resolve(member,scope,file,depth+1)));}
                 catch(InvalidOperationException failure)
@@ -134,6 +195,7 @@ internal static class TypeResolver
         IndexedAccessTypeSyntax value=>value.Open,
         ObjectTypeSyntax value=>value.Open,
         ArrayTypeSyntax value=>value.Open,
+        IntersectionTypeSyntax value=>Location(value.Members[0]),
         UnionTypeSyntax value=>Location(value.Members[0]),
         _=>default
     };

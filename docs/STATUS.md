@@ -1,3 +1,18 @@
+## 2026-10-30 — Finite structural object intersections (source candidate; NOT_RUN)
+
+The bounded C# type grammar now accepts `A & B` between finite required
+structural objects with union-lower precedence, merging disjoint fields,
+equivalent repeated members, literal/primitive refinements, numeric key identity
+and readonly metadata. The result uses the existing object checker,
+`keyof`, indexed access, imported types and ES2015 type erasure. Incompatible
+or non-object operands explicitly fail closed; general intersection normalization,
+generic constraints, index signatures and conflicting numeric/string key aliases
+are unimplemented. Eight source-backed positive and four TypeScript-diagnostic
+negative pinned-Go cases are registered, plus four-module Node execution and
+eight rejection/no-emit tests. This source candidate is NOT_RUN until exact-head
+hosted gates complete. **Original TS7 acceptance remains 0 PASS / 15,523
+SKIP_UNIMPLEMENTED; dynamic full scope UNEXPANDED.**
+
 ## 2026-10-30 — Checked structural indexed-access types (candidate; NOT_RUN)
 
 Type annotations now resolve finite type-level `T["key"]`, `T[0]`,
