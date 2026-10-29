@@ -28,7 +28,15 @@ try {
     'const copy:Shape={value:item.value,nested:{amount:item.nested.amount}};',
     'export const result:Value=apply(twice,copy.value);',
     'export const nested:Amount=copy.nested.amount;',
-    'export const key:Key="nested";'
+    'export const key:Key="nested";',
+    'type ImportedShape=typeof item;',
+    'type ImportedKey=keyof typeof item;',
+    'type ImportedValue=(typeof item)["value"];',
+    'type ImportedCallback=typeof twice;',
+    'function invoke(fn:ImportedCallback,n:number):number{return fn(n);}',
+    'const importedCopy:ImportedShape={value:item.value,nested:{amount:item.nested.amount}};',
+    'export const importedResult:ImportedValue=invoke(twice,importedCopy.value);',
+    'export const importedKey:ImportedKey="value";'
   ].join('\n'));
   writeFileSync(join(dir,'project.json'),JSON.stringify({
     files:['entry.ts','minimal.d.ts'],compilerOptions:{module:'es2015',target:'es2015',noLib:true}
@@ -46,7 +54,7 @@ try {
   assert.equal(good.status,0,good.stdout+good.stderr);
   for(const f of ['model','logic','bridge','entry'])assert.ok(existsSync(join(dir,f+'.js')));
   const runtime=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,nested,key} from "./entry.js"; if(result!==42||nested!==42||key!=="nested")throw Error("type query runtime mismatch");'],
+    'import {result,nested,key,importedResult,importedKey} from "./entry.js"; if(result!==42||nested!==42||key!=="nested"||importedResult!==42||importedKey!=="value")throw Error("type query runtime mismatch");'],
     {cwd:dir,encoding:'utf8',timeout:15000});
   assert.equal(runtime.error,undefined,String(runtime.error));
   assert.equal(runtime.status,0,runtime.stdout+runtime.stderr);
@@ -67,5 +75,22 @@ try {
     assert.match(rejected.stdout+rejected.stderr,new RegExp(diagnostic));
     assert.equal(existsSync(file.replace(/\.ts$/,'.js')),false,'failed source emitted JavaScript');
   }
-  console.log('typeof type query: four-module ES2015 result/nested=42; seven invalid programs rejected.');
+  // Each imported type query is checked using the same real module graph.
+  writeFileSync(join(dir,'untyped.ts'),'export const untyped=21;');
+  const importedInvalid:[string,string,string,number][]=[
+    ['imported-missing-member','import {item} from "./model.js";type Bad=typeof item.missing;','TS2339',2],
+    ['imported-wrong-value','import {item} from "./model.js";type N=(typeof item)["value"];let bad:N="no";','TS2322',2],
+    ['imported-function-mismatch','import {twice} from "./logic.js";let bad:typeof twice=42;','TS2322',2],
+    ['imported-unsupported-inference','import {untyped} from "./untyped.js";type N=typeof untyped;','TSCS1001',1]
+  ];
+  for(const [name,source,diagnostic,exit] of importedInvalid) {
+    const file=join(dir,'bad-'+name+'.ts');
+    writeFileSync(file,source);
+    const rejected=compile(['--emitJs','--noLib','--target','es2015',
+      '--module','es2015',file,join(dir,'minimal.d.ts')]);
+    assert.equal(rejected.status,exit,rejected.stdout+rejected.stderr);
+    assert.match(rejected.stdout+rejected.stderr,new RegExp(diagnostic));
+    assert.equal(existsSync(file.replace(/\.ts$/,'.js')),false,'failed imported type query emitted JS');
+  }
+  console.log('typeof type query: imported values/functions across four ES2015 modules, result/nested/importedResult=42; eleven invalid programs rejected.');
 } finally {rmSync(dir,{recursive:true,force:true});}

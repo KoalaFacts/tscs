@@ -1,9 +1,11 @@
 namespace Tscs;
 
-internal sealed class Symbol(string file,Statement declaration)
+internal sealed class Symbol(string file,Statement declaration,Scope? declaringScope=null)
 {
     public string File { get; } = file;
     public Statement Declaration { get; } = declaration;
+    // Imported symbols retain their original type environment across aliases/re-exports.
+    public Scope? DeclaringScope { get; } = declaringScope;
     public bool IsConstant => Declaration is Variable { Constant:true } or ForOfStatement { Constant:true } or ForInStatement { Constant:true };
     public int DeclarationStart => Declaration switch
     {
@@ -134,22 +136,30 @@ internal static class Binder
                 "Duplicate for..in iteration binding is not supported."));
     }
 
-    public static void Import(string file,Scope scope,ImportSpecifier specifier,Symbol exported)
+    // Stage value aliases before resolving type namespaces so that a type-level
+    // typeof query may refer to an imported declaration in its *origin* scope.
+    // No uninitialized type is made visible to the runtime checker.
+    public static Symbol StageImport(string file,Scope scope,ImportSpecifier specifier,Symbol exported)
     {
-        if(!exported.CrossFileTypeReady)
-            throw new CompilationFailure(Diagnostic.Error(file,specifier.Imported,"TSCS1001",
-                "Imported declarations require a known semantic type."));
-        var imported=new Symbol(exported.File,exported.Declaration)
+        var imported=new Symbol(exported.File,exported.Declaration,exported.DeclaringScope)
         {
-            Type=exported.Type,
-            DeclaredType=exported.DeclaredType,
-            Initialized=exported.Initialized,
-            CrossFileTypeReady=true,
             Imported=true
         };
         if(!scope.Symbols.TryAdd(specifier.Local.Text,imported))
             throw new CompilationFailure(Diagnostic.Error(file,specifier.Local,"TSCS1001",
                 "Duplicate import or local declaration is not supported yet."));
+        return imported;
+    }
+
+    public static void CompleteImport(string file,ImportSpecifier specifier,Symbol imported,Symbol exported)
+    {
+        if(!exported.CrossFileTypeReady)
+            throw new CompilationFailure(Diagnostic.Error(file,specifier.Imported,"TSCS1001",
+                "Imported declarations require a known semantic type."));
+        imported.Type=exported.Type;
+        imported.DeclaredType=exported.DeclaredType;
+        imported.Initialized=exported.Initialized;
+        imported.CrossFileTypeReady=true;
     }
 
     // Shared signature construction is also used by type-level typeof queries.
@@ -175,6 +185,9 @@ internal static class Binder
         foreach(var binding in scope.Types.Values.Distinct())_ = TypeResolver.ResolveBinding(binding);
         foreach(var symbol in scope.Symbols.Values)
         {
+            // Staged imports are materialized only after every module has
+            // resolved its own declarations and aliases.
+            if(symbol.Imported)continue;
             switch(symbol.Declaration)
             {
                 case Variable declaration:
@@ -217,7 +230,7 @@ internal static class Binder
             ParameterDeclaration p => p.Name,
             _ => throw new ArgumentOutOfRangeException(nameof(declaration))
         };
-        if(!scope.Symbols.TryAdd(name.Text,new Symbol(file,declaration)))
+        if(!scope.Symbols.TryAdd(name.Text,new Symbol(file,declaration,scope)))
             throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
                 "Redeclaration diagnostics and declaration merging are not supported yet."));
     }
