@@ -406,6 +406,25 @@ internal static class CompilerTypes
                 if(required is ArrayTypeSymbol requiredArray)
                     return actual is ArrayTypeSymbol actualArray &&
                         Check(actualArray.ElementType,requiredArray.ElementType);
+                if(required is FunctionTypeSymbol requiredFunction)
+                {
+                    if(actual is not FunctionTypeSymbol actualFunction)return false;
+                    // This bounded function relation admits only identical arity
+                    // families. Do not guess at optional/rest compatibility.
+                    // Parameter inputs are contravariant; return values covariant.
+                    if(actualFunction.Parameters.Count!=requiredFunction.Parameters.Count ||
+                       actualFunction.MinimumArguments!=requiredFunction.MinimumArguments ||
+                       (actualFunction.RestElementType is null)!=(requiredFunction.RestElementType is null))
+                        return false;
+                    for(int i=0;i<requiredFunction.Parameters.Count;i++)
+                        if(!Check(requiredFunction.Parameters[i],actualFunction.Parameters[i]))
+                            return false;
+                    if(requiredFunction.RestElementType is { } requiredRest &&
+                       actualFunction.RestElementType is { } actualRest &&
+                       !Check(requiredRest,actualRest))
+                        return false;
+                    return Check(actualFunction.ReturnType,requiredFunction.ReturnType);
+                }
                 if(required is ObjectTypeSymbol shape)
                 {
                     if(shape.Members.Count==0)return true;
