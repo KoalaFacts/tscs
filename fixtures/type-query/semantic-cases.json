@@ -75,6 +75,86 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "type-query:positive-09",
+      "source": "import {item} from \"./data.js\";type Shape=typeof item;let copy:Shape={value:42};",
+      "files": {
+        "data.ts": "export const item:{value:number}={value:21};"
+      },
+      "expectedCodes": []
+    },
+    {
+      "id": "type-query:positive-10",
+      "source": "import {item as local} from \"./data.js\";type V=typeof local.value;let v:V=42;",
+      "files": {
+        "data.ts": "export const item:{value:number}={value:21};"
+      },
+      "expectedCodes": []
+    },
+    {
+      "id": "type-query:positive-11",
+      "source": "import {payload} from \"./bridge.js\";type Shape=typeof payload;let copy:Shape={value:42};",
+      "files": {
+        "data.ts": "export const item:{value:number}={value:21};",
+        "bridge.ts": "export {item as payload} from \"./data.js\";"
+      },
+      "expectedCodes": []
+    },
+    {
+      "id": "type-query:positive-12",
+      "source": "import {twice} from \"./logic.js\";type Fn=typeof twice;function apply(fn:Fn,n:number):number{return fn(n);}let value:number=apply(twice,21);",
+      "files": {
+        "logic.ts": "export function twice(n:number):number{return n*2;"
+      },
+      "expectedCodes": []
+    },
+    {
+      "id": "type-query:positive-13",
+      "source": "import {item} from \"./data.js\";type Key=keyof typeof item;let key:Key=\"value\";",
+      "files": {
+        "data.ts": "export const item:{value:number;label:string}={value:21,label:\"ok\"};"
+      },
+      "expectedCodes": []
+    },
+    {
+      "id": "type-query:positive-14",
+      "source": "import {twice} from \"./logic.js\";type Fn=typeof twice;function apply(fn:Fn,s:Box):number{return fn(s);}",
+      "files": {
+        "types.ts": "export type Box={value:number};",
+        "logic.ts": "import type {Box} from \"./types.js\";export function twice(s:Box):number{return s.value*2;"
+      },
+      "expectedCodes": []
+    },
+    {
+      "id": "type-query:negative-06",
+      "source": "import {item} from \"./data.js\";type Bad=typeof item.missing;",
+      "files": {
+        "data.ts": "export const item:{value:number}={value:21};"
+      },
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "type-query:negative-07",
+      "source": "import {item} from \"./data.js\";type V=typeof item.value;let bad:V=\"wrong\";",
+      "files": {
+        "data.ts": "export const item:{value:number}={value:21};"
+      },
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-query:negative-08",
+      "source": "import {twice} from \"./logic.js\";let bad:typeof twice=42;",
+      "files": {
+        "logic.ts": "export function twice(n:number):number{return n*2;"
+      },
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }

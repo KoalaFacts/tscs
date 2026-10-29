@@ -44,17 +44,16 @@ internal static class TypeResolver
                 if(scope.Find(query.Root.Text) is not { } symbol)
                     throw new CompilationFailure(Diagnostic.Error(file,query.Root,"TS2304",
                         $"Cannot find name '{query.Root.Text}'."));
-                // Module value imports are linked after type signatures, so do not
-                // silently resolve a partially initialized imported value here.
-                if(symbol.Imported)
-                    throw new CompilationFailure(Diagnostic.Error(file,query.Root,"TSCS1001",
-                        "typeof on imported values requires value-import prebinding, not implemented yet."));
+                // Imported aliases point at the exporting declaration, not the
+                // consumer's type namespace. Reading its annotation here is safe
+                // even before the import's runtime type is hydrated.
+                var declaringScope=symbol.DeclaringScope??scope;
                 TypeSymbol target=symbol.Declaration switch
                 {
                     Variable { Annotation: { } annotation } =>
-                        Resolve(annotation,scope,symbol.File,depth+1),
+                        Resolve(annotation,declaringScope,symbol.File,depth+1),
                     FunctionDeclaration function =>
-                        Binder.ResolveFunctionSignature(function,scope,symbol.File,depth+1),
+                        Binder.ResolveFunctionSignature(function,declaringScope,symbol.File,depth+1),
                     _=>throw new CompilationFailure(Diagnostic.Error(file,query.Root,"TSCS1001",
                         "typeof currently requires an explicitly annotated value or typed function."))
                 };

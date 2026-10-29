@@ -14,7 +14,7 @@ const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
 const suitePath='fixtures/type-query/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
 assert.equal(suite.kind,'BOUNDED_TYPE_QUERY_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,13,'do not shrink registered source cases');
+assert.equal(suite.cases.length,22,'do not shrink registered source cases');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const profilePath='fixtures/minimal.d.ts',profile=readFileSync(profilePath,'utf8');
 const hash=(v:string|Buffer)=>createHash('sha256').update(v).digest('hex');
@@ -51,7 +51,17 @@ for(let i=0;i<suite.cases.length;i++) {
   mkdirSync(join(out,dir));
   save(dir+'/input.ts',item.source);
   save(dir+'/minimal.d.ts',profile);
-  const args=['--noEmit','--noLib','--target','es2015','--pretty','false','input.ts','minimal.d.ts'];
+  // Module cases carry their complete source graph; preserve every file as raw
+  // immutable evidence instead of treating a source asset as a passed test.
+  const extraFiles=item.files??{};
+  assert.ok(extraFiles && typeof extraFiles==='object' && !Array.isArray(extraFiles));
+  for(const [name,code] of Object.entries(extraFiles)) {
+    assert.match(name,/^[A-Za-z][A-Za-z0-9_-]*\\.ts$/,'unsafe referenced source file');
+    assert.equal(typeof code,'string');
+    save(dir+'/'+name,code as string);
+  }
+  const args=[...(Object.keys(extraFiles).length?['--module','es2015']:[]),
+    '--noEmit','--noLib','--target','es2015','--pretty','false','input.ts','minimal.d.ts'];
   const expected=run(reference,args,join(out,dir));
   const actual=run(process.env.DOTNET??'dotnet',[product,...args],join(out,dir));
   save('reference-'+i+'.json',JSON.stringify(expected,null,2));
@@ -82,4 +92,4 @@ for(const file of manifest) {
 }
 writeFileSync(join(out,'manifest.json'),JSON.stringify({files:manifest},null,2),{flag:'wx',flush:true});
 assert.deepEqual(mismatch,[],'genuine pinned Go mismatch; raw per-case results preserved');
-console.log('keyof objects: '+rows.length+' stable source/code/exit cases matched pinned Go; original TS7 credit=0.');
+console.log('typeof queries: '+rows.length+' stable source/code/exit cases matched pinned Go; original TS7 credit=0.');

@@ -117,17 +117,17 @@ internal static class ModuleLinker
                 }
             }
         }
-        // Every module has its complete type namespace before semantic types
-        // are resolved, including cross-file aliases and interface members.
-        foreach(var node in nodes.Values)Binder.InitializeDeclaredTypes(node.Scope);
-
-        // Invalid public names cannot hide just because no consumer requests them.
+        // Invalid export names fail even without consumers. Resolving names
+        // here also rejects re-export cycles before any type query is evaluated.
         foreach(var (file,node) in nodes)
             foreach(var name in node.Exports.Keys)
                 _=Resolve(file,name,[]);
 
-        // Forward and non-recursive circular imports use the same prebound
-        // export identities regardless of source order.
+        // Link value import *identities* before resolving aliases. The exported
+        // declaration can be forward/cyclic or use import-type names from its
+        // own module. Its semantic type is not yet available: only TypeResolver
+        // may inspect the original annotated declaration at this stage.
+        var pending=new List<(string File,ImportSpecifier Specifier,Symbol Imported,Symbol Exported)>();
         foreach(var (file,node) in nodes)
         {
             foreach(var import in node.Source.Root.Statements.OfType<ImportDeclaration>().Where(x=>!x.TypeOnly))
@@ -139,10 +139,20 @@ internal static class ModuleLinker
                     if(exported==null)
                         throw new CompilationFailure(Diagnostic.Error(file,specifier.Imported,"TS2305",
                             $"Module '{import.ModulePath.Value}' has no exported member '{specifier.Imported.Text}'."));
-                    Binder.Import(file,node.Scope,specifier,exported);
+                    var imported=Binder.StageImport(file,node.Scope,specifier,exported);
+                    pending.Add((file,specifier,imported,exported));
                 }
             }
         }
+
+        // Every module has its complete type and imported-value name spaces.
+        // Imported aliases are not treated as local declarations during this pass.
+        foreach(var node in nodes.Values)Binder.InitializeDeclaredTypes(node.Scope);
+        // Now restore the normal runtime/checker invariant: every value import
+        // must have a known semantic type, without inventing an any fallback.
+        foreach(var (file,specifier,imported,exported) in pending)
+            Binder.CompleteImport(file,specifier,imported,exported);
+
         return nodes.ToDictionary(pair=>pair.Key,pair=>pair.Value.Scope,comparer);
     }
 }
