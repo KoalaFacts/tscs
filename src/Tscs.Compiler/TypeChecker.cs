@@ -450,15 +450,25 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         }
     }
 
-    // A literal string index names a structural member. Dynamic computed
-    // names still need index signatures, which are not yet supported.
-    private static bool TryStaticStringIndex(ValueNode index,out string name)
+    // Numeric literals name an existing integer object member, never a
+    // general object[number] index signature. Strings retain prior behavior.
+    private static bool TryStaticNamedIndex(ValueNode index,TypeSymbol? receiver,out string name)
     {
         while(index is ValueParenthesized group)index=group.Expression;
-        if(index is ValueAtom { Token.Kind:TokenKind.String } atom)
+        if(index is ValueAtom atom)
         {
-            name=Parser.PropertyName(atom.Token);
-            return true;
+            if(atom.Token.Kind==TokenKind.String)
+            {
+                name=Parser.PropertyName(atom.Token);
+                return true;
+            }
+            if(atom.Token.Kind==TokenKind.Number &&
+               receiver is ObjectTypeSymbol shape &&
+               shape.Members.ContainsKey(Parser.PropertyName(atom.Token)))
+            {
+                name=Parser.PropertyName(atom.Token);
+                return true;
+            }
         }
         name=string.Empty;
         return false;
@@ -469,7 +479,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         if(CompilerTypes.IsStringFamily(receiver))
             throw new CompilationFailure(Diagnostic.Error(file,target.Open,"TS2542",
                 "Index signature in type 'String' only permits reading."));
-        if(!TryStaticStringIndex(target.Index,out var key))return;
+        if(!TryStaticNamedIndex(target.Index,receiver,out var key))return;
         if(receiver is ObjectTypeSymbol shape && shape.ReadonlyMembers.Contains(key))
             throw new CompilationFailure(Diagnostic.Error(file,target.Open,"TS2540",
                 $"Cannot assign to '{key}' because it is a read-only property."));
@@ -517,7 +527,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             case ValueElementAccess element:
                 var elementReceiver=TypeOf(element.Receiver,scope);
                 var indexType=TypeOf(element.Index,scope);
-                bool namedObjectIndex=TryStaticStringIndex(element.Index,out var propertyName) &&
+                bool namedObjectIndex=TryStaticNamedIndex(element.Index,elementReceiver,out var propertyName) &&
                     elementReceiver is ObjectTypeSymbol;
                 if(indexType!=null && !CompilerTypes.IsNumber(indexType) && !namedObjectIndex)
                     throw new CompilationFailure(Diagnostic.Error(file,element.Open,"TSCS1001",
@@ -1398,7 +1408,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 }
                 var indexType=types.Pop();
                 var receiverType=types.Pop();
-                if(receiverType!=null && TryStaticStringIndex(indexed.Index,out var key) &&
+                if(receiverType!=null && TryStaticNamedIndex(indexed.Index,receiverType,out var key) &&
                    (receiverType is ObjectTypeSymbol or UnionTypeSymbol ||
                     receiverType.Equals(CompilerTypes.Any)))
                 {
