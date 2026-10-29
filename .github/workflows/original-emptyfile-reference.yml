@@ -73,6 +73,15 @@ jobs:
           node tools/verify-switch-reference.ts "$reference" .artifacts/numeric-object-keys-reference fixtures/numeric-object-keys/semantic-cases.json
           node tools/verify-keyof-object-reference.ts "$reference" .artifacts/keyof-object-reference
           node tools/verify-indexed-access-reference.ts "$reference" .artifacts/indexed-access-reference
+          node tools/verify-indexed-access-reference.ts "$reference" .artifacts/object-intersection-reference fixtures/object-intersection/semantic-cases.json
+      - name: Preserve bounded object-intersection reference inputs and raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-object-intersection-reference-${{ github.sha }}
+          path: .artifacts/object-intersection-reference/
+          if-no-files-found: warn
+          retention-days: 30
       - name: Preserve bounded indexed-access reference inputs and raw results
         if: always()
         uses: actions/upload-artifact@v4

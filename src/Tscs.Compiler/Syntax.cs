@@ -20,6 +20,8 @@ internal sealed record NamedTypeSyntax(Token Name) : TypeSyntax;
 internal sealed record KeyofTypeSyntax(Token Keyword,TypeSyntax Target) : TypeSyntax;
 // Type-level selection leaves JavaScript unchanged.
 internal sealed record IndexedAccessTypeSyntax(TypeSyntax Target,Token Open,TypeSyntax Index,Token Close) : TypeSyntax;
+// An intersection is resolved into one finite structural object; no runtime syntax remains.
+internal sealed record IntersectionTypeSyntax(IReadOnlyList<TypeSyntax> Members) : TypeSyntax;
 internal sealed record UnionTypeSyntax(IReadOnlyList<TypeSyntax> Members) : TypeSyntax;
 internal sealed record TypeAliasDeclaration(Token Name,TypeSyntax Target,bool Exported=false) : Statement;
 internal sealed record InterfaceDeclaration(Token Name,ObjectTypeSyntax Body,bool Exported=false) : Statement;
