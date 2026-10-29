@@ -574,7 +574,7 @@ internal static class JavaScriptEmitter
                         {
                             var property=literalObject.Properties[i];
                             Node(property.Value);
-                            Text(property.Name.Text+": ");
+                            Text(property.Spread?"...":property.Name.Text+": ");
                             if(i>0)Text(", ");
                         }
                         Text("({ ");

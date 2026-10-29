@@ -43,7 +43,7 @@ public sealed class ObjectDataTests
     [InlineData("let x: { value?: number } = {};")]
     [InlineData("const x = { get value() { return 1; } };")]
     [InlineData("const x = { value() { return 1; } };")]
-    [InlineData("const x = { ...other };")]
+    [InlineData("const x = { ...42 };")]
     [InlineData("const x = { [name]: 1 };")]
     [InlineData("const x = { __proto__: {} };")]
     public void UnimplementedObjectSemanticsFailExplicitly(string source) =>

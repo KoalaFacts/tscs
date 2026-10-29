@@ -675,14 +675,22 @@ internal sealed class Parser(string file, List<Token> tokens)
             var names=new HashSet<string>(StringComparer.Ordinal);
             while(Current.Kind!=TokenKind.Close)
             {
-                var name=ReadPropertyName(allowString:true);
-                if(PropertyName(name)=="__proto__")
-                    Unsupported(name,"Object prototype setter syntax is not supported.");
-                if(!names.Add(PropertyName(name)))
-                    Diagnostics.Add(Diagnostic.Error(file,name,"TS1117","An object literal cannot have multiple properties with the same name."));
-                if(!Eat(TokenKind.Colon))
-                    Unsupported(Current,"Object literals currently require explicit named property values.");
-                properties.Add(new ObjectProperty(name,ParseValue()));
+                if(Current.Kind==TokenKind.Ellipsis)
+                {
+                    var spread=Take();
+                    properties.Add(new ObjectProperty(spread,ParseValue(),Spread:true));
+                }
+                else
+                {
+                    var name=ReadPropertyName(allowString:true);
+                    if(PropertyName(name)=="__proto__")
+                        Unsupported(name,"Object prototype setter syntax is not supported.");
+                    if(!names.Add(PropertyName(name)))
+                        Diagnostics.Add(Diagnostic.Error(file,name,"TS1117","An object literal cannot have multiple properties with the same name."));
+                    if(!Eat(TokenKind.Colon))
+                        Unsupported(Current,"Object literals currently require explicit named property values.");
+                    properties.Add(new ObjectProperty(name,ParseValue()));
+                }
                 if(!Eat(TokenKind.Comma))break;
             }
             if(Current.Kind!=TokenKind.Close)Unsupported(Current,"Expected '}' after object properties.");
