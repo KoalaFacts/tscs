@@ -80,6 +80,7 @@ internal static class TypeDisplay
                     Text(") => ");
                     for(int i=function.Parameters.Count-1;i>=0;i--)
                     {
+                        if(i>=function.MinimumArguments)Text("?");
                         Type(function.Parameters[i]);
                         if(i>0)Text(", ");
                     }

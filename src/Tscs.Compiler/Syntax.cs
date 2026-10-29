@@ -41,7 +41,8 @@ internal sealed record ValuePropertyAccess(ValueNode Receiver,Token Name) : Valu
 internal sealed record PropertyAssignment(ValuePropertyAccess Target,ValueNode Value) : Statement;
 internal sealed record ElementAssignment(ValueElementAccess Target,ValueNode Value) : Statement;
 internal sealed record Variable(Token Name, bool Constant, TypeSyntax? Annotation, ValueNode? Initializer, bool Exported=false) : Statement;
-internal sealed record ParameterDeclaration(Token Name,TypeSyntax Annotation) : Statement;
+// Optional typed parameters are erased during ES2015 emission.
+internal sealed record ParameterDeclaration(Token Name,TypeSyntax Annotation,bool Optional=false) : Statement;
 internal sealed record FunctionDeclaration(Token Name,IReadOnlyList<ParameterDeclaration> Parameters,TypeSyntax ReturnAnnotation,Block Body,bool Exported=false) : Statement;
 internal sealed record ReturnStatement(Token Keyword,ValueNode? Value) : Statement;
 internal sealed record ThrowStatement(Token Keyword,ValueNode Value) : Statement;

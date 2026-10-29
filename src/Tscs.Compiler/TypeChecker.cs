@@ -1413,15 +1413,19 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 if(callee.Type is not FunctionTypeSymbol signature)
                     throw new CompilationFailure(Diagnostic.Error(file,call.Callee,"TSCS1001",
                         "Calls currently require a declared function with an explicit signature."));
-                if(signature.Parameters.Count!=arguments.Length)
-                    Error(call.Callee,"TS2554",$"Expected {signature.Parameters.Count} arguments, but got {arguments.Length}.");
-                else
-                    for(int i=0;i<arguments.Length;i++)
-                        if(arguments[i] is { } actual &&
-                           CheckContextualLiteral(call.Arguments[i],signature.Parameters[i],actual) &&
-                           !IsAssignableContextually(call.Arguments[i],actual,signature.Parameters[i]))
-                            Error(call.Callee,"TS2345",
-                                $"Argument of type '{actual.DisplayName}' is not assignable to parameter of type '{signature.Parameters[i].DisplayName}'.");
+                if(arguments.Length<signature.MinimumArguments || arguments.Length>signature.Parameters.Count)
+                {
+                    var expected=signature.MinimumArguments==signature.Parameters.Count
+                        ?signature.Parameters.Count.ToString()
+                        :$"{signature.MinimumArguments}-{signature.Parameters.Count}";
+                    Error(call.Callee,"TS2554",$"Expected {expected} arguments, but got {arguments.Length}.");
+                }
+                for(int i=0;i<Math.Min(arguments.Length,signature.Parameters.Count);i++)
+                    if(arguments[i] is { } actual &&
+                       CheckContextualLiteral(call.Arguments[i],signature.Parameters[i],actual) &&
+                       !IsAssignableContextually(call.Arguments[i],actual,signature.Parameters[i]))
+                        Error(call.Callee,"TS2345",
+                            $"Argument of type '{actual.DisplayName}' is not assignable to parameter of type '{signature.Parameters[i].DisplayName}'.");
                 types.Push(signature.ReturnType);
                 continue;
             }
