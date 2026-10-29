@@ -6,7 +6,7 @@ import {join,resolve} from 'node:path';
 
 const dir=mkdtempSync(join(tmpdir(),'tscs-type-query-'));
 try {
-  writeFileSync(join(dir,'package.json'),'{"type":"module"}\\n'.replace('\\n','\n'));
+  writeFileSync(join(dir,'package.json'),'{"type":"module"}\n');
   writeFileSync(join(dir,'minimal.d.ts'),readFileSync('fixtures/minimal.d.ts'));
   writeFileSync(join(dir,'model.ts'),[
     'export const item:{value:number;nested:{amount:number}}={value:21,nested:{amount:42}};',
@@ -65,7 +65,7 @@ try {
     const rejected=compile(['--emitJs','--noLib','--target','es2015',file,join(dir,'minimal.d.ts')]);
     assert.equal(rejected.status,exit,rejected.stdout+rejected.stderr);
     assert.match(rejected.stdout+rejected.stderr,new RegExp(diagnostic));
-    assert.equal(existsSync(file.replace(/\\.ts$/,'.js')),false,'failed source emitted JavaScript');
+    assert.equal(existsSync(file.replace(/\.ts$/,'.js')),false,'failed source emitted JavaScript');
   }
   console.log('typeof type query: four-module ES2015 result/nested=42; seven invalid programs rejected.');
 } finally {rmSync(dir,{recursive:true,force:true});}
