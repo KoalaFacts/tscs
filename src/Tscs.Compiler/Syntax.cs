@@ -16,6 +16,8 @@ internal sealed record ObjectTypeProperty(Token Name,TypeSyntax Type,bool Readon
 internal sealed record ObjectTypeSyntax(Token Open,IReadOnlyList<ObjectTypeProperty> Properties,Token Close) : TypeSyntax;
 internal sealed record ArrayTypeSyntax(TypeSyntax Element,Token Open,Token Close) : TypeSyntax;
 internal sealed record NamedTypeSyntax(Token Name) : TypeSyntax;
+// Contextual type operator: `keyof` remains an ordinary value identifier.
+internal sealed record KeyofTypeSyntax(Token Keyword,TypeSyntax Target) : TypeSyntax;
 internal sealed record UnionTypeSyntax(IReadOnlyList<TypeSyntax> Members) : TypeSyntax;
 internal sealed record TypeAliasDeclaration(Token Name,TypeSyntax Target,bool Exported=false) : Statement;
 internal sealed record InterfaceDeclaration(Token Name,ObjectTypeSyntax Body,bool Exported=false) : Statement;

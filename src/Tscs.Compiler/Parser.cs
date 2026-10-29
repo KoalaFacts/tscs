@@ -592,7 +592,12 @@ internal sealed class Parser(string file, List<Token> tokens)
     {
         if(depth>64)Unsupported(Current,"Type nesting exceeds the compiler subset limit.");
         TypeSyntax type;
-        if(Current.Kind is TokenKind.Identifier or TokenKind.Void)
+        if(Current.Kind==TokenKind.Identifier && Current.Text=="keyof")
+        {
+            var keyword=Take();
+            type=new KeyofTypeSyntax(keyword,ReadTypePart(depth+1));
+        }
+        else if(Current.Kind is TokenKind.Identifier or TokenKind.Void)
         {
             var name=Take();
             type=name.Text is "number" or "string" or "boolean" or "any" or "void"
