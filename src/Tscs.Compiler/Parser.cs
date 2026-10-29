@@ -132,7 +132,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                     // Named, non-generic finite-object interface bases only.
                     // 'extends' is contextual, not a reserved value token.
                     var bases=new List<NamedTypeSyntax>();
-                    if(Current.Kind==TokenKind.Identifier && Current.Text=="extends")
+                    if(Current.Kind==TokenKind.Extends)
                     {
                         Take();
                         while(true)
@@ -721,7 +721,7 @@ internal sealed class Parser(string file, List<Token> tokens)
            integerKey is >= 0 and <= 9007199254740991L)
             return Take();
         if(Current.Kind is TokenKind.Identifier or TokenKind.Let or TokenKind.Const or
-            TokenKind.Import or TokenKind.Export or TokenKind.Type or TokenKind.Interface or TokenKind.Function or TokenKind.Return or TokenKind.Void or TokenKind.Throw or TokenKind.Try or TokenKind.Catch or TokenKind.Finally or
+            TokenKind.Import or TokenKind.Export or TokenKind.Type or TokenKind.Interface or TokenKind.Extends or TokenKind.Function or TokenKind.Return or TokenKind.Void or TokenKind.Throw or TokenKind.Try or TokenKind.Catch or TokenKind.Finally or
             TokenKind.If or TokenKind.Else or TokenKind.For or TokenKind.While or TokenKind.Do or TokenKind.Break or TokenKind.Continue or TokenKind.In or TokenKind.Typeof or TokenKind.True or TokenKind.False ||
             (allowString && Current.Kind==TokenKind.String))return Take();
         Unsupported(Current,"Expected a supported named object property.");
