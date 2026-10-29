@@ -627,7 +627,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                     Current.Text=="readonly" && position+1<tokens.Count &&
                     tokens[position+1].Kind!=TokenKind.Colon;
                 if(readonlyMember)Take();
-                var name=ReadPropertyName(allowString:true);
+                var name=ReadPropertyName(allowString:true,allowNumber:true);
                 if(!names.Add(PropertyName(name)))
                     Diagnostics.Add(Diagnostic.Error(file,name,"TS2300",$"Duplicate identifier '{PropertyName(name)}'."));
                 if(!Eat(TokenKind.Colon))
@@ -658,8 +658,15 @@ internal sealed class Parser(string file, List<Token> tokens)
     internal static string PropertyName(Token token)=>token.Kind==TokenKind.String
         ? token.Value??token.Text : token.Text;
 
-    private Token ReadPropertyName(bool allowString)
+    private Token ReadPropertyName(bool allowString,bool allowNumber=false)
     {
+        // Only non-negative safe integers have an unambiguous static
+        // property identity. Fractional/exponent keys are not in this subset.
+        if(allowNumber && Current.Kind==TokenKind.Number &&
+           long.TryParse(Current.Text,System.Globalization.NumberStyles.None,
+               System.Globalization.CultureInfo.InvariantCulture,out var integerKey) &&
+           integerKey is >= 0 and <= 9007199254740991L)
+            return Take();
         if(Current.Kind is TokenKind.Identifier or TokenKind.Let or TokenKind.Const or
             TokenKind.Import or TokenKind.Export or TokenKind.Type or TokenKind.Interface or TokenKind.Function or TokenKind.Return or TokenKind.Void or TokenKind.Throw or TokenKind.Try or TokenKind.Catch or TokenKind.Finally or
             TokenKind.If or TokenKind.Else or TokenKind.For or TokenKind.While or TokenKind.Do or TokenKind.Break or TokenKind.Continue or TokenKind.In or TokenKind.Typeof or TokenKind.True or TokenKind.False ||
@@ -711,7 +718,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                 }
                 else
                 {
-                    var name=ReadPropertyName(allowString:true);
+                    var name=ReadPropertyName(allowString:true,allowNumber:true);
                     if(PropertyName(name)=="__proto__")
                         Unsupported(name,"Object prototype setter syntax is not supported.");
                     if(!names.Add(PropertyName(name)))
