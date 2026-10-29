@@ -1,3 +1,14 @@
+## 2026-10-29 — Checked property-existence `in` expressions (candidate; NOT_RUN)
+
+C# Scanner, Parser, TypeChecker, semantic types and ES2015 emitter now carry
+`key in object` at relational precedence. Typed string/number/any keys,
+objects, arrays and any receivers are supported. Invalid operand kinds fail
+with the pinned TS7 TS2322 assignment diagnostic; missing properties return a boolean rather than a
+lookup error. No in-guard narrowing, index signatures or symbol keys are
+claimed. Four-module Node runtime and 12 pinned-Go code/exit cases are wired
+but NOT_RUN at source creation. Original TS7 remains 0 PASS /
+15,523 SKIP_UNIMPLEMENTED, dynamic scope UNEXPANDED.
+
 ## 2026-10-29 — Literal-string object bracket access (source candidate; NOT_RUN)
 
 Checked structural objects support statically named bracket reads/writes

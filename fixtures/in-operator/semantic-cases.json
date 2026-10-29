@@ -1,0 +1,71 @@
+{
+  "kind": "BOUNDED_IN_OPERATOR_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "in-operator:positive-01",
+      "source": "let obj={value:42};let present:boolean=\"value\" in obj;",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-02",
+      "source": "let obj={value:42};let missing:boolean=\"missing\" in obj;",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-03",
+      "source": "let obj={value:42};let key:string=\"value\";let result:boolean=key in obj;",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-04",
+      "source": "let obj={value:42};let result:number=(\"value\" in obj)?42:0;",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-05",
+      "source": "let obj={value:42};let result:boolean=(\"value\" in obj) && (\"missing\" in obj);",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-06",
+      "source": "let obj:any={value:42};let result:boolean=\"value\" in obj;",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-07",
+      "source": "interface Item {value:number} let obj:Item={value:42};let result:boolean=\"value\" in obj;",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-08",
+      "source": "let obj={in:42};let result:boolean=\"in\" in obj;",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-09",
+      "source": "let xs:number[]=[20,22];let present:boolean=1 in xs;",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:negative-01",
+      "source": "let obj={value:42};let result:boolean=true in obj;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "in-operator:negative-02",
+      "source": "let x:number=42;let result:boolean=\"value\" in x;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "in-operator:negative-03",
+      "source": "let obj={value:42};let result:number=\"value\" in obj;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}
