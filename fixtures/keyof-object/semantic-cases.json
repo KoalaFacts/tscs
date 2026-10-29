@@ -43,6 +43,46 @@
       "expectedCodes": []
     },
     {
+      "id": "keyof-object:positive-09",
+      "source": "type A = {shared: number; left: number}; type B = {shared: string; right: string}; type K = keyof (A | B); let key: K = \"shared\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:positive-10",
+      "source": "type A = {common: number; onlyA: number}; type B = {common: number; onlyB: number}; type U = A | B; let key: keyof U = \"common\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:positive-11",
+      "source": "interface A {id: number; left: string} interface B {id: string; right: number} let key: keyof (A | B) = \"id\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:positive-12",
+      "source": "type A = {first: number; second: number; left: number}; type B = {first: number; second: number; right: number}; let key: keyof (A | B) = \"first\"; key = \"second\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:positive-13",
+      "source": "type A = {shared: number}; type B = {shared: number; extra: number}; let key: keyof (A | B) = \"shared\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:positive-14",
+      "source": "type A = {a: number}; type B = {b: string}; type K = keyof (A | B); let key: K;",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:positive-15",
+      "source": "type A = {readonly common: number; left: number}; type B = {common: string; right: number}; let key: keyof (A | B) = \"common\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:positive-16",
+      "source": "type A = {common: number; left: number}; type B = {common: number; right: number}; function pass(key: keyof (A | B)): string {return key;} let result: string = pass(\"common\");",
+      "expectedCodes": []
+    },
+    {
       "id": "keyof-object:negative-01",
       "source": "type K = keyof {value: number}; let k: K = \"missing\";",
       "expectedCodes": [
@@ -66,6 +106,34 @@
     {
       "id": "keyof-object:negative-04",
       "source": "type K = keyof {}; let k: K = \"bad\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "keyof-object:negative-05",
+      "source": "type A = {shared: number; left: number}; type B = {shared: number; right: number}; let key: keyof (A | B) = \"left\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "keyof-object:negative-06",
+      "source": "type A = {shared: number; left: number}; type B = {shared: number; right: number}; let key: keyof (A | B) = \"right\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "keyof-object:negative-07",
+      "source": "type A = {a: number}; type B = {b: number}; let key: keyof (A | B) = \"a\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "keyof-object:negative-08",
+      "source": "type A = {shared: number; left: number}; type B = {shared: number; right: number}; let key: keyof (A | B) = 42;",
       "expectedCodes": [
         "TS2322"
       ]

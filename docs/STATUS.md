@@ -1,3 +1,15 @@
+## 2026-10-30 — Common keys of structural object unions (candidate; NOT_RUN)
+
+The bounded C# resolver now evaluates `keyof (A | B)` as the intersection of
+property names across object/interface alternatives, producing literal unions
+or `never` when no name is shared. Cross-module aliases and callable signatures
+reuse the checked semantic types. Mixed primitive/object unions, numeric-looking
+keys, arrays, index signatures and full TypeScript reflection remain unsupported.
+The 12 existing fixed-Go source/code/exit IDs are unchanged; 12 additive cases,
+C# regressions, four-module ES2015 execution and negative no-emit checks are
+wired but NOT_RUN at source creation. Original TS7 acceptance remains 0 PASS /
+15,523 registered SKIP_UNIMPLEMENTED, dynamic scope UNEXPANDED.
+
 ## 2026-10-30 — Bounded structural `keyof` (source candidate; NOT_RUN)
 
 The actual parser and type resolver now produce finite string-literal key unions
