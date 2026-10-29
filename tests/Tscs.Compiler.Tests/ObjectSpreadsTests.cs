@@ -27,7 +27,7 @@ public sealed class ObjectSpreadsTests
     [InlineData("let x:{value:number}={...{value:\"bad\"}};","TS2322")]
     [InlineData("let x:{value:number}={...{value:20},value:\"bad\"};","TS2322")]
     [InlineData("let x:{value:number}={...{value:21},extra:true};","TS2353")]
-    [InlineData("let x={...};","TSCS1001")]
+    [InlineData("let x={...};","TS1109")]
     public void InvalidObjectSpreadsNeverCountAsImplemented(string source,string code)=>
         Assert.Contains(Compilation.Check("object-spreads.ts",source),d=>d.Code==code);
 }
