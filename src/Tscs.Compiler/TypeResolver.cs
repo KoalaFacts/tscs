@@ -42,19 +42,27 @@ internal static class TypeResolver
             case KeyofTypeSyntax keyed:
             {
                 var operand=Resolve(keyed.Target,scope,file,depth+1);
-                if(operand is not ObjectTypeSymbol shape)
-                    throw new CompilationFailure(Diagnostic.Error(file,keyed.Keyword,"TSCS1001",
-                        "keyof currently requires a statically known structural object type."));
-                // Source kind (numeric key vs quoted numeric-looking key) is not
-                // retained by the current structural type representation.
-                // Reject rather than inferring an incorrect string-key type.
-                if(shape.Members.Keys.Any(name=>name.Length>0 &&
-                    name.All(c=>c is >= '0' and <= '9')))
+                // keyof on a union can use only names present in every
+                // structural alternative, regardless of their value types.
+                IReadOnlyList<ObjectTypeSymbol> alternatives=operand switch
+                {
+                    ObjectTypeSymbol shape=>[shape],
+                    UnionTypeSymbol union when union.Alternatives.All(type=>type is ObjectTypeSymbol)=>
+                        union.Alternatives.Cast<ObjectTypeSymbol>().ToArray(),
+                    _=>throw new CompilationFailure(Diagnostic.Error(file,keyed.Keyword,"TSCS1001",
+                        "keyof requires a known structural object or union of structural objects."))
+                };
+                // Numeric vs quoted numeric-looking key identity has not yet
+                // been retained by the structural semantic model. Fail closed.
+                if(alternatives.Any(shape=>shape.Members.Keys.Any(name=>name.Length>0 &&
+                    name.All(c=>c is >= '0' and <= '9'))))
                     throw new CompilationFailure(Diagnostic.Error(file,keyed.Keyword,"TSCS1001",
                         "keyof numeric-looking properties requires source key identity."));
                 try
                 {
-                    return CompilerTypes.Union(shape.Members.Keys.Select(name=>
+                    var shared=alternatives[0].Members.Keys.Where(name=>
+                        alternatives.Skip(1).All(shape=>shape.Members.ContainsKey(name)));
+                    return CompilerTypes.Union(shared.Select(name=>
                         (TypeSymbol)new LiteralTypeSymbol(PrimitiveKind.String,name)));
                 }
                 catch(InvalidOperationException failure)
