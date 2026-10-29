@@ -1,0 +1,71 @@
+{
+  "kind": "BOUNDED_SPREAD_ARGUMENTS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "spread-arguments:positive-01",
+      "source": "function f(...v:number[]):number{return v.length;}let xs:number[]=[1,2];let r:number=f(...xs);",
+      "expectedCodes": []
+    },
+    {
+      "id": "spread-arguments:positive-02",
+      "source": "function f(base:number,...v:number[]):number{return base+v.length;}let xs:number[]=[1,2];let r:number=f(40,...xs);",
+      "expectedCodes": []
+    },
+    {
+      "id": "spread-arguments:positive-03",
+      "source": "function f(...words:string[]):number{return words.length;}let r:number=f(...[\"a\",\"b\"]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "spread-arguments:positive-04",
+      "source": "function f(...v:number[]):number{return v.length;}let xs:number[]=[];let r:number=f(...xs);",
+      "expectedCodes": []
+    },
+    {
+      "id": "spread-arguments:positive-05",
+      "source": "function f(base:number=21,...v:number[]):number{return base+v.length;}let xs:number[]=[1,2];let r:number=f(40,...xs);",
+      "expectedCodes": []
+    },
+    {
+      "id": "spread-arguments:positive-06",
+      "source": "function f(...v:number[]):number{return v[0]+v[1];}let xs:number[]=[20,22];let r:number=f(...xs);",
+      "expectedCodes": []
+    },
+    {
+      "id": "spread-arguments:positive-07",
+      "source": "function f(...v:number[]):number{return v.length;}let r:number=f(...[20,21]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "spread-arguments:positive-08",
+      "source": "function f(base:number,...v:number[]):number{return base+v.length;}let xs:number[]=[1];let r:number=f(41,...xs);",
+      "expectedCodes": []
+    },
+    {
+      "id": "spread-arguments:positive-09",
+      "source": "export function f(...v:number[]):number{return v.length;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "spread-arguments:negative-01",
+      "source": "function f(...v:number[]):number{return v.length;}let xs:string[]=[\"bad\"];f(...xs);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "spread-arguments:negative-02",
+      "source": "function f(base:number,...v:number[]):number{return base;}let xs:string[]=[\"bad\"];f(1,...xs);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "spread-arguments:negative-03",
+      "source": "function f(...v:number[]):number{return v.length;}let xs:boolean[]=[true];f(...xs);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    }
+  ]
+}

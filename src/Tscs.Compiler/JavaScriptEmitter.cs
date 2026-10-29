@@ -574,7 +574,15 @@ internal static class JavaScriptEmitter
                         Text(")");
                         for(int i=call.Arguments.Count-1;i>=0;i--)
                         {
-                            Node(call.Arguments[i]);
+                            if(i==call.SpreadIndex)
+                            {
+                                // Always group the spread operand to preserve
+                                // conditional/binary expression precedence.
+                                Text(")");
+                                Node(call.Arguments[i]);
+                                Text("...(");
+                            }
+                            else Node(call.Arguments[i]);
                             if(i>0)Text(", ");
                         }
                         Text("(");

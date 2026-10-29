@@ -902,16 +902,26 @@ internal sealed class Parser(string file, List<Token> tokens)
             try
             {
                 var arguments=new List<ValueNode>();
+                int spreadIndex=-1;
                 if(Current.Kind!=TokenKind.CloseParen)
                 {
                     while(true)
                     {
+                        if(Current.Kind==TokenKind.Ellipsis)
+                        {
+                            Take();
+                            spreadIndex=arguments.Count;
+                        }
                         arguments.Add(ParseValue());
+                        // General interleaved, repeated and trailing-comma spread
+                        // forms are not in this bounded call grammar.
+                        if(spreadIndex>=0 && Current.Kind==TokenKind.Comma)
+                            Unsupported(Current,"Only one trailing array spread argument is supported yet.");
                         if(!Eat(TokenKind.Comma))break;
                     }
                 }
                 if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after function arguments.");
-                return new ValueCall(token,arguments);
+                return new ValueCall(token,arguments,spreadIndex);
             }
             finally { callNesting--; }
         }

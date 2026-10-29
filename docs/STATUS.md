@@ -1,3 +1,18 @@
+## 2026-10-29 — Trailing checked array spread at rest call sites (source candidate; NOT_RUN)
+
+The C# parser, call AST, TypeChecker and ES2015 emitter now pass one trailing
+statically typed array spread to a function with a checked array rest parameter.
+All fixed parameters must be supplied explicitly. Each expanded element type
+is checked against the rest element type, including cross-module named
+structural elements; JS preserves native spread semantics. Interleaved/multiple
+spreads, tuple expansion into fixed parameters, unknown iterables and general
+spread expressions remain unsupported (never counted as implemented). A
+four-module Node runtime, negative no-emit checks and 12 immutable source-ID
+pinned-Go cases use a shared iterator-capable minimal ambient profile.
+Execution is NOT_RUN at source creation; exact-head CI and Go oracle are
+required. Original upstream TS7 acceptance remains 0 PASS / 15,523
+SKIP_UNIMPLEMENTED, dynamic case scope UNEXPANDED.
+
 ## 2026-10-29 — Typed trailing default parameters (candidate; NOT_RUN)
 
 The C# function declaration pipeline now carries trailing typed parameter default
