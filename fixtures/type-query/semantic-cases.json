@@ -119,7 +119,7 @@
     },
     {
       "id": "type-query:positive-14",
-      "source": "import {twice} from \"./logic.js\";type Fn=typeof twice;function apply(fn:Fn,s:Box):number{return fn(s);}",
+      "source": "import type {Box} from \"./types.js\";import {twice} from \"./logic.js\";type Fn=typeof twice;function apply(fn:Fn,s:Box):number{return fn(s);}",
       "files": {
         "types.ts": "export type Box={value:number};",
         "logic.ts": "import type {Box} from \"./types.js\";export function twice(s:Box):number{return s.value*2;"

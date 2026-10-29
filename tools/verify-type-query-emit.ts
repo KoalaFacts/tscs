@@ -90,7 +90,7 @@ try {
       '--module','es2015',file,join(dir,'minimal.d.ts')]);
     assert.equal(rejected.status,exit,rejected.stdout+rejected.stderr);
     assert.match(rejected.stdout+rejected.stderr,new RegExp(diagnostic));
-    assert.equal(existsSync(file.replace(/\\.ts$/,'.js')),false,'failed imported type query emitted JS');
+    assert.equal(existsSync(file.replace(/\.ts$/,'.js')),false,'failed imported type query emitted JS');
   }
   console.log('typeof type query: imported values/functions across four ES2015 modules, result/nested/importedResult=42; eleven invalid programs rejected.');
 } finally {rmSync(dir,{recursive:true,force:true});}
