@@ -61,6 +61,7 @@ internal sealed record SwitchStatement(Token Keyword,ValueNode Selector,IReadOnl
 internal sealed record BreakStatement(Token Keyword) : Statement;
 internal sealed record ContinueStatement(Token Keyword) : Statement;
 internal sealed record ForOfStatement(Token Keyword,Token Name,bool Constant,ValueNode Source,Block Body) : Statement;
+internal sealed record ForInStatement(Token Keyword,Token Name,bool Constant,ValueNode Source,Block Body) : Statement;
 internal sealed record WhileStatement(Token Keyword,ValueNode Condition,Block Body) : Statement;
 internal sealed record DoWhileStatement(Token Keyword,Block Body,ValueNode Condition) : Statement;
 // A classic for declaration is scoped to the header, body and increment.

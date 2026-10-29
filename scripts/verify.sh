@@ -50,4 +50,5 @@ node tools/verify-object-spreads-emit.ts
 node tools/verify-object-shorthand-emit.ts
 node tools/verify-object-index-emit.ts
 node tools/verify-in-operator-emit.ts
+node tools/verify-for-in-emit.ts
 node tools/implementation-coverage.ts --check

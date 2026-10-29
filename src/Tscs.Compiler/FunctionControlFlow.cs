@@ -43,6 +43,7 @@ internal static class FunctionControlFlow
         // An array loop can iterate zero times. A return inside its body may
         // exit the function, but any break is consumed by the loop itself.
         ForOfStatement loop => FlowExit.Next | (Analyze(loop.Body)&(FlowExit.Return|FlowExit.Throw)),
+        ForInStatement loop => FlowExit.Next | (Analyze(loop.Body)&(FlowExit.Return|FlowExit.Throw)),
         // Bounded while conditions may be false initially. Both breaks and
         // continues are consumed; only an actual body return exits the function.
         WhileStatement loop => FlowExit.Next | (Analyze(loop.Body)&(FlowExit.Return|FlowExit.Throw)),
