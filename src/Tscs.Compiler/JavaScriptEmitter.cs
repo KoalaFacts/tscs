@@ -141,10 +141,10 @@ internal static class JavaScriptEmitter
                         if(i>0)output.Append(", ");
                         var parameter=function.Parameters[i];
                         output.Append(parameter.Name.Text);
-                        if(parameter.DefaultValue is { } initializer)
+                        if(parameter.DefaultValue is { } defaultExpression)
                         {
                             output.Append(" = ");
-                            WriteExpression(initializer);
+                            WriteExpression(defaultExpression);
                         }
                     }
                     output.Append(") ");
