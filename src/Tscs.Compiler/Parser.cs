@@ -687,9 +687,13 @@ internal sealed class Parser(string file, List<Token> tokens)
                         Unsupported(name,"Object prototype setter syntax is not supported.");
                     if(!names.Add(PropertyName(name)))
                         Diagnostics.Add(Diagnostic.Error(file,name,"TS1117","An object literal cannot have multiple properties with the same name."));
-                    if(!Eat(TokenKind.Colon))
-                        Unsupported(Current,"Object literals currently require explicit named property values.");
-                    properties.Add(new ObjectProperty(name,ParseValue()));
+                    if(Eat(TokenKind.Colon))
+                        properties.Add(new ObjectProperty(name,ParseValue()));
+                    else if(name.Kind==TokenKind.Identifier &&
+                        (Current.Kind is TokenKind.Comma or TokenKind.Close))
+                        properties.Add(new ObjectProperty(name,new ValueAtom(name,Shorthand:true)));
+                    else
+                        Unsupported(Current,"Object shorthand requires an identifier; other object members need ':' and a value.");
                 }
                 if(!Eat(TokenKind.Comma))break;
             }

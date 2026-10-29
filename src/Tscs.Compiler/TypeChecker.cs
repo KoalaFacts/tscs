@@ -1187,7 +1187,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             }
             if(node is ValueAtom atom)
             {
-                types.Push(TypeOfAtom(atom.Token,scope));
+                types.Push(TypeOfAtom(atom.Token,scope,atom.Shorthand));
                 continue;
             }
             if(node is ValuePrefixUpdate prefix)
@@ -1587,21 +1587,27 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         }
         return types.Pop();
     }
-    private TypeSymbol? TypeOfAtom(Token token,Scope scope)
+    private TypeSymbol? TypeOfAtom(Token token,Scope scope,bool shorthand=false)
     {
         var literal=CompilerTypes.FromLiteral(token);
         if(literal!=null)return literal;
-        var symbol=Resolve(token,scope);
+        var symbol=Resolve(token,scope,shorthand);
         if(symbol!=null&&!symbol.Initialized)throw new CompilationFailure(Diagnostic.Error(file,token,"TSCS1001","Reads before initialization are not supported yet."));
         return symbol?.Type;
     }
-    private Symbol? Resolve(Token name,Scope scope)
+    private Symbol? Resolve(Token name,Scope scope,bool shorthand=false)
     {
         var symbol=scope.Find(name.Text);
         // Lexical declarations take precedence over the intrinsic, including TDZ checks.
         if(symbol==null&&name.Text=="globalThis")
             throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001","The built-in globalThis type is not supported yet."));
-        if(symbol==null) Error(name,"TS2304",$"Cannot find name '{name.Text}'.");
+        if(symbol==null)
+        {
+            if(shorthand)
+                Error(name,"TS18004",$"No value exists in scope for the shorthand property '{name.Text}'. Either declare one or provide an initializer.");
+            else
+                Error(name,"TS2304",$"Cannot find name '{name.Text}'.");
+        }
         else if(symbol.File!=file && !symbol.CrossFileTypeReady)
             throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001","Cross-file inference requires an explicit annotation or primitive literal initializer."));
         else if(symbol.File==file && symbol.Declaration is not FunctionDeclaration && name.Start<=symbol.DeclarationStart)

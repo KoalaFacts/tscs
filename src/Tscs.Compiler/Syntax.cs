@@ -20,7 +20,8 @@ internal sealed record UnionTypeSyntax(IReadOnlyList<TypeSyntax> Members) : Type
 internal sealed record TypeAliasDeclaration(Token Name,TypeSyntax Target,bool Exported=false) : Statement;
 internal sealed record InterfaceDeclaration(Token Name,ObjectTypeSyntax Body,bool Exported=false) : Statement;
 internal abstract record ValueNode;
-internal sealed record ValueAtom(Token Token) : ValueNode;
+// Object shorthand needs its own missing-binding diagnostic.
+internal sealed record ValueAtom(Token Token,bool Shorthand=false) : ValueNode;
 internal sealed record ValueBinary(ValueNode Left, Token Operator, ValueNode Right) : ValueNode;
 internal sealed record ValueConditional(ValueNode Condition,Token Question,ValueNode WhenTrue,Token Colon,ValueNode WhenFalse) : ValueNode;
 // Contextual operators are erased in JS: 'as' asserts a new view,
