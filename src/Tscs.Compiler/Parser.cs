@@ -653,9 +653,16 @@ internal sealed class Parser(string file, List<Token> tokens)
         {
             if(++depth>64)Unsupported(Current,"Array type nesting exceeds the compiler subset limit.");
             var open=Take();
-            if(Current.Kind!=TokenKind.CloseBracket)
-                Unsupported(Current,"Only postfix T[] annotations are supported; tuples and generic Array<T> are not implemented.");
-            type=new ArrayTypeSyntax(type,open,Take());
+            if(Current.Kind==TokenKind.CloseBracket)
+                type=new ArrayTypeSyntax(type,open,Take());
+            else
+            {
+                // A finite type-level key expression: T["name"], T[K] or T[keyof T].
+                var index=ReadTypeAnnotation(depth+1);
+                if(Current.Kind!=TokenKind.CloseBracket)
+                    Unsupported(Current,"Expected ']' after indexed access type.");
+                type=new IndexedAccessTypeSyntax(type,open,index,Take());
+            }
         }
         return type;
     }

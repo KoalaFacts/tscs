@@ -1,3 +1,16 @@
+## 2026-10-30 — Checked structural indexed-access types (candidate; NOT_RUN)
+
+Type annotations now resolve finite type-level `T["key"]`, `T[0]`,
+`T[K]`, `T[keyof T]` and nested selections, including safe reads
+through unions of statically known objects. Interfaces, aliases, imported
+types and arrays of selected member types use the same checked semantic types.
+Type selections erase during ES2015 output; general index signatures,
+generic parameters, tuples and dynamic keys remain unsupported. The twelve
+bounded pinned-Go cases, actual four-module JavaScript execution, and
+negative no-emit validation are wired but NOT_RUN at source creation.
+Original TS7 acceptance is still 0 PASS / 15,523 SKIP_UNIMPLEMENTED;
+the dynamic denominator is UNEXPANDED.
+
 ## 2026-10-30 — Numeric and quoted-numeric keyof identity (candidate; NOT_RUN)
 
 C# structural object types now preserve numeric source-token keys independently

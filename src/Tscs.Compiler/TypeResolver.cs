@@ -69,6 +69,47 @@ internal static class TypeResolver
                     throw new CompilationFailure(Diagnostic.Error(file,keyed.Keyword,"TSCS1001",failure.Message));
                 }
             }
+            case IndexedAccessTypeSyntax indexed:
+            {
+                var receiver=Resolve(indexed.Target,scope,file,depth+1);
+                var selector=Resolve(indexed.Index,scope,file,depth+1);
+                if(receiver is not ObjectTypeSymbol &&
+                    !(receiver is UnionTypeSymbol objectUnion &&
+                      objectUnion.Alternatives.All(type=>type is ObjectTypeSymbol)))
+                    throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
+                        "Indexed access types require a known structural object or union of structural objects."));
+                // Exact literal keys only; unbounded index signatures are not implemented.
+                LiteralTypeSymbol[] keys=selector switch
+                {
+                    LiteralTypeSymbol { Kind:PrimitiveKind.String or PrimitiveKind.Number } literal=>[literal],
+                    UnionTypeSymbol union when union.Alternatives.All(type=>
+                        type is LiteralTypeSymbol { Kind:PrimitiveKind.String or PrimitiveKind.Number })=>
+                        union.Alternatives.Cast<LiteralTypeSymbol>().ToArray(),
+                    PrimitiveTypeSymbol { Kind:PrimitiveKind.Never }=>[],
+                    _=>throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
+                        "Indexed access requires a literal string/number key or finite union of such keys."))
+                };
+                var values=new List<TypeSymbol>(keys.Length);
+                foreach(var key in keys)
+                {
+                    if(key.Kind==PrimitiveKind.Number &&
+                        (!long.TryParse(key.Value,System.Globalization.NumberStyles.None,
+                            System.Globalization.CultureInfo.InvariantCulture,out var number) ||
+                         number>9007199254740991L))
+                        throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
+                            "Numeric indexed-access keys must be non-negative safe integers."));
+                    var member=CompilerTypes.TryGetProperty(receiver,key.Value);
+                    if(member==null)
+                        throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TS2339",
+                            $"Property '{key.Value}' does not exist on type '{receiver.DisplayName}'."));
+                    values.Add(member);
+                }
+                try {return CompilerTypes.Union(values);}
+                catch(InvalidOperationException failure)
+                {
+                    throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",failure.Message));
+                }
+            }
             case ArrayTypeSyntax array:return new ArrayTypeSymbol(Resolve(array.Element,scope,file,depth+1));
             case ObjectTypeSyntax shape:return new ObjectTypeSymbol(shape.Properties.Select(p=>
                 new KeyValuePair<string,TypeSymbol>(Parser.PropertyName(p.Name),Resolve(p.Type,scope,file,depth+1))),
@@ -90,6 +131,7 @@ internal static class TypeResolver
         LiteralTypeSyntax value=>value.Literal,
         NamedTypeSyntax value=>value.Name,
         KeyofTypeSyntax value=>value.Keyword,
+        IndexedAccessTypeSyntax value=>value.Open,
         ObjectTypeSyntax value=>value.Open,
         ArrayTypeSyntax value=>value.Open,
         UnionTypeSyntax value=>Location(value.Members[0]),
