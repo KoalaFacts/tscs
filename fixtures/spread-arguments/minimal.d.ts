@@ -1,7 +1,7 @@
 interface SymbolConstructor { readonly iterator: unique symbol; }
 declare const Symbol: SymbolConstructor;
 interface IteratorResult<T> { done?: boolean; value: T; }
-interface Iterator<T, TReturn = any, TNext = any> { next(): IteratorResult<T>; }
+interface Iterator<T> { next(): IteratorResult<T>; }
 interface Array<T> { length: number; [index: number]: T; [Symbol.iterator](): Iterator<T>; }
 interface Boolean {}
 interface Function {}
