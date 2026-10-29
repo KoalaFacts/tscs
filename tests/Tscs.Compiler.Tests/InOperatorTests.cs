@@ -20,8 +20,8 @@ public sealed class InOperatorTests
         Assert.Empty(Compilation.Check("in-operator.ts",source));
 
     [Theory]
-    [InlineData("let obj={value:42};let result:boolean=true in obj;", "TS2360")]
-    [InlineData("let x:number=42;let result:boolean=\"value\" in x;", "TS2361")]
+    [InlineData("let obj={value:42};let result:boolean=true in obj;", "TS2322")]
+    [InlineData("let x:number=42;let result:boolean=\"value\" in x;", "TS2322")]
     [InlineData("let obj={value:42};let result:number=\"value\" in obj;", "TS2322")]
     public void InvalidOperandOrResultIsRejected(string source,string code) =>
         Assert.Contains(Compilation.Check("in-operator.ts",source),d=>d.Code==code);

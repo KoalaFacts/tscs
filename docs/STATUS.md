@@ -3,7 +3,7 @@
 C# Scanner, Parser, TypeChecker, semantic types and ES2015 emitter now carry
 `key in object` at relational precedence. Typed string/number/any keys,
 objects, arrays and any receivers are supported. Invalid operand kinds fail
-with source diagnostics; missing properties return a boolean rather than a
+with the pinned TS7 TS2322 assignment diagnostic; missing properties return a boolean rather than a
 lookup error. No in-guard narrowing, index signatures or symbol keys are
 claimed. Four-module Node runtime and 12 pinned-Go code/exit cases are wired
 but NOT_RUN at source creation. Original TS7 remains 0 PASS /

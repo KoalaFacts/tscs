@@ -50,14 +50,14 @@
       "id": "in-operator:negative-01",
       "source": "let obj={value:42};let result:boolean=true in obj;",
       "expectedCodes": [
-        "TS2360"
+        "TS2322"
       ]
     },
     {
       "id": "in-operator:negative-02",
       "source": "let x:number=42;let result:boolean=\"value\" in x;",
       "expectedCodes": [
-        "TS2361"
+        "TS2322"
       ]
     },
     {

@@ -1612,11 +1612,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 // Missing names can return false at runtime: this is not a
                 // bracket read and does not imply flow narrowing.
                 if(!CompilerTypes.CanUseInLeft(left))
-                    Error(binary.Operator,"TS2360",
-                        "The left-hand side of an 'in' expression must be a string, number or any.");
+                    Error(binary.Operator,"TS2322",
+                        $"Type '{left.DisplayName}' is not assignable to type 'string | number | symbol'.");
                 if(!CompilerTypes.CanUseInRight(right))
-                    Error(binary.Operator,"TS2361",
-                        "The right-hand side of an 'in' expression must be an object or any.");
+                    Error(binary.Operator,"TS2322",
+                        $"Type '{right.DisplayName}' is not assignable to type 'object'.");
                 types.Push(CompilerTypes.Boolean);
             }
             else if(binary.Operator.Kind is TokenKind.LessThan or TokenKind.LessEqual or TokenKind.GreaterThan or TokenKind.GreaterEqual)

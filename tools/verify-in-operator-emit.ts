@@ -51,11 +51,11 @@ try {
   assert.equal(execution.error,undefined,String(execution.error));
   assert.equal(execution.status,0,execution.stdout+execution.stderr);
   const invalid=[
-    ['boolean-left','let obj={value:42};let result:boolean=true in obj;','TS2360'],
-    ['number-right','let x:number=42;let result:boolean="value" in x;','TS2361'],
+    ['boolean-left','let obj={value:42};let result:boolean=true in obj;','TS2322'],
+    ['number-right','let x:number=42;let result:boolean="value" in x;','TS2322'],
     ['wrong-result','let obj={value:42};let result:number="value" in obj;','TS2322'],
-    ['boolean-right','let x:boolean=true;let result:boolean="value" in x;','TS2361'],
-    ['object-left','let obj={value:42};let result:boolean=({value:1}) in obj;','TS2360']
+    ['boolean-right','let x:boolean=true;let result:boolean="value" in x;','TS2322'],
+    ['object-left','let obj={value:42};let result:boolean=({value:1}) in obj;','TS2322']
   ] as const;
   for(const [name,source,diagnostic] of invalid) {
     writeFileSync(join(folder,name+'.ts'),source);
