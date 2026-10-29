@@ -651,7 +651,12 @@ internal sealed class Parser(string file, List<Token> tokens)
                 if(Current.Kind==TokenKind.End)Unsupported(Current,"Expected ']' after array elements.");
                 if(Current.Kind==TokenKind.Comma)
                     Unsupported(Current,"Sparse array holes are not supported yet.");
-                values.Add(ParseValue());
+                if(Current.Kind==TokenKind.Ellipsis)
+                {
+                    var spread=Take();
+                    values.Add(new ValueArraySpread(spread,ParseValue()));
+                }
+                else values.Add(ParseValue());
                 if(!Eat(TokenKind.Comma))break;
             }
             if(Current.Kind!=TokenKind.CloseBracket)Unsupported(Current,"Expected ']' after array elements.");

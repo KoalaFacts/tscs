@@ -147,7 +147,11 @@ internal static class CompilerTypes
             TypeSymbol? element=Never;
             foreach(var item in array.Elements)
             {
-                if(FromInitializer(item) is not { } actual)return null;
+                TypeSymbol? inferred=item is ValueArraySpread spread
+                    ? FromInitializer(spread.Operand) is ArrayTypeSymbol arraySource
+                        ?arraySource.ElementType:null
+                    :FromInitializer(item);
+                if(inferred is not { } actual)return null;
                 if(element==Never)element=actual;
                 else if(!IsEquivalent(element,actual))
                 {

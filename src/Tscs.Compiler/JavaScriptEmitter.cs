@@ -295,6 +295,9 @@ internal static class JavaScriptEmitter
                     case ValueElementAccess indexed:
                         pending.Push(indexed.Receiver);pending.Push(indexed.Index);break;
                     case ValuePropertyAccess property:pending.Push(property.Receiver);break;
+                    case ValueArraySpread spread:
+                        pending.Push(spread.Operand);
+                        break;
                     case ValueArray array:
                         foreach(var element in array.Elements)pending.Push(element);
                         break;
@@ -548,7 +551,13 @@ internal static class JavaScriptEmitter
                         Text("]");
                         for(int i=array.Elements.Count-1;i>=0;i--)
                         {
-                            Node(array.Elements[i]);
+                            if(array.Elements[i] is ValueArraySpread spread)
+                            {
+                                Text(")");
+                                Node(spread.Operand);
+                                Text("...(");
+                            }
+                            else Node(array.Elements[i]);
                             if(i>0)Text(", ");
                         }
                         Text("[");

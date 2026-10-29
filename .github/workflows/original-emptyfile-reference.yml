@@ -64,6 +64,15 @@ jobs:
           node tools/verify-switch-reference.ts "$reference" .artifacts/default-parameters-reference fixtures/default-parameters/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/rest-parameters-reference fixtures/rest-parameters/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/spread-arguments-reference fixtures/spread-arguments/semantic-cases.json
+          node tools/verify-switch-reference.ts "$reference" .artifacts/array-spreads-reference fixtures/array-spreads/semantic-cases.json
+      - name: Preserve bounded array-spreads reference inputs and raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-array-spreads-reference-${{ github.sha }}
+          path: .artifacts/array-spreads-reference/
+          if-no-files-found: warn
+          retention-days: 30
       - name: Preserve bounded spread-arguments reference inputs and raw results
         if: always()
         uses: actions/upload-artifact@v4

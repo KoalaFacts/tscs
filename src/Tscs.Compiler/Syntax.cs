@@ -37,6 +37,8 @@ internal sealed record ValueCall(Token Callee, IReadOnlyList<ValueNode> Argument
 internal sealed record ObjectProperty(Token Name,ValueNode Value);
 internal sealed record ValueObject(Token Open,IReadOnlyList<ObjectProperty> Properties,Token Close) : ValueNode;
 internal sealed record ValueArray(Token Open,IReadOnlyList<ValueNode> Elements,Token Close) : ValueNode;
+// Spread operands are evaluated once, in element order, and must have a checked array type.
+internal sealed record ValueArraySpread(Token Keyword,ValueNode Operand) : ValueNode;
 internal sealed record ValueElementAccess(ValueNode Receiver,Token Open,ValueNode Index,Token Close) : ValueNode;
 internal sealed record ValuePropertyAccess(ValueNode Receiver,Token Name) : ValueNode;
 internal sealed record PropertyAssignment(ValuePropertyAccess Target,ValueNode Value) : Statement;
