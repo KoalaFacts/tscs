@@ -1,0 +1,76 @@
+{
+  "kind": "BOUNDED_THROW_FLOW_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "throw-flow:positive-01",
+      "source": "function f(n:number):number { if(n<0){throw \"negative\";} return n+1; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "throw-flow:positive-02",
+      "source": "function f(n:number):number { if(n>0){return n;} else {throw n;} }",
+      "expectedCodes": []
+    },
+    {
+      "id": "throw-flow:positive-03",
+      "source": "function f(n:number):number { switch(n){case 1:{return 42;} default:{throw \"invalid\";}} }",
+      "expectedCodes": []
+    },
+    {
+      "id": "throw-flow:positive-04",
+      "source": "function f():number { throw \"always\"; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "throw-flow:positive-05",
+      "source": "function f(n:number):number { while(n<0){throw n;} return n; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "throw-flow:positive-06",
+      "source": "function f(n:number):number { do { if(n<0){throw n;} return n; } while(false); }",
+      "expectedCodes": []
+    },
+    {
+      "id": "throw-flow:positive-07",
+      "source": "function f(n:number):number { if(n<0){throw {code:n};} return n; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "throw-flow:positive-08",
+      "source": "function f(n:number):number { for(let i:number=0;i<n;i++){if(i===2){throw i;}} return n; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "throw-flow:positive-09",
+      "source": "function fail(n:number):number { throw n; } function f(n:number):number { return fail(n); }",
+      "expectedCodes": []
+    },
+    {
+      "id": "throw-flow:positive-10",
+      "source": "throw \"root\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "throw-flow:negative-01",
+      "source": "function f():number { throw missing; }",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    },
+    {
+      "id": "throw-flow:negative-02",
+      "source": "function f():number { throw (21 as string); }",
+      "expectedCodes": [
+        "TS2352"
+      ]
+    },
+    {
+      "id": "throw-flow:negative-03",
+      "source": "let n:number=\"wrong\"; throw n;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}
