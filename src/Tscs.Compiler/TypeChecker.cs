@@ -1424,21 +1424,48 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 if(callee.Type is not FunctionTypeSymbol signature)
                     throw new CompilationFailure(Diagnostic.Error(file,call.Callee,"TSCS1001",
                         "Calls currently require a declared function with an explicit signature."));
-                // Rest arguments are individual values at the call site;
-                // the function's final binding has the declared array type.
+                // A bounded call spread expands one statically typed array into
+                // a trailing array rest parameter. Fixed parameters must be
+                // explicitly supplied; unknown-length spreads cannot invent
+                // mandatory positional arguments.
                 var restElement=signature.RestElementType;
-                if(arguments.Length<signature.MinimumArguments ||
-                   (restElement is null && arguments.Length>signature.Parameters.Count))
+                int supplied=call.SpreadIndex>=0?call.SpreadIndex:arguments.Length;
+                if(call.SpreadIndex>=0)
+                {
+                    if(restElement is null)
+                    {
+                        Error(call.Callee,"TS2556",
+                            "A spread argument must be passed to a rest parameter (tuple spreads are unsupported).");
+                        types.Push(signature.ReturnType);
+                        continue;
+                    }
+                    if(call.SpreadIndex!=arguments.Length-1 ||
+                       call.SpreadIndex<signature.Parameters.Count-1)
+                        throw new CompilationFailure(Diagnostic.Error(file,call.Callee,"TSCS1001",
+                            "A spread must follow all fixed parameters and be the final argument."));
+                    if(arguments[call.SpreadIndex] is ArrayTypeSymbol expanded)
+                    {
+                        if(!CompilerTypes.IsAssignable(expanded.ElementType,restElement))
+                            Error(call.Callee,"TS2345",
+                                $"Argument of type '{expanded.ElementType.DisplayName}' is not assignable to parameter of type '{restElement.DisplayName}'.");
+                    }
+                    else if(arguments[call.SpreadIndex] is not null)
+                        throw new CompilationFailure(Diagnostic.Error(file,call.Callee,"TSCS1001",
+                            "Spread arguments currently require a statically checked array type."));
+                }
+                if(supplied<signature.MinimumArguments ||
+                   (restElement is null && supplied>signature.Parameters.Count))
                 {
                     var expected=restElement is not null
                         ?$"at least {signature.MinimumArguments}"
                         :signature.MinimumArguments==signature.Parameters.Count
                             ?signature.Parameters.Count.ToString()
                             :$"{signature.MinimumArguments}-{signature.Parameters.Count}";
-                    Error(call.Callee,"TS2554",$"Expected {expected} arguments, but got {arguments.Length}.");
+                    Error(call.Callee,"TS2554",$"Expected {expected} arguments, but got {supplied}.");
                 }
                 for(int i=0;i<arguments.Length;i++)
                 {
+                    if(i==call.SpreadIndex)continue;
                     var required=restElement is not null && i>=signature.Parameters.Count-1
                         ?restElement
                         :i<signature.Parameters.Count?signature.Parameters[i]:null;

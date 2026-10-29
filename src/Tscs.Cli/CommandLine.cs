@@ -149,41 +149,86 @@ public static class CommandLine
         var path=Path.GetRelativePath(Environment.CurrentDirectory,Path.GetFullPath(d.File)).Replace(Path.DirectorySeparatorChar,'/');
         return $"{path}({line},{column}): error {d.Code}: {d.Message}";
     }
-    // Ambient globals are deliberately bounded. Recognize only the exact
-    // array and immutable string shapes consumed by our checked compiler.
-    // Other nonempty interface declarations fail closed, not silently ignored.
+    // Ambient globals remain a deliberately bounded, validated declaration
+    // subset. ES2015 array spread requires an iterable Array<T> contract in
+    // the pinned reference compiler. Recognize that exact structural protocol
+    // symmetrically, without treating arbitrary .d.ts declarations as accepted.
     private static void ReadGlobals(string text,HashSet<string> globals)
     {
-        var pattern=new Regex(@"\G\s*interface\s+([A-Za-z_$][A-Za-z0-9_$]*)(\s*<\s*T\s*>)?\s*\{([^{}]*)\}\s*",
+        var pattern=new Regex(@"\G\s*interface\s+([A-Za-z_$][A-Za-z0-9_$]*)(\s*<\s*T\s*(?:,\s*TReturn\s*=\s*any\s*,\s*TNext\s*=\s*any\s*)?>)?\s*\{([^{}]*)\}\s*",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
+        var symbolPattern=new Regex(@"\G\s*declare\s+const\s+Symbol\s*:\s*SymbolConstructor\s*;\s*",
+            RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
+        var extras=new HashSet<string>(StringComparer.Ordinal);
+        bool symbolDeclared=false,arrayIterable=false;
         int position=0;
         while(position<text.Length)
         {
             if(string.IsNullOrWhiteSpace(text[position..]))break;
+            var symbol=symbolPattern.Match(text,position);
+            if(symbol.Success)
+            {
+                if(symbolDeclared)throw new InputFailure("Duplicate ambient Symbol declaration.");
+                symbolDeclared=true;
+                position+=symbol.Length;
+                continue;
+            }
             var match=pattern.Match(text,position);
             if(!match.Success)throw new InputFailure("Only bounded bootstrap global interfaces are supported in .d.ts files.");
             string name=match.Groups[1].Value;
-            if(!GlobalTypes.Contains(name,StringComparer.Ordinal)||(name=="Array")!=match.Groups[2].Success||!globals.Add(name))
-                throw new InputFailure("Unsupported or duplicate bootstrap global declaration.");
+            bool generic=match.Groups[2].Success;
+            string genericParameters=Regex.Replace(match.Groups[2].Value,@"\s+","");
             var members=match.Groups[3].Value;
-            if(!string.IsNullOrWhiteSpace(members) &&
-                !(name=="Array" && IsSupportedArrayContract(members)) &&
-                !(name=="String" && IsSupportedStringContract(members)))
-                throw new InputFailure("Only bounded Array<T> and readonly String member contracts are supported in ambient globals.");
+            if(name is "SymbolConstructor" or "IteratorResult" or "Iterator")
+            {
+                // These three protocol helpers do not create usable TSCS value
+                // symbols: they only validate the minimal pinned-Go ambient.
+                string compact=Regex.Replace(members,@"\s+","");
+                bool valid=name switch
+                {
+                    "SymbolConstructor"=>!generic && compact=="readonlyiterator:uniquesymbol;",
+                    "IteratorResult"=>genericParameters=="<T>" && compact=="done?:boolean;value:T;",
+                    "Iterator"=>genericParameters=="<T,TReturn=any,TNext=any>" &&
+                        compact=="next():IteratorResult<T>;",
+                    _=>false
+                };
+                if(!valid||!extras.Add(name))
+                    throw new InputFailure("Unsupported or duplicate iterable ambient declaration.");
+            }
+            else
+            {
+                if(!GlobalTypes.Contains(name,StringComparer.Ordinal) ||
+                   (name=="Array"?genericParameters!="<T>":generic) || !globals.Add(name))
+                    throw new InputFailure("Unsupported or duplicate bootstrap global declaration.");
+                if(!string.IsNullOrWhiteSpace(members))
+                {
+                    if(name=="Array" && IsSupportedArrayContract(members,out var iterable))
+                        arrayIterable=iterable;
+                    else if(name!="String" || !IsSupportedStringContract(members))
+                        throw new InputFailure("Only bounded Array<T> and readonly String member contracts are supported in ambient globals.");
+                }
+            }
             position+=match.Length;
         }
+        // Never accept a partial, invented iterator shape or a value
+        // declaration that does not correspond to the recognized protocol.
+        if((symbolDeclared||arrayIterable||extras.Count>0) &&
+           !(symbolDeclared&&arrayIterable&&extras.SetEquals(
+               new[]{"SymbolConstructor","IteratorResult","Iterator"})))
+            throw new InputFailure("Incomplete bounded iterable Array<T> declaration protocol.");
     }
 
     // Member order and numeric-index parameter spelling are irrelevant.
     // Both members must be present exactly once. This is validation of a
     // source-level ambient contract, not a magic source filename or an AST
     // pass that infers arbitrary declaration types from regexes.
-    private static bool IsSupportedArrayContract(string body)
+    private static bool IsSupportedArrayContract(string body,out bool iterator)
     {
-        var memberPattern=new Regex(@"\G\s*(?:(?<length>length\s*:\s*number)|(?<index>\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T))\s*;",
+        var memberPattern=new Regex(@"\G\s*(?:(?<length>length\s*:\s*number)|(?<index>\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T)|(?<iterator>\[\s*Symbol\s*\.\s*iterator\s*\]\s*\(\s*\)\s*:\s*Iterator\s*<\s*T\s*>))\s*;",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         int position=0;
         bool length=false,index=false;
+        iterator=false;
         while(position<body.Length)
         {
             if(string.IsNullOrWhiteSpace(body[position..]))break;
@@ -194,10 +239,15 @@ public static class CommandLine
                 if(length)return false;
                 length=true;
             }
-            else
+            else if(member.Groups["index"].Success)
             {
                 if(index)return false;
                 index=true;
+            }
+            else
+            {
+                if(iterator)return false;
+                iterator=true;
             }
             position+=member.Length;
         }

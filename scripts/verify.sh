@@ -44,4 +44,5 @@ node tools/verify-void-return-emit.ts
 node tools/verify-optional-parameters-emit.ts
 node tools/verify-default-parameters-emit.ts
 node tools/verify-rest-parameters-emit.ts
+node tools/verify-spread-arguments-emit.ts
 node tools/implementation-coverage.ts --check

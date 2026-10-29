@@ -358,6 +358,32 @@ public class CommandLineTests : IDisposable
         Assert.Contains("Cross-file inference",unknown.Out);
     }
     [Fact]
+    public void ValidatedIterableAmbientAllowsCheckedArraySpread()
+    {
+        const string profile="interface SymbolConstructor { readonly iterator: unique symbol; }\n"+
+            "declare const Symbol: SymbolConstructor;\n"+
+            "interface IteratorResult<T> { done?: boolean; value: T; }\n"+
+            "interface Iterator<T, TReturn = any, TNext = any> { next(): IteratorResult<T>; }\n"+
+            "interface Array<T> { length: number; [index: number]: T; [Symbol.iterator](): Iterator<T>; }\n"+
+            "interface Boolean {} interface Function {} interface IArguments {} interface Number {} "+
+            "interface Object {} interface RegExp {} interface String {} "+
+            "interface CallableFunction {} interface NewableFunction {}";
+        var source=Write("spread.ts","function f(...items:number[]):number{return items.length;}"+
+            "let xs:number[]=[20,21];let n:number=f(...xs);");
+        var ambient=Write("iterable.d.ts",profile);
+        var ok=Run("--noEmit","--noLib","--target","es2015",source,ambient);
+        Assert.Equal(0,ok.Code);
+        Assert.Equal("",ok.Out);
+        File.WriteAllText(ambient,profile.Replace("declare const Symbol: SymbolConstructor;","",StringComparison.Ordinal));
+        var missing=Run("--noEmit","--noLib","--target","es2015",source,ambient);
+        Assert.Equal(1,missing.Code);
+        Assert.Contains("TSCS1002",missing.Out);
+        File.WriteAllText(ambient,profile.Replace("next(): IteratorResult<T>;","next(): any;",StringComparison.Ordinal));
+        var fake=Run("--noEmit","--noLib","--target","es2015",source,ambient);
+        Assert.Equal(1,fake.Code);
+        Assert.Contains("TSCS1002",fake.Out);
+    }
+    [Fact]
     public void CrossFileRootGlobalThisStillRequiresIntrinsicHandling()
     {
         var a=Write("a.ts","let globalThis = 1;");

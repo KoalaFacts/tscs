@@ -32,7 +32,8 @@ internal sealed record ValuePrefixUpdate(Token Operator,ValueNode Target) : Valu
 // Postfix returns the old numeric value, with the same checked lvalue semantics.
 internal sealed record ValuePostfixUpdate(ValueNode Target,Token Operator) : ValueNode;
 internal sealed record ValueParenthesized(Token Open, ValueNode Expression, Token Close) : ValueNode;
-internal sealed record ValueCall(Token Callee, IReadOnlyList<ValueNode> Arguments) : ValueNode;
+// A single trailing array spread is tracked at its call site; all operands remain normal checked values.
+internal sealed record ValueCall(Token Callee, IReadOnlyList<ValueNode> Arguments,int SpreadIndex=-1) : ValueNode;
 internal sealed record ObjectProperty(Token Name,ValueNode Value);
 internal sealed record ValueObject(Token Open,IReadOnlyList<ObjectProperty> Properties,Token Close) : ValueNode;
 internal sealed record ValueArray(Token Open,IReadOnlyList<ValueNode> Elements,Token Close) : ValueNode;
