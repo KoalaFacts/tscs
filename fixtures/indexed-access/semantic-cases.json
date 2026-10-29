@@ -1,0 +1,124 @@
+{
+  "kind": "BOUNDED_INDEXED_ACCESS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "upstream": "upstream.lock.json",
+  "cases": [
+    {
+      "id": "indexed-access:positive-01",
+      "source": "type Bag={value:number;label:string};type V=Bag[\"value\"];let n:V=42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "indexed-access:positive-02",
+      "source": "interface Bag{value:number;label:string}type V=Bag[\"label\"];let s:V=\"ready\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "indexed-access:positive-03",
+      "source": "type V={a:number;b:string}[\"a\"|\"b\"];let n:V=42;let s:V=\"yes\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "indexed-access:positive-04",
+      "source": "type Bag={nested:{value:number}};type V=Bag[\"nested\"][\"value\"];let n:V=42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "indexed-access:positive-05",
+      "source": "type A={shared:number;left:string};type B={shared:string;right:number};type V=(A|B)[\"shared\"];let n:V=42;let s:V=\"x\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "indexed-access:positive-06",
+      "source": "type V={0:number;\"1\":string}[0|\"1\"];let n:V=42;let s:V=\"hi\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "indexed-access:positive-07",
+      "source": "type Bag={id:number;label:string};type V=Bag[keyof Bag];let n:V=42;let s:V=\"hi\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "indexed-access:positive-08",
+      "source": "type V={value:number}[\"value\"][];let n:V=[42];",
+      "expectedCodes": []
+    },
+    {
+      "id": "indexed-access:positive-09",
+      "source": "type V={readonly value:number}[\"value\"];let n:V=42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "indexed-access:negative-01",
+      "source": "type V={x:number}[\"x\"];let n:V=\"bad\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "indexed-access:negative-02",
+      "source": "type V={x:number}[\"x\"];let n:V=true;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "indexed-access:negative-03",
+      "source": "type V={x:number;y:string}[\"x\"|\"y\"];let n:V=false;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "indexed-access:positive-10",
+      "source": "type A={nested:{0:number}};type B={nested:{\"0\":number}};type V=(A|B)[\"nested\"];let k:keyof V;",
+      "expectedCodes": []
+    },
+    {
+      "id": "indexed-access:positive-11",
+      "source": "type A={nested:{0:number}};type B={nested:{\"0\":number}};type V=(B|A)[\"nested\"];let k:keyof V;",
+      "expectedCodes": []
+    },
+    {
+      "id": "indexed-access:negative-04",
+      "source": "type A={nested:{0:number}};type B={nested:{\"0\":number}};type V=(A|B)[\"nested\"];let k:keyof V=0;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "indexed-access:negative-05",
+      "source": "type A={nested:{0:number}};type B={nested:{\"0\":number}};type V=(A|B)[\"nested\"];let k:keyof V=\"0\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "indexed-access:negative-06",
+      "source": "type A={nested:{0:number}};type B={nested:{\"0\":number}};type V=(B|A)[\"nested\"];let k:keyof V=0;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "indexed-access:negative-07",
+      "source": "type A={nested:{0:number}};type B={nested:{\"0\":number}};type V=(B|A)[\"nested\"];let k:keyof V=\"0\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "indexed-access:negative-08",
+      "source": "type A={0:number};type B={\"0\":number};let k:keyof (A|B)=0;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "indexed-access:negative-09",
+      "source": "type A={0:number};type B={\"0\":number};let k:keyof (B|A)=\"0\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}
