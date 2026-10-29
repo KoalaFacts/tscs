@@ -445,7 +445,7 @@ internal static class JavaScriptEmitter
                 TokenKind.Caret => 4,
                 TokenKind.Amp => 5,
                 TokenKind.EqualEqual or TokenKind.BangEqual or TokenKind.StrictEqual or TokenKind.StrictNotEqual => 6,
-                TokenKind.LessThan or TokenKind.LessEqual or TokenKind.GreaterThan or TokenKind.GreaterEqual => 7,
+                TokenKind.LessThan or TokenKind.LessEqual or TokenKind.GreaterThan or TokenKind.GreaterEqual or TokenKind.In => 7,
                 TokenKind.LeftShift or TokenKind.RightShift or TokenKind.UnsignedRightShift => 8,
                 TokenKind.Plus or TokenKind.Minus => 9,
                 TokenKind.Star or TokenKind.Slash or TokenKind.Percent => 10,

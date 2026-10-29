@@ -1607,6 +1607,18 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 else throw new CompilationFailure(Diagnostic.Error(file,binary.Operator,"TSCS1001",
                     "Bitwise and shift operators require number or any operands."));
             }
+            else if(binary.Operator.Kind==TokenKind.In)
+            {
+                // Missing names can return false at runtime: this is not a
+                // bracket read and does not imply flow narrowing.
+                if(!CompilerTypes.CanUseInLeft(left))
+                    Error(binary.Operator,"TS2360",
+                        "The left-hand side of an 'in' expression must be a string, number or any.");
+                if(!CompilerTypes.CanUseInRight(right))
+                    Error(binary.Operator,"TS2361",
+                        "The right-hand side of an 'in' expression must be an object or any.");
+                types.Push(CompilerTypes.Boolean);
+            }
             else if(binary.Operator.Kind is TokenKind.LessThan or TokenKind.LessEqual or TokenKind.GreaterThan or TokenKind.GreaterEqual)
             {
                 if(CompilerTypes.CanCompareRelational(left,right))

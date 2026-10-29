@@ -633,7 +633,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     {
         if(Current.Kind is TokenKind.Identifier or TokenKind.Let or TokenKind.Const or
             TokenKind.Import or TokenKind.Export or TokenKind.Type or TokenKind.Interface or TokenKind.Function or TokenKind.Return or TokenKind.Void or TokenKind.Throw or TokenKind.Try or TokenKind.Catch or TokenKind.Finally or
-            TokenKind.If or TokenKind.Else or TokenKind.For or TokenKind.While or TokenKind.Do or TokenKind.Break or TokenKind.Continue or TokenKind.Typeof or TokenKind.True or TokenKind.False ||
+            TokenKind.If or TokenKind.Else or TokenKind.For or TokenKind.While or TokenKind.Do or TokenKind.Break or TokenKind.Continue or TokenKind.In or TokenKind.Typeof or TokenKind.True or TokenKind.False ||
             (allowString && Current.Kind==TokenKind.String))return Take();
         Unsupported(Current,"Expected a supported named object property.");
         return default;
@@ -789,7 +789,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     private ValueNode ParseRelational()
     {
         ValueNode left=ParseTypeOperator();
-        while(Current.Kind is TokenKind.LessThan or TokenKind.LessEqual or TokenKind.GreaterThan or TokenKind.GreaterEqual)
+        while(Current.Kind is TokenKind.LessThan or TokenKind.LessEqual or TokenKind.GreaterThan or TokenKind.GreaterEqual or TokenKind.In)
         {
             var op=Take();
             left=new ValueBinary(left,op,ParseTypeOperator());

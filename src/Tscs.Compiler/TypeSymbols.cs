@@ -266,6 +266,16 @@ internal static class CompilerTypes
         IsString(type) || type is UnionTypeSymbol union &&
         union.Alternatives.Count>0 && union.Alternatives.All(IsStringFamily);
 
+    // Property keys and receivers must be checked, not coerced from arbitrary
+    // primitive types. All alternatives in a union must satisfy the constraint.
+    public static bool CanUseInLeft(TypeSymbol type) =>
+        IsStringFamily(type) || IsNumber(type) || type.Equals(Any) ||
+        type is UnionTypeSymbol union && union.Alternatives.All(CanUseInLeft);
+
+    public static bool CanUseInRight(TypeSymbol type) =>
+        type is ObjectTypeSymbol or ArrayTypeSymbol || type.Equals(Any) ||
+        type is UnionTypeSymbol union && union.Alternatives.All(CanUseInRight);
+
     public static bool CanCompareRelational(TypeSymbol left,TypeSymbol right) =>
         (IsNumber(left)&&IsNumber(right)) ||
         (IsStringFamily(left)&&IsStringFamily(right));
