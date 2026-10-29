@@ -23,19 +23,20 @@ const optionalParameters=optionalSuitePath==='fixtures/optional-parameters/seman
 const defaultParameters=optionalSuitePath==='fixtures/default-parameters/semantic-cases.json';
 const restParameters=optionalSuitePath==='fixtures/rest-parameters/semantic-cases.json';
 const spreadArguments=optionalSuitePath==='fixtures/spread-arguments/semantic-cases.json';
-assert.ok(optionalSuitePath==null||completion||loop||classic||numeric||throwFlow||tryCatch||voidReturn||optionalParameters||defaultParameters||restParameters||spreadArguments,'unknown frozen bounded reference cohort');
+const arraySpreads=optionalSuitePath==='fixtures/array-spreads/semantic-cases.json';
+assert.ok(optionalSuitePath==null||completion||loop||classic||numeric||throwFlow||tryCatch||voidReturn||optionalParameters||defaultParameters||restParameters||spreadArguments||arraySpreads,'unknown frozen bounded reference cohort');
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
-assert.equal(suite.kind,spreadArguments?'BOUNDED_SPREAD_ARGUMENTS_NOT_ORIGINAL_TS7_ACCEPTANCE':restParameters?'BOUNDED_REST_PARAMETERS_NOT_ORIGINAL_TS7_ACCEPTANCE':defaultParameters?'BOUNDED_DEFAULT_PARAMETERS_NOT_ORIGINAL_TS7_ACCEPTANCE':optionalParameters?'BOUNDED_OPTIONAL_PARAMETERS_NOT_ORIGINAL_TS7_ACCEPTANCE':voidReturn?'BOUNDED_VOID_RETURN_NOT_ORIGINAL_TS7_ACCEPTANCE':tryCatch?'BOUNDED_TRY_CATCH_NOT_ORIGINAL_TS7_ACCEPTANCE':throwFlow?'BOUNDED_THROW_FLOW_NOT_ORIGINAL_TS7_ACCEPTANCE':numeric?'BOUNDED_NUMERIC_MUTATION_DO_WHILE_NOT_ORIGINAL_TS7_ACCEPTANCE':classic?'BOUNDED_CLASSIC_FOR_NOT_ORIGINAL_TS7_ACCEPTANCE':loop
+assert.equal(suite.kind,arraySpreads?'BOUNDED_ARRAY_SPREADS_NOT_ORIGINAL_TS7_ACCEPTANCE':spreadArguments?'BOUNDED_SPREAD_ARGUMENTS_NOT_ORIGINAL_TS7_ACCEPTANCE':restParameters?'BOUNDED_REST_PARAMETERS_NOT_ORIGINAL_TS7_ACCEPTANCE':defaultParameters?'BOUNDED_DEFAULT_PARAMETERS_NOT_ORIGINAL_TS7_ACCEPTANCE':optionalParameters?'BOUNDED_OPTIONAL_PARAMETERS_NOT_ORIGINAL_TS7_ACCEPTANCE':voidReturn?'BOUNDED_VOID_RETURN_NOT_ORIGINAL_TS7_ACCEPTANCE':tryCatch?'BOUNDED_TRY_CATCH_NOT_ORIGINAL_TS7_ACCEPTANCE':throwFlow?'BOUNDED_THROW_FLOW_NOT_ORIGINAL_TS7_ACCEPTANCE':numeric?'BOUNDED_NUMERIC_MUTATION_DO_WHILE_NOT_ORIGINAL_TS7_ACCEPTANCE':classic?'BOUNDED_CLASSIC_FOR_NOT_ORIGINAL_TS7_ACCEPTANCE':loop
   ?'BOUNDED_WHILE_CONTINUE_BREAK_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :completion?'BOUNDED_SWITCH_COMPLETION_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :'BOUNDED_DISCRIMINANT_SWITCH_RETURN_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,spreadArguments?12:restParameters?12:defaultParameters?17:optionalParameters?12:voidReturn?12:tryCatch?14:throwFlow?22:completion?12:numeric?37:14,'do not shrink the registered cohort');
+assert.equal(suite.cases.length,arraySpreads?12:spreadArguments?12:restParameters?12:defaultParameters?17:optionalParameters?12:voidReturn?12:tryCatch?14:throwFlow?22:completion?12:numeric?37:14,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 // Loop cases exercise number[] indexing, length and for..of element types.
 // The frozen bootstrap profile has an intentionally empty Array<T>; reuse
 // the existing bounded array profile symmetrically for both compilers.
 // Keep the original switch profiles and every case/expectation unchanged.
-const minimalProfile=spreadArguments?'fixtures/spread-arguments/minimal.d.ts':
+const minimalProfile=(spreadArguments||arraySpreads)?'fixtures/spread-arguments/minimal.d.ts':
   (loop||classic||numeric||restParameters)?'fixtures/array-iteration/minimal.d.ts':'fixtures/minimal.d.ts';
 const minimal=readFileSync(minimalProfile,'utf8');
 // An explicitly registered case may choose the already-checked readonly String
@@ -68,7 +69,7 @@ const diagnosticCodes=(r:ReturnType<typeof run>)=>
 const ids=new Set<string>(),results:object[]=[],mismatches:object[]=[];
 for(let i=0;i<suite.cases.length;i++){
   const item=suite.cases[i];
-  assert.match(item.id,spreadArguments?/^spread-arguments:(positive|negative)-\d{2}$/:restParameters?/^rest-parameters:(positive|negative)-\d{2}$/:defaultParameters?/^default-parameters:(positive|negative)-\d{2}$/:optionalParameters?/^optional-parameters:(positive|negative)-\d{2}$/:voidReturn?/^void-return:(positive|negative)-\d{2}$/:tryCatch?/^try-catch:(positive|negative)-\d{2}$/:throwFlow?/^throw-flow:(positive|negative)-\d{2}$/:numeric?/^numeric-mutation:(positive|negative)-\d+$/:classic?/^classic-for:(positive|negative)-\d+$/:loop?/^loop-control:(positive|negative)-\d+$/:completion?/^switch-completion:(positive|negative)-\d+$/:/^switch-flow:(positive|negative)-\d+$/);
+  assert.match(item.id,arraySpreads?/^array-spreads:(positive|negative)-\d{2}$/:spreadArguments?/^spread-arguments:(positive|negative)-\d{2}$/:restParameters?/^rest-parameters:(positive|negative)-\d{2}$/:defaultParameters?/^default-parameters:(positive|negative)-\d{2}$/:optionalParameters?/^optional-parameters:(positive|negative)-\d{2}$/:voidReturn?/^void-return:(positive|negative)-\d{2}$/:tryCatch?/^try-catch:(positive|negative)-\d{2}$/:throwFlow?/^throw-flow:(positive|negative)-\d{2}$/:numeric?/^numeric-mutation:(positive|negative)-\d+$/:classic?/^classic-for:(positive|negative)-\d+$/:loop?/^loop-control:(positive|negative)-\d+$/:completion?/^switch-completion:(positive|negative)-\d+$/:/^switch-flow:(positive|negative)-\d+$/);
   assert.ok(!ids.has(item.id),'duplicate stable case ID');ids.add(item.id);
   assert.equal(typeof item.source,'string');
   assert.ok(Array.isArray(item.expectedCodes));
@@ -109,4 +110,4 @@ for(const row of manifest){const bytes=readFileSync(join(out,row.path));
   assert.equal(bytes.length,row.length);assert.equal(hash(bytes),row.sha256);}
 writeFileSync(join(out,'manifest.json'),JSON.stringify({files:manifest},null,2),{flag:'wx',flush:true});
 assert.deepEqual(mismatches,[],'genuine pinned-Go mismatches; raw outputs preserved');
-console.log(String(results.length)+' bounded '+(spreadArguments?'spread-arguments':restParameters?'rest-parameters':defaultParameters?'default-parameters':optionalParameters?'optional-parameters':voidReturn?'void-return':tryCatch?'try-catch':throwFlow?'throw-flow':numeric?'numeric-mutation':classic?'classic-for':loop?'loop-control':completion?'switch-completion':'switch-flow')+' sources matched pinned Go codes/exits; no original TS7 acceptance.');
+console.log(String(results.length)+' bounded '+(arraySpreads?'array-spreads':spreadArguments?'spread-arguments':restParameters?'rest-parameters':defaultParameters?'default-parameters':optionalParameters?'optional-parameters':voidReturn?'void-return':tryCatch?'try-catch':throwFlow?'throw-flow':numeric?'numeric-mutation':classic?'classic-for':loop?'loop-control':completion?'switch-completion':'switch-flow')+' sources matched pinned Go codes/exits; no original TS7 acceptance.');

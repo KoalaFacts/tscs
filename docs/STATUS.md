@@ -1,3 +1,16 @@
+## 2026-10-29 — Checked array literal spreads (candidate; validation pending)
+
+The C# parser, semantic checker and ES2015 writer accept array literals with
+multiple ordered `...array` elements, including heterogeneous element unions,
+object arrays, nested arrays and cross-module values. Each operand must be an
+actual statically checked array; arbitrary iterables, tuple spreads and array
+holes remain unsupported. Source-bound unit tests and four-module Node runtime
+are in this one package. A new immutable 12-case pinned Go differential cohort
+retains raw hashes and independent reference/product results. At creation these
+checks are NOT_RUN, not claimed as PASS; exact-head CI and Go reference must
+pass before normal merge. Original upstream acceptance remains 0 PASS /
+15,523 SKIP_UNIMPLEMENTED with dynamic scope UNEXPANDED.
+
 ## 2026-10-29 — Trailing checked array spread at rest call sites (source candidate; NOT_RUN)
 
 The C# parser, call AST, TypeChecker and ES2015 emitter now pass one trailing

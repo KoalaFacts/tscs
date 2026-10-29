@@ -997,6 +997,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     case ValueElementAccess indexed:
                         pending.Push(indexed.Receiver);pending.Push(indexed.Index);break;
                     case ValuePropertyAccess property:pending.Push(property.Receiver);break;
+                    case ValueArraySpread spread:
+                        pending.Push(spread.Operand);
+                        break;
                     case ValueArray array:
                         foreach(var entry in array.Elements)pending.Push(entry);
                         break;
@@ -1273,6 +1276,22 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             $"Type '{actual.DisplayName}' does not satisfy expected type '{expected.DisplayName}'.");
                     types.Push(CompilerTypes.PreserveSatisfiedLiteralTypes(typeOperator.Expression,actual,expected));
                 }
+                continue;
+            }
+            if(node is ValueArraySpread spread)
+            {
+                if(!combine)
+                {
+                    pending.Push((spread,true));
+                    pending.Push((spread.Operand,false));
+                    continue;
+                }
+                var operandType=types.Pop();
+                if(operandType is ArrayTypeSymbol expanded)
+                    types.Push(expanded.ElementType);
+                else if(operandType==null)types.Push(null);
+                else throw new CompilationFailure(Diagnostic.Error(file,spread.Keyword,"TSCS1001",
+                    "Array spread requires a statically checked array operand."));
                 continue;
             }
             if(node is ValueArray arrayLiteral)

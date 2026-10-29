@@ -1,0 +1,71 @@
+{
+  "kind": "BOUNDED_ARRAY_SPREADS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "array-spreads:positive-01",
+      "source": "let xs:number[]=[1,2];let ys:number[]=[...xs,3];",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-spreads:positive-02",
+      "source": "let xs:number[]=[1];let ys:number[]=[21,...xs,20];",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-spreads:positive-03",
+      "source": "let xs:number[]=[1];let ys:number[]=[...xs,...xs];",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-spreads:positive-04",
+      "source": "let xs:string[]=[\"a\"];let ys:string[]=[...xs,\"b\"];",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-spreads:positive-05",
+      "source": "let xs:{value:number}[]=[{value:1}];let ys:{value:number}[]=[...xs,{value:2}];",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-spreads:positive-06",
+      "source": "function f(xs:number[]):number{return [...xs,1].length;}let n:number=f([1,2]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-spreads:positive-07",
+      "source": "let xs:number[][]=[[1],[2]];let ys:number[][]=[...xs];",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-spreads:positive-08",
+      "source": "let xs:number[]=[1];let ys:number[]=[...[...xs]];",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-spreads:positive-09",
+      "source": "let xs:number[]=[1];let ys:number[]=[...xs,2,...xs];",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-spreads:negative-01",
+      "source": "let xs:string[]=[\"a\"];let ys:number[]=[...xs];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-spreads:negative-02",
+      "source": "let xs:number[]=[1];let ys:string[]=[...xs];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-spreads:negative-03",
+      "source": "let xs:boolean[]=[true];let ys:number[]=[...xs];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}
