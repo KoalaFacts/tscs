@@ -13,7 +13,7 @@ public sealed class InterfaceInheritanceTests
     [InlineData("interface A{readonly value:number}interface B extends A{extra:number}let b:B={value:20,extra:22};let n:number=b.value;")]
     [InlineData("interface Child extends Parent{extra:number}interface Parent{value:number}let c:Child={value:20,extra:22};")]
     [InlineData("interface Parent{0:number}interface Child extends Parent{label:string}let c:Child={0:42,label:\"ok\"};let n:number=c[0];")]
-    [InlineData("type Shape={value:number}interface Child extends Shape{extra:number}let c:Child={value:20,extra:22};")]
+    [InlineData("type Shape={value:number};interface Child extends Shape{extra:number}let c:Child={value:20,extra:22};")]
     public void NamedStructuralInheritanceCompiles(string source)=>
         Assert.Empty(Compilation.Check("heritage.ts",source));
 
