@@ -230,9 +230,9 @@ internal sealed class Parser(string file, List<Token> tokens)
                 if(!inFunction)Unsupported(keyword,"Return statements are supported only inside functions.");
                 // A line terminator after return ends the statement (ASI).
                 // The checker validates a bare return against the declared result type.
-                var value=Current.LineBreak || Current.Kind is TokenKind.Semi or TokenKind.End or TokenKind.Close
+                var returnExpression=Current.LineBreak || Current.Kind is TokenKind.Semi or TokenKind.End or TokenKind.Close
                     ? null : ParseValue();
-                statements.Add(new ReturnStatement(keyword,value));
+                statements.Add(new ReturnStatement(keyword,returnExpression));
                 EndStatement();
                 continue;
             }
