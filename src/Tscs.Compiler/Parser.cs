@@ -148,6 +148,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                 if(!Eat(TokenKind.OpenParen))Unsupported(Current,"Expected '(' after function name.");
                 var parameters=new List<ParameterDeclaration>();
                 bool sawOptionalParameter=false;
+                bool sawDefaultParameter=false;
                 if(Current.Kind!=TokenKind.CloseParen)
                 {
                     while(true)
@@ -155,14 +156,25 @@ internal sealed class Parser(string file, List<Token> tokens)
                         var parameter=Current;
                         if(parameter.Kind!=TokenKind.Identifier)Unsupported(parameter,"Expected a named parameter.");
                         Take();
-                        bool optional=Eat(TokenKind.Question);
+                        bool questionOptional=Eat(TokenKind.Question);
                         if(!Eat(TokenKind.Colon))Unsupported(Current,"Function parameters require an explicit supported type.");
                         var annotation=ReadTypeAnnotation();
+                        var defaultValue=Eat(TokenKind.Equal)?ParseValue():null;
+                        if(questionOptional && defaultValue is not null)
+                            Diagnostics.Add(Diagnostic.Error(file,parameter,"TS1015",
+                                "Parameter cannot have question mark and initializer."));
+                        bool optional=questionOptional||defaultValue is not null;
+                        // TypeScript permits a default before a required parameter,
+                        // but this bounded implementation does not model its required
+                        // call-site positional slot. Reject instead of miscompiling.
+                        if(sawDefaultParameter && !optional)
+                            Unsupported(parameter,"Required parameters after defaults are not supported yet.");
                         if(sawOptionalParameter && !optional)
                             Diagnostics.Add(Diagnostic.Error(file,parameter,"TS1016",
                                 "A required parameter cannot follow an optional parameter."));
                         sawOptionalParameter|=optional;
-                        parameters.Add(new ParameterDeclaration(parameter,annotation,optional));
+                        sawDefaultParameter|=defaultValue is not null;
+                        parameters.Add(new ParameterDeclaration(parameter,annotation,optional,defaultValue));
                         if(!Eat(TokenKind.Comma))break;
                     }
                 }

@@ -1,3 +1,17 @@
+## 2026-10-29 — Typed trailing default parameters (candidate; NOT_RUN)
+
+The C# function declaration pipeline now carries trailing typed parameter default
+expressions through Parser/AST, ordered TypeChecker initialization, signatures,
+Binder and ES2015 JavaScript emission. Omission and explicit arguments use the
+same callable signature across named modules. Checked defaults may reference
+previous parameters; incorrect initializer types and invalid arity are rejected.
+Non-trailing defaults and untyped/default rest/destructuring parameters remain
+explicitly unsupported, not silently compiled. The bounded 17-source fixed-Go
+oracle and four-module Node 24 runtime are wired to the existing CI lanes,
+but are NOT_RUN at candidate creation. Internal tests and bounded comparison
+are NOT original upstream acceptance: original 0 PASS, 15,523
+SKIP_UNIMPLEMENTED, dynamic scope UNEXPANDED.
+
 ## 2026-10-29 — Optional typed function parameters (candidate; NOT_RUN)
 
 This bounded compiler package supports trailing `name?: T` parameters with checked

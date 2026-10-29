@@ -139,7 +139,13 @@ internal static class JavaScriptEmitter
                     for(int i=0;i<function.Parameters.Count;i++)
                     {
                         if(i>0)output.Append(", ");
-                        output.Append(function.Parameters[i].Name.Text);
+                        var parameter=function.Parameters[i];
+                        output.Append(parameter.Name.Text);
+                        if(parameter.DefaultValue is { } defaultExpression)
+                        {
+                            output.Append(" = ");
+                            WriteExpression(defaultExpression);
+                        }
                     }
                     output.Append(") ");
                     WriteBlock(function.Body,depth);

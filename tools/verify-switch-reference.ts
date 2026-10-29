@@ -20,13 +20,14 @@ const throwFlow=optionalSuitePath==='fixtures/throw-flow/semantic-cases.json';
 const tryCatch=optionalSuitePath==='fixtures/try-catch/semantic-cases.json';
 const voidReturn=optionalSuitePath==='fixtures/void-return/semantic-cases.json';
 const optionalParameters=optionalSuitePath==='fixtures/optional-parameters/semantic-cases.json';
-assert.ok(optionalSuitePath==null||completion||loop||classic||numeric||throwFlow||tryCatch||voidReturn||optionalParameters,'unknown frozen bounded reference cohort');
+const defaultParameters=optionalSuitePath==='fixtures/default-parameters/semantic-cases.json';
+assert.ok(optionalSuitePath==null||completion||loop||classic||numeric||throwFlow||tryCatch||voidReturn||optionalParameters||defaultParameters,'unknown frozen bounded reference cohort');
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
-assert.equal(suite.kind,optionalParameters?'BOUNDED_OPTIONAL_PARAMETERS_NOT_ORIGINAL_TS7_ACCEPTANCE':voidReturn?'BOUNDED_VOID_RETURN_NOT_ORIGINAL_TS7_ACCEPTANCE':tryCatch?'BOUNDED_TRY_CATCH_NOT_ORIGINAL_TS7_ACCEPTANCE':throwFlow?'BOUNDED_THROW_FLOW_NOT_ORIGINAL_TS7_ACCEPTANCE':numeric?'BOUNDED_NUMERIC_MUTATION_DO_WHILE_NOT_ORIGINAL_TS7_ACCEPTANCE':classic?'BOUNDED_CLASSIC_FOR_NOT_ORIGINAL_TS7_ACCEPTANCE':loop
+assert.equal(suite.kind,defaultParameters?'BOUNDED_DEFAULT_PARAMETERS_NOT_ORIGINAL_TS7_ACCEPTANCE':optionalParameters?'BOUNDED_OPTIONAL_PARAMETERS_NOT_ORIGINAL_TS7_ACCEPTANCE':voidReturn?'BOUNDED_VOID_RETURN_NOT_ORIGINAL_TS7_ACCEPTANCE':tryCatch?'BOUNDED_TRY_CATCH_NOT_ORIGINAL_TS7_ACCEPTANCE':throwFlow?'BOUNDED_THROW_FLOW_NOT_ORIGINAL_TS7_ACCEPTANCE':numeric?'BOUNDED_NUMERIC_MUTATION_DO_WHILE_NOT_ORIGINAL_TS7_ACCEPTANCE':classic?'BOUNDED_CLASSIC_FOR_NOT_ORIGINAL_TS7_ACCEPTANCE':loop
   ?'BOUNDED_WHILE_CONTINUE_BREAK_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :completion?'BOUNDED_SWITCH_COMPLETION_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :'BOUNDED_DISCRIMINANT_SWITCH_RETURN_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,optionalParameters?12:voidReturn?12:tryCatch?14:throwFlow?22:completion?12:numeric?37:14,'do not shrink the registered cohort');
+assert.equal(suite.cases.length,defaultParameters?17:optionalParameters?12:voidReturn?12:tryCatch?14:throwFlow?22:completion?12:numeric?37:14,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 // Loop cases exercise number[] indexing, length and for..of element types.
 // The frozen bootstrap profile has an intentionally empty Array<T>; reuse
@@ -64,7 +65,7 @@ const diagnosticCodes=(r:ReturnType<typeof run>)=>
 const ids=new Set<string>(),results:object[]=[],mismatches:object[]=[];
 for(let i=0;i<suite.cases.length;i++){
   const item=suite.cases[i];
-  assert.match(item.id,optionalParameters?/^optional-parameters:(positive|negative)-\d{2}$/:voidReturn?/^void-return:(positive|negative)-\d{2}$/:tryCatch?/^try-catch:(positive|negative)-\d{2}$/:throwFlow?/^throw-flow:(positive|negative)-\d{2}$/:numeric?/^numeric-mutation:(positive|negative)-\d+$/:classic?/^classic-for:(positive|negative)-\d+$/:loop?/^loop-control:(positive|negative)-\d+$/:completion?/^switch-completion:(positive|negative)-\d+$/:/^switch-flow:(positive|negative)-\d+$/);
+  assert.match(item.id,defaultParameters?/^default-parameters:(positive|negative)-\d{2}$/:optionalParameters?/^optional-parameters:(positive|negative)-\d{2}$/:voidReturn?/^void-return:(positive|negative)-\d{2}$/:tryCatch?/^try-catch:(positive|negative)-\d{2}$/:throwFlow?/^throw-flow:(positive|negative)-\d{2}$/:numeric?/^numeric-mutation:(positive|negative)-\d+$/:classic?/^classic-for:(positive|negative)-\d+$/:loop?/^loop-control:(positive|negative)-\d+$/:completion?/^switch-completion:(positive|negative)-\d+$/:/^switch-flow:(positive|negative)-\d+$/);
   assert.ok(!ids.has(item.id),'duplicate stable case ID');ids.add(item.id);
   assert.equal(typeof item.source,'string');
   assert.ok(Array.isArray(item.expectedCodes));
@@ -105,4 +106,4 @@ for(const row of manifest){const bytes=readFileSync(join(out,row.path));
   assert.equal(bytes.length,row.length);assert.equal(hash(bytes),row.sha256);}
 writeFileSync(join(out,'manifest.json'),JSON.stringify({files:manifest},null,2),{flag:'wx',flush:true});
 assert.deepEqual(mismatches,[],'genuine pinned-Go mismatches; raw outputs preserved');
-console.log(String(results.length)+' bounded '+(optionalParameters?'optional-parameters':voidReturn?'void-return':tryCatch?'try-catch':throwFlow?'throw-flow':numeric?'numeric-mutation':classic?'classic-for':loop?'loop-control':completion?'switch-completion':'switch-flow')+' sources matched pinned Go codes/exits; no original TS7 acceptance.');
+console.log(String(results.length)+' bounded '+(defaultParameters?'default-parameters':optionalParameters?'optional-parameters':voidReturn?'void-return':tryCatch?'try-catch':throwFlow?'throw-flow':numeric?'numeric-mutation':classic?'classic-for':loop?'loop-control':completion?'switch-completion':'switch-flow')+' sources matched pinned Go codes/exits; no original TS7 acceptance.');

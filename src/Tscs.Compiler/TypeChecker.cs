@@ -43,6 +43,17 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         foreach(var parameter in function.Parameters)
                         {
                             CheckStrictModuleBinding(parameter.Name);
+                            // Initializers can see preceding parameters, not future
+                            // ones. Check in declaration order before binding self.
+                            if(parameter.DefaultValue is { } initializer)
+                            {
+                                var requiredType=TypeResolver.Resolve(parameter.Annotation,parameters,file);
+                                var initialType=TypeOf(initializer,parameters);
+                                if(initialType is { } actual &&
+                                   CheckContextualLiteral(initializer,requiredType,actual) &&
+                                   !IsAssignableContextually(initializer,actual,requiredType))
+                                    Mismatch(parameter.Name,actual,requiredType);
+                            }
                             Binder.DeclareParameter(file,parameters,parameter);
                         }
                         CheckBlock(function.Body,parameters,false,functionType.ReturnType);
