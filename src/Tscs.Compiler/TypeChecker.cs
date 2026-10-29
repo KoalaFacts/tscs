@@ -1362,18 +1362,18 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 var members=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
                 for(int i=0;i<inferred.Length;i++)
                 {
-                    var property=literal.Properties[i];
+                    var entry=literal.Properties[i];
                     var memberType=inferred[i];
                     if(memberType==null)continue;
-                    if(property.Spread)
+                    if(entry.Spread)
                     {
                         if(memberType is not ObjectTypeSymbol source)
-                            throw new CompilationFailure(Diagnostic.Error(file,property.Name,"TSCS1001",
+                            throw new CompilationFailure(Diagnostic.Error(file,entry.Name,"TSCS1001",
                                 "Object spread requires a statically checked object operand."));
                         foreach(var member in source.Members)
                             members[member.Key]=member.Value;
                     }
-                    else members[Parser.PropertyName(property.Name)]=memberType;
+                    else members[Parser.PropertyName(entry.Name)]=memberType;
                 }
                 // Do not turn an unresolved property into an implicit any.
                 types.Push(known?new ObjectTypeSymbol(members):null);
