@@ -16,6 +16,8 @@ public sealed class InOperatorTests
     [InlineData("interface Item {value:number} let obj:Item={value:42};let result:boolean=\"value\" in obj;")]
     [InlineData("let obj={in:42};let result:boolean=\"in\" in obj;")]
     [InlineData("let xs:number[]=[20,22];let present:boolean=1 in xs;")]
+    [InlineData("function f():number{return 42;}let present:boolean=\"prototype\" in f;")]
+    [InlineData("let obj={value:42};for(let present:boolean=(\"value\" in obj);false;){}")]
     public void PropertyExistenceProducesBoolean(string source) =>
         Assert.Empty(Compilation.Check("in-operator.ts",source));
 
@@ -23,6 +25,7 @@ public sealed class InOperatorTests
     [InlineData("let obj={value:42};let result:boolean=true in obj;", "TS2322")]
     [InlineData("let x:number=42;let result:boolean=\"value\" in x;", "TS2322")]
     [InlineData("let obj={value:42};let result:number=\"value\" in obj;", "TS2322")]
+    [InlineData("let obj={value:42};for(let present:boolean=\"value\" in obj;false;){}", "TSCS1001")]
     public void InvalidOperandOrResultIsRejected(string source,string code) =>
         Assert.Contains(Compilation.Check("in-operator.ts",source),d=>d.Code==code);
 }

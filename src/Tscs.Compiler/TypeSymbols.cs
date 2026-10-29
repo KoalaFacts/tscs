@@ -273,7 +273,7 @@ internal static class CompilerTypes
         type is UnionTypeSymbol union && union.Alternatives.All(CanUseInLeft);
 
     public static bool CanUseInRight(TypeSymbol type) =>
-        type is ObjectTypeSymbol or ArrayTypeSymbol || type.Equals(Any) ||
+        type is ObjectTypeSymbol or ArrayTypeSymbol or FunctionTypeSymbol || type.Equals(Any) ||
         type is UnionTypeSymbol union && union.Alternatives.All(CanUseInRight);
 
     public static bool CanCompareRelational(TypeSymbol left,TypeSymbol right) =>

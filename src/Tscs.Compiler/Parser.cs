@@ -11,6 +11,8 @@ internal sealed class Parser(string file, List<Token> tokens)
     private int objectNesting;
     private int arrayNesting;
     private int exponentNesting;
+    // Classic-for initializers use the ECMAScript NoIn grammar; grouping restores In.
+    private bool disallowIn;
     private Token Current => tokens[position];
     public List<Diagnostic> Diagnostics { get; } = [];
     private Token Take() => tokens[position++];
@@ -433,13 +435,13 @@ internal sealed class Parser(string file, List<Token> tokens)
             }
             if(constant)Unsupported(name,"Classic for currently requires a mutable let binding.");
             TypeSyntax? annotation=Eat(TokenKind.Colon)?ReadTypeAnnotation():null;
-            ValueNode? initial=Eat(TokenKind.Equal)?ParseValue():null;
+            ValueNode? initial=Eat(TokenKind.Equal)?ParseWithInDisallowed(ParseValue):null;
             if(annotation==null && initial==null)
                 Unsupported(name,"Classic for declarations need an initializer or explicit type.");
             initializer=new Variable(name,false,annotation,initial);
         }
         else if(Current.Kind!=TokenKind.Semi)
-            initializer=ParseForHeaderMutation();
+            initializer=ParseWithInDisallowed(ParseForHeaderMutation);
         if(!Eat(TokenKind.Semi))Unsupported(Current,"Expected first ';' in classic for header.");
         ValueNode? condition=Current.Kind==TokenKind.Semi?null:ParseValue();
         if(!Eat(TokenKind.Semi))Unsupported(Current,"Expected second ';' in classic for header.");
@@ -449,6 +451,14 @@ internal sealed class Parser(string file, List<Token> tokens)
         var statements=Parse(depth+1,inFunction);
         if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
         return new ClassicForStatement(keyword,initializer,condition,update,statements);
+    }
+
+    private T ParseWithInDisallowed<T>(Func<T> parse)
+    {
+        var old=disallowIn;
+        disallowIn=true;
+        try { return parse(); }
+        finally { disallowIn=old; }
     }
 
     private Statement ParseForHeaderMutation()
@@ -789,7 +799,8 @@ internal sealed class Parser(string file, List<Token> tokens)
     private ValueNode ParseRelational()
     {
         ValueNode left=ParseTypeOperator();
-        while(Current.Kind is TokenKind.LessThan or TokenKind.LessEqual or TokenKind.GreaterThan or TokenKind.GreaterEqual or TokenKind.In)
+        while(Current.Kind is TokenKind.LessThan or TokenKind.LessEqual or TokenKind.GreaterThan or TokenKind.GreaterEqual ||
+              (Current.Kind==TokenKind.In && !disallowIn))
         {
             var op=Take();
             left=new ValueBinary(left,op,ParseTypeOperator());
@@ -903,13 +914,15 @@ internal sealed class Parser(string file, List<Token> tokens)
         {
             Take();
             if(++groupNesting>128)Unsupported(token,"Parenthesized expression nesting exceeds the bootstrap limit.");
+            var previousNoIn=disallowIn;
+            disallowIn=false;
             try
             {
                 var inner=ParseValue();
                 if(Current.Kind!=TokenKind.CloseParen)Unsupported(Current,"Expected ')' to close a parenthesized expression.");
                 return new ValueParenthesized(token,inner,Take());
             }
-            finally { groupNesting--; }
+            finally { disallowIn=previousNoIn; groupNesting--; }
         }
         if(token.Kind==TokenKind.Identifier)
         {
