@@ -591,6 +591,20 @@ internal sealed class Parser(string file, List<Token> tokens)
 
     // The same bounded grammar handles aliases, interfaces, variables, function
     // signatures and nested members: postfix [] binds tighter than union |.
+    // Disambiguate typed call signatures from parenthesized types.
+    private bool IsFunctionTypeStart()
+    {
+        int parentheses=0;
+        for(int i=position;i<tokens.Count;i++)
+        {
+            if(tokens[i].Kind==TokenKind.OpenParen)parentheses++;
+            else if(tokens[i].Kind==TokenKind.CloseParen && --parentheses==0)
+                return i+1<tokens.Count && tokens[i+1].Kind==TokenKind.Arrow;
+            else if(tokens[i].Kind==TokenKind.End)break;
+        }
+        return false;
+    }
+
     private TypeSyntax ReadTypeAnnotation(int depth=0)
     {
         if(depth>64)Unsupported(Current,"Type nesting exceeds the compiler subset limit.");
@@ -654,6 +668,37 @@ internal sealed class Parser(string file, List<Token> tokens)
             if(Current.Kind!=TokenKind.Number)
                 Unsupported(sign,"Only negative numeric literal annotations are supported after '-'.");
             type=new LiteralTypeSyntax(Take(),Negative:true);
+        }
+        else if(Current.Kind==TokenKind.OpenParen && IsFunctionTypeStart())
+        {
+            var open=Take();
+            var parameters=new List<FunctionTypeParameter>();
+            bool optionalSeen=false;
+            while(Current.Kind!=TokenKind.CloseParen)
+            {
+                if(parameters.Count>=32)Unsupported(Current,"Function types with over 32 parameters are not supported yet.");
+                bool rest=Eat(TokenKind.Ellipsis);
+                if(Current.Kind!=TokenKind.Identifier)
+                    Unsupported(Current,"Function type parameters require a name and explicit type.");
+                var name=Take();
+                bool optional=Eat(TokenKind.Question);
+                if(rest && optional)Unsupported(name,"A rest parameter cannot be optional.");
+                if(optionalSeen && !optional && !rest)
+                    Unsupported(name,"A required parameter cannot follow an optional parameter.");
+                if(!Eat(TokenKind.Colon))
+                    Unsupported(Current,"Function type parameters require ':'.");
+                var parameterType=ReadTypeAnnotation(depth+1);
+                if(rest && parameterType is not ArrayTypeSyntax)
+                    Unsupported(name,"Rest function type parameters require an array element type.");
+                parameters.Add(new FunctionTypeParameter(name,parameterType,optional,rest));
+                if(optional)optionalSeen=true;
+                if(rest && Current.Kind!=TokenKind.CloseParen)
+                    Unsupported(Current,"A rest parameter must be the final function type parameter.");
+                if(!Eat(TokenKind.Comma))break;
+            }
+            if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after function type parameters.");
+            if(!Eat(TokenKind.Arrow))Unsupported(Current,"Expected '=>' in function type.");
+            type=new FunctionTypeSyntax(open,parameters,ReadTypeAnnotation(depth+1));
         }
         else if(Eat(TokenKind.OpenParen))
         {

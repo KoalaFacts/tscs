@@ -1,0 +1,97 @@
+{
+  "kind": "BOUNDED_FUNCTION_TYPE_ANNOTATIONS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "function-types:positive-01",
+      "source": "type Fn=(n:number)=>number;function double(n:number):number{return n+n;}let fn:Fn=double;let result:number=fn(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:positive-02",
+      "source": "function twice(n:number):number{return n+n;}function invoke(fn:(n:number)=>number):number{return fn(21);}let result:number=invoke(twice);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:positive-03",
+      "source": "type Fn=(left:number,right:number)=>number;function sum(a:number,b:number):number{return a+b;}let cb:Fn=sum;let n:number=cb(20,22);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:positive-04",
+      "source": "type Supplier=()=>number;function answer():number{return 42;}let cb:Supplier=answer;let n:number=cb();",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:positive-05",
+      "source": "type Fn=(x:{value:number})=>number;function get(x:{value:number}):number{return x.value;}let cb:Fn=get;let n:number=cb({value:42});",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:positive-06",
+      "source": "type Fn=(n:number)=>number;type Alias=Fn;function double(n:number):number{return n+n;}let cb:Alias=double;",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:positive-07",
+      "source": "type Higher=(fn:(n:number)=>number,n:number)=>number;function double(n:number):number{return n+n;}function invoke(fn:(n:number)=>number,n:number):number{return fn(n);}let cb:Higher=invoke;let n:number=cb(double,21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:positive-08",
+      "source": "type Maybe=(n?:number)=>number;function answer(n?:number):number{return 42;}let cb:Maybe=answer;let n:number=cb();",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:positive-09",
+      "source": "type Rest=(...values:number[])=>number;function answer(...values:number[]):number{return 42;}let cb:Rest=answer;let n:number=cb(20,22);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:positive-10",
+      "source": "type Fn=(n:number)=>number;type Holder={handler:Fn};function double(n:number):number{return n+n;}let h:Holder={handler:double};let cb:Fn=h.handler;let n:number=cb(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:negative-01",
+      "source": "type Fn=(n:number)=>number;function double(n:number):number{return n+n;}let cb:Fn=double;let bad:number=cb(\"oops\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "function-types:negative-02",
+      "source": "type Fn=(n:number)=>number;function double(n:number):number{return n+n;}let cb:Fn=double;let bad:number=cb();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "function-types:negative-03",
+      "source": "type Fn=(n:number)=>number;function double(n:number):number{return n+n;}let cb:Fn=double;let bad:number=cb(1,2);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "function-types:negative-04",
+      "source": "type Fn=(n:number)=>number;let cb:Fn=42;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "function-types:negative-05",
+      "source": "type Fn=(n:number)=>number;function wrong(n:string):number{return 42;}let cb:Fn=wrong;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "function-types:negative-06",
+      "source": "type Fn=(n:number)=>number;function wrong(n:number):string{return \"bad\";}let cb:Fn=wrong;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}

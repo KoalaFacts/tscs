@@ -1,6 +1,6 @@
 namespace Tscs;
 
-internal enum TokenKind { End, Identifier, Number, String, Let, Const, True, False, Open, Close, Colon, Semi, Equal, Comma, Unsupported, Null, OpenBracket, CloseBracket, Minus, MinusMinus, Plus, PlusPlus, PlusEqual, MinusEqual, StarEqual, PowerEqual, SlashEqual, PercentEqual, AmpEqual, BarEqual, CaretEqual, LeftShiftEqual, RightShiftEqual, UnsignedRightShiftEqual, Star, Power, Slash, Percent, Import, Export, Function, Return, Void, Throw, Try, Catch, Finally, If, Else, For, While, Do, Switch, Case, Default, Break, Continue, Type, Interface, Extends, OpenParen, CloseParen, Bang, Typeof, AmpAmp, BarBar, Bar, Amp, Caret, Tilde, LeftShift, RightShift, UnsignedRightShift, EqualEqual, BangEqual, StrictEqual, StrictNotEqual, Question, In, LessThan, LessEqual, GreaterThan, GreaterEqual, Ellipsis, Dot }
+internal enum TokenKind { End, Identifier, Number, String, Let, Const, True, False, Open, Close, Colon, Semi, Equal, Comma, Unsupported, Null, OpenBracket, CloseBracket, Minus, MinusMinus, Plus, PlusPlus, PlusEqual, MinusEqual, StarEqual, PowerEqual, SlashEqual, PercentEqual, AmpEqual, BarEqual, CaretEqual, LeftShiftEqual, RightShiftEqual, UnsignedRightShiftEqual, Star, Power, Slash, Percent, Import, Export, Function, Return, Void, Throw, Try, Catch, Finally, If, Else, For, While, Do, Switch, Case, Default, Break, Continue, Type, Interface, Extends, OpenParen, CloseParen, Bang, Typeof, AmpAmp, BarBar, Bar, Amp, Caret, Tilde, LeftShift, RightShift, UnsignedRightShift, EqualEqual, BangEqual, StrictEqual, StrictNotEqual, Question, In, LessThan, LessEqual, GreaterThan, GreaterEqual, Ellipsis, Dot, Arrow }
 [Flags]
 internal enum StringTokenFlags { None=0, Unterminated=1<<2, ExtendedUnicodeEscape=1<<3, UnicodeEscape=1<<10, ContainsInvalidEscape=1<<11, HexEscape=1<<12, SingleQuote=1<<16 }
 internal readonly record struct Token(TokenKind Kind, string Text, int Start, int Length, bool LineBreak = false,string? Value = null, StringTokenFlags Flags = StringTokenFlags.None);
@@ -16,6 +16,9 @@ internal sealed record ObjectTypeProperty(Token Name,TypeSyntax Type,bool Readon
 internal sealed record ObjectTypeSyntax(Token Open,IReadOnlyList<ObjectTypeProperty> Properties,Token Close) : TypeSyntax;
 internal sealed record ArrayTypeSyntax(TypeSyntax Element,Token Open,Token Close) : TypeSyntax;
 internal sealed record NamedTypeSyntax(Token Name) : TypeSyntax;
+// Named callback signatures are type-only; lambda expressions remain unsupported.
+internal sealed record FunctionTypeParameter(Token Name,TypeSyntax Type,bool Optional=false,bool Rest=false);
+internal sealed record FunctionTypeSyntax(Token Open,IReadOnlyList<FunctionTypeParameter> Parameters,TypeSyntax ReturnType) : TypeSyntax;
 // Contextual type operator: `keyof` remains an ordinary value identifier.
 internal sealed record KeyofTypeSyntax(Token Keyword,TypeSyntax Target) : TypeSyntax;
 // A type-only value query retains the declaring value identity; there is no JS emit.

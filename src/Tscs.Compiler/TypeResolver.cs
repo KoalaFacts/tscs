@@ -34,6 +34,16 @@ internal static class TypeResolver
         {
             case PrimitiveTypeSyntax primitive: return CompilerTypes.FromAnnotation(primitive.Name.Text);
             case LiteralTypeSyntax literal: return CompilerTypes.FromLiteralExact(literal.Literal,literal.Negative);
+            case FunctionTypeSyntax function:
+            {
+                var parameters=function.Parameters.Select(p=>Resolve(p.Type,scope,file,depth+1)).ToArray();
+                var last=function.Parameters.LastOrDefault();
+                return new FunctionTypeSymbol(parameters,
+                    Resolve(function.ReturnType,scope,file,depth+1),
+                    function.Parameters.TakeWhile(p=>!p.Optional && !p.Rest).Count(),
+                    last is { Rest:true,Type:ArrayTypeSyntax array }
+                        ?Resolve(array.Element,scope,file,depth+1):null);
+            }
             case NamedTypeSyntax named:
                 if(scope.FindType(named.Name.Text) is not { } binding)
                     throw new CompilationFailure(Diagnostic.Error(file,named.Name,"TS2304",
@@ -276,6 +286,7 @@ internal static class TypeResolver
     {
         PrimitiveTypeSyntax value=>value.Name,
         LiteralTypeSyntax value=>value.Literal,
+        FunctionTypeSyntax value=>value.Open,
         NamedTypeSyntax value=>value.Name,
         KeyofTypeSyntax value=>value.Keyword,
         TypeQuerySyntax value=>value.Keyword,

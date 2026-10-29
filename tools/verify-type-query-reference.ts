@@ -11,10 +11,15 @@ const reference=resolve(referenceArg),out=resolve(outputArg),root=process.cwd();
 assert.ok(!existsSync(out),'refusing to overwrite source-bound run evidence');
 mkdirSync(out,{recursive:true});
 const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
-const suitePath='fixtures/type-query/semantic-cases.json';
+const functionTypeSuite=process.argv[4]==='fixtures/function-types/semantic-cases.json';
+assert.ok(process.argv.length<=5 && (process.argv.length===4 || functionTypeSuite),
+  'unregistered reference suite');
+const suitePath=functionTypeSuite?'fixtures/function-types/semantic-cases.json':'fixtures/type-query/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
-assert.equal(suite.kind,'BOUNDED_TYPE_QUERY_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,22,'do not shrink registered source cases');
+assert.equal(suite.kind,functionTypeSuite
+  ?'BOUNDED_FUNCTION_TYPE_ANNOTATIONS_NOT_ORIGINAL_TS7_ACCEPTANCE'
+  :'BOUNDED_TYPE_QUERY_NOT_ORIGINAL_TS7_ACCEPTANCE');
+assert.equal(suite.cases.length,functionTypeSuite?16:22,'do not shrink registered source cases');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const profilePath='fixtures/minimal.d.ts',profile=readFileSync(profilePath,'utf8');
 const hash=(v:string|Buffer)=>createHash('sha256').update(v).digest('hex');
@@ -43,7 +48,7 @@ const codes=(r:ReturnType<typeof run>)=>
 const ids=new Set<string>(),rows:object[]=[],mismatch:object[]=[];
 for(let i=0;i<suite.cases.length;i++) {
   const item=suite.cases[i];
-  assert.match(item.id,/^type-query:(positive|negative)-\d{2}$/);
+  assert.match(item.id,functionTypeSuite?/^function-types:(positive|negative)-\d{2}$/:/^type-query:(positive|negative)-\d{2}$/);
   assert.ok(!ids.has(item.id),'duplicate case ID');ids.add(item.id);
   assert.equal(typeof item.source,'string');
   assert.ok(Array.isArray(item.expectedCodes));
@@ -92,4 +97,4 @@ for(const file of manifest) {
 }
 writeFileSync(join(out,'manifest.json'),JSON.stringify({files:manifest},null,2),{flag:'wx',flush:true});
 assert.deepEqual(mismatch,[],'genuine pinned Go mismatch; raw per-case results preserved');
-console.log('typeof queries: '+rows.length+' stable source/code/exit cases matched pinned Go; original TS7 credit=0.');
+console.log((functionTypeSuite?'function type annotations':'typeof queries')+': '+rows.length+' stable source/code/exit cases matched pinned Go; original TS7 credit=0.');
