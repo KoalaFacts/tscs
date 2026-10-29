@@ -1,3 +1,35 @@
+## 2026-10-29 — Pinned TS7 catch-unknown semantic correction (candidate; NOT_RUN)
+
+Initial PR #45's exact-head Go differential run 40806731638 failed for
+five source-bound IDs. The reference showed TS2322 for unknown-to-number
+assignments/returns, TS18046 for unknown property access and TS2304 for
+the separate out-of-scope reference. Product incorrectly treated catch
+as implicit any. This patch introduces a real bounded unknown type and
+conservative type checking; safe rethrows remain legal.
+Five oracle-backed expected diagnostic arrays have been corrected without
+changing source text or stable IDs. The original failed raw artifact
+12868538099 remains retained for comparison. Source regressions now
+explicitly reject formerly unsafe unknown operations; four-module JS
+execution uses valid recovery and eight no-emit negative cases.
+Fixed-reference and exact-new-head CI are NOT_RUN at patch creation.
+Original TS7 acceptance is 0 PASS / 15,523 SKIP_UNIMPLEMENTED and
+dynamic scope remains UNEXPANDED.
+
+## 2026-10-29 — Braced try/catch/finally with lexical error binding (source candidate; NOT_RUN)
+
+The existing checked C# AST and compiler now handle braced try/catch, optional
+single catch identifier or omitted binding, and optional finally. A catch
+binding is local to that block and uses the pinned reference unknown type.
+Typed/destructured catch parameters and duplicate catch-local declarations
+fail closed. Try/catch initialization is conservatively joined: no branch
+donates speculative initialization to its sibling or cleanup. Finally retains
+abrupt-override semantics. Four-module Node 24 execution covers real throw,
+catch, rethrow and finally behaviour, plus negative no-emit programs.
+14 new stable bounded Go reference sources run independently alongside the
+unchanged 22 throw-flow sources and preserve raw per-case evidence.
+Hosted verification is NOT_RUN at source creation; original TS7 acceptance
+remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic scope UNEXPANDED.
+
 ## 2026-10-29 — Checked try/finally abrupt cleanup (source candidate; NOT_RUN)
 
 The existing throw/return/break/continue flow model now accepts braced

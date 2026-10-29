@@ -1,0 +1,94 @@
+{
+  "kind": "BOUNDED_TRY_CATCH_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "try-catch:positive-01",
+      "source": "function f(n:number):number {try{if(n<0){throw n;}return n;}catch(error){return 42;}}",
+      "expectedCodes": []
+    },
+    {
+      "id": "try-catch:positive-02",
+      "source": "function f():number {try{throw 21;}catch{return 42;}}",
+      "expectedCodes": []
+    },
+    {
+      "id": "try-catch:positive-03",
+      "source": "function f():number {try{throw 21;}catch(error){return 42;}finally{let done:number=1;}}",
+      "expectedCodes": []
+    },
+    {
+      "id": "try-catch:positive-04",
+      "source": "function f():number {try{throw 21;}catch(error){let n:number=error;return n;}}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "try-catch:positive-05",
+      "source": "try{throw {code:21};}catch(error){let n:number=error.code;}",
+      "expectedCodes": [
+        "TS18046"
+      ]
+    },
+    {
+      "id": "try-catch:positive-06",
+      "source": "const item={catch:42};let n:number=item.catch;",
+      "expectedCodes": []
+    },
+    {
+      "id": "try-catch:positive-07",
+      "source": "let error:number=21;try{throw 21;}catch(error){error=42;}let n:number=error;",
+      "expectedCodes": []
+    },
+    {
+      "id": "try-catch:positive-08",
+      "source": "function f(n:number):number {try{try{throw n;}catch(inner){throw inner;}}catch(outer){return outer;}}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "try-catch:positive-09",
+      "source": "let n:number=0;try{throw 21;}catch(error){n=error;}finally{n+=21;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "try-catch:negative-01",
+      "source": "try{throw 21;}catch(error){let n:number=\"wrong\";}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "try-catch:negative-02",
+      "source": "try{throw 21;}catch(error){let n:number=missing;}",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    },
+    {
+      "id": "try-catch:negative-03",
+      "source": "function f():number {try{throw missing;}catch(error){return 42;}}",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    },
+    {
+      "id": "try-catch:negative-04",
+      "source": "try{throw 21;}catch{let n:number=\"wrong\";}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "try-catch:negative-05",
+      "source": "try{throw 21;}catch(error){let n:number=error;}let x:number=error;",
+      "expectedCodes": [
+        "TS2304",
+        "TS2322"
+      ]
+    }
+  ]
+}

@@ -20,7 +20,7 @@ public sealed class TryFinallyTests
 
     [Theory]
     [InlineData("function f():number {try {return 42;}}","TSCS1001")]
-    [InlineData("function f():number {try {return 42;} catch(e) {return 21;}}","TSCS1001")]
+    [InlineData("function f():number {try {return 42;} catch({code}) {return 21;}}","TSCS1001")]
     [InlineData("function f():number {try {return 42;} finally {return \"bad\";}}","TS2322")]
     [InlineData("function f():number {try {return 42;} finally {throw missing;}}","TS2304")]
     [InlineData("function f():number {try {return \"bad\";} finally {let n:number=1;}}","TS2322")]
