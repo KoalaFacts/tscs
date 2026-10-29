@@ -567,17 +567,45 @@ internal static class JavaScriptEmitter
                         Node(property.Receiver,precedence);
                         break;
                     case ValueObject literalObject:
-                        // Parentheses keep an object literal an expression even
-                        // at statement start or as an immediate member receiver.
-                        Text(" })");
-                        for(int i=literalObject.Properties.Count-1;i>=0;i--)
+                        // Object spread is ES2018 syntax. The target is ES2015,
+                        // so copy one ordered source at a time using ES2015
+                        // Object.assign. Nesting calls (rather than passing all
+                        // arguments to one call) preserves observable left-to-
+                        // right evaluation/copy order for later expressions.
+                        if(literalObject.Properties.Any(p=>p.Spread))
                         {
-                            var property=literalObject.Properties[i];
-                            Node(property.Value);
-                            Text(property.Spread?"...":property.Name.Text+": ");
-                            if(i>0)Text(", ");
+                            Text(")");
+                            for(int i=literalObject.Properties.Count-1;i>=0;i--)
+                            {
+                                var entry=literalObject.Properties[i];
+                                Text(")");
+                                if(entry.Spread)Node(entry.Value);
+                                else
+                                {
+                                    Text(" }");
+                                    Node(entry.Value);
+                                    Text("{ "+entry.Name.Text+": ");
+                                }
+                                Text(", ");
+                            }
+                            Text("{}");
+                            for(int i=0;i<literalObject.Properties.Count;i++)
+                                Text("Object.assign(");
+                            Text("(");
                         }
-                        Text("({ ");
+                        else
+                        {
+                            // Keep existing non-spread ES2015 output unchanged.
+                            Text(" })");
+                            for(int i=literalObject.Properties.Count-1;i>=0;i--)
+                            {
+                                var entry=literalObject.Properties[i];
+                                Node(entry.Value);
+                                Text(entry.Name.Text+": ");
+                                if(i>0)Text(", ");
+                            }
+                            Text("({ ");
+                        }
                         break;
                     case ValueCall call:
                         Text(")");

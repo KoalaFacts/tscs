@@ -42,8 +42,12 @@ try {
   }
   const built=compile('entry.ts');
   assert.equal(built.status,0,built.stdout+built.stderr);
-  for(const name of ['model','logic','bridge','entry'])
-    assert.ok(existsSync(join(folder,name+'.js')),'missing '+name+'.js');
+  for(const name of ['model','logic','bridge','entry']){
+    const emitted=join(folder,name+'.js');
+    assert.ok(existsSync(emitted),'missing '+name+'.js');
+    // ES2015 target must not leak ES2018 object-spread syntax.
+    assert.doesNotMatch(readFileSync(emitted,'utf8'),/\\.\\.\\./,'ES2018 spread leaked into emitted ES2015');
+  }
   const runtime=spawnSync(process.execPath,['--input-type=module','--eval',[
     'import {result,overridden,ordered,nested,copied,unchanged} from "./entry.js";',
     'if(result!==42||overridden!==42||ordered!==42||nested!==42||copied!==42||unchanged!==20)',
