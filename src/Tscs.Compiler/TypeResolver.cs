@@ -39,6 +39,29 @@ internal static class TypeResolver
                     throw new CompilationFailure(Diagnostic.Error(file,named.Name,"TS2304",
                         $"Cannot find name '{named.Name.Text}'."));
                 return ResolveBinding(binding,depth+1);
+            case KeyofTypeSyntax keyed:
+            {
+                var operand=Resolve(keyed.Target,scope,file,depth+1);
+                if(operand is not ObjectTypeSymbol shape)
+                    throw new CompilationFailure(Diagnostic.Error(file,keyed.Keyword,"TSCS1001",
+                        "keyof currently requires a statically known structural object type."));
+                // Source kind (numeric key vs quoted numeric-looking key) is not
+                // retained by the current structural type representation.
+                // Reject rather than inferring an incorrect string-key type.
+                if(shape.Members.Keys.Any(name=>name.Length>0 &&
+                    name.All(c=>c is >= '0' and <= '9')))
+                    throw new CompilationFailure(Diagnostic.Error(file,keyed.Keyword,"TSCS1001",
+                        "keyof numeric-looking properties requires source key identity."));
+                try
+                {
+                    return CompilerTypes.Union(shape.Members.Keys.Select(name=>
+                        (TypeSymbol)new LiteralTypeSymbol(PrimitiveKind.String,name)));
+                }
+                catch(InvalidOperationException failure)
+                {
+                    throw new CompilationFailure(Diagnostic.Error(file,keyed.Keyword,"TSCS1001",failure.Message));
+                }
+            }
             case ArrayTypeSyntax array:return new ArrayTypeSymbol(Resolve(array.Element,scope,file,depth+1));
             case ObjectTypeSyntax shape:return new ObjectTypeSymbol(shape.Properties.Select(p=>
                 new KeyValuePair<string,TypeSymbol>(Parser.PropertyName(p.Name),Resolve(p.Type,scope,file,depth+1))),
@@ -58,6 +81,7 @@ internal static class TypeResolver
         PrimitiveTypeSyntax value=>value.Name,
         LiteralTypeSyntax value=>value.Literal,
         NamedTypeSyntax value=>value.Name,
+        KeyofTypeSyntax value=>value.Keyword,
         ObjectTypeSyntax value=>value.Open,
         ArrayTypeSyntax value=>value.Open,
         UnionTypeSyntax value=>Location(value.Members[0]),

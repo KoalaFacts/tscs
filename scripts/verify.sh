@@ -52,4 +52,5 @@ node tools/verify-object-index-emit.ts
 node tools/verify-in-operator-emit.ts
 node tools/verify-for-in-emit.ts
 node tools/verify-numeric-object-keys-emit.ts
+node tools/verify-keyof-object-emit.ts
 node tools/implementation-coverage.ts --check

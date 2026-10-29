@@ -71,6 +71,15 @@ jobs:
           node tools/verify-switch-reference.ts "$reference" .artifacts/in-operator-reference fixtures/in-operator/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/for-in-reference fixtures/for-in/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/numeric-object-keys-reference fixtures/numeric-object-keys/semantic-cases.json
+          node tools/verify-keyof-object-reference.ts "$reference" .artifacts/keyof-object-reference
+      - name: Preserve bounded structural-keyof reference inputs and raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-keyof-object-reference-${{ github.sha }}
+          path: .artifacts/keyof-object-reference/
+          if-no-files-found: warn
+          retention-days: 30
       - name: Preserve bounded numeric-object-keys reference inputs and raw results
         if: always()
         uses: actions/upload-artifact@v4

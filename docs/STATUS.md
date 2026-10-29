@@ -1,3 +1,14 @@
+## 2026-10-30 — Bounded structural `keyof` (source candidate; NOT_RUN)
+
+The actual parser and type resolver now produce finite string-literal key unions
+from statically known object/interface shapes (including `keyof {}` = never),
+nested aliases and imported type bindings. The value identifier `keyof` stays
+legal. Numeric-looking keys, array/union operands, index signatures, symbols
+and general dynamic indexing are explicitly unsupported rather than widened.
+The four-module ES2015 execution and twelve stable-ID pinned-Go reference
+comparisons are wired but NOT_RUN at source creation. Full original TS7
+acceptance remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED; dynamic UNEXPANDED.
+
 ## 2026-10-29 — Checked lexical `for..in` enumeration (source candidate; NOT_RUN)
 
 One bounded C# core feature: braced `for(const/let key in object)` over known

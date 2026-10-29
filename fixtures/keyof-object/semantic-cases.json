@@ -1,0 +1,74 @@
+{
+  "kind": "BOUNDED_KEYOF_OBJECT_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "upstream": "upstream.lock.json",
+  "cases": [
+    {
+      "id": "keyof-object:positive-01",
+      "source": "type Keys = keyof { value: number; label: string }; let x: Keys = \"value\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:positive-02",
+      "source": "interface Data { value: number; label: string } type Keys = keyof Data; let x: Keys = \"label\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:positive-03",
+      "source": "type Empty = keyof {}; let x: Empty;",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:positive-04",
+      "source": "type K = keyof {name: string}; function echo(k: K): K {return k;} let result: K = echo(\"name\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:positive-05",
+      "source": "type K = keyof {a: number; b: number}; let k: K = \"a\"; k = \"b\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:positive-06",
+      "source": "type Data = { x: number; y: string }; let k: keyof Data = \"y\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:positive-07",
+      "source": "type K = keyof { readonly value: number; label: string }; let k: K = \"value\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:positive-08",
+      "source": "type K = keyof {a: number; b: string}; let k: K = \"b\"; let out: string = k;",
+      "expectedCodes": []
+    },
+    {
+      "id": "keyof-object:negative-01",
+      "source": "type K = keyof {value: number}; let k: K = \"missing\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "keyof-object:negative-02",
+      "source": "interface Data {label: string} let k: keyof Data = 12;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "keyof-object:negative-03",
+      "source": "type K = keyof {name: string}; let k: K = true;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "keyof-object:negative-04",
+      "source": "type K = keyof {}; let k: K = \"bad\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}
