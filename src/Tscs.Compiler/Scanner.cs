@@ -199,6 +199,10 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
             // Distinguish unary/binary '+' from prefix/postfix '++'.
             if(!jsonMode && kind==TokenKind.Plus && position<text.Length && text[position]=='+')
             { position++; kind=TokenKind.PlusPlus; }
+            // A rest-parameter ellipsis is one token, not a chain of property dots.
+            if(!jsonMode && kind==TokenKind.Dot && position+1<text.Length &&
+               text[position]=='.' && text[position+1]=='.')
+            {position+=2;kind=TokenKind.Ellipsis;}
             var token = new Token(kind,text[begin..position],begin,position-begin,lineBreak,decodedValue,stringFlags);
             if (kind == TokenKind.Unsupported) throw Error(token,"TSCS1001",$"Unsupported syntax '{token.Text}'.");
             tokens.Add(token);DiagnosticCounts.Add(Diagnostics.Count);

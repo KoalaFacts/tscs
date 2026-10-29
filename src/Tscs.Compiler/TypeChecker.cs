@@ -1424,19 +1424,30 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 if(callee.Type is not FunctionTypeSymbol signature)
                     throw new CompilationFailure(Diagnostic.Error(file,call.Callee,"TSCS1001",
                         "Calls currently require a declared function with an explicit signature."));
-                if(arguments.Length<signature.MinimumArguments || arguments.Length>signature.Parameters.Count)
+                // Rest arguments are individual values at the call site;
+                // the function's final binding has the declared array type.
+                var restElement=signature.RestElementType;
+                if(arguments.Length<signature.MinimumArguments ||
+                   (restElement is null && arguments.Length>signature.Parameters.Count))
                 {
-                    var expected=signature.MinimumArguments==signature.Parameters.Count
-                        ?signature.Parameters.Count.ToString()
-                        :$"{signature.MinimumArguments}-{signature.Parameters.Count}";
+                    var expected=restElement is not null
+                        ?$"at least {signature.MinimumArguments}"
+                        :signature.MinimumArguments==signature.Parameters.Count
+                            ?signature.Parameters.Count.ToString()
+                            :$"{signature.MinimumArguments}-{signature.Parameters.Count}";
                     Error(call.Callee,"TS2554",$"Expected {expected} arguments, but got {arguments.Length}.");
                 }
-                for(int i=0;i<Math.Min(arguments.Length,signature.Parameters.Count);i++)
-                    if(arguments[i] is { } actual &&
-                       CheckContextualLiteral(call.Arguments[i],signature.Parameters[i],actual) &&
-                       !IsAssignableContextually(call.Arguments[i],actual,signature.Parameters[i]))
+                for(int i=0;i<arguments.Length;i++)
+                {
+                    var required=restElement is not null && i>=signature.Parameters.Count-1
+                        ?restElement
+                        :i<signature.Parameters.Count?signature.Parameters[i]:null;
+                    if(required is { } type && arguments[i] is { } actual &&
+                       CheckContextualLiteral(call.Arguments[i],type,actual) &&
+                       !IsAssignableContextually(call.Arguments[i],actual,type))
                         Error(call.Callee,"TS2345",
-                            $"Argument of type '{actual.DisplayName}' is not assignable to parameter of type '{signature.Parameters[i].DisplayName}'.");
+                            $"Argument of type '{actual.DisplayName}' is not assignable to parameter of type '{type.DisplayName}'.");
+                }
                 types.Push(signature.ReturnType);
                 continue;
             }

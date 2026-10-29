@@ -1,0 +1,71 @@
+{
+  "kind": "BOUNDED_REST_PARAMETERS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "rest-parameters:positive-01",
+      "source": "function f(...items:number[]):number{return items.length;}let r:number=f();",
+      "expectedCodes": []
+    },
+    {
+      "id": "rest-parameters:positive-02",
+      "source": "function f(...items:number[]):number{return items.length;}let r:number=f(1,2,3);",
+      "expectedCodes": []
+    },
+    {
+      "id": "rest-parameters:positive-03",
+      "source": "function f(base:number,...items:number[]):number{return base+items.length;}let r:number=f(40,1,2);",
+      "expectedCodes": []
+    },
+    {
+      "id": "rest-parameters:positive-04",
+      "source": "function f(...words:string[]):number{return words.length;}let r:number=f(\"a\",\"b\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "rest-parameters:positive-05",
+      "source": "function f(...words:string[]):number{return words.length;}let r:number=f();",
+      "expectedCodes": []
+    },
+    {
+      "id": "rest-parameters:positive-06",
+      "source": "function f(base:number=21,...items:number[]):number{return base+items.length;}let r:number=f();",
+      "expectedCodes": []
+    },
+    {
+      "id": "rest-parameters:positive-07",
+      "source": "function f(base?:number,...items:string[]):number{return items.length;}let r:number=f(21,\"a\",\"b\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "rest-parameters:positive-08",
+      "source": "function f(...items:number[]):number{let total:number=0;for(const item of items){total+=item;}return total;}let r:number=f(20,21,1);",
+      "expectedCodes": []
+    },
+    {
+      "id": "rest-parameters:positive-09",
+      "source": "export function f(base:number,...items:number[]):number{return base+items.length;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "rest-parameters:negative-01",
+      "source": "function f(...items:number[]):number{return items.length;}f(\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "rest-parameters:negative-02",
+      "source": "function f(...items:string[]):number{return items.length;}f(\"ok\",21);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "rest-parameters:negative-03",
+      "source": "function f(base:number,...items:number[]):number{return base;}f(1,\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    }
+  ]
+}

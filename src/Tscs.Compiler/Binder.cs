@@ -173,7 +173,10 @@ internal static class Binder
                     symbol.Type=new FunctionTypeSymbol(
                         function.Parameters.Select(p=>TypeResolver.Resolve(p.Annotation,scope,symbol.File)).ToArray(),
                         TypeResolver.Resolve(function.ReturnAnnotation,scope,symbol.File),
-                        function.Parameters.TakeWhile(p=>!p.Optional).Count());
+                        function.Parameters.TakeWhile(p=>!p.Optional).Count(),
+                        function.Parameters.LastOrDefault() is { Rest:true,Annotation:ArrayTypeSyntax restArray }
+                            ? TypeResolver.Resolve(restArray.Element,scope,symbol.File)
+                            : null);
                     symbol.Initialized=true;
                     symbol.CrossFileTypeReady=true;
                     break;
