@@ -108,6 +108,16 @@ and semantic limits are documented in
 [`named-types-union`](docs/progress/named-types-union.md). This does not
 implement general generic, recursive, narrowing, mapped or intersection types.
 
+## Typed callback contracts (bounded)
+
+Named function type annotations, such as `type Callback = (value: number) => number`,
+are resolved through the same Binder, TypeResolver, function relations and module
+linker as declared functions. Functions can be passed as annotated parameters,
+assigned to function-typed variables and stored in required object members.
+Finite trailing optional parameters and array rest parameters are supported.
+Type annotations erase in ES2015 output; anonymous arrow functions, overloads,
+generics, `this` parameters and unrestricted callable properties are not implemented.
+
 ## Other implemented subsets
 
 The current pipeline includes primitive/`any` variables, lexical scopes, selected

@@ -56,5 +56,6 @@ node tools/verify-keyof-object-emit.ts
 node tools/verify-indexed-access-emit.ts
 node tools/verify-object-intersection-emit.ts
 node tools/verify-type-query-emit.ts
+node tools/verify-function-types-emit.ts
 node tools/verify-interface-inheritance-emit.ts
 node tools/implementation-coverage.ts --check

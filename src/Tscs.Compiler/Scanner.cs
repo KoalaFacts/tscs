@@ -121,7 +121,9 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
             // JSON scanning unchanged and refuse lone '&' or '|' as before.
             if(!jsonMode)
             {
-                if(first=='=' && position<text.Length && text[position]=='=')
+                if(first=='=' && position<text.Length && text[position]=='>')
+                { position++;kind=TokenKind.Arrow; }
+                else if(first=='=' && position<text.Length && text[position]=='=')
                 {
                     position++;
                     kind=TokenKind.EqualEqual;
