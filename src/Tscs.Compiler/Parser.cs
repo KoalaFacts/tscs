@@ -461,6 +461,16 @@ internal sealed class Parser(string file, List<Token> tokens)
         finally { disallowIn=old; }
     }
 
+    // Nested assignment-expression contexts admit `in` even inside a NoIn
+    // classic-for initializer. Restore NoIn for the enclosing expression.
+    private T ParseWithInAllowed<T>(Func<T> parse)
+    {
+        var old=disallowIn;
+        disallowIn=false;
+        try { return parse(); }
+        finally { disallowIn=old; }
+    }
+
     private Statement ParseForHeaderMutation()
     {
         var expression=ParseValue();
@@ -664,9 +674,9 @@ internal sealed class Parser(string file, List<Token> tokens)
                 if(Current.Kind==TokenKind.Ellipsis)
                 {
                     var spread=Take();
-                    values.Add(new ValueArraySpread(spread,ParseValue()));
+                    values.Add(new ValueArraySpread(spread,ParseWithInAllowed(ParseValue)));
                 }
-                else values.Add(ParseValue());
+                else values.Add(ParseWithInAllowed(ParseValue));
                 if(!Eat(TokenKind.Comma))break;
             }
             if(Current.Kind!=TokenKind.CloseBracket)Unsupported(Current,"Expected ']' after array elements.");
@@ -688,7 +698,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                 if(Current.Kind==TokenKind.Ellipsis)
                 {
                     var spread=Take();
-                    properties.Add(new ObjectProperty(spread,ParseValue(),Spread:true));
+                    properties.Add(new ObjectProperty(spread,ParseWithInAllowed(ParseValue),Spread:true));
                 }
                 else
                 {
@@ -698,7 +708,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                     if(!names.Add(PropertyName(name)))
                         Diagnostics.Add(Diagnostic.Error(file,name,"TS1117","An object literal cannot have multiple properties with the same name."));
                     if(Eat(TokenKind.Colon))
-                        properties.Add(new ObjectProperty(name,ParseValue()));
+                        properties.Add(new ObjectProperty(name,ParseWithInAllowed(ParseValue)));
                     else if(name.Kind==TokenKind.Identifier &&
                         (Current.Kind is TokenKind.Comma or TokenKind.Close))
                         properties.Add(new ObjectProperty(name,new ValueAtom(name,Shorthand:true)));
@@ -726,7 +736,7 @@ internal sealed class Parser(string file, List<Token> tokens)
         if(++conditionalValueNesting>64)Unsupported(question,"Conditional expression nesting exceeds the compiler subset limit.");
         try
         {
-            var whenTrue=ParseValue();
+            var whenTrue=ParseWithInAllowed(ParseValue);
             if(Current.Kind!=TokenKind.Colon)Unsupported(Current,"Expected ':' after conditional expression branch.");
             var colon=Take();
             var whenFalse=ParseConditionalValue();
@@ -891,7 +901,7 @@ internal sealed class Parser(string file, List<Token> tokens)
             else if(Current.Kind==TokenKind.OpenBracket)
             {
                 var open=Take();
-                var index=ParseValue();
+                var index=ParseWithInAllowed(ParseValue);
                 if(Current.Kind!=TokenKind.CloseBracket)
                     Unsupported(Current,"Expected ']' after indexed access.");
                 value=new ValueElementAccess(value,open,index,Take());
@@ -914,15 +924,13 @@ internal sealed class Parser(string file, List<Token> tokens)
         {
             Take();
             if(++groupNesting>128)Unsupported(token,"Parenthesized expression nesting exceeds the bootstrap limit.");
-            var previousNoIn=disallowIn;
-            disallowIn=false;
             try
             {
-                var inner=ParseValue();
+                var inner=ParseWithInAllowed(ParseValue);
                 if(Current.Kind!=TokenKind.CloseParen)Unsupported(Current,"Expected ')' to close a parenthesized expression.");
                 return new ValueParenthesized(token,inner,Take());
             }
-            finally { disallowIn=previousNoIn; groupNesting--; }
+            finally { groupNesting--; }
         }
         if(token.Kind==TokenKind.Identifier)
         {
@@ -942,7 +950,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                             Take();
                             spreadIndex=arguments.Count;
                         }
-                        arguments.Add(ParseValue());
+                        arguments.Add(ParseWithInAllowed(ParseValue));
                         // General interleaved, repeated and trailing-comma spread
                         // forms are not in this bounded call grammar.
                         if(spreadIndex>=0 && Current.Kind==TokenKind.Comma)

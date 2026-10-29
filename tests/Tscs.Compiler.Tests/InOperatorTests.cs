@@ -18,6 +18,10 @@ public sealed class InOperatorTests
     [InlineData("let xs:number[]=[20,22];let present:boolean=1 in xs;")]
     [InlineData("function f():number{return 42;}let present:boolean=\"prototype\" in f;")]
     [InlineData("let obj={value:42};for(let present:boolean=(\"value\" in obj);false;){}")]
+    [InlineData("function keep(x:boolean):boolean{return x;}let obj={value:42};for(let present:boolean=keep(\"value\" in obj);false;){}")]
+    [InlineData("let obj={value:42};for(let flags=[\"value\" in obj];false;){}")]
+    [InlineData("let obj={value:42};for(let config={present:\"value\" in obj};false;){}")]
+    [InlineData("let obj={value:42};for(let present=true?\"value\" in obj:false;false;){}")]
     public void PropertyExistenceProducesBoolean(string source) =>
         Assert.Empty(Compilation.Check("in-operator.ts",source));
 
@@ -26,6 +30,7 @@ public sealed class InOperatorTests
     [InlineData("let x:number=42;let result:boolean=\"value\" in x;", "TS2322")]
     [InlineData("let obj={value:42};let result:number=\"value\" in obj;", "TS2322")]
     [InlineData("let obj={value:42};for(let present:boolean=\"value\" in obj;false;){}", "TSCS1001")]
+    [InlineData("let obj={value:42};for(let present=false?false:\"value\" in obj;false;){}", "TSCS1001")]
     public void InvalidOperandOrResultIsRejected(string source,string code) =>
         Assert.Contains(Compilation.Check("in-operator.ts",source),d=>d.Code==code);
 }
