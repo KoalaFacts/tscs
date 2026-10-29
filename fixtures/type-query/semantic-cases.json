@@ -1,0 +1,80 @@
+{
+  "kind": "BOUNDED_TYPE_QUERY_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "type-query:positive-01",
+      "source": "const item: {value:number}={value:21};type Item=typeof item;let next:Item={value:42};",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-query:positive-02",
+      "source": "const item: {nested:{amount:number}}={nested:{amount:21}};type Amount=typeof item.nested.amount;let result:Amount=42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-query:positive-03",
+      "source": "function inc(n:number):number{return n+1;}type Inc=typeof inc;function run(fn:Inc):number{return fn(41);}let r:number=run(inc);",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-query:positive-04",
+      "source": "const item:{value:number;label:string}={value:21,label:\"ok\"};type Key=keyof typeof item;let k:Key=\"value\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-query:positive-05",
+      "source": "const item:{value:number}={value:21};type Value=(typeof item)[\"value\"];let v:Value=42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-query:positive-06",
+      "source": "type Shape={value:number};const thing:Shape={value:21};type Again=typeof thing;let next:Again={value:42};",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-query:positive-07",
+      "source": "const obj:{readonly value:number}={value:21};type Shape=typeof obj;let other:Shape={value:42};",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-query:positive-08",
+      "source": "type Late=typeof item;const item:{amount:number}={amount:21};let v:Late={amount:42};",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-query:negative-01",
+      "source": "const item:{value:number}={value:1};type V=typeof item.missing;",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "type-query:negative-02",
+      "source": "const item:{value:number}={value:1};type N=typeof item.value;let bad:N=\"no\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-query:negative-03",
+      "source": "type V=typeof nothing;",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    },
+    {
+      "id": "type-query:negative-04",
+      "source": "function twice(n:number):number{return n*2;}type Fn=typeof twice;let bad:Fn=42;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-query:negative-05",
+      "source": "type K=keyof typeof x;const x:{foo:number}={foo:1};let k:K=\"missing\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}

@@ -152,6 +152,22 @@ internal static class Binder
                 "Duplicate import or local declaration is not supported yet."));
     }
 
+    // Shared signature construction is also used by type-level typeof queries.
+    // Thread the resolution depth through recursive annotations to fail closed.
+    public static FunctionTypeSymbol ResolveFunctionSignature(FunctionDeclaration function,Scope scope,string file,int depth=0)
+    {
+        if(depth>64)
+            throw new CompilationFailure(Diagnostic.Error(file,function.Name,"TSCS1001",
+                "Function signature type query exceeds the supported depth."));
+        return new FunctionTypeSymbol(
+            function.Parameters.Select(p=>TypeResolver.Resolve(p.Annotation,scope,file,depth+1)).ToArray(),
+            TypeResolver.Resolve(function.ReturnAnnotation,scope,file,depth+1),
+            function.Parameters.TakeWhile(p=>!p.Optional).Count(),
+            function.Parameters.LastOrDefault() is { Rest:true,Annotation:ArrayTypeSyntax restArray }
+                ? TypeResolver.Resolve(restArray.Element,scope,file,depth+1)
+                : null);
+    }
+
     public static void InitializeDeclaredTypes(Scope scope)
     {
         // Validate all declarations even when nothing references their aliases.
@@ -184,13 +200,7 @@ internal static class Binder
                     symbol.CrossFileTypeReady=symbol.Type!=null;
                     break;
                 case FunctionDeclaration function:
-                    symbol.Type=new FunctionTypeSymbol(
-                        function.Parameters.Select(p=>TypeResolver.Resolve(p.Annotation,scope,symbol.File)).ToArray(),
-                        TypeResolver.Resolve(function.ReturnAnnotation,scope,symbol.File),
-                        function.Parameters.TakeWhile(p=>!p.Optional).Count(),
-                        function.Parameters.LastOrDefault() is { Rest:true,Annotation:ArrayTypeSyntax restArray }
-                            ? TypeResolver.Resolve(restArray.Element,scope,symbol.File)
-                            : null);
+                    symbol.Type=ResolveFunctionSignature(function,scope,symbol.File);
                     symbol.Initialized=true;
                     symbol.CrossFileTypeReady=true;
                     break;

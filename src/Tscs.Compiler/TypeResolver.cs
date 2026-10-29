@@ -39,6 +39,35 @@ internal static class TypeResolver
                     throw new CompilationFailure(Diagnostic.Error(file,named.Name,"TS2304",
                         $"Cannot find name '{named.Name.Text}'."));
                 return ResolveBinding(binding,depth+1);
+            case TypeQuerySyntax query:
+            {
+                if(scope.Find(query.Root.Text) is not { } symbol)
+                    throw new CompilationFailure(Diagnostic.Error(file,query.Root,"TS2304",
+                        $"Cannot find name '{query.Root.Text}'."));
+                // Module value imports are linked after type signatures, so do not
+                // silently resolve a partially initialized imported value here.
+                if(symbol.Imported)
+                    throw new CompilationFailure(Diagnostic.Error(file,query.Root,"TSCS1001",
+                        "typeof on imported values requires value-import prebinding, not implemented yet."));
+                TypeSymbol target=symbol.Declaration switch
+                {
+                    Variable { Annotation: { } annotation } =>
+                        Resolve(annotation,scope,symbol.File,depth+1),
+                    FunctionDeclaration function =>
+                        Binder.ResolveFunctionSignature(function,scope,symbol.File,depth+1),
+                    _=>throw new CompilationFailure(Diagnostic.Error(file,query.Root,"TSCS1001",
+                        "typeof currently requires an explicitly annotated value or typed function."))
+                };
+                foreach(var member in query.Members)
+                {
+                    var resolved=CompilerTypes.TryGetProperty(target,Parser.PropertyName(member));
+                    if(resolved is null)
+                        throw new CompilationFailure(Diagnostic.Error(file,member,"TS2339",
+                            $"Property '{Parser.PropertyName(member)}' does not exist on type '{target.DisplayName}'."));
+                    target=resolved;
+                }
+                return target;
+            }
             case KeyofTypeSyntax keyed:
             {
                 var operand=Resolve(keyed.Target,scope,file,depth+1);
@@ -192,6 +221,7 @@ internal static class TypeResolver
         LiteralTypeSyntax value=>value.Literal,
         NamedTypeSyntax value=>value.Name,
         KeyofTypeSyntax value=>value.Keyword,
+        TypeQuerySyntax value=>value.Keyword,
         IndexedAccessTypeSyntax value=>value.Open,
         ObjectTypeSyntax value=>value.Open,
         ArrayTypeSyntax value=>value.Open,

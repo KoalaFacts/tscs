@@ -74,6 +74,15 @@ jobs:
           node tools/verify-keyof-object-reference.ts "$reference" .artifacts/keyof-object-reference
           node tools/verify-indexed-access-reference.ts "$reference" .artifacts/indexed-access-reference
           node tools/verify-indexed-access-reference.ts "$reference" .artifacts/object-intersection-reference fixtures/object-intersection/semantic-cases.json
+          node tools/verify-type-query-reference.ts "$reference" .artifacts/type-query-reference
+      - name: Preserve bounded type-query reference inputs and raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-type-query-reference-${{ github.sha }}
+          path: .artifacts/type-query-reference/
+          if-no-files-found: warn
+          retention-days: 30
       - name: Preserve bounded object-intersection reference inputs and raw results
         if: always()
         uses: actions/upload-artifact@v4

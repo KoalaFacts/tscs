@@ -18,6 +18,8 @@ internal sealed record ArrayTypeSyntax(TypeSyntax Element,Token Open,Token Close
 internal sealed record NamedTypeSyntax(Token Name) : TypeSyntax;
 // Contextual type operator: `keyof` remains an ordinary value identifier.
 internal sealed record KeyofTypeSyntax(Token Keyword,TypeSyntax Target) : TypeSyntax;
+// A type-only value query retains the declaring value identity; there is no JS emit.
+internal sealed record TypeQuerySyntax(Token Keyword,Token Root,IReadOnlyList<Token> Members) : TypeSyntax;
 // Type-level selection leaves JavaScript unchanged.
 internal sealed record IndexedAccessTypeSyntax(TypeSyntax Target,Token Open,TypeSyntax Index,Token Close) : TypeSyntax;
 // An intersection is resolved into one finite structural object; no runtime syntax remains.
