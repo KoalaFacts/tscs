@@ -129,13 +129,27 @@ internal sealed class Parser(string file, List<Token> tokens)
                 }
                 else
                 {
-                    // Interfaces have a single required-property body. There is
-                    // no `extends`, declaration merging or call/index signature.
-                    if(Current.Kind!=TokenKind.Open)Unsupported(Current,"Interface extensions and generic parameters are not supported yet.");
+                    // Named, non-generic finite-object interface bases only.
+                    // 'extends' is contextual, not a reserved value token.
+                    var bases=new List<NamedTypeSyntax>();
+                    if(Current.Kind==TokenKind.Extends)
+                    {
+                        Take();
+                        while(true)
+                        {
+                            if(bases.Count>=16)Unsupported(Current,"Interface heritage exceeds the 16-base limit.");
+                            if(Current.Kind!=TokenKind.Identifier)
+                                Unsupported(Current,"Interface heritage requires named structural types.");
+                            bases.Add(new NamedTypeSyntax(Take()));
+                            if(!Eat(TokenKind.Comma))break;
+                        }
+                    }
+                    if(Current.Kind!=TokenKind.Open)
+                        Unsupported(Current,"Only named, non-generic interface heritage and required properties are supported.");
                     var body=ReadTypeAnnotation();
-                    if(body is not ObjectTypeSyntax shape)
+                    if(body is not ObjectTypeSyntax)
                         Unsupported(Current,"Interfaces require a required-member object body.");
-                    statements.Add(new InterfaceDeclaration(name,(ObjectTypeSyntax)body,exported));
+                    statements.Add(new InterfaceDeclaration(name,(ObjectTypeSyntax)body,exported,bases));
                     Eat(TokenKind.Semi);
                 }
                 continue;
@@ -707,7 +721,7 @@ internal sealed class Parser(string file, List<Token> tokens)
            integerKey is >= 0 and <= 9007199254740991L)
             return Take();
         if(Current.Kind is TokenKind.Identifier or TokenKind.Let or TokenKind.Const or
-            TokenKind.Import or TokenKind.Export or TokenKind.Type or TokenKind.Interface or TokenKind.Function or TokenKind.Return or TokenKind.Void or TokenKind.Throw or TokenKind.Try or TokenKind.Catch or TokenKind.Finally or
+            TokenKind.Import or TokenKind.Export or TokenKind.Type or TokenKind.Interface or TokenKind.Extends or TokenKind.Function or TokenKind.Return or TokenKind.Void or TokenKind.Throw or TokenKind.Try or TokenKind.Catch or TokenKind.Finally or
             TokenKind.If or TokenKind.Else or TokenKind.For or TokenKind.While or TokenKind.Do or TokenKind.Break or TokenKind.Continue or TokenKind.In or TokenKind.Typeof or TokenKind.True or TokenKind.False ||
             (allowString && Current.Kind==TokenKind.String))return Take();
         Unsupported(Current,"Expected a supported named object property.");
