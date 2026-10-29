@@ -105,7 +105,7 @@
       "id": "type-query:positive-12",
       "source": "import {twice} from \"./logic.js\";type Fn=typeof twice;function apply(fn:Fn,n:number):number{return fn(n);}let value:number=apply(twice,21);",
       "files": {
-        "logic.ts": "export function twice(n:number):number{return n*2;"
+        "logic.ts": "export function twice(n:number):number{return n*2;}"
       },
       "expectedCodes": []
     },
@@ -122,7 +122,7 @@
       "source": "import type {Box} from \"./types.js\";import {twice} from \"./logic.js\";type Fn=typeof twice;function apply(fn:Fn,s:Box):number{return fn(s);}",
       "files": {
         "types.ts": "export type Box={value:number};",
-        "logic.ts": "import type {Box} from \"./types.js\";export function twice(s:Box):number{return s.value*2;"
+        "logic.ts": "import type {Box} from \"./types.js\";export function twice(s:Box):number{return s.value*2;}"
       },
       "expectedCodes": []
     },
@@ -150,7 +150,7 @@
       "id": "type-query:negative-08",
       "source": "import {twice} from \"./logic.js\";let bad:typeof twice=42;",
       "files": {
-        "logic.ts": "export function twice(n:number):number{return n*2;"
+        "logic.ts": "export function twice(n:number):number{return n*2;}"
       },
       "expectedCodes": [
         "TS2322"
