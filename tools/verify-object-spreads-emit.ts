@@ -46,7 +46,7 @@ try {
     const emitted=join(folder,name+'.js');
     assert.ok(existsSync(emitted),'missing '+name+'.js');
     // ES2015 target must not leak ES2018 object-spread syntax.
-    assert.doesNotMatch(readFileSync(emitted,'utf8'),/\\.\\.\\./,'ES2018 spread leaked into emitted ES2015');
+    assert.ok(!readFileSync(emitted,'utf8').includes('...'),'ES2018 spread leaked into emitted ES2015');
   }
   const runtime=spawnSync(process.execPath,['--input-type=module','--eval',[
     'import {result,overridden,ordered,nested,copied,unchanged} from "./entry.js";',
