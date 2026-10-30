@@ -27,7 +27,10 @@ assert.equal(suite.cases.length,compound?18:nullish?10:nonNull?14:optionalChain?
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 // The cohort includes number[] indexing and length. Use the already
 // verified array profile for BOTH compilers, not the empty bootstrap Array<T>.
-const minimalProfile='fixtures/array-iteration/minimal.d.ts';
+// Optional member access tests the primitive String.length member too.
+ // Array<T> and String declarations mirror the same explicit --noLib profile
+ // for Go and tscs; no source/ID/expectedCode gets rewritten.
+const minimalProfile=optionalChain?'fixtures/optional-chain/minimal.d.ts':'fixtures/array-iteration/minimal.d.ts';
 const minimal=readFileSync(minimalProfile,'utf8');
 const hash=(data:string|Buffer)=>createHash('sha256').update(data).digest('hex');
 const manifest:{path:string;length:number;sha256:string}[]=[];
