@@ -24,6 +24,8 @@ try {
     'logic.ts':[
       'import type {Option} from "./model.js";',
       'import {next} from "./data.js";',
+      'export function capturedCallback(o:{fn:(g:()=>number)=>number}|undefined,__tscs_power_0:number):number|undefined{return o?.fn(():number=>__tscs_power_0);}',
+      'export function capturedBlock(o:{fn:(g:()=>number)=>number}|undefined,__tscs_power_1:number):number|undefined{return o?.fn(():number=>{return __tscs_power_1;});}',
       'export function twice(o:Option|undefined):number{return (o?.value ?? 21)*2;}',
       'export function inner(o:Option|undefined):number{return o?.nested?.value ?? 42;}',
       'export function keyed(o:Option|undefined):number{return (o?.["value"] ?? 21)*2;}',
@@ -84,7 +86,9 @@ try {
   const runtime=spawnSync(process.execPath,['--input-type=module','--eval',
     [
       'import {present,absent,nested,missingNested,byKey,byIndex,missingIndex,callCount,continuedValue,missingContinuedValue,deepIndex,missingDeepIndex,continuedIndex,missingContinuedIndex,directCall,missingDirectCall,delayedArguments} from "./entry.js";',
-      'import {bound} from "./logic.js";',
+      'import {bound,capturedCallback,capturedBlock} from "./logic.js";',
+      'const callback={fn:g=>g()};',
+      'if(capturedCallback(callback,42)!==42||capturedBlock(callback,42)!==42||capturedCallback(undefined,42)!==undefined||capturedBlock(undefined,42)!==undefined)throw Error("optional continuation captured callback free name");',
       'if([present,absent,nested,missingNested,byKey,byIndex,missingIndex,continuedValue,missingContinuedValue,deepIndex,missingDeepIndex,continuedIndex,missingContinuedIndex,directCall,missingDirectCall].some(n=>n!==42)||callCount!==4||delayedArguments!==1)throw Error("optional-chain continuation runtime mismatch");',
       'const obj={bias:21,run(n){return n+this.bias}};',
       'obj.run.call=()=>0;',

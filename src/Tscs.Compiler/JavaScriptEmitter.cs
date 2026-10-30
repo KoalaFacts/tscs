@@ -275,8 +275,11 @@ internal static class JavaScriptEmitter
 
         private static HashSet<string> ReferencedValueNames(ValueNode root)
         {
+            // Reserve every value name reachable inside callbacks, not only the
+            // top-level expression. An arrow's free names can be captured by the
+            // generated guard parameter even when they appear in a block body.
             var names=new HashSet<string>(StringComparer.Ordinal);
-            var pending=new Stack<ValueNode>();
+            var pending=new Stack<object>();
             pending.Push(root);
             while(pending.Count>0)
             {
@@ -313,6 +316,86 @@ internal static class JavaScriptEmitter
                         break;
                     case ValueObject obj:
                         foreach(var property in obj.Properties)pending.Push(property.Value);
+                        break;
+                    case ValueArrow arrow:
+                        if(arrow.FunctionName is { } functionName)
+                            names.Add(functionName.Text);
+                        foreach(var parameter in arrow.Parameters)pending.Push(parameter);
+                        if(arrow.Body is { } body)pending.Push(body);
+                        if(arrow.BlockBody is { } blockBody)pending.Push(blockBody);
+                        break;
+                    case ParameterDeclaration parameter:
+                        names.Add(parameter.Name.Text);
+                        if(parameter.DefaultValue is { } defaultValue)pending.Push(defaultValue);
+                        break;
+                    case Block block:
+                        foreach(var statement in block.Statements)pending.Push(statement);
+                        break;
+                    case FunctionDeclaration function:
+                        names.Add(function.Name.Text);
+                        foreach(var parameter in function.Parameters)pending.Push(parameter);
+                        pending.Push(function.Body);
+                        break;
+                    case Variable variable:
+                        names.Add(variable.Name.Text);
+                        if(variable.Initializer is { } initializer)pending.Push(initializer);
+                        break;
+                    case ReturnStatement returned:
+                        if(returned.Value is { } returnValue)pending.Push(returnValue);
+                        break;
+                    case ThrowStatement thrown:pending.Push(thrown.Value);break;
+                    case Expression expression:pending.Push(expression.Value);break;
+                    case Assignment assignment:
+                        names.Add(assignment.Name.Text);pending.Push(assignment.Value);break;
+                    case PropertyAssignment propertyAssignment:
+                        pending.Push(propertyAssignment.Target);
+                        pending.Push(propertyAssignment.Value);
+                        break;
+                    case ElementAssignment elementAssignment:
+                        pending.Push(elementAssignment.Target);
+                        pending.Push(elementAssignment.Value);
+                        break;
+                    case CompoundAssignment compoundAssignment:
+                        pending.Push(compoundAssignment.Target);
+                        pending.Push(compoundAssignment.Value);
+                        break;
+                    case PostfixUpdate update:names.Add(update.Name.Text);break;
+                    case ConditionalStatement branch:
+                        pending.Push(branch.Condition);
+                        pending.Push(branch.Consequent);
+                        if(branch.Alternate is { } alternate)pending.Push(alternate);
+                        break;
+                    case WhileStatement loop:
+                        pending.Push(loop.Condition);pending.Push(loop.Body);break;
+                    case DoWhileStatement doWhile:
+                        pending.Push(doWhile.Condition);pending.Push(doWhile.Body);break;
+                    case ClassicForStatement classic:
+                        if(classic.Initializer is { } init)pending.Push(init);
+                        if(classic.Condition is { } condition)pending.Push(condition);
+                        if(classic.Update is { } next)pending.Push(next);
+                        pending.Push(classic.Body);
+                        break;
+                    case ForOfStatement elements:
+                        names.Add(elements.Name.Text);
+                        pending.Push(elements.Source);pending.Push(elements.Body);
+                        break;
+                    case ForInStatement keys:
+                        names.Add(keys.Name.Text);
+                        pending.Push(keys.Source);pending.Push(keys.Body);
+                        break;
+                    case SwitchStatement switching:
+                        pending.Push(switching.Selector);
+                        foreach(var clause in switching.Clauses)pending.Push(clause);
+                        break;
+                    case SwitchClause clause:
+                        if(clause.Label is { } label)pending.Push(label);
+                        pending.Push(clause.Body);
+                        break;
+                    case TryStatement handler:
+                        pending.Push(handler.Body);
+                        if(handler.CatchBinding is { } binding)names.Add(binding.Text);
+                        if(handler.CatchBody is { } catchBody)pending.Push(catchBody);
+                        if(handler.FinallyBody is { } finallyBody)pending.Push(finallyBody);
                         break;
                 }
             }

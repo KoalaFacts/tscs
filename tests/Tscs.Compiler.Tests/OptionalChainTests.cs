@@ -24,6 +24,14 @@ public sealed class OptionalChainTests
     [InlineData("function choose(o:{fn:(n:number)=>number}|undefined):number{return o?.fn(21) ?? 42;}")]
     [InlineData("function choose(o:{inner:{fn:(n:number)=>number}}|undefined):number{return o?.inner.fn(21) ?? 42;}")]
     [InlineData("function choose(o:{fn:(n:number)=>{value:number}}|undefined):number{return o?.fn(21).value ?? 42;}")]
+    // A generated optional-chain guard must never shadow values captured
+    // by an arrow in a call argument (expression or braced-body form).
+    [Theory]
+    [InlineData("function f(o:{fn:(g:()=>number)=>number}|undefined,__tscs_power_0:number):number|undefined{return o?.fn(():number=>__tscs_power_0);}")]
+    [InlineData("function f(o:{fn:(g:()=>number)=>number}|undefined,__tscs_power_1:number):number|undefined{return o?.fn(():number=>{return __tscs_power_1;});}")]
+    public void OptionalContinuationPreservesNestedArrowFreeNames(string source) =>
+        Assert.Empty(Compilation.Check("optional-chain-capture.ts",source));
+
     public void OptionalAccessHasCheckedResultAndReceiver(string source) =>
         Assert.Empty(Compilation.Check("optional-chain.ts",source));
 
