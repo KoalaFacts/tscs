@@ -1719,6 +1719,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     types.Push(CompilerTypes.Boolean);
                 else if(unary.Operator.Kind==TokenKind.Typeof)
                     types.Push(CompilerTypes.String);
+                else if(unary.Operator.Kind==TokenKind.Void)
+                    // JavaScript void evaluates the operand but produces undefined.
+                    types.Push(CompilerTypes.Undefined);
                 else if(unary.Operator.Kind==TokenKind.Tilde &&
                     (CompilerTypes.IsNumber(operand)||operand.Equals(CompilerTypes.Any)))
                     types.Push(CompilerTypes.Number);

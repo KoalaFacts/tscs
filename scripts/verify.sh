@@ -45,6 +45,7 @@ node tools/verify-throw-emit.ts
 node tools/verify-try-finally-emit.ts
 node tools/verify-try-catch-emit.ts
 node tools/verify-void-return-emit.ts
+node tools/verify-void-unary-emit.ts
 node tools/verify-optional-parameters-emit.ts
 node tools/verify-default-parameters-emit.ts
 node tools/verify-rest-parameters-emit.ts
