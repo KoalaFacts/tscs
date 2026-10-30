@@ -32,6 +32,14 @@ public sealed class TypedArrowExpressionTests
     [InlineData("""const wrap=(n:number)=>{return {value:n};};const result:number=wrap(42).value;""")]
     [InlineData("""const make=(n:number)=>{const inner=(m:number)=>{return m+n;};return inner;};const fn=make(20);const result:number=fn(22);""")]
     [InlineData("""const choose=(n:number)=>{if(n>0){return n;}return "none";};const result:number|string=choose(1);""")]
+    [InlineData("""const double=(n:number=21)=>n+n;const result:number=double();""")]
+    [InlineData("""const double=(n:number=21)=>{return n+n;};const result:number=double();""")]
+    [InlineData("""const add=(n:number,extra:number=1)=>n+extra;const result:number=add(41);""")]
+    [InlineData("""const add=(n:number,extra:number=n)=>n+extra;const result:number=add(21);""")]
+    [InlineData("""const keep=(n:number,unused?:number)=>n;const result:number=keep(42);""")]
+    [InlineData("""const keep=(n:number,unused?:number):number=>{return n;};const result:number=keep(42);""")]
+    [InlineData("""type F=(n:number,x?:number)=>number;const f:F=(n:number,x?:number)=>n;const result:number=f(42);""")]
+    [InlineData("""const make=(seed:number)=>(n:number=seed)=>n;const fn=make(42);const result:number=fn();""")]
     public void TypedExpressionArrowsFlowThroughRealChecker(string source)=>
         Assert.Empty(Compilation.Check("arrow.ts",source));
 
@@ -55,6 +63,14 @@ public sealed class TypedArrowExpressionTests
     [InlineData("""const missing=(n:number)=>{return missingValue;};""","TS2304")]
     [InlineData("""const mixed=(n:number)=>{if(n>0){return;}return n;};""","TSCS1001")]
     [InlineData("""const bare=(n:number):number=>{return;};""","TSCS1001")]
+    [InlineData("""const bad=(n:number="wrong")=>n;""","TS2322")]
+    [InlineData("""const bad=(n:number=true)=>n;""","TS2322")]
+    [InlineData("""const add=(n:number,x:number=1)=>n+x;add(1,"wrong");""","TS2345")]
+    [InlineData("""const add=(n:number,x:number=1)=>n+x;add();""","TS2554")]
+    [InlineData("""const add=(n:number,x:number=1)=>n+x;add(1,2,3);""","TS2554")]
+    [InlineData("""const bad=(n?:number=1)=>n;""","TS1015")]
+    [InlineData("""const bad=(n?:number,required:number)=>required;""","TS1016")]
+    [InlineData("""const bad=(n:number=1,required:number)=>n+required;""","TSCS1001")]
     public void InvalidOrUnimplementedArrowsAreRejected(string source,string code)=>
         Assert.Contains(Compilation.Check("arrow-invalid.ts",source),d=>d.Code==code);
 
@@ -76,15 +92,19 @@ public sealed class TypedArrowExpressionTests
         host.Files["/virtual/logic.ts"]=
             "import type {Callback} from \"./model.js\";"+
             "const extra:number=1;export const inc:Callback=(n:number)=>{return n+extra;};"+
+            "export const defaulted:(n:number,x?:number)=>number=(n:number,x:number=1)=>n+x;"+
+            "export const optional:(n:number,x?:number)=>number=(n:number,x?:number)=>n;"+
             "export function apply(fn:Callback,n:number):number{return fn(n);}";
         host.Files["/virtual/bridge.ts"]=
-            "export {inc,apply} from \"./logic.js\";";
+            "export {inc,apply,defaulted,optional} from \"./logic.js\";";
         host.Files["/virtual/entry.ts"]=
             "import type {Callback} from \"./model.js\";"+
-            "import {inc,apply} from \"./bridge.js\";"+
+            "import {inc,apply,defaulted,optional} from \"./bridge.js\";"+
             "const twice:Callback=(n:number):number=>n+n;"+
             "export const result:number=apply(twice,21);"+
-            "export const captured:number=inc(41);";
+            "export const captured:number=inc(41);"+
+            "export const withDefault:number=defaulted(41);"+
+            "export const withOptional:number=optional(42);";
         var program=CompilerProgram.Load(host,["entry.ts"]);
         Assert.Equal(4,program.Sources.Count);
         Assert.Empty(program.Analyze().Diagnostics);

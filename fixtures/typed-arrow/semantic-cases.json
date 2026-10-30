@@ -204,6 +204,74 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "typed-arrow:positive-25",
+      "source": "const twice=(n:number=21)=>n+n;let result:number=twice();",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-26",
+      "source": "const add=(n:number,b:number=1)=>n+b;let result:number=add(41);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-27",
+      "source": "const add=(n:number,b:number=n)=>n+b;let result:number=add(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-28",
+      "source": "const twice=(n:number=21)=>{return n+n;};let result:number=twice();",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-29",
+      "source": "const keep=(n:number,unused?:number)=>n;let result:number=keep(42);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-30",
+      "source": "type F=(n:number,m?:number)=>number;const f:F=(n:number,m?:number)=>n;let result:number=f(42);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-31",
+      "source": "const f=(n:number=21)=>n+n;let result:number=f(20);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-32",
+      "source": "const keep=(n:number,unused?:number):number=>{return n;};let result:number=keep(42);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:negative-13",
+      "source": "const bad=(n:number=\"bad\")=>n;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "typed-arrow:negative-14",
+      "source": "const f=(n:number=1)=>n;let x:number=f(1,2);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "typed-arrow:negative-15",
+      "source": "const f=(n:number,extra:number=1)=>n+extra;let x:number=f(1,\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "typed-arrow:negative-16",
+      "source": "const f=(n:number,extra:number=1)=>n+extra;let x:number=f();",
+      "expectedCodes": [
+        "TS2554"
+      ]
     }
   ]
 }

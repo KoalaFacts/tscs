@@ -118,7 +118,9 @@ Finite trailing optional parameters and array rest parameters are supported.
 Type annotations erase in ES2015 output. Explicitly typed arrow values accept
 expression and braced bodies, lexical capture, checked local statements, and
 bounded inferred braced returns (all value-returning paths must return).
-Untyped arrow parameters, mixed bare/value return inference, overloads, generics,
+Typed arrow values also support trailing optional typed parameters and defaults,
+with initializers checked in lexical order and erased types preserved as native
+ES2015 parameter defaults. Untyped arrow parameters, mixed bare/value return inference, overloads, generics,
 `this` parameters and unrestricted callable properties remain unsupported.
 
 ## Other implemented subsets

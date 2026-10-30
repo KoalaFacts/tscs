@@ -1,3 +1,18 @@
+## 2026-10-30 — Checked typed arrow optional/default parameters (candidate; NOT_RUN)
+
+The C# typed-arrow parser, checker and ES2015 emitter share the named-function
+trailing optional/default subset. Default initializers are checked against their
+annotations before declaring the parameter and may read earlier parameters or
+lexical captures. Function signatures retain the true minimum call arity.
+Optional typed parameters are accepted in trailing positions; required parameters
+after defaults remain explicitly unsupported. Untyped parameters, parameter
+rest/spread in arrows, general undefined-aware optional-body flow and nontrailing
+defaults are not claimed. Positive/negative xUnit cases, cross-module checked
+output executed by Node and 12 additive pinned TS7 Go code/exit comparisons are
+wired to existing gates; evidence at source creation is NOT_RUN. No changes to
+release thresholds, pin or original acceptance. Original TS7 remains 0 PASS /
+15,523 SKIP_UNIMPLEMENTED and dynamic scope UNEXPANDED.
+
 ## 2026-10-30 — Inferred braced arrow returns (candidate; NOT_RUN)
 
 The existing C# checked braced typed-arrow path now accepts omitted return
