@@ -1,6 +1,6 @@
 namespace Tscs;
 
-internal enum TokenKind { End, Identifier, Number, String, Let, Const, True, False, Open, Close, Colon, Semi, Equal, Comma, Unsupported, Null, OpenBracket, CloseBracket, Minus, MinusMinus, Plus, PlusPlus, PlusEqual, MinusEqual, StarEqual, PowerEqual, SlashEqual, PercentEqual, AmpEqual, BarEqual, CaretEqual, LeftShiftEqual, RightShiftEqual, UnsignedRightShiftEqual, Star, Power, Slash, Percent, Import, Export, Function, Return, Void, Throw, Try, Catch, Finally, If, Else, For, While, Do, Switch, Case, Default, Break, Continue, Type, Interface, Extends, OpenParen, CloseParen, Bang, Typeof, AmpAmp, BarBar, Bar, Amp, Caret, Tilde, LeftShift, RightShift, UnsignedRightShift, EqualEqual, BangEqual, StrictEqual, StrictNotEqual, Question, QuestionQuestion, In, LessThan, LessEqual, GreaterThan, GreaterEqual, Ellipsis, Dot, Arrow }
+internal enum TokenKind { End, Identifier, Number, String, Let, Const, True, False, Open, Close, Colon, Semi, Equal, Comma, Unsupported, Null, OpenBracket, CloseBracket, Minus, MinusMinus, Plus, PlusPlus, PlusEqual, MinusEqual, StarEqual, PowerEqual, SlashEqual, PercentEqual, AmpEqual, BarEqual, CaretEqual, LeftShiftEqual, RightShiftEqual, UnsignedRightShiftEqual, Star, Power, Slash, Percent, Import, Export, Function, Return, Void, Throw, Try, Catch, Finally, If, Else, For, While, Do, Switch, Case, Default, Break, Continue, Type, Interface, Extends, OpenParen, CloseParen, Bang, Typeof, AmpAmp, BarBar, Bar, Amp, Caret, Tilde, LeftShift, RightShift, UnsignedRightShift, EqualEqual, BangEqual, StrictEqual, StrictNotEqual, Question, QuestionQuestion, QuestionDot, In, LessThan, LessEqual, GreaterThan, GreaterEqual, Ellipsis, Dot, Arrow }
 [Flags]
 internal enum StringTokenFlags { None=0, Unterminated=1<<2, ExtendedUnicodeEscape=1<<3, UnicodeEscape=1<<10, ContainsInvalidEscape=1<<11, HexEscape=1<<12, SingleQuote=1<<16 }
 internal readonly record struct Token(TokenKind Kind, string Text, int Start, int Length, bool LineBreak = false,string? Value = null, StringTokenFlags Flags = StringTokenFlags.None);
@@ -62,8 +62,9 @@ internal sealed record ValueObject(Token Open,IReadOnlyList<ObjectProperty> Prop
 internal sealed record ValueArray(Token Open,IReadOnlyList<ValueNode> Elements,Token Close) : ValueNode;
 // Spread operands are evaluated once, in element order, and must have a checked array type.
 internal sealed record ValueArraySpread(Token Keyword,ValueNode Operand) : ValueNode;
-internal sealed record ValueElementAccess(ValueNode Receiver,Token Open,ValueNode Index,Token Close) : ValueNode;
-internal sealed record ValuePropertyAccess(ValueNode Receiver,Token Name) : ValueNode;
+internal sealed record ValueElementAccess(ValueNode Receiver,Token Open,ValueNode Index,Token Close,bool Optional=false) : ValueNode;
+// Optional member/index access is a guarded read; it does not assert non-nullness.
+internal sealed record ValuePropertyAccess(ValueNode Receiver,Token Name,bool Optional=false) : ValueNode;
 internal sealed record PropertyAssignment(ValuePropertyAccess Target,ValueNode Value) : Statement;
 internal sealed record ElementAssignment(ValueElementAccess Target,ValueNode Value) : Statement;
 internal sealed record Variable(Token Name, bool Constant, TypeSyntax? Annotation, ValueNode? Initializer, bool Exported=false) : Statement;

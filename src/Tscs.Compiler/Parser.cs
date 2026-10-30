@@ -321,12 +321,14 @@ internal sealed class Parser(string file, List<Token> tokens)
             if(Current.Kind is TokenKind.PlusEqual or TokenKind.MinusEqual or TokenKind.StarEqual or TokenKind.PowerEqual or TokenKind.SlashEqual or TokenKind.PercentEqual or TokenKind.AmpEqual or TokenKind.BarEqual or TokenKind.CaretEqual or TokenKind.LeftShiftEqual or TokenKind.RightShiftEqual or TokenKind.UnsignedRightShiftEqual)
             {
                 var op=Take();
-                if(value is not (ValueAtom { Token.Kind:TokenKind.Identifier } or ValuePropertyAccess or ValueElementAccess))
-                    Unsupported(op,"Compound assignment requires an identifier, named property or array element.");
+                if(value is not (ValueAtom { Token.Kind:TokenKind.Identifier } or ValuePropertyAccess or ValueElementAccess) ||
+                   HasOptionalAccess(value))
+                    Unsupported(op,"An optional chain cannot be a compound assignment target.");
                 statements.Add(new CompoundAssignment(value,op,ParseValue()));
             }
             else if(Eat(TokenKind.Equal))
             {
+                if(HasOptionalAccess(value))Unsupported(Current,"An optional chain cannot be an assignment target.");
                 if(value is ValueAtom atom && atom.Token.Kind==TokenKind.Identifier)
                     statements.Add(new Assignment(atom.Token,ParseValue()));
                 else if(value is ValuePropertyAccess property)
@@ -501,12 +503,14 @@ internal sealed class Parser(string file, List<Token> tokens)
         if(Current.Kind is TokenKind.PlusEqual or TokenKind.MinusEqual or TokenKind.StarEqual or TokenKind.PowerEqual or TokenKind.SlashEqual or TokenKind.PercentEqual or TokenKind.AmpEqual or TokenKind.BarEqual or TokenKind.CaretEqual or TokenKind.LeftShiftEqual or TokenKind.RightShiftEqual or TokenKind.UnsignedRightShiftEqual)
         {
             var op=Take();
-            if(expression is not (ValueAtom { Token.Kind:TokenKind.Identifier } or ValuePropertyAccess or ValueElementAccess))
-                Unsupported(op,"Compound for update requires an identifier, named property or array element.");
+            if(expression is not (ValueAtom { Token.Kind:TokenKind.Identifier } or ValuePropertyAccess or ValueElementAccess) ||
+               HasOptionalAccess(expression))
+                Unsupported(op,"An optional chain cannot be an assignment target.");
             return new CompoundAssignment(expression,op,ParseValue());
         }
         if(Eat(TokenKind.Equal))
         {
+            if(HasOptionalAccess(expression))Unsupported(Current,"An optional chain cannot be an assignment target.");
             var right=ParseValue();
             return expression switch
             {
@@ -1232,6 +1236,9 @@ internal sealed class Parser(string file, List<Token> tokens)
         // An unparenthesized unary left operand of ** is invalid in TS/JS.
         if(prefixes.Count>0 && value is ValueBinary { Operator.Kind:TokenKind.Power } exponent)
             Unsupported(exponent.Operator,"Unary left operands of ** must be parenthesized.");
+        if(prefixes.Any(p=>p.Kind is TokenKind.PlusPlus or TokenKind.MinusMinus) &&
+           HasOptionalAccess(value))
+            Unsupported(prefixes[0],"An optional chain cannot be an update target.");
         for(int i=prefixes.Count-1;i>=0;i--)
             value=prefixes[i].Kind is TokenKind.PlusPlus or TokenKind.MinusMinus
                 ?new ValuePrefixUpdate(prefixes[i],value)
@@ -1278,6 +1285,29 @@ internal sealed class Parser(string file, List<Token> tokens)
         finally {callNesting--;}
     }
 
+    private static bool HasOptionalAccess(ValueNode node)
+    {
+        // Optional chains are never writable targets, even when a later
+        // ordinary member follows an optional segment.
+        while(true)
+        {
+            switch(node)
+            {
+                case ValuePropertyAccess property:
+                    if(property.Optional)return true;
+                    node=property.Receiver;
+                    break;
+                case ValueElementAccess element:
+                    if(element.Optional)return true;
+                    node=element.Receiver;
+                    break;
+                case ValueParenthesized grouped:node=grouped.Expression;break;
+                case ValueNonNull asserted:node=asserted.Expression;break;
+                default:return false;
+            }
+        }
+    }
+
     private ValueNode ParsePrimary()
     {
         ValueNode value=ParsePrimaryValue();
@@ -1287,6 +1317,21 @@ internal sealed class Parser(string file, List<Token> tokens)
         {
             if(Eat(TokenKind.Dot))
                 value=new ValuePropertyAccess(value,ReadPropertyName(allowString:false));
+            else if(Current.Kind==TokenKind.QuestionDot)
+            {
+                var optional=Take();
+                if(Current.Kind==TokenKind.OpenBracket)
+                {
+                    var open=Take();
+                    var index=ParseWithInAllowed(ParseValue);
+                    if(Current.Kind!=TokenKind.CloseBracket)
+                        Unsupported(Current,"Expected ']' after optional indexed access.");
+                    value=new ValueElementAccess(value,open,index,Take(),true);
+                }
+                else if(Current.Kind==TokenKind.Identifier)
+                    value=new ValuePropertyAccess(value,ReadPropertyName(allowString:false),true);
+                else Unsupported(optional,"Optional access supports named properties and bracketed indices; optional calls are not implemented.");
+            }
             else if(Current.Kind==TokenKind.OpenBracket)
             {
                 var open=Take();
@@ -1304,7 +1349,10 @@ internal sealed class Parser(string file, List<Token> tokens)
         // Same-line postfix binds after property/index access and before unary/binary.
         // A line break invokes statement separation instead.
         if(!Current.LineBreak && Current.Kind is TokenKind.PlusPlus or TokenKind.MinusMinus)
+        {
+            if(HasOptionalAccess(value))Unsupported(Current,"An optional chain cannot be an update target.");
             value=new ValuePostfixUpdate(value,Take());
+        }
         return value;
     }
 

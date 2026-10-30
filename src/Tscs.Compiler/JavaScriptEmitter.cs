@@ -632,10 +632,27 @@ internal static class JavaScriptEmitter
                         Text("(");
                         break;
                     case ValueElementAccess indexed:
-                        Text("]");
-                        Node(indexed.Index);
-                        Text("[");
-                        Node(indexed.Receiver,precedence);
+                        if(indexed.Optional)
+                        {
+                            // A lowered ES2015 arrow evaluates the receiver once
+                            // and only evaluates the index on the present path.
+                            var used=ReferencedValueNames(indexed.Index);
+                            used.UnionWith(ReferencedValueNames(indexed.Receiver));
+                            var temp=FreshPowerTemporary(used);
+                            Text(")");
+                            Node(indexed.Receiver);
+                            Text("]))(");
+                            Node(indexed.Index);
+                            Text("(("+temp+") => ("+temp+" === null || "+temp+
+                                " === undefined ? undefined : "+temp+"[");
+                        }
+                        else
+                        {
+                            Text("]");
+                            Node(indexed.Index);
+                            Text("[");
+                            Node(indexed.Receiver,precedence);
+                        }
                         break;
                     case ValueArray array:
                         Text("]");
@@ -653,8 +670,19 @@ internal static class JavaScriptEmitter
                         Text("[");
                         break;
                     case ValuePropertyAccess property:
-                        Text("."+property.Name.Text);
-                        Node(property.Receiver,precedence);
+                        if(property.Optional)
+                        {
+                            var temp=FreshPowerTemporary(ReferencedValueNames(property.Receiver));
+                            Text(")");
+                            Node(property.Receiver);
+                            Text("(("+temp+") => ("+temp+" === null || "+temp+
+                                " === undefined ? undefined : "+temp+"."+property.Name.Text+"))(");
+                        }
+                        else
+                        {
+                            Text("."+property.Name.Text);
+                            Node(property.Receiver,precedence);
+                        }
                         break;
                     case ValueObject literalObject:
                         // Object spread is ES2018 syntax. The target is ES2015,

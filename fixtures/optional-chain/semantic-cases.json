@@ -1,0 +1,83 @@
+{
+  "kind": "BOUNDED_OPTIONAL_MEMBER_ACCESS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "optional-chain:positive-01",
+      "source": "function choose(o:{value:number}|undefined):number{return o?.value ?? 42;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-chain:positive-02",
+      "source": "function choose(o:{value?:number}|undefined):number{return o?.value ?? 42;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-chain:positive-03",
+      "source": "function choose(o:{inner?:{value:number}}|undefined):number{return o?.inner?.value ?? 42;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-chain:positive-04",
+      "source": "function choose(o:{value:number}|undefined):number{return o?.[\"value\"] ?? 42;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-chain:positive-05",
+      "source": "function choose(o:number[]|undefined):number{return o?.[0] ?? 42;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-chain:positive-06",
+      "source": "function choose(o:{value:number}):number{return o?.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-chain:positive-07",
+      "source": "function choose(o:{value:number}|undefined):number{return o?.value! ?? 42;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-chain:positive-08",
+      "source": "function choose(o:{value:number}|undefined):number{return o?.value ?? (21+21);}",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-chain:positive-09",
+      "source": "function choose(o:{value:number}|undefined):number{return o?.value ?? o?.value ?? 42;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-chain:positive-10",
+      "source": "function choose(o:string|undefined):number{return o?.length ?? 42;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-chain:negative-01",
+      "source": "function bad(o:{value:number}|undefined):string{return o?.value ?? 42;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "optional-chain:negative-02",
+      "source": "function bad(o:{value:number}|undefined):number{return o?.missing ?? 42;}",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "optional-chain:negative-03",
+      "source": "function bad(o:{value:number}|undefined):boolean{return o?.value ?? 42;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "optional-chain:negative-04",
+      "source": "function bad(o:{value:number}|undefined):number{return o?.value ?? \"bad\";}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}

@@ -1,3 +1,17 @@
+## 2026-10-31 — Finite optional member/index reads (source candidate; NOT_RUN)
+
+C# scanner/parser, AST, TypeChecker, structural unions and ES2015 emitter now
+support guarded `receiver?.member` and `receiver?.[index]` reads over
+bounded object, string and array types. The result includes `undefined`
+only where the receiver might be absent. ES2015 output evaluates receivers
+once and indices lazily on the present path. Optional calls, optional-chain
+writes, dynamic index signatures and complete `null`/flow semantics remain
+unimplemented. Source-backed xUnit regressions, four-module actual Node runtime,
+fail-closed no-emit tests and fourteen stable pinned-Go source/code/exit cases
+are registered. At source creation all evidence is NOT_RUN, not accepted.
+Original TS7 acceptance remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED and
+dynamic scope UNEXPANDED. No releases, pins, thresholds or protections changed.
+
 ## 2026-10-31 — Explicit postfix non-null assertions (source candidate; NOT_RUN)
 
 New C# AST/parser/checker and ES2015 erasure support `value!`, `box.optional!.member`,

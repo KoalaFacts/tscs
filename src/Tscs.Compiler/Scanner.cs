@@ -145,6 +145,9 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                 { position++;kind=TokenKind.BarBar; }
                 else if(first=='?' && position<text.Length && text[position]=='?')
                 { position++;kind=TokenKind.QuestionQuestion; }
+                else if(first=='?' && position<text.Length && text[position]=='.' &&
+                        (position+1==text.Length || text[position+1] is not (>= '0' and <= '9')))
+                { position++;kind=TokenKind.QuestionDot; }
                 else if((first is '&' or '|' or '^') && position<text.Length && text[position]=='=')
                 {
                     position++;
