@@ -25,11 +25,16 @@ try {
       'export function strictRead(m:Maybe):number{if(m===null){return 0;}return m.value*2;}',
       'export function reversedRead(m:Maybe):number{if(null!==m){return m.value;}return 0;}',
       'export function looseRead(m:Maybe|undefined):number{if(m!=null){return m.value;}return 0;}',
-      'export function conditionalRead(m:Maybe):number{return m===null?0:m.value;}'
+      'export function conditionalRead(m:Maybe):number{return m===null?0:m.value;}',
+      'export function undefinedGuard(v:{value:number}|undefined):number{if(v===undefined){return 0;}return v.value;}',
+      'export function undefinedReverse(v:{value:number}|undefined):number{if(undefined!==v){return v.value;}return 0;}',
+      'export function undefinedLoose(v:Maybe|undefined):number{if(v!=undefined){return v.value;}return 0;}',
+      'export function undefinedVoid(v:{value:number}|undefined):number{if(v===void 0){return 0;}return v.value;}',
+      'export function undefinedTernary(v:{value:number}|undefined):number{return v===undefined?0:v.value;}'
     ].join('\n'),
     'entry.ts':[
       'import {make,none,calls} from "./data.js";',
-      'import {read,requirePresent,invoke,strictRead,reversedRead,looseRead,conditionalRead} from "./logic.js";',
+      'import {read,requirePresent,invoke,strictRead,reversedRead,looseRead,conditionalRead,undefinedGuard,undefinedReverse,undefinedLoose,undefinedVoid,undefinedTernary} from "./logic.js";',
       'export const result:number=read(make(21))*2;',
       'export const missing:number=read(none());',
       'export const present:number=requirePresent(make(21));',
@@ -42,7 +47,14 @@ try {
       'export const reversedGuard:number=reversedRead({value:21});',
       'export const loosePresent:number=looseRead({value:21});',
       'export const looseMissing:number=looseRead(void 0);',
-      'export const ternaryGuard:number=conditionalRead({value:21});'
+      'export const ternaryGuard:number=conditionalRead({value:21});',
+      'export const undefinedPresent:number=undefinedGuard({value:21});',
+      'export const undefinedMissing:number=undefinedGuard(void 0);',
+      'export const undefinedReversed:number=undefinedReverse({value:21});',
+      'export const undefinedLooseNull:number=undefinedLoose(null);',
+      'export const undefinedLoosePresent:number=undefinedLoose({value:21});',
+      'export const undefinedVoidMissing:number=undefinedVoid(void 0);',
+      'export const undefinedTernaryPresent:number=undefinedTernary({value:21});'
     ].join('\n')
   };
   for(const [name,source] of Object.entries(sources))writeFileSync(join(dir,name),source+'\n');
@@ -63,8 +75,8 @@ try {
     assert.ok(existsSync(join(dir,name+'.js')),'missing module '+name);
   assert.match(readFileSync(join(dir,'data.js'),'utf8'),/return null/);
   const runtime=spawnSync(process.execPath,['--input-type=module','--eval',[
-    'import {result,missing,present,fallback,callbackMissing,callbackPresent,totalCalls,strictGuard,strictMissing,reversedGuard,loosePresent,looseMissing,ternaryGuard} from "./entry.js";',
-    'if(result!==42||missing!==42||present!==21||fallback!==42||callbackMissing!==42||callbackPresent!==42||totalCalls!==3||strictGuard!==42||strictMissing!==0||reversedGuard!==21||loosePresent!==21||looseMissing!==0||ternaryGuard!==21)',
+    'import {result,missing,present,fallback,callbackMissing,callbackPresent,totalCalls,strictGuard,strictMissing,reversedGuard,loosePresent,looseMissing,ternaryGuard,undefinedPresent,undefinedMissing,undefinedReversed,undefinedLooseNull,undefinedLoosePresent,undefinedVoidMissing,undefinedTernaryPresent} from "./entry.js";',
+    'if(result!==42||missing!==42||present!==21||fallback!==42||callbackMissing!==42||callbackPresent!==42||totalCalls!==3||strictGuard!==42||strictMissing!==0||reversedGuard!==21||loosePresent!==21||looseMissing!==0||ternaryGuard!==21||undefinedPresent!==21||undefinedMissing!==0||undefinedReversed!==21||undefinedLooseNull!==0||undefinedLoosePresent!==21||undefinedVoidMissing!==0||undefinedTernaryPresent!==21)',
     '  throw Error("null literal runtime, nullable call or single-evaluation regression");'
   ].join('\n')],{cwd:dir,encoding:'utf8',timeout:15000});
   assert.equal(runtime.error,undefined,String(runtime.error));
@@ -78,7 +90,10 @@ try {
     ['unguarded','let o:{value:number}|null=null;let bad:number=o.value;','TS2339'],
     ['guard-wrong-arm','function bad(m:{value:number}|null):number{if(m===null){return m.value;}return 0;}','TS2339'],
     ['strict-undefined','function bad(m:{value:number}|null|undefined):number{if(m!==null){return m.value;}return 0;}','TS2339'],
-    ['guard-rebound','function bad(m:{value:number}|null):number{if(m===null){return 0;}m=null;return m.value;}','TS2339']
+    ['guard-rebound','function bad(m:{value:number}|null):number{if(m===null){return 0;}m=null;return m.value;}','TS2339'],
+    ['undefined-wrong-arm','function bad(m:{value:number}|undefined):number{if(m===undefined){return m.value;}return 0;}','TS2339'],
+    ['undefined-strict-null','function bad(m:{value:number}|null|undefined):number{if(m!==undefined){return m.value;}return 0;}','TS2339'],
+    ['undefined-shadow','function bad(m:{value:number}|undefined):number{let undefined:number=0;if(m!==undefined){return m.value;}return 0;}','TS2339']
   ];
   for(const [id,source,code] of invalid){
     const file=join(dir,'invalid-'+id+'.ts');writeFileSync(file,source);
@@ -87,5 +102,5 @@ try {
     assert.match(r.stdout+r.stderr,new RegExp(code));
     assert.equal(existsSync(file.replace(/\.ts$/,'.js')),false,'invalid emitted JS: '+id);
   }
-  console.log('explicit null and equality flow: four ES2015 modules executed, strict/loose/ternary guards and nine invalid no-emit sources');
+  console.log('explicit null and equality flow: four ES2015 modules executed, strict/loose/undefined guards and twelve invalid no-emit sources');
 } finally {rmSync(dir,{recursive:true,force:true});}
