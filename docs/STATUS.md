@@ -1,3 +1,18 @@
+## 2026-10-30 — Inferred braced arrow returns (candidate; NOT_RUN)
+
+The existing C# checked braced typed-arrow path now accepts omitted return
+annotations. Real lexical block checking collects return types through local
+bindings and guarded branches; a closed union is inferred for compatible
+returns, void for no-return bodies, and never for throw-only bodies. Inferred
+value-returning bodies must definitely return on all paths; mixed bare/value
+returns are rejected rather than inventing an unsafe undefined type. Nested
+arrows isolate their own collectors and explicitly typed arrows retain their
+old validation. Four-module ES2015 runtime, genuine error/no-emit cases, C#
+regressions, and twelve additive fixed-Go source/code/exit cases are registered.
+**At candidate creation all new checks are NOT_RUN.** Original TS7 accepted
+cases remain 0 of the registered 15,523 SKIP_UNIMPLEMENTED; full dynamic scope
+UNEXPANDED and no release claimed.
+
 ## 2026-10-30 — Typed expression-bodied arrows (candidate; NOT_RUN)
 
 Parser, Binder scopes, TypeChecker callback contracts and ES2015 emitter now

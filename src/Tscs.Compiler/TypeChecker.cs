@@ -109,6 +109,16 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         CheckTry(guarded,scope,expectedReturn,allowBreak,allowContinue);
                         break;
                     case ReturnStatement returned:
+                        if(expectedReturn is null && inferredArrowReturns is { } inference)
+                        {
+                            // Collect return types in the actual lexical checker,
+                            // after local bindings, imports and branch narrowing.
+                            // A nested named function has its own expectedReturn,
+                            // while nested arrow inference replaces this collector.
+                            inference.Add(returned.Value is { } inferredValue
+                                ?TypeOf(inferredValue,scope):CompilerTypes.Void);
+                            break;
+                        }
                         if(expectedReturn==null)
                             throw new CompilationFailure(Diagnostic.Error(file,returned.Keyword,"TSCS1001",
                                 "Return statements outside functions are not supported."));
@@ -1208,6 +1218,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     }
 
     private int arrowExpressionDepth;
+    // Only active while checking a braced arrow with an inferred return.
+    // Its previous value is restored even when the nested checker fails.
+    private List<TypeSymbol?>? inferredArrowReturns;
     private TypeSymbol? TypeOf(ValueNode value,Scope scope)
     {
         // The parser builds left-deep chains for numeric additions. Do not
@@ -1279,15 +1292,47 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     TypeSymbol? returned;
                     if(arrow.BlockBody is { } body)
                     {
-                        if(annotated is null)
-                            throw new CompilationFailure(Diagnostic.Error(file,arrow.Open,"TSCS1001",
-                                "Braced arrow bodies require an explicit return type."));
-                        if(!annotated.Equals(CompilerTypes.Void) && !FunctionControlFlow.DefinitelyReturnsValue(body))
-                            throw new CompilationFailure(Diagnostic.Error(file,arrow.Open,"TSCS1001",
-                                "A value-returning braced arrow must definitely return a value."));
-                        // A new function boundary owns its returns and lexical bindings.
-                        CheckBlock(body,local,false,annotated);
-                        returned=annotated;
+                        if(annotated is { } required)
+                        {
+                            if(!required.Equals(CompilerTypes.Void) && !FunctionControlFlow.DefinitelyReturnsValue(body))
+                                throw new CompilationFailure(Diagnostic.Error(file,arrow.Open,"TSCS1001",
+                                    "A value-returning braced arrow must definitely return a value."));
+                            // Annotated arrows retain their original checking path.
+                            CheckBlock(body,local,false,required);
+                            returned=required;
+                        }
+                        else
+                        {
+                            var previous=inferredArrowReturns;
+                            var inferred=new List<TypeSymbol?>();
+                            inferredArrowReturns=inferred;
+                            try { CheckBlock(body,local); }
+                            finally { inferredArrowReturns=previous; }
+
+                            if(inferred.Any(type=>type is null))
+                                returned=null; // Preserve the actual unresolved diagnostic.
+                            else if(inferred.Count==0)
+                                returned=FunctionControlFlow.CanCompleteNormally(body)
+                                    ?CompilerTypes.Void:CompilerTypes.Never;
+                            else
+                            {
+                                bool hasVoid=inferred.Any(type=>type!.Equals(CompilerTypes.Void));
+                                bool hasValue=inferred.Any(type=>!type!.Equals(CompilerTypes.Void));
+                                if(hasVoid && hasValue)
+                                    throw new CompilationFailure(Diagnostic.Error(file,arrow.Open,"TSCS1001",
+                                        "Mixed bare and value returns require an explicit return contract."));
+                                // The bounded implementation does not invent an
+                                // implicit undefined member on a fallthrough path.
+                                if(hasValue && !FunctionControlFlow.DefinitelyReturnsValue(body))
+                                    throw new CompilationFailure(Diagnostic.Error(file,arrow.Open,"TSCS1001",
+                                        "Inferred value-returning arrows must return on every path."));
+                                try { returned=CompilerTypes.Union(inferred.Select(type=>type!)); }
+                                catch(InvalidOperationException failure)
+                                {
+                                    throw new CompilationFailure(Diagnostic.Error(file,arrow.Open,"TSCS1001",failure.Message));
+                                }
+                            }
+                        }
                     }
                     else
                     {

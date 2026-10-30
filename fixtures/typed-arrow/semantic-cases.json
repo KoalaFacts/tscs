@@ -136,6 +136,74 @@
       "expectedCodes": [
         "TS2304"
       ]
+    },
+    {
+      "id": "typed-arrow:positive-17",
+      "source": "const inc=(n:number)=>{return n+1;};let result:number=inc(41);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-18",
+      "source": "const twice=(n:number)=>{const scale:number=2;return n*scale;};let result:number=twice(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-19",
+      "source": "const answer=()=>{return 42;};let result:number=answer();",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-20",
+      "source": "const seed:number=1;const inc=(n:number)=>{return n+seed;};let result:number=inc(41);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-21",
+      "source": "type Fn=(n:number)=>number;const cb:Fn=(n:number)=>{return n+1;};let result:number=cb(41);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-22",
+      "source": "const abs=(n:number)=>{if(n>=0){return n;}else{return -n;}};let result:number=abs(-42);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-23",
+      "source": "const noop=(n:number)=>{const value:number=n;};noop(42);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-24",
+      "source": "const wrap=(n:number)=>{return {value:n};};let result:number=wrap(42).value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:negative-09",
+      "source": "type Fn=(n:number)=>number;const cb:Fn=(n:number)=>{return \"wrong\";};",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "typed-arrow:negative-10",
+      "source": "const inc=(n:number)=>{return n;};let result:number=inc(\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "typed-arrow:negative-11",
+      "source": "const missing=(n:number)=>{return missingValue;};",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    },
+    {
+      "id": "typed-arrow:negative-12",
+      "source": "const f=(n:number)=>{return n;};let result:string=f(1);",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }

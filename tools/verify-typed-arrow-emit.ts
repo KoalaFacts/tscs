@@ -13,7 +13,7 @@ try {
     'logic.ts':[
       'import type {Callback} from "./model.js";',
       'const extra:number=1;',
-      'export const inc:Callback=(n:number):number=>{return n+extra;};',
+      'export const inc:Callback=(n:number)=>{return n+extra;};',
       'export function apply(fn:Callback,n:number):number{return fn(n);}'
     ].join('\n'),
     'bridge.ts':'export {inc,apply} from "./logic.js";',
@@ -22,6 +22,8 @@ try {
       'import {inc,apply} from "./bridge.js";',
       'const twice:Callback=(n:number):number=>n+n;',
       'const block:Callback=(n:number):number=>{if(n>0){return n+n;}return 0;};',
+      'const inferred:Callback=(n:number)=>{if(n>0){return n+n;}return 0;};',
+      'export const inferredResult:number=apply(inferred,21);',
       'export const blocked:number=apply(block,21);',
       'export const result:number=apply(twice,21);',
       'export const captured:number=inc(41);'
@@ -45,7 +47,7 @@ try {
   for(const name of ['model','logic','bridge','entry'])
     assert.ok(existsSync(join(dir,name+'.js')),'missing JS module '+name);
   const runtime=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,captured,blocked} from "./entry.js"; if(result!==42||captured!==42||blocked!==42)throw Error("typed arrow runtime mismatch");'],
+    'import {result,captured,blocked,inferredResult} from "./entry.js"; if(result!==42||captured!==42||blocked!==42||inferredResult!==42)throw Error("typed arrow runtime mismatch");'],
     {cwd:dir,encoding:'utf8',timeout:15000});
   assert.equal(runtime.error,undefined,String(runtime.error));
   assert.equal(runtime.status,0,runtime.stdout+runtime.stderr);
@@ -60,7 +62,7 @@ try {
     ['braced-argument','const fn=(n:number):number=>{return n;};const x:number=fn("bad");','TS2345',2],
     ['braced-missing','const fn=(n:number):number=>{return missing;};','TS2304',2],
     ['braced-incomplete','const fn=(n:number):number=>{if(n>0){return n;}};','TSCS1001',1],
-    ['braced-inferred','const fn=(n:number)=>{return n;};','TSCS1001',1],
+    ['braced-partial','const fn=(n:number)=>{if(n>0){return n;}};','TSCS1001',1],
     ['braced-bare','const fn=(n:number):number=>{return;};','TSCS1001',1]
   ];
   for(const [id,source,code,exit] of negatives) {
@@ -71,5 +73,5 @@ try {
     assert.match(result.stdout+result.stderr,new RegExp(code));
     assert.equal(existsSync(path.replace(/\.ts$/,'.js')),false,'invalid arrow emitted JS');
   }
-  console.log('typed expression and block arrows: four-module ES2015 result=42, captured=42, blocked=42; twelve invalid no-emit programs rejected.');
+  console.log('typed expression and block arrows: four-module ES2015 result=42, captured=42, blocked=42, inferredResult=42; twelve invalid no-emit programs rejected.');
 } finally {rmSync(dir,{recursive:true,force:true});}

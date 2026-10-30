@@ -895,8 +895,8 @@ internal sealed class Parser(string file, List<Token> tokens)
             if(!Eat(TokenKind.Arrow))Unsupported(Current,"Expected '=>' after arrow signature.");
             if(Eat(TokenKind.Open))
             {
-                if(returns is null)
-                    Unsupported(open,"Braced arrow bodies require an explicit return type in this compiler subset.");
+                // A typed parameter list is enough to infer a bounded braced
+                // return contract in the checker; do not require an annotation.
                 var body=Parse(1,true);
                 if(!Eat(TokenKind.Close))
                     Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
