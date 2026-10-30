@@ -1,0 +1,66 @@
+{
+  "kind": "BOUNDED_UNDEFINED_SENTINEL_FLOW_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "undefined-flow:positive-01",
+      "source": "function read(v:{value:number}|undefined):number{if(v===undefined){return 0;}return v.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "undefined-flow:positive-02",
+      "source": "function read(v:{value:number}|undefined):number{if(v!==undefined){return v.value;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "undefined-flow:positive-03",
+      "source": "function read(v:{value:number}|undefined):number{if(undefined===v){return 0;}return v.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "undefined-flow:positive-04",
+      "source": "function read(v:{value:number}|null|undefined):number{if(v==undefined){return 0;}return v.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "undefined-flow:positive-05",
+      "source": "function read(v:{value:number}|null|undefined):number{if(v!=undefined){return v.value;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "undefined-flow:positive-06",
+      "source": "function read(v:{value:number}|undefined):number{return v===undefined?0:v.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "undefined-flow:positive-07",
+      "source": "function read(v:{value:number}|undefined):number{if(v!==void 0){return v.value;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "undefined-flow:positive-08",
+      "source": "function read(v:{value:number}|undefined):number{if(v!==undefined && v.value>0){return v.value;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "undefined-flow:negative-01",
+      "source": "function bad(v:{value:number}|undefined):number{if(v===undefined){return v.value;}return 0;}",
+      "expectedCodes": [
+        "TS18048"
+      ]
+    },
+    {
+      "id": "undefined-flow:negative-02",
+      "source": "function bad(v:{value:number}|null|undefined):number{if(v!==undefined){return v.value;}return 0;}",
+      "expectedCodes": [
+        "TS18047"
+      ]
+    },
+    {
+      "id": "undefined-flow:negative-03",
+      "source": "function bad(v:{value:number}|undefined):number{if(v===undefined){return 0;}v=undefined;return v.value;}",
+      "expectedCodes": [
+        "TS18048"
+      ]
+    }
+  ]
+}

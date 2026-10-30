@@ -806,7 +806,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
 
         // The null comparison partition is operator-sensitive: strict equality
         // removes only null, while ==/!= null also matches undefined.
-        if(TryNarrowNullComparison(comparison,scope) is { } nullGuard)
+        if(TryNarrowNullishComparison(comparison,scope) is { } nullGuard)
             return nullGuard;
         if(comparison.Operator.Kind is not (TokenKind.StrictEqual or TokenKind.StrictNotEqual))
             return null;
@@ -846,16 +846,43 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     }
 
 
-    // A simple parameter/local may be narrowed by a null sentinel without
-    // changing its declared assignment contract. Do not narrow arbitrary member
-    // paths, any/unknown, or unions without both reachable alternatives.
-    private static DiscriminantBranches? TryNarrowNullComparison(ValueBinary comparison,Scope scope)
+    // A simple local/parameter can be narrowed against literal null, the
+    // unshadowed undefined intrinsic, or the side-effect-free 'void 0' sentinel.
+    // Strict comparisons partition only the named sentinel; loose comparisons
+    // match both nullish constituents. Lexical bindings named undefined must
+    // never be mistaken for the intrinsic. Complex member paths and broad
+    // any/unknown types are not inferred as safe.
+    private static DiscriminantBranches? TryNarrowNullishComparison(ValueBinary comparison,Scope scope)
     {
-        static bool IsNull(ValueNode source)
+        static bool TrySentinel(ValueNode source,Scope scope,out bool isNull)
         {
             while(source is ValueParenthesized grouped)source=grouped.Expression;
-            return source is ValueAtom { Token.Kind:TokenKind.Null };
+            if(source is ValueAtom { Token.Kind:TokenKind.Null })
+            {
+                isNull=true;
+                return true;
+            }
+            if(source is ValueAtom atom && atom.Token.Kind==TokenKind.Identifier &&
+               atom.Token.Text=="undefined" && scope.Find("undefined") is null)
+            {
+                isNull=false;
+                return true;
+            }
+            if(source is ValueUnary { Operator.Kind:TokenKind.Void } voidExpr)
+            {
+                var operand=voidExpr.Operand;
+                while(operand is ValueParenthesized grouped)operand=grouped.Expression;
+                if(operand is ValueAtom number && number.Token.Kind==TokenKind.Number &&
+                   number.Token.Text=="0")
+                {
+                    isNull=false;
+                    return true;
+                }
+            }
+            isNull=false;
+            return false;
         }
+
         static bool TryIdentifier(ValueNode source,out Token name)
         {
             while(source is ValueParenthesized grouped)source=grouped.Expression;
@@ -869,11 +896,12 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         }
 
         Token variable;
-        if(IsNull(comparison.Left))
+        bool isNullSentinel;
+        if(TrySentinel(comparison.Left,scope,out isNullSentinel))
         {
             if(!TryIdentifier(comparison.Right,out variable))return null;
         }
-        else if(IsNull(comparison.Right))
+        else if(TrySentinel(comparison.Right,scope,out isNullSentinel))
         {
             if(!TryIdentifier(comparison.Left,out variable))return null;
         }
@@ -886,9 +914,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         var different=new List<TypeSymbol>();
         foreach(var alternative in union.Alternatives)
         {
-            bool matchesNull=alternative.Equals(CompilerTypes.Null) ||
-                (loose && alternative.Equals(CompilerTypes.Undefined));
-            (matchesNull?matching:different).Add(alternative);
+            if(alternative.Equals(CompilerTypes.Any) || alternative.Equals(CompilerTypes.Unknown))
+                return null;
+            bool matches=loose
+                ?alternative.Equals(CompilerTypes.Null) || alternative.Equals(CompilerTypes.Undefined)
+                :isNullSentinel
+                    ?alternative.Equals(CompilerTypes.Null)
+                    :alternative.Equals(CompilerTypes.Undefined);
+            (matches?matching:different).Add(alternative);
         }
         if(matching.Count==0 || different.Count==0)return null;
         var equal=CompilerTypes.Union(matching);
@@ -1750,8 +1783,30 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     presentMember=member;
                 else
                 {
-                    Error(property.Name,"TS2339",
-                        $"Property '{property.Name.Text}' does not exist on type '{presentReceiver.DisplayName}'.");
+                    // For a known member on the non-nullish alternatives,
+                    // TypeScript reports the unsafe receiver (TS18047/48/49),
+                    // not a missing member (TS2339). Preserve TS2339 when
+                    // the property really is absent from the live shape.
+                    var presentOnly=CompilerTypes.NonNullAssertionResult(presentReceiver);
+                    if(CompilerTypes.ContainsNullish(presentReceiver) &&
+                       (presentOnly.Equals(CompilerTypes.Never) ||
+                        CompilerTypes.TryGetProperty(presentOnly,property.Name.Text) is not null))
+                    {
+                        bool hasNull=presentReceiver.Equals(CompilerTypes.Null) ||
+                            presentReceiver is UnionTypeSymbol nullable &&
+                            nullable.Alternatives.Any(t=>t.Equals(CompilerTypes.Null));
+                        bool hasUndefined=CompilerTypes.ContainsUndefined(presentReceiver);
+                        string code=hasNull
+                            ?hasUndefined?"TS18049":"TS18047"
+                            :"TS18048";
+                        string possible=hasNull
+                            ?hasUndefined?"'null' or 'undefined'":"'null'"
+                            :"'undefined'";
+                        Error(property.Name,code,$"Value is possibly {possible}.");
+                    }
+                    else
+                        Error(property.Name,"TS2339",
+                            $"Property '{property.Name.Text}' does not exist on type '{presentReceiver.DisplayName}'.");
                     presentMember=null;
                 }
                 PushOptionalResult(property,presentMember,property.Optional||property.ChainContinuation,mayBeUndefined);
@@ -1967,10 +2022,15 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             }
             else if(binary.Operator.Kind is TokenKind.EqualEqual or TokenKind.BangEqual or TokenKind.StrictEqual or TokenKind.StrictNotEqual)
             {
-                if(CompilerTypes.CanCompareEquality(left,right))
-                    types.Push(CompilerTypes.Boolean);
-                else throw new CompilationFailure(Diagnostic.Error(file,binary.Operator,"TSCS1001",
-                    "Equality comparisons currently require matching primitive or any operands."));
+                if(!CompilerTypes.CanCompareEquality(left,right))
+                {
+                    // Keep the comparison invalid, but continue semantic traversal
+                    // so unsafe reads in either branch still produce their own
+                    // diagnostics instead of being hidden by this first error.
+                    Error(binary.Operator,"TSCS1001",
+                        "Equality comparisons currently require matching primitive or any operands.");
+                }
+                types.Push(CompilerTypes.Boolean);
             }
             else if(binary.Operator.Kind is TokenKind.AmpAmp or TokenKind.BarBar)
             {
