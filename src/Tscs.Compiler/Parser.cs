@@ -955,7 +955,7 @@ internal sealed class Parser(string file, List<Token> tokens)
             var parameters=ParseTypedExpressionParameters();
             TypeSyntax? returns=Eat(TokenKind.Colon)?ReadTypeAnnotation():null;
             if(name is not null && returns is null)
-                Unsupported(name,"Named function expressions require explicit return annotations.");
+                Unsupported(name.Value,"Named function expressions require explicit return annotations.");
             if(!Eat(TokenKind.Open))
                 Unsupported(Current,"Function expressions require a braced body.");
             var body=Parse(1,true);
