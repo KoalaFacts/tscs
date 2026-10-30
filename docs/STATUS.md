@@ -1,3 +1,16 @@
+## 2026-10-30 — Typed expression-bodied arrows (candidate; NOT_RUN)
+
+Parser, Binder scopes, TypeChecker callback contracts and ES2015 emitter now
+accept parenthesized typed arrow parameters with expression bodies, optional
+return annotations, lexical reads/captures, nested arrows and cross-module
+typed values. Untyped parameters, braced bodies, async/generics and callable
+expression targets remain explicitly unsupported. The previous negative
+"const lambda=(n:number)=>n" is now implemented; an untyped lambda remains
+unsupported. Twelve fixed pinned-Go source/code/exit cases, four-module
+Node runtime and seven negative no-emit checks are wired to the normal gates.
+At source creation these are NOT_RUN. Original TS7 remains 0 PASS /
+15,523 SKIP_UNIMPLEMENTED; dynamic scope UNEXPANDED. No release claim.
+
 ## 2026-10-30 — Finite structural object intersections (source candidate; NOT_RUN)
 
 The bounded C# type grammar now accepts `A & B` between finite required

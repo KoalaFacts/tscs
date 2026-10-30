@@ -30,7 +30,7 @@ public sealed class FunctionTypeAnnotationTests
     [InlineData("type Fn=(n:number)=>number;function twice(n:number):number{return n+n;}let cb:Fn=twice;let x:string=cb(21);","TS2322")]
     [InlineData("type Bad=(n?:number,required:number)=>number;","TSCS1001")]
     [InlineData("type Bad=(...values:number)=>number;","TSCS1001")]
-    [InlineData("const lambda=(n:number)=>n;","TSCS1001")]
+    [InlineData("const lambda=(n)=>n;","TSCS1001")]
     public void InvalidContractsAndUnsupportedSyntaxFailClosed(string source,string code)=>
         Assert.Contains(Compilation.Check("function-types-invalid.ts",source),d=>d.Code==code);
 

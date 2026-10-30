@@ -16,7 +16,7 @@ internal sealed record ObjectTypeProperty(Token Name,TypeSyntax Type,bool Readon
 internal sealed record ObjectTypeSyntax(Token Open,IReadOnlyList<ObjectTypeProperty> Properties,Token Close) : TypeSyntax;
 internal sealed record ArrayTypeSyntax(TypeSyntax Element,Token Open,Token Close) : TypeSyntax;
 internal sealed record NamedTypeSyntax(Token Name) : TypeSyntax;
-// Named callback signatures are type-only; lambda expressions remain unsupported.
+// Named callback signatures are type-only; typed expression arrows are checked value expressions.
 internal sealed record FunctionTypeParameter(Token Name,TypeSyntax Type,bool Optional=false,bool Rest=false);
 internal sealed record FunctionTypeSyntax(Token Open,IReadOnlyList<FunctionTypeParameter> Parameters,TypeSyntax ReturnType) : TypeSyntax;
 // Contextual type operator: `keyof` remains an ordinary value identifier.
@@ -46,6 +46,8 @@ internal sealed record ValuePrefixUpdate(Token Operator,ValueNode Target) : Valu
 // Postfix returns the old numeric value, with the same checked lvalue semantics.
 internal sealed record ValuePostfixUpdate(ValueNode Target,Token Operator) : ValueNode;
 internal sealed record ValueParenthesized(Token Open, ValueNode Expression, Token Close) : ValueNode;
+// Expression-bodied, explicitly typed arrows retain their lexical parameter scope.
+internal sealed record ValueArrow(Token Open,IReadOnlyList<ParameterDeclaration> Parameters,TypeSyntax? ReturnAnnotation,ValueNode Body) : ValueNode;
 // A single trailing array spread is tracked at its call site; all operands remain normal checked values.
 internal sealed record ValueCall(Token Callee, IReadOnlyList<ValueNode> Arguments,int SpreadIndex=-1) : ValueNode;
 // Ordered object spread entries carry their ellipsis as Name.

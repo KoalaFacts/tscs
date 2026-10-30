@@ -1207,6 +1207,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 symbol.Type=symbol.DeclaredType??symbol.Type;
     }
 
+    private int arrowExpressionDepth;
     private TypeSymbol? TypeOf(ValueNode value,Scope scope)
     {
         // The parser builds left-deep chains for numeric additions. Do not
@@ -1258,6 +1259,34 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     types.Push(leftType!=null && rightType!=null?CompilerTypes.Boolean:null);
                 }
                 finally { logicalEvaluationDepth--; }
+                continue;
+            }
+            if(node is ValueArrow arrow)
+            {
+                if(++arrowExpressionDepth>32)
+                {
+                    arrowExpressionDepth--;
+                    throw new CompilationFailure(Diagnostic.Error(file,arrow.Open,"TSCS1001",
+                        "Arrow expression checking exceeds the supported depth."));
+                }
+                try
+                {
+                    var local=new Scope(scope);
+                    foreach(var parameter in arrow.Parameters)
+                        Binder.DeclareParameter(file,local,parameter);
+                    var returned=TypeOf(arrow.Body,local);
+                    var annotated=arrow.ReturnAnnotation is { } syntax
+                        ?TypeResolver.Resolve(syntax,local,file):null;
+                    if(returned is { } actual && annotated is { } required &&
+                       CheckContextualLiteral(arrow.Body,required,actual) &&
+                       !IsAssignableContextually(arrow.Body,actual,required))
+                        Mismatch(arrow.Open,actual,required);
+                    var signatureReturn=annotated??returned;
+                    types.Push(signatureReturn is null?null:new FunctionTypeSymbol(
+                        arrow.Parameters.Select(p=>local.Symbols[p.Name.Text].Type!).ToArray(),
+                        signatureReturn));
+                }
+                finally {arrowExpressionDepth--;}
                 continue;
             }
             if(node is ValueAtom atom)

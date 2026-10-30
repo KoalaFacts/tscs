@@ -1,0 +1,68 @@
+import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
+import {existsSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join,resolve} from 'node:path';
+
+const dir=mkdtempSync(join(tmpdir(),'tscs-typed-arrows-'));
+try {
+  writeFileSync(join(dir,'package.json'),'{"type":"module"}\n');
+  writeFileSync(join(dir,'minimal.d.ts'),readFileSync('fixtures/minimal.d.ts'));
+  const files={
+    'model.ts':'export type Callback=(n:number)=>number;',
+    'logic.ts':[
+      'import type {Callback} from "./model.js";',
+      'const extra:number=1;',
+      'export const inc:Callback=(n:number):number=>n+extra;',
+      'export function apply(fn:Callback,n:number):number{return fn(n);}'
+    ].join('\n'),
+    'bridge.ts':'export {inc,apply} from "./logic.js";',
+    'entry.ts':[
+      'import type {Callback} from "./model.js";',
+      'import {inc,apply} from "./bridge.js";',
+      'const twice:Callback=(n:number):number=>n+n;',
+      'export const result:number=apply(twice,21);',
+      'export const captured:number=inc(41);'
+    ].join('\n')
+  };
+  for(const [file,code] of Object.entries(files))writeFileSync(join(dir,file),code+'\n');
+  writeFileSync(join(dir,'project.json'),JSON.stringify({
+    files:['entry.ts','minimal.d.ts'],compilerOptions:{module:'es2015',target:'es2015',noLib:true}
+  }));
+  const dll=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
+  const env={...process.env,DOTNET_CLI_TELEMETRY_OPTOUT:'1',TESTINGPLATFORM_TELEMETRY_OPTOUT:'1'};
+  function compile(args:string[]) {
+    const r=spawnSync(process.env.DOTNET??'dotnet',[dll,...args],
+      {cwd:dir,encoding:'utf8',timeout:30000,env});
+    assert.equal(r.error,undefined,String(r.error));
+    assert.equal(r.signal,null,'compiler crashed or timed out');
+    return r;
+  }
+  const good=compile(['--emitJs','-p',join(dir,'project.json')]);
+  assert.equal(good.status,0,good.stdout+good.stderr);
+  for(const name of ['model','logic','bridge','entry'])
+    assert.ok(existsSync(join(dir,name+'.js')),'missing JS module '+name);
+  const runtime=spawnSync(process.execPath,['--input-type=module','--eval',
+    'import {result,captured} from "./entry.js"; if(result!==42||captured!==42)throw Error("typed arrow runtime mismatch");'],
+    {cwd:dir,encoding:'utf8',timeout:15000});
+  assert.equal(runtime.error,undefined,String(runtime.error));
+  assert.equal(runtime.status,0,runtime.stdout+runtime.stderr);
+  const negatives:[string,string,string,number][]=[
+    ['return','const bad=(n:number):number=>"no";','TS2322',2],
+    ['argument','const fn=(n:number)=>n;const result:number=fn("wrong");','TS2345',2],
+    ['arity','const fn=(n:number)=>n;const result:number=fn();','TS2554',2],
+    ['assignment','const fn=(n:number)=>n;let bad:(n:string)=>number=fn;','TS2322',2],
+    ['missing','const fn=(n:number)=>missing;','TS2304',2],
+    ['untyped','const fn=(n)=>n;','TSCS1001',1],
+    ['braced','const fn=(n:number)=>{return n;};','TSCS1001',1]
+  ];
+  for(const [id,source,code,exit] of negatives) {
+    const path=join(dir,'invalid-'+id+'.ts');
+    writeFileSync(path,source);
+    const result=compile(['--emitJs','--noLib','--target','es2015',path,join(dir,'minimal.d.ts')]);
+    assert.equal(result.status,exit,result.stdout+result.stderr);
+    assert.match(result.stdout+result.stderr,new RegExp(code));
+    assert.equal(existsSync(path.replace(/\.ts$/,'.js')),false,'invalid arrow emitted JS');
+  }
+  console.log('typed expression arrows: four-module ES2015 result=42, captured=42; seven invalid no-emit programs rejected.');
+} finally {rmSync(dir,{recursive:true,force:true});}

@@ -445,7 +445,7 @@ internal static class JavaScriptEmitter
 
         private static int Precedence(ValueNode node) => node switch
         {
-            ValueConditional => 0,
+            ValueConditional or ValueArrow => 0,
             ValueBinary binary => binary.Operator.Kind switch
             {
                 TokenKind.BarBar => 1,
@@ -498,6 +498,18 @@ internal static class JavaScriptEmitter
                 {
                     case ValueAtom atom:
                         Text(atom.Token.Text);
+                        break;
+                    case ValueArrow arrow:
+                        // Type annotations erase; ES2015 arrow captures remain lexical.
+                        Node(arrow.Body);
+                        Text(" => ");
+                        Text(")");
+                        for(int i=arrow.Parameters.Count-1;i>=0;i--)
+                        {
+                            Text(arrow.Parameters[i].Name.Text);
+                            if(i>0)Text(", ");
+                        }
+                        Text("(");
                         break;
                     case ValueConditional chosen:
                         // Parenthesize the complete conditional: nested values
