@@ -1,3 +1,17 @@
+## 2026-10-31 — Checked undefined-sentinel guard flow (candidate; NOT_RUN)
+
+Finite nullable identifier unions may be narrowed by strict/loose comparisons
+against unshadowed intrinsic `undefined` and side-effect-free `void 0`.
+Strict comparisons remove only `undefined`; loose comparisons remove both
+`null` and `undefined`. Reverse comparisons, early returns, short-circuit
+conditions and ternary flow reuse the existing C# TypeChecker branch refinement.
+A lexical binding named `undefined` prevents this sentinel inference.
+Assignments and loop writes must still invalidate narrowed reads.
+Source-backed xUnit cases, four-module ES2015 execution, no-emit errors and
+11 immutable bounded pinned-Go code/exit comparisons were added. At candidate
+creation they are NOT_RUN, not accepted. Full original TS7 stays
+0 PASS / 15,523 SKIP_UNIMPLEMENTED; dynamic scope UNEXPANDED.
+
 ## 2026-10-31 — Explicit null values and nullish structural access (candidate; NOT_RUN)
 
 The C# source scanner/parser and semantic type system now represent explicit
