@@ -162,6 +162,12 @@ with a constructor-valued function property. Untyped parameters, async/generator
 methods, computed method names, `super`, full `this` semantics, method overloads
 and class methods are not implemented.
 
+Static computed keys such as `{["twice"](n: number) { return n + n; }}`,
+`{["answer"]: 42}` and `{[0]: 42}` reuse checked structural members
+and retain native computed ES2015 syntax. Only literal strings and safe
+non-negative integer keys are supported; dynamic key expressions,
+computed accessors and `__proto__` semantics remain unsupported.
+
 ## Checked member and returned-function calls (bounded)
 
 Function-valued object properties now support direct checked calls such as

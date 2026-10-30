@@ -79,6 +79,84 @@
       "expectedCodes": [
         "TS2304"
       ]
+    },
+    {
+      "id": "object-method:computed-positive-01",
+      "source": "const op={[\"twice\"](n:number):number{return n+n;}};const result:number=op.twice(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:computed-positive-02",
+      "source": "const op={[\"answer\"]:42};const result:number=op.answer;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:computed-positive-03",
+      "source": "const op={[0](n:number):number{return n+n;}};const result:number=op[0](21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:computed-positive-04",
+      "source": "const op={[\"\\u0074wice\"](n:number):number{return n+n;}};const result:number=op.twice(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:computed-positive-05",
+      "source": "interface Op{twice(n:number):number}const op:Op={[\"twice\"](n:number):number{return n+n;}};const result:number=op.twice(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:computed-positive-06",
+      "source": "const op={inner:{[\"twice\"](n:number){return n+n;}}};const result:number=op.inner.twice(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:computed-positive-07",
+      "source": "const op={[\"twice\"](n:number){return n+n;}};const result:number=op[\"twice\"](21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:computed-positive-08",
+      "source": "const op={[\"twice\"](n:number=21):number{return n+n;}};const result:number=op.twice();",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:computed-positive-09",
+      "source": "const op={[\"twice\"](n:number){return n+n;}};const cb:(n:number)=>number=op.twice;const result:number=cb(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:computed-positive-10",
+      "source": "const op={[0]:42};const result:number=op[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:computed-negative-01",
+      "source": "const op={[\"run\"](n:number):number{return \"bad\";}};",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "object-method:computed-negative-02",
+      "source": "const op={[\"run\"](n:number):number{return n;}};op.run(\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "object-method:computed-negative-03",
+      "source": "const op={[\"run\"](n:number):number{return n;}};op.run();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "object-method:computed-negative-04",
+      "source": "const op={[\"run\"](n:number):number{return missingName;}};",
+      "expectedCodes": [
+        "TS2304"
+      ]
     }
   ]
 }
