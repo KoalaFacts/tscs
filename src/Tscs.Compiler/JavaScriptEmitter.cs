@@ -762,7 +762,7 @@ internal static class JavaScriptEmitter
                                     Text("[");
                                 }
                                 Text(receiverTemp);
-                                Text(")))(");
+                                Text("])))(");
                                 for(int i=call.Arguments.Count-1;i>=0;i--)
                                 {
                                     if(i==call.SpreadIndex)
@@ -774,11 +774,10 @@ internal static class JavaScriptEmitter
                                     else Node(call.Arguments[i]);
                                     if(i>0)Text(", ");
                                 }
-                                if(call.Arguments.Count>0)Text(", ");
                                 Text("(("+receiverTemp+") => (("+functionTemp+") => ("+
                                     functionTemp+" === null || "+functionTemp+
-                                    " === undefined ? undefined : "+functionTemp+
-                                    ".call("+receiverTemp);
+                                    " === undefined ? undefined : Reflect.apply("+functionTemp+
+                                    ", "+receiverTemp+", [");
                             }
                             else
                             {

@@ -70,13 +70,14 @@ try {
   }
   const emitted=readFileSync(join(dir,'logic.js'),'utf8');
   assert.match(emitted,/=== undefined/,'optional functions must be guarded');
-  assert.match(emitted,/\.call\(/,'member calls must preserve their receiver');
+  assert.match(emitted,/Reflect\.apply\(/,'member calls must preserve their receiver without trusting a function-owned call property');
   const runtime=spawnSync(process.execPath,['--input-type=module','--eval',[
     'import {missing,present,member,absentMember,index,missingIndex,builds,argumentEvaluations} from "./entry.js";',
     'import {bound,indexed} from "./logic.js";',
     'if([missing,present,member,absentMember,index,missingIndex].some(v=>v!==42))throw Error("optional call mismatch");',
     'if(builds!==2||argumentEvaluations!==1)throw Error("optional-call lazy args or single-evaluation violated");',
     'const self={bias:21,run:function(n){return n+this.bias}};',
+    'self.run.call=function(){return 0};',
     'if(bound(self)!==42||indexed(self)!==42)throw Error("optional member this binding lost");'
   ].join('\n')],{cwd:dir,encoding:'utf8',timeout:15000});
   assert.equal(runtime.error,undefined,String(runtime.error));

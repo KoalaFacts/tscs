@@ -5,7 +5,7 @@ C# Parser, AST, TypeChecker and ES2015 emitter now check finite `fn?.(args)`,
 function values retain typed arguments and return `T | undefined` when their
 callee can be missing; runtime lowering evaluates receivers/callees exactly
 once, delays arguments until the function exists, and preserves member-call
-`this` through `Function.prototype.call`. Multi-module Node runtime and
+`this` through `Reflect.apply`. Multi-module Node runtime and
 negative no-emit cases, source-backed xUnit cases, and ten pinned-Go bounded
 source/code/exit comparisons are wired into existing gates. At source creation
 all checks are NOT_RUN, not full original TS7 acceptance. Compound short-circuit
