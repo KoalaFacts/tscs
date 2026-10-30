@@ -117,6 +117,15 @@ internal static class CompilerTypes
 
     // Nullish fallback retains non-undefined alternatives and checks its RHS.
     // Null source literals and optional chaining remain outside this subset.
+    // Postfix ! erases at runtime. It removes only explicitly represented
+    // undefined constituents; void and unknown are not falsely narrowed.
+    public static TypeSymbol NonNullAssertionResult(TypeSymbol value)
+    {
+        if(value.Equals(Undefined))return Never;
+        if(value is not UnionTypeSymbol union)return value;
+        return Union(union.Alternatives.Where(type=>!type.Equals(Undefined)));
+    }
+
     public static TypeSymbol CoalescingResult(TypeSymbol left,TypeSymbol right)
     {
         if(left.Equals(Any) || right.Equals(Any))return Any;

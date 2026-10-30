@@ -1,0 +1,83 @@
+{
+  "kind": "BOUNDED_POSTFIX_NON_NULL_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "non-null:positive-01",
+      "source": "let o:{value?:number}={value:21};let n:number=o.value!;",
+      "expectedCodes": []
+    },
+    {
+      "id": "non-null:positive-02",
+      "source": "let o:{value?:number}={value:21};let n:number=o[\"value\"]!;",
+      "expectedCodes": []
+    },
+    {
+      "id": "non-null:positive-03",
+      "source": "let o:{nested?:{value:number}}={nested:{value:42}};let n:number=o.nested!.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "non-null:positive-04",
+      "source": "interface Op{run?(n:number):number}let o:Op={run:(n:number)=>n+n};let n:number=o.run!(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "non-null:positive-05",
+      "source": "interface Op{run?(n:number):number}let o:Op={run:(n:number)=>n+n};let f:(n:number)=>number=o.run!;",
+      "expectedCodes": []
+    },
+    {
+      "id": "non-null:positive-06",
+      "source": "let value:number|undefined=42;let n:number=value!;",
+      "expectedCodes": []
+    },
+    {
+      "id": "non-null:positive-07",
+      "source": "let value:number|undefined=42;let n:number=value!!;",
+      "expectedCodes": []
+    },
+    {
+      "id": "non-null:positive-08",
+      "source": "let o:{value?:number}={value:21};let n:number=o.value!+21;",
+      "expectedCodes": []
+    },
+    {
+      "id": "non-null:positive-09",
+      "source": "let o:{value?:number}={value:21};let n:number=o.value! ?? 42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "non-null:positive-10",
+      "source": "let o:{run?:(n:number)=>number}={run:(n:number)=>n+n};let n:number=o[\"run\"]!(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "non-null:negative-01",
+      "source": "let o:{value?:number}={};let n:string=o.value!;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "non-null:negative-02",
+      "source": "let o:{value?:number}={};let n:number=o.missing!;",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "non-null:negative-03",
+      "source": "let o:{label?:string}={};let n:number=o.label!;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "non-null:negative-04",
+      "source": "let n:number=missing!;",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    }
+  ]
+}

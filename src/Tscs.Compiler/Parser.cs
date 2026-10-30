@@ -1297,6 +1297,8 @@ internal sealed class Parser(string file, List<Token> tokens)
             }
             else if(Current.Kind==TokenKind.OpenParen)
                 value=ParseCall(value);
+            else if(Current.Kind==TokenKind.Bang && !Current.LineBreak)
+                value=new ValueNonNull(value,Take());
             else break;
         }
         // Same-line postfix binds after property/index access and before unary/binary.

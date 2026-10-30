@@ -77,6 +77,12 @@ wider values already held in variables can satisfy narrower required shapes.
 Writing a member of an imported or `const` object does not rebind that object.
 Missing members and incompatible assignments are rejected before emission.
 
+Explicit postfix non-null assertions (`config.value!`, `config.run!(21)`) now
+remove `undefined` from checked union types and erase to ES2015 JavaScript.
+They do not perform runtime checks: the programmer must know the value exists.
+Unlike `??`, they cannot supply a fallback. Full `null` source semantics,
+optional chaining and generic nullability narrowing are not implemented.
+
 Bounded typed nullish fallbacks (`config.value ?? 42`) keep non-undefined
 alternatives and lower to ES2015 with single evaluation of the left
 expression and a lazy right side. Unparenthesized mixing with `&&`/`||`

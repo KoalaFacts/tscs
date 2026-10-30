@@ -1,3 +1,17 @@
+## 2026-10-31 — Explicit postfix non-null assertions (source candidate; NOT_RUN)
+
+New C# AST/parser/checker and ES2015 erasure support `value!`, `box.optional!.member`,
+`box["key"]!` and `box.optionalMethod!(args)` using the already checked
+optional object/interface data and function types. The postfix `!` strips
+explicit `undefined` union alternatives and never emits a runtime guard; a
+wrong assertion can still throw at runtime. Scoping, mutable-loop write scans,
+and emitter name capture traverse the new AST. Source-backed C# positive and
+negative regression tests, four-module real Node output and fourteen pinned
+Go source/code/exit cases are registered, but at source creation are NOT_RUN.
+This is not optional chaining or general nullability support. Full original
+TS7 acceptance remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED; dynamic scope
+remains UNEXPANDED. No release threshold, pin or protection changed.
+
 ## 2026-10-31 — Typed nullish fallback lowering (source candidate; NOT_RUN)
 
 The existing C# scanner, parser, checker and emitter now handle bounded `??`
