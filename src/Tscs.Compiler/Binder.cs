@@ -8,6 +8,8 @@ internal sealed class Symbol(string file,Statement declaration,Scope? declaringS
     public Scope? DeclaringScope { get; } = declaringScope;
     // A named function expression binds a read-only self name, without an outer declaration.
     public bool FunctionExpressionName { get; init; }
+    // A named expression's self type is unresolved until body inference finishes.
+    public bool PendingFunctionReturnInference { get; init; }
     public bool IsConstant => FunctionExpressionName || Declaration is Variable { Constant:true } or ForOfStatement { Constant:true } or ForInStatement { Constant:true };
     public int DeclarationStart => Declaration switch
     {
@@ -115,6 +117,20 @@ internal static class Binder
             CrossFileTypeReady=true,FunctionExpressionName=true
         };
         if(!scope.Symbols.TryAdd(name.Text,symbol))
+            throw new CompilationFailure(Diagnostic.Error(file,name,"TS2300",
+                $"Duplicate identifier '{name.Text}'."));
+    }
+
+    // Reserve a lexical self name without fabricating 'any' or a callable type.
+    // Resolve fails closed when the body references this pending binding.
+    public static void DeclareInferredFunctionExpressionName(string file,Scope scope,Token name)
+    {
+        var pending=new Symbol(file,new Variable(name,true,null,null),scope)
+        {
+            FunctionExpressionName=true,PendingFunctionReturnInference=true,
+            Initialized=true,CrossFileTypeReady=true
+        };
+        if(!scope.Symbols.TryAdd(name.Text,pending))
             throw new CompilationFailure(Diagnostic.Error(file,name,"TS2300",
                 $"Duplicate identifier '{name.Text}'."));
     }

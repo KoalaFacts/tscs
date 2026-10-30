@@ -940,8 +940,8 @@ internal sealed class Parser(string file, List<Token> tokens)
         return parameters;
     }
 
-    // Function expressions reuse typed parameter grammar; named forms bind
-    // a private self name and require an explicit recursive return contract.
+    // Function expressions reuse typed parameter grammar. Named forms bind a
+    // private self name; recursive references require an explicit return type.
     private ValueNode ParseFunctionExpression()
     {
         var keyword=Take();
@@ -954,8 +954,6 @@ internal sealed class Parser(string file, List<Token> tokens)
                 Unsupported(Current,"Function expressions require a typed parameter list.");
             var parameters=ParseTypedExpressionParameters();
             TypeSyntax? returns=Eat(TokenKind.Colon)?ReadTypeAnnotation():null;
-            if(name is not null && returns is null)
-                Unsupported(name.Value,"Named function expressions require explicit return annotations.");
             if(!Eat(TokenKind.Open))
                 Unsupported(Current,"Function expressions require a braced body.");
             var body=Parse(1,true);

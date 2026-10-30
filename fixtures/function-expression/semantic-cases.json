@@ -137,6 +137,64 @@
       "expectedCodes": [
         "TS2554"
       ]
+    },
+    {
+      "id": "function-expression:inferred-positive-01",
+      "source": "const f=function self(n:number){return n+n;};const r:number=f(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-expression:inferred-positive-02",
+      "source": "const name:number=21;const f=function name(n:number){return n+n;};const r:number=f(name);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-expression:inferred-positive-03",
+      "source": "type F=(n:number)=>number;const f:F=function inner(n:number){return n+n;};const r:number=f(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-expression:inferred-positive-04",
+      "source": "function apply(cb:(n:number)=>number,n:number):number{return cb(n);}const r:number=apply(function local(n:number){return n+n;},21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-expression:inferred-positive-05",
+      "source": "const make=function outer(n:number){return function inner(v:number){return n+v;};};const f=make(20);const r:number=f(22);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-expression:inferred-positive-06",
+      "source": "const f=function local(n:number=21){return n+n;};const r:number=f();",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-expression:inferred-negative-01",
+      "source": "const f=function local(n:number){return n+n;};f(\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "function-expression:inferred-negative-02",
+      "source": "const f=function local(n:number){return n+n;};local(42);",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    },
+    {
+      "id": "function-expression:inferred-negative-03",
+      "source": "const f=function local(n:number){return n+n;};f();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "function-expression:inferred-negative-04",
+      "source": "const f=function local(n:number){return \"bad\";};const r:number=f(21);",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }

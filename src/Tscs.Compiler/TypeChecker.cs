@@ -1218,7 +1218,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     }
 
     private int arrowExpressionDepth;
-    // Only active while checking a braced arrow with an inferred return.
+    // Only active while checking a braced callable with an inferred return.
     // Its previous value is restored even when the nested checker fails.
     private List<TypeSymbol?>? inferredArrowReturns;
     private TypeSymbol? TypeOf(ValueNode value,Scope scope)
@@ -1291,11 +1291,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     if(arrow.FunctionName is { } functionName)
                     {
                         CheckStrictModuleBinding(functionName);
-                        if(arrow.ReturnAnnotation is not { } result || arrow.BlockBody is not { } functionBody)
+                        if(arrow.BlockBody is not { } functionBody)
                             throw new CompilationFailure(Diagnostic.Error(file,functionName,"TSCS1001",
-                                "Named function expressions require a checked block and explicit return type."));
-                        Binder.DeclareFunctionExpressionName(file,nameScope,functionName,
-                            arrow.Parameters,result,functionBody);
+                                "Named function expressions require a checked block."));
+                        if(arrow.ReturnAnnotation is { } result)
+                            Binder.DeclareFunctionExpressionName(file,nameScope,functionName,
+                                arrow.Parameters,result,functionBody);
+                        else
+                            Binder.DeclareInferredFunctionExpressionName(file,nameScope,functionName);
                     }
                     foreach(var parameter in arrow.Parameters)
                     {
@@ -1840,6 +1843,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             else
                 Error(name,"TS2304",$"Cannot find name '{name.Text}'.");
         }
+        else if(symbol.PendingFunctionReturnInference)
+            throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
+                "Self references in named function return inference require an explicit return annotation."));
         else if(symbol.File!=file && !symbol.CrossFileTypeReady)
             throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001","Cross-file inference requires an explicit annotation or primitive literal initializer."));
         else if(symbol.File==file && symbol.Declaration is not FunctionDeclaration && name.Start<=symbol.DeclarationStart)
