@@ -1710,9 +1710,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 for(int i=arguments.Length-1;i>=0;i--)arguments[i]=types.Pop();
                 var calleeType=types.Pop();
                 if(calleeType==null) { types.Push(null); continue; }
-                if(calleeType is not FunctionTypeSymbol signature)
+                bool optionalMissing=call.Optional && CompilerTypes.ContainsUndefined(calleeType);
+                var callableType=call.Optional?CompilerTypes.NonNullAssertionResult(calleeType):calleeType;
+                if(callableType is not FunctionTypeSymbol signature)
                     throw new CompilationFailure(Diagnostic.Error(file,call.Open,"TSCS1001",
                         "Calls currently require a declared function with an explicit signature."));
+                var resultType=optionalMissing
+                    ?CompilerTypes.Union([signature.ReturnType,CompilerTypes.Undefined])
+                    :signature.ReturnType;
                 // A bounded call spread expands one statically typed array into
                 // a trailing array rest parameter. Fixed parameters must be
                 // explicitly supplied; unknown-length spreads cannot invent
@@ -1725,7 +1730,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     {
                         Error(call.Open,"TS2556",
                             "A spread argument must be passed to a rest parameter (tuple spreads are unsupported).");
-                        types.Push(signature.ReturnType);
+                        types.Push(resultType);
                         continue;
                     }
                     if(call.SpreadIndex!=arguments.Length-1 ||
@@ -1764,7 +1769,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         Error(call.Open,"TS2345",
                             $"Argument of type '{actual.DisplayName}' is not assignable to parameter of type '{type.DisplayName}'.");
                 }
-                types.Push(signature.ReturnType);
+                types.Push(resultType);
                 continue;
             }
             var binary=(ValueBinary)node;
