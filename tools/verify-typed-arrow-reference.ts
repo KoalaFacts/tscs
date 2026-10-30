@@ -14,7 +14,7 @@ const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
 const suitePath='fixtures/typed-arrow/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
 assert.equal(suite.kind,'BOUNDED_TYPED_ARROW_EXPRESSIONS_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,48,'do not shrink frozen or additive reference cases');
+assert.equal(suite.cases.length,64,'do not shrink frozen or additive reference cases');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const profilePath='fixtures/minimal.d.ts',profile=readFileSync(profilePath,'utf8');
 const hash=(v:string|Buffer)=>createHash('sha256').update(v).digest('hex');
@@ -47,10 +47,14 @@ for(let i=0;i<suite.cases.length;i++) {
   assert.ok(!ids.has(item.id),'duplicate case ID');ids.add(item.id);
   assert.equal(typeof item.source,'string');
   assert.ok(Array.isArray(item.expectedCodes));
+  const caseProfilePath=item.profile??profilePath;
+  assert.ok(caseProfilePath===profilePath ||
+    caseProfilePath==='fixtures/array-iteration/minimal.d.ts','unapproved reference profile');
+  const caseProfile=caseProfilePath===profilePath?profile:readFileSync(caseProfilePath,'utf8');
   const dir='case-'+String(i).padStart(3,'0');
   mkdirSync(join(out,dir));
   save(dir+'/input.ts',item.source);
-  save(dir+'/minimal.d.ts',profile);
+  save(dir+'/minimal.d.ts',caseProfile);
   const args=['--noEmit','--noLib','--target','es2015','--pretty','false','input.ts','minimal.d.ts'];
   const expected=run(reference,args,join(out,dir));
   const actual=run(process.env.DOTNET??'dotnet',[product,...args],join(out,dir));
@@ -61,7 +65,9 @@ for(let i=0;i<suite.cases.length;i++) {
   const match=expected.exit===exit&&actual.exit===exit&&
     JSON.stringify(expectedCodes)===JSON.stringify(refCodes)&&
     JSON.stringify(expectedCodes)===JSON.stringify(productCodes);
-  const row={id:item.id,sourceSha256:hash(item.source),expectedCodes,refCodes,productCodes,
+  const row={id:item.id,sourceSha256:hash(item.source),
+    profilePath:caseProfilePath,profileSha256:hash(caseProfile),
+    expectedCodes,refCodes,productCodes,
     referenceExit:expected.exit,productExit:actual.exit,
     status:match?'MATCH_EXIT_AND_CODES':'MISMATCH',originalAcceptanceCredit:false};
   rows.push(row);
@@ -72,7 +78,11 @@ save('summary.json',JSON.stringify({
   sourceSha,upstreamCommit:pin.commit,referenceVersion:version.stdout.trim(),
   referenceSha256:hash(readFileSync(reference)),productSha256:hash(readFileSync(product)),
   suitePath,suiteSha256:hash(readFileSync(suitePath)),scriptSha256:hash(readFileSync(import.meta.filename)),
-  profilePath,profileSha256:hash(profile),matches:rows.length-mismatch.length,mismatches:mismatch.length,
+  profilePath,profileSha256:hash(profile),
+  profileVariants:[profilePath,'fixtures/array-iteration/minimal.d.ts'].map(path=>({
+    path,sha256:hash(readFileSync(path))
+  })),
+  matches:rows.length-mismatch.length,mismatches:mismatch.length,
   originalAcceptanceCredit:0,fullOriginalScope:'UNEXPANDED',referenceExecutable:basename(reference)
 },null,2));
 for(const file of manifest) {

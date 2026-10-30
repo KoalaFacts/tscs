@@ -1361,7 +1361,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     types.Push(signatureReturn is null?null:new FunctionTypeSymbol(
                         arrow.Parameters.Select(p=>local.Symbols[p.Name.Text].Type!).ToArray(),
                         signatureReturn,
-                        arrow.Parameters.TakeWhile(p=>!p.Optional).Count()));
+                        arrow.Parameters.TakeWhile(p=>!p.Optional && !p.Rest).Count(),
+                        arrow.Parameters.LastOrDefault() is { Rest:true,Annotation:ArrayTypeSyntax restArray }
+                            ?TypeResolver.Resolve(restArray.Element,local,file):null));
                 }
                 finally {arrowExpressionDepth--;}
                 continue;
