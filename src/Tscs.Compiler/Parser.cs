@@ -722,7 +722,8 @@ internal sealed class Parser(string file, List<Token> tokens)
                 var name=ReadPropertyName(allowString:true,allowNumber:true);
                 if(!names.Add(PropertyName(name)))
                     Diagnostics.Add(Diagnostic.Error(file,name,"TS2300",$"Duplicate identifier '{PropertyName(name)}'."));
-                TypeSyntax memberType;
+                // Unsupported(...) throws; seed definite assignment for C# flow analysis.
+                TypeSyntax memberType = null!;
                 if(Eat(TokenKind.Colon))
                     memberType=ReadTypeAnnotation(depth+1);
                 else if(Current.Kind==TokenKind.OpenParen)
