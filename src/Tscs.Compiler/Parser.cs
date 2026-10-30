@@ -853,7 +853,17 @@ internal sealed class Parser(string file, List<Token> tokens)
         {
             if(tokens[i].Kind==TokenKind.OpenParen)nesting++;
             else if(tokens[i].Kind==TokenKind.CloseParen && --nesting==0)
-                return i+1<tokens.Count && tokens[i+1].Kind is TokenKind.Arrow or TokenKind.Colon;
+            {
+                if(i+1>=tokens.Count || tokens[i+1].Kind is not (TokenKind.Arrow or TokenKind.Colon))
+                    return false;
+                // A ':' after an ordinary parenthesized conditional is its
+                // *outer* ternary separator, not an arrow return annotation.
+                // Require an empty parameter list or a named typed parameter
+                // before recognizing an arrow signature.
+                return i==position+1 ||
+                    (position+2<i && tokens[position+1].Kind==TokenKind.Identifier &&
+                     tokens[position+2].Kind==TokenKind.Colon);
+            }
             else if(tokens[i].Kind==TokenKind.End)return false;
         }
         return false;
