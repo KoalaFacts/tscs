@@ -20,7 +20,7 @@ try {
     'export function apply(cb:Callback,value:number):number{return cb(value);}',
     'export const executor:Invoker=apply;',
     'export const methodBox:MethodBox={handle:double};',
-    'export const nested={inner:methodBox};'
+    'export const nested:{inner:MethodBox}={inner:methodBox};'
   ].join('\n'));
   writeFileSync(join(dir,'bridge.ts'),'export {double as operation,executor,methodBox,nested} from "./logic.js";\n');
   writeFileSync(join(dir,'entry.ts'),[
