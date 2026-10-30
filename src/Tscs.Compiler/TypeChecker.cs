@@ -1068,6 +1068,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     case ValueUnary unary:pending.Push(unary.Operand);break;
                     case ValueParenthesized grouped:pending.Push(grouped.Expression);break;
                     case ValueTypeOperator typed:pending.Push(typed.Expression);break;
+                    case ValueNonNull asserted:pending.Push(asserted.Expression);break;
                     case ValueCall call:
                         pending.Push(call.Callee);
                         foreach(var arg in call.Arguments)pending.Push(arg);
@@ -1433,6 +1434,18 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         throw new CompilationFailure(Diagnostic.Error(file,chosen.Question,"TSCS1001",failure.Message));
                     }
                 }
+                continue;
+            }
+            if(node is ValueNonNull assertedNonNull)
+            {
+                if(!combine)
+                {
+                    pending.Push((assertedNonNull,true));
+                    pending.Push((assertedNonNull.Expression,false));
+                    continue;
+                }
+                var inferred=types.Pop();
+                types.Push(inferred is null?null:CompilerTypes.NonNullAssertionResult(inferred));
                 continue;
             }
             if(node is ValueTypeOperator typeOperator)

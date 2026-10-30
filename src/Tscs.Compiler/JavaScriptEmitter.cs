@@ -301,6 +301,7 @@ internal static class JavaScriptEmitter
                     case ValuePostfixUpdate postfix: pending.Push(postfix.Target);break;
                     case ValueParenthesized grouped:pending.Push(grouped.Expression);break;
                     case ValueTypeOperator typed:pending.Push(typed.Expression);break;
+                    case ValueNonNull asserted:pending.Push(asserted.Expression);break;
                     case ValueElementAccess indexed:
                         pending.Push(indexed.Receiver);pending.Push(indexed.Index);break;
                     case ValuePropertyAccess property:pending.Push(property.Receiver);break;
@@ -465,7 +466,7 @@ internal static class JavaScriptEmitter
             ValueUnary or ValuePrefixUpdate => 11,
             ValuePostfixUpdate => 12,
             // Erasure is wrapped with grouping to keep the JS precedence.
-            ValueTypeOperator => 14,
+            ValueTypeOperator or ValueNonNull => 14,
             ValueCall or ValuePropertyAccess or ValueElementAccess => 13,
             ValueAtom or ValueParenthesized or ValueObject or ValueArray => 14,
             _ => throw new NotSupportedException("Unsupported expression in emitted AST.")
@@ -616,6 +617,13 @@ internal static class JavaScriptEmitter
                     case ValueTypeOperator typed:
                         Text(")");
                         Node(typed.Expression);
+                        Text("(");
+                        break;
+                    case ValueNonNull asserted:
+                        // TypeScript's ! is never a runtime null check. Parentheses
+                        // preserve receiver binding and expression precedence.
+                        Text(")");
+                        Node(asserted.Expression);
                         Text("(");
                         break;
                     case ValueParenthesized grouped:

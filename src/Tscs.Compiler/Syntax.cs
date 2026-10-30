@@ -40,6 +40,9 @@ internal sealed record ValueConditional(ValueNode Condition,Token Question,Value
 // Contextual operators are erased in JS: 'as' asserts a new view,
 // 'satisfies' checks a constraint while retaining source inference.
 internal sealed record ValueTypeOperator(ValueNode Expression,Token Keyword,TypeSyntax Target) : ValueNode;
+// Non-null assertion is a purely compile-time postfix operator. Its runtime
+// expression is evaluated exactly once; only undefined alternatives are removed.
+internal sealed record ValueNonNull(ValueNode Expression,Token Bang) : ValueNode;
 internal sealed record ValueUnary(Token Operator, ValueNode Operand) : ValueNode;
 // Value-producing checked prefix mutation of an existing numeric lvalue.
 internal sealed record ValuePrefixUpdate(Token Operator,ValueNode Target) : ValueNode;
