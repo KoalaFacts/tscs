@@ -868,7 +868,9 @@ internal sealed class Parser(string file, List<Token> tokens)
                        tokens[position+3].Kind==TokenKind.Colon))) ||
                     (position+3<i && tokens[position+1].Kind==TokenKind.Ellipsis &&
                      tokens[position+2].Kind==TokenKind.Identifier &&
-                     tokens[position+3].Kind==TokenKind.Colon);
+                     (tokens[position+3].Kind==TokenKind.Colon ||
+                      (position+4<i && tokens[position+3].Kind==TokenKind.Question &&
+                       tokens[position+4].Kind==TokenKind.Colon)));
             }
             else if(tokens[i].Kind==TokenKind.End)return false;
         }
@@ -924,7 +926,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                 // functions; nontrailing defaults need positional hole semantics.
                 if(sawDefaultParameter && !optional)
                     Unsupported(name,"Required arrow parameters after defaults are not supported yet.");
-                if(sawOptionalParameter && !optional)
+                if(sawOptionalParameter && !optional && !sawRestParameter)
                     Diagnostics.Add(Diagnostic.Error(file,name,"TS1016",
                         "A required parameter cannot follow an optional parameter."));
                 sawOptionalParameter|=optional;
