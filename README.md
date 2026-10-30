@@ -150,6 +150,18 @@ function-valued structural member, not a method declaration or `this` binding;
 method overload merging, general `this`, generics, optional methods and
 readonly method modifiers are not implemented.
 
+## Checked member and returned-function calls (bounded)
+
+Function-valued object properties now support direct checked calls such as
+`box.run(21)`, `box["run"](21)` and `nested.inner.run(21)`. A callee may
+also be a parenthesized function expression or a returned callable.
+The Parser retains the full callee expression through TypeChecker and the
+ES2015 emitter; argument types, optional/default arity and final array-rest
+spreads reuse existing signature validation. Runtime member access stays a
+JavaScript member call instead of extracting the function. Dynamic object
+index signatures, optional chaining, general `this` typing, generics and
+overloads remain unsupported.
+
 ## Other implemented subsets
 
 The current pipeline includes primitive/`any` variables, lexical scopes, selected

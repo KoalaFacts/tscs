@@ -50,7 +50,8 @@ internal sealed record ValueParenthesized(Token Open, ValueNode Expression, Toke
 // reuse ordinary function statements; a bounded return contract may be inferred.
 internal sealed record ValueArrow(Token Open,IReadOnlyList<ParameterDeclaration> Parameters,TypeSyntax? ReturnAnnotation,ValueNode? Body,Block? BlockBody=null,bool FunctionExpression=false,Token? FunctionName=null) : ValueNode;
 // A single trailing array spread is tracked at its call site; all operands remain normal checked values.
-internal sealed record ValueCall(Token Callee, IReadOnlyList<ValueNode> Arguments,int SpreadIndex=-1) : ValueNode;
+// A callee can be a function binding, checked member/index access or a returned callable.
+internal sealed record ValueCall(ValueNode Callee,Token Open,IReadOnlyList<ValueNode> Arguments,int SpreadIndex=-1) : ValueNode;
 // Ordered object spread entries carry their ellipsis as Name.
 internal sealed record ObjectProperty(Token Name,ValueNode Value,bool Spread=false);
 internal sealed record ValueObject(Token Open,IReadOnlyList<ObjectProperty> Properties,Token Close) : ValueNode;

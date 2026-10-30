@@ -19,7 +19,7 @@ const suite=JSON.parse(readFileSync(suitePath,'utf8'));
 assert.equal(suite.kind,functionTypeSuite
   ?'BOUNDED_FUNCTION_TYPE_ANNOTATIONS_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :'BOUNDED_TYPE_QUERY_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,functionTypeSuite?25:22,'do not shrink registered source cases');
+assert.equal(suite.cases.length,functionTypeSuite?34:22,'do not shrink registered source cases');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const profilePath='fixtures/minimal.d.ts',profile=readFileSync(profilePath,'utf8');
 const hash=(v:string|Buffer)=>createHash('sha256').update(v).digest('hex');

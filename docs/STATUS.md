@@ -1,3 +1,18 @@
+## 2026-10-30 — Checked direct member and callable-expression invocation (candidate; NOT_RUN)
+
+C# Parser, TypeChecker and JavaScriptEmitter now carry a checked callee
+expression rather than restricting calls to identifier tokens. This enables
+direct `obj.method(args)`, static bracket member calls, chained receivers,
+parenthesized function expressions and returned callables, using existing
+function-valued structural members, lexical bindings and optional/default/rest
+argument checks. Positive/negative C# regressions, four-module emitted JS
+execution and nine additive fixed pinned-Go source/code/exit cases are
+registered. At candidate creation these are NOT_RUN: registration and source
+push are not PASS. The 25 earlier function-type reference IDs and expectations
+are preserved. Full original TS7 stays 0 PASS / 15,523 SKIP_UNIMPLEMENTED,
+dynamic UNEXPANDED. No release gate, pin, minimum test count or protection
+change.
+
 ## 2026-10-30 — Required callable object/interface method signatures (candidate; NOT_RUN)
 
 Parser now accepts bounded `method(name: Type): Result` signatures within
