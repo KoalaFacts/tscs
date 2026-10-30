@@ -10,10 +10,10 @@ try {
   writeFileSync(join(dir,'package.json'),'{"type":"module"}\n');
   writeFileSync(join(dir,'minimal.d.ts'),readFileSync('fixtures/minimal.d.ts'));
   const sources={
-    'model.ts':'export interface Option { value?: number; label: string }',
-    'data.ts':'import type {Option} from "./model.js"; export const absent:Option={label:"empty"}; export const present:Option={value:42,label:"ready"};',
+    'model.ts':'export interface Option { value?: number; label: string; run?(n:number):number }',
+    'data.ts':'import type {Option} from "./model.js"; export const absent:Option={label:"empty"}; export const present:Option={value:42,label:"ready",run:(n:number)=>n+n};',
     'logic.ts':'import type {Option} from "./model.js"; export function setValue(x:Option):number{x.value=42;return 42;}',
-    'entry.ts':'import {absent,present} from "./data.js"; import {setValue} from "./logic.js"; export const result:number=setValue(absent); export const other:number=setValue(present); export const absentValue:number|undefined=absent.value;'
+    'entry.ts':'import type {Option} from "./model.js"; import {absent,present} from "./data.js"; import {setValue} from "./logic.js"; export const result:number=setValue(absent); export const other:number=setValue(present); export const absentValue:number|undefined=absent.value; export const suppliedRun:Option["run"]=present.run; export const missingRun:Option["run"]=absent.run;'
   };
   for(const [name,source] of Object.entries(sources))writeFileSync(join(dir,name),source+'\n');
   writeFileSync(join(dir,'project.json'),JSON.stringify({files:['entry.ts','minimal.d.ts'],compilerOptions:{module:'es2015',target:'es2015',noLib:true}}));
@@ -30,7 +30,7 @@ try {
   for(const name of ['model','data','logic','entry'])
     assert.ok(existsSync(join(dir,name+'.js')),'missing emitted '+name);
   const runtime=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,other,absentValue} from "./entry.js"; import {absent,present} from "./data.js"; if(result!==42||other!==42||absentValue!==42||absent.value!==42||present.value!==42)throw Error("optional data runtime mismatch");'],
+    'import {result,other,absentValue,suppliedRun,missingRun} from "./entry.js"; import {absent,present} from "./data.js"; if(result!==42||other!==42||absentValue!==42||absent.value!==42||present.value!==42||typeof suppliedRun!=="function"||suppliedRun(21)!==42||missingRun!==undefined||absent.run!==undefined)throw Error("optional member runtime mismatch");'],
     {cwd:dir,encoding:'utf8',timeout:15000});
   assert.equal(runtime.error,undefined,String(runtime.error));
   assert.equal(runtime.status,0,runtime.stdout+runtime.stderr);
@@ -41,7 +41,8 @@ try {
     ['wrong-write','let o:{value?:number}={};o.value="bad";','TS2322',2],
     ['readonly','let o:{readonly value?:number}={};o.value=42;','TS2540',2],
     ['excess','let o:{value?:number}={extra:42};','TS2353',2],
-    ['optional-method','interface Option{run?():number}','TSCS1001',1],
+    ['wrong-method','interface Option{run?(n:number):number}const x:Option={run:42};','TS2322',2],
+    ['unsafe-method-call','interface Option{run?(n:number):number}const x:Option={};x.run(21);','TSCS1001',1],
     ['invalid-extension','interface Root{value:number}interface Child extends Root{value?:number}','TS2430',2]
   ];
   for(const [id,source,code,exit] of invalid){
@@ -51,5 +52,5 @@ try {
     assert.match(output.stdout+output.stderr,new RegExp(code));
     assert.equal(existsSync(path.replace(/\.ts$/,'.js')),false,'invalid emitted JavaScript: '+id);
   }
-  console.log('optional object data: four-module real Node output and eight no-emit errors verified');
+  console.log('optional object data/method contracts: four-module Node runtime and nine no-emit errors verified');
 } finally {rmSync(dir,{recursive:true,force:true});}
