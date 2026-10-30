@@ -940,8 +940,8 @@ internal sealed class Parser(string file, List<Token> tokens)
         return parameters;
     }
 
-    // Anonymous function expressions are callable values, not declarations.
-    // Named/generator/untyped forms remain explicitly outside this subset.
+    // Function expressions reuse typed parameter grammar; named forms bind
+    // a private self name and require an explicit recursive return contract.
     private ValueNode ParseFunctionExpression()
     {
         var keyword=Take();
@@ -949,16 +949,19 @@ internal sealed class Parser(string file, List<Token> tokens)
             Unsupported(keyword,"Callable expression nesting exceeds the compiler subset limit.");
         try
         {
+            Token? name=Current.Kind==TokenKind.Identifier?Take():null;
             if(!Eat(TokenKind.OpenParen))
-                Unsupported(Current,"Only anonymous typed function expressions are supported.");
+                Unsupported(Current,"Function expressions require a typed parameter list.");
             var parameters=ParseTypedExpressionParameters();
             TypeSyntax? returns=Eat(TokenKind.Colon)?ReadTypeAnnotation():null;
+            if(name is not null && returns is null)
+                Unsupported(name,"Named function expressions require explicit return annotations.");
             if(!Eat(TokenKind.Open))
                 Unsupported(Current,"Function expressions require a braced body.");
             var body=Parse(1,true);
             if(!Eat(TokenKind.Close))
                 Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
-            return new ValueArrow(keyword,parameters,returns,null,body,FunctionExpression:true);
+            return new ValueArrow(keyword,parameters,returns,null,body,FunctionExpression:true,FunctionName:name);
         }
         finally {arrowNesting--;}
     }

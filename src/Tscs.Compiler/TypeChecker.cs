@@ -1284,7 +1284,19 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 }
                 try
                 {
-                    var local=new Scope(scope);
+                    // A named function expression has a private immutable name
+                    // scope; a separate parameter scope permits name shadowing.
+                    var nameScope=arrow.FunctionName is null?scope:new Scope(scope);
+                    var local=new Scope(nameScope);
+                    if(arrow.FunctionName is { } functionName)
+                    {
+                        CheckStrictModuleBinding(functionName);
+                        if(arrow.ReturnAnnotation is not { } result || arrow.BlockBody is not { } functionBody)
+                            throw new CompilationFailure(Diagnostic.Error(file,functionName,"TSCS1001",
+                                "Named function expressions require a checked block and explicit return type."));
+                        Binder.DeclareFunctionExpressionName(file,nameScope,functionName,
+                            arrow.Parameters,result,functionBody);
+                    }
                     foreach(var parameter in arrow.Parameters)
                     {
                         // Default initializers see earlier parameters and outer

@@ -1,3 +1,15 @@
+## 2026-10-30 — Lexically scoped named function expressions (candidate; NOT_RUN)
+
+The C# function-expression parser preserves an optional private self name.
+Binder builds a read-only self signature before checking parameters and the
+body, supporting explicitly annotated named recursion, shadowing, callbacks,
+defaults and array rest through the actual TypeChecker and ES2015 emitter.
+Named inferred returns, generators, `this` and untyped parameters still fail
+closed. Positive/negative C# regressions, four-module Node output, twelve
+no-emit errors and twelve additive pinned-Go source/code/exit IDs are wired.
+At source creation verification is NOT_RUN, not PASS. Original TS7 acceptance
+remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED with dynamic scope UNEXPANDED.
+
 ## 2026-10-30 — Typed anonymous function expressions (candidate; NOT_RUN)
 
 C# Parser and ES2015 emitter now admit anonymous `function(n: T): R { ... }`

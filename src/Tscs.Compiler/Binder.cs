@@ -6,7 +6,9 @@ internal sealed class Symbol(string file,Statement declaration,Scope? declaringS
     public Statement Declaration { get; } = declaration;
     // Imported symbols retain their original type environment across aliases/re-exports.
     public Scope? DeclaringScope { get; } = declaringScope;
-    public bool IsConstant => Declaration is Variable { Constant:true } or ForOfStatement { Constant:true } or ForInStatement { Constant:true };
+    // A named function expression binds a read-only self name, without an outer declaration.
+    public bool FunctionExpressionName { get; init; }
+    public bool IsConstant => FunctionExpressionName || Declaration is Variable { Constant:true } or ForOfStatement { Constant:true } or ForInStatement { Constant:true };
     public int DeclarationStart => Declaration switch
     {
         Variable v => v.Name.Start,
@@ -98,6 +100,23 @@ internal static class Binder
         symbol.DeclaredType=symbol.Type;
         symbol.Initialized=true;
         symbol.CrossFileTypeReady=true;
+    }
+
+    // A named expression's name belongs to a private scope outside parameters:
+    // recursion sees it, parameters can shadow it, the enclosing scope cannot.
+    public static void DeclareFunctionExpressionName(string file,Scope scope,Token name,
+        IReadOnlyList<ParameterDeclaration> parameters,TypeSyntax returnType,Block body)
+    {
+        var declaration=new FunctionDeclaration(name,parameters,returnType,body);
+        var signature=ResolveFunctionSignature(declaration,scope,file);
+        var symbol=new Symbol(file,declaration,scope)
+        {
+            Type=signature,DeclaredType=signature,Initialized=true,
+            CrossFileTypeReady=true,FunctionExpressionName=true
+        };
+        if(!scope.Symbols.TryAdd(name.Text,symbol))
+            throw new CompilationFailure(Diagnostic.Error(file,name,"TS2300",
+                $"Duplicate identifier '{name.Text}'."));
     }
 
     // Catch bindings are initialized unknown values scoped to their block;

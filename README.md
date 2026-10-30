@@ -130,7 +130,9 @@ Typed **anonymous function expressions** are checked callable values:
 They reuse typed parameter grammar, lexical binding, return validation,
 function signatures, modules, and ES2015 output. Trailing optional/default
 and array-rest parameters are supported within the same checked subset.
-Named function expressions, generators, implicit untyped parameters and
+Named function expressions with explicit return annotations also support
+lexically scoped self-recursion; the self name does not leak to callers.
+Named return inference, generators, implicit untyped parameters and
 `this` semantics remain unsupported. See
 [`typed-function-expressions`](docs/progress/typed-function-expressions.md).
 

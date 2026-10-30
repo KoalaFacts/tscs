@@ -68,6 +68,75 @@
       "expectedCodes": [
         "TS2304"
       ]
+    },
+    {
+      "id": "function-expression:named-positive-01",
+      "source": "const f=function self(n:number):number{if(n<=0){return 42;}return self(n-1);};const r:number=f(3);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-expression:named-positive-02",
+      "source": "type F=(n:number)=>number;const f:F=function named(n:number):number{return n+n;};const r:number=f(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-expression:named-positive-03",
+      "source": "const name:number=21;const f=function name(n:number):number{return n+n;};const r:number=f(name);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-expression:named-positive-04",
+      "source": "const f=function name(name:number):number{return name+1;};const r:number=f(41);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-expression:named-positive-05",
+      "source": "function apply(cb:(n:number)=>number,n:number):number{return cb(n);}const r:number=apply(function named(n:number):number{return n+n;},21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-expression:named-positive-06",
+      "source": "const f=function fallback(n:number=21):number{return n+n;};const r:number=f();",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-expression:named-positive-07",
+      "source": "const f=function rest(base:number,...xs:number[]):number{let sum:number=base;for(const item of xs){sum+=item;}return sum;};const r:number=f(20,21,1);",
+      "expectedCodes": [],
+      "profile": "fixtures/array-iteration/minimal.d.ts"
+    },
+    {
+      "id": "function-expression:named-positive-08",
+      "source": "const make=function outer(n:number):(v:number)=>number{return function inner(v:number):number{return n+v;};};const f=make(20);const r:number=f(22);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-expression:named-negative-01",
+      "source": "const f=function self(n:number):number{return n;};self(42);",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    },
+    {
+      "id": "function-expression:named-negative-02",
+      "source": "const f=function self(n:number):number{return \"bad\";};",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "function-expression:named-negative-03",
+      "source": "const f=function self(n:number):number{return self(\"bad\");};",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "function-expression:named-negative-04",
+      "source": "const f=function self(n:number):number{return n;};f();",
+      "expectedCodes": [
+        "TS2554"
+      ]
     }
   ]
 }
