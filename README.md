@@ -115,8 +115,11 @@ are resolved through the same Binder, TypeResolver, function relations and modul
 linker as declared functions. Functions can be passed as annotated parameters,
 assigned to function-typed variables and stored in required object members.
 Finite trailing optional parameters and array rest parameters are supported.
-Type annotations erase in ES2015 output; anonymous arrow functions, overloads,
-generics, `this` parameters and unrestricted callable properties are not implemented.
+Type annotations erase in ES2015 output. Explicitly typed arrow values accept
+expression and braced bodies, lexical capture, checked local statements, and
+bounded inferred braced returns (all value-returning paths must return).
+Untyped arrow parameters, mixed bare/value return inference, overloads, generics,
+`this` parameters and unrestricted callable properties remain unsupported.
 
 ## Other implemented subsets
 
