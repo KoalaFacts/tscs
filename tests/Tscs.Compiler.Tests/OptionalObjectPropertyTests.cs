@@ -21,6 +21,18 @@ public sealed class OptionalObjectPropertyTests
     [InlineData("type Box = { value?: number }; type Required = { value: number }; type Both = Box & Required; let both: Both = { value: 42 };")]
     [InlineData("let source: { value?: number } = {}; let target: { value?: number } = source;")]
     [InlineData("let data: { readonly value?: number } = {}; let maybe: number | undefined = data.value;")]
+    [Theory]
+    [InlineData("interface Op{run?(n:number):number}const op:Op={};")]
+    [InlineData("interface Op{run?(n:number):number}const op:Op={run:(n:number)=>n+n};")]
+    [InlineData("type Op={run?(n:number):number};let op:Op={};")]
+    [InlineData("interface Base{run?(n:number):number}interface Child extends Base{label:string}const item:Child={label:\"ok\"};")]
+    [InlineData("interface Base{run?(n:number):number}interface Child extends Base{run(n:number):number}const item:Child={run:(n:number)=>n+n};")]
+    [InlineData("type Op={run?(n:number):number};type Keys=keyof Op;let key:Keys=\"run\";")]
+    [InlineData("type Op={run?(n:number):number};type Run=Op[\"run\"];let callback:Run=undefined;")]
+    [InlineData("interface Op{run?(n:number):number}let op:Op={};let maybe:Op[\"run\"]=op.run;")]
+    public void OptionalMethodsUseCheckedCallableContracts(string source) =>
+        Assert.Empty(Compilation.Check("optional-method.ts",source));
+
     public void CheckedOptionalContractsCompile(string source) =>
         Assert.Empty(Compilation.Check("optional-data.ts",source));
 
@@ -32,7 +44,12 @@ public sealed class OptionalObjectPropertyTests
     [InlineData("let item: { value?: number } = {}; let required: { value: number } = item;","TS2741")]
     [InlineData("interface Parent { value: number } interface Child extends Parent { value?: number }","TS2430")]
     [InlineData("let item: { readonly value?: number } = {}; item.value = 42;","TS2540")]
-    [InlineData("let item: { value?(): number } = {};","TSCS1001")]
+    [InlineData("interface Op{run?(n:number):number}const op:Op={run:42};","TS2322")]
+    [InlineData("interface Op{run?(n:number):number}const op:Op={extra:42};","TS2353")]
+    [InlineData("interface Base{run(n:number):number}interface Child extends Base{run?(n:number):number}","TS2430")]
+    [InlineData("interface Op{run?(n:number):number}const op:Op={};op.run(21);","TSCS1001")]
+    [InlineData("interface Op{run?(n:number):number}const op:Op={run:(n:string)=>42};","TS2322")]
+    [InlineData("interface Op{run?(n:number):number}const op:Op={};let cb:(n:number)=>number=op.run;","TS2322")]
     [InlineData("let item: { value?: number } = {}; item.missing;","TS2339")]
     [InlineData("let item: { value?: number } = { value: 1, extra: 2 };","TS2353")]
     public void InvalidOptionalContractsFail(string source,string code) =>

@@ -731,8 +731,6 @@ internal sealed class Parser(string file, List<Token> tokens)
                 {
                     if(readonlyMember)
                         Unsupported(name,"Readonly modifiers on method signatures are not supported.");
-                    if(optionalMember)
-                        Unsupported(name,"Optional method signatures are not supported yet.");
                     memberType=ReadObjectMethodType(depth+1);
                 }
                 else
@@ -768,7 +766,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     }
 
 
-    // Method signatures are required callable members, not executable method
+    // Method signatures are required or optional callable contracts, not executable
     // declarations. Reuse FunctionTypeSyntax so Binder, TypeResolver, structural
     // relations and cross-module callbacks share one semantic representation.
     private TypeSyntax ReadObjectMethodType(int depth)

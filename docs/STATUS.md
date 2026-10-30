@@ -1,3 +1,19 @@
+## 2026-10-31 — Optional object/interface method contracts (source candidate; NOT_RUN)
+
+Finite `run?(n: T): R` signatures reuse method-type parsing, optional
+structural-member metadata, function variance and checked interface inheritance.
+Omitted methods satisfy optional shapes; present methods retain checked parameter
+and return types. Reads stay function-or-undefined and unsafe direct calls fail
+closed. Type aliases, `keyof`, indexed access, module imports and native ES2015
+values share the existing compiler. Required overrides of optional inherited
+methods remain checked. Source-backed xUnit cases, four-module emitted Node
+execution and nine real no-emit errors accompany twelve new bounded Go
+source/code/exit references in the 28-case frozen object-method cohort.
+At source creation results are NOT_RUN, not original TS7 acceptance:
+0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic scope UNEXPANDED.
+General optional-call narrowing, optional chaining, generics, overload merging
+and complete `this` semantics remain unsupported.
+
 ## 2026-10-30 — Finite optional object data properties (source candidate; NOT_RUN)
 
 Parser, structural TypeResolver/TypeChecker, interface heritage, `keyof`/indexed

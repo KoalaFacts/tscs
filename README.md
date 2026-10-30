@@ -77,7 +77,7 @@ wider values already held in variables can satisfy narrower required shapes.
 Writing a member of an imported or `const` object does not rebind that object.
 Missing members and incompatible assignments are rejected before emission.
 
-Finite optional data members (`value?: number`) are checked across type aliases, interfaces, inheritance and modules; omitted keys remain optional, while reads have a `number | undefined` type. Bounded readonly optional writes are rejected. Optional methods, optional-property control-flow narrowing, readonly arrays, getter/setter accessors,
+Finite optional data members (`value?: number`) are checked across type aliases, interfaces, inheritance and modules; omitted keys remain optional, while reads have a `number | undefined` type. Bounded readonly optional writes are rejected. Finite optional method signatures are supported; optional-property control-flow narrowing, readonly arrays, getter/setter accessors,
 index signatures, general iterable spreads, computed keys, prototype-setter literals,
 generic or unrestricted interface inheritance, or recursive type aliases. Named,
 non-generic interfaces can extend finite object/interface shapes with checked
@@ -147,8 +147,9 @@ implement it, be extracted and called, and cross module boundaries without
 emitting the interface or annotation. Optional trailing parameters and final
 array-rest parameters use the same existing bounded semantics. This is a
 function-valued structural member, not a method declaration or `this` binding;
-method overload merging, general `this`, generics, optional methods and
-readonly method modifiers are not implemented.
+method overload merging, general `this`, generics and readonly method modifiers
+are not implemented. Optional methods are checked as possibly undefined callable
+members; unguarded optional calls remain unsupported rather than silently accepted.
 
 ## Checked object literal methods (bounded)
 

@@ -157,6 +157,74 @@
       "expectedCodes": [
         "TS2304"
       ]
+    },
+    {
+      "id": "object-method:optional-positive-01",
+      "source": "interface Op{run?(n:number):number}const op:Op={};",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:optional-positive-02",
+      "source": "interface Op{run?(n:number):number}const op:Op={run:(n:number)=>n+n};",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:optional-positive-03",
+      "source": "type Op={run?(n:number):number};const op:Op={};",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:optional-positive-04",
+      "source": "interface Base{run?(n:number):number}interface Child extends Base{label:string}const op:Child={label:\"ok\"};",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:optional-positive-05",
+      "source": "interface Base{run?(n:number):number}interface Child extends Base{run(n:number):number}const op:Child={run:(n:number)=>n+n};",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:optional-positive-06",
+      "source": "type Op={run?(n:number):number};type Keys=keyof Op;let key:Keys=\"run\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:optional-positive-07",
+      "source": "type Op={run?(n:number):number};type Run=Op[\"run\"];let callback:Run=undefined;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:optional-positive-08",
+      "source": "interface Op{run?(n:number):number}const op:Op={run:(n:number)=>n+n};const callback:Op[\"run\"]=op.run;",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:optional-negative-01",
+      "source": "interface Op{run?(n:number):number}const op:Op={run:42};",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "object-method:optional-negative-02",
+      "source": "interface Op{run?(n:number):number}const op:Op={extra:42};",
+      "expectedCodes": [
+        "TS2353"
+      ]
+    },
+    {
+      "id": "object-method:optional-negative-03",
+      "source": "interface Base{run(n:number):number}interface Child extends Base{run?(n:number):number}",
+      "expectedCodes": [
+        "TS2430"
+      ]
+    },
+    {
+      "id": "object-method:optional-negative-04",
+      "source": "interface Op{run?(n:number):number}const op:Op={run:(n:string)=>42};",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }
