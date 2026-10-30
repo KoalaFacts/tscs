@@ -17,7 +17,8 @@ const nonNull=cohortArg==='fixtures/non-null/semantic-cases.json';
 const optionalChain=cohortArg==='fixtures/optional-chain/semantic-cases.json';
 const optionalCall=cohortArg==='fixtures/optional-call/semantic-cases.json';
 const voidUnary=cohortArg==='fixtures/void-unary/semantic-cases.json';
-assert.ok(!cohortArg||compound||nullish||nonNull||optionalChain||optionalCall||voidUnary,'unknown frozen bounded cohort');
+const nullLiteral=cohortArg==='fixtures/null-literal/semantic-cases.json';
+assert.ok(!cohortArg||compound||nullish||nonNull||optionalChain||optionalCall||voidUnary||nullLiteral,'unknown frozen bounded cohort');
 const suitePath=cohortArg??'fixtures/conditional-value/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
 assert.equal(suite.kind,compound?'BOUNDED_COMPOUND_GUARDS_NOT_ORIGINAL_TS7_ACCEPTANCE'
@@ -25,9 +26,10 @@ assert.equal(suite.kind,compound?'BOUNDED_COMPOUND_GUARDS_NOT_ORIGINAL_TS7_ACCEP
     :nonNull?'BOUNDED_POSTFIX_NON_NULL_NOT_ORIGINAL_TS7_ACCEPTANCE'
     :optionalCall?'BOUNDED_OPTIONAL_CALLS_NOT_ORIGINAL_TS7_ACCEPTANCE'
     :voidUnary?'BOUNDED_VOID_UNARY_NOT_ORIGINAL_TS7_ACCEPTANCE'
+    :nullLiteral?'BOUNDED_NULL_LITERAL_NOT_ORIGINAL_TS7_ACCEPTANCE'
     :optionalChain?'BOUNDED_OPTIONAL_MEMBER_ACCESS_NOT_ORIGINAL_TS7_ACCEPTANCE'
     :'BOUNDED_CONDITIONAL_VALUES_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,voidUnary?15:compound?18:nullish?10:nonNull?14:optionalChain?26:optionalCall?10:23,'do not shrink the registered cohort');
+assert.equal(suite.cases.length,nullLiteral?18:voidUnary?15:compound?18:nullish?10:nonNull?14:optionalChain?26:optionalCall?10:23,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 // The cohort includes number[] indexing and length. Use the already
 // verified array profile for BOTH compilers, not the empty bootstrap Array<T>.
@@ -68,6 +70,7 @@ for(let i=0;i<suite.cases.length;i++){
     :nonNull?/^non-null:(positive|negative)-\d+$/
     :optionalCall?/^optional-call:(positive|negative)-\d{2}$/
     :voidUnary?/^void-unary:(positive|negative)-\d{2}$/
+    :nullLiteral?/^null-literal:(positive|negative)-\d{2}$/
     :optionalChain?/^optional-chain:(positive|negative)-\d{2}$/
     :/^conditional-value:(positive|negative)-\d+$/);
   assert.ok(!ids.has(item.id),'duplicate stable case ID');ids.add(item.id);
@@ -104,4 +107,4 @@ for(const row of manifest){const bytes=readFileSync(join(out,row.path));
   assert.equal(bytes.length,row.length);assert.equal(hash(bytes),row.sha256);}
 writeFileSync(join(out,'manifest.json'),JSON.stringify({files:manifest},null,2),{flag:'wx',flush:true});
 assert.deepEqual(mismatches,[],'genuine pinned-Go mismatches; raw outputs preserved');
-console.log(String(results.length)+' bounded '+(compound?'compound guard':nullish?'nullish coalescing':nonNull?'postfix non-null':optionalCall?'optional calls':voidUnary?'void unary':optionalChain?'optional member access':'conditional value')+' sources matched pinned Go codes/exits; no original TS7 acceptance.');
+console.log(String(results.length)+' bounded '+(compound?'compound guard':nullish?'nullish coalescing':nonNull?'postfix non-null':optionalCall?'optional calls':voidUnary?'void unary':nullLiteral?'null literal':optionalChain?'optional member access':'conditional value')+' sources matched pinned Go codes/exits; no original TS7 acceptance.');
