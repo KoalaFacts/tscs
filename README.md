@@ -77,6 +77,13 @@ wider values already held in variables can satisfy narrower required shapes.
 Writing a member of an imported or `const` object does not rebind that object.
 Missing members and incompatible assignments are rejected before emission.
 
+Finite comparisons with unshadowed `undefined` or `void 0` now refine
+nullable locals and parameters on checked branches. Strict `===`/`!==`
+exclude only the `undefined` constituent; loose `==`/`!=` exclude
+both `null` and `undefined`. A lexical binding named `undefined` is
+not treated as the intrinsic, and writes invalidate stale flow refinements.
+These are bounded identifier guards, not general property-path narrowing.
+
 Explicit postfix non-null assertions (`config.value!`, `config.run!(21)`) now
 remove `null` and `undefined` from checked union types and erase to ES2015 JavaScript.
 They do not perform runtime checks: the programmer must know the value exists.
