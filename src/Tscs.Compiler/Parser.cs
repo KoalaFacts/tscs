@@ -657,10 +657,10 @@ internal sealed class Parser(string file, List<Token> tokens)
             }
             type=new TypeQuerySyntax(keyword,root,members);
         }
-        else if(Current.Kind is TokenKind.Identifier or TokenKind.Void)
+        else if(Current.Kind is TokenKind.Identifier or TokenKind.Void or TokenKind.Null)
         {
             var name=Take();
-            type=name.Text is "number" or "string" or "boolean" or "any" or "void" or "undefined"
+            type=name.Text is "number" or "string" or "boolean" or "any" or "void" or "undefined" or "null"
                 ?new PrimitiveTypeSyntax(name):new NamedTypeSyntax(name);
         }
         else if(Current.Kind is TokenKind.String or TokenKind.Number or TokenKind.True or TokenKind.False)
@@ -1414,7 +1414,7 @@ internal sealed class Parser(string file, List<Token> tokens)
         }
         if(token.Kind==TokenKind.Function)return ParseFunctionExpression();
         if(token.Kind==TokenKind.Identifier)return new ValueAtom(Take());
-        if(token.Kind is TokenKind.Number or TokenKind.String or TokenKind.True or TokenKind.False)
+        if(token.Kind is TokenKind.Number or TokenKind.String or TokenKind.True or TokenKind.False or TokenKind.Null)
             return new ValueAtom(Take());
         if(token.Kind is TokenKind.Semi or TokenKind.End or TokenKind.Close)
         {

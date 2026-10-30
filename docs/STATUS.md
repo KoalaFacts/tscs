@@ -1,3 +1,17 @@
+## 2026-10-31 — Explicit null values and nullish structural access (candidate; NOT_RUN)
+
+The C# source scanner/parser and semantic type system now represent explicit
+`null` expressions and annotations instead of rejecting them. Finite
+`T | null` values flow through aliases, functions, objects and modules.
+Optional member/index/call reads, postfix `!` and `??` distinguish null
+from undefined while preserving checked present-path types. ES2015 output
+emits native `null`, with the existing one-evaluation short-circuit guards.
+Source-backed C# tests, four-module Node output and a separate 18-ID fixed-Go
+diagnostic/exit cohort are registered as NOT_RUN at source creation, not
+original TS7 acceptance. Complete original scope remains 0 PASS / 15,523
+SKIP_UNIMPLEMENTED and dynamic UNEXPANDED. Null equality flow and complete
+strictNullChecks option semantics remain unsupported.
+
 ## 2026-10-31 — Checked unary `void` expression (candidate; NOT_RUN)
 
 C# Parser, TypeChecker and ES2015 emitter now support bounded unary `void`

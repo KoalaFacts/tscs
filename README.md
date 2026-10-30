@@ -78,7 +78,7 @@ Writing a member of an imported or `const` object does not rebind that object.
 Missing members and incompatible assignments are rejected before emission.
 
 Explicit postfix non-null assertions (`config.value!`, `config.run!(21)`) now
-remove `undefined` from checked union types and erase to ES2015 JavaScript.
+remove `null` and `undefined` from checked union types and erase to ES2015 JavaScript.
 They do not perform runtime checks: the programmer must know the value exists.
 Unlike `??`, they cannot supply a fallback. Finite optional member/index
 reads (`box?.value`, `box?.["value"]`, `array?.[0]`) and guarded
@@ -92,9 +92,12 @@ optional calls (`fn?.(21)`) are also supported. Postfix non-null assertions
 nullable flow, dynamic index signatures and writes through optional chains
 remain unsupported.
 
-Bounded typed nullish fallbacks (`config.value ?? 42`) keep non-undefined
+Bounded typed nullish fallbacks (`config.value ?? 42`) keep non-nullish
 alternatives and lower to ES2015 with single evaluation of the left
-expression and a lazy right side. Unparenthesized mixing with `&&`/`||`
+expression and a lazy right side. Explicit `null` literals, annotations and
+`T | null` unions are supported in finite typed programs, including optional
+member and function reads. General null-flow narrowing, JS coercions and
+complete compiler-option-dependent strict-null rules remain unsupported. Unparenthesized mixing with `&&`/`||`
 fails explicitly. Full optional-chain combinations and general null/flow semantics remain
 unimplemented.
 

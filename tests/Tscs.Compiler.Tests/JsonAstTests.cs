@@ -25,7 +25,11 @@ public class JsonAstTests
  [InlineData("{} {}")]
  public void UnportedGrammarDoesNotBecomeAcceptedConfig(string source)=>Assert.Contains(JsonSyntax.Parse("tsconfig.json",source).Diagnostics,d=>d.Code=="TSCS1001");
  [Fact]
- public void JsonOnlyTokensDoNotEnableNewTypeScriptSyntax()=>Assert.Equal("TSCS1001",Assert.Single(Compilation.Check("a.ts","let n = null;")).Code);
+ public void JsonNullTokenIsSupportedInSourceWithoutEnablingUnsupportedThisKeyword()
+ {
+  Assert.Empty(Compilation.Check("a.ts","let n = null;"));
+  Assert.Equal("TSCS1001",Assert.Single(Compilation.Check("a.ts","let n = this;")).Code);
+ }
  [Fact]
  public void ExcessiveJsonNestingRemainsBounded()=>Assert.Contains(JsonSyntax.Parse("tsconfig.json",new string('[',130)+new string(']',130)).Diagnostics,d=>d.Code=="TSCS1001");
  [Theory]

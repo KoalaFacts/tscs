@@ -1,0 +1,107 @@
+{
+  "kind": "BOUNDED_NULL_LITERAL_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "null-literal:positive-01",
+      "source": "let n:null=null;",
+      "expectedCodes": []
+    },
+    {
+      "id": "null-literal:positive-02",
+      "source": "let n:number|null=null;",
+      "expectedCodes": []
+    },
+    {
+      "id": "null-literal:positive-03",
+      "source": "let n:number|null=21;",
+      "expectedCodes": []
+    },
+    {
+      "id": "null-literal:positive-04",
+      "source": "type Option={value:number}|null;let m:Option=null;",
+      "expectedCodes": []
+    },
+    {
+      "id": "null-literal:positive-05",
+      "source": "function id(x:number|null):number|null{return x;}let y:number|null=id(null);",
+      "expectedCodes": []
+    },
+    {
+      "id": "null-literal:positive-06",
+      "source": "function read(m:{value:number}|null):number{return m?.value ?? 42;}let n:number=read(null);",
+      "expectedCodes": []
+    },
+    {
+      "id": "null-literal:positive-07",
+      "source": "let m:{value:number}|null={value:21};let n:number=m?.value ?? 42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "null-literal:positive-08",
+      "source": "let n:number|null=null;let x:number=n ?? 42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "null-literal:positive-09",
+      "source": "let box:{value:null}={value:null};let n:null=box.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "null-literal:positive-10",
+      "source": "let n:number|null=null;let x:number=n!;",
+      "expectedCodes": []
+    },
+    {
+      "id": "null-literal:positive-11",
+      "source": "let n:null=null;let x:boolean=n===null;",
+      "expectedCodes": []
+    },
+    {
+      "id": "null-literal:positive-12",
+      "source": "let n:null=null;let x:undefined=void n;",
+      "expectedCodes": []
+    },
+    {
+      "id": "null-literal:negative-01",
+      "source": "let n:null=21;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "null-literal:negative-02",
+      "source": "let n:null=\"bad\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "null-literal:negative-03",
+      "source": "let n:number|null=\"bad\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "null-literal:negative-04",
+      "source": "let n:null=missing;",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    },
+    {
+      "id": "null-literal:negative-05",
+      "source": "let box:{value:null}={value:21};",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "null-literal:negative-06",
+      "source": "function f(n:null):null{return n;}let x:null=f(21);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    }
+  ]
+}

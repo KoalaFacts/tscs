@@ -8,7 +8,7 @@ internal abstract record TypeSymbol
     public abstract string DisplayName { get; }
 }
 
-internal enum PrimitiveKind { Number, String, Boolean, Any, Void, Unknown, Never, Undefined }
+internal enum PrimitiveKind { Number, String, Boolean, Any, Void, Unknown, Never, Undefined, Null }
 
 internal sealed record PrimitiveTypeSymbol(PrimitiveKind Kind) : TypeSymbol
 {
@@ -22,6 +22,7 @@ internal sealed record PrimitiveTypeSymbol(PrimitiveKind Kind) : TypeSymbol
         PrimitiveKind.Unknown => "unknown",
         PrimitiveKind.Never => "never",
         PrimitiveKind.Undefined => "undefined",
+        PrimitiveKind.Null => "null",
         _ => throw new ArgumentOutOfRangeException(nameof(Kind))
     };
 }
@@ -60,6 +61,7 @@ internal static class CompilerTypes
     public static readonly TypeSymbol Any=new PrimitiveTypeSymbol(PrimitiveKind.Any);
     public static readonly TypeSymbol Void=new PrimitiveTypeSymbol(PrimitiveKind.Void);
     public static readonly TypeSymbol Undefined=new PrimitiveTypeSymbol(PrimitiveKind.Undefined);
+    public static readonly TypeSymbol Null=new PrimitiveTypeSymbol(PrimitiveKind.Null);
     // The immutable pinned Go reference treats catch bindings as unknown.
     public static readonly TypeSymbol Unknown=new PrimitiveTypeSymbol(PrimitiveKind.Unknown);
     // Internal inference for an empty literal. 'never' annotations and
@@ -115,19 +117,20 @@ internal static class CompilerTypes
         return options.Count switch {0=>Never,1=>options[0],_=>new UnionTypeSymbol(options)};
     }
 
-    // Nullish fallback retains non-undefined alternatives and checks its RHS.
-    // Null source literals and optional chaining remain outside this subset.
-    // Postfix ! erases at runtime. It removes only explicitly represented
-    // undefined constituents; void and unknown are not falsely narrowed.
+    // Optional access and postfix ! recognise both null and undefined.
+    // Only explicit nullish constituents are removed; void/unknown stay intact.
     public static bool ContainsUndefined(TypeSymbol value)=>
         value.Equals(Undefined) || value is UnionTypeSymbol union &&
         union.Alternatives.Any(type=>type.Equals(Undefined));
+    public static bool ContainsNullish(TypeSymbol value)=>
+        value.Equals(Null)||value.Equals(Undefined) || value is UnionTypeSymbol union &&
+        union.Alternatives.Any(type=>type.Equals(Null)||type.Equals(Undefined));
 
     public static TypeSymbol NonNullAssertionResult(TypeSymbol value)
     {
-        if(value.Equals(Undefined))return Never;
+        if(value.Equals(Undefined)||value.Equals(Null))return Never;
         if(value is not UnionTypeSymbol union)return value;
-        return Union(union.Alternatives.Where(type=>!type.Equals(Undefined)));
+        return Union(union.Alternatives.Where(type=>!type.Equals(Undefined)&&!type.Equals(Null)));
     }
 
     public static TypeSymbol CoalescingResult(TypeSymbol left,TypeSymbol right)
@@ -136,7 +139,7 @@ internal static class CompilerTypes
         if(left.Equals(Unknown))return Unknown;
         var alternatives=left is UnionTypeSymbol union
             ?union.Alternatives.ToArray():[left];
-        var live=alternatives.Where(type=>!type.Equals(Undefined) && !type.Equals(Void)).ToList();
+        var live=alternatives.Where(type=>!type.Equals(Undefined) && !type.Equals(Null) && !type.Equals(Void)).ToList();
         if(live.Count==alternatives.Length)return left;
         live.Add(right);
         return Union(live);
@@ -150,6 +153,7 @@ internal static class CompilerTypes
         "any" => Any,
         "void" => Void,
         "undefined" => Undefined,
+        "null" => Null,
         _ => throw new ArgumentOutOfRangeException(nameof(name),
             "Only parser-validated primitive annotations may reach the semantic type model.")
     };
@@ -279,6 +283,7 @@ internal static class CompilerTypes
         TokenKind.Number => Number,
         TokenKind.String => String,
         TokenKind.True or TokenKind.False => Boolean,
+        TokenKind.Null => Null,
         _ => null
     };
 
