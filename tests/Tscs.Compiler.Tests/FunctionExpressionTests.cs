@@ -25,6 +25,14 @@ public sealed class FunctionExpressionTests
     [InlineData("""const make=function outer(n:number):(v:number)=>number{return function inner(v:number):number{return n+v;};};const f=make(20);const result:number=f(22);""")]
     [InlineData("""const f=function rest(base:number,...xs:number[]):number{let sum:number=base;for(const item of xs){sum+=item;}return sum;};const result:number=f(20,21,1);""")]
     [InlineData("""const f=function self(n:number=21):number{return n+n;};const result:number=f();""")]
+    [InlineData("""const f=function self(n:number){return n+n;};const result:number=f(21);""")]
+    [InlineData("""const outer:number=21;const f=function outer(n:number){return n+n;};const result:number=f(outer);""")]
+    [InlineData("""const f=function local(n:number){if(n>0){return n;}else{return -n;}};const result:number=f(-42);""")]
+    [InlineData("""type Fn=(n:number)=>number;const f:Fn=function local(n:number){return n+n;};const result:number=f(21);""")]
+    [InlineData("""function apply(cb:(n:number)=>number,n:number):number{return cb(n);}const result:number=apply(function local(n:number){return n+n;},21);""")]
+    [InlineData("""const make=function outer(n:number){return function inner(m:number){return n+m;};};const f=make(20);const result:number=f(22);""")]
+    [InlineData("""const f=function local(n:number=21){return n+n;};const result:number=f();""")]
+    [InlineData("""const f=function local(base:number,...xs:number[]){return base+xs.length;};const result:number=f(40,1,1);""")]
     public void AnonymousTypedFunctionsUseTheRealChecker(string source) =>
         Assert.Empty(Compilation.Check("function-expression.ts", source));
 
@@ -35,7 +43,11 @@ public sealed class FunctionExpressionTests
     [InlineData("""const f=function(n:number):number{return unknownValue;};""", "TS2304")]
     [InlineData("""const f=function(n:number):number{if(n>0){return n;}};""", "TSCS1001")]
     [InlineData("""const f=function(n){return n;};""", "TSCS1001")]
-    [InlineData("""const f=function named(n:number){return n;};""", "TSCS1001")]
+    [InlineData("""const f=function named(n:number){return named(n-1);};""", "TSCS1001")]
+    [InlineData("""const outer:number=21;const f=function outer(n:number){return outer+n;};""", "TSCS1001")]
+    [InlineData("""const f=function named(n:number){return n+n;};named(42);""", "TS2304")]
+    [InlineData("""const f=function named(n:number){return n+n;};f("bad");""", "TS2345")]
+    [InlineData("""const f=function named(n:number){return n+n;};f();""", "TS2554")]
     [InlineData("""const f=function named(n:number):number{return n;};named(42);""", "TS2304")]
     [InlineData("""const f=function named(n:number):number{return named("bad");};""", "TS2345")]
     [InlineData("""const f=function named(n:number):number{named=named;return n;};""", "TS2588")]

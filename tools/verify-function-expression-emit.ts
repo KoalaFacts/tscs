@@ -41,7 +41,15 @@ try {
       'export const namedRestResult:number=namedRest(20,21,1);',
       'const namedFactory=function outer(n:number):(v:number)=>number{return function inner(v:number):number{return n+v;};};',
       'const namedNested=namedFactory(20);',
-      'export const namedNestedResult:number=namedNested(22)'
+      'export const namedNestedResult:number=namedNested(22);',
+      'const inferredNamed=function self(n:number){const factor:number=2;return n*factor;};',
+      'export const inferredNamedResult:number=inferredNamed(21);',
+      'const value:number=21;',
+      'const inferredShadow=function value(n:number){return n+n;};',
+      'export const inferredShadowResult:number=inferredShadow(value);',
+      'const inferredFactory=function outer(n:number){return function inner(m:number){return n+m;};};',
+      'const inferredInner=inferredFactory(20);',
+      'export const inferredNestedResult:number=inferredInner(22)'
     ].join('\n')
   };
   for(const [name,source] of Object.entries(files))writeFileSync(join(dir,name),source+'\n');
@@ -63,7 +71,7 @@ try {
   for(const name of ['model','logic','bridge','entry'])
     assert.ok(existsSync(join(dir,name+'.js')),'missing checked output '+name);
   const runtime=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,captured,immediate,nested,rest,inferredResult,recursiveResult,scopedResult,namedDefaultResult,namedRestResult,namedNestedResult} from "./entry.js"; if([result,captured,immediate,nested,rest,inferredResult,recursiveResult,scopedResult,namedDefaultResult,namedRestResult,namedNestedResult].some(x=>x!==42))throw Error("function expression output mismatch");'],
+    'import {result,captured,immediate,nested,rest,inferredResult,recursiveResult,scopedResult,namedDefaultResult,namedRestResult,namedNestedResult,inferredNamedResult,inferredShadowResult,inferredNestedResult} from "./entry.js"; if([result,captured,immediate,nested,rest,inferredResult,recursiveResult,scopedResult,namedDefaultResult,namedRestResult,namedNestedResult,inferredNamedResult,inferredShadowResult,inferredNestedResult].some(x=>x!==42))throw Error("function expression output mismatch");'],
     {cwd:dir,encoding:'utf8',timeout:15000});
   assert.equal(runtime.error,undefined,String(runtime.error));
   assert.equal(runtime.status,0,runtime.stdout+runtime.stderr);
@@ -74,7 +82,8 @@ try {
     ['missing','const f=function(n:number):number{return absent;};','TS2304',2],
     ['partial','const f=function(n:number):number{if(n>0){return n;}};','TSCS1001',1],
     ['untyped','const f=function(n){return n;};','TSCS1001',1],
-    ['named-inferred','const f=function named(n:number){return n;};','TSCS1001',1],
+    ['named-recursive-inferred','const f=function named(n:number){return named(n-1);};','TSCS1001',1],
+    ['named-shadow-inferred','const name:number=21;const f=function name(n:number){return name+n;};','TSCS1001',1],
     ['named-leak','const f=function inner(n:number):number{return n;};inner(42);','TS2304',2],
     ['named-argument','const f=function self(n:number):number{return self("bad");};','TS2345',2],
     ['named-rebind','const f=function self(n:number):number{self=self;return n;};','TS2588',2],
@@ -89,7 +98,7 @@ try {
     assert.match(checked.stdout+checked.stderr,new RegExp(code));
     assert.equal(existsSync(path.replace(/\.ts$/,'.js')),false,'invalid source emitted JS: '+id);
   }
-  console.log('typed anonymous function expressions: four-module ES2015 runtime and twelve fail-closed no-emit programs checked');
+  console.log('typed function expressions: four-module ES2015 runtime and thirteen fail-closed no-emit programs checked');
 } finally {
   rmSync(dir,{recursive:true,force:true});
 }

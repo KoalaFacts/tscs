@@ -14,16 +14,19 @@ Named expressions `function self(n: number): number { ... }` use a private
 self-name binding between outer values and parameters, allowing checked
 recursion and captures without exporting the self name. The self name is
 immutable and parameters can shadow it. Native ES2015 named functions are
-emitted; no outer declaration is hoisted. Named inferred returns, generators,
-`this`, untyped parameters, overloads and generics remain unsupported and
-fail closed. Semantic violations stop emission.
+emitted; no outer declaration is hoisted. Nonrecursive named functions now
+infer bounded returns from checked lexical blocks. During inference their
+private self binding is reserved but cannot be referenced without an explicit
+return annotation; it is never fabricated as an implicit any or callable type.
+Generators, `this`, untyped parameters, overloads and generics remain
+unsupported and fail closed. Semantic violations stop emission.
 `tools/verify-function-expression-emit.ts` executes checked four-module
 ES2015 output under Node 24, including nested callbacks and closure capture;
-twelve invalid programs must generate no JavaScript.
+thirteen invalid programs must generate no JavaScript.
 
 The independent fixed-Go comparison in
-`tools/verify-function-expression-reference.ts` runs twenty-four stable
-source IDs (twelve original unchanged, twelve new named cases) from `fixtures/function-expression/semantic-cases.json`,
+`tools/verify-function-expression-reference.ts` runs thirty-four stable
+source IDs (the original twenty-four unchanged, ten new inferred named cases) from `fixtures/function-expression/semantic-cases.json`,
 compares actual diagnostic codes and exit statuses, and saves raw input,
 reference/product results, source hashes and evidence manifest.
 At source creation these checks are **NOT_RUN** until exact-head CI confirms
