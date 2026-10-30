@@ -34,4 +34,14 @@ public sealed class OptionalChainTests
     [InlineData("function f(o:{value:number}|undefined):number{return o?.(21);}","TSCS1001")]
     public void MissingMembersAndInvalidOptionalTargetsFailClosed(string source,string code) =>
         Assert.Contains(Compilation.Check("optional-chain-bad.ts",source),d=>d.Code==code);
+
+    // These are legal TypeScript but not yet supported by the bounded emitter.
+    // Never accept them and silently emit a throwing ES2015 continuation.
+    [Theory]
+    [InlineData("function f(o:{inner:{value:number}}|undefined):number|undefined{return o?.inner.value;}")]
+    [InlineData("function f(o:{inner:{value:number}}|undefined):number|undefined{return o?.inner!.value;}")]
+    [InlineData("function f(o:{items:number[]}|undefined):number|undefined{return o?.items[0];}")]
+    [InlineData("function f(o:{fn:(n:number)=>number}|undefined):number|undefined{return o?.fn(21);}")]
+    public void UnimplementedOptionalContinuationsNeverSilentlyEmit(string source) =>
+        Assert.Contains(Compilation.Check("optional-chain-unimplemented.ts",source),d=>d.Code=="TSCS1001");
 }

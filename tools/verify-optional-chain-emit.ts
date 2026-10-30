@@ -77,7 +77,11 @@ try {
     ['target','let o:{value:number}|undefined={value:21};o?.value=42;','TSCS1001',1],
     ['compound','let o:{value:number}|undefined={value:21};o?.value+=1;','TSCS1001',1],
     ['postfix','let o:{value:number}|undefined={value:21};o?.value++;','TSCS1001',1],
-    ['optional-call','function bad(o:{value:number}|undefined):number{return o?.(21);}','TSCS1001',1]
+    ['optional-call','function bad(o:{value:number}|undefined):number{return o?.(21);}','TSCS1001',1],
+    ['continued-property','function f(o:{inner:{value:number}}|undefined):number|undefined{return o?.inner.value;}','TSCS1001',1],
+    ['continued-assertion','function f(o:{inner:{value:number}}|undefined):number|undefined{return o?.inner!.value;}','TSCS1001',1],
+    ['continued-index','function f(o:{items:number[]}|undefined):number|undefined{return o?.items[0];}','TSCS1001',1],
+    ['continued-call','function f(o:{fn:(n:number)=>number}|undefined):number|undefined{return o?.fn(21);}','TSCS1001',1]
   ];
   for(const [id,source,code,exit] of invalid) {
     const path=join(dir,'bad-'+id+'.ts');
@@ -87,5 +91,5 @@ try {
     assert.match(out.stdout+out.stderr,new RegExp(code));
     assert.equal(existsSync(path.replace(/\.ts$/,'.js')),false,'invalid emitted JS for '+id);
   }
-  console.log('optional member/index: four-module ES2015 runtime and eight fail-closed no-emit cases');
+  console.log('optional member/index: four-module ES2015 runtime and twelve fail-closed no-emit cases');
 } finally {rmSync(dir,{recursive:true,force:true});}

@@ -4,9 +4,12 @@ C# scanner/parser, AST, TypeChecker, structural unions and ES2015 emitter now
 support guarded `receiver?.member` and `receiver?.[index]` reads over
 bounded object, string and array types. The result includes `undefined`
 only where the receiver might be absent. ES2015 output evaluates receivers
-once and indices lazily on the present path. Optional calls, optional-chain
-writes, dynamic index signatures and complete `null`/flow semantics remain
-unimplemented. Source-backed xUnit regressions, four-module actual Node runtime,
+once and indices lazily on the present path. Unparenthesized ordinary
+property/index/call continuations after an optional segment are explicitly
+rejected until their short-circuit semantics can be lowered faithfully; they
+must never compile to JS that throws on an absent receiver. Optional calls,
+optional-chain writes, dynamic index signatures and complete `null`/flow
+semantics remain unimplemented. Source-backed xUnit regressions, four-module actual Node runtime,
 fail-closed no-emit tests and fourteen stable pinned-Go source/code/exit cases
 are registered. At source creation all evidence is NOT_RUN, not accepted.
 Original TS7 acceptance remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED and

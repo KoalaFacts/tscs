@@ -82,7 +82,9 @@ remove `undefined` from checked union types and erase to ES2015 JavaScript.
 They do not perform runtime checks: the programmer must know the value exists.
 Unlike `??`, they cannot supply a fallback. Finite optional member/index
 reads (`box?.value`, `box?.["value"]`, `array?.[0]`) short-circuit
-nullish receivers with one evaluation and lower to ES2015. Optional calls,
+nullish receivers with one evaluation and lower to ES2015. Ordinary property,
+index and call continuations after an unparenthesized optional segment fail
+closed until full chained short-circuit lowering is implemented. Optional calls,
 assignment through an optional chain, full `null` source semantics and generic
 nullability narrowing remain unsupported.
 

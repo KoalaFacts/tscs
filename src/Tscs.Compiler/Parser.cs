@@ -1311,12 +1311,22 @@ internal sealed class Parser(string file, List<Token> tokens)
     private ValueNode ParsePrimary()
     {
         ValueNode value=ParsePrimaryValue();
+        // Only explicit ?. segments are lowered. An unparenthesized ordinary
+        // continuation would otherwise incorrectly execute after a nullish
+        // receiver; reject it until full optional-chain continuation lowering.
+        // Parentheses begin a separate chain with standard JS semantics.
+        bool activeOptionalChain=false;
         // Postfix access binds more tightly than unary/binary operators. Named
         // calls and grouped expressions can both produce object receivers.
         while(true)
         {
-            if(Eat(TokenKind.Dot))
+            if(Current.Kind==TokenKind.Dot)
+            {
+                if(activeOptionalChain)
+                    Unsupported(Current,"Non-optional continuation after ?. is not implemented.");
+                Take();
                 value=new ValuePropertyAccess(value,ReadPropertyName(allowString:false));
+            }
             else if(Current.Kind==TokenKind.QuestionDot)
             {
                 var optional=Take();
@@ -1331,9 +1341,12 @@ internal sealed class Parser(string file, List<Token> tokens)
                 else if(Current.Kind==TokenKind.Identifier)
                     value=new ValuePropertyAccess(value,ReadPropertyName(allowString:false),true);
                 else Unsupported(optional,"Optional access supports named properties and bracketed indices; optional calls are not implemented.");
+                activeOptionalChain=true;
             }
             else if(Current.Kind==TokenKind.OpenBracket)
             {
+                if(activeOptionalChain)
+                    Unsupported(Current,"Non-optional index continuation after ?. is not implemented.");
                 var open=Take();
                 var index=ParseWithInAllowed(ParseValue);
                 if(Current.Kind!=TokenKind.CloseBracket)
@@ -1341,7 +1354,11 @@ internal sealed class Parser(string file, List<Token> tokens)
                 value=new ValueElementAccess(value,open,index,Take());
             }
             else if(Current.Kind==TokenKind.OpenParen)
+            {
+                if(activeOptionalChain)
+                    Unsupported(Current,"Call continuation after ?. is not implemented.");
                 value=ParseCall(value);
+            }
             else if(Current.Kind==TokenKind.Bang && !Current.LineBreak)
                 value=new ValueNonNull(value,Take());
             else break;
