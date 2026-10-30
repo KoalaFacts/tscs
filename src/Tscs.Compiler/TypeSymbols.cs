@@ -115,6 +115,20 @@ internal static class CompilerTypes
         return options.Count switch {0=>Never,1=>options[0],_=>new UnionTypeSymbol(options)};
     }
 
+    // Nullish fallback retains non-undefined alternatives and checks its RHS.
+    // Null source literals and optional chaining remain outside this subset.
+    public static TypeSymbol CoalescingResult(TypeSymbol left,TypeSymbol right)
+    {
+        if(left.Equals(Any) || right.Equals(Any))return Any;
+        if(left.Equals(Unknown))return Unknown;
+        var alternatives=left is UnionTypeSymbol union
+            ?union.Alternatives.ToArray():[left];
+        var live=alternatives.Where(type=>!type.Equals(Undefined) && !type.Equals(Void)).ToList();
+        if(live.Count==alternatives.Length)return left;
+        live.Add(right);
+        return Union(live);
+    }
+
     public static TypeSymbol FromAnnotation(string name) => name switch
     {
         "number" => Number,

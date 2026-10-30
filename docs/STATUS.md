@@ -1,3 +1,16 @@
+## 2026-10-31 — Typed nullish fallback lowering (source candidate; NOT_RUN)
+
+The existing C# scanner, parser, checker and emitter now handle bounded `??`
+for optional object members, union values, chained fallbacks and callable
+values. The left expression is evaluated once and the right only if it is
+undefined/null at runtime; ES2015 output lowers the syntax without requiring
+ES2020. Unparenthesized mixing with `&&`/`||` is rejected. New source-backed
+xUnit positives/negatives, four-module Node output and ten pinned-Go
+code/exit cases are wired into the existing gates; **NOT_RUN at source
+creation**, with no release acceptance credit. Optional chaining and complete
+nullable flow analysis remain unsupported. Original TS7 remains 0 PASS /
+15,523 SKIP_UNIMPLEMENTED; dynamically expanded scope is UNEXPANDED.
+
 ## 2026-10-31 — Optional object/interface method contracts (source candidate; NOT_RUN)
 
 Finite `run?(n: T): R` signatures reuse method-type parsing, optional

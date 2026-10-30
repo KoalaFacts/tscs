@@ -1068,7 +1068,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     // Lower precedence than ||; the false arm is right-associative.
     private ValueNode ParseConditionalValue()
     {
-        var condition=ParseLogicalOr();
+        var condition=ParseNullishCoalescing();
         if(Current.Kind!=TokenKind.Question)return condition;
         var question=Take();
         if(++conditionalValueNesting>64)Unsupported(question,"Conditional expression nesting exceeds the compiler subset limit.");
@@ -1082,6 +1082,26 @@ internal sealed class Parser(string file, List<Token> tokens)
         }
         finally { conditionalValueNesting--; }
     }
+    // Coalescing binds below logical OR and above the conditional operator.
+    // TS forbids unparenthesized mixing with && and ||.
+    private ValueNode ParseNullishCoalescing()
+    {
+        var left=ParseLogicalOr();
+        while(Current.Kind==TokenKind.QuestionQuestion)
+        {
+            var op=Take();
+            if(IsBareLogical(left))
+                Unsupported(op,"Nullish coalescing cannot mix with && or || without parentheses.");
+            var right=ParseLogicalOr();
+            if(IsBareLogical(right))
+                Unsupported(op,"Nullish coalescing cannot mix with && or || without parentheses.");
+            left=new ValueBinary(left,op,right);
+        }
+        return left;
+    }
+    private static bool IsBareLogical(ValueNode value)=>
+        value is ValueBinary { Operator.Kind:TokenKind.AmpAmp or TokenKind.BarBar };
+
     private ValueNode ParseLogicalOr()
     {
         ValueNode left=ParseLogicalAnd();

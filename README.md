@@ -77,6 +77,12 @@ wider values already held in variables can satisfy narrower required shapes.
 Writing a member of an imported or `const` object does not rebind that object.
 Missing members and incompatible assignments are rejected before emission.
 
+Bounded typed nullish fallbacks (`config.value ?? 42`) keep non-undefined
+alternatives and lower to ES2015 with single evaluation of the left
+expression and a lazy right side. Unparenthesized mixing with `&&`/`||`
+fails explicitly. Optional chaining and general null/flow semantics remain
+unimplemented.
+
 Finite optional data members (`value?: number`) are checked across type aliases, interfaces, inheritance and modules; omitted keys remain optional, while reads have a `number | undefined` type. Bounded readonly optional writes are rejected. Finite optional method signatures are supported; optional-property control-flow narrowing, readonly arrays, getter/setter accessors,
 index signatures, general iterable spreads, computed keys, prototype-setter literals,
 generic or unrestricted interface inheritance, or recursive type aliases. Named,

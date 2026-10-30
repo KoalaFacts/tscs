@@ -1,0 +1,59 @@
+{
+  "kind": "BOUNDED_NULLISH_COALESCING_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "nullish-coalescing:positive-01",
+      "source": "let c:{value?:number}={};let n:number=c.value ?? 42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "nullish-coalescing:positive-02",
+      "source": "let c:{value?:number}={value:21};let n:number=(c.value ?? 0)*2;",
+      "expectedCodes": []
+    },
+    {
+      "id": "nullish-coalescing:positive-03",
+      "source": "function choose(c:{value?:number}):number{return c.value ?? 42;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "nullish-coalescing:positive-04",
+      "source": "let c:{label?:string}={};let s:string=c.label ?? \"fallback\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "nullish-coalescing:positive-05",
+      "source": "let c:{value?:number}={};let n:number=c.value ?? (true ? 42 : 0);",
+      "expectedCodes": []
+    },
+    {
+      "id": "nullish-coalescing:positive-06",
+      "source": "let c:{value?:number}={};let n:number=c.value ?? c.value ?? 42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "nullish-coalescing:positive-07",
+      "source": "interface Op{run?(n:number):number}let op:Op={};let cb:(n:number)=>number=op.run ?? ((n:number):number=>n+n);",
+      "expectedCodes": []
+    },
+    {
+      "id": "nullish-coalescing:positive-08",
+      "source": "let c:{value?:number}={};let n:number=(c.value ?? 42)*1;",
+      "expectedCodes": []
+    },
+    {
+      "id": "nullish-coalescing:negative-01",
+      "source": "let c:{value?:number}={};let n:number=c.value ?? \"bad\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "nullish-coalescing:negative-02",
+      "source": "let c:{value?:number}={};let n:number=c.value ?? missing;",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    }
+  ]
+}
