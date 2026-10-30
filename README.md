@@ -77,7 +77,7 @@ wider values already held in variables can satisfy narrower required shapes.
 Writing a member of an imported or `const` object does not rebind that object.
 Missing members and incompatible assignments are rejected before emission.
 
-This does **not** implement optional members, readonly arrays, methods/accessors,
+This does **not** implement optional members, readonly arrays, getter/setter accessors,
 index signatures, general iterable spreads, computed keys, prototype-setter literals,
 generic or unrestricted interface inheritance, or recursive type aliases. Named,
 non-generic interfaces can extend finite object/interface shapes with checked
@@ -149,6 +149,18 @@ array-rest parameters use the same existing bounded semantics. This is a
 function-valued structural member, not a method declaration or `this` binding;
 method overload merging, general `this`, generics, optional methods and
 readonly method modifiers are not implemented.
+
+## Checked object literal methods (bounded)
+
+Concise object literal methods now run through typed parameter binding,
+function-body checking, structural method contracts, and native ES2015 method
+emission: `const op = { twice(n: number) { return n + n; } }`.
+Required interfaces, extracted callbacks, nested methods, default parameters
+and final array-rest parameters reuse existing constraints. The emitted method
+retains JavaScript's non-constructible method semantics rather than replacing it
+with a constructor-valued function property. Untyped parameters, async/generator
+methods, computed method names, `super`, full `this` semantics, method overloads
+and class methods are not implemented.
 
 ## Checked member and returned-function calls (bounded)
 
