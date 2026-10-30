@@ -1,3 +1,20 @@
+## 2026-10-31 — Guarded optional function and member calls (source candidate; NOT_RUN)
+
+C# Parser, AST, TypeChecker and ES2015 emitter now check finite `fn?.(args)`,
+`box.optionalMethod?.(args)` and static bracket-member calls. Optional
+function values retain typed arguments and return `T | undefined` when their
+callee can be missing; runtime lowering evaluates receivers/callees exactly
+once, delays arguments until the function exists, and preserves member-call
+`this` through `Function.prototype.call`. Multi-module Node runtime and
+negative no-emit cases, source-backed xUnit cases, and ten pinned-Go bounded
+source/code/exit comparisons are wired into existing gates. At source creation
+all checks are NOT_RUN, not full original TS7 acceptance. Compound short-circuit
+chains (`obj?.method?.()`), optional-chain continuations, arbitrary `null`
+source syntax, untyped `this` source expressions, and general flow narrowing
+remain unimplemented and fail closed. Original TS7 acceptance stays
+0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED; no release gate,
+pin, protection or minimum-count change.
+
 ## 2026-10-31 — Finite optional member/index reads (source candidate; NOT_RUN)
 
 C# scanner/parser, AST, TypeChecker, structural unions and ES2015 emitter now
