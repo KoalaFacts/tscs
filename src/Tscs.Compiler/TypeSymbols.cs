@@ -418,6 +418,11 @@ internal static class CompilerTypes
             }
         }
         if(left.Equals(Any)||right.Equals(Any))return true;
+        // A null sentinel may be compared with a nullish union containing
+        // structural objects, arrays or functions. The existing primitive
+        // collector intentionally rejects those mixed unions otherwise.
+        if((left.Equals(Null) && ContainsNullish(right)) ||
+           (right.Equals(Null) && ContainsNullish(left)))return true;
         return Collect(left,a)&&Collect(right,b)&&a.Overlaps(b);
     }
 

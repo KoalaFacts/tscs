@@ -102,6 +102,46 @@
       "expectedCodes": [
         "TS2345"
       ]
+    },
+    {
+      "id": "null-literal:positive-13",
+      "source": "function read(v:{value:number}|null):number{if(v===null){return 0;}return v.value;}let n:number=read({value:42});",
+      "expectedCodes": []
+    },
+    {
+      "id": "null-literal:positive-14",
+      "source": "function read(v:{value:number}|null):number{if(v!==null){return v.value;}return 0;}let n:number=read(null);",
+      "expectedCodes": []
+    },
+    {
+      "id": "null-literal:positive-15",
+      "source": "function read(v:{value:number}|null):number{if(null===v){return 0;}return v.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "null-literal:positive-16",
+      "source": "function read(v:{value:number}|null):number{if(null!==v){return v.value;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "null-literal:positive-17",
+      "source": "function read(v:number|null|undefined):number{if(v==null){return 0;}return v*2;}let n:number=read(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "null-literal:positive-18",
+      "source": "function read(v:number|null|undefined):number{if(v!=null){return v*2;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "null-literal:positive-19",
+      "source": "function read(v:{value:number}|null):number{return v===null?0:v.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "null-literal:positive-20",
+      "source": "function read(v:{value:number}|null):number{if(!(v===null)){return v.value;}return 0;}",
+      "expectedCodes": []
     }
   ]
 }

@@ -21,18 +21,28 @@ try {
       'import type {Maybe,Fn} from "./model.js";',
       'export function read(m:Maybe):number{return m?.value ?? 42;}',
       'export function requirePresent(m:Maybe):number{return m!.value;}',
-      'export function invoke(fn:Fn|null):number{return fn?.(21) ?? 42;}'
+      'export function invoke(fn:Fn|null):number{return fn?.(21) ?? 42;}',
+      'export function strictRead(m:Maybe):number{if(m===null){return 0;}return m.value*2;}',
+      'export function reversedRead(m:Maybe):number{if(null!==m){return m.value;}return 0;}',
+      'export function looseRead(m:Maybe|undefined):number{if(m!=null){return m.value;}return 0;}',
+      'export function conditionalRead(m:Maybe):number{return m===null?0:m.value;}'
     ].join('\n'),
     'entry.ts':[
       'import {make,none,calls} from "./data.js";',
-      'import {read,requirePresent,invoke} from "./logic.js";',
+      'import {read,requirePresent,invoke,strictRead,reversedRead,looseRead,conditionalRead} from "./logic.js";',
       'export const result:number=read(make(21))*2;',
       'export const missing:number=read(none());',
       'export const present:number=requirePresent(make(21));',
       'export const fallback:number=null ?? 42;',
       'export const callbackMissing:number=invoke(null);',
       'export const callbackPresent:number=invoke((n:number):number=>n+n);',
-      'export const totalCalls:number=calls;'
+      'export const totalCalls:number=calls;',
+      'export const strictGuard:number=strictRead({value:21});',
+      'export const strictMissing:number=strictRead(null);',
+      'export const reversedGuard:number=reversedRead({value:21});',
+      'export const loosePresent:number=looseRead({value:21});',
+      'export const looseMissing:number=looseRead(void 0);',
+      'export const ternaryGuard:number=conditionalRead({value:21});'
     ].join('\n')
   };
   for(const [name,source] of Object.entries(sources))writeFileSync(join(dir,name),source+'\n');
@@ -53,8 +63,8 @@ try {
     assert.ok(existsSync(join(dir,name+'.js')),'missing module '+name);
   assert.match(readFileSync(join(dir,'data.js'),'utf8'),/return null/);
   const runtime=spawnSync(process.execPath,['--input-type=module','--eval',[
-    'import {result,missing,present,fallback,callbackMissing,callbackPresent,totalCalls} from "./entry.js";',
-    'if(result!==42||missing!==42||present!==21||fallback!==42||callbackMissing!==42||callbackPresent!==42||totalCalls!==3)',
+    'import {result,missing,present,fallback,callbackMissing,callbackPresent,totalCalls,strictGuard,strictMissing,reversedGuard,loosePresent,looseMissing,ternaryGuard} from "./entry.js";',
+    'if(result!==42||missing!==42||present!==21||fallback!==42||callbackMissing!==42||callbackPresent!==42||totalCalls!==3||strictGuard!==42||strictMissing!==0||reversedGuard!==21||loosePresent!==21||looseMissing!==0||ternaryGuard!==21)',
     '  throw Error("null literal runtime, nullable call or single-evaluation regression");'
   ].join('\n')],{cwd:dir,encoding:'utf8',timeout:15000});
   assert.equal(runtime.error,undefined,String(runtime.error));
@@ -65,7 +75,10 @@ try {
     ['inverse','let bad:null=21;','TS2322'],
     ['wrong-union','let bad:number|null="bad";','TS2322'],
     ['missing-name','let bad:null=missing;','TS2304'],
-    ['unguarded','let o:{value:number}|null=null;let bad:number=o.value;','TS2339']
+    ['unguarded','let o:{value:number}|null=null;let bad:number=o.value;','TS2339'],
+    ['guard-wrong-arm','function bad(m:{value:number}|null):number{if(m===null){return m.value;}return 0;}','TS2339'],
+    ['strict-undefined','function bad(m:{value:number}|null|undefined):number{if(m!==null){return m.value;}return 0;}','TS2339'],
+    ['guard-rebound','function bad(m:{value:number}|null):number{if(m===null){return 0;}m=null;return m.value;}','TS2339']
   ];
   for(const [id,source,code] of invalid){
     const file=join(dir,'invalid-'+id+'.ts');writeFileSync(file,source);
@@ -74,5 +87,5 @@ try {
     assert.match(r.stdout+r.stderr,new RegExp(code));
     assert.equal(existsSync(file.replace(/\.ts$/,'.js')),false,'invalid emitted JS: '+id);
   }
-  console.log('explicit null: four ES2015 modules executed, nullable fallbacks/calls and six invalid no-emit sources');
+  console.log('explicit null and equality flow: four ES2015 modules executed, strict/loose/ternary guards and nine invalid no-emit sources');
 } finally {rmSync(dir,{recursive:true,force:true});}

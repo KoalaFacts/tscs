@@ -800,7 +800,15 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 :new DiscriminantBranches(left.Symbol,original,left.WhenFalse);
         }
         if(condition is not ValueBinary comparison ||
-           comparison.Operator.Kind is not (TokenKind.StrictEqual or TokenKind.StrictNotEqual))
+           comparison.Operator.Kind is not (TokenKind.StrictEqual or TokenKind.StrictNotEqual or
+               TokenKind.EqualEqual or TokenKind.BangEqual))
+            return null;
+
+        // The null comparison partition is operator-sensitive: strict equality
+        // removes only null, while ==/!= null also matches undefined.
+        if(TryNarrowNullComparison(comparison,scope) is { } nullGuard)
+            return nullGuard;
+        if(comparison.Operator.Kind is not (TokenKind.StrictEqual or TokenKind.StrictNotEqual))
             return null;
 
         // typeof guards share existing branch-local and returning-guard flow.
@@ -837,6 +845,58 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             :new DiscriminantBranches(symbol,onDifferent,onEqual);
     }
 
+
+    // A simple parameter/local may be narrowed by a null sentinel without
+    // changing its declared assignment contract. Do not narrow arbitrary member
+    // paths, any/unknown, or unions without both reachable alternatives.
+    private static DiscriminantBranches? TryNarrowNullComparison(ValueBinary comparison,Scope scope)
+    {
+        static bool IsNull(ValueNode source)
+        {
+            while(source is ValueParenthesized grouped)source=grouped.Expression;
+            return source is ValueAtom { Token.Kind:TokenKind.Null };
+        }
+        static bool TryIdentifier(ValueNode source,out Token name)
+        {
+            while(source is ValueParenthesized grouped)source=grouped.Expression;
+            if(source is ValueAtom { Token.Kind:TokenKind.Identifier } atom)
+            {
+                name=atom.Token;
+                return true;
+            }
+            name=default;
+            return false;
+        }
+
+        Token variable;
+        if(IsNull(comparison.Left))
+        {
+            if(!TryIdentifier(comparison.Right,out variable))return null;
+        }
+        else if(IsNull(comparison.Right))
+        {
+            if(!TryIdentifier(comparison.Left,out variable))return null;
+        }
+        else return null;
+
+        var symbol=scope.Find(variable.Text);
+        if(symbol?.Type is not UnionTypeSymbol union)return null;
+        bool loose=comparison.Operator.Kind is TokenKind.EqualEqual or TokenKind.BangEqual;
+        var matching=new List<TypeSymbol>();
+        var different=new List<TypeSymbol>();
+        foreach(var alternative in union.Alternatives)
+        {
+            bool matchesNull=alternative.Equals(CompilerTypes.Null) ||
+                (loose && alternative.Equals(CompilerTypes.Undefined));
+            (matchesNull?matching:different).Add(alternative);
+        }
+        if(matching.Count==0 || different.Count==0)return null;
+        var equal=CompilerTypes.Union(matching);
+        var other=CompilerTypes.Union(different);
+        return comparison.Operator.Kind is TokenKind.StrictEqual or TokenKind.EqualEqual
+            ?new DiscriminantBranches(symbol,equal,other)
+            :new DiscriminantBranches(symbol,other,equal);
+    }
 
     // Bounded checkTypeOfExpression/narrowTypeByTypeof: split only unions of
     // primitive families and their literals. Do not guess about any/objects.

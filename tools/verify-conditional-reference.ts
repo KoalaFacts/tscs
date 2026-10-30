@@ -29,7 +29,7 @@ assert.equal(suite.kind,compound?'BOUNDED_COMPOUND_GUARDS_NOT_ORIGINAL_TS7_ACCEP
     :nullLiteral?'BOUNDED_NULL_LITERAL_NOT_ORIGINAL_TS7_ACCEPTANCE'
     :optionalChain?'BOUNDED_OPTIONAL_MEMBER_ACCESS_NOT_ORIGINAL_TS7_ACCEPTANCE'
     :'BOUNDED_CONDITIONAL_VALUES_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,nullLiteral?18:voidUnary?15:compound?18:nullish?10:nonNull?14:optionalChain?26:optionalCall?10:23,'do not shrink the registered cohort');
+assert.equal(suite.cases.length,nullLiteral?26:voidUnary?15:compound?18:nullish?10:nonNull?14:optionalChain?26:optionalCall?10:23,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 // The cohort includes number[] indexing and length. Use the already
 // verified array profile for BOTH compilers, not the empty bootstrap Array<T>.
