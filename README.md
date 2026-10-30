@@ -150,6 +150,18 @@ function-valued structural member, not a method declaration or `this` binding;
 method overload merging, general `this`, generics, optional methods and
 readonly method modifiers are not implemented.
 
+## Checked object literal methods (bounded)
+
+Concise object literal methods now run through typed parameter binding,
+function-body checking, structural method contracts, and native ES2015 method
+emission: `const op = { twice(n: number) { return n + n; } }`.
+Required interfaces, extracted callbacks, nested methods, default parameters
+and final array-rest parameters reuse existing constraints. The emitted method
+retains JavaScript's non-constructible method semantics rather than replacing it
+with a constructor-valued function property. Untyped parameters, async/generator
+methods, computed method names, `super`, full `this` semantics, method overloads
+and class methods are not implemented.
+
 ## Checked member and returned-function calls (bounded)
 
 Function-valued object properties now support direct checked calls such as

@@ -5,16 +5,20 @@ import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {join,resolve,basename} from 'node:path';
 
 // Fixed pinned TypeScript Go reference, independently from original TS7 acceptance.
-const [referenceArg,outputArg]=process.argv.slice(2);
+const [referenceArg,outputArg,suiteArg]=process.argv.slice(2);
 assert.ok(referenceArg&&outputArg,'usage: node tools/verify-function-expression-reference.ts <pinned-go-tsc> <new-evidence-directory>');
 const reference=resolve(referenceArg),out=resolve(outputArg),root=process.cwd();
 assert.ok(!existsSync(out),'refusing to overwrite source-bound run evidence');
 mkdirSync(out,{recursive:true});
 const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
-const suitePath='fixtures/function-expression/semantic-cases.json';
+const suitePath=suiteArg??'fixtures/function-expression/semantic-cases.json';
+const objectMethods=suitePath==='fixtures/object-method/semantic-cases.json';
+assert.ok(suiteArg==null || objectMethods,'unexpected bounded suite');
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
-assert.equal(suite.kind,'BOUNDED_TYPED_FUNCTION_EXPRESSIONS_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,34,'do not shrink frozen or additive reference cases');
+assert.equal(suite.kind,objectMethods
+  ?'BOUNDED_OBJECT_LITERAL_METHODS_NOT_ORIGINAL_TS7_ACCEPTANCE'
+  :'BOUNDED_TYPED_FUNCTION_EXPRESSIONS_NOT_ORIGINAL_TS7_ACCEPTANCE');
+assert.equal(suite.cases.length,objectMethods?14:34,'do not shrink the frozen reference cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const profilePath='fixtures/minimal.d.ts',profile=readFileSync(profilePath,'utf8');
 const hash=(v:string|Buffer)=>createHash('sha256').update(v).digest('hex');
@@ -43,7 +47,9 @@ const codes=(r:ReturnType<typeof run>)=>
 const ids=new Set<string>(),rows:object[]=[],mismatch:object[]=[];
 for(let i=0;i<suite.cases.length;i++) {
   const item=suite.cases[i];
-  assert.match(item.id,/^function-expression:(positive|negative|named-positive|named-negative|inferred-positive|inferred-negative)-\d{2}$/);
+  assert.match(item.id,objectMethods
+    ?/^object-method:(positive|negative)-\d{2}$/
+    :/^function-expression:(positive|negative|named-positive|named-negative|inferred-positive|inferred-negative)-\d{2}$/);
   assert.ok(!ids.has(item.id),'duplicate case ID');ids.add(item.id);
   assert.equal(typeof item.source,'string');
   assert.ok(Array.isArray(item.expectedCodes));
@@ -92,4 +98,4 @@ for(const file of manifest) {
 }
 writeFileSync(join(out,'manifest.json'),JSON.stringify({files:manifest},null,2),{flag:'wx',flush:true});
 assert.deepEqual(mismatch,[],'genuine pinned Go mismatch; raw per-case results preserved');
-console.log('typed function expressions: '+rows.length+' stable source/code/exit cases matched pinned Go; original TS7 credit=0.');
+console.log((objectMethods?'object literal methods: ':'typed function expressions: ')+rows.length+' stable source/code/exit cases matched pinned Go; original TS7 credit=0.');

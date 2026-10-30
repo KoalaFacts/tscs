@@ -872,6 +872,8 @@ internal sealed class Parser(string file, List<Token> tokens)
                         Diagnostics.Add(Diagnostic.Error(file,name,"TS1117","An object literal cannot have multiple properties with the same name."));
                     if(Eat(TokenKind.Colon))
                         properties.Add(new ObjectProperty(name,ParseWithInAllowed(ParseValue)));
+                    else if(Current.Kind==TokenKind.OpenParen)
+                        properties.Add(new ObjectProperty(name,ParseObjectMethod(name),Method:true));
                     else if(name.Kind==TokenKind.Identifier &&
                         (Current.Kind is TokenKind.Comma or TokenKind.Close))
                         properties.Add(new ObjectProperty(name,new ValueAtom(name,Shorthand:true)));
@@ -884,6 +886,29 @@ internal sealed class Parser(string file, List<Token> tokens)
             return new ValueObject(open,properties,Take());
         }
         finally { objectNesting--; }
+    }
+
+    // Method shorthand has its own ES2015 runtime form: it is not an
+    // arrow and does not acquire a function-valued property's prototype.
+    // The checked body reuses the ordinary typed function-expression contract.
+    private ValueArrow ParseObjectMethod(Token name)
+    {
+        if(++arrowNesting>32)
+            Unsupported(name,"Object method nesting exceeds the compiler subset limit.");
+        try
+        {
+            if(!Eat(TokenKind.OpenParen))
+                Unsupported(Current,"Expected '(' after object method name.");
+            var parameters=ParseTypedExpressionParameters();
+            TypeSyntax? result=Eat(TokenKind.Colon)?ReadTypeAnnotation():null;
+            if(!Eat(TokenKind.Open))
+                Unsupported(Current,"Object methods require a braced body.");
+            var body=Parse(1,true);
+            if(!Eat(TokenKind.Close))
+                Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+            return new ValueArrow(name,parameters,result,null,body,FunctionExpression:true);
+        }
+        finally { arrowNesting--; }
     }
 
     // Single precedence ladder shared by variable, call, return, assignment

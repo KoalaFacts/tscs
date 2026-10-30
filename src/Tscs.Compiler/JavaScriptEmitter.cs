@@ -480,6 +480,38 @@ internal static class JavaScriptEmitter
             void Node(ValueNode node,int parentPrecedence=0,bool right=false)=>
                 pending.Push(new(node,null,parentPrecedence,right));
 
+            // A concise method must stay a native ES2015 method (not
+            // "key: function"), since methods have no constructor prototype.
+            // The body has already been checked as a lexical function scope.
+            void ObjectEntry(ObjectProperty entry)
+            {
+                if(!entry.Method)
+                {
+                    Node(entry.Value);
+                    Text(entry.Name.Text+": ");
+                    return;
+                }
+                if(entry.Value is not ValueArrow method ||
+                   !method.FunctionExpression || method.BlockBody is not { } body)
+                    throw new NotSupportedException("Unvalidated object method syntax.");
+                pending.Push(new(null,null,0,false,body));
+                Text(" ");
+                Text(")");
+                for(int i=method.Parameters.Count-1;i>=0;i--)
+                {
+                    var parameter=method.Parameters[i];
+                    if(parameter.DefaultValue is { } initializer)
+                    {
+                        Node(initializer);
+                        Text(" = ");
+                    }
+                    Text(parameter.Name.Text);
+                    if(parameter.Rest)Text("...");
+                    if(i>0)Text(", ");
+                }
+                Text(entry.Name.Text+"(");
+            }
+
             Node(value);
             while(pending.Count>0)
             {
@@ -621,8 +653,8 @@ internal static class JavaScriptEmitter
                                 else
                                 {
                                     Text(" }");
-                                    Node(entry.Value);
-                                    Text("{ "+entry.Name.Text+": ");
+                                    ObjectEntry(entry);
+                                    Text("{ ");
                                 }
                                 Text(", ");
                             }
@@ -638,8 +670,7 @@ internal static class JavaScriptEmitter
                             for(int i=literalObject.Properties.Count-1;i>=0;i--)
                             {
                                 var entry=literalObject.Properties[i];
-                                Node(entry.Value);
-                                Text(entry.Name.Text+": ");
+                                ObjectEntry(entry);
                                 if(i>0)Text(", ");
                             }
                             Text("({ ");

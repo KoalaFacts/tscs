@@ -1,0 +1,84 @@
+{
+  "kind": "BOUNDED_OBJECT_LITERAL_METHODS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "object-method:positive-01",
+      "source": "const op={twice(n:number):number{return n+n;}};const result:number=op.twice(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:positive-02",
+      "source": "const op={twice(n:number){return n+n;}};const result:number=op.twice(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:positive-03",
+      "source": "interface Op{twice(n:number):number}const op:Op={twice(n:number):number{return n+n;}};const result:number=op.twice(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:positive-04",
+      "source": "const op={twice(n:number=21):number{return n+n;}};const result:number=op.twice();",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:positive-05",
+      "source": "const op={twice(n:number,...xs:number[]):number{return n+xs.length;}};const result:number=op.twice(40,1,1);",
+      "profile": "fixtures/array-iteration/minimal.d.ts",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:positive-06",
+      "source": "const box={inner:{twice(n:number):number{return n+n;}}};const result:number=box.inner.twice(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:positive-07",
+      "source": "const op={\"twice\"(n:number):number{return n+n;}};const result:number=op.twice(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:positive-08",
+      "source": "const offset:number=1;const op={plus(n:number):number{return n+offset;}};const result:number=op.plus(41);",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:positive-09",
+      "source": "const op={twice(n:number):number{return n+n;}};const cb:(n:number)=>number=op.twice;const result:number=cb(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:positive-10",
+      "source": "const op={twice(n:number){return n+n;},label:\"ok\"};const result:number=op.twice(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "object-method:negative-01",
+      "source": "const op={run(n:number):number{return \"bad\";}};",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "object-method:negative-02",
+      "source": "const op={run(n:number):number{return n;}};op.run(\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "object-method:negative-03",
+      "source": "const op={run(n:number):number{return n;}};op.run();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "object-method:negative-04",
+      "source": "const op={run(n:number):number{return missingName;}};",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    }
+  ]
+}

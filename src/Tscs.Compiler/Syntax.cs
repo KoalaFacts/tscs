@@ -53,7 +53,7 @@ internal sealed record ValueArrow(Token Open,IReadOnlyList<ParameterDeclaration>
 // A callee can be a function binding, checked member/index access or a returned callable.
 internal sealed record ValueCall(ValueNode Callee,Token Open,IReadOnlyList<ValueNode> Arguments,int SpreadIndex=-1) : ValueNode;
 // Ordered object spread entries carry their ellipsis as Name.
-internal sealed record ObjectProperty(Token Name,ValueNode Value,bool Spread=false);
+internal sealed record ObjectProperty(Token Name,ValueNode Value,bool Spread=false,bool Method=false);
 internal sealed record ValueObject(Token Open,IReadOnlyList<ObjectProperty> Properties,Token Close) : ValueNode;
 internal sealed record ValueArray(Token Open,IReadOnlyList<ValueNode> Elements,Token Close) : ValueNode;
 // Spread operands are evaluated once, in element order, and must have a checked array type.

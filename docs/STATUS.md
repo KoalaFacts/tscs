@@ -1,3 +1,18 @@
+## 2026-10-30 — Checked native ES2015 object literal methods (candidate; NOT_RUN)
+
+C# Parser accepts explicitly typed object literal method parameters and optional
+return annotations, checking bodies using the existing lexical function value,
+structural method contract, and callable-member pipeline. JavaScriptEmitter
+writes native ES2015 method shorthand (not `key: function`), preserving its
+non-constructible method identity. Positives cover default/rest parameters,
+nested objects, callbacks and cross-module interface use; negatives reject
+wrong returns, arguments, arity and missing names without emitting JavaScript.
+A separate 14-source fixed pinned-Go code/exit cohort is registered without
+altering the 34 existing function-expression references. At source creation
+new tests are NOT_RUN, not accepted. Original upstream TS7 remains 0 PASS /
+15,523 SKIP_UNIMPLEMENTED, with dynamic scope UNEXPANDED. No pin, release
+gate, protection or minimum-count changes.
+
 ## 2026-10-30 — Checked direct member and callable-expression invocation (candidate; NOT_RUN)
 
 C# Parser, TypeChecker and JavaScriptEmitter now carry a checked callee
