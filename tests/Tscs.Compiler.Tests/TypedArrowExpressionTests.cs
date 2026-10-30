@@ -35,7 +35,7 @@ public sealed class TypedArrowExpressionTests
     [InlineData("""const inc=(n:number)=>missing;""","TS2304")]
     [InlineData("""const inc=(n:number)=>n;let bad:(n:string)=>number=inc;""","TS2322")]
     [InlineData("""const noType=(n)=>n;""","TSCS1001")]
-    [InlineData("""const bad=(n:number):number=>{return \"no\";};""","TS2322")]
+    [InlineData("""const bad=(n:number):number=>{return "no";};""","TS2322")]
     [InlineData("""const bad=(n:number):string=>{return n;};""","TS2322")]
     [InlineData("""const bad=(n:number):number=>{return missing;};""","TS2304")]
     [InlineData("""const missing=(n:number):number=>{if(n>0){return n;}};""","TSCS1001")]
