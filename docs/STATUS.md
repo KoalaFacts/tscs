@@ -1,3 +1,15 @@
+## 2026-10-30 — Finite optional object data properties (source candidate; NOT_RUN)
+
+Parser, structural TypeResolver/TypeChecker, interface heritage, `keyof`/indexed
+access and ES2015 type erasure now model optional data members without silently
+treating missing keys as present. Reads retain `T | undefined`, writes check
+`T | undefined`, fresh excess checks and required-member diagnostics remain
+active. Conditional object spread overlap and optional methods remain unsupported.
+Source-backed C# positive/negative cases, four-module emitted Node execution and
+real error/no-emit checks are separate from full original TS7 acceptance.
+At candidate creation all new tests are NOT_RUN; full original scope remains
+0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic scope UNEXPANDED.
+
 ## 2026-10-30 — Checked native ES2015 object literal methods (candidate; NOT_RUN)
 
 C# Parser accepts explicitly typed object literal method parameters and optional

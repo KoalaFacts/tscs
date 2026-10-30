@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 
 namespace Tscs;
 
-// Required data properties. Runtime lookup uses canonical names, while numeric
+// Finite required and optional data properties. Runtime lookup uses canonical names, while numeric
 // source-key identity survives for keyof (0 and "0" have distinct key types).
 // Freshness remains a syntax/checking concern.
 internal sealed record ObjectTypeSymbol : TypeSymbol
@@ -10,14 +10,19 @@ internal sealed record ObjectTypeSymbol : TypeSymbol
     public IReadOnlyDictionary<string,TypeSymbol> Members { get; }
     public IReadOnlySet<string> ReadonlyMembers { get; }
     public IReadOnlySet<string> NumericMembers { get; }
+    public IReadOnlySet<string> OptionalMembers { get; }
 
     public ObjectTypeSymbol(IEnumerable<KeyValuePair<string,TypeSymbol>> members,
-        IEnumerable<string>? readonlyMembers=null,IEnumerable<string>? numericMembers=null)
+        IEnumerable<string>? readonlyMembers=null,IEnumerable<string>? numericMembers=null,
+        IEnumerable<string>? optionalMembers=null)
     {
         Members=new ReadOnlyDictionary<string,TypeSymbol>(
             new Dictionary<string,TypeSymbol>(members,StringComparer.Ordinal));
         ReadonlyMembers=new HashSet<string>(readonlyMembers??Array.Empty<string>(),StringComparer.Ordinal);
         NumericMembers=new HashSet<string>(numericMembers??Array.Empty<string>(),StringComparer.Ordinal);
+        OptionalMembers=new HashSet<string>(optionalMembers??Array.Empty<string>(),StringComparer.Ordinal);
+        if(OptionalMembers.Any(name=>!Members.ContainsKey(name)))
+            throw new ArgumentException("Optional member identities must belong to the object.",nameof(optionalMembers));
         if(NumericMembers.Any(name=>!Members.ContainsKey(name)))
             throw new ArgumentException("Numeric member identities must belong to the object.",nameof(numericMembers));
     }
@@ -56,7 +61,8 @@ internal static class TypeDisplay
                     {
                         Text(";");
                         Type(member.Value);
-                        Text((shape.ReadonlyMembers.Contains(member.Key)?" readonly ":" ")+member.Key+": ");
+                        Text((shape.ReadonlyMembers.Contains(member.Key)?" readonly ":" ")+member.Key+
+                            (shape.OptionalMembers.Contains(member.Key)?"?":"")+": ");
                     }
                     Text("{");
                     break;

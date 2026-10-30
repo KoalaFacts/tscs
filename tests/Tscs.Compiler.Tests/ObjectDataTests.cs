@@ -41,7 +41,6 @@ public sealed class ObjectDataTests
         Assert.Contains(Compilation.Check("objects.ts",source),d=>d.Code==code);
 
     [Theory]
-    [InlineData("let x: { value?: number } = {};")]
     [InlineData("const x = { get value() { return 1; } };")]
     [InlineData("const x = { ...42 };")]
     [InlineData("const x = { [name]: 1 };")]

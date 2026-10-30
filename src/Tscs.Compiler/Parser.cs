@@ -656,7 +656,7 @@ internal sealed class Parser(string file, List<Token> tokens)
         else if(Current.Kind is TokenKind.Identifier or TokenKind.Void)
         {
             var name=Take();
-            type=name.Text is "number" or "string" or "boolean" or "any" or "void"
+            type=name.Text is "number" or "string" or "boolean" or "any" or "void" or "undefined"
                 ?new PrimitiveTypeSyntax(name):new NamedTypeSyntax(name);
         }
         else if(Current.Kind is TokenKind.String or TokenKind.Number or TokenKind.True or TokenKind.False)
@@ -720,6 +720,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                     tokens[position+1].Kind is not (TokenKind.Colon or TokenKind.OpenParen);
                 if(readonlyMember)Take();
                 var name=ReadPropertyName(allowString:true,allowNumber:true);
+                bool optionalMember=Eat(TokenKind.Question);
                 if(!names.Add(PropertyName(name)))
                     Diagnostics.Add(Diagnostic.Error(file,name,"TS2300",$"Duplicate identifier '{PropertyName(name)}'."));
                 // Unsupported(...) throws; seed definite assignment for C# flow analysis.
@@ -730,11 +731,13 @@ internal sealed class Parser(string file, List<Token> tokens)
                 {
                     if(readonlyMember)
                         Unsupported(name,"Readonly modifiers on method signatures are not supported.");
+                    if(optionalMember)
+                        Unsupported(name,"Optional method signatures are not supported yet.");
                     memberType=ReadObjectMethodType(depth+1);
                 }
                 else
                     Unsupported(Current,"Object type members require ':' or a typed method signature.");
-                properties.Add(new ObjectTypeProperty(name,memberType,readonlyMember));
+                properties.Add(new ObjectTypeProperty(name,memberType,readonlyMember,optionalMember));
                 if(Eat(TokenKind.Semi)||Eat(TokenKind.Comma))continue;
                 if(Current.Kind==TokenKind.Close)break;
                 if(!Current.LineBreak)Unsupported(Current,"Expected a separator between object type members.");
