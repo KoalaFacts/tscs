@@ -137,6 +137,19 @@ references during inference require an explicit return annotation. Generators,
 implicit untyped parameters and `this` semantics remain unsupported. See
 [`typed-function-expressions`](docs/progress/typed-function-expressions.md).
 
+## Checked interface and object method signatures (bounded)
+
+Required callable members accept TypeScript method spelling such as
+`interface Op { double(n: number): number }` and
+`type Box = { make(n: number): number }`. The method signature becomes
+the existing checked function-type contract: a typed function/arrow value can
+implement it, be extracted and called, and cross module boundaries without
+emitting the interface or annotation. Optional trailing parameters and final
+array-rest parameters use the same existing bounded semantics. This is a
+function-valued structural member, not a method declaration or `this` binding;
+method overload merging, general `this`, generics, optional methods and
+readonly method modifiers are not implemented.
+
 ## Other implemented subsets
 
 The current pipeline includes primitive/`any` variables, lexical scopes, selected

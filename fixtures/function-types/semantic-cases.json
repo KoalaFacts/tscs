@@ -92,6 +92,57 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "function-types:positive-11",
+      "source": "interface Op{twice(n:number):number}const op:Op={twice:(n:number)=>n+n};const cb:(n:number)=>number=op.twice;let result:number=cb(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:positive-12",
+      "source": "type Op={sum(a:number,b:number):number};function add(a:number,b:number):number{return a+b;}const op:Op={sum:add};const cb:(a:number,b:number)=>number=op.sum;let result:number=cb(20,22);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:positive-13",
+      "source": "interface Op{twice(n:number):number;label:string}const op:Op={twice:(n:number)=>n+n,label:\"ok\"};const cb:(n:number)=>number=op.twice;let result:number=cb(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:positive-14",
+      "source": "interface Base{run(n:number):number}interface Child extends Base{label:string}const child:Child={run:(n:number)=>n+n,label:\"ok\"};const cb:(n:number)=>number=child.run;let result:number=cb(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:positive-15",
+      "source": "interface Step{step(n:number,extra?:number):number}const op:Step={step:(n:number,extra?:number):number=>n};const fn:(n:number,extra?:number)=>number=op.step;let result:number=fn(42);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:positive-16",
+      "source": "interface Step{run(base:number,...items:number[]):number}const op:Step={run:(base:number,...items:number[]):number=>base};const cb:(base:number,...items:number[])=>number=op.run;let result:number=cb(42,1,2);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:negative-07",
+      "source": "interface Op{twice(n:number):number}const op:Op={twice:(n:number):string=>\"bad\"};",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "function-types:negative-08",
+      "source": "interface Op{twice(n:number):number}const op:Op={twice:(n:number)=>n+n};const cb:(n:number)=>number=op.twice;cb(\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "function-types:negative-09",
+      "source": "interface Op{twice(n:number):number}const op:Op={twice:(n:number)=>n+n};const cb:(n:number)=>number=op.twice;cb();",
+      "expectedCodes": [
+        "TS2554"
+      ]
     }
   ]
 }

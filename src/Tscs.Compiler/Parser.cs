@@ -717,14 +717,23 @@ internal sealed class Parser(string file, List<Token> tokens)
                 // Contextual readonly; "readonly: number" remains an ordinary property name.
                 bool readonlyMember=Current.Kind==TokenKind.Identifier &&
                     Current.Text=="readonly" && position+1<tokens.Count &&
-                    tokens[position+1].Kind!=TokenKind.Colon;
+                    tokens[position+1].Kind is not (TokenKind.Colon or TokenKind.OpenParen);
                 if(readonlyMember)Take();
                 var name=ReadPropertyName(allowString:true,allowNumber:true);
                 if(!names.Add(PropertyName(name)))
                     Diagnostics.Add(Diagnostic.Error(file,name,"TS2300",$"Duplicate identifier '{PropertyName(name)}'."));
-                if(!Eat(TokenKind.Colon))
-                    Unsupported(Current,"Required object type members must have ':' and a type.");
-                properties.Add(new ObjectTypeProperty(name,ReadTypeAnnotation(depth+1),readonlyMember));
+                TypeSyntax memberType;
+                if(Eat(TokenKind.Colon))
+                    memberType=ReadTypeAnnotation(depth+1);
+                else if(Current.Kind==TokenKind.OpenParen)
+                {
+                    if(readonlyMember)
+                        Unsupported(name,"Readonly modifiers on method signatures are not supported.");
+                    memberType=ReadObjectMethodType(depth+1);
+                }
+                else
+                    Unsupported(Current,"Object type members require ':' or a typed method signature.");
+                properties.Add(new ObjectTypeProperty(name,memberType,readonlyMember));
                 if(Eat(TokenKind.Semi)||Eat(TokenKind.Comma))continue;
                 if(Current.Kind==TokenKind.Close)break;
                 if(!Current.LineBreak)Unsupported(Current,"Expected a separator between object type members.");
@@ -752,6 +761,44 @@ internal sealed class Parser(string file, List<Token> tokens)
             }
         }
         return type;
+    }
+
+
+    // Method signatures are required callable members, not executable method
+    // declarations. Reuse FunctionTypeSyntax so Binder, TypeResolver, structural
+    // relations and cross-module callbacks share one semantic representation.
+    private TypeSyntax ReadObjectMethodType(int depth)
+    {
+        if(depth>64)Unsupported(Current,"Method signature nesting exceeds the supported limit.");
+        var open=Take();
+        var parameters=new List<FunctionTypeParameter>();
+        bool sawOptional=false;
+        while(Current.Kind!=TokenKind.CloseParen)
+        {
+            if(parameters.Count>=32)Unsupported(Current,"Method signatures with over 32 parameters are unsupported.");
+            bool rest=Eat(TokenKind.Ellipsis);
+            if(Current.Kind!=TokenKind.Identifier)
+                Unsupported(Current,"Method parameters require named explicit types.");
+            var name=Take();
+            bool optional=Eat(TokenKind.Question);
+            if(rest && optional)
+                Unsupported(name,"Rest method parameters cannot be optional.");
+            if(sawOptional && !optional && !rest)
+                Unsupported(name,"Required method parameters cannot follow optional parameters.");
+            if(!Eat(TokenKind.Colon))
+                Unsupported(Current,"Method parameters require a type annotation.");
+            var type=ReadTypeAnnotation(depth+1);
+            if(rest && type is not ArrayTypeSyntax)
+                Unsupported(name,"Method rest parameters require an array type.");
+            parameters.Add(new FunctionTypeParameter(name,type,optional,rest));
+            if(optional)sawOptional=true;
+            if(rest && Current.Kind!=TokenKind.CloseParen)
+                Unsupported(Current,"Rest method parameters must be final.");
+            if(!Eat(TokenKind.Comma))break;
+        }
+        if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' in method signature.");
+        if(!Eat(TokenKind.Colon))Unsupported(Current,"Method signature requires a return type.");
+        return new FunctionTypeSyntax(open,parameters,ReadTypeAnnotation(depth+1));
     }
 
     internal static string PropertyName(Token token)=>token.Kind==TokenKind.String
