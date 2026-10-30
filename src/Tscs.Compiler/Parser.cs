@@ -1196,6 +1196,37 @@ internal sealed class Parser(string file, List<Token> tokens)
         try { return new ValueBinary(left,op,ParseUnary()); }
         finally { exponentNesting--; }
     }
+    // Calls retain the callee expression, not just a named binding token.
+    // Existing bounded spread/arity syntax stays unchanged.
+    private ValueCall ParseCall(ValueNode callee)
+    {
+        var open=Take();
+        if(++callNesting>64)Unsupported(open,"Nested calls exceed the compiler subset depth limit.");
+        try
+        {
+            var arguments=new List<ValueNode>();
+            int spreadIndex=-1;
+            if(Current.Kind!=TokenKind.CloseParen)
+            {
+                while(true)
+                {
+                    if(Current.Kind==TokenKind.Ellipsis)
+                    {
+                        Take();
+                        spreadIndex=arguments.Count;
+                    }
+                    arguments.Add(ParseWithInAllowed(ParseValue));
+                    if(spreadIndex>=0 && Current.Kind==TokenKind.Comma)
+                        Unsupported(Current,"Only one trailing array spread argument is supported yet.");
+                    if(!Eat(TokenKind.Comma))break;
+                }
+            }
+            if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after function arguments.");
+            return new ValueCall(callee,open,arguments,spreadIndex);
+        }
+        finally {callNesting--;}
+    }
+
     private ValueNode ParsePrimary()
     {
         ValueNode value=ParsePrimaryValue();
@@ -1213,6 +1244,8 @@ internal sealed class Parser(string file, List<Token> tokens)
                     Unsupported(Current,"Expected ']' after indexed access.");
                 value=new ValueElementAccess(value,open,index,Take());
             }
+            else if(Current.Kind==TokenKind.OpenParen)
+                value=ParseCall(value);
             else break;
         }
         // Same-line postfix binds after property/index access and before unary/binary.
@@ -1240,37 +1273,7 @@ internal sealed class Parser(string file, List<Token> tokens)
             finally { groupNesting--; }
         }
         if(token.Kind==TokenKind.Function)return ParseFunctionExpression();
-        if(token.Kind==TokenKind.Identifier)
-        {
-            Take();
-            if(!Eat(TokenKind.OpenParen))return new ValueAtom(token);
-            if(++callNesting>64)Unsupported(token,"Nested calls exceed the compiler subset depth limit.");
-            try
-            {
-                var arguments=new List<ValueNode>();
-                int spreadIndex=-1;
-                if(Current.Kind!=TokenKind.CloseParen)
-                {
-                    while(true)
-                    {
-                        if(Current.Kind==TokenKind.Ellipsis)
-                        {
-                            Take();
-                            spreadIndex=arguments.Count;
-                        }
-                        arguments.Add(ParseWithInAllowed(ParseValue));
-                        // General interleaved, repeated and trailing-comma spread
-                        // forms are not in this bounded call grammar.
-                        if(spreadIndex>=0 && Current.Kind==TokenKind.Comma)
-                            Unsupported(Current,"Only one trailing array spread argument is supported yet.");
-                        if(!Eat(TokenKind.Comma))break;
-                    }
-                }
-                if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after function arguments.");
-                return new ValueCall(token,arguments,spreadIndex);
-            }
-            finally { callNesting--; }
-        }
+        if(token.Kind==TokenKind.Identifier)return new ValueAtom(Take());
         if(token.Kind is TokenKind.Number or TokenKind.String or TokenKind.True or TokenKind.False)
             return new ValueAtom(Take());
         if(token.Kind is TokenKind.Semi or TokenKind.End or TokenKind.Close)

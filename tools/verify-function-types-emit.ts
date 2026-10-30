@@ -19,18 +19,22 @@ try {
     'export function double(value:number):number{return value+value;}',
     'export function apply(cb:Callback,value:number):number{return cb(value);}',
     'export const executor:Invoker=apply;',
-    'export const methodBox:MethodBox={handle:double};'
+    'export const methodBox:MethodBox={handle:double};',
+    'export const nested={inner:methodBox};'
   ].join('\n'));
-  writeFileSync(join(dir,'bridge.ts'),'export {double as operation,executor,methodBox} from "./logic.js";\n');
+  writeFileSync(join(dir,'bridge.ts'),'export {double as operation,executor,methodBox,nested} from "./logic.js";\n');
   writeFileSync(join(dir,'entry.ts'),[
     'import type {Callback,Box} from "./model.js";',
-    'import {operation,executor,methodBox} from "./bridge.js";',
+    'import {operation,executor,methodBox,nested} from "./bridge.js";',
     'const selected:Callback=operation;',
     'const box:Box={handler:selected};',
     'const extracted:Callback=box.handler;',
     'export const result:number=executor(extracted,21);',
     'const selectedMethod:(n:number)=>number=methodBox.handle;',
-    'export const methodResult:number=executor(selectedMethod,21);'
+    'export const methodResult:number=executor(selectedMethod,21);',
+    'export const directResult:number=methodBox.handle(21);',
+    'export const bracketResult:number=methodBox["handle"](21);',
+    'export const nestedResult:number=nested.inner.handle(21);'
   ].join('\n'));
   writeFileSync(join(dir,'project.json'),JSON.stringify({
     files:['entry.ts','minimal.d.ts'],compilerOptions:{module:'es2015',target:'es2015',noLib:true}
@@ -49,7 +53,7 @@ try {
   for(const name of ['model','logic','bridge','entry'])
     assert.ok(existsSync(join(dir,name+'.js')),'missing '+name+' JavaScript');
   const runtime=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,methodResult} from "./entry.js"; if(result!==42||methodResult!==42)throw Error("typed callback or method runtime mismatch");'],
+    'import {result,methodResult,directResult,bracketResult,nestedResult} from "./entry.js"; if([result,methodResult,directResult,bracketResult,nestedResult].some(n=>n!==42))throw Error("typed callback or member invocation runtime mismatch");'],
     {cwd:dir,encoding:'utf8',timeout:15000});
   assert.equal(runtime.error,undefined,String(runtime.error));
   assert.equal(runtime.status,0,runtime.stdout+runtime.stderr);
@@ -64,7 +68,11 @@ try {
     ['untyped-arrow-unsupported','const lambda=(n)=>n;','TSCS1001',1],
     ['method-return','interface Op{double(n:number):number}const op:Op={double:(n:number):string=>"bad"};','TS2322',2],
     ['method-argument','interface Op{double(n:number):number}const op:Op={double:(n:number)=>n+n};const cb:(n:number)=>number=op.double;cb("bad");','TS2345',2],
-    ['method-arity','interface Op{double(n:number):number}const op:Op={double:(n:number)=>n+n};const cb:(n:number)=>number=op.double;cb();','TS2554',2]
+    ['method-arity','interface Op{double(n:number):number}const op:Op={double:(n:number)=>n+n};const cb:(n:number)=>number=op.double;cb();','TS2554',2],
+    ['member-type','const op={double:(n:number)=>n+n};op.double("bad");','TS2345',2],
+    ['member-arity','const op={double:(n:number)=>n+n};op.double();','TS2554',2],
+    ['member-absent','const op={double:(n:number)=>n+n};op.missing(21);','TS2339',2],
+    ['member-not-callable','const op={value:42};op.value(21);','TSCS1001',1]
   ];
   for(const [name,code,expected,exit] of invalid) {
     const file=join(dir,'bad-'+name+'.ts');
@@ -74,5 +82,5 @@ try {
     assert.match(checked.stdout+checked.stderr,new RegExp(expected));
     assert.equal(existsSync(file.replace(/\.ts$/,'.js')),false,'invalid program emitted JS');
   }
-  console.log('typed function contracts: four-module ES2015 JavaScript result=42; eleven negative no-emit programs rejected.');
+  console.log('typed function contracts: four-module ES2015 JavaScript result=42; fifteen negative no-emit programs rejected.');
 } finally { rmSync(dir,{recursive:true,force:true}); }

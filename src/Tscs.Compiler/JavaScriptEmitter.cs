@@ -286,7 +286,7 @@ internal static class JavaScriptEmitter
                         if(atom.Token.Kind==TokenKind.Identifier)names.Add(atom.Token.Text);
                         break;
                     case ValueCall call:
-                        names.Add(call.Callee.Text);
+                        pending.Push(call.Callee);
                         foreach(var arg in call.Arguments)pending.Push(arg);
                         break;
                     case ValueBinary binary:
@@ -661,7 +661,7 @@ internal static class JavaScriptEmitter
                             if(i>0)Text(", ");
                         }
                         Text("(");
-                        Text(call.Callee.Text);
+                        Node(call.Callee,precedence);
                         break;
                     default:
                         throw new NotSupportedException("Unsupported expression in emitted AST.");

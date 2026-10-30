@@ -1069,6 +1069,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     case ValueParenthesized grouped:pending.Push(grouped.Expression);break;
                     case ValueTypeOperator typed:pending.Push(typed.Expression);break;
                     case ValueCall call:
+                        pending.Push(call.Callee);
                         foreach(var arg in call.Arguments)pending.Push(arg);
                         break;
                     case ValueElementAccess indexed:
@@ -1672,14 +1673,15 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     pending.Push((call,true));
                     for(int i=call.Arguments.Count-1;i>=0;i--)
                         pending.Push((call.Arguments[i],false));
+                    pending.Push((call.Callee,false));
                     continue;
                 }
                 var arguments=new TypeSymbol?[call.Arguments.Count];
                 for(int i=arguments.Length-1;i>=0;i--)arguments[i]=types.Pop();
-                var callee=Resolve(call.Callee,scope);
-                if(callee==null) { types.Push(null); continue; }
-                if(callee.Type is not FunctionTypeSymbol signature)
-                    throw new CompilationFailure(Diagnostic.Error(file,call.Callee,"TSCS1001",
+                var calleeType=types.Pop();
+                if(calleeType==null) { types.Push(null); continue; }
+                if(calleeType is not FunctionTypeSymbol signature)
+                    throw new CompilationFailure(Diagnostic.Error(file,call.Open,"TSCS1001",
                         "Calls currently require a declared function with an explicit signature."));
                 // A bounded call spread expands one statically typed array into
                 // a trailing array rest parameter. Fixed parameters must be
@@ -1691,23 +1693,23 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 {
                     if(restElement is null)
                     {
-                        Error(call.Callee,"TS2556",
+                        Error(call.Open,"TS2556",
                             "A spread argument must be passed to a rest parameter (tuple spreads are unsupported).");
                         types.Push(signature.ReturnType);
                         continue;
                     }
                     if(call.SpreadIndex!=arguments.Length-1 ||
                        call.SpreadIndex<signature.Parameters.Count-1)
-                        throw new CompilationFailure(Diagnostic.Error(file,call.Callee,"TSCS1001",
+                        throw new CompilationFailure(Diagnostic.Error(file,call.Open,"TSCS1001",
                             "A spread must follow all fixed parameters and be the final argument."));
                     if(arguments[call.SpreadIndex] is ArrayTypeSymbol expanded)
                     {
                         if(!CompilerTypes.IsAssignable(expanded.ElementType,restElement))
-                            Error(call.Callee,"TS2345",
+                            Error(call.Open,"TS2345",
                                 $"Argument of type '{expanded.ElementType.DisplayName}' is not assignable to parameter of type '{restElement.DisplayName}'.");
                     }
                     else if(arguments[call.SpreadIndex] is not null)
-                        throw new CompilationFailure(Diagnostic.Error(file,call.Callee,"TSCS1001",
+                        throw new CompilationFailure(Diagnostic.Error(file,call.Open,"TSCS1001",
                             "Spread arguments currently require a statically checked array type."));
                 }
                 if(supplied<signature.MinimumArguments ||
@@ -1718,7 +1720,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         :signature.MinimumArguments==signature.Parameters.Count
                             ?signature.Parameters.Count.ToString()
                             :$"{signature.MinimumArguments}-{signature.Parameters.Count}";
-                    Error(call.Callee,"TS2554",$"Expected {expected} arguments, but got {supplied}.");
+                    Error(call.Open,"TS2554",$"Expected {expected} arguments, but got {supplied}.");
                 }
                 for(int i=0;i<arguments.Length;i++)
                 {
@@ -1729,7 +1731,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     if(required is { } type && arguments[i] is { } actual &&
                        CheckContextualLiteral(call.Arguments[i],type,actual) &&
                        !IsAssignableContextually(call.Arguments[i],actual,type))
-                        Error(call.Callee,"TS2345",
+                        Error(call.Open,"TS2345",
                             $"Argument of type '{actual.DisplayName}' is not assignable to parameter of type '{type.DisplayName}'.");
                 }
                 types.Push(signature.ReturnType);

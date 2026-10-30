@@ -143,6 +143,57 @@
       "expectedCodes": [
         "TS2554"
       ]
+    },
+    {
+      "id": "function-types:positive-17",
+      "source": "interface Op{twice(n:number):number}const op:Op={twice:(n:number)=>n+n};let result:number=op.twice(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:positive-18",
+      "source": "const op={twice:(n:number)=>n+n};let result:number=op.twice(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:positive-19",
+      "source": "const op={inner:{run:(n:number)=>n+n}};let result:number=op.inner.run(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:positive-20",
+      "source": "const op={twice:(n:number)=>n+n};let result:number=op[\"twice\"](21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:positive-21",
+      "source": "const op={run:(n:number=21)=>n+n};let result:number=op.run();",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:positive-22",
+      "source": "const op={run:(base:number,...xs:number[]):number=>base};let result:number=op.run(42,1,2);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-types:negative-10",
+      "source": "const op={twice:(n:number)=>n+n};op.twice(\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "function-types:negative-11",
+      "source": "const op={twice:(n:number)=>n+n};op.twice();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "function-types:negative-12",
+      "source": "const op={twice:(n:number)=>n+n};op.missing(21);",
+      "expectedCodes": [
+        "TS2339"
+      ]
     }
   ]
 }
