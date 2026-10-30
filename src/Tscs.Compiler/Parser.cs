@@ -907,7 +907,10 @@ internal sealed class Parser(string file, List<Token> tokens)
                 var defaultValue=Eat(TokenKind.Equal)?ParseValue():null;
                 if(rest)
                 {
-                    if(annotation is not ArrayTypeSyntax)
+                    // The pinned TS7 compiler also emits TS2370 for an
+                    // optional rest parameter, even if its written type is T[]:
+                    // the '?' makes it an invalid array-rest declaration.
+                    if(annotation is not ArrayTypeSyntax || questionOptional)
                         Diagnostics.Add(Diagnostic.Error(file,name,"TS2370",
                             "A rest parameter must be of an array type."));
                     if(questionOptional)

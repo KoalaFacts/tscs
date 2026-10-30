@@ -20,6 +20,7 @@ public sealed class TypedArrowRestTests
     [Theory]
     [InlineData("""const f=(...xs:number):number=>42;""","TS2370")]
     [InlineData("""const f=(...xs?:number[]):number=>42;""","TS1047")]
+    [InlineData("""const f=(...xs?:number[]):number=>42;""","TS2370")]
     [InlineData("""const f=(...xs:number[]=[]):number=>42;""","TS1048")]
     [InlineData("""const f=(...xs:number[],n:number):number=>n;""","TS1014")]
     [InlineData("""const f=(...xs:number[]):number=>xs.length;f("bad");""","TS2345")]
