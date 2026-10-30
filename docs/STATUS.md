@@ -1,3 +1,16 @@
+## 2026-10-30 — Typed anonymous function expressions (candidate; NOT_RUN)
+
+C# Parser and ES2015 emitter now admit anonymous `function(n: T): R { ... }`
+values using existing typed parameter, local lexical binding, inferred or
+annotated return, checked callback signatures, default/optional/array-rest
+parameter and module pipelines. Named function expressions, generators,
+untyped parameters and `this` remain unsupported. C# positive/negative
+regressions, a four-module Node runtime and nine invalid no-emit programs,
+plus twelve pinned-Go independent source/code/exit references are registered
+as NOT_RUN at source creation. Original TS7 acceptance remains
+0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED, release gate unchanged.
+See [typed-function-expressions](progress/typed-function-expressions.md).
+
 ## 2026-10-30 — Typed arrow array-rest support (candidate; NOT_RUN)
 
 Parser, Binder scopes, TypeChecker and ES2015 emitter now support final

@@ -510,7 +510,7 @@ internal static class JavaScriptEmitter
                         if(arrow.BlockBody is { } body)
                             pending.Push(new(null,null,0,false,body));
                         else Node(arrow.Body!);
-                        Text(" => ");
+                        Text(arrow.FunctionExpression?" ":" => ");
                         Text(")");
                         for(int i=arrow.Parameters.Count-1;i>=0;i--)
                         {
@@ -524,7 +524,7 @@ internal static class JavaScriptEmitter
                             if(parameter.Rest)Text("...");
                             if(i>0)Text(", ");
                         }
-                        Text("(");
+                        Text(arrow.FunctionExpression?"function (":"(");
                         break;
                     case ValueConditional chosen:
                         // Parenthesize the complete conditional: nested values
