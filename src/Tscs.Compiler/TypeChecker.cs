@@ -2000,10 +2000,15 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             }
             else if(binary.Operator.Kind is TokenKind.EqualEqual or TokenKind.BangEqual or TokenKind.StrictEqual or TokenKind.StrictNotEqual)
             {
-                if(CompilerTypes.CanCompareEquality(left,right))
-                    types.Push(CompilerTypes.Boolean);
-                else throw new CompilationFailure(Diagnostic.Error(file,binary.Operator,"TSCS1001",
-                    "Equality comparisons currently require matching primitive or any operands."));
+                if(!CompilerTypes.CanCompareEquality(left,right))
+                {
+                    // Keep the comparison invalid, but continue semantic traversal
+                    // so unsafe reads in either branch still produce their own
+                    // diagnostics instead of being hidden by this first error.
+                    Error(binary.Operator,"TSCS1001",
+                        "Equality comparisons currently require matching primitive or any operands.");
+                }
+                types.Push(CompilerTypes.Boolean);
             }
             else if(binary.Operator.Kind is TokenKind.AmpAmp or TokenKind.BarBar)
             {
