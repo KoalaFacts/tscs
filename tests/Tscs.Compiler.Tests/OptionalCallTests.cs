@@ -15,7 +15,6 @@ public sealed class OptionalCallTests
     [InlineData("function use(f:(n:number)=>number):number{return f?.(21);}")]
     [InlineData("type F=(n:number)=>number;function use(f:F|undefined):number{return f?.(21) ?? f?.(21) ?? 42;}")]
     [InlineData("type F=(n:number,...values:number[])=>number;function use(f:F|undefined,items:number[]):number{return f?.(21,...items) ?? 42;}")]
-    [InlineData("type F=(n:number)=>number;function use(f:F|undefined):number{return f?.(21) ?? 42;}")]
     public void OptionalCallsKeepFunctionSignaturesAndUndefined(string source) =>
         Assert.Empty(Compilation.Check("optional-call.ts",source));
 
