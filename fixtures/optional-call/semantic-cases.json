@@ -23,7 +23,7 @@
     },
     {
       "id": "optional-call:positive-05",
-      "source": "function use(f:((n:number)=>number)|undefined):number{return (f)?.(21) ?? 42;}",
+      "source": "type F=(n:number)=>number;function use(f:F|undefined):number{return (f)?.(21) ?? 42;}",
       "expectedCodes": []
     },
     {

@@ -88,7 +88,7 @@ try {
     ['member-argument','interface Box{run?(n:number):number;}function f(b:Box):number{return b.run?.("wrong") ?? 42;}','TS2345',2],
     ['not-callable','function f(n:number):number{return n?.(21) ?? 42;}','TSCS1001',1],
     ['chained','function f(b:{run:(n:number)=>number}|undefined):number{return b?.run?.(21) ?? 42;}','TSCS1001',1],
-    ['continued','function f(g:((n:number)=>{value:number})|undefined):number{return g?.(21).value ?? 42;}','TSCS1001',1]
+    ['continued','type F=(n:number)=>{value:number};function f(g:F|undefined):number{return g?.(21).value ?? 42;}','TSCS1001',1]
   ];
   for(const [id,source,code,exit] of invalid){
     const path=join(dir,'bad-'+id+'.ts');
