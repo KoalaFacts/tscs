@@ -806,7 +806,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
 
         // The null comparison partition is operator-sensitive: strict equality
         // removes only null, while ==/!= null also matches undefined.
-        if(TryNarrowNullComparison(comparison,scope) is { } nullGuard)
+        if(TryNarrowNullishComparison(comparison,scope) is { } nullGuard)
             return nullGuard;
         if(comparison.Operator.Kind is not (TokenKind.StrictEqual or TokenKind.StrictNotEqual))
             return null;
@@ -846,16 +846,43 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     }
 
 
-    // A simple parameter/local may be narrowed by a null sentinel without
-    // changing its declared assignment contract. Do not narrow arbitrary member
-    // paths, any/unknown, or unions without both reachable alternatives.
-    private static DiscriminantBranches? TryNarrowNullComparison(ValueBinary comparison,Scope scope)
+    // A simple local/parameter can be narrowed against literal null, the
+    // unshadowed undefined intrinsic, or the side-effect-free 'void 0' sentinel.
+    // Strict comparisons partition only the named sentinel; loose comparisons
+    // match both nullish constituents. Lexical bindings named undefined must
+    // never be mistaken for the intrinsic. Complex member paths and broad
+    // any/unknown types are not inferred as safe.
+    private static DiscriminantBranches? TryNarrowNullishComparison(ValueBinary comparison,Scope scope)
     {
-        static bool IsNull(ValueNode source)
+        static bool TrySentinel(ValueNode source,Scope scope,out bool isNull)
         {
             while(source is ValueParenthesized grouped)source=grouped.Expression;
-            return source is ValueAtom { Token.Kind:TokenKind.Null };
+            if(source is ValueAtom { Token.Kind:TokenKind.Null })
+            {
+                isNull=true;
+                return true;
+            }
+            if(source is ValueAtom atom && atom.Token.Kind==TokenKind.Identifier &&
+               atom.Token.Text=="undefined" && scope.Find("undefined") is null)
+            {
+                isNull=false;
+                return true;
+            }
+            if(source is ValueUnary { Operator.Kind:TokenKind.Void } voidExpr)
+            {
+                var operand=voidExpr.Operand;
+                while(operand is ValueParenthesized grouped)operand=grouped.Expression;
+                if(operand is ValueAtom number && number.Token.Kind==TokenKind.Number &&
+                   number.Token.Text=="0")
+                {
+                    isNull=false;
+                    return true;
+                }
+            }
+            isNull=false;
+            return false;
         }
+
         static bool TryIdentifier(ValueNode source,out Token name)
         {
             while(source is ValueParenthesized grouped)source=grouped.Expression;
@@ -869,11 +896,12 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         }
 
         Token variable;
-        if(IsNull(comparison.Left))
+        bool isNullSentinel;
+        if(TrySentinel(comparison.Left,scope,out isNullSentinel))
         {
             if(!TryIdentifier(comparison.Right,out variable))return null;
         }
-        else if(IsNull(comparison.Right))
+        else if(TrySentinel(comparison.Right,scope,out isNullSentinel))
         {
             if(!TryIdentifier(comparison.Left,out variable))return null;
         }
@@ -886,9 +914,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         var different=new List<TypeSymbol>();
         foreach(var alternative in union.Alternatives)
         {
-            bool matchesNull=alternative.Equals(CompilerTypes.Null) ||
-                (loose && alternative.Equals(CompilerTypes.Undefined));
-            (matchesNull?matching:different).Add(alternative);
+            if(alternative.Equals(CompilerTypes.Any) || alternative.Equals(CompilerTypes.Unknown))
+                return null;
+            bool matches=loose
+                ?alternative.Equals(CompilerTypes.Null) || alternative.Equals(CompilerTypes.Undefined)
+                :isNullSentinel
+                    ?alternative.Equals(CompilerTypes.Null)
+                    :alternative.Equals(CompilerTypes.Undefined);
+            (matches?matching:different).Add(alternative);
         }
         if(matching.Count==0 || different.Count==0)return null;
         var equal=CompilerTypes.Union(matching);
