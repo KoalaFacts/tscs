@@ -101,14 +101,14 @@ try {
     ['bad-type','function bad(o:{value:number}|undefined):string{return o?.value ?? 42;}','TS2322',2],
     ['missing','function bad(o:{value:number}|undefined):number{return o?.missing ?? 42;}','TS2339',2],
     ['bad-index','function bad(o:{value:number}|undefined):number{return o?.["missing"] ?? 42;}','TS2339',2],
-    ['unsafe','function bad(o:{value:number}|undefined):number{return o.value;}','TS2339',2],
+    ['unsafe','function bad(o:{value:number}|undefined):number{return o.value;}','TS18048',2],
     ['target','let o:{value:number}|undefined={value:21};o?.value=42;','TSCS1001',1],
     ['compound','let o:{value:number}|undefined={value:21};o?.value+=1;','TSCS1001',1],
     ['postfix','let o:{value:number}|undefined={value:21};o?.value++;','TSCS1001',1],
     ['optional-call','function bad(o:{value:number}|undefined):number{return o?.(21);}','TSCS1001',1],
     ['continued-assertion','function f(o:{inner:{value:number}}|undefined):number|undefined{return o?.inner!.value;}','TSCS1001',1],
     ['missing-continued','function f(o:{inner:{value:number}}|undefined):number{return o?.inner.missing ?? 42;}','TS2339',2],
-    ['optional-intermediate','function f(o:{inner?:{value:number}}|undefined):number{return o?.inner.value ?? 42;}','TS2339',2],
+    ['optional-intermediate','function f(o:{inner?:{value:number}}|undefined):number{return o?.inner.value ?? 42;}','TS18048',2],
     ['continued-wrong-arg','function f(o:{fn:(n:number)=>number}|undefined):number{return o?.fn("wrong") ?? 42;}','TS2345',2],
     ['continued-arity','function f(o:{fn:(n:number)=>number}|undefined):number{return o?.fn() ?? 42;}','TS2554',2]
   ];

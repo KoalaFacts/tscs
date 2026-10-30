@@ -87,19 +87,24 @@ try {
     ['inverse','let bad:null=21;','TS2322'],
     ['wrong-union','let bad:number|null="bad";','TS2322'],
     ['missing-name','let bad:null=missing;','TS2304'],
-    ['unguarded','let o:{value:number}|null=null;let bad:number=o.value;','TS2339'],
-    ['guard-wrong-arm','function bad(m:{value:number}|null):number{if(m===null){return m.value;}return 0;}','TS2339'],
-    ['strict-undefined','function bad(m:{value:number}|null|undefined):number{if(m!==null){return m.value;}return 0;}','TS2339'],
-    ['guard-rebound','function bad(m:{value:number}|null):number{if(m===null){return 0;}m=null;return m.value;}','TS2339'],
-    ['undefined-wrong-arm','function bad(m:{value:number}|undefined):number{if(m===undefined){return m.value;}return 0;}','TS2339'],
-    ['undefined-strict-null','function bad(m:{value:number}|null|undefined):number{if(m!==undefined){return m.value;}return 0;}','TS2339'],
-    ['undefined-shadow','function bad(m:{value:number}|undefined):number{let undefined:number=0;if(m!==undefined){return m.value;}return 0;}','TS2339']
+    ['unguarded','let o:{value:number}|null=null;let bad:number=o.value;','TS18047'],
+    ['guard-wrong-arm','function bad(m:{value:number}|null):number{if(m===null){return m.value;}return 0;}','TS18047'],
+    ['strict-undefined','function bad(m:{value:number}|null|undefined):number{if(m!==null){return m.value;}return 0;}','TS18048'],
+    ['guard-rebound','function bad(m:{value:number}|null):number{if(m===null){return 0;}m=null;return m.value;}','TS18047'],
+    ['undefined-wrong-arm','function bad(m:{value:number}|undefined):number{if(m===undefined){return m.value;}return 0;}','TS18048'],
+    ['undefined-strict-null','function bad(m:{value:number}|null|undefined):number{if(m!==undefined){return m.value;}return 0;}','TS18047'],
+    ['undefined-shadow','function bad(m:{value:number}|undefined):number{let undefined:number=0;if(m!==undefined){return m.value;}return 0;}','TS18048']
   ];
   for(const [id,source,code] of invalid){
     const file=join(dir,'invalid-'+id+'.ts');writeFileSync(file,source);
     const r=compile(['--emitJs','--noLib','--target','es2015',file,join(dir,'minimal.d.ts')]);
-    assert.equal(r.status,2,r.stdout+r.stderr);
+    // Lexically shadowed undefined is an unsupported unrelated-type
+    // comparison (TSCS1001) as well as an unsafe union read (TS18048).
+    // The CLI distinguishes unsupported syntax/semantics (1) from ordinary
+    // TypeScript diagnostics (2); neither status can emit JavaScript.
+    assert.equal(r.status,id==='undefined-shadow'?1:2,r.stdout+r.stderr);
     assert.match(r.stdout+r.stderr,new RegExp(code));
+    if(id==='undefined-shadow')assert.match(r.stdout+r.stderr,/TSCS1001/);
     assert.equal(existsSync(file.replace(/\.ts$/,'.js')),false,'invalid emitted JS: '+id);
   }
   console.log('explicit null and equality flow: four ES2015 modules executed, strict/loose/undefined guards and twelve invalid no-emit sources');
