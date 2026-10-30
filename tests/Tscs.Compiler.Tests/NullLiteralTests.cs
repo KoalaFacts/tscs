@@ -12,7 +12,7 @@ public sealed class NullLiteralTests
     [InlineData("let maybe:number|null=21;")]
     [InlineData("type Maybe={value:number}|null;let m:Maybe=null;")]
     [InlineData("function id(n:number|null):number|null{return n;}let x:number|null=id(null);")]
-    [InlineData("let m:{value:number}|null=null;let n:number=m?.value ?? 42;")]
+    [InlineData("function read(m:{value:number}|null):number{return m?.value ?? 42;}let n:number=read(null);")]
     [InlineData("let m:{value:number}|null={value:21};let n:number=m?.value ?? 42;")]
     [InlineData("let m:number|null=null;let n:number=m ?? 42;")]
     [InlineData("let o:{value:null}={value:null};let n:null=o.value;")]

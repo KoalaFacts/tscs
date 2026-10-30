@@ -28,7 +28,7 @@
     },
     {
       "id": "null-literal:positive-06",
-      "source": "let m:{value:number}|null=null;let n:number=m?.value ?? 42;",
+      "source": "function read(m:{value:number}|null):number{return m?.value ?? 42;}let n:number=read(null);",
       "expectedCodes": []
     },
     {
