@@ -1558,7 +1558,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     else
                     {
                         Error(indexed.Open,"TS2339",
-                            $"Property '{key}' does not exist on type '{receiverType.DisplayName}'.");
+                            $"Property '{key}' does not exist on type '{presentReceiver.DisplayName}'.");
                         types.Push(null);
                     }
                     continue;
