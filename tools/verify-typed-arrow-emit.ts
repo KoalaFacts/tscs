@@ -17,8 +17,8 @@ try {
       'export function apply(fn:Callback,n:number):number{return fn(n);}',
       'export const defaulted:(n:number,x?:number)=>number=(n:number,x:number=1)=>n+x;',
       'export const optional:(n:number,x?:number)=>number=(n:number,x?:number)=>n;',
-      'export const restSum=(base:number,...values:number[]):number=>{let total:number=base;for(const item of values){total+=item;}return total;};',
-      'export const restCount=(...values:number[]):number=>values.length;'
+      'export const restSum:(base:number,...values:number[])=>number=(base:number,...values:number[]):number=>{let total:number=base;for(const item of values){total+=item;}return total;};',
+      'export const restCount:(...values:number[])=>number=(...values:number[]):number=>values.length;'
     ].join('\n'),
     'bridge.ts':'export {inc,apply,defaulted,optional,restSum,restCount} from "./logic.js";',
     'entry.ts':[
