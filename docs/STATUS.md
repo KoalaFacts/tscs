@@ -1,3 +1,22 @@
+## 2026-10-31 — Finite guarded optional-chain continuations (candidate; NOT_RUN)
+
+The C# parser, checker and ES2015 emitter now share present-path types
+across required property, static/numeric index and callable continuations
+after an optional member/index segment. The guarded emitter evaluates the
+nullish receiver once and skips all remaining indices, calls and arguments
+when it is absent. Direct method continuations retain JavaScript receiver
+binding. Nullable intermediate data members are *not* silently narrowed:
+they must use a separately supported optional segment. Parentheses start a
+distinct chain. Continuations through postfix non-null assertions or the
+result of an optional function call remain explicitly unsupported.
+
+Existing bounded optional-access cases are unchanged; twelve additional
+stable source/code/exit reference cases, xUnit regressions and four-module
+Node execution are registered. At source creation all new checks are
+NOT_RUN, not complete upstream acceptance. Original TS7 remains
+0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED; no release
+threshold, protection, pin or test minimum was changed.
+
 ## 2026-10-31 — Guarded optional function and member calls (source candidate; NOT_RUN)
 
 C# Parser, AST, TypeChecker and ES2015 emitter now check finite `fn?.(args)`,

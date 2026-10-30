@@ -1256,7 +1256,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     }
     // Calls retain the callee expression, not just a named binding token.
     // Existing bounded spread/arity syntax stays unchanged.
-    private ValueCall ParseCall(ValueNode callee,bool optional=false)
+    private ValueCall ParseCall(ValueNode callee,bool optional=false,bool chainContinuation=false)
     {
         var open=Take();
         if(++callNesting>64)Unsupported(open,"Nested calls exceed the compiler subset depth limit.");
@@ -1280,7 +1280,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                 }
             }
             if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after function arguments.");
-            return new ValueCall(callee,open,arguments,spreadIndex,optional);
+            return new ValueCall(callee,open,arguments,spreadIndex,optional,chainContinuation);
         }
         finally {callNesting--;}
     }
@@ -1316,25 +1316,30 @@ internal sealed class Parser(string file, List<Token> tokens)
     private ValueNode ParsePrimary()
     {
         ValueNode value=ParsePrimaryValue();
-        // Only explicit ?. segments are lowered. An unparenthesized ordinary
-        // continuation would otherwise incorrectly execute after a nullish
-        // receiver; reject it until full optional-chain continuation lowering.
-        // Parentheses begin a separate chain with standard JS semantics.
+        // A finite optional chain can continue through checked required properties,
+        // indices and calls. The emitter guards the *whole* unparenthesized
+        // continuation: the receiver and any later indices/arguments are skipped
+        // when the optional segment short-circuits.
+        // Grouping starts a new chain with ordinary JavaScript semantics.
         bool activeOptionalChain=false;
-        // Postfix access binds more tightly than unary/binary operators. Named
-        // calls and grouped expressions can both produce object receivers.
+        bool continuedOptionalChain=false;
+        bool optionalCallRoot=false;
         while(true)
         {
             if(Current.Kind==TokenKind.Dot)
             {
-                if(activeOptionalChain)
-                    Unsupported(Current,"Non-optional continuation after ?. is not implemented.");
+                if(activeOptionalChain && (optionalCallRoot || value is ValueNonNull))
+                    Unsupported(Current,"This optional-chain continuation is not implemented.");
                 Take();
-                value=new ValuePropertyAccess(value,ReadPropertyName(allowString:false));
+                value=new ValuePropertyAccess(value,ReadPropertyName(allowString:false),
+                    ChainContinuation:activeOptionalChain);
+                continuedOptionalChain|=activeOptionalChain;
             }
             else if(Current.Kind==TokenKind.QuestionDot)
             {
                 var optional=Take();
+                if(continuedOptionalChain || value is ValueNonNull)
+                    Unsupported(optional,"Multiple optional segments after a continuation are not implemented.");
                 if(Current.Kind==TokenKind.OpenBracket)
                 {
                     var open=Take();
@@ -1347,30 +1352,34 @@ internal sealed class Parser(string file, List<Token> tokens)
                     value=new ValuePropertyAccess(value,ReadPropertyName(allowString:false),true);
                 else if(Current.Kind==TokenKind.OpenParen)
                 {
-                    // Avoid incorrect receiver binding or a throwing continuation
-                    // when an earlier optional segment is already in this chain.
+                    // A second optional segment after an optional property/call
+                    // requires additional receiver semantics; fail closed.
                     if(activeOptionalChain || HasOptionalAccess(value))
                         Unsupported(optional,"Optional-call continuations after an optional access are not implemented.");
                     value=ParseCall(value,optional:true);
+                    optionalCallRoot=true;
                 }
                 else Unsupported(optional,"Expected a property, index or call after '?.'.");
                 activeOptionalChain=true;
             }
             else if(Current.Kind==TokenKind.OpenBracket)
             {
-                if(activeOptionalChain)
-                    Unsupported(Current,"Non-optional index continuation after ?. is not implemented.");
+                if(activeOptionalChain && (optionalCallRoot || value is ValueNonNull))
+                    Unsupported(Current,"This optional-chain continuation is not implemented.");
                 var open=Take();
                 var index=ParseWithInAllowed(ParseValue);
                 if(Current.Kind!=TokenKind.CloseBracket)
                     Unsupported(Current,"Expected ']' after indexed access.");
-                value=new ValueElementAccess(value,open,index,Take());
+                value=new ValueElementAccess(value,open,index,Take(),
+                    ChainContinuation:activeOptionalChain);
+                continuedOptionalChain|=activeOptionalChain;
             }
             else if(Current.Kind==TokenKind.OpenParen)
             {
-                if(activeOptionalChain)
-                    Unsupported(Current,"Call continuation after ?. is not implemented.");
-                value=ParseCall(value);
+                if(activeOptionalChain && (optionalCallRoot || value is ValueNonNull))
+                    Unsupported(Current,"This optional-chain continuation is not implemented.");
+                value=ParseCall(value,chainContinuation:activeOptionalChain);
+                continuedOptionalChain|=activeOptionalChain;
             }
             else if(Current.Kind==TokenKind.Bang && !Current.LineBreak)
                 value=new ValueNonNull(value,Take());

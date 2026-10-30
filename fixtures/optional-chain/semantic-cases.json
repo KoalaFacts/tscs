@@ -78,6 +78,74 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "optional-chain:positive-11",
+      "source": "function choose(o:{inner:{value:number}}|undefined):number{return o?.inner.value ?? 42;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-chain:positive-12",
+      "source": "function choose(o:{inner:{value:number}}|undefined):number{return o?.[\"inner\"].value ?? 42;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-chain:positive-13",
+      "source": "function choose(o:{items:number[]}|undefined):number{return o?.items[0] ?? 42;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-chain:positive-14",
+      "source": "function choose(o:{fn:(n:number)=>number}|undefined):number{return o?.fn(21) ?? 42;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-chain:positive-15",
+      "source": "function choose(o:{inner:{fn:(n:number)=>number}}|undefined):number{return o?.inner.fn(21) ?? 42;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-chain:positive-16",
+      "source": "function choose(o:{fn:(n:number)=>{value:number}}|undefined):number{return o?.fn(21).value ?? 42;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-chain:positive-17",
+      "source": "function choose(o:{inner:{value:number}}|undefined):number{return o?.inner[\"value\"] ?? 42;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-chain:positive-18",
+      "source": "function choose(o:{inner:{items:number[]}}|undefined):number{return o?.inner.items[0] ?? 42;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "optional-chain:negative-05",
+      "source": "function bad(o:{inner:{value:number}}|undefined):number{return o?.inner.missing ?? 42;}",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "optional-chain:negative-06",
+      "source": "function bad(o:{inner:{value:number}}|undefined):string{return o?.inner.value ?? 42;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "optional-chain:negative-07",
+      "source": "function bad(o:{fn:(n:number)=>number}|undefined):number{return o?.fn(\"x\") ?? 42;}",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "optional-chain:negative-08",
+      "source": "function bad(o:{fn:(n:number)=>number}|undefined):number{return o?.fn() ?? 42;}",
+      "expectedCodes": [
+        "TS2554"
+      ]
     }
   ]
 }

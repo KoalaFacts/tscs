@@ -1232,6 +1232,22 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         // and reports the first unsupported operand at the same operator.
         var pending=new Stack<(ValueNode Node,bool Combine)>();
         var types=new Stack<TypeSymbol?>();
+        // A chain continuation's run-time value may be undefined solely
+        // because an earlier optional segment skipped. Keep its type on
+        // the *present* execution path separate from that short-circuit.
+        // This must not erase undefined from an actually optional property.
+        var optionalPresent=new Dictionary<ValueNode,TypeSymbol?>();
+        var optionalSkipped=new Dictionary<ValueNode,bool>();
+        void PushOptionalResult(ValueNode node,TypeSymbol? present,bool isChain,bool maySkip)
+        {
+            types.Push(present!=null && maySkip
+                ?CompilerTypes.Union([present,CompilerTypes.Undefined]):present);
+            if(isChain)
+            {
+                optionalPresent[node]=present;
+                optionalSkipped[node]=maySkip;
+            }
+        }
         pending.Push((value,false));
         while(pending.Count>0)
         {
@@ -1545,21 +1561,31 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 }
                 var indexType=types.Pop();
                 var receiverType=types.Pop();
-                var mayBeUndefined=indexed.Optional && receiverType!=null &&
-                    CompilerTypes.ContainsUndefined(receiverType);
-                var presentReceiver=indexed.Optional && receiverType!=null
+                var inheritedSkip=indexed.ChainContinuation &&
+                    optionalSkipped.TryGetValue(indexed.Receiver,out var indexSkip) && indexSkip;
+                var mayBeUndefined=(indexed.Optional && receiverType!=null &&
+                    CompilerTypes.ContainsUndefined(receiverType)) || inheritedSkip;
+                TypeSymbol? presentReceiver;
+                if(indexed.ChainContinuation)
+                {
+                    if(!optionalPresent.TryGetValue(indexed.Receiver,out presentReceiver))
+                        throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
+                            "Unvalidated optional index continuation."));
+                }
+                else presentReceiver=indexed.Optional && receiverType!=null
                     ?CompilerTypes.NonNullAssertionResult(receiverType):receiverType;
+                bool isChain=indexed.Optional || indexed.ChainContinuation;
                 if(presentReceiver!=null && TryStaticNamedIndex(indexed.Index,presentReceiver,out var key) &&
                    (presentReceiver is ObjectTypeSymbol or UnionTypeSymbol ||
                     presentReceiver.Equals(CompilerTypes.Any)))
                 {
                     if(CompilerTypes.TryGetProperty(presentReceiver,key) is { } member)
-                        types.Push(mayBeUndefined?CompilerTypes.Union([member,CompilerTypes.Undefined]):member);
+                        PushOptionalResult(indexed,member,isChain,mayBeUndefined);
                     else
                     {
                         Error(indexed.Open,"TS2339",
                             $"Property '{key}' does not exist on type '{presentReceiver.DisplayName}'.");
-                        types.Push(null);
+                        PushOptionalResult(indexed,null,isChain,mayBeUndefined);
                     }
                     continue;
                 }
@@ -1567,10 +1593,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
                         "Indexed reads currently require a number expression."));
                 if(presentReceiver is ArrayTypeSymbol array)
-                    types.Push(mayBeUndefined?CompilerTypes.Union([array.ElementType,CompilerTypes.Undefined]):array.ElementType);
+                    PushOptionalResult(indexed,array.ElementType,isChain,mayBeUndefined);
                 else if(CompilerTypes.IsStringFamily(presentReceiver))
-                    types.Push(mayBeUndefined?CompilerTypes.Union([CompilerTypes.String,CompilerTypes.Undefined]):CompilerTypes.String);
-                else if(presentReceiver==null || indexType==null)types.Push(null);
+                    PushOptionalResult(indexed,CompilerTypes.String,isChain,mayBeUndefined);
+                else if(presentReceiver==null || indexType==null)
+                    PushOptionalResult(indexed,null,isChain,mayBeUndefined);
                 else throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
                     "Index access currently supports arrays and strings only; object index signatures are not implemented."));
                 continue;
@@ -1638,24 +1665,36 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     continue;
                 }
                 var receiver=types.Pop();
-                var mayBeUndefined=property.Optional && receiver!=null &&
-                    CompilerTypes.ContainsUndefined(receiver);
-                var presentReceiver=property.Optional && receiver!=null
+                var inheritedSkip=property.ChainContinuation &&
+                    optionalSkipped.TryGetValue(property.Receiver,out var propertySkip) && propertySkip;
+                var mayBeUndefined=(property.Optional && receiver!=null &&
+                    CompilerTypes.ContainsUndefined(receiver)) || inheritedSkip;
+                TypeSymbol? presentReceiver;
+                if(property.ChainContinuation)
+                {
+                    if(!optionalPresent.TryGetValue(property.Receiver,out presentReceiver))
+                        throw new CompilationFailure(Diagnostic.Error(file,property.Name,"TSCS1001",
+                            "Unvalidated optional property continuation."));
+                }
+                else presentReceiver=property.Optional && receiver!=null
                     ?CompilerTypes.NonNullAssertionResult(receiver):receiver;
-                if(presentReceiver==null)types.Push(null);
-                else if(presentReceiver.Equals(CompilerTypes.Any))types.Push(CompilerTypes.Any);
+                TypeSymbol? presentMember;
+                if(presentReceiver==null)presentMember=null;
+                else if(presentReceiver.Equals(CompilerTypes.Any))presentMember=CompilerTypes.Any;
                 else if(presentReceiver.Equals(CompilerTypes.Unknown))
                 {
                     Error(property.Name,"TS18046","Caught value is of type 'unknown'.");
-                    types.Push(null);
+                    presentMember=null;
                 }
                 else if(CompilerTypes.TryGetProperty(presentReceiver,property.Name.Text) is { } member)
-                    types.Push(mayBeUndefined?CompilerTypes.Union([member,CompilerTypes.Undefined]):member);
+                    presentMember=member;
                 else
                 {
-                    Error(property.Name,"TS2339",$"Property '{property.Name.Text}' does not exist on type '{presentReceiver.DisplayName}'.");
-                    types.Push(null);
+                    Error(property.Name,"TS2339",
+                        $"Property '{property.Name.Text}' does not exist on type '{presentReceiver.DisplayName}'.");
+                    presentMember=null;
                 }
+                PushOptionalResult(property,presentMember,property.Optional||property.ChainContinuation,mayBeUndefined);
                 continue;
             }
             if(node is ValueParenthesized grouped)
@@ -1710,14 +1749,28 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 for(int i=arguments.Length-1;i>=0;i--)arguments[i]=types.Pop();
                 var calleeType=types.Pop();
                 if(calleeType==null) { types.Push(null); continue; }
-                bool optionalMissing=call.Optional && CompilerTypes.ContainsUndefined(calleeType);
-                var callableType=call.Optional?CompilerTypes.NonNullAssertionResult(calleeType):calleeType;
+                var inheritedSkip=call.ChainContinuation &&
+                    optionalSkipped.TryGetValue(call.Callee,out var callSkip) && callSkip;
+                bool optionalMissing=(call.Optional && CompilerTypes.ContainsUndefined(calleeType)) || inheritedSkip;
+                TypeSymbol? callableType;
+                if(call.ChainContinuation)
+                {
+                    if(!optionalPresent.TryGetValue(call.Callee,out callableType))
+                        throw new CompilationFailure(Diagnostic.Error(file,call.Open,"TSCS1001",
+                            "Unvalidated optional call continuation."));
+                }
+                else callableType=call.Optional?CompilerTypes.NonNullAssertionResult(calleeType):calleeType;
                 if(callableType is not FunctionTypeSymbol signature)
                     throw new CompilationFailure(Diagnostic.Error(file,call.Open,"TSCS1001",
                         "Calls currently require a declared function with an explicit signature."));
                 var resultType=optionalMissing
                     ?CompilerTypes.Union([signature.ReturnType,CompilerTypes.Undefined])
                     :signature.ReturnType;
+                if(call.Optional || call.ChainContinuation)
+                {
+                    optionalPresent[call]=signature.ReturnType;
+                    optionalSkipped[call]=optionalMissing;
+                }
                 // A bounded call spread expands one statically typed array into
                 // a trailing array rest parameter. Fixed parameters must be
                 // explicitly supplied; unknown-length spreads cannot invent

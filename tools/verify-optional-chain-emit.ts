@@ -14,6 +14,8 @@ try {
     'data.ts':[
       'import type {Option} from "./model.js";',
       'export let reads:number=0;',
+      'export let argumentsUsed:number=0;',
+      'export function next():number{argumentsUsed+=1;return 21;}',
       'export function make(present:boolean):Option|undefined {',
       '  reads+=1;',
       '  return present ? {value:21,nested:{value:42}} : undefined;',
@@ -21,14 +23,22 @@ try {
     ].join('\n'),
     'logic.ts':[
       'import type {Option} from "./model.js";',
+      'import {next} from "./data.js";',
+      'export function capturedCallback(o:{fn:(g:()=>number)=>number}|undefined,__tscs_power_0:number):number|undefined{return o?.fn(():number=>__tscs_power_0);}',
+      'export function capturedBlock(o:{fn:(g:()=>number)=>number}|undefined,__tscs_power_1:number):number|undefined{return o?.fn(():number=>{return __tscs_power_1;});}',
       'export function twice(o:Option|undefined):number{return (o?.value ?? 21)*2;}',
       'export function inner(o:Option|undefined):number{return o?.nested?.value ?? 42;}',
       'export function keyed(o:Option|undefined):number{return (o?.["value"] ?? 21)*2;}',
-      'export function first(o:number[]|undefined):number{return o?.[0] ?? 42;}'
+      'export function first(o:number[]|undefined):number{return o?.[0] ?? 42;}',
+      'export function deep(o:{inner:{value:number}}|undefined):number{return o?.inner.value ?? 42;}',
+      'export function deeper(o:{inner:{items:number[]}}|undefined):number{return o?.inner.items[0] ?? 42;}',
+      'export function indexedContinued(o:{items:number[]}|undefined):number{return o?.items[0] ?? 42;}',
+      'export function called(o:{fn:(n:number)=>number}|undefined):number{return o?.fn(next()) ?? 42;}',
+      'export function bound(o:{run:(n:number)=>number}|undefined):number{return o?.run(21) ?? 42;}'
     ].join('\n'),
     'entry.ts':[
-      'import {make,reads} from "./data.js";',
-      'import {twice,inner,keyed,first} from "./logic.js";',
+      'import {make,reads,argumentsUsed} from "./data.js";',
+      'import {twice,inner,keyed,first,deep,deeper,indexedContinued,called} from "./logic.js";',
       'export const present:number=twice(make(true));',
       'export const absent:number=twice(make(false));',
       'export const nested:number=inner(make(true));',
@@ -36,7 +46,16 @@ try {
       'export const byKey:number=keyed({value:21});',
       'export const byIndex:number=first([42]);',
       'export const missingIndex:number=first(undefined);',
-      'export const callCount:number=reads;'
+      'export const callCount:number=reads;',
+      'export const continuedValue:number=deep({inner:{value:42}});',
+      'export const missingContinuedValue:number=deep(undefined);',
+      'export const deepIndex:number=deeper({inner:{items:[42]}});',
+      'export const missingDeepIndex:number=deeper(undefined);',
+      'export const continuedIndex:number=indexedContinued({items:[42]});',
+      'export const missingContinuedIndex:number=indexedContinued(undefined);',
+      'export const directCall:number=called({fn:(n:number):number=>n+n});',
+      'export const missingDirectCall:number=called(undefined);',
+      'export const delayedArguments:number=argumentsUsed;'
     ].join('\n')
   };
   for(const [name,source] of Object.entries(sources))
@@ -65,7 +84,16 @@ try {
   assert.match(readFileSync(join(dir,'logic.js'),'utf8'),/=== undefined/,
     'missing guarded member access');
   const runtime=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {present,absent,nested,missingNested,byKey,byIndex,missingIndex,callCount} from "./entry.js"; if([present,absent,nested,missingNested,byKey,byIndex,missingIndex].some(n=>n!==42)||callCount!==4)throw Error("optional member access runtime mismatch");'],
+    [
+      'import {present,absent,nested,missingNested,byKey,byIndex,missingIndex,callCount,continuedValue,missingContinuedValue,deepIndex,missingDeepIndex,continuedIndex,missingContinuedIndex,directCall,missingDirectCall,delayedArguments} from "./entry.js";',
+      'import {bound,capturedCallback,capturedBlock} from "./logic.js";',
+      'const callback={fn:g=>g()};',
+      'if(capturedCallback(callback,42)!==42||capturedBlock(callback,42)!==42||capturedCallback(undefined,42)!==undefined||capturedBlock(undefined,42)!==undefined)throw Error("optional continuation captured callback free name");',
+      'if([present,absent,nested,missingNested,byKey,byIndex,missingIndex,continuedValue,missingContinuedValue,deepIndex,missingDeepIndex,continuedIndex,missingContinuedIndex,directCall,missingDirectCall].some(n=>n!==42)||callCount!==4||delayedArguments!==1)throw Error("optional-chain continuation runtime mismatch");',
+      'const obj={bias:21,run(n){return n+this.bias}};',
+      'obj.run.call=()=>0;',
+      'if(bound(obj)!==42||bound(undefined)!==42)throw Error("guarded member-call this binding lost");'
+    ].join('\n')],
     {cwd:dir,encoding:'utf8',timeout:15000});
   assert.equal(runtime.error,undefined,String(runtime.error));
   assert.equal(runtime.status,0,runtime.stdout+runtime.stderr);
@@ -78,10 +106,11 @@ try {
     ['compound','let o:{value:number}|undefined={value:21};o?.value+=1;','TSCS1001',1],
     ['postfix','let o:{value:number}|undefined={value:21};o?.value++;','TSCS1001',1],
     ['optional-call','function bad(o:{value:number}|undefined):number{return o?.(21);}','TSCS1001',1],
-    ['continued-property','function f(o:{inner:{value:number}}|undefined):number|undefined{return o?.inner.value;}','TSCS1001',1],
     ['continued-assertion','function f(o:{inner:{value:number}}|undefined):number|undefined{return o?.inner!.value;}','TSCS1001',1],
-    ['continued-index','function f(o:{items:number[]}|undefined):number|undefined{return o?.items[0];}','TSCS1001',1],
-    ['continued-call','function f(o:{fn:(n:number)=>number}|undefined):number|undefined{return o?.fn(21);}','TSCS1001',1]
+    ['missing-continued','function f(o:{inner:{value:number}}|undefined):number{return o?.inner.missing ?? 42;}','TS2339',2],
+    ['optional-intermediate','function f(o:{inner?:{value:number}}|undefined):number{return o?.inner.value ?? 42;}','TS2339',2],
+    ['continued-wrong-arg','function f(o:{fn:(n:number)=>number}|undefined):number{return o?.fn("wrong") ?? 42;}','TS2345',2],
+    ['continued-arity','function f(o:{fn:(n:number)=>number}|undefined):number{return o?.fn() ?? 42;}','TS2554',2]
   ];
   for(const [id,source,code,exit] of invalid) {
     const path=join(dir,'bad-'+id+'.ts');
@@ -91,5 +120,5 @@ try {
     assert.match(out.stdout+out.stderr,new RegExp(code));
     assert.equal(existsSync(path.replace(/\.ts$/,'.js')),false,'invalid emitted JS for '+id);
   }
-  console.log('optional member/index: four-module ES2015 runtime and twelve fail-closed no-emit cases');
+  console.log('optional member/index continuation: four-module ES2015 runtime, lazy arguments, member this and checked no-emit errors');
 } finally {rmSync(dir,{recursive:true,force:true});}
