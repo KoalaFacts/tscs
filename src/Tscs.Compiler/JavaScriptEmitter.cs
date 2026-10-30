@@ -514,6 +514,71 @@ internal static class JavaScriptEmitter
                 Text(key+"(");
             }
 
+            // Rebuild the complete unparenthesized continuation on a temporary
+            // receiver, rather than emitting a guard for only the first ?. node.
+            // Ordinary property/index/call suffixes then execute only inside the
+            // present path, preserving both laziness and native member-call this.
+            void GuardedContinuation(ValueNode chain)
+            {
+                var used=ReferencedValueNames(chain);
+                var temporary=FreshPowerTemporary(used);
+                ValueNode seed=new ValueAtom(new Token(TokenKind.Identifier,temporary,0,temporary.Length));
+                var suffix=new Stack<ValueNode>();
+                ValueNode? originalReceiver=null;
+                ValueNode present=seed;
+                ValueNode current=chain;
+                bool found=false;
+                while(!found)
+                {
+                    switch(current)
+                    {
+                        case ValuePropertyAccess property when property.Optional:
+                            originalReceiver=property.Receiver;
+                            present=property with {Receiver=seed,Optional=false,ChainContinuation=false};
+                            found=true;
+                            break;
+                        case ValueElementAccess index when index.Optional:
+                            originalReceiver=index.Receiver;
+                            present=index with {Receiver=seed,Optional=false,ChainContinuation=false};
+                            found=true;
+                            break;
+                        case ValuePropertyAccess property when property.ChainContinuation:
+                            suffix.Push(property);
+                            current=property.Receiver;
+                            break;
+                        case ValueElementAccess index when index.ChainContinuation:
+                            suffix.Push(index);
+                            current=index.Receiver;
+                            break;
+                        case ValueCall call when call.ChainContinuation:
+                            suffix.Push(call);
+                            current=call.Callee;
+                            break;
+                        default:
+                            throw new NotSupportedException("Unvalidated optional-chain continuation.");
+                    }
+                }
+                while(suffix.Count>0)
+                {
+                    present=suffix.Pop() switch
+                    {
+                        ValuePropertyAccess property=>property with
+                            {Receiver=present,ChainContinuation=false},
+                        ValueElementAccess index=>index with
+                            {Receiver=present,ChainContinuation=false},
+                        ValueCall call=>call with
+                            {Callee=present,ChainContinuation=false},
+                        _=>throw new NotSupportedException("Unvalidated optional-chain suffix.")
+                    };
+                }
+                Text(")");
+                Node(originalReceiver!);
+                Text("))(");
+                Node(present);
+                Text("(("+temporary+") => ("+temporary+" === null || "+temporary+
+                    " === undefined ? undefined : ");
+            }
+
             Node(value);
             while(pending.Count>0)
             {
@@ -631,6 +696,9 @@ internal static class JavaScriptEmitter
                         Node(grouped.Expression);
                         Text("(");
                         break;
+                    case ValueElementAccess continuedIndex when continuedIndex.ChainContinuation:
+                        GuardedContinuation(continuedIndex);
+                        break;
                     case ValueElementAccess indexed:
                         if(indexed.Optional)
                         {
@@ -668,6 +736,9 @@ internal static class JavaScriptEmitter
                             if(i>0)Text(", ");
                         }
                         Text("[");
+                        break;
+                    case ValuePropertyAccess continuedProperty when continuedProperty.ChainContinuation:
+                        GuardedContinuation(continuedProperty);
                         break;
                     case ValuePropertyAccess property:
                         if(property.Optional)
@@ -723,6 +794,9 @@ internal static class JavaScriptEmitter
                             }
                             Text("({ ");
                         }
+                        break;
+                    case ValueCall continuedCall when continuedCall.ChainContinuation:
+                        GuardedContinuation(continuedCall);
                         break;
                     case ValueCall call:
                         if(call.Optional)

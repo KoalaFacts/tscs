@@ -55,7 +55,7 @@ internal sealed record ValueArrow(Token Open,IReadOnlyList<ParameterDeclaration>
 // A single trailing array spread is tracked at its call site; all operands remain normal checked values.
 // A callee can be a function binding, checked member/index access or a returned callable.
 // Optional calls short-circuit nullish functions without evaluating arguments.
-internal sealed record ValueCall(ValueNode Callee,Token Open,IReadOnlyList<ValueNode> Arguments,int SpreadIndex=-1,bool Optional=false) : ValueNode;
+internal sealed record ValueCall(ValueNode Callee,Token Open,IReadOnlyList<ValueNode> Arguments,int SpreadIndex=-1,bool Optional=false,bool ChainContinuation=false) : ValueNode;
 // Ordered object spread entries carry their ellipsis as Name.
 // Static computed names retain ES2015 bracket spelling while their decoded identities are checked.
 internal sealed record ObjectProperty(Token Name,ValueNode Value,bool Spread=false,bool Method=false,bool Computed=false);
@@ -63,9 +63,9 @@ internal sealed record ValueObject(Token Open,IReadOnlyList<ObjectProperty> Prop
 internal sealed record ValueArray(Token Open,IReadOnlyList<ValueNode> Elements,Token Close) : ValueNode;
 // Spread operands are evaluated once, in element order, and must have a checked array type.
 internal sealed record ValueArraySpread(Token Keyword,ValueNode Operand) : ValueNode;
-internal sealed record ValueElementAccess(ValueNode Receiver,Token Open,ValueNode Index,Token Close,bool Optional=false) : ValueNode;
+internal sealed record ValueElementAccess(ValueNode Receiver,Token Open,ValueNode Index,Token Close,bool Optional=false,bool ChainContinuation=false) : ValueNode;
 // Optional member/index access is a guarded read; it does not assert non-nullness.
-internal sealed record ValuePropertyAccess(ValueNode Receiver,Token Name,bool Optional=false) : ValueNode;
+internal sealed record ValuePropertyAccess(ValueNode Receiver,Token Name,bool Optional=false,bool ChainContinuation=false) : ValueNode;
 internal sealed record PropertyAssignment(ValuePropertyAccess Target,ValueNode Value) : Statement;
 internal sealed record ElementAssignment(ValueElementAccess Target,ValueNode Value) : Statement;
 internal sealed record Variable(Token Name, bool Constant, TypeSyntax? Annotation, ValueNode? Initializer, bool Exported=false) : Statement;

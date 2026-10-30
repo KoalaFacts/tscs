@@ -81,17 +81,21 @@ Explicit postfix non-null assertions (`config.value!`, `config.run!(21)`) now
 remove `undefined` from checked union types and erase to ES2015 JavaScript.
 They do not perform runtime checks: the programmer must know the value exists.
 Unlike `??`, they cannot supply a fallback. Finite optional member/index
-reads (`box?.value`, `box?.["value"]`, `array?.[0]`) short-circuit
-nullish receivers with one evaluation and lower to ES2015. Ordinary property,
-index and call continuations after an unparenthesized optional segment fail
-closed until full chained short-circuit lowering is implemented. Optional calls,
-assignment through an optional chain, full `null` source semantics and generic
-nullability narrowing remain unsupported.
+reads (`box?.value`, `box?.["value"]`, `array?.[0]`) and guarded
+continuations (`box?.inner.value`, `box?.items[0]`, `box?.run(21)`)
+lower to ES2015 with one receiver evaluation. Continuations are checked on
+the present path: missing or optional intermediate members are not silently
+treated as required. Remaining indices and call arguments are skipped on
+short-circuit; direct member calls keep their `this` receiver. Standalone
+optional calls (`fn?.(21)`) are also supported. Postfix non-null assertions
+*within* a continuation, continuations after optional function calls, general
+nullable flow, dynamic index signatures and writes through optional chains
+remain unsupported.
 
 Bounded typed nullish fallbacks (`config.value ?? 42`) keep non-undefined
 alternatives and lower to ES2015 with single evaluation of the left
 expression and a lazy right side. Unparenthesized mixing with `&&`/`||`
-fails explicitly. Optional chaining and general null/flow semantics remain
+fails explicitly. Full optional-chain combinations and general null/flow semantics remain
 unimplemented.
 
 Finite optional data members (`value?: number`) are checked across type aliases, interfaces, inheritance and modules; omitted keys remain optional, while reads have a `number | undefined` type. Bounded readonly optional writes are rejected. Finite optional method signatures are supported; optional-property control-flow narrowing, readonly arrays, getter/setter accessors,
