@@ -25,6 +25,7 @@ node tools/verify-conditional-emit.ts
 node tools/verify-nullish-emit.ts
 node tools/verify-non-null-emit.ts
 node tools/verify-optional-chain-emit.ts
+node tools/verify-optional-call-emit.ts
 node tools/verify-compound-guards-emit.ts
 node tools/verify-bitwise-emit.ts
 node tools/verify-division-emit.ts

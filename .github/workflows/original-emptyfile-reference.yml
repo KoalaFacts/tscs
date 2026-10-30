@@ -47,6 +47,7 @@ jobs:
           node tools/verify-conditional-reference.ts "$reference" .artifacts/nullish-coalescing-reference fixtures/nullish-coalescing/semantic-cases.json
           node tools/verify-conditional-reference.ts "$reference" .artifacts/non-null-reference fixtures/non-null/semantic-cases.json
           node tools/verify-conditional-reference.ts "$reference" .artifacts/optional-chain-reference fixtures/optional-chain/semantic-cases.json
+          node tools/verify-conditional-reference.ts "$reference" .artifacts/optional-call-reference fixtures/optional-call/semantic-cases.json
           node tools/verify-conditional-reference.ts "$reference" .artifacts/compound-guards-reference fixtures/compound-guards/semantic-cases.json
           node tools/verify-bitwise-reference.ts "$reference" .artifacts/numeric-bitwise-reference
            node tools/verify-division-reference.ts "$reference" .artifacts/numeric-division-reference
@@ -89,6 +90,14 @@ jobs:
         with:
           name: pinned-non-null-reference-${{ github.sha }}
           path: .artifacts/non-null-reference/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Preserve bounded optional-call reference evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-optional-call-reference-${{ github.sha }}
+          path: .artifacts/optional-call-reference/
           if-no-files-found: warn
           retention-days: 30
       - name: Preserve bounded optional member access reference evidence

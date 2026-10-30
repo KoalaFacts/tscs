@@ -1256,7 +1256,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     }
     // Calls retain the callee expression, not just a named binding token.
     // Existing bounded spread/arity syntax stays unchanged.
-    private ValueCall ParseCall(ValueNode callee)
+    private ValueCall ParseCall(ValueNode callee,bool optional=false)
     {
         var open=Take();
         if(++callNesting>64)Unsupported(open,"Nested calls exceed the compiler subset depth limit.");
@@ -1280,7 +1280,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                 }
             }
             if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after function arguments.");
-            return new ValueCall(callee,open,arguments,spreadIndex);
+            return new ValueCall(callee,open,arguments,spreadIndex,optional);
         }
         finally {callNesting--;}
     }
@@ -1301,7 +1301,12 @@ internal sealed class Parser(string file, List<Token> tokens)
                     if(element.Optional)return true;
                     node=element.Receiver;
                     break;
+                case ValueCall call:
+                    if(call.Optional)return true;
+                    node=call.Callee;
+                    break;
                 case ValueParenthesized grouped:node=grouped.Expression;break;
+                case ValueTypeOperator typed:node=typed.Expression;break;
                 case ValueNonNull asserted:node=asserted.Expression;break;
                 default:return false;
             }
@@ -1340,7 +1345,15 @@ internal sealed class Parser(string file, List<Token> tokens)
                 }
                 else if(Current.Kind==TokenKind.Identifier)
                     value=new ValuePropertyAccess(value,ReadPropertyName(allowString:false),true);
-                else Unsupported(optional,"Optional access supports named properties and bracketed indices; optional calls are not implemented.");
+                else if(Current.Kind==TokenKind.OpenParen)
+                {
+                    // Avoid incorrect receiver binding or a throwing continuation
+                    // when an earlier optional segment is already in this chain.
+                    if(activeOptionalChain || HasOptionalAccess(value))
+                        Unsupported(optional,"Optional-call continuations after an optional access are not implemented.");
+                    value=ParseCall(value,optional:true);
+                }
+                else Unsupported(optional,"Expected a property, index or call after '?.'.");
                 activeOptionalChain=true;
             }
             else if(Current.Kind==TokenKind.OpenBracket)

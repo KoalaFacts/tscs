@@ -725,6 +725,82 @@ internal static class JavaScriptEmitter
                         }
                         break;
                     case ValueCall call:
+                        if(call.Optional)
+                        {
+                            // Evaluate the callable once and defer all arguments
+                            // until the presence check. Member calls additionally
+                            // retain their original receiver as the JS this value.
+                            var used=ReferencedValueNames(call.Callee);
+                            foreach(var argument in call.Arguments)
+                                used.UnionWith(ReferencedValueNames(argument));
+                            var functionTemp=FreshPowerTemporary(used);
+                            ValueNode callee=call.Callee;
+                            while(true)
+                            {
+                                if(callee is ValueParenthesized group)callee=group.Expression;
+                                else if(callee is ValueNonNull asserted)callee=asserted.Expression;
+                                else if(callee is ValueTypeOperator typed)callee=typed.Expression;
+                                else break;
+                            }
+                            ValueNode? receiver=callee switch
+                            {
+                                ValuePropertyAccess property=>property.Receiver,
+                                ValueElementAccess indexed=>indexed.Receiver,
+                                _=>null
+                            };
+                            if(receiver is not null)
+                            {
+                                var receiverTemp=FreshPowerTemporary(used);
+                                Text(")");
+                                Node(receiver);
+                                Text("))(");
+                                if(callee is ValuePropertyAccess member)Text("."+member.Name.Text);
+                                else if(callee is ValueElementAccess indexed)
+                                {
+                                    Text("]");
+                                    Node(indexed.Index);
+                                    Text("[");
+                                }
+                                Text(receiverTemp);
+                                Text("])))(");
+                                for(int i=call.Arguments.Count-1;i>=0;i--)
+                                {
+                                    if(i==call.SpreadIndex)
+                                    {
+                                        Text(")");
+                                        Node(call.Arguments[i]);
+                                        Text("...(");
+                                    }
+                                    else Node(call.Arguments[i]);
+                                    if(i>0)Text(", ");
+                                }
+                                Text("(("+receiverTemp+") => (("+functionTemp+") => ("+
+                                    functionTemp+" === null || "+functionTemp+
+                                    " === undefined ? undefined : Reflect.apply("+functionTemp+
+                                    ", "+receiverTemp+", [");
+                            }
+                            else
+                            {
+                                Text(")");
+                                Node(call.Callee);
+                                Text(")))(");
+                                for(int i=call.Arguments.Count-1;i>=0;i--)
+                                {
+                                    if(i==call.SpreadIndex)
+                                    {
+                                        Text(")");
+                                        Node(call.Arguments[i]);
+                                        Text("...(");
+                                    }
+                                    else Node(call.Arguments[i]);
+                                    if(i>0)Text(", ");
+                                }
+                                Text("(("+functionTemp+") => ("+functionTemp+
+                                    " === null || "+functionTemp+
+                                    " === undefined ? undefined : "+functionTemp+"(");
+                            }
+                            break;
+                        }
                         Text(")");
                         for(int i=call.Arguments.Count-1;i>=0;i--)
                         {
