@@ -1,3 +1,18 @@
+## 2026-10-30 — Required callable object/interface method signatures (candidate; NOT_RUN)
+
+Parser now accepts bounded `method(name: Type): Result` signatures within
+required-member object types and interfaces, lowering them into the existing
+FunctionTypeSyntax. TypeResolver, structural checker, interface inheritance,
+type aliases, imports and emitted JavaScript reuse their current checked
+function-property pipeline. Optional trailing and final array rest method
+parameters are supported, but optional methods, generic method parameters,
+overload merging, method bodies, readonly method modifiers and special `this`
+semantics remain unsupported. Internal C# positives/negatives, four-module
+Node output and nine additive fixed pinned-Go source/code/exit comparisons
+are registered; at candidate creation these are NOT_RUN. Frozen original
+TS7 acceptance stays 0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED.
+No release gate or upstream pin changes.
+
 ## 2026-10-30 — Lexically scoped named function expressions (candidate; NOT_RUN)
 
 The C# function-expression parser preserves an optional private self name.
