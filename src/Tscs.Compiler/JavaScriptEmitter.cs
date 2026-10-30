@@ -441,7 +441,7 @@ internal static class JavaScriptEmitter
             }
         }
 
-        private readonly record struct Piece(ValueNode? Node,string? Literal,int ParentPrecedence,bool IsRight);
+        private readonly record struct Piece(ValueNode? Node,string? Literal,int ParentPrecedence,bool IsRight,Block? ArrowBlock=null);
 
         private static int Precedence(ValueNode node) => node switch
         {
@@ -489,6 +489,12 @@ internal static class JavaScriptEmitter
                     output.Append(literal);
                     continue;
                 }
+                if(item.ArrowBlock is { } block)
+                {
+                    // Emit statements only when their turn arrives in the expression stack.
+                    WriteBlock(block,0);
+                    continue;
+                }
                 var node=item.Node!;
                 int precedence=Precedence(node);
                 bool wrap=precedence<item.ParentPrecedence ||
@@ -501,7 +507,9 @@ internal static class JavaScriptEmitter
                         break;
                     case ValueArrow arrow:
                         // Type annotations erase; ES2015 arrow captures remain lexical.
-                        Node(arrow.Body);
+                        if(arrow.BlockBody is { } body)
+                            pending.Push(new(null,null,0,false,body));
+                        else Node(arrow.Body!);
                         Text(" => ");
                         Text(")");
                         for(int i=arrow.Parameters.Count-1;i>=0;i--)

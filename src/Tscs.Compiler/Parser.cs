@@ -893,8 +893,15 @@ internal sealed class Parser(string file, List<Token> tokens)
             if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after arrow parameters.");
             TypeSyntax? returns=Eat(TokenKind.Colon)?ReadTypeAnnotation():null;
             if(!Eat(TokenKind.Arrow))Unsupported(Current,"Expected '=>' after arrow signature.");
-            if(Current.Kind==TokenKind.Open)
-                Unsupported(Current,"Braced arrow bodies are not implemented; use an expression body.");
+            if(Eat(TokenKind.Open))
+            {
+                if(returns is null)
+                    Unsupported(open,"Braced arrow bodies require an explicit return type in this compiler subset.");
+                var body=Parse(1,true);
+                if(!Eat(TokenKind.Close))
+                    Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+                return new ValueArrow(open,parameters,returns,null,body);
+            }
             return new ValueArrow(open,parameters,returns,ParseWithInAllowed(ParseValue));
         }
         finally {arrowNesting--;}
