@@ -521,6 +521,7 @@ internal static class JavaScriptEmitter
                                 Text(" = ");
                             }
                             Text(parameter.Name.Text);
+                            if(parameter.Rest)Text("...");
                             if(i>0)Text(", ");
                         }
                         Text("(");

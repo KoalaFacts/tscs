@@ -865,7 +865,10 @@ internal sealed class Parser(string file, List<Token> tokens)
                     (position+2<i && tokens[position+1].Kind==TokenKind.Identifier &&
                      (tokens[position+2].Kind==TokenKind.Colon ||
                       (position+3<i && tokens[position+2].Kind==TokenKind.Question &&
-                       tokens[position+3].Kind==TokenKind.Colon)));
+                       tokens[position+3].Kind==TokenKind.Colon))) ||
+                    (position+3<i && tokens[position+1].Kind==TokenKind.Ellipsis &&
+                     tokens[position+2].Kind==TokenKind.Identifier &&
+                     tokens[position+3].Kind==TokenKind.Colon);
             }
             else if(tokens[i].Kind==TokenKind.End)return false;
         }
@@ -882,9 +885,14 @@ internal sealed class Parser(string file, List<Token> tokens)
             var names=new HashSet<string>(StringComparer.Ordinal);
             bool sawOptionalParameter=false;
             bool sawDefaultParameter=false;
+            bool sawRestParameter=false;
             while(Current.Kind!=TokenKind.CloseParen)
             {
+                if(sawRestParameter)
+                    Diagnostics.Add(Diagnostic.Error(file,Current,"TS1014",
+                        "A rest parameter must be last in a parameter list."));
                 if(parameters.Count>=32)Unsupported(Current,"Arrow parameter count exceeds the supported limit.");
+                bool rest=Eat(TokenKind.Ellipsis);
                 if(Current.Kind!=TokenKind.Identifier)
                     Unsupported(Current,"Arrow parameters require explicitly named type annotations.");
                 var name=Take();
@@ -895,10 +903,23 @@ internal sealed class Parser(string file, List<Token> tokens)
                     Unsupported(Current,"Arrow parameters require explicit type annotations.");
                 var annotation=ReadTypeAnnotation();
                 var defaultValue=Eat(TokenKind.Equal)?ParseValue():null;
+                if(rest)
+                {
+                    if(annotation is not ArrayTypeSyntax)
+                        Diagnostics.Add(Diagnostic.Error(file,name,"TS2370",
+                            "A rest parameter must be of an array type."));
+                    if(questionOptional)
+                        Diagnostics.Add(Diagnostic.Error(file,name,"TS1047",
+                            "A rest parameter cannot be optional."));
+                    if(defaultValue is not null)
+                        Diagnostics.Add(Diagnostic.Error(file,name,"TS1048",
+                            "A rest parameter cannot have an initializer."));
+                    sawRestParameter=true;
+                }
                 if(questionOptional && defaultValue is not null)
                     Diagnostics.Add(Diagnostic.Error(file,name,"TS1015",
                         "Parameter cannot have question mark and initializer."));
-                bool optional=questionOptional||defaultValue is not null;
+                bool optional=questionOptional||defaultValue is not null||rest;
                 // Keep the same conservative trailing-default boundary as named
                 // functions; nontrailing defaults need positional hole semantics.
                 if(sawDefaultParameter && !optional)
@@ -908,7 +929,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                         "A required parameter cannot follow an optional parameter."));
                 sawOptionalParameter|=optional;
                 sawDefaultParameter|=defaultValue is not null;
-                parameters.Add(new ParameterDeclaration(name,annotation,optional,defaultValue));
+                parameters.Add(new ParameterDeclaration(name,annotation,optional,defaultValue,rest));
                 if(!Eat(TokenKind.Comma))break;
             }
             if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after arrow parameters.");

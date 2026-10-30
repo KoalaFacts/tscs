@@ -272,6 +272,118 @@
       "expectedCodes": [
         "TS2554"
       ]
+    },
+    {
+      "id": "typed-arrow:positive-33",
+      "source": "const f=(...values:number[]):number=>values.length;let result:number=f(1,2,3);",
+      "expectedCodes": [],
+      "profile": "fixtures/array-iteration/minimal.d.ts"
+    },
+    {
+      "id": "typed-arrow:positive-34",
+      "source": "const f=(base:number,...values:number[]):number=>base+values.length;let result:number=f(40,1,2);",
+      "expectedCodes": [],
+      "profile": "fixtures/array-iteration/minimal.d.ts"
+    },
+    {
+      "id": "typed-arrow:positive-35",
+      "source": "const f=(base:number,...values:number[]):number=>{let total:number=base;for(const value of values){total+=value;}return total;};let result:number=f(20,21,1);",
+      "expectedCodes": [],
+      "profile": "fixtures/array-iteration/minimal.d.ts"
+    },
+    {
+      "id": "typed-arrow:positive-36",
+      "source": "const f=(...values:string[]):number=>values.length;let result:number=f(\"a\",\"b\");",
+      "expectedCodes": [],
+      "profile": "fixtures/array-iteration/minimal.d.ts"
+    },
+    {
+      "id": "typed-arrow:positive-37",
+      "source": "const f=(...values:number[]):number=>values.length;let result:number=f();",
+      "expectedCodes": [],
+      "profile": "fixtures/array-iteration/minimal.d.ts"
+    },
+    {
+      "id": "typed-arrow:positive-38",
+      "source": "type F=(base:number,...values:number[])=>number;const f:F=(base:number,...values:number[]):number=>base+values.length;let result:number=f(40,1,1);",
+      "expectedCodes": [],
+      "profile": "fixtures/array-iteration/minimal.d.ts"
+    },
+    {
+      "id": "typed-arrow:positive-39",
+      "source": "const f=(base:number=20,...values:number[]):number=>base+values.length;let result:number=f(40,1,1);",
+      "expectedCodes": [],
+      "profile": "fixtures/array-iteration/minimal.d.ts"
+    },
+    {
+      "id": "typed-arrow:positive-40",
+      "source": "const f=(base?:number,...values:number[]):number=>values.length;let result:number=f(0,1,2);",
+      "expectedCodes": [],
+      "profile": "fixtures/array-iteration/minimal.d.ts"
+    },
+    {
+      "id": "typed-arrow:negative-17",
+      "source": "const f=(...values:number):number=>42;",
+      "expectedCodes": [
+        "TS2370"
+      ],
+      "profile": "fixtures/array-iteration/minimal.d.ts"
+    },
+    {
+      "id": "typed-arrow:negative-18",
+      "source": "const f=(...values?:number[]):number=>42;",
+      "expectedCodes": [
+        "TS1047"
+      ],
+      "profile": "fixtures/array-iteration/minimal.d.ts"
+    },
+    {
+      "id": "typed-arrow:negative-19",
+      "source": "const f=(...values:number[]=[]):number=>42;",
+      "expectedCodes": [
+        "TS1048"
+      ],
+      "profile": "fixtures/array-iteration/minimal.d.ts"
+    },
+    {
+      "id": "typed-arrow:negative-20",
+      "source": "const f=(...values:number[],later:number):number=>42;",
+      "expectedCodes": [
+        "TS1014"
+      ],
+      "profile": "fixtures/array-iteration/minimal.d.ts"
+    },
+    {
+      "id": "typed-arrow:negative-21",
+      "source": "const f=(...values:number[]):number=>values.length;f(\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ],
+      "profile": "fixtures/array-iteration/minimal.d.ts"
+    },
+    {
+      "id": "typed-arrow:negative-22",
+      "source": "const f=(base:number,...values:number[]):number=>base;f(42,true);",
+      "expectedCodes": [
+        "TS2345"
+      ],
+      "profile": "fixtures/array-iteration/minimal.d.ts"
+    },
+    {
+      "id": "typed-arrow:negative-23",
+      "source": "const f=(...values:number[]):string=>values.length;",
+      "expectedCodes": [
+        "TS2322"
+      ],
+      "profile": "fixtures/array-iteration/minimal.d.ts"
+    },
+    {
+      "id": "typed-arrow:negative-24",
+      "source": "const f=(...values:string[]):number=>values.length;f(42);",
+      "expectedCodes": [
+        "TS2345"
+      ],
+      "profile": "fixtures/array-iteration/minimal.d.ts"
     }
   ]
 }

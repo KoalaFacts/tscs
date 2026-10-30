@@ -16,12 +16,14 @@ try {
       'export const inc:Callback=(n:number)=>{return n+extra;};',
       'export function apply(fn:Callback,n:number):number{return fn(n);}',
       'export const defaulted:(n:number,x?:number)=>number=(n:number,x:number=1)=>n+x;',
-      'export const optional:(n:number,x?:number)=>number=(n:number,x?:number)=>n;'
+      'export const optional:(n:number,x?:number)=>number=(n:number,x?:number)=>n;',
+      'export const restSum=(base:number,...values:number[]):number=>{let total:number=base;for(const item of values){total+=item;}return total;};',
+      'export const restCount=(...values:number[]):number=>values.length;'
     ].join('\n'),
-    'bridge.ts':'export {inc,apply,defaulted,optional} from "./logic.js";',
+    'bridge.ts':'export {inc,apply,defaulted,optional,restSum,restCount} from "./logic.js";',
     'entry.ts':[
       'import type {Callback} from "./model.js";',
-      'import {inc,apply,defaulted,optional} from "./bridge.js";',
+      'import {inc,apply,defaulted,optional,restSum,restCount} from "./bridge.js";',
       'const twice:Callback=(n:number):number=>n+n;',
       'const block:Callback=(n:number):number=>{if(n>0){return n+n;}return 0;};',
       'const inferred:Callback=(n:number)=>{if(n>0){return n+n;}return 0;};',
@@ -31,6 +33,9 @@ try {
       'export const captured:number=inc(41);',
       'export const defaultedResult:number=defaulted(41);',
       'export const optionalResult:number=optional(42);',
+      'export const restResult:number=restSum(20,21,1);',
+      'export const restLength:number=restCount(1,2,3);',
+      'export const emptyRest:number=restCount();',
       'const bracedDefault=(n:number=21)=>{return n+n;};',
       'export const bracedDefaultResult:number=bracedDefault();'
     ].join('\n')
@@ -53,7 +58,7 @@ try {
   for(const name of ['model','logic','bridge','entry'])
     assert.ok(existsSync(join(dir,name+'.js')),'missing JS module '+name);
   const runtime=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,captured,blocked,inferredResult,defaultedResult,optionalResult,bracedDefaultResult} from "./entry.js"; if(result!==42||captured!==42||blocked!==42||inferredResult!==42||defaultedResult!==42||optionalResult!==42||bracedDefaultResult!==42)throw Error("typed arrow runtime mismatch");'],
+    'import {result,captured,blocked,inferredResult,defaultedResult,optionalResult,bracedDefaultResult,restResult,restLength,emptyRest} from "./entry.js"; if(result!==42||captured!==42||blocked!==42||inferredResult!==42||defaultedResult!==42||optionalResult!==42||bracedDefaultResult!==42||restResult!==42||restLength!==3||emptyRest!==0)throw Error("typed arrow runtime mismatch");'],
     {cwd:dir,encoding:'utf8',timeout:15000});
   assert.equal(runtime.error,undefined,String(runtime.error));
   assert.equal(runtime.status,0,runtime.stdout+runtime.stderr);
@@ -76,7 +81,12 @@ try {
     ['default-missing','const f=(n:number,x:number=1)=>n+x;f();','TS2554',2],
     ['default-extra','const f=(n:number,x:number=1)=>n+x;f(1,2,3);','TS2554',2],
     ['default-optional-conflict','const f=(n?:number=1)=>n;','TS1015',2],
-    ['default-nontrailing','const f=(n:number=1,x:number)=>n+x;','TSCS1001',1]
+    ['default-nontrailing','const f=(n:number=1,x:number)=>n+x;','TSCS1001',1],
+    ['rest-nonarray','const f=(...values:number):number=>42;','TS2370',2],
+    ['rest-optional','const f=(...values?:number[]):number=>42;','TS1047',2],
+    ['rest-default','const f=(...values:number[]=[]):number=>42;','TS1048',2],
+    ['rest-nontrailing','const f=(...values:number[],x:number):number=>42;','TS1014',2],
+    ['rest-argument','const f=(...values:number[]):number=>values.length;f("bad");','TS2345',2]
   ];
   for(const [id,source,code,exit] of negatives) {
     const path=join(dir,'invalid-'+id+'.ts');
@@ -86,5 +96,5 @@ try {
     assert.match(result.stdout+result.stderr,new RegExp(code));
     assert.equal(existsSync(path.replace(/\.ts$/,'.js')),false,'invalid arrow emitted JS');
   }
-  console.log('typed arrows: four-module ES2015 baseline and defaulted/optional results=42; nineteen invalid no-emit programs rejected.');
+  console.log('typed arrows: four-module ES2015 baseline and defaulted/optional results=42; twenty-four invalid no-emit programs rejected.');
 } finally {rmSync(dir,{recursive:true,force:true});}

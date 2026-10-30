@@ -1,3 +1,18 @@
+## 2026-10-30 — Typed arrow array-rest support (candidate; NOT_RUN)
+
+Parser, Binder scopes, TypeChecker and ES2015 emitter now support final
+`...items: T[]` parameters in typed arrow expressions and braced bodies.
+The array is usable for indexed access, length and for..of loops; arguments
+are checked against the element type, including through callback signatures
+and cross-module imports. Non-array, optional, initialized and non-final
+rest parameters diagnose without JS emission. A four-module runtime probe,
+16 real C# positives/negatives, and 16 new pinned-Go reference cases are
+registered; existing 48 frozen source/expected-code cases remain unchanged.
+The new array-aware reference profile is pinned per added source and hashed
+in raw evidence. At source creation checks are NOT_RUN, and no complete
+original TS7 case has been accepted: 0 PASS / 15,523 SKIP_UNIMPLEMENTED,
+dynamic scope UNEXPANDED.
+
 ## 2026-10-30 — Checked typed arrow optional/default parameters (candidate; NOT_RUN)
 
 The C# typed-arrow parser, checker and ES2015 emitter share the named-function
