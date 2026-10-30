@@ -14,18 +14,23 @@ const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
 const compound=cohortArg==='fixtures/compound-guards/semantic-cases.json';
 const nullish=cohortArg==='fixtures/nullish-coalescing/semantic-cases.json';
 const nonNull=cohortArg==='fixtures/non-null/semantic-cases.json';
-assert.ok(!cohortArg||compound||nullish||nonNull,'unknown frozen bounded cohort');
+const optionalChain=cohortArg==='fixtures/optional-chain/semantic-cases.json';
+assert.ok(!cohortArg||compound||nullish||nonNull||optionalChain,'unknown frozen bounded cohort');
 const suitePath=cohortArg??'fixtures/conditional-value/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
 assert.equal(suite.kind,compound?'BOUNDED_COMPOUND_GUARDS_NOT_ORIGINAL_TS7_ACCEPTANCE'
     :nullish?'BOUNDED_NULLISH_COALESCING_NOT_ORIGINAL_TS7_ACCEPTANCE'
     :nonNull?'BOUNDED_POSTFIX_NON_NULL_NOT_ORIGINAL_TS7_ACCEPTANCE'
+    :optionalChain?'BOUNDED_OPTIONAL_MEMBER_ACCESS_NOT_ORIGINAL_TS7_ACCEPTANCE'
     :'BOUNDED_CONDITIONAL_VALUES_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,compound?18:nullish?10:nonNull?14:23,'do not shrink the registered cohort');
+assert.equal(suite.cases.length,compound?18:nullish?10:nonNull?14:optionalChain?14:23,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 // The cohort includes number[] indexing and length. Use the already
 // verified array profile for BOTH compilers, not the empty bootstrap Array<T>.
-const minimalProfile='fixtures/array-iteration/minimal.d.ts';
+// Optional member access tests the primitive String.length member too.
+ // Array<T> and String declarations mirror the same explicit --noLib profile
+ // for Go and tscs; no source/ID/expectedCode gets rewritten.
+const minimalProfile=optionalChain?'fixtures/optional-chain/minimal.d.ts':'fixtures/array-iteration/minimal.d.ts';
 const minimal=readFileSync(minimalProfile,'utf8');
 const hash=(data:string|Buffer)=>createHash('sha256').update(data).digest('hex');
 const manifest:{path:string;length:number;sha256:string}[]=[];
@@ -57,6 +62,7 @@ for(let i=0;i<suite.cases.length;i++){
   assert.match(item.id,compound?/^compound-guards:(positive|negative)-\d+$/
     :nullish?/^nullish-coalescing:(positive|negative)-\d+$/
     :nonNull?/^non-null:(positive|negative)-\d+$/
+    :optionalChain?/^optional-chain:(positive|negative)-\d{2}$/
     :/^conditional-value:(positive|negative)-\d+$/);
   assert.ok(!ids.has(item.id),'duplicate stable case ID');ids.add(item.id);
   assert.equal(typeof item.source,'string');
@@ -92,4 +98,4 @@ for(const row of manifest){const bytes=readFileSync(join(out,row.path));
   assert.equal(bytes.length,row.length);assert.equal(hash(bytes),row.sha256);}
 writeFileSync(join(out,'manifest.json'),JSON.stringify({files:manifest},null,2),{flag:'wx',flush:true});
 assert.deepEqual(mismatches,[],'genuine pinned-Go mismatches; raw outputs preserved');
-console.log(String(results.length)+' bounded '+(compound?'compound guard':nullish?'nullish coalescing':nonNull?'postfix non-null':'conditional value')+' sources matched pinned Go codes/exits; no original TS7 acceptance.');
+console.log(String(results.length)+' bounded '+(compound?'compound guard':nullish?'nullish coalescing':nonNull?'postfix non-null':optionalChain?'optional member access':'conditional value')+' sources matched pinned Go codes/exits; no original TS7 acceptance.');

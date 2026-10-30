@@ -119,6 +119,10 @@ internal static class CompilerTypes
     // Null source literals and optional chaining remain outside this subset.
     // Postfix ! erases at runtime. It removes only explicitly represented
     // undefined constituents; void and unknown are not falsely narrowed.
+    public static bool ContainsUndefined(TypeSymbol value)=>
+        value.Equals(Undefined) || value is UnionTypeSymbol union &&
+        union.Alternatives.Any(type=>type.Equals(Undefined));
+
     public static TypeSymbol NonNullAssertionResult(TypeSymbol value)
     {
         if(value.Equals(Undefined))return Never;

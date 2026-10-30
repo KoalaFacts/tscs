@@ -907,7 +907,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     {
         while(source is ValueParenthesized group)source=group.Expression;
         if(source is ValuePropertyAccess { Receiver:ValueAtom atom } access &&
-           atom.Token.Kind==TokenKind.Identifier)
+           !access.Optional && atom.Token.Kind==TokenKind.Identifier)
         {
             variable=atom.Token;
             member=access.Name.Text;
@@ -1545,16 +1545,20 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 }
                 var indexType=types.Pop();
                 var receiverType=types.Pop();
-                if(receiverType!=null && TryStaticNamedIndex(indexed.Index,receiverType,out var key) &&
-                   (receiverType is ObjectTypeSymbol or UnionTypeSymbol ||
-                    receiverType.Equals(CompilerTypes.Any)))
+                var mayBeUndefined=indexed.Optional && receiverType!=null &&
+                    CompilerTypes.ContainsUndefined(receiverType);
+                var presentReceiver=indexed.Optional && receiverType!=null
+                    ?CompilerTypes.NonNullAssertionResult(receiverType):receiverType;
+                if(presentReceiver!=null && TryStaticNamedIndex(indexed.Index,presentReceiver,out var key) &&
+                   (presentReceiver is ObjectTypeSymbol or UnionTypeSymbol ||
+                    presentReceiver.Equals(CompilerTypes.Any)))
                 {
-                    if(CompilerTypes.TryGetProperty(receiverType,key) is { } member)
-                        types.Push(member);
+                    if(CompilerTypes.TryGetProperty(presentReceiver,key) is { } member)
+                        types.Push(mayBeUndefined?CompilerTypes.Union([member,CompilerTypes.Undefined]):member);
                     else
                     {
                         Error(indexed.Open,"TS2339",
-                            $"Property '{key}' does not exist on type '{receiverType.DisplayName}'.");
+                            $"Property '{key}' does not exist on type '{presentReceiver.DisplayName}'.");
                         types.Push(null);
                     }
                     continue;
@@ -1562,9 +1566,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 if(indexType!=null && !CompilerTypes.IsNumber(indexType))
                     throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
                         "Indexed reads currently require a number expression."));
-                if(receiverType is ArrayTypeSymbol array)types.Push(array.ElementType);
-                else if(CompilerTypes.IsStringFamily(receiverType))types.Push(CompilerTypes.String);
-                else if(receiverType==null || indexType==null)types.Push(null);
+                if(presentReceiver is ArrayTypeSymbol array)
+                    types.Push(mayBeUndefined?CompilerTypes.Union([array.ElementType,CompilerTypes.Undefined]):array.ElementType);
+                else if(CompilerTypes.IsStringFamily(presentReceiver))
+                    types.Push(mayBeUndefined?CompilerTypes.Union([CompilerTypes.String,CompilerTypes.Undefined]):CompilerTypes.String);
+                else if(presentReceiver==null || indexType==null)types.Push(null);
                 else throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
                     "Index access currently supports arrays and strings only; object index signatures are not implemented."));
                 continue;
@@ -1632,18 +1638,22 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     continue;
                 }
                 var receiver=types.Pop();
-                if(receiver==null)types.Push(null);
-                else if(receiver.Equals(CompilerTypes.Any))types.Push(CompilerTypes.Any);
-                else if(receiver.Equals(CompilerTypes.Unknown))
+                var mayBeUndefined=property.Optional && receiver!=null &&
+                    CompilerTypes.ContainsUndefined(receiver);
+                var presentReceiver=property.Optional && receiver!=null
+                    ?CompilerTypes.NonNullAssertionResult(receiver):receiver;
+                if(presentReceiver==null)types.Push(null);
+                else if(presentReceiver.Equals(CompilerTypes.Any))types.Push(CompilerTypes.Any);
+                else if(presentReceiver.Equals(CompilerTypes.Unknown))
                 {
                     Error(property.Name,"TS18046","Caught value is of type 'unknown'.");
                     types.Push(null);
                 }
-                else if(CompilerTypes.TryGetProperty(receiver,property.Name.Text) is { } member)
-                    types.Push(member);
+                else if(CompilerTypes.TryGetProperty(presentReceiver,property.Name.Text) is { } member)
+                    types.Push(mayBeUndefined?CompilerTypes.Union([member,CompilerTypes.Undefined]):member);
                 else
                 {
-                    Error(property.Name,"TS2339",$"Property '{property.Name.Text}' does not exist on type '{receiver.DisplayName}'.");
+                    Error(property.Name,"TS2339",$"Property '{property.Name.Text}' does not exist on type '{presentReceiver.DisplayName}'.");
                     types.Push(null);
                 }
                 continue;
