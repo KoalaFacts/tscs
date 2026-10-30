@@ -865,16 +865,21 @@ internal sealed class Parser(string file, List<Token> tokens)
                 }
                 else
                 {
+                    bool computed=Eat(TokenKind.OpenBracket);
+                    if(computed && Current.Kind is not (TokenKind.String or TokenKind.Number))
+                        Unsupported(Current,"Only static string or integer computed object keys are supported.");
                     var name=ReadPropertyName(allowString:true,allowNumber:true);
+                    if(computed && !Eat(TokenKind.CloseBracket))
+                        Unsupported(Current,"Expected ']' after a computed object key.");
                     if(PropertyName(name)=="__proto__")
                         Unsupported(name,"Object prototype setter syntax is not supported.");
                     if(!names.Add(PropertyName(name)))
                         Diagnostics.Add(Diagnostic.Error(file,name,"TS1117","An object literal cannot have multiple properties with the same name."));
                     if(Eat(TokenKind.Colon))
-                        properties.Add(new ObjectProperty(name,ParseWithInAllowed(ParseValue)));
+                        properties.Add(new ObjectProperty(name,ParseWithInAllowed(ParseValue),Computed:computed));
                     else if(Current.Kind==TokenKind.OpenParen)
-                        properties.Add(new ObjectProperty(name,ParseObjectMethod(name),Method:true));
-                    else if(name.Kind==TokenKind.Identifier &&
+                        properties.Add(new ObjectProperty(name,ParseObjectMethod(name),Method:true,Computed:computed));
+                    else if(!computed && name.Kind==TokenKind.Identifier &&
                         (Current.Kind is TokenKind.Comma or TokenKind.Close))
                         properties.Add(new ObjectProperty(name,new ValueAtom(name,Shorthand:true)));
                     else

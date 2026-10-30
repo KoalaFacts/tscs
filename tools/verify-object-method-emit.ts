@@ -13,12 +13,17 @@ try {
     'model.ts':'export interface Op{twice(n:number):number}',
     'logic.ts':[
       'import type {Op} from "./model.js";',
-      'export const op:Op={twice(n:number):number{return n+n;}};'
+      'export const op:Op={twice(n:number):number{return n+n;}};',
+      'export const computed:Op={["twice"](n:number):number{return n+n;}};',
+      'export const computedData={["answer"]:42,[0]:42};'
     ].join('\n'),
-    'bridge.ts':'export {op} from "./logic.js";',
+    'bridge.ts':'export {op,computed,computedData} from "./logic.js";',
     'entry.ts':[
-      'import {op} from "./bridge.js";',
+      'import {op,computed,computedData} from "./bridge.js";',
       'export const result:number=op.twice(21);',
+      'export const computedResult:number=computed.twice(21);',
+      'export const computedDataResult:number=computedData["answer"];',
+      'export const computedNumberResult:number=computedData[0];',
       'const nested={inner:{twice(n:number){return n+n;}}};',
       'export const nestedResult:number=nested.inner.twice(21);',
       'const more={add(base:number,...items:number[]):number{let total:number=base;for(const item of items){total+=item;}return total;}};',
@@ -53,8 +58,10 @@ try {
   const logic=readFileSync(join(dir,'logic.js'),'utf8');
   assert.match(logic,/twice\(n\)\s*\{/,'must emit native ES2015 method shorthand');
   assert.doesNotMatch(logic,/twice:\s*function/,'must not replace a method with a function property');
+  assert.match(logic,/\["twice"\]\(n\)\s*\{/,'computed method must stay native ES2015');
+  assert.match(logic,/\["answer"\]:\s*42/,'computed data key must retain bracket spelling');
   const runtime=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,nestedResult,restResult,defaultResult,namedResult,callbackResult} from "./entry.js"; import {op} from "./logic.js"; if([result,nestedResult,restResult,defaultResult,namedResult,callbackResult].some(x=>x!==42))throw Error("object method runtime mismatch"); if(Object.hasOwn(op.twice,"prototype"))throw Error("method incorrectly became a constructible function");'],
+    'import {result,computedResult,computedDataResult,computedNumberResult,nestedResult,restResult,defaultResult,namedResult,callbackResult} from "./entry.js"; import {op,computed} from "./logic.js"; if([result,computedResult,computedDataResult,computedNumberResult,nestedResult,restResult,defaultResult,namedResult,callbackResult].some(x=>x!==42))throw Error("object method runtime mismatch"); if(Object.hasOwn(op.twice,"prototype")||Object.hasOwn(computed.twice,"prototype"))throw Error("method incorrectly became a constructible function");'],
     {cwd:dir,encoding:'utf8',timeout:15000});
   assert.equal(runtime.error,undefined,String(runtime.error));
   assert.equal(runtime.status,0,runtime.stdout+runtime.stderr);
@@ -64,7 +71,11 @@ try {
     ['arity','const op={run(n:number):number{return n;}};op.run();','TS2554',2],
     ['name','const op={run(n:number):number{return missingName;}};','TS2304',2],
     ['flow','const op={run(n:number):number{if(n>0){return n;}}};','TSCS1001',1],
-    ['untyped','const op={run(n){return n;}};','TSCS1001',1]
+    ['untyped','const op={run(n){return n;}};','TSCS1001',1],
+    ['computed-dynamic','const key="run";const op={[key](n:number):number{return n;}};','TSCS1001',1],
+    ['computed-return','const op={["run"](n:number):number{return "bad";}};','TS2322',2],
+    ['computed-argument','const op={["run"](n:number):number{return n;}};op.run("bad");','TS2345',2],
+    ['computed-duplicate','const op={["x"]:1,x:2};','TS1117',2]
   ];
   for(const [id,source,code,exit] of invalid){
     const path=join(dir,'invalid-'+id+'.ts');
@@ -74,7 +85,7 @@ try {
     assert.match(checked.stdout+checked.stderr,new RegExp(code));
     assert.equal(existsSync(path.replace(/\.ts$/,'.js')),false,'invalid emitted JavaScript: '+id);
   }
-  console.log('object methods: 4-module ES2015 runtime, method identity, and 6 fail-closed no-emit programs checked');
+  console.log('object methods: 4-module ES2015 runtime, computed key identity, and 10 fail-closed no-emit programs checked');
 } finally {
   rmSync(dir,{recursive:true,force:true});
 }

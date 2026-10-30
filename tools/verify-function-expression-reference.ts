@@ -18,7 +18,7 @@ const suite=JSON.parse(readFileSync(suitePath,'utf8'));
 assert.equal(suite.kind,objectMethods
   ?'BOUNDED_OBJECT_LITERAL_METHODS_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :'BOUNDED_TYPED_FUNCTION_EXPRESSIONS_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,objectMethods?14:34,'do not shrink the frozen reference cohort');
+assert.equal(suite.cases.length,objectMethods?28:34,'do not shrink the frozen reference cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const profilePath='fixtures/minimal.d.ts',profile=readFileSync(profilePath,'utf8');
 const hash=(v:string|Buffer)=>createHash('sha256').update(v).digest('hex');
@@ -48,7 +48,7 @@ const ids=new Set<string>(),rows:object[]=[],mismatch:object[]=[];
 for(let i=0;i<suite.cases.length;i++) {
   const item=suite.cases[i];
   assert.match(item.id,objectMethods
-    ?/^object-method:(positive|negative)-\d{2}$/
+    ?/^object-method:(positive|negative|computed-positive|computed-negative)-\d{2}$/
     :/^function-expression:(positive|negative|named-positive|named-negative|inferred-positive|inferred-negative)-\d{2}$/);
   assert.ok(!ids.has(item.id),'duplicate case ID');ids.add(item.id);
   assert.equal(typeof item.source,'string');

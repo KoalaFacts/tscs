@@ -485,10 +485,11 @@ internal static class JavaScriptEmitter
             // The body has already been checked as a lexical function scope.
             void ObjectEntry(ObjectProperty entry)
             {
+                var key=entry.Computed?"["+entry.Name.Text+"]":entry.Name.Text;
                 if(!entry.Method)
                 {
                     Node(entry.Value);
-                    Text(entry.Name.Text+": ");
+                    Text(key+": ");
                     return;
                 }
                 if(entry.Value is not ValueArrow method ||
@@ -509,7 +510,7 @@ internal static class JavaScriptEmitter
                     if(parameter.Rest)Text("...");
                     if(i>0)Text(", ");
                 }
-                Text(entry.Name.Text+"(");
+                Text(key+"(");
             }
 
             Node(value);
