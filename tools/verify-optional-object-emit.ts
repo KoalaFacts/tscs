@@ -39,10 +39,10 @@ try {
     ['missing-required','let o:{value?:number}={};let x:{value:number}=o;','TS2741',2],
     ['unsafe-read','let o:{value?:number}={};let n:number=o.value;','TS2322',2],
     ['wrong-write','let o:{value?:number}={};o.value="bad";','TS2322',2],
-    ['readonly','let o:{readonly value?:number}={};o.value=42;','TS2540',1],
+    ['readonly','let o:{readonly value?:number}={};o.value=42;','TS2540',2],
     ['excess','let o:{value?:number}={extra:42};','TS2353',2],
     ['optional-method','interface Option{run?():number}','TSCS1001',1],
-    ['invalid-extension','interface Root{value:number}interface Child extends Root{value?:number}','TS2430',1]
+    ['invalid-extension','interface Root{value:number}interface Child extends Root{value?:number}','TS2430',2]
   ];
   for(const [id,source,code,exit] of invalid){
     const path=join(dir,'invalid-'+id+'.ts');writeFileSync(path,source);
