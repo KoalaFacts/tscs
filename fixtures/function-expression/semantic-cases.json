@@ -1,0 +1,73 @@
+{
+  "kind": "BOUNDED_TYPED_FUNCTION_EXPRESSIONS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "function-expression:positive-01",
+      "source": "const f=function(n:number):number{return n+1;};const result:number=f(41);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-expression:positive-02",
+      "source": "const f=function(n:number){return n+n;};const result:number=f(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-expression:positive-03",
+      "source": "const f=function():number{return 42;};const result:number=f();",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-expression:positive-04",
+      "source": "const offset:number=1;const f=function(n:number):number{return n+offset;};const result:number=f(41);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-expression:positive-05",
+      "source": "type Fn=(n:number)=>number;const f:Fn=function(n:number):number{return n+1;};const result:number=f(41);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-expression:positive-06",
+      "source": "function apply(fn:(n:number)=>number,n:number):number{return fn(n);}const result:number=apply(function(n:number):number{return n+n;},21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-expression:positive-07",
+      "source": "const make=function(n:number):(m:number)=>number{return function(m:number):number{return n+m;};};const f=make(20);const result:number=f(22);",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-expression:positive-08",
+      "source": "const f=function(n:number=21):number{return n+n;};const result:number=f();",
+      "expectedCodes": []
+    },
+    {
+      "id": "function-expression:negative-01",
+      "source": "const f=function(n:number):number{return \"wrong\";};",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "function-expression:negative-02",
+      "source": "const f=function(n:number):number{return n;};f(\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "function-expression:negative-03",
+      "source": "const f=function(n:number):number{return n;};f();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "function-expression:negative-04",
+      "source": "const f=function(n:number):number{return unknownValue;};",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    }
+  ]
+}

@@ -877,12 +877,11 @@ internal sealed class Parser(string file, List<Token> tokens)
         return false;
     }
 
-    private ValueNode ParseTypedArrow()
+
+    // A single typed parameter grammar is shared by arrow and anonymous
+    // function expressions. Existing optional, default and rest checks apply.
+    private List<ParameterDeclaration> ParseTypedExpressionParameters()
     {
-        var open=Take();
-        if(++arrowNesting>32)Unsupported(open,"Arrow expression nesting exceeds the compiler subset limit.");
-        try
-        {
             var parameters=new List<ParameterDeclaration>();
             var names=new HashSet<string>(StringComparer.Ordinal);
             bool sawOptionalParameter=false;
@@ -938,6 +937,39 @@ internal sealed class Parser(string file, List<Token> tokens)
                 if(!Eat(TokenKind.Comma))break;
             }
             if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after arrow parameters.");
+        return parameters;
+    }
+
+    // Anonymous function expressions are callable values, not declarations.
+    // Named/generator/untyped forms remain explicitly outside this subset.
+    private ValueNode ParseFunctionExpression()
+    {
+        var keyword=Take();
+        if(++arrowNesting>32)
+            Unsupported(keyword,"Callable expression nesting exceeds the compiler subset limit.");
+        try
+        {
+            if(!Eat(TokenKind.OpenParen))
+                Unsupported(Current,"Only anonymous typed function expressions are supported.");
+            var parameters=ParseTypedExpressionParameters();
+            TypeSyntax? returns=Eat(TokenKind.Colon)?ReadTypeAnnotation():null;
+            if(!Eat(TokenKind.Open))
+                Unsupported(Current,"Function expressions require a braced body.");
+            var body=Parse(1,true);
+            if(!Eat(TokenKind.Close))
+                Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+            return new ValueArrow(keyword,parameters,returns,null,body,FunctionExpression:true);
+        }
+        finally {arrowNesting--;}
+    }
+
+    private ValueNode ParseTypedArrow()
+    {
+        var open=Take();
+        if(++arrowNesting>32)Unsupported(open,"Arrow expression nesting exceeds the compiler subset limit.");
+        try
+        {
+            var parameters=ParseTypedExpressionParameters();
             TypeSyntax? returns=Eat(TokenKind.Colon)?ReadTypeAnnotation():null;
             if(!Eat(TokenKind.Arrow))Unsupported(Current,"Expected '=>' after arrow signature.");
             if(Eat(TokenKind.Open))
@@ -1158,6 +1190,7 @@ internal sealed class Parser(string file, List<Token> tokens)
             }
             finally { groupNesting--; }
         }
+        if(token.Kind==TokenKind.Function)return ParseFunctionExpression();
         if(token.Kind==TokenKind.Identifier)
         {
             Take();

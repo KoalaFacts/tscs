@@ -77,6 +77,7 @@ jobs:
           node tools/verify-type-query-reference.ts "$reference" .artifacts/type-query-reference
           node tools/verify-type-query-reference.ts "$reference" .artifacts/function-types-reference fixtures/function-types/semantic-cases.json
           node tools/verify-typed-arrow-reference.ts "$reference" .artifacts/typed-arrow-reference
+          node tools/verify-function-expression-reference.ts "$reference" .artifacts/function-expression-reference
           node tools/verify-interface-inheritance-reference.ts "$reference" .artifacts/interface-inheritance-reference
       - name: Preserve bounded interface heritage raw reference evidence
         if: always()
@@ -84,6 +85,14 @@ jobs:
         with:
           name: pinned-interface-inheritance-reference-${{ github.sha }}
           path: .artifacts/interface-inheritance-reference/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Preserve bounded function-expression source and raw reference evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-function-expression-reference-${{ github.sha }}
+          path: .artifacts/function-expression-reference/
           if-no-files-found: warn
           retention-days: 30
       - name: Preserve bounded typed-arrow source and raw reference evidence

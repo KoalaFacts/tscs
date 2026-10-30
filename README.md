@@ -125,6 +125,15 @@ to native ES2015 parameters. Untyped arrow parameters, mixed bare/value return
 inference, overloads, generics,
 `this` parameters and unrestricted callable properties remain unsupported.
 
+Typed **anonymous function expressions** are checked callable values:
+`const twice = function(n: number): number { return n + n; }`.
+They reuse typed parameter grammar, lexical binding, return validation,
+function signatures, modules, and ES2015 output. Trailing optional/default
+and array-rest parameters are supported within the same checked subset.
+Named function expressions, generators, implicit untyped parameters and
+`this` semantics remain unsupported. See
+[`typed-function-expressions`](docs/progress/typed-function-expressions.md).
+
 ## Other implemented subsets
 
 The current pipeline includes primitive/`any` variables, lexical scopes, selected
