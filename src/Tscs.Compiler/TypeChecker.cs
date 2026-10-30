@@ -1564,7 +1564,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 var inheritedSkip=indexed.ChainContinuation &&
                     optionalSkipped.TryGetValue(indexed.Receiver,out var indexSkip) && indexSkip;
                 var mayBeUndefined=(indexed.Optional && receiverType!=null &&
-                    CompilerTypes.ContainsUndefined(receiverType)) || inheritedSkip;
+                    CompilerTypes.ContainsNullish(receiverType)) || inheritedSkip;
                 TypeSymbol? presentReceiver;
                 if(indexed.ChainContinuation)
                 {
@@ -1668,7 +1668,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 var inheritedSkip=property.ChainContinuation &&
                     optionalSkipped.TryGetValue(property.Receiver,out var propertySkip) && propertySkip;
                 var mayBeUndefined=(property.Optional && receiver!=null &&
-                    CompilerTypes.ContainsUndefined(receiver)) || inheritedSkip;
+                    CompilerTypes.ContainsNullish(receiver)) || inheritedSkip;
                 TypeSymbol? presentReceiver;
                 if(property.ChainContinuation)
                 {
@@ -1754,7 +1754,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 if(calleeType==null) { types.Push(null); continue; }
                 var inheritedSkip=call.ChainContinuation &&
                     optionalSkipped.TryGetValue(call.Callee,out var callSkip) && callSkip;
-                bool optionalMissing=(call.Optional && CompilerTypes.ContainsUndefined(calleeType)) || inheritedSkip;
+                bool optionalMissing=(call.Optional && CompilerTypes.ContainsNullish(calleeType)) || inheritedSkip;
                 TypeSymbol? callableType;
                 if(call.ChainContinuation)
                 {
