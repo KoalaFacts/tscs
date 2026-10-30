@@ -14,19 +14,25 @@ try {
       'import type {Callback} from "./model.js";',
       'const extra:number=1;',
       'export const inc:Callback=(n:number)=>{return n+extra;};',
-      'export function apply(fn:Callback,n:number):number{return fn(n);}'
+      'export function apply(fn:Callback,n:number):number{return fn(n);}',
+      'export const defaulted:(n:number,x?:number)=>number=(n:number,x:number=1)=>n+x;',
+      'export const optional:(n:number,x?:number)=>number=(n:number,x?:number)=>n;'
     ].join('\n'),
-    'bridge.ts':'export {inc,apply} from "./logic.js";',
+    'bridge.ts':'export {inc,apply,defaulted,optional} from "./logic.js";',
     'entry.ts':[
       'import type {Callback} from "./model.js";',
-      'import {inc,apply} from "./bridge.js";',
+      'import {inc,apply,defaulted,optional} from "./bridge.js";',
       'const twice:Callback=(n:number):number=>n+n;',
       'const block:Callback=(n:number):number=>{if(n>0){return n+n;}return 0;};',
       'const inferred:Callback=(n:number)=>{if(n>0){return n+n;}return 0;};',
       'export const inferredResult:number=apply(inferred,21);',
       'export const blocked:number=apply(block,21);',
       'export const result:number=apply(twice,21);',
-      'export const captured:number=inc(41);'
+      'export const captured:number=inc(41);',
+      'export const defaultedResult:number=defaulted(41);',
+      'export const optionalResult:number=optional(42);',
+      'const bracedDefault=(n:number=21)=>{return n+n;};',
+      'export const bracedDefaultResult:number=bracedDefault();'
     ].join('\n')
   };
   for(const [file,code] of Object.entries(files))writeFileSync(join(dir,file),code+'\n');
@@ -47,7 +53,7 @@ try {
   for(const name of ['model','logic','bridge','entry'])
     assert.ok(existsSync(join(dir,name+'.js')),'missing JS module '+name);
   const runtime=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,captured,blocked,inferredResult} from "./entry.js"; if(result!==42||captured!==42||blocked!==42||inferredResult!==42)throw Error("typed arrow runtime mismatch");'],
+    'import {result,captured,blocked,inferredResult,defaultedResult,optionalResult,bracedDefaultResult} from "./entry.js"; if(result!==42||captured!==42||blocked!==42||inferredResult!==42||defaultedResult!==42||optionalResult!==42||bracedDefaultResult!==42)throw Error("typed arrow runtime mismatch");'],
     {cwd:dir,encoding:'utf8',timeout:15000});
   assert.equal(runtime.error,undefined,String(runtime.error));
   assert.equal(runtime.status,0,runtime.stdout+runtime.stderr);
@@ -63,7 +69,14 @@ try {
     ['braced-missing','const fn=(n:number):number=>{return missing;};','TS2304',2],
     ['braced-incomplete','const fn=(n:number):number=>{if(n>0){return n;}};','TSCS1001',1],
     ['braced-partial','const fn=(n:number)=>{if(n>0){return n;}};','TSCS1001',1],
-    ['braced-bare','const fn=(n:number):number=>{return;};','TSCS1001',1]
+    ['braced-bare','const fn=(n:number):number=>{return;};','TSCS1001',1],
+    ['default-type','const f=(n:number="bad")=>n;','TS2322',2],
+    ['default-boolean','const f=(n:number=true)=>n;','TS2322',2],
+    ['default-argument','const f=(n:number,x:number=1)=>n+x;f(1,"bad");','TS2345',2],
+    ['default-missing','const f=(n:number,x:number=1)=>n+x;f();','TS2554',2],
+    ['default-extra','const f=(n:number,x:number=1)=>n+x;f(1,2,3);','TS2554',2],
+    ['default-optional-conflict','const f=(n?:number=1)=>n;','TS1015',2],
+    ['default-nontrailing','const f=(n:number=1,x:number)=>n+x;','TSCS1001',1]
   ];
   for(const [id,source,code,exit] of negatives) {
     const path=join(dir,'invalid-'+id+'.ts');
@@ -73,5 +86,5 @@ try {
     assert.match(result.stdout+result.stderr,new RegExp(code));
     assert.equal(existsSync(path.replace(/\.ts$/,'.js')),false,'invalid arrow emitted JS');
   }
-  console.log('typed expression and block arrows: four-module ES2015 result=42, captured=42, blocked=42, inferredResult=42; twelve invalid no-emit programs rejected.');
+  console.log('typed arrows: four-module ES2015 baseline and defaulted/optional results=42; nineteen invalid no-emit programs rejected.');
 } finally {rmSync(dir,{recursive:true,force:true});}

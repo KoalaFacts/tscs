@@ -858,11 +858,14 @@ internal sealed class Parser(string file, List<Token> tokens)
                     return false;
                 // A ':' after an ordinary parenthesized conditional is its
                 // *outer* ternary separator, not an arrow return annotation.
-                // Require an empty parameter list or a named typed parameter
-                // before recognizing an arrow signature.
+                // Require an empty list or a named typed parameter; optional
+                // parameters have '?' before ':'. Do not confuse ternaries
+                // with return-type annotations.
                 return i==position+1 ||
                     (position+2<i && tokens[position+1].Kind==TokenKind.Identifier &&
-                     tokens[position+2].Kind==TokenKind.Colon);
+                     (tokens[position+2].Kind==TokenKind.Colon ||
+                      (position+3<i && tokens[position+2].Kind==TokenKind.Question &&
+                       tokens[position+3].Kind==TokenKind.Colon)));
             }
             else if(tokens[i].Kind==TokenKind.End)return false;
         }
@@ -877,6 +880,8 @@ internal sealed class Parser(string file, List<Token> tokens)
         {
             var parameters=new List<ParameterDeclaration>();
             var names=new HashSet<string>(StringComparer.Ordinal);
+            bool sawOptionalParameter=false;
+            bool sawDefaultParameter=false;
             while(Current.Kind!=TokenKind.CloseParen)
             {
                 if(parameters.Count>=32)Unsupported(Current,"Arrow parameter count exceeds the supported limit.");
@@ -885,9 +890,25 @@ internal sealed class Parser(string file, List<Token> tokens)
                 var name=Take();
                 if(!names.Add(name.Text))
                     Diagnostics.Add(Diagnostic.Error(file,name,"TS2300",$"Duplicate identifier '{name.Text}'."));
+                bool questionOptional=Eat(TokenKind.Question);
                 if(!Eat(TokenKind.Colon))
                     Unsupported(Current,"Arrow parameters require explicit type annotations.");
-                parameters.Add(new ParameterDeclaration(name,ReadTypeAnnotation()));
+                var annotation=ReadTypeAnnotation();
+                var defaultValue=Eat(TokenKind.Equal)?ParseValue():null;
+                if(questionOptional && defaultValue is not null)
+                    Diagnostics.Add(Diagnostic.Error(file,name,"TS1015",
+                        "Parameter cannot have question mark and initializer."));
+                bool optional=questionOptional||defaultValue is not null;
+                // Keep the same conservative trailing-default boundary as named
+                // functions; nontrailing defaults need positional hole semantics.
+                if(sawDefaultParameter && !optional)
+                    Unsupported(name,"Required arrow parameters after defaults are not supported yet.");
+                if(sawOptionalParameter && !optional)
+                    Diagnostics.Add(Diagnostic.Error(file,name,"TS1016",
+                        "A required parameter cannot follow an optional parameter."));
+                sawOptionalParameter|=optional;
+                sawDefaultParameter|=defaultValue is not null;
+                parameters.Add(new ParameterDeclaration(name,annotation,optional,defaultValue));
                 if(!Eat(TokenKind.Comma))break;
             }
             if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after arrow parameters.");

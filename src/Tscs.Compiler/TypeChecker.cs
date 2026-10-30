@@ -1286,7 +1286,21 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 {
                     var local=new Scope(scope);
                     foreach(var parameter in arrow.Parameters)
+                    {
+                        // Default initializers see earlier parameters and outer
+                        // lexical bindings, never the parameter being declared
+                        // or a later one. They are checked before JS emission.
+                        if(parameter.DefaultValue is { } initializer)
+                        {
+                            var expected=TypeResolver.Resolve(parameter.Annotation,local,file);
+                            var actual=TypeOf(initializer,local);
+                            if(actual is { } resolved &&
+                               CheckContextualLiteral(initializer,expected,resolved) &&
+                               !IsAssignableContextually(initializer,resolved,expected))
+                                Mismatch(parameter.Name,resolved,expected);
+                        }
                         Binder.DeclareParameter(file,local,parameter);
+                    }
                     var annotated=arrow.ReturnAnnotation is { } syntax
                         ?TypeResolver.Resolve(syntax,local,file):null;
                     TypeSymbol? returned;
@@ -1346,7 +1360,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     var signatureReturn=annotated??returned;
                     types.Push(signatureReturn is null?null:new FunctionTypeSymbol(
                         arrow.Parameters.Select(p=>local.Symbols[p.Name.Text].Type!).ToArray(),
-                        signatureReturn));
+                        signatureReturn,
+                        arrow.Parameters.TakeWhile(p=>!p.Optional).Count()));
                 }
                 finally {arrowExpressionDepth--;}
                 continue;

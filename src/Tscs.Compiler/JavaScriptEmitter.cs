@@ -514,7 +514,13 @@ internal static class JavaScriptEmitter
                         Text(")");
                         for(int i=arrow.Parameters.Count-1;i>=0;i--)
                         {
-                            Text(arrow.Parameters[i].Name.Text);
+                            var parameter=arrow.Parameters[i];
+                            if(parameter.DefaultValue is { } initializer)
+                            {
+                                Node(initializer);
+                                Text(" = ");
+                            }
+                            Text(parameter.Name.Text);
                             if(i>0)Text(", ");
                         }
                         Text("(");
