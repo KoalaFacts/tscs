@@ -1,0 +1,73 @@
+{
+  "kind": "BOUNDED_TYPED_ARROW_EXPRESSIONS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "typed-arrow:positive-01",
+      "source": "const inc=(n:number)=>n+1;let result:number=inc(41);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-02",
+      "source": "const twice=(n:number):number=>n+n;let result:number=twice(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-03",
+      "source": "const answer=():number=>42;let result:number=answer();",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-04",
+      "source": "const extra:number=1;const inc=(n:number)=>n+extra;let result:number=inc(41);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-05",
+      "source": "type Fn=(n:number)=>number;const cb:Fn=(n:number)=>n+1;let result:number=cb(41);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-06",
+      "source": "function apply(fn:(n:number)=>number,n:number):number{return fn(n);}let result:number=apply((n:number)=>n+n,21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-07",
+      "source": "const make=(n:number)=>(m:number)=>n+m;const fn=make(20);let result:number=fn(22);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-08",
+      "source": "type Fn=(n:number)=>number;const box:{cb:Fn}={cb:(n:number)=>n+n};const fn:Fn=box.cb;let result:number=fn(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:negative-01",
+      "source": "const bad=(n:number):number=>\"no\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "typed-arrow:negative-02",
+      "source": "const inc=(n:number)=>n+1;let result:number=inc(\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "typed-arrow:negative-03",
+      "source": "const inc=(n:number)=>n+1;let result:number=inc();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "typed-arrow:negative-04",
+      "source": "const inc=(n:number)=>n+1;let result:string=inc(1);",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}

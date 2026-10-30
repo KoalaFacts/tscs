@@ -11,6 +11,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     private int objectNesting;
     private int arrayNesting;
     private int exponentNesting;
+    private int arrowNesting;
     // Classic-for initializers use the ECMAScript NoIn grammar; grouping restores In.
     private bool disallowIn;
     private Token Current => tokens[position];
@@ -840,7 +841,64 @@ internal sealed class Parser(string file, List<Token> tokens)
     // Single precedence ladder shared by variable, call, return, assignment
     // and conditional expression sites. The bounded type checker must reject
     // unsupported operand families rather than pretending JS coercion works.
-    private ValueNode ParseValue()=>ParseConditionalValue();
+    private ValueNode ParseValue()=>LooksLikeTypedArrow()?ParseTypedArrow():ParseConditionalValue();
+
+    // Distinguish a typed arrow from a parenthesized value; never infer an
+    // implicit-any parameter from an unsupported JavaScript lambda.
+    private bool LooksLikeTypedArrow()
+    {
+        if(Current.Kind!=TokenKind.OpenParen)return false;
+        int nesting=0;
+        for(int i=position;i<tokens.Count && i-position<1024;i++)
+        {
+            if(tokens[i].Kind==TokenKind.OpenParen)nesting++;
+            else if(tokens[i].Kind==TokenKind.CloseParen && --nesting==0)
+            {
+                if(i+1>=tokens.Count || tokens[i+1].Kind is not (TokenKind.Arrow or TokenKind.Colon))
+                    return false;
+                // A ':' after an ordinary parenthesized conditional is its
+                // *outer* ternary separator, not an arrow return annotation.
+                // Require an empty parameter list or a named typed parameter
+                // before recognizing an arrow signature.
+                return i==position+1 ||
+                    (position+2<i && tokens[position+1].Kind==TokenKind.Identifier &&
+                     tokens[position+2].Kind==TokenKind.Colon);
+            }
+            else if(tokens[i].Kind==TokenKind.End)return false;
+        }
+        return false;
+    }
+
+    private ValueNode ParseTypedArrow()
+    {
+        var open=Take();
+        if(++arrowNesting>32)Unsupported(open,"Arrow expression nesting exceeds the compiler subset limit.");
+        try
+        {
+            var parameters=new List<ParameterDeclaration>();
+            var names=new HashSet<string>(StringComparer.Ordinal);
+            while(Current.Kind!=TokenKind.CloseParen)
+            {
+                if(parameters.Count>=32)Unsupported(Current,"Arrow parameter count exceeds the supported limit.");
+                if(Current.Kind!=TokenKind.Identifier)
+                    Unsupported(Current,"Arrow parameters require explicitly named type annotations.");
+                var name=Take();
+                if(!names.Add(name.Text))
+                    Diagnostics.Add(Diagnostic.Error(file,name,"TS2300",$"Duplicate identifier '{name.Text}'."));
+                if(!Eat(TokenKind.Colon))
+                    Unsupported(Current,"Arrow parameters require explicit type annotations.");
+                parameters.Add(new ParameterDeclaration(name,ReadTypeAnnotation()));
+                if(!Eat(TokenKind.Comma))break;
+            }
+            if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after arrow parameters.");
+            TypeSyntax? returns=Eat(TokenKind.Colon)?ReadTypeAnnotation():null;
+            if(!Eat(TokenKind.Arrow))Unsupported(Current,"Expected '=>' after arrow signature.");
+            if(Current.Kind==TokenKind.Open)
+                Unsupported(Current,"Braced arrow bodies are not implemented; use an expression body.");
+            return new ValueArrow(open,parameters,returns,ParseWithInAllowed(ParseValue));
+        }
+        finally {arrowNesting--;}
+    }
     // Lower precedence than ||; the false arm is right-associative.
     private ValueNode ParseConditionalValue()
     {

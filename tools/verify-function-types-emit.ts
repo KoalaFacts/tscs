@@ -57,7 +57,7 @@ try {
     ['bad-arity','type Fn=(n:number)=>number;function twice(n:number):number{return n+n;}let cb:Fn=twice;let x:number=cb();','TS2554',2],
     ['required-after-optional','type Bad=(n?:number,other:number)=>number;','TSCS1001',1],
     ['bad-rest','type Bad=(...values:number)=>number;','TSCS1001',1],
-    ['runtime-arrow-unsupported','const lambda=(n:number)=>n;','TSCS1001',1]
+    ['untyped-arrow-unsupported','const lambda=(n)=>n;','TSCS1001',1]
   ];
   for(const [name,code,expected,exit] of invalid) {
     const file=join(dir,'bad-'+name+'.ts');
