@@ -8,7 +8,7 @@ internal abstract record TypeSymbol
     public abstract string DisplayName { get; }
 }
 
-internal enum PrimitiveKind { Number, String, Boolean, Any, Void, Unknown, Never }
+internal enum PrimitiveKind { Number, String, Boolean, Any, Void, Unknown, Never, Undefined }
 
 internal sealed record PrimitiveTypeSymbol(PrimitiveKind Kind) : TypeSymbol
 {
@@ -21,6 +21,7 @@ internal sealed record PrimitiveTypeSymbol(PrimitiveKind Kind) : TypeSymbol
         PrimitiveKind.Void => "void",
         PrimitiveKind.Unknown => "unknown",
         PrimitiveKind.Never => "never",
+        PrimitiveKind.Undefined => "undefined",
         _ => throw new ArgumentOutOfRangeException(nameof(Kind))
     };
 }
@@ -58,6 +59,7 @@ internal static class CompilerTypes
     public static readonly TypeSymbol Boolean=new PrimitiveTypeSymbol(PrimitiveKind.Boolean);
     public static readonly TypeSymbol Any=new PrimitiveTypeSymbol(PrimitiveKind.Any);
     public static readonly TypeSymbol Void=new PrimitiveTypeSymbol(PrimitiveKind.Void);
+    public static readonly TypeSymbol Undefined=new PrimitiveTypeSymbol(PrimitiveKind.Undefined);
     // The immutable pinned Go reference treats catch bindings as unknown.
     public static readonly TypeSymbol Unknown=new PrimitiveTypeSymbol(PrimitiveKind.Unknown);
     // Internal inference for an empty literal. 'never' annotations and
@@ -120,6 +122,7 @@ internal static class CompilerTypes
         "boolean" => Boolean,
         "any" => Any,
         "void" => Void,
+        "undefined" => Undefined,
         _ => throw new ArgumentOutOfRangeException(nameof(name),
             "Only parser-validated primitive annotations may reach the semantic type model.")
     };
@@ -131,7 +134,8 @@ internal static class CompilerTypes
         ObjectTypeSyntax shape=>new ObjectTypeSymbol(shape.Properties.Select(p=>
             new KeyValuePair<string,TypeSymbol>(Parser.PropertyName(p.Name),FromAnnotation(p.Type))),
             shape.Properties.Where(p=>p.Readonly).Select(p=>Parser.PropertyName(p.Name)),
-            shape.Properties.Where(p=>p.Name.Kind==TokenKind.Number).Select(p=>Parser.PropertyName(p.Name))),
+            shape.Properties.Where(p=>p.Name.Kind==TokenKind.Number).Select(p=>Parser.PropertyName(p.Name)),
+            shape.Properties.Where(p=>p.Optional).Select(p=>Parser.PropertyName(p.Name))),
         _=>throw new ArgumentOutOfRangeException(nameof(syntax))
     };
 
@@ -165,6 +169,7 @@ internal static class CompilerTypes
         if(value is not ValueObject literal)return null;
         var members=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
         var numericMembers=new HashSet<string>(StringComparer.Ordinal);
+        var optionalMembers=new HashSet<string>(StringComparer.Ordinal);
         foreach(var property in literal.Properties)
         {
             if(FromInitializer(property.Value) is not { } type)return null;
@@ -173,20 +178,25 @@ internal static class CompilerTypes
                 if(type is not ObjectTypeSymbol source)return null;
                 foreach(var member in source.Members)
                 {
+                    if(source.OptionalMembers.Contains(member.Key) && members.ContainsKey(member.Key))
+                        return null; // Conditional overlap of an optional spread is not modeled.
                     members[member.Key]=member.Value;
                     if(source.NumericMembers.Contains(member.Key))numericMembers.Add(member.Key);
                     else numericMembers.Remove(member.Key);
+                    if(source.OptionalMembers.Contains(member.Key))optionalMembers.Add(member.Key);
+                    else optionalMembers.Remove(member.Key);
                 }
             }
             else
             {
                 var name=Parser.PropertyName(property.Name);
                 members[name]=type;
+                optionalMembers.Remove(name);
                 if(property.Name.Kind==TokenKind.Number)numericMembers.Add(name);
                 else numericMembers.Remove(name);
             }
         }
-        return new ObjectTypeSymbol(members,numericMembers:numericMembers);
+        return new ObjectTypeSymbol(members,numericMembers:numericMembers,optionalMembers:optionalMembers);
     }
 
     // A successful satisfies expression preserves the source's inferred shape,
@@ -232,7 +242,7 @@ internal static class CompilerTypes
                 }
                 members.Add(new(name,selected));
             }
-            return new ObjectTypeSymbol(members,data.ReadonlyMembers,data.NumericMembers);
+            return new ObjectTypeSymbol(members,data.ReadonlyMembers,data.NumericMembers,data.OptionalMembers);
         }
         return actual;
     }
@@ -265,7 +275,8 @@ internal static class CompilerTypes
             switch(actual,required)
             {
                 case (ObjectTypeSymbol a,ObjectTypeSymbol b):
-                    if(!a.NumericMembers.SetEquals(b.NumericMembers))return false;
+                    if(!a.NumericMembers.SetEquals(b.NumericMembers) ||
+                       !a.OptionalMembers.SetEquals(b.OptionalMembers))return false;
                     foreach(var (name,member) in a.Members)
                         if(b.Members.TryGetValue(name,out var other))
                             pending.Push((member,other));
@@ -301,7 +312,11 @@ internal static class CompilerTypes
     {
         if(receiver.Equals(Any))return Any;
         if(name=="length" && (receiver is ArrayTypeSymbol || IsStringFamily(receiver)))return Number;
-        if(receiver is ObjectTypeSymbol shape)return shape.Members.GetValueOrDefault(name);
+        if(receiver is ObjectTypeSymbol shape)
+        {
+            if(!shape.Members.TryGetValue(name,out var value))return null;
+            return shape.OptionalMembers.Contains(name)?Union([value,Undefined]):value;
+        }
         if(receiver is UnionTypeSymbol union)
         {
             var found=new List<TypeSymbol>(union.Alternatives.Count);
@@ -429,8 +444,13 @@ internal static class CompilerTypes
                 {
                     if(shape.Members.Count==0)return true;
                     if(actual is not ObjectTypeSymbol data)return false;
-                    return shape.Members.All(property=>data.Members.TryGetValue(property.Key,out var member) &&
-                        Check(member,property.Value));
+                    return shape.Members.All(property=>
+                    {
+                        bool optional=shape.OptionalMembers.Contains(property.Key);
+                        if(!data.Members.TryGetValue(property.Key,out var member))return optional;
+                        if(!optional && data.OptionalMembers.Contains(property.Key))return false;
+                        return Check(member,optional?Union([property.Value,Undefined]):property.Value);
+                    });
                 }
                 return actual.Equals(required);
             }

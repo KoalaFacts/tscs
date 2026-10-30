@@ -1574,6 +1574,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 }
                 var members=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
                 var numericMembers=new HashSet<string>(StringComparer.Ordinal);
+                var optionalMembers=new HashSet<string>(StringComparer.Ordinal);
                 for(int i=0;i<inferred.Length;i++)
                 {
                     var entry=literal.Properties[i];
@@ -1586,21 +1587,27 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                                 "Object spread requires a statically checked object operand."));
                         foreach(var member in source.Members)
                         {
+                            if(source.OptionalMembers.Contains(member.Key) && members.ContainsKey(member.Key))
+                                throw new CompilationFailure(Diagnostic.Error(file,entry.Name,"TSCS1001",
+                                    "Overlapping optional object spread keys require conditional type inference."));
                             members[member.Key]=member.Value;
                             if(source.NumericMembers.Contains(member.Key))numericMembers.Add(member.Key);
                             else numericMembers.Remove(member.Key);
+                            if(source.OptionalMembers.Contains(member.Key))optionalMembers.Add(member.Key);
+                            else optionalMembers.Remove(member.Key);
                         }
                     }
                     else
                     {
                         var name=Parser.PropertyName(entry.Name);
                         members[name]=memberType;
+                        optionalMembers.Remove(name);
                         if(entry.Name.Kind==TokenKind.Number)numericMembers.Add(name);
                         else numericMembers.Remove(name);
                     }
                 }
                 // Do not turn an unresolved property into an implicit any.
-                types.Push(known?new ObjectTypeSymbol(members,numericMembers:numericMembers):null);
+                types.Push(known?new ObjectTypeSymbol(members,numericMembers:numericMembers,optionalMembers:optionalMembers):null);
                 continue;
             }
             if(node is ValuePropertyAccess property)
@@ -1828,6 +1835,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     {
         var literal=CompilerTypes.FromLiteral(token);
         if(literal!=null)return literal;
+        // Lexical declarations named undefined take precedence over the intrinsic.
+        if(token.Kind==TokenKind.Identifier && token.Text=="undefined" && scope.Find("undefined") is null)
+            return CompilerTypes.Undefined;
         var symbol=Resolve(token,scope,shorthand);
         if(symbol!=null&&!symbol.Initialized)throw new CompilationFailure(Diagnostic.Error(file,token,"TSCS1001","Reads before initialization are not supported yet."));
         return symbol?.Type;
@@ -1894,13 +1904,20 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         {
             foreach(var (name,required) in shape.Members)
             {
-                if(!data.Members.TryGetValue(name,out var member))return false;
+                if(!data.Members.TryGetValue(name,out var member))
+                {
+                    if(shape.OptionalMembers.Contains(name))continue;
+                    return false;
+                }
+                if(data.OptionalMembers.Contains(name) && !shape.OptionalMembers.Contains(name))return false;
+                var requiredValue=shape.OptionalMembers.Contains(name)
+                    ?CompilerTypes.Union([required,CompilerTypes.Undefined]):required;
                 var property=fresh.Properties.LastOrDefault(p=>!p.Spread && Parser.PropertyName(p.Name)==name);
                 if(property is null)
                 {
-                    if(!CompilerTypes.IsAssignable(member,required))return false;
+                    if(!CompilerTypes.IsAssignable(member,requiredValue))return false;
                 }
-                else if(!IsAssignableContextually(property.Value,member,required,depth+1))
+                else if(!IsAssignableContextually(property.Value,member,requiredValue,depth+1))
                     return false;
             }
             return true;
@@ -2013,6 +2030,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             }
             else if(data.Members.TryGetValue(name,out var member))
             {
+                if(shape.OptionalMembers.Contains(name))
+                    required=CompilerTypes.Union([required,CompilerTypes.Undefined]);
                 // Contextual checking diagnoses a fresh literal's property,
                 // not the whole function argument. Reuse its computed type so
                 // nested name-resolution errors are not evaluated twice.
@@ -2031,7 +2050,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     {
         if(source is ObjectTypeSymbol data && target is ObjectTypeSymbol shape)
         {
-            var missing=shape.Members.Keys.Where(name=>!data.Members.ContainsKey(name)).ToArray();
+            var missing=shape.Members.Keys.Where(name=>!shape.OptionalMembers.Contains(name) &&
+                (!data.Members.ContainsKey(name) || data.OptionalMembers.Contains(name))).ToArray();
             if(missing.Length==1)
             {
                 Error(token,"TS2741",$"Property '{missing[0]}' is missing in type '{source.DisplayName}' but required in type '{target.DisplayName}'.");

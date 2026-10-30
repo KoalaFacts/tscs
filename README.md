@@ -77,7 +77,7 @@ wider values already held in variables can satisfy narrower required shapes.
 Writing a member of an imported or `const` object does not rebind that object.
 Missing members and incompatible assignments are rejected before emission.
 
-This does **not** implement optional members, readonly arrays, getter/setter accessors,
+Finite optional data members (`value?: number`) are checked across type aliases, interfaces, inheritance and modules; omitted keys remain optional, while reads have a `number | undefined` type. Bounded readonly optional writes are rejected. Optional methods, optional-property control-flow narrowing, readonly arrays, getter/setter accessors,
 index signatures, general iterable spreads, computed keys, prototype-setter literals,
 generic or unrestricted interface inheritance, or recursive type aliases. Named,
 non-generic interfaces can extend finite object/interface shapes with checked

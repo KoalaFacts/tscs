@@ -1,0 +1,40 @@
+using Tscs;
+using Xunit;
+
+namespace Tscs.Tests;
+
+// Source-backed implementation checks, not original TS7 harness acceptance.
+public sealed class OptionalObjectPropertyTests
+{
+    [Theory]
+    [InlineData("interface Option { value?: number; label: string } let item: Option = { label: \"ok\" };")]
+    [InlineData("type Option = { value?: number }; const item: Option = {};")]
+    [InlineData("type Option = { value?: number }; const item: Option = { value: 42 };")]
+    [InlineData("let item: { value?: number } = {}; item.value = 42;")]
+    [InlineData("let item: { value?: number } = { value: undefined };")]
+    [InlineData("let item: { value?: number } = {}; let maybe: number | undefined = item.value;")]
+    [InlineData("let item: { value?: number } = {}; type Value = typeof item.value; let result: Value = undefined;")]
+    [InlineData("interface Base { value?: number } interface Child extends Base { value: number } let child: Child = { value: 42 };")]
+    [InlineData("interface Base { value?: number } interface Child extends Base { label: string } let child: Child = { label: \"yes\" };")]
+    [InlineData("type Box = { value?: number }; type Keys = keyof Box; let key: Keys = \"value\";")]
+    [InlineData("type Box = { value?: number }; type Value = Box[\"value\"]; let maybe: Value = undefined;")]
+    [InlineData("type Box = { value?: number }; type Required = { value: number }; type Both = Box & Required; let both: Both = { value: 42 };")]
+    [InlineData("let source: { value?: number } = {}; let target: { value?: number } = source;")]
+    [InlineData("let data: { readonly value?: number } = {}; let maybe: number | undefined = data.value;")]
+    public void CheckedOptionalContractsCompile(string source) =>
+        Assert.Empty(Compilation.Check("optional-data.ts",source));
+
+    [Theory]
+    [InlineData("let item: { value?: number } = { value: \"bad\" };","TS2322")]
+    [InlineData("let item: { value?: number } = { extra: 42 };","TS2353")]
+    [InlineData("let item: { value?: number } = {}; let result: number = item.value;","TS2322")]
+    [InlineData("let item: { value?: number } = {}; item.value = \"wrong\";","TS2322")]
+    [InlineData("let item: { value?: number } = {}; let required: { value: number } = item;","TS2741")]
+    [InlineData("interface Parent { value: number } interface Child extends Parent { value?: number }","TS2430")]
+    [InlineData("let item: { readonly value?: number } = {}; item.value = 42;","TS2540")]
+    [InlineData("let item: { value?(): number } = {};","TSCS1001")]
+    [InlineData("let item: { value?: number } = {}; item.missing;","TS2339")]
+    [InlineData("let item: { value?: number } = { value: 1, extra: 2 };","TS2353")]
+    public void InvalidOptionalContractsFail(string source,string code) =>
+        Assert.Contains(Compilation.Check("optional-bad.ts",source),d=>d.Code==code);
+}

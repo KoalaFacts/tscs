@@ -156,6 +156,7 @@ internal static class TypeResolver
                 var members=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
                 var readonlyKeys=new HashSet<string>(StringComparer.Ordinal);
                 var numericKeys=new HashSet<string>(StringComparer.Ordinal);
+                var optionalKeys=new HashSet<string>(StringComparer.Ordinal);
                 // Own members can resolve otherwise different inherited types,
                 // but each explicit member must satisfy EVERY base constraint.
                 var declared=new HashSet<string>(StringComparer.Ordinal);
@@ -166,6 +167,7 @@ internal static class TypeResolver
                     declared.Add(name);
                     if(property.Name.Kind==TokenKind.Number)numericKeys.Add(name);
                     if(property.Readonly)readonlyKeys.Add(name);
+                    if(property.Optional)optionalKeys.Add(name);
                     if(members.Count>128)
                         throw new CompilationFailure(Diagnostic.Error(file,property.Name,"TSCS1001",
                             "Extended interface exceeds the finite 128-member limit."));
@@ -179,17 +181,20 @@ internal static class TypeResolver
                     {
                         bool numeric=parent.NumericMembers.Contains(member.Key);
                         bool isReadonly=parent.ReadonlyMembers.Contains(member.Key);
+                        bool isOptional=parent.OptionalMembers.Contains(member.Key);
                         if(members.TryGetValue(member.Key,out var previous))
                         {
                             if(declared.Contains(member.Key))
                             {
                                 if(numericKeys.Contains(member.Key)!=numeric ||
+                                   (!isOptional && optionalKeys.Contains(member.Key)) ||
                                    !CompilerTypes.IsAssignable(previous,member.Value))
                                     throw new CompilationFailure(Diagnostic.Error(file,inherited.Name,"TS2430",
                                         $"Interface '{inherited.Name.Text}' incorrectly extends its base interface at '{member.Key}'."));
                             }
                             else if(numericKeys.Contains(member.Key)!=numeric ||
                                     readonlyKeys.Contains(member.Key)!=isReadonly ||
+                                    optionalKeys.Contains(member.Key)!=isOptional ||
                                     !CompilerTypes.IsEquivalent(previous,member.Value))
                                 throw new CompilationFailure(Diagnostic.Error(file,named.Name,"TSCS1001",
                                     $"Inherited member '{member.Key}' has incompatible base declarations."));
@@ -199,18 +204,20 @@ internal static class TypeResolver
                             members.Add(member.Key,member.Value);
                             if(numeric)numericKeys.Add(member.Key);
                             if(isReadonly)readonlyKeys.Add(member.Key);
+                            if(isOptional)optionalKeys.Add(member.Key);
                         }
                         if(members.Count>128)
                             throw new CompilationFailure(Diagnostic.Error(file,named.Name,"TSCS1001",
                                 "Interface heritage exceeds the finite 128-member limit."));
                     }
                 }
-                return new ObjectTypeSymbol(members,readonlyKeys,numericKeys);
+                return new ObjectTypeSymbol(members,readonlyKeys,numericKeys,optionalKeys);
             }
             case ObjectTypeSyntax shape:return new ObjectTypeSymbol(shape.Properties.Select(p=>
                 new KeyValuePair<string,TypeSymbol>(Parser.PropertyName(p.Name),Resolve(p.Type,scope,file,depth+1))),
                 shape.Properties.Where(p=>p.Readonly).Select(p=>Parser.PropertyName(p.Name)),
-                shape.Properties.Where(p=>p.Name.Kind==TokenKind.Number).Select(p=>Parser.PropertyName(p.Name)));
+                shape.Properties.Where(p=>p.Name.Kind==TokenKind.Number).Select(p=>Parser.PropertyName(p.Name)),
+                shape.Properties.Where(p=>p.Optional).Select(p=>Parser.PropertyName(p.Name)));
             case IntersectionTypeSyntax intersection:
             {
                 // Finite, required structural shapes can be safely flattened and
@@ -220,6 +227,7 @@ internal static class TypeResolver
                 var properties=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
                 var numeric=new HashSet<string>(StringComparer.Ordinal);
                 var readonlyKeys=new HashSet<string>(StringComparer.Ordinal);
+                var optionalKeys=new HashSet<string>(StringComparer.Ordinal);
                 foreach(var part in intersection.Members)
                 {
                     var shape=Resolve(part,scope,file,depth+1) as ObjectTypeSymbol;
@@ -231,6 +239,7 @@ internal static class TypeResolver
                         var name=member.Key;
                         bool isNumeric=shape.NumericMembers.Contains(name);
                         bool isReadonly=shape.ReadonlyMembers.Contains(name);
+                        bool isOptional=shape.OptionalMembers.Contains(name);
                         if(properties.TryGetValue(name,out var previous))
                         {
                             // Runtime names may alias 0 and "0" while keyof does
@@ -258,19 +267,21 @@ internal static class TypeResolver
                             // A mutable occurrence permits assignment to an
                             // otherwise readonly overlapping required member.
                             if(!isReadonly)readonlyKeys.Remove(name);
+                            if(!isOptional)optionalKeys.Remove(name);
                         }
                         else
                         {
                             properties.Add(name,member.Value);
                             if(isNumeric)numeric.Add(name);
                             if(isReadonly)readonlyKeys.Add(name);
+                            if(isOptional)optionalKeys.Add(name);
                             if(properties.Count>128)
                                 throw new CompilationFailure(Diagnostic.Error(file,Location(part),"TSCS1001",
                                     "Intersected object exceeds the supported property bound."));
                         }
                     }
                 }
-                return new ObjectTypeSymbol(properties,readonlyKeys,numeric);
+                return new ObjectTypeSymbol(properties,readonlyKeys,numeric,optionalKeys);
             }
             case UnionTypeSyntax union:
                 try {return CompilerTypes.Union(union.Members.Select(member=>Resolve(member,scope,file,depth+1)));}

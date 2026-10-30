@@ -60,5 +60,6 @@ node tools/verify-function-types-emit.ts
 node tools/verify-typed-arrow-emit.ts
 node tools/verify-function-expression-emit.ts
 node tools/verify-object-method-emit.ts
+node tools/verify-optional-object-emit.ts
 node tools/verify-interface-inheritance-emit.ts
 node tools/implementation-coverage.ts --check
