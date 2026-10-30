@@ -46,8 +46,9 @@ internal sealed record ValuePrefixUpdate(Token Operator,ValueNode Target) : Valu
 // Postfix returns the old numeric value, with the same checked lvalue semantics.
 internal sealed record ValuePostfixUpdate(ValueNode Target,Token Operator) : ValueNode;
 internal sealed record ValueParenthesized(Token Open, ValueNode Expression, Token Close) : ValueNode;
-// Expression-bodied, explicitly typed arrows retain their lexical parameter scope.
-internal sealed record ValueArrow(Token Open,IReadOnlyList<ParameterDeclaration> Parameters,TypeSyntax? ReturnAnnotation,ValueNode Body) : ValueNode;
+// Explicitly typed arrows retain their lexical parameter scope. Braced bodies
+// reuse ordinary function statements and require a declared return type.
+internal sealed record ValueArrow(Token Open,IReadOnlyList<ParameterDeclaration> Parameters,TypeSyntax? ReturnAnnotation,ValueNode? Body,Block? BlockBody=null) : ValueNode;
 // A single trailing array spread is tracked at its call site; all operands remain normal checked values.
 internal sealed record ValueCall(Token Callee, IReadOnlyList<ValueNode> Arguments,int SpreadIndex=-1) : ValueNode;
 // Ordered object spread entries carry their ellipsis as Name.

@@ -68,6 +68,74 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "typed-arrow:positive-09",
+      "source": "const inc=(n:number):number=>{return n+1;};let result:number=inc(41);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-10",
+      "source": "const twice=(n:number):number=>{let scale:number=2;return n*scale;};let result:number=twice(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-11",
+      "source": "const answer=():number=>{return 42;};let result:number=answer();",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-12",
+      "source": "const seed:number=1;const inc=(n:number):number=>{return n+seed;};let result:number=inc(41);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-13",
+      "source": "type Fn=(n:number)=>number;const cb:Fn=(n:number):number=>{return n+1;};let result:number=cb(41);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-14",
+      "source": "function apply(fn:(n:number)=>number,n:number):number{return fn(n);}let result:number=apply((n:number):number=>{return n+n;},21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-15",
+      "source": "const abs=(n:number):number=>{if(n>=0){return n;}else{return -n;}};let result:number=abs(-42);",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:positive-16",
+      "source": "const wrap=(n:number):{value:number}=>{return {value:n};};let result:number=wrap(42).value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "typed-arrow:negative-05",
+      "source": "const bad=(n:number):number=>{return \"no\";};",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "typed-arrow:negative-06",
+      "source": "const bad=(n:number):string=>{return n;};",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "typed-arrow:negative-07",
+      "source": "const fn=(n:number):number=>{return n;};let result:number=fn(\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "typed-arrow:negative-08",
+      "source": "const bad=(n:number):number=>{return missing;};",
+      "expectedCodes": [
+        "TS2304"
+      ]
     }
   ]
 }

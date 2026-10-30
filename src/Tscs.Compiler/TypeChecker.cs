@@ -1274,13 +1274,30 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     var local=new Scope(scope);
                     foreach(var parameter in arrow.Parameters)
                         Binder.DeclareParameter(file,local,parameter);
-                    var returned=TypeOf(arrow.Body,local);
                     var annotated=arrow.ReturnAnnotation is { } syntax
                         ?TypeResolver.Resolve(syntax,local,file):null;
-                    if(returned is { } actual && annotated is { } required &&
-                       CheckContextualLiteral(arrow.Body,required,actual) &&
-                       !IsAssignableContextually(arrow.Body,actual,required))
-                        Mismatch(arrow.Open,actual,required);
+                    TypeSymbol? returned;
+                    if(arrow.BlockBody is { } body)
+                    {
+                        if(annotated is null)
+                            throw new CompilationFailure(Diagnostic.Error(file,arrow.Open,"TSCS1001",
+                                "Braced arrow bodies require an explicit return type."));
+                        if(!annotated.Equals(CompilerTypes.Void) && !FunctionControlFlow.DefinitelyReturnsValue(body))
+                            throw new CompilationFailure(Diagnostic.Error(file,arrow.Open,"TSCS1001",
+                                "A value-returning braced arrow must definitely return a value."));
+                        // A new function boundary owns its returns and lexical bindings.
+                        CheckBlock(body,local,false,annotated);
+                        returned=annotated;
+                    }
+                    else
+                    {
+                        var expression=arrow.Body!;
+                        returned=TypeOf(expression,local);
+                        if(returned is { } actual && annotated is { } required &&
+                           CheckContextualLiteral(expression,required,actual) &&
+                           !IsAssignableContextually(expression,actual,required))
+                            Mismatch(arrow.Open,actual,required);
+                    }
                     var signatureReturn=annotated??returned;
                     types.Push(signatureReturn is null?null:new FunctionTypeSymbol(
                         arrow.Parameters.Select(p=>local.Symbols[p.Name.Text].Type!).ToArray(),
