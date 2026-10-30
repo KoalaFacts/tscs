@@ -53,37 +53,37 @@
     },
     {
       "id": "void-unary:negative-01",
-      "source": "let value:number=void 21;",
-      "expectedCodes": [
-        "TS2322"
-      ]
-    },
-    {
-      "id": "void-unary:negative-02",
-      "source": "function wrong():number{return void 21;}",
-      "expectedCodes": [
-        "TS2322"
-      ]
-    },
-    {
-      "id": "void-unary:negative-03",
-      "source": "let value:string=void \"ignored\";",
-      "expectedCodes": [
-        "TS2322"
-      ]
-    },
-    {
-      "id": "void-unary:negative-04",
       "source": "let value:undefined=void missing;",
       "expectedCodes": [
         "TS2304"
       ]
     },
     {
-      "id": "void-unary:negative-05",
-      "source": "let value:boolean=void true;",
+      "id": "void-unary:negative-02",
+      "source": "function f(n:number):number{return n;} let value:undefined=void f(\"wrong\");",
       "expectedCodes": [
-        "TS2322"
+        "TS2345"
+      ]
+    },
+    {
+      "id": "void-unary:negative-03",
+      "source": "function f(n:number):number{return n;} let value:undefined=void f();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "void-unary:negative-04",
+      "source": "let obj:{value:number}={value:21}; let result:undefined=void obj.missing;",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "void-unary:negative-05",
+      "source": "let value:undefined=void (unknownFunction(21));",
+      "expectedCodes": [
+        "TS2304"
       ]
     }
   ]
