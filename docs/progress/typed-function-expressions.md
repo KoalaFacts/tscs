@@ -1,4 +1,4 @@
-# Typed anonymous function expressions — bounded compiler core
+# Typed anonymous and named function expressions — bounded compiler core
 
 The C# compiler now checks and emits anonymous `function (...): ... { ... }`
 values, not only arrow expressions and named declarations. This shares the
@@ -10,16 +10,20 @@ defaults, optional typed values and final typed array-rest parameters share
 the existing checking semantics; JavaScript output uses native ES2015
 `function` syntax, never an arrow replacement.
 
-Unsupported named/self-recursive expressions, generators, `this`,
-untyped parameters, overloads and generic parameters fail closed rather
-than acquiring implicit any. Semantic violations stop emission.
+Named expressions `function self(n: number): number { ... }` use a private
+self-name binding between outer values and parameters, allowing checked
+recursion and captures without exporting the self name. The self name is
+immutable and parameters can shadow it. Native ES2015 named functions are
+emitted; no outer declaration is hoisted. Named inferred returns, generators,
+`this`, untyped parameters, overloads and generics remain unsupported and
+fail closed. Semantic violations stop emission.
 `tools/verify-function-expression-emit.ts` executes checked four-module
 ES2015 output under Node 24, including nested callbacks and closure capture;
-nine invalid programs must generate no JavaScript.
+twelve invalid programs must generate no JavaScript.
 
 The independent fixed-Go comparison in
-`tools/verify-function-expression-reference.ts` runs twelve stable
-source IDs from `fixtures/function-expression/semantic-cases.json`,
+`tools/verify-function-expression-reference.ts` runs twenty-four stable
+source IDs (twelve original unchanged, twelve new named cases) from `fixtures/function-expression/semantic-cases.json`,
 compares actual diagnostic codes and exit statuses, and saves raw input,
 reference/product results, source hashes and evidence manifest.
 At source creation these checks are **NOT_RUN** until exact-head CI confirms

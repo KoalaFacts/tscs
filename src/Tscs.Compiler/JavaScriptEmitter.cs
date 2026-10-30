@@ -524,7 +524,9 @@ internal static class JavaScriptEmitter
                             if(parameter.Rest)Text("...");
                             if(i>0)Text(", ");
                         }
-                        Text(arrow.FunctionExpression?"function (":"(");
+                        Text(arrow.FunctionExpression
+                            ? (arrow.FunctionName is { } self ? "function "+self.Text+"(" : "function (")
+                            : "(");
                         break;
                     case ValueConditional chosen:
                         // Parenthesize the complete conditional: nested values

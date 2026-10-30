@@ -14,7 +14,7 @@ const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
 const suitePath='fixtures/function-expression/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
 assert.equal(suite.kind,'BOUNDED_TYPED_FUNCTION_EXPRESSIONS_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,12,'do not shrink frozen or additive reference cases');
+assert.equal(suite.cases.length,24,'do not shrink frozen or additive reference cases');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const profilePath='fixtures/minimal.d.ts',profile=readFileSync(profilePath,'utf8');
 const hash=(v:string|Buffer)=>createHash('sha256').update(v).digest('hex');
@@ -43,7 +43,7 @@ const codes=(r:ReturnType<typeof run>)=>
 const ids=new Set<string>(),rows:object[]=[],mismatch:object[]=[];
 for(let i=0;i<suite.cases.length;i++) {
   const item=suite.cases[i];
-  assert.match(item.id,/^function-expression:(positive|negative)-\d{2}$/);
+  assert.match(item.id,/^function-expression:(positive|negative|named-positive|named-negative)-\d{2}$/);
   assert.ok(!ids.has(item.id),'duplicate case ID');ids.add(item.id);
   assert.equal(typeof item.source,'string');
   assert.ok(Array.isArray(item.expectedCodes));
