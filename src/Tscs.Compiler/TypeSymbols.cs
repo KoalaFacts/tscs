@@ -432,6 +432,9 @@ internal static class CompilerTypes
             // number/object/string until a real narrowing proves it safe.
             if(required.Equals(Unknown))return true;
             if(actual.Equals(Unknown))return false;
+            // Unary void returns semantic undefined, assignable to void but
+            // still distinct from a void function's return annotation.
+            if(actual.Equals(Undefined) && required.Equals(Void))return true;
             var pair=(actual,required);
             if(!active.Add(pair))return false; // circular structural cases are outside this subset
             try

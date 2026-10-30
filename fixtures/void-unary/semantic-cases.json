@@ -1,0 +1,90 @@
+{
+  "kind": "BOUNDED_VOID_UNARY_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "void-unary:positive-01",
+      "source": "let value:undefined=void 21;",
+      "expectedCodes": []
+    },
+    {
+      "id": "void-unary:positive-02",
+      "source": "let value:void=void \"ignored\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "void-unary:positive-03",
+      "source": "function f(n:number):undefined{return void n;} let value:undefined=f(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "void-unary:positive-04",
+      "source": "let value:undefined=void void 21;",
+      "expectedCodes": []
+    },
+    {
+      "id": "void-unary:positive-05",
+      "source": "function f(n:number):number{return n+n;} let value:undefined=void f(21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "void-unary:positive-06",
+      "source": "let value:undefined=void (2 ** 3);",
+      "expectedCodes": []
+    },
+    {
+      "id": "void-unary:positive-07",
+      "source": "let value:undefined=void [21,22];",
+      "expectedCodes": []
+    },
+    {
+      "id": "void-unary:positive-08",
+      "source": "let value:undefined=void {value:21};",
+      "expectedCodes": []
+    },
+    {
+      "id": "void-unary:positive-09",
+      "source": "let value:undefined=void (1+2);",
+      "expectedCodes": []
+    },
+    {
+      "id": "void-unary:positive-10",
+      "source": "let value:undefined=void (true ? 21 : 42);",
+      "expectedCodes": []
+    },
+    {
+      "id": "void-unary:negative-01",
+      "source": "let value:number=void 21;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "void-unary:negative-02",
+      "source": "function wrong():number{return void 21;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "void-unary:negative-03",
+      "source": "let value:string=void \"ignored\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "void-unary:negative-04",
+      "source": "let value:undefined=void missing;",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    },
+    {
+      "id": "void-unary:negative-05",
+      "source": "let value:boolean=void true;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}

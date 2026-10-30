@@ -1231,7 +1231,7 @@ internal sealed class Parser(string file, List<Token> tokens)
         // Avoid recursive parsing on input such as 20,000 whitespace-separated
         // prefix '+'/'-' operators; the TypeChecker also evaluates iteratively.
         var prefixes=new List<Token>();
-        while(Current.Kind is TokenKind.Minus or TokenKind.Plus or TokenKind.Bang or TokenKind.Typeof or TokenKind.Tilde or TokenKind.PlusPlus or TokenKind.MinusMinus)prefixes.Add(Take());
+        while(Current.Kind is TokenKind.Minus or TokenKind.Plus or TokenKind.Bang or TokenKind.Typeof or TokenKind.Void or TokenKind.Tilde or TokenKind.PlusPlus or TokenKind.MinusMinus)prefixes.Add(Take());
         ValueNode value=ParseExponentiation();
         // An unparenthesized unary left operand of ** is invalid in TS/JS.
         if(prefixes.Count>0 && value is ValueBinary { Operator.Kind:TokenKind.Power } exponent)

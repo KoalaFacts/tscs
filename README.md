@@ -202,6 +202,14 @@ JavaScript member call instead of extracting the function. Dynamic object
 index signatures, optional chaining, general `this` typing, generics and
 overloads remain unsupported.
 
+## Checked `void` expressions (bounded)
+
+Unary `void` checks and evaluates its operand once, returning semantic `undefined`.
+The result is assignable to `void` or `undefined`, not to `number` or `string`.
+Native ES2015 emission retains unary precedence, nested expressions and effects.
+This is distinct from a `void` function return annotation. The `delete` operator,
+`null` source literals and general nullable-flow narrowing remain unsupported.
+
 ## Other implemented subsets
 
 The current pipeline includes primitive/`any` variables, lexical scopes, selected

@@ -1,3 +1,14 @@
+## 2026-10-31 — Checked unary `void` expression (candidate; NOT_RUN)
+
+C# Parser, TypeChecker and ES2015 emitter now support bounded unary `void`
+with checked operands, normal unary precedence and exactly-one evaluation.
+The operator returns semantic `undefined`, which may satisfy `void` annotations
+but cannot silently become a number/string. Source-backed xUnit positive and
+negative programs, four-module emitted Node execution and 15 pinned-Go
+source/code/exit cases are registered; at source creation they are **NOT_RUN**.
+Full original TS7 remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic
+UNEXPANDED. No change to releases, thresholds or upstream pin.
+
 ## 2026-10-31 — Finite guarded optional-chain continuations (candidate; NOT_RUN)
 
 The C# parser, checker and ES2015 emitter now share present-path types
