@@ -45,21 +45,21 @@
       "id": "undefined-flow:negative-01",
       "source": "function bad(v:{value:number}|undefined):number{if(v===undefined){return v.value;}return 0;}",
       "expectedCodes": [
-        "TS2339"
+        "TS18048"
       ]
     },
     {
       "id": "undefined-flow:negative-02",
       "source": "function bad(v:{value:number}|null|undefined):number{if(v!==undefined){return v.value;}return 0;}",
       "expectedCodes": [
-        "TS2339"
+        "TS18047"
       ]
     },
     {
       "id": "undefined-flow:negative-03",
       "source": "function bad(v:{value:number}|undefined):number{if(v===undefined){return 0;}v=undefined;return v.value;}",
       "expectedCodes": [
-        "TS2339"
+        "TS18048"
       ]
     }
   ]

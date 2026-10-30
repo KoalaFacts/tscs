@@ -33,7 +33,7 @@ public sealed class NullLiteralTests
     [InlineData("let wrong:number|null=\"bad\";","TS2322")]
     [InlineData("let wrong:null=missing;","TS2304")]
     [InlineData("function f(n:number|null):number{return n;}","TS2322")]
-    [InlineData("let o:{value:number}|null=null;let wrong:number=o.value;","TS2339")]
+    [InlineData("let o:{value:number}|null=null;let wrong:number=o.value;","TS18047")]
     [InlineData("let o:{value:number}|null=null;let wrong:number=o?.missing ?? 42;","TS2339")]
     public void WrongNullishContractsAreNotSilentlyAccepted(string source,string code) =>
         Assert.Contains(Compilation.Check("null-invalid.ts",source),diagnostic=>diagnostic.Code==code);

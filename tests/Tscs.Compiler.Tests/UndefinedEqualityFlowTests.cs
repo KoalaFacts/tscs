@@ -24,14 +24,14 @@ public sealed class UndefinedEqualityFlowTests
         Assert.Empty(Compilation.Check("undefined-flow.ts",source));
 
     [Theory]
-    [InlineData("function bad(v:{value:number}|undefined):number{if(v===undefined){return v.value;}return 0;}", "TS2339")]
-    [InlineData("function bad(v:{value:number}|undefined):number{if(v!==undefined){return 0;}return v.value;}", "TS2339")]
-    [InlineData("function bad(v:{value:number}|null|undefined):number{if(v!==undefined){return v.value;}return 0;}", "TS2339")]
-    [InlineData("function bad(v:{value:number}|null|undefined):number{if(v!=undefined){return 0;}return v.value;}", "TS2339")]
-    [InlineData("function bad(v:{value:number}|undefined):number{if(v===undefined){return 0;}v=undefined;return v.value;}", "TS2339")]
-    [InlineData("function bad(v:{value:number}|undefined):number{if(v===undefined){return 0;}while(false){v=undefined;}return v.value;}", "TS2339")]
-    [InlineData("function bad(v:{value:number}|undefined):number{if(v===void 0){return v.value;}return 0;}", "TS2339")]
-    [InlineData("function bad(v:{value:number}|undefined):number{let undefined:number=0;if(v!==undefined){return v.value;}return 0;}", "TS2339")]
+    [InlineData("function bad(v:{value:number}|undefined):number{if(v===undefined){return v.value;}return 0;}", "TS18048")]
+    [InlineData("function bad(v:{value:number}|undefined):number{if(v!==undefined){return 0;}return v.value;}", "TS18048")]
+    [InlineData("function bad(v:{value:number}|null|undefined):number{if(v!==undefined){return v.value;}return 0;}", "TS18047")]
+    [InlineData("function bad(v:{value:number}|null|undefined):number{if(v!=undefined){return 0;}return v.value;}", "TS18049")]
+    [InlineData("function bad(v:{value:number}|undefined):number{if(v===undefined){return 0;}v=undefined;return v.value;}", "TS18048")]
+    [InlineData("function bad(v:{value:number}|undefined):number{if(v===undefined){return 0;}while(false){v=undefined;}return v.value;}", "TS18048")]
+    [InlineData("function bad(v:{value:number}|undefined):number{if(v===void 0){return v.value;}return 0;}", "TS18048")]
+    [InlineData("function bad(v:{value:number}|undefined):number{let undefined:number=0;if(v!==undefined){return v.value;}return 0;}", "TS18048")]
     public void WrongArmsNullAndShadowedSentinelsNeverGetUnsafeReads(string source,string code) =>
         Assert.Contains(Compilation.Check("undefined-flow-invalid.ts",source),d=>d.Code==code);
 }

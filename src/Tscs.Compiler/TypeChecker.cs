@@ -1783,8 +1783,30 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     presentMember=member;
                 else
                 {
-                    Error(property.Name,"TS2339",
-                        $"Property '{property.Name.Text}' does not exist on type '{presentReceiver.DisplayName}'.");
+                    // For a known member on the non-nullish alternatives,
+                    // TypeScript reports the unsafe receiver (TS18047/48/49),
+                    // not a missing member (TS2339). Preserve TS2339 when
+                    // the property really is absent from the live shape.
+                    var presentOnly=CompilerTypes.NonNullAssertionResult(presentReceiver);
+                    if(CompilerTypes.ContainsNullish(presentReceiver) &&
+                       (presentOnly.Equals(CompilerTypes.Never) ||
+                        CompilerTypes.TryGetProperty(presentOnly,property.Name.Text) is not null))
+                    {
+                        bool hasNull=presentReceiver.Equals(CompilerTypes.Null) ||
+                            presentReceiver is UnionTypeSymbol nullable &&
+                            nullable.Alternatives.Any(t=>t.Equals(CompilerTypes.Null));
+                        bool hasUndefined=CompilerTypes.ContainsUndefined(presentReceiver);
+                        string code=hasNull
+                            ?hasUndefined?"TS18049":"TS18047"
+                            :"TS18048";
+                        string possible=hasNull
+                            ?hasUndefined?"'null' or 'undefined'":"'null'"
+                            :"'undefined'";
+                        Error(property.Name,code,$"Value is possibly {possible}.");
+                    }
+                    else
+                        Error(property.Name,"TS2339",
+                            $"Property '{property.Name.Text}' does not exist on type '{presentReceiver.DisplayName}'.");
                     presentMember=null;
                 }
                 PushOptionalResult(property,presentMember,property.Optional||property.ChainContinuation,mayBeUndefined);

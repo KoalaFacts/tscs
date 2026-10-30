@@ -22,13 +22,13 @@ public sealed class NullEqualityFlowTests
         Assert.Empty(Compilation.Check("null-flow.ts",source));
 
     [Theory]
-    [InlineData("function bad(v:{value:number}|null):number{if(v===null){return v.value;}return 0;}", "TS2339")]
-    [InlineData("function bad(v:{value:number}|null):number{if(v!==null){return 0;}return v.value;}", "TS2339")]
-    [InlineData("function bad(v:{value:number}|null):number{if(v===null){let n:number=0;}return v.value;}", "TS2339")]
-    [InlineData("function bad(v:{value:number}|null|undefined):number{if(v!==null){return v.value;}return 0;}", "TS2339")]
-    [InlineData("function bad(v:{value:number}|null):number{if(v===null){return 0;}v=null;return v.value;}", "TS2339")]
-    [InlineData("function bad(v:{value:number}|null):number{if(v!==null){v=null;return v.value;}return 0;}", "TS2339")]
-    [InlineData("function bad(v:{value:number}|null):number{if(v===null){return 0;}while(false){v=null;}return v.value;}", "TS2339")]
+    [InlineData("function bad(v:{value:number}|null):number{if(v===null){return v.value;}return 0;}", "TS18047")]
+    [InlineData("function bad(v:{value:number}|null):number{if(v!==null){return 0;}return v.value;}", "TS18047")]
+    [InlineData("function bad(v:{value:number}|null):number{if(v===null){let n:number=0;}return v.value;}", "TS18047")]
+    [InlineData("function bad(v:{value:number}|null|undefined):number{if(v!==null){return v.value;}return 0;}", "TS18048")]
+    [InlineData("function bad(v:{value:number}|null):number{if(v===null){return 0;}v=null;return v.value;}", "TS18047")]
+    [InlineData("function bad(v:{value:number}|null):number{if(v!==null){v=null;return v.value;}return 0;}", "TS18047")]
+    [InlineData("function bad(v:{value:number}|null):number{if(v===null){return 0;}while(false){v=null;}return v.value;}", "TS18047")]
     public void WrongArmsUndefinedAndRebindingsRemainErrors(string source,string code) =>
         Assert.Contains(Compilation.Check("null-flow-invalid.ts",source),d=>d.Code==code);
 }
