@@ -53,7 +53,7 @@ try {
   for(const name of ['model','data','logic','entry']){
     const out=join(dir,name+'.js');
     assert.ok(existsSync(out),'missing emitted '+name);
-    assert.doesNotMatch(readFileSync(out,'utf8'),/\\b(?:value|run|nested)!/,'postfix ! must erase');
+    assert.doesNotMatch(readFileSync(out,'utf8'),/\b(?:value|run|nested)!/,'postfix ! must erase');
   }
   const runtime=spawnSync(process.execPath,['--input-type=module','--eval',
     'import {result,called,deep,keyed,fromOnce,calls} from "./entry.js"; if(result!==42||called!==42||deep!==42||keyed!==42||fromOnce!==42||calls!==1)throw Error("postfix non-null runtime/single evaluation mismatch");'],
@@ -74,7 +74,7 @@ try {
     const check=run(['--emitJs','--noLib','--target','es2015',path,join(dir,'minimal.d.ts')]);
     assert.equal(check.status,exit,check.stdout+check.stderr);
     assert.match(check.stdout+check.stderr,new RegExp(code));
-    assert.equal(existsSync(path.replace(/\\.ts$/,'.js')),false,'invalid emitted JavaScript: '+id);
+    assert.equal(existsSync(path.replace(/\.ts$/,'.js')),false,'invalid emitted JavaScript: '+id);
   }
   console.log('postfix non-null: real four-module ES2015 runtime, one call evaluation, six fail-closed no-emit cases');
 } finally {rmSync(dir,{recursive:true,force:true});}
