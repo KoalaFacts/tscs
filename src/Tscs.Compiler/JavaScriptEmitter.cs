@@ -448,7 +448,7 @@ internal static class JavaScriptEmitter
             ValueConditional or ValueArrow => 0,
             ValueBinary binary => binary.Operator.Kind switch
             {
-                TokenKind.BarBar => 1,
+                TokenKind.BarBar or TokenKind.QuestionQuestion => 1,
                 TokenKind.AmpAmp => 2,
                 TokenKind.Bar => 3,
                 TokenKind.Caret => 4,
@@ -582,6 +582,17 @@ internal static class JavaScriptEmitter
                             Text(", ");
                             Node(binary.Left);
                             Text("Math.pow(");
+                        }
+                        else if(binary.Operator.Kind==TokenKind.QuestionQuestion)
+                        {
+                            // ES2015 has no ?? operator; evaluate the left
+                            // exactly once and preserve lazy RHS evaluation.
+                            var temp=FreshPowerTemporary(ReferencedValueNames(binary.Right));
+                            Text(")");
+                            Node(binary.Left);
+                            Text(" : "+temp+"))(");
+                            Node(binary.Right);
+                            Text("(("+temp+") => ("+temp+" === null || "+temp+" === undefined ? ");
                         }
                         else
                         {

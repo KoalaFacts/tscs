@@ -44,6 +44,7 @@ jobs:
           node tools/verify-guard-reference.ts "$reference" .artifacts/guard-reference
           node tools/verify-typeof-reference.ts "$reference" .artifacts/typeof-primitive-reference
           node tools/verify-conditional-reference.ts "$reference" .artifacts/conditional-values-reference
+          node tools/verify-conditional-reference.ts "$reference" .artifacts/nullish-coalescing-reference fixtures/nullish-coalescing/semantic-cases.json
           node tools/verify-conditional-reference.ts "$reference" .artifacts/compound-guards-reference fixtures/compound-guards/semantic-cases.json
           node tools/verify-bitwise-reference.ts "$reference" .artifacts/numeric-bitwise-reference
            node tools/verify-division-reference.ts "$reference" .artifacts/numeric-division-reference
@@ -80,6 +81,14 @@ jobs:
           node tools/verify-function-expression-reference.ts "$reference" .artifacts/function-expression-reference
           node tools/verify-function-expression-reference.ts "$reference" .artifacts/object-method-reference fixtures/object-method/semantic-cases.json
           node tools/verify-interface-inheritance-reference.ts "$reference" .artifacts/interface-inheritance-reference
+      - name: Preserve bounded nullish coalescing source and reference evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-nullish-coalescing-reference-${{ github.sha }}
+          path: .artifacts/nullish-coalescing-reference/
+          if-no-files-found: warn
+          retention-days: 30
       - name: Preserve bounded interface heritage raw reference evidence
         if: always()
         uses: actions/upload-artifact@v4

@@ -16,6 +16,7 @@ public sealed class ExpressionGrammarTests
     [InlineData("let b: boolean = \"a\" < \"b\";")]
     [InlineData("let b: boolean = \"a\" >= \"a\";")]
     [InlineData("let b: boolean = true === false;")]
+    [InlineData("let b: boolean = true ?? false;")]
     [InlineData("let b: boolean = !true == false;")]
     [InlineData("let n: number = (1 + 2) * 3;")]
     [InlineData("function select(a: boolean, b: boolean): number { if (a && !b || (1 < 2)) { return 3; } else { return 4; } } let n: number = select(true, false);")]
@@ -31,7 +32,6 @@ public sealed class ExpressionGrammarTests
     [InlineData("let b: boolean = true & false;")]
     [InlineData("let b: boolean = true | false;")]
     [InlineData("let b: boolean = (true || false;")]
-    [InlineData("let b: boolean = true ?? false;")]
     public void UnsupportedExpressionRelationsAndGrammarFailClosed(string source) =>
         Assert.Contains(Compilation.Check("expr.ts",source),d=>d.Code=="TSCS1001");
 

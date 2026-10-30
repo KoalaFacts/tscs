@@ -1755,6 +1755,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             var right=types.Pop();
             var left=types.Pop();
             if(left==null||right==null)types.Push(null);
+            else if(binary.Operator.Kind==TokenKind.QuestionQuestion)
+            {
+                try {types.Push(CompilerTypes.CoalescingResult(left,right));}
+                catch(InvalidOperationException failure)
+                {
+                    throw new CompilationFailure(Diagnostic.Error(file,binary.Operator,"TSCS1001",failure.Message));
+                }
+            }
             else if(binary.Operator.Kind==TokenKind.Plus)
             {
                 var resultType=CompilerTypes.AdditionResult(left,right);
