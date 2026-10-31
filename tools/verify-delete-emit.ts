@@ -11,9 +11,9 @@ try {
   writeFileSync(join(dir,'minimal.d.ts'),readFileSync('fixtures/minimal.d.ts'));
   const sources={
     'model.ts':'export interface Mutable {value?:number;run?(n:number):number;label:string}',
-    'data.ts':'import type {Mutable} from "./model.js";export const present:Mutable={value:21,run:(n:number)=>n+n,label:"ready"};export const absent:Mutable={label:"empty"};export const nullablePresent:Mutable={value:13,run:(n:number)=>n+1,label:"nullable"};export const nullish:Mutable|null=null;',
-    'logic.ts':'import type {Mutable} from "./model.js";export function clearValue(x:Mutable):boolean{return delete x.value;}export function clearRun(x:Mutable):boolean{return delete x["run"]; }export function clearMaybe(x:Mutable|null|undefined):boolean{return delete x?.value;}export function clearMaybeRun(x:Mutable|null|undefined):boolean{return delete x?.["run"];}export function clearGrouped(x:Mutable|null):boolean{return delete (x?.value);}',
-    'entry.ts':'import {present,absent,nullablePresent,nullish} from "./data.js";import {clearValue,clearRun,clearMaybe,clearMaybeRun,clearGrouped} from "./logic.js";export const before:number|undefined=present.value;export const first:boolean=clearValue(present);export const second:boolean=clearValue(absent);export const third:boolean=clearRun(present);export const after:number|undefined=present.value;export const afterCall:number|undefined=present.run?.(21);export const nullGuard:boolean=clearMaybe(nullish);export const undefinedGuard:boolean=clearMaybe(undefined);export const removedValue:boolean=clearMaybe(nullablePresent);export const removedMethod:boolean=clearMaybeRun(nullablePresent);export const groupedGuard:boolean=clearGrouped(nullish);'
+    'data.ts':'import type {Mutable} from "./model.js";export const present:Mutable={value:21,run:(n:number)=>n+n,label:"ready"};export const absent:Mutable={label:"empty"};export const nullablePresent:Mutable={value:13,run:(n:number)=>n+1,label:"nullable"};export const nullish:Mutable|null=null;export const nested:{inner:Mutable}={inner:{value:31,label:"nested"}};export const nullableNested:{inner:Mutable|null}={inner:{value:36,label:"nullable nested"}};export const nullNested:{inner:Mutable|null}={inner:null};export const indexed:Mutable[]=[{value:44,label:"indexed"}];export const factoryTarget:Mutable={value:52,label:"factory"};export const nullableFactoryTarget:Mutable={value:64,label:"maybe factory"};export let factoryCalls:number=0;export function getTarget():Mutable{factoryCalls+=1;return factoryTarget;}export function getMaybe():Mutable|null{factoryCalls+=1;return nullableFactoryTarget;}',
+    'logic.ts':'import {getTarget,getMaybe} from "./data.js";import type {Mutable} from "./model.js";export function clearValue(x:Mutable):boolean{return delete x.value;}export function clearRun(x:Mutable):boolean{return delete x["run"]; }export function clearMaybe(x:Mutable|null|undefined):boolean{return delete x?.value;}export function clearMaybeRun(x:Mutable|null|undefined):boolean{return delete x?.["run"];}export function clearGrouped(x:Mutable|null):boolean{return delete (x?.value);}export function clearNested(h:{inner:Mutable}):boolean{return delete h.inner.value;}export function clearNullableNested(h:{inner:Mutable|null}):boolean{return delete h.inner?.value;}export function clearIndexed(xs:Mutable[]):boolean{return delete xs[0]["value"];}export function clearFromFactory():boolean{return delete getTarget().value;}export function clearFromNullableFactory():boolean{return delete getMaybe()?.["value"];}',
+    'entry.ts':'import {present,absent,nullablePresent,nullish,nested,nullableNested,nullNested,indexed,factoryCalls} from "./data.js";import {clearNested,clearNullableNested,clearIndexed,clearFromFactory,clearFromNullableFactory} from "./logic.js";import {clearValue,clearRun,clearMaybe,clearMaybeRun,clearGrouped} from "./logic.js";export const before:number|undefined=present.value;export const first:boolean=clearValue(present);export const second:boolean=clearValue(absent);export const third:boolean=clearRun(present);export const after:number|undefined=present.value;export const afterCall:number|undefined=present.run?.(21);export const nullGuard:boolean=clearMaybe(nullish);export const undefinedGuard:boolean=clearMaybe(undefined);export const removedValue:boolean=clearMaybe(nullablePresent);export const removedMethod:boolean=clearMaybeRun(nullablePresent);export const groupedGuard:boolean=clearGrouped(nullish);export const nestedDeleted:boolean=clearNested(nested);export const nullableNestedDeleted:boolean=clearNullableNested(nullableNested);export const nullNestedDeleted:boolean=clearNullableNested(nullNested);export const indexDeleted:boolean=clearIndexed(indexed);export const factoryDeleted:boolean=clearFromFactory();export const nullableFactoryDeleted:boolean=clearFromNullableFactory();export const factoryCount:number=factoryCalls;'
   };
   for(const [name,source] of Object.entries(sources))writeFileSync(join(dir,name),source+'\n');
   writeFileSync(join(dir,'project.json'),JSON.stringify({
@@ -34,9 +34,9 @@ try {
   for(const name of ['model','data','logic','entry'])
     assert.ok(existsSync(join(dir,name+'.js')),'missing emitted JavaScript: '+name);
   const executed=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {before,first,second,third,after,afterCall,nullGuard,undefinedGuard,removedValue,removedMethod,groupedGuard} from "./entry.js";'+
-    'import {present,absent,nullablePresent} from "./data.js";'+
-    'if(before!==21||first!==true||second!==true||third!==true||after!==undefined||afterCall!==undefined||"value" in present||"run" in present||"value" in absent||nullGuard!==true||undefinedGuard!==true||removedValue!==true||removedMethod!==true||groupedGuard!==true||"value" in nullablePresent||"run" in nullablePresent)throw Error("optional delete runtime mismatch");'
+    'import {before,first,second,third,after,afterCall,nullGuard,undefinedGuard,removedValue,removedMethod,groupedGuard,nestedDeleted,nullableNestedDeleted,nullNestedDeleted,indexDeleted,factoryDeleted,nullableFactoryDeleted,factoryCount} from "./entry.js";'+
+    'import {present,absent,nullablePresent,nested,nullableNested,indexed,factoryTarget,nullableFactoryTarget} from "./data.js";'+
+    'if(before!==21||first!==true||second!==true||third!==true||after!==undefined||afterCall!==undefined||"value" in present||"run" in present||"value" in absent||nullGuard!==true||undefinedGuard!==true||removedValue!==true||removedMethod!==true||groupedGuard!==true||"value" in nullablePresent||"run" in nullablePresent||nestedDeleted!==true||nullableNestedDeleted!==true||nullNestedDeleted!==true||indexDeleted!==true||factoryDeleted!==true||nullableFactoryDeleted!==true||factoryCount!==2||"value" in nested.inner||"value" in nullableNested.inner||"value" in indexed[0]||"value" in factoryTarget||"value" in nullableFactoryTarget)throw Error("optional delete runtime mismatch");'
   ],{cwd:dir,encoding:'utf8',timeout:15000});
   assert.equal(executed.error,undefined,String(executed.error));
   assert.equal(executed.status,0,executed.stdout+'\n'+executed.stderr);
@@ -49,6 +49,10 @@ try {
     ['readonly-chain','function f(x:{readonly value?:number}|null):boolean{return delete x?.value;}','TS2704',2],
     ['dynamic-chain','function f(x:{value?:number}|null,k:string):boolean{return delete x?.[k];}','TSCS1001',1],
     ['array-chain','function f(x:number[]|null):boolean{return delete x?.[0];}','TSCS1001',1],
+    ['nested-required','let h:{inner:{value:number}}={inner:{value:1}};let ok:boolean=delete h.inner.value;','TS2790',2],
+    ['nested-readonly','let h:{inner:{readonly value?:number}}={inner:{value:1}};let ok:boolean=delete h.inner.value;','TS2704',2],
+    ['nested-dynamic','let h:{inner:{value?:number}}={inner:{value:1}};let k:string="value";let ok:boolean=delete h.inner[k];','TSCS1001',1],
+    ['continuation','function f(h:{inner:{value?:number}}|null):boolean{return delete h?.inner.value;}','TSCS1001',1],
     ['array','let x:number[]=[1,2];let ok:boolean=delete x[0];','TSCS1001',1]
   ];
   for(const [id,source,code,exit] of invalid){
@@ -58,5 +62,5 @@ try {
     assert.match(result.stdout+result.stderr,new RegExp(code));
     assert.equal(existsSync(path.replace(/\.ts$/,'.js')),false,'invalid emitted JavaScript: '+id);
   }
-  console.log('delete optional: 4 linked ES2015 modules executed; 9 invalid cases blocked emission');
+  console.log('delete optional: 4 linked ES2015 modules executed; 13 invalid cases blocked emission');
 } finally {rmSync(dir,{recursive:true,force:true});}

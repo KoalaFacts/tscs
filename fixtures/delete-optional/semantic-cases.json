@@ -55,6 +55,36 @@
       "id": "delete-optional:positive-11",
       "source": "interface Box{run?(n:number):number}function clear(box:Box|null):boolean{return delete box?.run;}",
       "expectedCodes": []
+    },
+    {
+      "id": "delete-optional:positive-12",
+      "source": "type Box={value?:number};function clear(x:{inner:Box}):boolean{return delete x.inner.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "delete-optional:positive-13",
+      "source": "type Box={value?:number};function get():Box{return {value:21};}let r:boolean=delete get().value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "delete-optional:positive-14",
+      "source": "type Box={value?:number};let boxes:Box[]=[{value:21}];let r:boolean=delete boxes[0].value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "delete-optional:positive-15",
+      "source": "type Box={value?:number};let h:{inner:Box}={inner:{value:21}};let r:boolean=delete h[\"inner\"][\"value\"];",
+      "expectedCodes": []
+    },
+    {
+      "id": "delete-optional:positive-16",
+      "source": "type Box={value?:number};function clear(h:{inner:Box|null}):boolean{return delete h.inner?.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "delete-optional:positive-17",
+      "source": "type Box={value?:number};function get():Box|null{return {value:21};}let r:boolean=delete get()?.value;",
+      "expectedCodes": []
     }
   ]
 }
