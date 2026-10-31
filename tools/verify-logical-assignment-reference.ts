@@ -20,6 +20,8 @@ const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 // No array-indexing/standard-library assumptions are made in this cohort.
 const minimalProfile='fixtures/minimal.d.ts';
 const minimal=readFileSync(minimalProfile,'utf8');
+const arrayProfile='fixtures/array-iteration/minimal.d.ts';
+const arrayMinimal=readFileSync(arrayProfile,'utf8');
 const hash=(data:string|Buffer)=>createHash('sha256').update(data).digest('hex');
 const manifest:{path:string;length:number;sha256:string}[]=[];
 function save(name:string,contents:string) {
@@ -53,7 +55,12 @@ for(let i=0;i<suite.cases.length;i++){
   assert.ok(Array.isArray(item.expectedCodes));
   const folder=join(out,'case-'+String(i).padStart(3,'0'));mkdirSync(folder);
   save('case-'+String(i).padStart(3,'0')+'/input.ts',item.source);
-  save('case-'+String(i).padStart(3,'0')+'/minimal.d.ts',minimal);
+  // Keep the original 22 reference IDs on their original profile. Array
+  // indexing requires the separately pinned finite Array<T> profile on BOTH sides.
+  const profile=item.minimalProfile??minimalProfile;
+  assert.ok(profile===minimalProfile||profile===arrayProfile,'unregistered reference profile');
+  const profileBytes=profile===arrayProfile?arrayMinimal:minimal;
+  save('case-'+String(i).padStart(3,'0')+'/minimal.d.ts',profileBytes);
   const args=['--noEmit','--noLib','--target','es2015','--pretty','false','input.ts','minimal.d.ts'];
   const expected=run(reference,args,folder);
   const actual=run(process.env.DOTNET??'dotnet',[product,...args],folder);
@@ -64,7 +71,7 @@ for(let i=0;i<suite.cases.length;i++){
   const match=expected.exit===exit && actual.exit===exit &&
     JSON.stringify(codes)===JSON.stringify(refCodes) &&
     JSON.stringify(codes)===JSON.stringify(actualCodes);
-  const row={id:item.id,inputSha256:hash(item.source),expectedCodes:codes,referenceCodes:refCodes,
+  const row={id:item.id,inputSha256:hash(item.source),minimalProfile:profile,minimalProfileSha256:hash(profileBytes),expectedCodes:codes,referenceCodes:refCodes,
     productCodes:actualCodes,referenceExit:expected.exit,productExit:actual.exit,
     status:match?'MATCH_EXIT_AND_CODES':'MISMATCH',originalAcceptanceCredit:false};
   results.push(row);
@@ -74,7 +81,7 @@ save('results.json',JSON.stringify(results,null,2));
 save('summary.json',JSON.stringify({sourceSha,upstreamCommit:pin.commit,referenceVersion:version.stdout.trim(),
   referenceSha256:hash(readFileSync(reference)),productCliSha256:hash(readFileSync(product)),
   suitePath,suiteSha256:hash(readFileSync(suitePath)),scriptSha256:hash(readFileSync(import.meta.filename)),
-  minimalProfile,minimalProfileSha256:hash(minimal),
+  minimalProfile,minimalProfileSha256:hash(minimal),arrayProfile,arrayProfileSha256:hash(arrayMinimal),
   matches:results.length-mismatches.length,mismatches:mismatches.length,originalAcceptanceCredit:0,
   fullOriginalScope:'UNEXPANDED',comparison:'bounded code arrays and exits, not original harness',
   referenceExecutable:basename(reference)},null,2));

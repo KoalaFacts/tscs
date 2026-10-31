@@ -170,12 +170,14 @@
     {
       "id": "logical-assignment:positive-23",
       "source": "let a:number[]=[0];a[0]||=42;",
-      "expectedCodes": []
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/array-iteration/minimal.d.ts"
     },
     {
       "id": "logical-assignment:positive-24",
       "source": "let a:number[]=[21];a[0]&&=42;",
-      "expectedCodes": []
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/array-iteration/minimal.d.ts"
     },
     {
       "id": "logical-assignment:positive-25",
