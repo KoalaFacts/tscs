@@ -15,6 +15,11 @@ public sealed class TemplateInterpolationTests
     [InlineData("const s: string = `${({value: 21}).value}`;")]
     [InlineData("const s: string = `${\"ok\"}-${true}-${null}`;")]
     [InlineData("const s: string = `escaped \\${literal} and ${21}`;")]
+    [InlineData("const s: string = `${`nested`}`;")]
+    [InlineData("const n: number = 21; const s: string = `outer${`inner${n}`}`;")]
+    [InlineData("const n: number = 3; const s: string = `${`a${`b${n}`}`}`;")]
+    [InlineData("const n: number = 21; const s: string = `x${n > 0 ? `yes${n}` : `no${n}`}`;")]
+    [InlineData("const s: string = `${`brace${\"}\"}`}`;")]
     public void EmbeddedExpressionsReuseTheCheckedPipeline(string source) =>
         Assert.Empty(Compilation.Check("interpolated.ts",source));
 
@@ -25,7 +30,8 @@ public sealed class TemplateInterpolationTests
     [InlineData("const s: string = `${}`;", "TSCS1001")]
     [InlineData("const s: string = `${21 +}`;", "TS1109")]
     [InlineData("const s: string = `${21; 22}`;", "TSCS1001")]
-    [InlineData("const s: string = `${`nested`}`;", "TSCS1001")]
+    [InlineData("const s: string = `${`nested${}`}`;", "TSCS1001")]
+    [InlineData("const s: string = `${`nested${missing}`}`;", "TS2304")]
     public void InvalidOrUnsupportedSubstitutionsCannotCompile(string source,string code) =>
         Assert.Contains(Compilation.Check("bad-template.ts",source),d=>d.Code==code);
 
@@ -38,6 +44,25 @@ public sealed class TemplateInterpolationTests
             d.Start==source.IndexOf("missingName",StringComparison.Ordinal));
     }
 
+
+    [Fact]
+    public void DeepNestedErrorKeepsItsSourceOffset()
+    {
+        var source="const n: number = 1;\nconst s: string = `a${`b${`c${missingName}`}`}`;";
+        Assert.Contains(Compilation.Check("nested-position.ts",source),
+            d=>d.Code=="TS2304" && d.Start==source.IndexOf("missingName",StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void WholeLineTsIgnoreInsideNestedTemplateKeepsGlobalBoundaries()
+    {
+        var source="const s: string = `outer${`inner${\n// @ts-ignore\nmissingName}`}`;\nconst n: number = missingOutside;";
+        var diagnostics=Compilation.Check("nested-ignore.ts",source);
+        Assert.DoesNotContain(diagnostics,d=>d.Code=="TS2304" &&
+            d.Start==source.IndexOf("missingName",StringComparison.Ordinal));
+        Assert.Contains(diagnostics,d=>d.Code=="TS2304" &&
+            d.Start==source.IndexOf("missingOutside",StringComparison.Ordinal));
+    }
 
     [Fact]
     public void UnicodeLineSeparatorEndsASubstitutionLineComment()

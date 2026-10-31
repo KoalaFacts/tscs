@@ -1563,7 +1563,8 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             sourceScanner?.ImportSuppressedLines(scanner,offset);
             for(int j=0;j<nested.Count;j++)
                 nested[j]=nested[j] with {Start=nested[j].Start+offset};
-            var nestedParser=new Parser(file,nested);
+            // Keep the original source scanner for directives inside nested templates.
+            var nestedParser=new Parser(file,nested,sourceScanner);
             expressions.Add(nestedParser.ParseEmbeddedExpression());
             i=closing;
             chunkStart=closing+1;

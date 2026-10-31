@@ -145,6 +145,67 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "no-substitution-template:positive-20",
+      "source": "const n: number = 21; let s: string = `out${`in${n}`}`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-21",
+      "source": "let s: string = `${`plain`}`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-22",
+      "source": "const n: number = 3; let s: string = `${`a${`b${n}`}`}`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-23",
+      "source": "let s: string = `${`brace${\"}\"}`}`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-24",
+      "source": "const n: number = 21; let s: string = `x${n > 0 ? `yes${n}` : `no${n}`}`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-25",
+      "source": "function label(n: string): string { return `n${n}`; } let s: string = `outer${label(`inner${21}`)}`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-26",
+      "source": "const item: {value: number} = {value: 21}; let s: string = `outer${`v=${item.value}`}`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-27",
+      "source": "let s: string = `${`escaped \\`tick`}`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:negative-08",
+      "source": "let n: number = `${`inner${21}`}`;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "no-substitution-template:negative-09",
+      "source": "let s: string = `${`inner${notDeclared}`}`;",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    },
+    {
+      "id": "no-substitution-template:negative-10",
+      "source": "const box = {value: 21}; let s: string = `${`x${box.missing}`}`;",
+      "expectedCodes": [
+        "TS2339"
+      ]
     }
   ]
 }
