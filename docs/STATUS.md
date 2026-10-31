@@ -1,3 +1,17 @@
+## 2026-11-01 — Checked expression-bearing template strings (candidate; NOT_RUN)
+
+The shared C# Scanner/Parser now retain native template chunks and parse each
+${expression} using the existing checked expression AST with original UTF-16
+positions. TypeChecker visits embedded identifiers, calls and member reads;
+ES2015 emission preserves native interpolation, evaluated at runtime. Bounded
+source-backed tests, four linked Node runtime modules and 13 new stable
+pinned-Go code/exit comparisons extend the existing 13-case template cohort.
+Nested tagged templates and template literal types remain explicitly unsupported.
+At source creation new tests are NOT_RUN, not original TS7 acceptance.
+Full original TS7 remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED; dynamic scope
+UNEXPANDED. No pin, gates, test minimum or protections changed.
+
+
 ## 2026-11-01 — Type-only reexports (source candidate; NOT_RUN)
 
 Bounded local and transitive `export type { Name as Alias }` now reuse the

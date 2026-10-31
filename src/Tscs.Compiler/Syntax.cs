@@ -1,6 +1,6 @@
 namespace Tscs;
 
-internal enum TokenKind { End, Identifier, Number, String, Let, Const, True, False, Open, Close, Colon, Semi, Equal, Comma, Unsupported, Null, OpenBracket, CloseBracket, Minus, MinusMinus, Plus, PlusPlus, PlusEqual, MinusEqual, StarEqual, PowerEqual, SlashEqual, PercentEqual, AmpEqual, BarEqual, CaretEqual, LeftShiftEqual, RightShiftEqual, UnsignedRightShiftEqual, Star, Power, Slash, Percent, Import, Export, Function, Return, Void, Delete, Throw, Try, Catch, Finally, If, Else, For, While, Do, Switch, Case, Default, Break, Continue, Type, Interface, Extends, OpenParen, CloseParen, Bang, Typeof, AmpAmp, BarBar, Bar, Amp, Caret, Tilde, LeftShift, RightShift, UnsignedRightShift, EqualEqual, BangEqual, StrictEqual, StrictNotEqual, Question, QuestionQuestion, QuestionQuestionEqual, AmpAmpEqual, BarBarEqual, QuestionDot, In, LessThan, LessEqual, GreaterThan, GreaterEqual, Ellipsis, Dot, Arrow }
+internal enum TokenKind { End, Identifier, Number, String, Template, Let, Const, True, False, Open, Close, Colon, Semi, Equal, Comma, Unsupported, Null, OpenBracket, CloseBracket, Minus, MinusMinus, Plus, PlusPlus, PlusEqual, MinusEqual, StarEqual, PowerEqual, SlashEqual, PercentEqual, AmpEqual, BarEqual, CaretEqual, LeftShiftEqual, RightShiftEqual, UnsignedRightShiftEqual, Star, Power, Slash, Percent, Import, Export, Function, Return, Void, Delete, Throw, Try, Catch, Finally, If, Else, For, While, Do, Switch, Case, Default, Break, Continue, Type, Interface, Extends, OpenParen, CloseParen, Bang, Typeof, AmpAmp, BarBar, Bar, Amp, Caret, Tilde, LeftShift, RightShift, UnsignedRightShift, EqualEqual, BangEqual, StrictEqual, StrictNotEqual, Question, QuestionQuestion, QuestionQuestionEqual, AmpAmpEqual, BarBarEqual, QuestionDot, In, LessThan, LessEqual, GreaterThan, GreaterEqual, Ellipsis, Dot, Arrow }
 [Flags]
 internal enum StringTokenFlags { None=0, Unterminated=1<<2, ExtendedUnicodeEscape=1<<3, UnicodeEscape=1<<10, ContainsInvalidEscape=1<<11, HexEscape=1<<12, SingleQuote=1<<16 }
 internal readonly record struct Token(TokenKind Kind, string Text, int Start, int Length, bool LineBreak = false,string? Value = null, StringTokenFlags Flags = StringTokenFlags.None);
@@ -36,6 +36,8 @@ internal sealed record InterfaceDeclaration(Token Name,ObjectTypeSyntax Body,boo
 internal abstract record ValueNode;
 // Object shorthand needs its own missing-binding diagnostic.
 internal sealed record ValueAtom(Token Token,bool Shorthand=false) : ValueNode;
+// Raw literal chunks and independently checked substitution AST nodes.
+internal sealed record ValueTemplate(Token Literal,IReadOnlyList<string> RawChunks,IReadOnlyList<ValueNode> Expressions) : ValueNode;
 internal sealed record ValueBinary(ValueNode Left, Token Operator, ValueNode Right) : ValueNode;
 internal sealed record ValueConditional(ValueNode Condition,Token Question,ValueNode WhenTrue,Token Colon,ValueNode WhenFalse) : ValueNode;
 // Contextual operators are erased in JS: 'as' asserts a new view,

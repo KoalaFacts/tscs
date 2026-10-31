@@ -291,6 +291,9 @@ internal static class JavaScriptEmitter
                     case ValueAtom atom:
                         if(atom.Token.Kind==TokenKind.Identifier)names.Add(atom.Token.Text);
                         break;
+                    case ValueTemplate template:
+                        foreach(var interpolation in template.Expressions)pending.Push(interpolation);
+                        break;
                     case ValueCall call:
                         pending.Push(call.Callee);
                         foreach(var arg in call.Arguments)pending.Push(arg);
@@ -641,7 +644,7 @@ internal static class JavaScriptEmitter
             // Erasure is wrapped with grouping to keep the JS precedence.
             ValueTypeOperator or ValueNonNull => 14,
             ValueCall or ValuePropertyAccess or ValueElementAccess => 13,
-            ValueAtom or ValueParenthesized or ValueObject or ValueArray => 14,
+            ValueAtom or ValueTemplate or ValueParenthesized or ValueObject or ValueArray => 14,
             _ => throw new NotSupportedException("Unsupported expression in emitted AST.")
         };
 
@@ -779,6 +782,22 @@ internal static class JavaScriptEmitter
                     case ValueAtom atom:
                         Text(atom.Token.Kind==TokenKind.Number
                             ?atom.Token.Value??atom.Token.Text:atom.Token.Text);
+                        break;
+                    case ValueTemplate template:
+                        // The output stack is LIFO. Literal chunks retain raw
+                        // escapes, while expressions follow the checked AST.
+                        Text("`");
+                        for(int i=template.RawChunks.Count-1;i>=0;i--)
+                        {
+                            Text(template.RawChunks[i]);
+                            if(i>0)
+                            {
+                                Text("}");
+                                Node(template.Expressions[i-1]);
+                                Text("${");
+                            }
+                        }
+                        Text("`");
                         break;
                     case ValueArrow arrow:
                         // Type annotations erase; ES2015 arrow captures remain lexical.

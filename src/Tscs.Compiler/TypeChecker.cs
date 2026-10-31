@@ -1799,6 +1799,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 finally {arrowExpressionDepth--;}
                 continue;
             }
+            if(node is ValueTemplate template)
+            {
+                TypeSymbol? result=CompilerTypes.String;
+                foreach(var interpolation in template.Expressions)
+                    if(TypeOf(interpolation,scope)==null)result=null;
+                types.Push(result);
+                continue;
+            }
             if(node is ValueAtom atom)
             {
                 types.Push(TypeOfAtom(atom.Token,scope,atom.Shorthand));
