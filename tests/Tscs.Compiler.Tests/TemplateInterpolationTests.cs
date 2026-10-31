@@ -54,6 +54,17 @@ public sealed class TemplateInterpolationTests
     }
 
     [Fact]
+    public void WholeLineTsIgnoreInsideNestedTemplateKeepsGlobalBoundaries()
+    {
+        var source="const s: string = `outer${`inner${\n// @ts-ignore\nmissingName}`}`;\nconst n: number = missingOutside;";
+        var diagnostics=Compilation.Check("nested-ignore.ts",source);
+        Assert.DoesNotContain(diagnostics,d=>d.Code=="TS2304" &&
+            d.Start==source.IndexOf("missingName",StringComparison.Ordinal));
+        Assert.Contains(diagnostics,d=>d.Code=="TS2304" &&
+            d.Start==source.IndexOf("missingOutside",StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void UnicodeLineSeparatorEndsASubstitutionLineComment()
     {
         // This is an actual U+2028 character in the parsed TypeScript source.
