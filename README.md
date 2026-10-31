@@ -77,6 +77,14 @@ wider values already held in variables can satisfy narrower required shapes.
 Writing a member of an imported or `const` object does not rebind that object.
 Missing members and incompatible assignments are rejected before emission.
 
+Bounded JavaScript truthiness guards on identifiers (`if (value)`, `if (!value)`,
+and ternaries) distinguish definitely falsy nullish/literal alternatives from
+truthy objects, functions and arrays. Broad numbers/strings remain possible
+in the false arm because zero and empty strings are falsy. Reassignments
+invalidate branch refinements; runtime `!` accepts checked non-boolean
+operands. General expression truthiness in conditions and non-boolean
+`&&`/`||` result typing are not yet implemented.
+
 Finite comparisons with unshadowed `undefined` or `void 0` now refine
 nullable locals and parameters on checked branches. Strict `===`/`!==`
 exclude only the `undefined` constituent; loose `==`/`!=` exclude
