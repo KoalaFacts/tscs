@@ -77,7 +77,7 @@ public sealed class NumericLiteralTests
         var number=Assert.Single(new Scanner("separators.ts","1_000.2_5e1_0").Scan(),
             token=>token.Kind==TokenKind.Number);
         Assert.Equal("1_000.2_5e1_0",number.Text);
-        Assert.Equal(14,number.Length);
+        Assert.Equal(13,number.Length);
         Assert.Equal("1000.25e10",number.Value);
         Assert.Throws<CompilationFailure>(()=>new Scanner("strict.json","1_000",jsonMode:true).Scan());
     }
