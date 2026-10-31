@@ -29,9 +29,9 @@ public sealed class LogicalValueTests
         Assert.Contains(Compilation.Check("logical-values-bad.ts",source),d=>d.Code==code);
 
     [Fact]
-    public void UnknownLogicalValuesRemainExplicitlyUnsupported()
+    public void VoidLogicalValuesRemainExplicitlyUnsupported()
     {
-        const string source="function wrong(v:unknown):unknown{return v && 21;}";
-        Assert.Contains(Compilation.Check("logical-unknown.ts",source),d=>d.Code=="TSCS1001");
+        const string source="function noop():void{return;}function wrong():void{return noop() && noop();}";
+        Assert.Contains(Compilation.Check("logical-void.ts",source),d=>d.Code=="TSCS1001");
     }
 }
