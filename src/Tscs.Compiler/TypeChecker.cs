@@ -973,7 +973,12 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     mayBeTruthy=numeric!=0 && !double.IsNaN(numeric);
                     mayBeFalsy=!mayBeTruthy;
                     break;
-                case ObjectTypeSymbol or ArrayTypeSymbol or FunctionTypeSymbol:
+                case ObjectTypeSymbol shape:
+                    // The empty structural {} contract also accepts 0, "" and
+                    // false. It is not proof of a non-falsy runtime object.
+                    mayBeTruthy=true;mayBeFalsy=shape.Members.Count==0;
+                    break;
+                case ArrayTypeSymbol or FunctionTypeSymbol:
                     mayBeTruthy=true;mayBeFalsy=false;
                     break;
                 default:
