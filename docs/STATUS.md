@@ -5,7 +5,8 @@ values in if/else and ternary conditions, including `!value`. Finite union
 alternatives are narrowed conservatively: null/undefined and falsy literals
 fall out of the true arm, structural objects/arrays/functions are truthy, and
 broad numbers/strings and empty structural `{}` types stay in the
-false arm because 0 and empty strings are possible. Assignment invalidation and early-return flow reuse existing symbol
+false arm because 0 and empty strings are possible. Runtime-valued
+`void` constituents remain in both arms rather than being guessed falsy. Assignment invalidation and early-return flow reuse existing symbol
 tracking. General truthy expression guards and non-boolean logical binary
 result typing remain unsupported. Seventeen bounded pinned-Go cases
 (12 positive, 5 negative), a four-module executed-JS lane, and unit
