@@ -54,7 +54,7 @@ try {
     ['bad-result','function wrong(n:number|null):string{return n || 21;}','TS2322'],
     ['bad-member','function wrong(box:{value:number}|null):number{return box && box.missing;}','TS2339'],
     ['nonboolean','function wrong(v:number|string):boolean{return typeof v === "number" && v;}','TS2322'],
-    ['unknown','function wrong(v:unknown):unknown{return v && 21;}','TSCS1001']
+    ['void-logical','function noop():void{return;}function wrong():void{return noop() && noop();}','TSCS1001']
   ] as const;
   for(const [name,source,code] of invalid){
     writeFileSync(join(folder,name+'.ts'),source);
