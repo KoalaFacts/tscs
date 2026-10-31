@@ -16,7 +16,7 @@ assert.ok(optionalSuitePath==null||deletion,'unknown bounded reference cohort');
 const suitePath=optionalSuitePath??'fixtures/typeof-primitive/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
 assert.equal(suite.kind,deletion?'BOUNDED_DELETE_OPTIONAL_NOT_ORIGINAL_TS7_ACCEPTANCE':'BOUNDED_TYPEOF_PRIMITIVE_NARROWING_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,deletion?17:18,'do not shrink the registered cohort');
+assert.equal(suite.cases.length,deletion?22:18,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const minimal=readFileSync('fixtures/minimal.d.ts','utf8');
 const hash=(data:string|Buffer)=>createHash('sha256').update(data).digest('hex');

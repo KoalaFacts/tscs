@@ -85,6 +85,31 @@
       "id": "delete-optional:positive-17",
       "source": "type Box={value?:number};function get():Box|null{return {value:21};}let r:boolean=delete get()?.value;",
       "expectedCodes": []
+    },
+    {
+      "id": "delete-optional:positive-18",
+      "source": "type Box={value?:number};function clear(h:{inner:Box}|null):boolean{return delete h?.inner.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "delete-optional:positive-19",
+      "source": "type Box={value?:number};function clear(h:{inner:Box}|null):boolean{return delete h?.inner[\"value\"];}",
+      "expectedCodes": []
+    },
+    {
+      "id": "delete-optional:positive-20",
+      "source": "type Box={value?:number};function get():{inner:Box}|null{return {inner:{value:21}};}let ok:boolean=delete get()?.inner.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "delete-optional:positive-21",
+      "source": "type Box={value?:number};function clear(h:{outer:{inner:Box}}|null):boolean{return delete h?.outer.inner.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "delete-optional:positive-22",
+      "source": "interface Box{run?(n:number):number}function clear(h:{inner:Box}|null):boolean{return delete h?.inner.run;}",
+      "expectedCodes": []
     }
   ]
 }
