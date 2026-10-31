@@ -932,10 +932,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     {
         var keyNode=comparison.Left;
         while(keyNode is ValueParenthesized grouped)keyNode=grouped.Expression;
-        if(keyNode is not ValueAtom { Token.Kind:TokenKind.String } literal ||
-           literal.Token.Value is not { } key)return null;
+        if(keyNode is not ValueAtom { Token.Kind:TokenKind.String } literal)return null;
+        var key=literal.Token.Value;
+        if(key is null)return null;
         var receiver=comparison.Right;
-        while(receiver is ValueParenthesized grouped)receiver=grouped.Expression;
+        while(receiver is ValueParenthesized receiverGroup)receiver=receiverGroup.Expression;
         if(receiver is not ValueAtom { Token.Kind:TokenKind.Identifier } name)return null;
         var symbol=scope.Find(name.Token.Text);
         if(symbol?.Type is not UnionTypeSymbol union)return null;
