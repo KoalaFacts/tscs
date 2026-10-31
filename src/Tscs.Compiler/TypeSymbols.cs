@@ -44,6 +44,10 @@ internal sealed record UnionTypeSymbol(IReadOnlyList<TypeSymbol> Alternatives) :
     public override string DisplayName=>TypeDisplay.Format(this);
 }
 
+// Record both reachable logical branches so contextual excess-property checks
+// can inspect fresh operand literals rather than only the joined type.
+internal sealed record LogicalValueOutcome(TypeSymbol Result,TypeSymbol? LeftResult,TypeSymbol Right,bool RightReachable);
+
 internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null) : TypeSymbol
 {
     public int MinimumArguments=>RequiredParameterCount<0?Parameters.Count:RequiredParameterCount;
@@ -139,9 +143,9 @@ internal static class CompilerTypes
     // value (||) alongside the lazily evaluated right operand.
     // Unknown/void are deliberately excluded until the full TS semantics are
     // represented; callers report an explicit unsupported diagnostic.
-    public static TypeSymbol? LogicalValueResult(TypeSymbol left,TypeSymbol right,bool conjunction)
+    public static LogicalValueOutcome? LogicalValueResult(TypeSymbol left,TypeSymbol right,bool conjunction)
     {
-        if(left.Equals(Any)||right.Equals(Any))return Any;
+        if(left.Equals(Any))return new(Any,Any,right,true);
         var alternatives=left is UnionTypeSymbol union?union.Alternatives.ToArray():[left];
         var truthy=new List<TypeSymbol>();
         var falsy=new List<TypeSymbol>();
@@ -191,13 +195,15 @@ internal static class CompilerTypes
                     return null;
             }
         }
-        if(conjunction)
-        {
-            if(truthy.Count!=0)falsy.Add(right);
-            return Union(falsy);
-        }
-        if(falsy.Count!=0)truthy.Add(right);
-        return Union(truthy);
+        // A right-side 'any' is only part of the result if evaluation can
+        // actually reach it; e.g. null && any must remain null, not any.
+        var shortCircuit=conjunction?falsy:truthy;
+        bool rightReachable=conjunction?truthy.Count>0:falsy.Count>0;
+        TypeSymbol? leftResult=shortCircuit.Count==0?null:Union(shortCircuit);
+        TypeSymbol result=rightReachable
+            ?leftResult is null?right:Union([leftResult,right])
+            :leftResult??Never;
+        return new(result,leftResult,right,rightReachable);
     }
 
     public static TypeSymbol CoalescingResult(TypeSymbol left,TypeSymbol right)

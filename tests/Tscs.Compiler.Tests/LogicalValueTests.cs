@@ -28,6 +28,22 @@ public sealed class LogicalValueTests
     public void InvalidLogicalResultAndRhsAreRejected(string source,string code) =>
         Assert.Contains(Compilation.Check("logical-values-bad.ts",source),d=>d.Code==code);
 
+    [Theory]
+    [InlineData("function correct():number{return true && 1;}")]
+    [InlineData("function correct():number{return (true) && 1;}")]
+    [InlineData("function correct():number{return 1 || 2;}")]
+    [InlineData("function correct():string{return \"ready\" || \"fallback\";}")]
+    [InlineData("function correct():number{return false || 21;}")]
+    public void KnownTruthyAndFalsyLiteralShortCircuitsDoNotInventBranches(string source) =>
+        Assert.Empty(Compilation.Check("logical-literal.ts",source));
+
+    [Theory]
+    [InlineData("function bad(n:null,value:any):number{return n && value;}","TS2322")]
+    [InlineData("function bad(box:{value:number}|null):{value:number}{return box || {value:1,typo:2};}","TS2353")]
+    [InlineData("function bad(box:{value:number}|null):{value:number}{return box && {value:1,typo:2};}","TS2353")]
+    public void UnreachableAnyAndFreshObjectTyposRemainRejected(string source,string code) =>
+        Assert.Contains(Compilation.Check("logical-fresh.ts",source),d=>d.Code==code);
+
     [Fact]
     public void VoidLogicalValuesRemainExplicitlyUnsupported()
     {
