@@ -68,6 +68,64 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "logical-assignment:positive-09",
+      "source": "let b:{value?:number}={};b.value??=42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-10",
+      "source": "let b:{value?:number}={};b[\"value\"]??=42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-11",
+      "source": "let b:{flag:boolean}={flag:true};b.flag&&=false;",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-12",
+      "source": "let b:{flag:boolean}={flag:false};b[\"flag\"]||=true;",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-13",
+      "source": "const b:{value?:number}={};b.value??=21;",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-14",
+      "source": "let b:{inner:{value?:number}}={inner:{}};b.inner.value??=42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:negative-05",
+      "source": "let b:{value?:number}={};b.value??=\"bad\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "logical-assignment:negative-06",
+      "source": "let b:{readonly value?:number}={};b.value??=42;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "logical-assignment:negative-07",
+      "source": "let b:{flag:boolean}={flag:true};b.flag&&=21;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "logical-assignment:negative-08",
+      "source": "let b:{flag:boolean}={flag:false};b[\"flag\"]||=\"bad\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }

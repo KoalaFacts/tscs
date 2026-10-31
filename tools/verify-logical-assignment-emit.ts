@@ -11,9 +11,9 @@ try {
   writeFileSync(join(dir,'minimal.d.ts'),readFileSync('fixtures/minimal.d.ts'));
   const sources={
     'model.ts':'export type Maybe = number | null;',
-    'data.ts':'export let numberCalls:number=0;export let boolCalls:number=0;export function fallback():number{numberCalls+=1;return 42;}export function toggle():boolean{boolCalls+=1;return false;}',
-    'logic.ts':'import type {Maybe} from "./model.js";import {fallback,toggle} from "./data.js";export function choose(n:Maybe):number{n??=fallback();return n!;}export function andCase(v:boolean):boolean{v&&=toggle();return v;}export function orCase(v:boolean):boolean{v||=toggle();return v;}',
-    'entry.ts':'import {choose,andCase,orCase} from "./logic.js";import {numberCalls,boolCalls} from "./data.js";export const missing:number=choose(null);export const present:number=choose(21);export const andTrue:boolean=andCase(true);export const andFalse:boolean=andCase(false);export const orFalse:boolean=orCase(false);export const orTrue:boolean=orCase(true);export const numberCount:number=numberCalls;export const boolCount:number=boolCalls;'
+    'data.ts':'export let numberCalls:number=0;export let boolCalls:number=0;export let receiverCalls:number=0;export let indexCalls:number=0;export function fallback():number{numberCalls+=1;return 42;}export function toggle():boolean{boolCalls+=1;return false;}export function createBox():{value?:number}{receiverCalls+=1;return {}}export function nextIndex():number{indexCalls+=1;return 0;}',
+    'logic.ts':'import type {Maybe} from "./model.js";import {fallback,toggle,createBox,nextIndex} from "./data.js";export function choose(n:Maybe):number{n??=fallback();return n!;}export function andCase(v:boolean):boolean{v&&=toggle();return v;}export function orCase(v:boolean):boolean{v||=toggle();return v;}export function fillBox():number{const b:{value?:number}={};b.value??=fallback();b.value??=fallback();return b.value!;}export function fromFactory():number{const b:{value?:number}=createBox();b["value"]??=fallback();return b.value!;}export function indexCase():number{let a:number[]=[21];a[nextIndex()]??=fallback();return a[0];}export function flags():boolean{const b:{flag:boolean}={flag:true};b.flag&&=toggle();b.flag||=true;return b.flag;}export function effectReceiver():number{createBox().value??=fallback();return 0;}',
+    'entry.ts':'import {choose,andCase,orCase,fillBox,fromFactory,indexCase,flags,effectReceiver} from "./logic.js";import {numberCalls,boolCalls,receiverCalls,indexCalls} from "./data.js";export const missing:number=choose(null);export const present:number=choose(21);export const andTrue:boolean=andCase(true);export const andFalse:boolean=andCase(false);export const orFalse:boolean=orCase(false);export const orTrue:boolean=orCase(true);export const filled:number=fillBox();export const factoryFilled:number=fromFactory();export const indexed:number=indexCase();export const flagged:boolean=flags();export const effect:number=effectReceiver();export const numberCount:number=numberCalls;export const boolCount:number=boolCalls;export const receiverCount:number=receiverCalls;export const keyCount:number=indexCalls;'
   };
   for(const [name,source] of Object.entries(sources))writeFileSync(join(dir,name),source+'\n');
   writeFileSync(join(dir,'project.json'),JSON.stringify({files:['entry.ts','minimal.d.ts'],compilerOptions:{module:'es2015',target:'es2015',noLib:true}}));
@@ -29,7 +29,7 @@ try {
     assert.doesNotMatch(readFileSync(file,'utf8'),/&&=|\|\|=|\?\?=/,'logical assignments must lower to ES2015');
   }
   const run=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {missing,present,andTrue,andFalse,orFalse,orTrue,numberCount,boolCount} from "./entry.js";if(missing!==42||present!==21||andTrue!==false||andFalse!==false||orFalse!==false||orTrue!==true||numberCount!==1||boolCount!==2)throw Error("logical assignment runtime mismatch");'],
+    'import {missing,present,andTrue,andFalse,orFalse,orTrue,filled,factoryFilled,indexed,flagged,effect,numberCount,boolCount,receiverCount,keyCount} from "./entry.js";if(missing!==42||present!==21||andTrue!==false||andFalse!==false||orFalse!==false||orTrue!==true||filled!==42||factoryFilled!==42||indexed!==21||flagged!==true||effect!==0||numberCount!==4||boolCount!==3||receiverCount!==2||keyCount!==1)throw Error("logical assignment runtime mismatch");'],
     {cwd:dir,encoding:'utf8',timeout:15000});
   assert.equal(run.error,undefined,String(run.error));assert.equal(run.status,0,run.stdout+'\n'+run.stderr);
   const invalid:[string,string,string,number][]=[
@@ -37,8 +37,11 @@ try {
     ['const','const n:number|null=null;n??=21;','TS2588',2],
     ['wrong-and','let b:boolean=true;b&&=21;','TS2322',2],
     ['wrong-or','let b:boolean=false;b||="bad";','TS2322',2],
-    ['unsafe-target','let b:{value?:number}={};b.value??=42;','TSCS1001',1],
-    ['uninitialised','let n:number;n??=42;','TSCS1001',1]
+    ['unsupported-truthiness','let b:{value?:number}={};b.value&&=false;','TSCS1001',1],
+    ['uninitialised','let n:number;n??=42;','TSCS1001',1],
+    ['readonly-member','let b:{readonly value?:number}={};b.value??=42;','TS2540',2],
+    ['wrong-member-type','let b:{value?:number}={};b.value??="bad";','TS2322',2],
+    ['optional-target','let b:{value?:number}={};b?.value??=42;','TSCS1001',1]
   ];
   for(const [id,source,code,exit] of invalid) {
     const input=join(dir,'invalid-'+id+'.ts');writeFileSync(input,source);
@@ -47,5 +50,5 @@ try {
     assert.match(result.stdout+result.stderr,new RegExp(code));
     assert.equal(existsSync(input.replace(/\.ts$/,'.js')),false,'invalid code emitted: '+id);
   }
-  console.log('logical assignment: 4 linked ES2015 modules executed, side effects lazy; 6 negative programs blocked');
+  console.log('logical assignment: 4 linked ES2015 modules executed, once-only member/index evaluations and lazy RHS; 9 negative programs blocked');
 } finally {rmSync(dir,{recursive:true,force:true});}
