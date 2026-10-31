@@ -149,9 +149,9 @@ internal static class TypeResolver
                 }
             }
             case ArrayTypeSyntax array:
-                if(array.GenericName is { } name && scope.FindType(name.Text) is not null)
-                    throw new CompilationFailure(Diagnostic.Error(file,name,"TS2315",
-                        $"Type '{name.Text}' is not generic in the supported subset."));
+                if(array.GenericName is { } genericName && scope.FindType(genericName.Text) is not null)
+                    throw new CompilationFailure(Diagnostic.Error(file,genericName,"TS2315",
+                        $"Type '{genericName.Text}' is not generic in the supported subset."));
                 return new ArrayTypeSymbol(Resolve(array.Element,scope,file,depth+1),array.Readonly);
             case InterfaceExtensionTypeSyntax inherited:
             {
