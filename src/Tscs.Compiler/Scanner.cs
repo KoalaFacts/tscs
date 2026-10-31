@@ -80,6 +80,47 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                     kind=value switch {"true"=>TokenKind.True,"false"=>TokenKind.False,"null"=>TokenKind.Null,_=>TokenKind.Identifier};
                 }
             }
+
+            else if (!jsonMode && first == '0' && position < text.Length &&
+                     text[position] is 'x' or 'X' or 'b' or 'B' or 'o' or 'O')
+            {
+                // Preserve the original spelling, but use exact decimal Number
+                // values for type identity and ES2015 emission. Reject integers
+                // beyond Number.MAX_SAFE_INTEGER rather than silently rounding.
+                int radix = text[position] is 'x' or 'X' ? 16 :
+                    text[position] is 'b' or 'B' ? 2 : 8;
+                position++;
+                const ulong maximum = 9007199254740991UL;
+                ulong number = 0;
+                bool sawDigit = false, previousDigit = false, invalid = false;
+                while (position < text.Length)
+                {
+                    char c = text[position];
+                    if (c == '_')
+                    {
+                        if (!previousDigit) invalid = true;
+                        previousDigit = false;
+                        position++;
+                        continue;
+                    }
+                    int digit = c is >= '0' and <= '9' ? c - '0'
+                        : c is >= 'a' and <= 'f' ? c - 'a' + 10
+                        : c is >= 'A' and <= 'F' ? c - 'A' + 10 : -1;
+                    if (digit < 0 || digit >= radix) break;
+                    sawDigit = true;
+                    previousDigit = true;
+                    if (!invalid && number <= (maximum - (ulong)digit) / (ulong)radix)
+                        number = number * (ulong)radix + (ulong)digit;
+                    else invalid = true;
+                    position++;
+                }
+                if (!sawDigit || !previousDigit ||
+                    (position < text.Length &&
+                        (IsIdentifierPart(text[position]) || text[position] == '.')))
+                    invalid = true;
+                kind = invalid ? TokenKind.Unsupported : TokenKind.Number;
+                if (!invalid) decodedValue = number.ToString(CultureInfo.InvariantCulture);
+            }
             else if (first is >= '0' and <= '9' ||
                      (!jsonMode && first == '.' && position < text.Length && text[position] is >= '0' and <= '9'))
             {

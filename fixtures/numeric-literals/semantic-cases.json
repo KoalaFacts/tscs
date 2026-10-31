@@ -184,6 +184,89 @@
       "expectedCodes": [
         "TS2345"
       ]
+    },
+    {
+      "id": "numeric-literals:positive-25",
+      "source": "let n: number = 0x2a;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-26",
+      "source": "let n: number = 0b10_1010;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-27",
+      "source": "let n: number = 0o52;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-28",
+      "source": "type Answer = 0x2a; let n: Answer = 42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-29",
+      "source": "type Answer = 42; let n: Answer = 0b101010;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-30",
+      "source": "type Answer = -0o52; let n: Answer = -42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-31",
+      "source": "function twice(n: number): number { return n * 0x2; } let x: number = twice(0b10101);",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-32",
+      "source": "const slots: { 0xA: number } = { 0b1010: 21 }; let n: number = slots[0o12];",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-33",
+      "source": "let items: number[] = [0x2a, 0b101010, 0o52]; let x: number = items[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-34",
+      "source": "let n: number = 0X2_A + 0B1_0 + 0O1_0;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-35",
+      "source": "type Payload = { value: 0b101010 }; let x: Payload = { value: 0x2a };",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:negative-10",
+      "source": "let n: string = 0x2a;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "numeric-literals:negative-11",
+      "source": "type Answer = 0b10; let n: Answer = 0o3;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "numeric-literals:negative-12",
+      "source": "function take(n: 0x2a): number { return n; } let x: number = take(0x2b);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "numeric-literals:negative-13",
+      "source": "let n: boolean = 0o52;",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }

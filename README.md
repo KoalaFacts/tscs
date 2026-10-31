@@ -239,6 +239,15 @@ Native ES2015 emission retains unary precedence, nested expressions and effects.
 This is distinct from a `void` function return annotation. The `delete` operator,
 `null` source literals and general nullable-flow narrowing remain unsupported.
 
+## Checked radix numeric literals (bounded)
+
+Hexadecimal (`0x2a`), binary (`0b101010`) and octal (`0o52`) integer
+spellings, including digit separators (`0x2_A`), share scanner tokens,
+literal types, object property identities, checked arithmetic and ES2015 output.
+Emission uses normalized decimal values. Malformed digits and separators fail
+closed. Values beyond JavaScript's maximum safe integer (2^53 - 1) are
+explicitly unsupported rather than rounded. This is not full TS7 support.
+
 ## No-substitution template literals (bounded)
 
 Untagged backtick strings without `${...}` expressions use checked string/literal

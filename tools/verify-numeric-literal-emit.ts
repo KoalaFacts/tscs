@@ -32,7 +32,14 @@ try {
     'export const separated: number = 1_000 + 2_0.5_0;',
     'export const exponentSeparated: number = 1_2.5_0e1_0;',
     'export const keyed: { 10: number } = { 1_0: 42 };',
-    'export const indexed: number = keyed[1_0];'
+    'export const indexed: number = keyed[1_0];',
+    'export const hex: number = 0X2_A;',
+    'export const binary: number = 0b10_1010;',
+    'export const octal: number = 0O5_2;',
+    'export const radixExact: 42 = 0x2a;',
+    'export const radixKeyed: { 10: number } = { 0xA: 21 };',
+    'export const radixIndexed: number = radixKeyed[0b1010];',
+    'export const radixCrossModule: number = scale({ base: 0o52 }, 0b1);'
   ].join('\n'));
   writeFileSync(join(folder,'project.json'),JSON.stringify({
     files:['entry.ts','minimal.d.ts'],
@@ -49,8 +56,10 @@ try {
     assert.ok(existsSync(join(folder,name+'.js')),'missing '+name+'.js');
   assert.doesNotMatch(readFileSync(join(folder,'entry.js'),'utf8'), /\d_\d/,
     'ES2015 output must not contain numeric separator syntax');
+  assert.doesNotMatch(readFileSync(join(folder,'entry.js'),'utf8'), /\b0[xXbBoO][0-9a-fA-F_]+/,
+    'radix literals must emit checked decimal Number values');
   const execute=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,decimal,scientific,tiny,trailing,leading,exact,negative,count,separated,exponentSeparated,indexed} from "./entry.js"; if(result!==42||decimal!==.5||scientific!==42||tiny!==.25||trailing!==3||leading!==.5||exact!==100||negative!==-1.5||count!==5||separated!==1020.5||exponentSeparated!==125000000000||indexed!==42) throw Error("numeric literal runtime mismatch");'],
+    'import {result,decimal,scientific,tiny,trailing,leading,exact,negative,count,separated,exponentSeparated,indexed,hex,binary,octal,radixExact,radixIndexed,radixCrossModule} from "./entry.js"; if(result!==42||decimal!==.5||scientific!==42||tiny!==.25||trailing!==3||leading!==.5||exact!==100||negative!==-1.5||count!==5||separated!==1020.5||exponentSeparated!==125000000000||indexed!==42||hex!==42||binary!==42||octal!==42||radixExact!==42||radixIndexed!==21||radixCrossModule!==42) throw Error("numeric literal runtime mismatch");'],
     {cwd:folder,encoding:'utf8',timeout:15000});
   assert.equal(execute.error,undefined,String(execute.error));
   assert.equal(execute.status,0,execute.stdout+execute.stderr);
@@ -60,7 +69,12 @@ try {
     ['invalid-exponent','let n: number = 1e+;',1,/TSCS1001/],
     ['invalid-separator','let n: number = 1__000;',1,/TSCS1001/],
     ['invalid-exponent-separator','let n: number = 1e_2;',1,/TSCS1001/],
-    ['separator-type','let n: string = 1_000;',2,/TS2322/]
+    ['separator-type','let n: string = 1_000;',2,/TS2322/],
+    ['radix-type','let n: string = 0x2a;',2,/TS2322/],
+    ['radix-literal-type','type Answer = 0b101010; let n: Answer = 0o53;',2,/TS2322/],
+    ['invalid-radix','let n: number = 0x_FF;',1,/TSCS1001/],
+    ['invalid-base-digit','let n: number = 0b102;',1,/TSCS1001/],
+    ['unsafe-radix','let n: number = 0x20000000000000;',1,/TSCS1001/]
   ] as const) {
     writeFileSync(join(folder,name+'.ts'),source);
     const rejected=spawnSync(process.env.DOTNET??'dotnet',

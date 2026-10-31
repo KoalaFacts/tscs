@@ -25,7 +25,7 @@ assert.equal(suite.kind,templates?'BOUNDED_NO_SUBSTITUTION_TEMPLATE_NOT_ORIGINAL
   :power?'BOUNDED_NUMERIC_EXPONENTIATION_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :strings?'BOUNDED_STRING_ADDITION_MUTATION_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :'BOUNDED_NUMERIC_DIVISION_REMAINDER_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,templates?13:decimalLiterals?33:stringPrimitives?18:power?20:strings?25:24,'do not shrink the registered cohort');
+assert.equal(suite.cases.length,templates?13:decimalLiterals?48:stringPrimitives?18:power?20:strings?25:24,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 // The cohort includes number[] indexing and length. Use the already
 // verified array profile for BOTH compilers, not the empty bootstrap Array<T>.
@@ -94,4 +94,4 @@ for(const row of manifest){const bytes=readFileSync(join(out,row.path));
   assert.equal(bytes.length,row.length);assert.equal(hash(bytes),row.sha256);}
 writeFileSync(join(out,'manifest.json'),JSON.stringify({files:manifest},null,2),{flag:'wx',flush:true});
 assert.deepEqual(mismatches,[],'genuine pinned-Go mismatches; raw outputs preserved');
-console.log(String(results.length)+' bounded '+(templates?'no-substitution template literals':decimalLiterals?'numeric decimal/exponent literals':stringPrimitives?'string primitives':power?'numeric exponentiation':strings?'string addition and mutation':'numeric division and remainder')+' sources matched pinned Go codes/exits; no original TS7 acceptance.');
+console.log(String(results.length)+' bounded '+(templates?'no-substitution template literals':decimalLiterals?'numeric decimal/exponent/radix literals':stringPrimitives?'string primitives':power?'numeric exponentiation':strings?'string addition and mutation':'numeric division and remainder')+' sources matched pinned Go codes/exits; no original TS7 acceptance.');
