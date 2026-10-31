@@ -205,6 +205,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         // requires intersection-like relations not yet represented.
                         // Reject such writes rather than accepting an unsafe arm.
                         var propertyReceiver=TypeOf(assignment.Target.Receiver,scope);
+                        if(propertyReceiver is ArrayTypeSymbol {Readonly:true} &&
+                           assignment.Target.Name.Text=="length")
+                            throw new CompilationFailure(Diagnostic.Error(file,assignment.Target.Name,"TS2540",
+                                "Cannot assign to 'length' because it is a read-only property."));
                         if(CompilerTypes.IsStringFamily(propertyReceiver) && assignment.Target.Name.Text=="length")
                             throw new CompilationFailure(Diagnostic.Error(file,assignment.Target.Name,"TS2540",
                                 "Cannot assign to 'length' because it is a read-only property."));
@@ -250,6 +254,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                                 break;
                             case ValuePropertyAccess propertyTarget:
                                 var compoundReceiver=TypeOf(propertyTarget.Receiver,scope);
+                                if(compoundReceiver is ArrayTypeSymbol {Readonly:true} &&
+                                   propertyTarget.Name.Text=="length")
+                                    throw new CompilationFailure(Diagnostic.Error(file,propertyTarget.Name,"TS2540",
+                                        "Cannot assign to 'length' because it is a read-only property."));
                                 if(CompilerTypes.IsStringFamily(compoundReceiver) && propertyTarget.Name.Text=="length")
                                     throw new CompilationFailure(Diagnostic.Error(file,propertyTarget.Name,"TS2540",
                                         "Cannot assign to 'length' because it is a read-only property."));
@@ -509,6 +517,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
 
     private void EnsureWritableIndex(ValueElementAccess target,TypeSymbol? receiver)
     {
+        if(receiver is ArrayTypeSymbol {Readonly:true} readonlyArray)
+            throw new CompilationFailure(Diagnostic.Error(file,target.Open,"TS2542",
+                $"Index signature in type '{readonlyArray.DisplayName}' only permits reading."));
         if(CompilerTypes.IsStringFamily(receiver))
             throw new CompilationFailure(Diagnostic.Error(file,target.Open,"TS2542",
                 "Index signature in type 'String' only permits reading."));
@@ -543,6 +554,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             case ValuePropertyAccess property:
                 var propertyReceiver=TypeOf(property.Receiver,scope);
                 if(propertyReceiver==null)return null;
+                if(propertyReceiver is ArrayTypeSymbol {Readonly:true} && property.Name.Text=="length")
+                    throw new CompilationFailure(Diagnostic.Error(file,property.Name,"TS2540",
+                        "Cannot assign to 'length' because it is a read-only property."));
                 if(CompilerTypes.IsStringFamily(propertyReceiver) && property.Name.Text=="length")
                     throw new CompilationFailure(Diagnostic.Error(file,property.Name,"TS2540",
                         "Cannot assign to 'length' because it is a read-only property."));
@@ -2572,6 +2586,13 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
 
     private void Mismatch(Token token,TypeSymbol source,TypeSymbol target)
     {
+        if(source is ArrayTypeSymbol {Readonly:true} &&
+           target is ArrayTypeSymbol {Readonly:false})
+        {
+            Error(token,"TS4104",
+                $"The type '{source.DisplayName}' is 'readonly' and cannot be assigned to the mutable type '{target.DisplayName}'.");
+            return;
+        }
         if(source is ObjectTypeSymbol data && target is ObjectTypeSymbol shape)
         {
             var missing=shape.Members.Keys.Where(name=>!shape.OptionalMembers.Contains(name) &&
