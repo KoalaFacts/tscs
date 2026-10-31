@@ -16,6 +16,7 @@ public sealed class ClassicForTests
     [InlineData("function f(values:number[]):number { let total:number=0; for(let i=0;i<values.length;i++){ total=total+values[i]; } return total; }")]
     [InlineData("function f(n:number):number { for(let i=0;i<n;i++){ if(i>3){break;} } let i:number=42; return i; }")]
     [InlineData("function f(n:number):number { let i:number=0; for(;i<n;i++){ if(i===2){continue;} } return i; }")]
+    [InlineData("function f(n:number):number { for(let i=0;i<n;i++) i++; return n; }")]
     public void SupportedClassicForProgramsCompile(string source) =>
         Assert.Empty(Compilation.Check("classic.ts",source));
 
@@ -50,7 +51,7 @@ public sealed class ClassicForTests
 
     [Theory]
     [InlineData("for(const i=0;i<3;i++){}")]
-    [InlineData("for(let i=0;i<3;i++) i++;")]
+    [InlineData("for(let i=0;i<3;i++) const x=1;")]
     [InlineData("for(var i=0;i<3;i++){}")]
     public void UnsupportedVariantsRemainExplicit(string source) =>
         Assert.Contains(Compilation.Check("classic.ts",source),d=>d.Code=="TSCS1001");

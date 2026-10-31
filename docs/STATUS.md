@@ -1,3 +1,16 @@
+## 2026-11-01 — Single-statement loop bodies (source candidate; NOT_RUN until exact-head gates)
+
+The shared C# Parser now admits one unbraced statement for while, do/while,
+classic for, for..of and for..in, using the existing Binder, TypeChecker,
+loop-backedge flow and native ES2015 emitter. Braces remain required for
+lexical let/const declarations directly within loop bodies. The bounded package
+registers 15 new pinned TS7 code/exit cases (10 positive, 5 negative), C#
+source-backed tests and four-module executed JS with six no-emission invalid
+checks. New checks are NOT_RUN at source creation; old cohorts retain their
+IDs and expectations. Full original TS7 remains 0 PASS / 15,523
+SKIP_UNIMPLEMENTED with dynamic expansion UNEXPANDED; no release gate, pin,
+minimum or protection has been loosened.
+
 ## 2026-10-31 — Checked logical operand-value expressions (candidate; NOT_RUN)
 
 C# TypeChecker now models bounded non-boolean \`&&\` and \`||\` expression
