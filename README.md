@@ -87,8 +87,14 @@ arithmetic expressions as conditions in `if`, ternaries, `while`,
 `do/while` and classic `for`. Direct unary `void` conditions reject with
 TS2873 (always falsy); testing a `void`-typed function result rejects with
 TS1345. Only stable existing guards narrow symbols: a member test does not
-invent property-path flow facts. Non-boolean `&&`/`||` result typing remains
-unimplemented.
+invent property-path flow facts. Bounded value-producing `&&`/`||` expressions now preserve JavaScript's
+operand result rather than coercing it to boolean, including checked nullable,
+number, string, literal, callable, array and finite object values. The type
+checker retains possibly falsy left alternatives for `&&` and truthy left
+alternatives for `||`, while checking the right operand under existing
+short-circuit flow facts. The ES2015 output uses native lazy logical operators.
+`void`, `unknown` and arbitrary unmodelled forms remain explicitly
+unsupported; complete TS7 logical-type inference is not claimed.
 
 Finite comparisons with unshadowed `undefined` or `void 0` now refine
 nullable locals and parameters on checked branches. Strict `===`/`!==`

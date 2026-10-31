@@ -7,6 +7,7 @@ public sealed class ExpressionGrammarTests
 {
     [Theory]
     [InlineData("let b: boolean = true || false && false;")]
+    [InlineData("let b: boolean = true || 1;")] // the unreachable numeric RHS must not widen this boolean result
     [InlineData("let b: boolean = !false && (true || false);")]
     [InlineData("let b: boolean = !1;")]
     [InlineData("let b: boolean = 1 + 2 * 3 > 5 && 4 <= 4;")]
@@ -26,8 +27,6 @@ public sealed class ExpressionGrammarTests
         Assert.Empty(Compilation.Check("expr.ts",source));
 
     [Theory]
-    [InlineData("let b: boolean = 1 && 2;")]
-    [InlineData("let b: boolean = true || 1;")]
     [InlineData("let b: boolean = !new Date();")]
     [InlineData("let b: boolean = 1 === \"1\";")]
     [InlineData("let b: boolean = true & false;")]
@@ -35,6 +34,11 @@ public sealed class ExpressionGrammarTests
     [InlineData("let b: boolean = (true || false;")]
     public void UnsupportedExpressionRelationsAndGrammarFailClosed(string source) =>
         Assert.Contains(Compilation.Check("expr.ts",source),d=>d.Code=="TSCS1001");
+
+    [Theory]
+    [InlineData("let b: boolean = 1 && 2;")]
+    public void NonBooleanLogicalResultsAreTypeChecked(string source) =>
+        Assert.Contains(Compilation.Check("expr.ts",source),d=>d.Code=="TS2322");
 
     [Fact]
     public void ExpressionPrecedenceIsPreservedInTheSharedAst()

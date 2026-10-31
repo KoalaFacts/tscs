@@ -1,0 +1,83 @@
+{
+  "kind": "BOUNDED_LOGICAL_VALUE_EXPRESSIONS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "logical-values:positive-01",
+      "source": "function choose(n:number|null):number|null{return n && n+1;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-values:positive-02",
+      "source": "function choose(n:number|null):number{return n || 21;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-values:positive-03",
+      "source": "function choose(s:string|null):string{return s || \"fallback\";}",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-values:positive-04",
+      "source": "function choose(flag:boolean,n:number):number|false{return flag && n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-values:positive-05",
+      "source": "function choose(flag:boolean,n:number):number|true{return flag || n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-values:positive-06",
+      "source": "function read(box:{value:number}|null):number|null{return box && box.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-values:positive-07",
+      "source": "function get(box:{value:number}|null):{value:number}{return box || {value:21};}",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-values:positive-08",
+      "source": "function choose(n:number):number{return n && 21;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-values:positive-09",
+      "source": "function choose(n:number):number{return n || 21;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-values:positive-10",
+      "source": "function choose(s:string):string{return s && \"ready\";}",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-values:negative-01",
+      "source": "function wrong(n:number|null):number{return n && n+1;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "logical-values:negative-02",
+      "source": "function wrong(n:number|null):string{return n || 21;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "logical-values:negative-03",
+      "source": "function wrong(box:{value:number}|null):number{return box && box.missing;}",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "logical-values:negative-04",
+      "source": "function wrong(v:number|string):boolean{return typeof v === \"number\" && v;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}

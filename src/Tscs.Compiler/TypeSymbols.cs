@@ -44,6 +44,10 @@ internal sealed record UnionTypeSymbol(IReadOnlyList<TypeSymbol> Alternatives) :
     public override string DisplayName=>TypeDisplay.Format(this);
 }
 
+// Record both reachable logical branches so contextual excess-property checks
+// can inspect fresh operand literals rather than only the joined type.
+internal sealed record LogicalValueOutcome(TypeSymbol Result,TypeSymbol? LeftResult,TypeSymbol Right,bool RightReachable);
+
 internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null) : TypeSymbol
 {
     public int MinimumArguments=>RequiredParameterCount<0?Parameters.Count:RequiredParameterCount;
@@ -131,6 +135,75 @@ internal static class CompilerTypes
         if(value.Equals(Undefined)||value.Equals(Null))return Never;
         if(value is not UnionTypeSymbol union)return value;
         return Union(union.Alternatives.Where(type=>!type.Equals(Undefined)&&!type.Equals(Null)));
+    }
+
+
+    // The value of a JavaScript logical expression is an operand, not a coerced
+    // boolean. Preserve its possibly falsy left value (&&) or truthy left
+    // value (||) alongside the lazily evaluated right operand.
+    // Unknown/void are deliberately excluded until the full TS semantics are
+    // represented; callers report an explicit unsupported diagnostic.
+    public static LogicalValueOutcome? LogicalValueResult(TypeSymbol left,TypeSymbol right,bool conjunction)
+    {
+        if(left.Equals(Any))return new(Any,Any,right,true);
+        var alternatives=left is UnionTypeSymbol union?union.Alternatives.ToArray():[left];
+        var truthy=new List<TypeSymbol>();
+        var falsy=new List<TypeSymbol>();
+        foreach(var candidate in alternatives)
+        {
+            switch(candidate)
+            {
+                case PrimitiveTypeSymbol { Kind:PrimitiveKind.Null or PrimitiveKind.Undefined }:
+                    falsy.Add(candidate);
+                    break;
+                case PrimitiveTypeSymbol { Kind:PrimitiveKind.Boolean }:
+                    truthy.Add(new LiteralTypeSymbol(PrimitiveKind.Boolean,"true"));
+                    falsy.Add(new LiteralTypeSymbol(PrimitiveKind.Boolean,"false"));
+                    break;
+                case PrimitiveTypeSymbol { Kind:PrimitiveKind.Number }:
+                    truthy.Add(candidate);
+                    falsy.Add(new LiteralTypeSymbol(PrimitiveKind.Number,"0"));
+                    break;
+                case PrimitiveTypeSymbol { Kind:PrimitiveKind.String }:
+                    truthy.Add(candidate);
+                    falsy.Add(new LiteralTypeSymbol(PrimitiveKind.String,""));
+                    break;
+                case LiteralTypeSymbol { Kind:PrimitiveKind.Boolean } boolean:
+                    (boolean.Value=="true"?truthy:falsy).Add(candidate);
+                    break;
+                case LiteralTypeSymbol { Kind:PrimitiveKind.String } str:
+                    (str.Value.Length>0?truthy:falsy).Add(candidate);
+                    break;
+                case LiteralTypeSymbol { Kind:PrimitiveKind.Number } number:
+                    if(!double.TryParse(number.Value,
+                        System.Globalization.NumberStyles.Float,
+                        System.Globalization.CultureInfo.InvariantCulture,out var n))
+                        return null;
+                    (n!=0 && !double.IsNaN(n)?truthy:falsy).Add(candidate);
+                    break;
+                case ObjectTypeSymbol objectType:
+                    truthy.Add(candidate);
+                    // Structural {} also accepts falsy primitive values.
+                    if(objectType.Members.Count==0)falsy.Add(candidate);
+                    break;
+                case ArrayTypeSymbol or FunctionTypeSymbol:
+                    truthy.Add(candidate);
+                    break;
+                case PrimitiveTypeSymbol { Kind:PrimitiveKind.Never }:
+                    break;
+                default:
+                    return null;
+            }
+        }
+        // A right-side 'any' is only part of the result if evaluation can
+        // actually reach it; e.g. null && any must remain null, not any.
+        var shortCircuit=conjunction?falsy:truthy;
+        bool rightReachable=conjunction?truthy.Count>0:falsy.Count>0;
+        TypeSymbol? leftResult=shortCircuit.Count==0?null:Union(shortCircuit);
+        TypeSymbol result=rightReachable
+            ?leftResult is null?right:Union([leftResult,right])
+            :leftResult??Never;
+        return new(result,leftResult,right,rightReachable);
     }
 
     public static TypeSymbol CoalescingResult(TypeSymbol left,TypeSymbol right)

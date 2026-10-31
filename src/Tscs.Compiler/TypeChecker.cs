@@ -5,6 +5,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
 {
     private readonly List<Diagnostic> diagnostics=[];
     private readonly Dictionary<ValueConditional,(TypeSymbol? True,TypeSymbol? False)> conditionalResults = new(ReferenceEqualityComparer.Instance);
+    private readonly Dictionary<ValueBinary,LogicalValueOutcome> logicalResults = new(ReferenceEqualityComparer.Instance);
     // Logical expressions use bounded recursion only to check the RHS in the
     // appropriate short-circuit flow scope; other expression chains remain iterative.
     private int logicalEvaluationDepth;
@@ -1576,6 +1577,19 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 symbol.Type=symbol.DeclaredType??symbol.Type;
     }
 
+    // General atom inference widens literals, but a syntactically known
+    // left literal determines whether &&/|| can evaluate their right side.
+    // Never apply this override to a stored or mutable identifier.
+    private static TypeSymbol LogicalLeftLiteralOrInferred(ValueNode source,TypeSymbol inferred)
+    {
+        while(source is ValueParenthesized grouped)source=grouped.Expression;
+        if(source is ValueAtom { Token.Kind:TokenKind.True or TokenKind.False or TokenKind.Number or TokenKind.String } atom)
+            return CompilerTypes.FromLiteralExact(atom.Token);
+        if(source is ValueUnary { Operator.Kind:TokenKind.Minus,Operand:ValueAtom { Token.Kind:TokenKind.Number } number })
+            return CompilerTypes.FromLiteralExact(number.Token,negative:true);
+        return inferred;
+    }
+
     private int arrowExpressionDepth;
     // Only active while checking a braced callable with an inferred return.
     // Its previous value is restored even when the nested checker fails.
@@ -1624,9 +1638,6 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     // only when it is false. In particular, typecheck a member
                     // read on the RHS under the precise discriminated union arm.
                     var leftType=TypeOf(logical.Left,scope);
-                    if(leftType!=null && !CompilerTypes.IsBoolean(leftType))
-                        throw new CompilationFailure(Diagnostic.Error(file,logical.Operator,"TSCS1001",
-                            "Logical binary expressions currently require boolean operands."));
                     var leftFacts=TryNarrowDiscriminant(logical.Left,scope);
                     var original=leftFacts?.Symbol.Type;
                     TypeSymbol? rightType;
@@ -1641,10 +1652,26 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     {
                         if(leftFacts is { } facts)facts.Symbol.Type=original;
                     }
-                    if(rightType!=null && !CompilerTypes.IsBoolean(rightType))
-                        throw new CompilationFailure(Diagnostic.Error(file,logical.Operator,"TSCS1001",
-                            "Logical binary expressions currently require boolean operands."));
-                    types.Push(leftType!=null && rightType!=null?CompilerTypes.Boolean:null);
+                    if(leftType is null || rightType is null)
+                    {
+                        types.Push(null);
+                        continue;
+                    }
+                    try
+                    {
+                        var effectiveLeft=LogicalLeftLiteralOrInferred(logical.Left,leftType);
+                        var result=CompilerTypes.LogicalValueResult(effectiveLeft,rightType,
+                            logical.Operator.Kind==TokenKind.AmpAmp);
+                        if(result is null)
+                            throw new CompilationFailure(Diagnostic.Error(file,logical.Operator,
+                                "TSCS1001","Logical expression operand types are outside the supported finite subset."));
+                        logicalResults[logical]=result;
+                        types.Push(result.Result);
+                    }
+                    catch(InvalidOperationException failure)
+                    {
+                        throw new CompilationFailure(Diagnostic.Error(file,logical.Operator,"TSCS1001",failure.Message));
+                    }
                 }
                 finally { logicalEvaluationDepth--; }
                 continue;
@@ -2365,6 +2392,12 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             return branches.True is { } t && branches.False is { } f &&
                 IsAssignableContextually(chosen.WhenTrue,t,expected,depth+1) &&
                 IsAssignableContextually(chosen.WhenFalse,f,expected,depth+1);
+        if(expression is ValueBinary { Operator.Kind:TokenKind.AmpAmp or TokenKind.BarBar } logical &&
+           logicalResults.TryGetValue(logical,out var logicalBranches))
+            return (logicalBranches.LeftResult is not { } l ||
+                    IsAssignableContextually(logical.Left,l,expected,depth+1)) &&
+                   (!logicalBranches.RightReachable ||
+                    IsAssignableContextually(logical.Right,logicalBranches.Right,expected,depth+1));
         if(expected is UnionTypeSymbol union)
             return union.Alternatives.Any(part=>IsAssignableContextually(expression,actual,part,depth+1));
         if(expected is LiteralTypeSymbol literal)
@@ -2444,6 +2477,18 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             if(branches.True is { } t && !CheckContextualLiteral(chosen.WhenTrue,expected,t))armsValid=false;
             if(branches.False is { } f && !CheckContextualLiteral(chosen.WhenFalse,expected,f))armsValid=false;
             return armsValid;
+        }
+        if(value is ValueBinary { Operator.Kind:TokenKind.AmpAmp or TokenKind.BarBar } logical &&
+           logicalResults.TryGetValue(logical,out var logicalBranches))
+        {
+            // Check fresh objects only on operand paths whose value can
+            // escape the short-circuit operator.
+            bool operandsValid=true;
+            if(logicalBranches.LeftResult is { } left &&
+               !CheckContextualLiteral(logical.Left,expected,left))operandsValid=false;
+            if(logicalBranches.RightReachable &&
+               !CheckContextualLiteral(logical.Right,expected,logicalBranches.Right))operandsValid=false;
+            return operandsValid;
         }
         if(value is ValueObject fresh && expected is UnionTypeSymbol alternatives &&
            actual is ObjectTypeSymbol)
