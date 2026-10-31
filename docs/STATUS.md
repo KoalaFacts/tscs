@@ -4,11 +4,11 @@ The shared C# TypeChecker accepts runtime truthiness of checked identifier
 values in if/else and ternary conditions, including `!value`. Finite union
 alternatives are narrowed conservatively: null/undefined and falsy literals
 fall out of the true arm, structural objects/arrays/functions are truthy, and
-broad numbers/strings stay in the false arm because 0 and empty strings
-exist. Assignment invalidation and early-return flow reuse existing symbol
+broad numbers/strings and empty structural `{}` types stay in the
+false arm because 0 and empty strings are possible. Assignment invalidation and early-return flow reuse existing symbol
 tracking. General truthy expression guards and non-boolean logical binary
-result typing remain unsupported. Sixteen bounded pinned-Go cases
-(12 positive, 4 negative), a four-module executed-JS lane, and unit
+result typing remain unsupported. Seventeen bounded pinned-Go cases
+(12 positive, 5 negative), a four-module executed-JS lane, and unit
 regressions are registered as NOT_RUN pending exact-head CI. This is not
 original upstream acceptance: the 15,523 registered original cases remain
 SKIP_UNIMPLEMENTED, dynamic scope UNEXPANDED. No release gate or pin change.
