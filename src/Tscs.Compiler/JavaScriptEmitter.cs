@@ -751,9 +751,38 @@ internal static class JavaScriptEmitter
                         }
                         break;
                     case ValueUnary unary:
-                        Node(unary.Operand,precedence);
-                        Text(unary.Operator.Text+(unary.Operator.Kind is TokenKind.Plus or TokenKind.Minus or TokenKind.Typeof or TokenKind.Void or TokenKind.Delete?" ":""));
+                    {
+                        // Optional deletion must remove the *property*, not
+                        // delete a guarded read result. Preserve nullish true
+                        // and evaluate a receiver exactly once in ES2015.
+                        ValueNode deleteTarget=unary.Operand;
+                        while(deleteTarget is ValueParenthesized groupDelete)
+                            deleteTarget=groupDelete.Expression;
+                        if(unary.Operator.Kind==TokenKind.Delete &&
+                           deleteTarget is ValuePropertyAccess { Optional:true,ChainContinuation:false } propertyDelete)
+                        {
+                            var temp=FreshPowerTemporary(ReferencedValueNames(unary.Operand));
+                            Text(")");
+                            Node(propertyDelete.Receiver);
+                            Text("(("+temp+") => ("+temp+" == null ? true : delete "+temp+"."+propertyDelete.Name.Text+"))(");
+                        }
+                        else if(unary.Operator.Kind==TokenKind.Delete &&
+                                deleteTarget is ValueElementAccess { Optional:true,ChainContinuation:false } indexDelete)
+                        {
+                            var temp=FreshPowerTemporary(ReferencedValueNames(unary.Operand));
+                            Text(")");
+                            Node(indexDelete.Receiver);
+                            Text("]))(");
+                            Node(indexDelete.Index);
+                            Text("(("+temp+") => ("+temp+" == null ? true : delete "+temp+"[");
+                        }
+                        else
+                        {
+                            Node(unary.Operand,precedence);
+                            Text(unary.Operator.Text+(unary.Operator.Kind is TokenKind.Plus or TokenKind.Minus or TokenKind.Typeof or TokenKind.Void or TokenKind.Delete?" ":""));
+                        }
                         break;
+                    }
                     case ValuePrefixUpdate prefix:
                         Node(prefix.Target,precedence);
                         Text(prefix.Operator.Text);

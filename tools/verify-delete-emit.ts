@@ -11,9 +11,9 @@ try {
   writeFileSync(join(dir,'minimal.d.ts'),readFileSync('fixtures/minimal.d.ts'));
   const sources={
     'model.ts':'export interface Mutable {value?:number;run?(n:number):number;label:string}',
-    'data.ts':'import type {Mutable} from "./model.js";export const present:Mutable={value:21,run:(n:number)=>n+n,label:"ready"};export const absent:Mutable={label:"empty"};',
-    'logic.ts':'import type {Mutable} from "./model.js";export function clearValue(x:Mutable):boolean{return delete x.value;}export function clearRun(x:Mutable):boolean{return delete x["run"]; }',
-    'entry.ts':'import {present,absent} from "./data.js";import {clearValue,clearRun} from "./logic.js";export const before:number|undefined=present.value;export const first:boolean=clearValue(present);export const second:boolean=clearValue(absent);export const third:boolean=clearRun(present);export const after:number|undefined=present.value;export const afterCall:number|undefined=present.run?.(21);'
+    'data.ts':'import type {Mutable} from "./model.js";export const present:Mutable={value:21,run:(n:number)=>n+n,label:"ready"};export const absent:Mutable={label:"empty"};export const nullablePresent:Mutable={value:13,run:(n:number)=>n+1,label:"nullable"};export const nullish:Mutable|null=null;',
+    'logic.ts':'import type {Mutable} from "./model.js";export function clearValue(x:Mutable):boolean{return delete x.value;}export function clearRun(x:Mutable):boolean{return delete x["run"]; }export function clearMaybe(x:Mutable|null|undefined):boolean{return delete x?.value;}export function clearMaybeRun(x:Mutable|null|undefined):boolean{return delete x?.["run"];}export function clearGrouped(x:Mutable|null):boolean{return delete (x?.value);}',
+    'entry.ts':'import {present,absent,nullablePresent,nullish} from "./data.js";import {clearValue,clearRun,clearMaybe,clearMaybeRun,clearGrouped} from "./logic.js";export const before:number|undefined=present.value;export const first:boolean=clearValue(present);export const second:boolean=clearValue(absent);export const third:boolean=clearRun(present);export const after:number|undefined=present.value;export const afterCall:number|undefined=present.run?.(21);export const nullGuard:boolean=clearMaybe(nullish);export const undefinedGuard:boolean=clearMaybe(undefined);export const removedValue:boolean=clearMaybe(nullablePresent);export const removedMethod:boolean=clearMaybeRun(nullablePresent);export const groupedGuard:boolean=clearGrouped(nullish);'
   };
   for(const [name,source] of Object.entries(sources))writeFileSync(join(dir,name),source+'\n');
   writeFileSync(join(dir,'project.json'),JSON.stringify({
@@ -34,9 +34,9 @@ try {
   for(const name of ['model','data','logic','entry'])
     assert.ok(existsSync(join(dir,name+'.js')),'missing emitted JavaScript: '+name);
   const executed=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {before,first,second,third,after,afterCall} from "./entry.js";'+
-    'import {present,absent} from "./data.js";'+
-    'if(before!==21||first!==true||second!==true||third!==true||after!==undefined||afterCall!==undefined||"value" in present||"run" in present||"value" in absent)throw Error("optional delete runtime mismatch");'
+    'import {before,first,second,third,after,afterCall,nullGuard,undefinedGuard,removedValue,removedMethod,groupedGuard} from "./entry.js";'+
+    'import {present,absent,nullablePresent} from "./data.js";'+
+    'if(before!==21||first!==true||second!==true||third!==true||after!==undefined||afterCall!==undefined||"value" in present||"run" in present||"value" in absent||nullGuard!==true||undefinedGuard!==true||removedValue!==true||removedMethod!==true||groupedGuard!==true||"value" in nullablePresent||"run" in nullablePresent)throw Error("optional delete runtime mismatch");'
   ],{cwd:dir,encoding:'utf8',timeout:15000});
   assert.equal(executed.error,undefined,String(executed.error));
   assert.equal(executed.status,0,executed.stdout+'\n'+executed.stderr);
@@ -45,7 +45,10 @@ try {
     ['readonly','let x:{readonly value?:number}={value:1};let ok:boolean=delete x.value;','TS2704',2],
     ['bare','let x:{value?:number}={value:1};let ok:boolean=delete x;','TSCS1001',1],
     ['literal','let ok:boolean=delete 21;','TSCS1001',1],
-    ['optional-chain','let x:{value?:number}={value:1};let ok:boolean=delete x?.value;','TSCS1001',1],
+    ['required-chain','function f(x:{value:number}|null):boolean{return delete x?.value;}','TS2790',2],
+    ['readonly-chain','function f(x:{readonly value?:number}|null):boolean{return delete x?.value;}','TS2704',2],
+    ['dynamic-chain','function f(x:{value?:number}|null,k:string):boolean{return delete x?.[k];}','TSCS1001',1],
+    ['array-chain','function f(x:number[]|null):boolean{return delete x?.[0];}','TSCS1001',1],
     ['array','let x:number[]=[1,2];let ok:boolean=delete x[0];','TSCS1001',1]
   ];
   for(const [id,source,code,exit] of invalid){
@@ -55,5 +58,5 @@ try {
     assert.match(result.stdout+result.stderr,new RegExp(code));
     assert.equal(existsSync(path.replace(/\.ts$/,'.js')),false,'invalid emitted JavaScript: '+id);
   }
-  console.log('delete optional: 4 linked ES2015 modules executed; 6 invalid cases blocked emission');
+  console.log('delete optional: 4 linked ES2015 modules executed; 9 invalid cases blocked emission');
 } finally {rmSync(dir,{recursive:true,force:true});}
