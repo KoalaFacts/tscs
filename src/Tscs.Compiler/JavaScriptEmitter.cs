@@ -601,7 +601,7 @@ internal static class JavaScriptEmitter
             // receiver, rather than emitting a guard for only the first ?. node.
             // Ordinary property/index/call suffixes then execute only inside the
             // present path, preserving both laziness and native member-call this.
-            void GuardedContinuation(ValueNode chain)
+            void GuardedContinuation(ValueNode chain,bool deleting=false)
             {
                 var used=ReferencedValueNames(chain);
                 var temporary=FreshPowerTemporary(used);
@@ -659,7 +659,7 @@ internal static class JavaScriptEmitter
                 Text("))(");
                 Node(present);
                 Text("(("+temporary+") => ("+temporary+" === null || "+temporary+
-                    " === undefined ? undefined : ");
+                    " === undefined ? "+(deleting?"true : delete ":"undefined : "));
             }
 
             Node(value);
@@ -759,6 +759,14 @@ internal static class JavaScriptEmitter
                         while(deleteTarget is ValueParenthesized groupDelete)
                             deleteTarget=groupDelete.Expression;
                         if(unary.Operator.Kind==TokenKind.Delete &&
+                           (deleteTarget is ValuePropertyAccess { ChainContinuation:true } ||
+                            deleteTarget is ValueElementAccess { ChainContinuation:true }))
+                        {
+                            // Delete the final member in the present branch, not
+                            // a temporary read result; short circuit is true.
+                            GuardedContinuation(deleteTarget,deleting:true);
+                        }
+                        else if(unary.Operator.Kind==TokenKind.Delete &&
                            deleteTarget is ValuePropertyAccess { Optional:true,ChainContinuation:false } propertyDelete)
                         {
                             var temp=FreshPowerTemporary(ReferencedValueNames(unary.Operand));

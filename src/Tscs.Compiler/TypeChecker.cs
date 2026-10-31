@@ -597,15 +597,15 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         bool guarded=false;
         switch(operand)
         {
-            case ValuePropertyAccess { ChainContinuation:false } member:
+            case ValuePropertyAccess member:
                 receiver=member.Receiver;
                 name=member.Name.Text;
-                guarded=member.Optional;
+                guarded=member.Optional || member.ChainContinuation;
                 break;
-            case ValueElementAccess { ChainContinuation:false } element:
+            case ValueElementAccess element:
                 receiver=element.Receiver;
                 index=element.Index;
-                guarded=element.Optional;
+                guarded=element.Optional || element.ChainContinuation;
                 break;
             default:
                 throw new CompilationFailure(Diagnostic.Error(file,keyword,"TSCS1001",
@@ -613,7 +613,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         }
         // Reuse the type checker for nested properties, array elements and
         // typed function results. No implicit any or dynamic index signatures.
-        // Native delete or the ES2015 optional guard evaluates the receiver once.
+        // A continued optional chain checks only its present-path receiver here.
+        // The ordinary chain TypeOf pass still rejects unsafe nullable
+        // intermediate members; emission guards the original root once.
         var receiverType=TypeOf(receiver,scope);
         var presentType=receiverType is null?null:guarded
             ?CompilerTypes.NonNullAssertionResult(receiverType):receiverType;
