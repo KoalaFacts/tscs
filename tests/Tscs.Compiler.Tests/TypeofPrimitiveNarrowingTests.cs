@@ -80,8 +80,8 @@ public sealed class TypeofPrimitiveNarrowingTests
         Assert.Contains(Compilation.Check("flow-backedge.ts",source),d=>d.Code==code);
 
     [Theory]
-    [InlineData("type H=(n:number)=>number; function bad(v:H|undefined):number { if(typeof v==="function"){v=undefined;return v(21);} return 0; }")]
-    [InlineData("type H=(n:number)=>number; function bad(v:H|{value:number}):number { if(typeof v==="function"){return v(21);} return 0; }")]
+    [InlineData("type H=(n:number)=>number; function bad(v:H|undefined):number { if(typeof v===\"function\"){v=undefined;return v(21);} return 0; }")]
+    [InlineData("type H=(n:number)=>number; function bad(v:H|{value:number}):number { if(typeof v===\"function\"){return v(21);} return 0; }")]
     public void UnsafeRebindingOrUnclassifiedStructuralUnionCannotBecomeCallable(string source) =>
         Assert.Contains(Compilation.Check("typeof-unsafe.ts",source),d=>d.Code=="TSCS1001");
 
