@@ -1,0 +1,120 @@
+{
+  "kind": "BOUNDED_TYPE_REEXPORT_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "type-reexport:positive-01",
+      "files": {
+        "model.ts": "export type Reading = number;",
+        "barrel.ts": "export type { Reading } from './model.js';",
+        "entry.ts": "import type { Reading } from './barrel.js'; const value: Reading = 21;"
+      },
+      "expectedCodes": []
+    },
+    {
+      "id": "type-reexport:positive-02",
+      "files": {
+        "model.ts": "export type Reading = number;",
+        "barrel.ts": "export type { Reading as NumberView } from './model.js';",
+        "entry.ts": "import type { NumberView } from './barrel.js'; let x: NumberView = 42;"
+      },
+      "expectedCodes": []
+    },
+    {
+      "id": "type-reexport:positive-03",
+      "files": {
+        "model.ts": "export interface Reading { value: number }",
+        "barrel.ts": "export type { Reading } from './model.js';",
+        "entry.ts": "import type { Reading } from './barrel.js'; const x: Reading = {value: 21};"
+      },
+      "expectedCodes": []
+    },
+    {
+      "id": "type-reexport:positive-04",
+      "files": {
+        "model.ts": "export type Reading = number;",
+        "relay.ts": "import type { Reading } from './model.js'; export type { Reading as Result };",
+        "entry.ts": "import type { Result } from './relay.js'; let x: Result = 2;"
+      },
+      "expectedCodes": []
+    },
+    {
+      "id": "type-reexport:positive-05",
+      "files": {
+        "model.ts": "export type Reading = number;",
+        "one.ts": "export type { Reading as One } from './model.js';",
+        "two.ts": "export type { One as Two } from './one.js';",
+        "entry.ts": "import type { Two } from './two.js'; let x: Two = 5;"
+      },
+      "expectedCodes": []
+    },
+    {
+      "id": "type-reexport:positive-06",
+      "files": {
+        "model.ts": "export interface Reading { value: number }",
+        "barrel.ts": "export type { Reading as View } from './model.js';",
+        "entry.ts": "import type { View } from './barrel.js'; function get(x: View): number { return x.value; } const n: number = get({value:21});"
+      },
+      "expectedCodes": []
+    },
+    {
+      "id": "type-reexport:positive-07",
+      "files": {
+        "barrel.ts": "type Internal = number; export type { Internal as Public };",
+        "entry.ts": "import type { Public } from './barrel.js'; let x: Public = 10;"
+      },
+      "expectedCodes": []
+    },
+    {
+      "id": "type-reexport:positive-08",
+      "files": {
+        "model.ts": "export type Value = number | string;",
+        "barrel.ts": "export type { Value } from './model.js'; export const result: number = 21;",
+        "entry.ts": "import type { Value } from './barrel.js'; import { result } from './barrel.js'; let x: Value = result;"
+      },
+      "expectedCodes": []
+    },
+    {
+      "id": "type-reexport:negative-01",
+      "files": {
+        "model.ts": "export type Reading = number;",
+        "barrel.ts": "export type { Reading } from './model.js';",
+        "entry.ts": "import type { Reading } from './barrel.js'; let n: Reading = 'wrong';"
+      },
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-reexport:negative-02",
+      "files": {
+        "model.ts": "export type Actual = number;",
+        "barrel.ts": "export type { Actual } from './model.js';",
+        "entry.ts": "import type { Missing } from './barrel.js'; let n: Missing = 21;"
+      },
+      "expectedCodes": [
+        "TS2305"
+      ]
+    },
+    {
+      "id": "type-reexport:negative-03",
+      "files": {
+        "model.ts": "export type Actual = number;",
+        "barrel.ts": "export type { Actual as Alias } from './model.js';",
+        "entry.ts": "import type { Alias } from './barrel.js'; let n: Alias = false;"
+      },
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-reexport:negative-04",
+      "files": {
+        "barrel.ts": "type Private = number; export type { Private as Public };",
+        "entry.ts": "import type { Public } from './barrel.js'; let n: Public = 'wrong';"
+      },
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}
