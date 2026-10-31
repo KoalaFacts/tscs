@@ -874,8 +874,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 ?new DiscriminantBranches(left.Symbol,left.WhenTrue,original)
                 :new DiscriminantBranches(left.Symbol,original,left.WhenFalse);
         }
-        if(condition is not ValueBinary comparison ||
-           comparison.Operator.Kind is not (TokenKind.StrictEqual or TokenKind.StrictNotEqual or
+        if(condition is not ValueBinary comparison)return null;
+        if(comparison.Operator.Kind==TokenKind.In)
+            return TryNarrowInProperty(comparison,scope);
+        if(comparison.Operator.Kind is not (TokenKind.StrictEqual or TokenKind.StrictNotEqual or
                TokenKind.EqualEqual or TokenKind.BangEqual))
             return null;
 
@@ -920,6 +922,36 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             :new DiscriminantBranches(symbol,onDifferent,onEqual);
     }
 
+
+    // A literal property-existence guard refines only a named finite union
+    // whose object alternatives have disjoint REQUIRED property presence.
+    // Optional members can exist at runtime on either path, so the current
+    // checker leaves those unions unrefined. Dynamic keys, arrays, any,
+    // unknown and arbitrary receivers must not invent branch facts.
+    private static DiscriminantBranches? TryNarrowInProperty(ValueBinary comparison,Scope scope)
+    {
+        var keyNode=comparison.Left;
+        while(keyNode is ValueParenthesized grouped)keyNode=grouped.Expression;
+        if(keyNode is not ValueAtom { Token.Kind:TokenKind.String } literal)return null;
+        var key=literal.Token.Value;
+        if(key is null)return null;
+        var receiver=comparison.Right;
+        while(receiver is ValueParenthesized receiverGroup)receiver=receiverGroup.Expression;
+        if(receiver is not ValueAtom { Token.Kind:TokenKind.Identifier } name)return null;
+        var symbol=scope.Find(name.Token.Text);
+        if(symbol?.Type is not UnionTypeSymbol union)return null;
+
+        var present=new List<TypeSymbol>();
+        var absent=new List<TypeSymbol>();
+        foreach(var candidate in union.Alternatives)
+        {
+            if(candidate is not ObjectTypeSymbol shape || shape.OptionalMembers.Contains(key))
+                return null;
+            (shape.Members.ContainsKey(key)?present:absent).Add(candidate);
+        }
+        if(present.Count==0 || absent.Count==0)return null;
+        return new DiscriminantBranches(symbol,CompilerTypes.Union(present),CompilerTypes.Union(absent));
+    }
 
     // A simple local/parameter can be narrowed against literal null, the
     // unshadowed undefined intrinsic, or the side-effect-free 'void 0' sentinel.

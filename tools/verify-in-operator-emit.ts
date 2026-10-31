@@ -15,12 +15,17 @@ try {
     'export const values:number[]=[20,22];'
   ].join('\n'));
   writeFileSync(join(folder,'logic.ts'),
-    'export function hasValue(data:{value:number}):boolean{return "value" in data;}\n');
-  writeFileSync(join(folder,'bridge.ts'),'export {hasValue} from "./logic.js";\n');
+    'export function hasValue(data:{value:number}):boolean{return "value" in data;}\n'+
+    'export function read(data:{score:number}|{reason:string}):number{if("score" in data){return data.score;}return 0;}\n'+
+    'export function explain(data:{score:number}|{reason:string}):string{if("score" in data){return "present";}return data.reason;}\n');
+  writeFileSync(join(folder,'bridge.ts'),'export {hasValue,read,explain} from "./logic.js";\n');
   writeFileSync(join(folder,'entry.ts'),[
     'import {seed,values} from "./model.js";',
-    'import {hasValue} from "./bridge.js";',
+    'import {hasValue,read,explain} from "./bridge.js";',
     'export const present:boolean=hasValue(seed);',
+    'export const narrowedHit:number=read({score:42});',
+    'export const narrowedMiss:number=read({reason:"not-found"});',
+    'export const narrowedFalse:string=explain({reason:"missing"});',
     'export const missing:boolean="absent" in seed;',
     'let key:string="label";',
     'export const dynamicKey:boolean=key in seed;',
@@ -60,8 +65,8 @@ try {
   for(const name of ['model','logic','bridge','entry'])
     assert.ok(existsSync(join(folder,name+'.js')),'missing '+name+'.js');
   const execution=spawnSync(process.execPath,['--input-type=module','--eval',[
-    'import {present,missing,dynamicKey,arrayIndex,arrayMissing,keyword,combined,callable,groupedFor,callFor,arrayFor,objectFor,conditionalFor,result} from "./entry.js";',
-    'if(!present || missing || !dynamicKey || !arrayIndex || arrayMissing || !keyword || !combined || !callable || !groupedFor || !callFor || !arrayFor || !objectFor || !conditionalFor || result!==42)',
+    'import {present,missing,dynamicKey,arrayIndex,arrayMissing,keyword,combined,callable,groupedFor,callFor,arrayFor,objectFor,conditionalFor,result,narrowedHit,narrowedMiss,narrowedFalse} from "./entry.js";',
+    'if(!present || missing || !dynamicKey || !arrayIndex || arrayMissing || !keyword || !combined || !callable || !groupedFor || !callFor || !arrayFor || !objectFor || !conditionalFor || result!==42 || narrowedHit!==42 || narrowedMiss!==0 || narrowedFalse!=="missing")',
     '  throw Error("in-operator emitted runtime mismatch");',
     'console.log(JSON.stringify({present,missing,dynamicKey,arrayIndex,arrayMissing,keyword,combined,result}));'
   ].join('\n')],{cwd:folder,encoding:'utf8',timeout:15000,env});
@@ -69,6 +74,9 @@ try {
   assert.equal(execution.status,0,execution.stdout+execution.stderr);
   const invalid=[
     ['boolean-left','let obj={value:42};let result:boolean=true in obj;','TS2322'],
+    ['union-unguarded','type E={score:number}|{reason:string};function bad(e:E):number{return e.score;}','TS2339'],
+    ['union-wrong-arm','type E={score:number}|{reason:string};function bad(e:E):string{if("score" in e){return e.reason;}return "ok";}','TS2339'],
+    ['union-stale-after-write','type E={score:number}|{reason:string};function bad(e:E):number{if("score" in e){e={reason:"new"};return e.score;}return 0;}','TS2339'],
     ['number-right','let x:number=42;let result:boolean="value" in x;','TS2322'],
     ['wrong-result','let obj={value:42};let result:number="value" in obj;','TS2322'],
     ['boolean-right','let x:boolean=true;let result:boolean="value" in x;','TS2322'],
@@ -83,5 +91,5 @@ try {
     assert.match(rejected.stdout+rejected.stderr,new RegExp(diagnostic));
     assert.equal(existsSync(join(folder,name+'.js')),false,'invalid in expression emitted JS');
   }
-  console.log('Checked in-operator: four ES2015 modules executed; seven invalid programs rejected.');
+  console.log('Checked in-operator: four ES2015 modules executed, finite union branches checked; ten invalid programs rejected.');
 } finally {rmSync(folder,{recursive:true,force:true});}
