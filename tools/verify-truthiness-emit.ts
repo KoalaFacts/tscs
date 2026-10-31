@@ -72,7 +72,8 @@ try {
     ['wrong-true','function bad(v:number|string):number{if(v){return v;}return 0;}','TS2322'],
     ['wrong-false','function bad(v:number|string):number{if(!v){return v;}return 0;}','TS2322'],
     ['wrong-ternary','function bad(v:number|string):number{return v?v:0;}','TS2322'],
-    ['write-invalidate','function bad(v:{value:number}|undefined):number{if(v){v=undefined;return v.value;}return 0;}','TS18048']
+    ['write-invalidate','function bad(v:{value:number}|undefined):number{if(v){v=undefined;return v.value;}return 0;}','TS18048'],
+    ['empty-structural-falsy','function bad(v:{}|null):null{if(v){return null;}return v;}','TS2322']
   ] as const;
   for(const [name,source,code] of invalid){
     writeFileSync(join(folder,name+'.ts'),source);
@@ -81,5 +82,5 @@ try {
     assert.match(rejected.stdout+rejected.stderr,new RegExp(code));
     assert.equal(existsSync(join(folder,name+'.js')),false,'invalid program emitted JS');
   }
-  console.log('Finite truthiness guards: four-module ES2015 runtime executed; four invalid programs blocked.');
+  console.log('Finite truthiness guards: four-module ES2015 runtime executed; five invalid programs blocked.');
 } finally {rmSync(folder,{recursive:true,force:true});}
