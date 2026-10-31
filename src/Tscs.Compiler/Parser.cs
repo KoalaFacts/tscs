@@ -18,11 +18,12 @@ internal sealed class Parser(string file, List<Token> tokens)
     public List<Diagnostic> Diagnostics { get; } = [];
     private Token Take() => tokens[position++];
     private bool Eat(TokenKind kind) { if(Current.Kind!=kind)return false; position++;return true; }
-    public Block Parse(int depth=0,bool inFunction=false)
+    public Block Parse(int depth=0,bool inFunction=false,bool switchClauseBody=false)
     {
         if(depth>128) Unsupported(Current,"Block nesting exceeds the bootstrap limit.");
         var statements=new List<Statement>();
-        while(Current.Kind!=TokenKind.End && !(depth>0 && Current.Kind==TokenKind.Close))
+        while(Current.Kind!=TokenKind.End && !(depth>0 && Current.Kind==TokenKind.Close) &&
+              !(switchClauseBody && (Current.Kind is TokenKind.Case or TokenKind.Default)))
         {
             if(Current.Kind==TokenKind.Close) { Diagnostics.Add(Diagnostic.Error(file,Take(),"TS1128","Declaration or statement expected.")); continue; }
             if(Eat(TokenKind.Semi)) { statements.Add(new EmptyStatement()); continue; }
@@ -382,9 +383,9 @@ internal sealed class Parser(string file, List<Token> tokens)
         return new TryStatement(keyword,body,binding,caught,cleanup);
     }
 
-    // Literal-labelled, braced clauses provide separate lexical scopes.
-    // Normal completion falls through to the next case; break exits the
-    // switch. Non-braced clauses and dynamic labels still fail closed.
+    // Both braced arms and a bounded unbraced statement sequence use the
+    // same checked flow. Unbraced lexical declarations need a shared switch
+    // scope that is not yet represented; reject those instead of misbinding.
     private SwitchStatement ParseSwitch(int depth,bool inFunction)
     {
         var keyword=Take();
@@ -414,11 +415,17 @@ internal sealed class Parser(string file, List<Token> tokens)
             else if(hasDefault)Unsupported(keywordClause,"Duplicate switch defaults are not supported.");
             else hasDefault=true;
             if(!Eat(TokenKind.Colon))Unsupported(Current,"Expected ':' after switch clause.");
-            if(!Eat(TokenKind.Open))
-                Unsupported(Current,"Each switch clause currently requires a braced block.");
-            var body=Parse(depth+1,inFunction);
-            if(!Eat(TokenKind.Close))
-                Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+            bool braced=Eat(TokenKind.Open);
+            var body=Parse(depth+1,inFunction,switchClauseBody:!braced);
+            if(braced)
+            {
+                if(!Eat(TokenKind.Close))
+                    Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+            }
+            else if(body.Statements.Any(statement=>statement is Variable or FunctionDeclaration or
+                            TypeAliasDeclaration or InterfaceDeclaration))
+                Unsupported(keywordClause,
+                    "Unbraced switch clauses with lexical declarations are not supported yet.");
             clauses.Add(new SwitchClause(keywordClause,label,body));
         }
         if(!Eat(TokenKind.Close))Unsupported(Current,"Expected '}' after switch clauses.");

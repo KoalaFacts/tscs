@@ -45,11 +45,27 @@ public sealed class SwitchReturnFlowTests
         Assert.Contains(Compilation.Check("switch.ts",source),d=>d.Code==expectedCode);
 
     [Theory]
-    [InlineData("function f(n: number): number { switch(n) { case 1: return 1; default: { return 0; } } }")]
-
+    [InlineData("function f(n: number): number { switch(n) { case 1: let value:number=1; return value; default: { return 0; } } }")]
     [InlineData("function f(n: number): number { switch(n) { case 1: { return 1; } case 1: { return 2; } default: { return 0; } } }")]
-    public void UnsupportedUnbracedArmsAndDuplicateCasesStillFailClosed(string source) =>
+    public void UnsupportedUnbracedLexicalDeclarationsAndDuplicateCasesStillFailClosed(string source) =>
         Assert.Contains(Compilation.Check("switch.ts",source),d=>d.Code=="TSCS1001");
+
+    [Theory]
+    [InlineData("function f(n: number): number { switch(n) { case 1: return 1; default: { return 0; } } }")]
+    [InlineData("function f(n:number):number { let result:number=0; switch(n) { case 1: result=20; case 2: result=result+1; break; default: break; } return result; }")]
+    [InlineData("function f(n:number):number { switch(n) { case 1: case 2: return 21; default: return 0; } }")]
+    [InlineData("function f(n:number):number { switch(n) { case 1: { return 1; } default: return 0; } }")]
+    [InlineData("type E={kind:\"ok\";value:number}|{kind:\"error\";message:string}; function f(e:E):number { switch(e.kind) { case \"ok\": return e.value; default: return 0; } }")]
+    [InlineData("function f(n:number):number { switch(n) { case 1: if(n>0) { return n; } return 0; default: return 0; } }")]
+    public void UnbracedSwitchFlowUsesTheRealCompilerPipeline(string source) =>
+        Assert.Empty(Compilation.Check("unbraced-switch.ts",source));
+
+    [Theory]
+    [InlineData("type E={kind:\"ok\";value:number}|{kind:\"error\";message:string}; function f(e:E):number { switch(e.kind) { case \"ok\": return e.message; default: return 0; } }","TS2339")]
+    [InlineData("function f(n:number):number { let result:number=0; switch(n) { case 1: result=\"bad\"; break; default: return 0; } return result; }","TS2322")]
+    [InlineData("type E={kind:\"ok\";value:number}|{kind:\"error\";message:string}; function f(e:E):number { switch(e.kind) { case \"other\": return 0; default: return 0; } }","TS2678")]
+    public void UnbracedSwitchErrorsAreRealTypeErrors(string source,string code) =>
+        Assert.Contains(Compilation.Check("invalid-unbraced-switch.ts",source),d=>d.Code==code);
 
     [Fact]
     public void FormerlyUnsupportedBracedFallthroughMustNowCompile()
