@@ -116,6 +116,10 @@ internal sealed class Parser(string file, List<Token> tokens)
                 if(depth!=0)Unsupported(Current,"Module exports must be at source-file scope.");
                 Take();
                 exported=true;
+                // Distinguish "export type { T }" from "export type T = ...".
+                bool typeOnlyExport=Current.Kind==TokenKind.Type &&
+                    position+1<tokens.Count && tokens[position+1].Kind==TokenKind.Open;
+                if(typeOnlyExport)Take();
                 if(Eat(TokenKind.Open))
                 {
                     // Named local exports share the module's already-bound symbols.
@@ -152,7 +156,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                         if(exports.Count==0)
                             Unsupported(from.Value,"An empty re-export list is not supported.");
                     }
-                    statements.Add(new ExportDeclaration(exports,from));
+                    statements.Add(new ExportDeclaration(exports,from,typeOnlyExport));
                     EndStatement();
                     continue;
                 }

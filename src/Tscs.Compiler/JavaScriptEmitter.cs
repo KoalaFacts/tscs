@@ -242,6 +242,7 @@ internal static class JavaScriptEmitter
                     output.Append(" } from ").Append(import.ModulePath.Text).Append(";\n");
                     break;
                 case ExportDeclaration export:
+                    if(export.TypeOnly)break; // Type-only exports are erased.
                     if(!emitModules)throw new NotSupportedException("ES module JavaScript output requires an explicit ES2015 module option.");
                     Indent(depth);
                     output.Append("export { ");

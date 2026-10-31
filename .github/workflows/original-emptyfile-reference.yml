@@ -39,6 +39,7 @@ jobs:
           node tools/verify-object-data-reference.ts "$reference" .artifacts/object-data-reference
           node tools/verify-array-iteration-reference.ts "$reference" .artifacts/array-iteration-reference
           node tools/verify-named-types-reference.ts "$reference" .artifacts/named-types-reference
+          node tools/verify-type-reexports-reference.ts "$reference" .artifacts/type-reexports-reference
           node tools/verify-literal-types-reference.ts "$reference" .artifacts/literal-types-reference
           node tools/verify-discriminant-reference.ts "$reference" .artifacts/discriminant-reference
           node tools/verify-guard-reference.ts "$reference" .artifacts/guard-reference
@@ -96,6 +97,14 @@ jobs:
           node tools/verify-function-expression-reference.ts "$reference" .artifacts/function-expression-reference
           node tools/verify-function-expression-reference.ts "$reference" .artifacts/object-method-reference fixtures/object-method/semantic-cases.json
           node tools/verify-interface-inheritance-reference.ts "$reference" .artifacts/interface-inheritance-reference
+      - name: Preserve bounded type-only reexport source and reference evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-type-reexports-reference-${{ github.sha }}
+          path: .artifacts/type-reexports-reference/
+          if-no-files-found: warn
+          retention-days: 30
       - name: Preserve bounded readonly array source and pinned reference evidence
         if: always()
         uses: actions/upload-artifact@v4

@@ -93,7 +93,7 @@ internal sealed record ClassicForStatement(Token Keyword,Statement? Initializer,
 internal sealed record ImportSpecifier(Token Imported,Token Local);
 internal sealed record ImportDeclaration(Token ModulePath,IReadOnlyList<ImportSpecifier> Specifiers,bool TypeOnly=false) : Statement;
 internal sealed record ExportSpecifier(Token Local,Token Exported);
-internal sealed record ExportDeclaration(IReadOnlyList<ExportSpecifier> Specifiers,Token? ModulePath=null) : Statement;
+internal sealed record ExportDeclaration(IReadOnlyList<ExportSpecifier> Specifiers,Token? ModulePath=null,bool TypeOnly=false) : Statement;
 internal sealed record Assignment(Token Name, ValueNode Value) : Statement;
 internal sealed record PostfixUpdate(Token Name, Token Operator) : Statement;
 // Keep the original compound operator to preserve single evaluation of a property/index receiver.

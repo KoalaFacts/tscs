@@ -1,3 +1,14 @@
+## 2026-11-01 — Type-only reexports (source candidate; NOT_RUN)
+
+Bounded local and transitive `export type { Name as Alias }` now reuse the
+canonical module graph, preserving the original TypeBinding through Binder,
+TypeResolver and checker. Type-only exports emit no runtime bindings.
+Missing, duplicate and cyclic aliases fail closed. Source-backed xUnit,
+five-module executed JS and 12 stable pinned-Go multi-file source/code/exit
+cases are registered as NOT_RUN until exact-head CI.
+Original TS7: 0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED.
+No upstream pin, test minimum or release gate changes.
+
 ## 2026-11-01 — Intrinsic generic array type spellings (source candidate; NOT_RUN)
 
 The bounded C# Parser maps one-argument intrinsic `Array<T>` and

@@ -21,13 +21,22 @@ try {
     'export type Payload = Reading | number;',
     'export type List = (number | string)[];'
   ].join('\n'));
+  writeFileSync(join(directory,'barrel.ts'),[
+    'export type { Reading, Payload, List } from "./models.js";'
+  ].join('\n'));
+  writeFileSync(join(directory,'relay.ts'),[
+    'import type { Reading } from "./barrel.js";',
+    'export type { Reading as PublicReading };'
+  ].join('\n'));
   writeFileSync(join(directory,'logic.ts'),[
-    'import type { Reading, Payload } from "./models.js";',
+    'import type { PublicReading as Reading } from "./relay.js";',
+    'import type { Payload } from "./barrel.js";',
     'export function twice(reading: Reading): Reading { return {value: reading.value * 2, label: reading.label}; }',
     'export function pass(value: Payload): Payload { return value; }'
   ].join('\n'));
   writeFileSync(join(directory,'entry.ts'),[
-    'import type { Reading, Payload, List } from "./models.js";',
+    'import type { PublicReading as Reading } from "./relay.js";',
+    'import type { Payload, List } from "./barrel.js";',
     'import { twice, pass } from "./logic.js";',
     'const seed: Reading = { value: 21, label: "seed" };',
     'let mixed: Payload = seed;',
@@ -39,10 +48,10 @@ try {
   ].join('\n'));
   const built=run(['--emitJs','--noLib','--target','es2015','--module','es2015','entry.ts','minimal.d.ts']);
   assert.equal(built.status,0,built.stdout+built.stderr);
-  for(const name of ['models','logic','entry'])assert.ok(existsSync(join(directory,name+'.js')),name+' not emitted');
-  for(const name of ['models','logic','entry']) {
+  for(const name of ['models','barrel','relay','logic','entry'])assert.ok(existsSync(join(directory,name+'.js')),name+' not emitted');
+  for(const name of ['models','barrel','relay','logic','entry']) {
     const output=readFileSync(join(directory,name+'.js'),'utf8');
-    assert.doesNotMatch(output,/\b(import type|interface Reading|type Payload|type List)\b/);
+    assert.doesNotMatch(output,/\b(import type|export type|interface Reading|type Payload|type List)\b/);
   }
   const runtime=spawnSync(process.execPath,['--input-type=module','--eval',
     'import {result,label,count} from "./entry.js"; if(result!==42 || label!=="seed" || count!==2) throw Error("named types runtime mismatch"); console.log(JSON.stringify({result,label,count}));'],
@@ -58,5 +67,5 @@ try {
   assert.equal(invalid.status,2,invalid.stdout+invalid.stderr);
   assert.match(invalid.stdout+invalid.stderr,/TS2322/);
   assert.equal(existsSync(join(directory,'invalid.js')),false);
-  console.log('Named types, interfaces and unions: actual three-module JS result=42, label=seed, count=2; typed negative blocks output.');
+  console.log('Named types and type-only reexports: actual five-module JS result=42, label=seed, count=2; typed negative blocks output.');
 } finally {rmSync(directory,{recursive:true,force:true});}

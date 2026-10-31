@@ -5,12 +5,14 @@ namespace Tscs;
 internal static class ModuleLinker
 {
     private sealed record ExportBinding(Token Local,Token? From);
+    private sealed record TypeExportBinding(Token Local,Token? From);
     private sealed class ModuleNode(ParsedSource source,Scope scope)
     {
         public ParsedSource Source { get; }=source;
         public Scope Scope { get; }=scope;
         public Dictionary<string,ExportBinding> Exports { get; }=new(StringComparer.Ordinal);
         public Dictionary<string,TypeBinding> TypeExports { get; }=new(StringComparer.Ordinal);
+        public Dictionary<string,TypeExportBinding> TypeReexports { get; }=new(StringComparer.Ordinal);
     }
 
     public static Dictionary<string,Scope> Link(IReadOnlyList<ParsedSource> sources,Scope global,
@@ -26,6 +28,20 @@ internal static class ModuleLinker
                     throw new CompilationFailure(Diagnostic.Error(source.File,exported,"TSCS1001",
                         "Duplicate module export names are not supported yet."));
             }
+            void AddType(Token exported,Token local,Token? from)
+            {
+                if(node.TypeExports.ContainsKey(exported.Text) ||
+                   !node.TypeReexports.TryAdd(exported.Text,new TypeExportBinding(local,from)))
+                    throw new CompilationFailure(Diagnostic.Error(source.File,exported,"TSCS1001",
+                        "Duplicate type export names are not supported yet."));
+            }
+            void AddDirectType(Token name)
+            {
+                if(node.TypeReexports.ContainsKey(name.Text) ||
+                   !node.TypeExports.TryAdd(name.Text,node.Scope.Types[name.Text]))
+                    throw new CompilationFailure(Diagnostic.Error(source.File,name,"TSCS1001",
+                        "Duplicate type export names are not supported yet."));
+            }
             foreach(var statement in source.Root.Statements)
             {
                 if(statement is Variable { Exported:true } variable)
@@ -33,12 +49,15 @@ internal static class ModuleLinker
                 else if(statement is FunctionDeclaration { Exported:true } function)
                     Add(function.Name,function.Name,null);
                 else if(statement is TypeAliasDeclaration { Exported:true } alias)
-                    node.TypeExports.Add(alias.Name.Text,node.Scope.Types[alias.Name.Text]);
+                    AddDirectType(alias.Name);
                 else if(statement is InterfaceDeclaration { Exported:true } iface)
-                    node.TypeExports.Add(iface.Name.Text,node.Scope.Types[iface.Name.Text]);
+                    AddDirectType(iface.Name);
                 else if(statement is ExportDeclaration declaration)
                     foreach(var specifier in declaration.Specifiers)
-                        Add(specifier.Exported,specifier.Local,declaration.ModulePath);
+                    {
+                        if(declaration.TypeOnly)AddType(specifier.Exported,specifier.Local,declaration.ModulePath);
+                        else Add(specifier.Exported,specifier.Local,declaration.ModulePath);
+                    }
             }
             nodes.Add(source.File,node);
         }
@@ -100,6 +119,53 @@ internal static class ModuleLinker
             finally { active.RemoveAt(active.Count-1); }
         }
 
+        // Follow type-only reexports through the canonical module graph before
+        // staging import-type aliases, preserving the original TypeBinding.
+        TypeBinding? ResolveType(string file,string exportedName,List<(string File,string Name)> active)
+        {
+            var module=nodes[file];
+            file=module.Source.File;
+            if(module.TypeExports.TryGetValue(exportedName,out var direct))return direct;
+            if(!module.TypeReexports.TryGetValue(exportedName,out var entry))return null;
+            if(active.Count>=256 || active.Any(x=>comparer.Equals(x.File,file) &&
+                StringComparer.Ordinal.Equals(x.Name,exportedName)))
+                throw new CompilationFailure(Diagnostic.Error(file,entry.Local,"TSCS1001",
+                    "Cyclic or excessively deep type re-exports are not supported yet."));
+            active.Add((file,exportedName));
+            try
+            {
+                if(entry.From is { } from)
+                {
+                    var target=Target(file,from);
+                    var binding=ResolveType(target,entry.Local.Text,active);
+                    if(binding is null)
+                        throw new CompilationFailure(Diagnostic.Error(file,entry.Local,"TS2305",
+                            $"Module '{from.Value}' has no exported type member '{entry.Local.Text}'."));
+                    return binding;
+                }
+                if(module.Scope.Types.TryGetValue(entry.Local.Text,out var local))return local;
+                foreach(var import in module.Source.Root.Statements.OfType<ImportDeclaration>().Where(x=>x.TypeOnly))
+                    foreach(var specifier in import.Specifiers)
+                        if(StringComparer.Ordinal.Equals(specifier.Local.Text,entry.Local.Text))
+                        {
+                            var target=Target(file,import.ModulePath);
+                            var binding=ResolveType(target,specifier.Imported.Text,active);
+                            if(binding is null)
+                                throw new CompilationFailure(Diagnostic.Error(file,specifier.Imported,"TS2305",
+                                    $"Module '{import.ModulePath.Value}' has no exported type member '{specifier.Imported.Text}'."));
+                            return binding;
+                        }
+                throw new CompilationFailure(Diagnostic.Error(file,entry.Local,"TS2304",
+                    $"Cannot find name '{entry.Local.Text}'."));
+            }
+            finally { active.RemoveAt(active.Count-1); }
+        }
+
+        // Invalid re-exports must fail even when no consumer imports them.
+        foreach(var (file,node) in nodes)
+            foreach(var name in node.TypeReexports.Keys)
+                _=ResolveType(file,name,[]);
+
         // Type imports are linked before any value signatures are prebound:
         // exported functions may reference type names imported from another file.
         // The original declaring scope stays attached to each TypeBinding.
@@ -110,7 +176,8 @@ internal static class ModuleLinker
                 var target=Target(file,import.ModulePath);
                 foreach(var specifier in import.Specifiers)
                 {
-                    if(!nodes[target].TypeExports.TryGetValue(specifier.Imported.Text,out var binding))
+                    var binding=ResolveType(target,specifier.Imported.Text,[]);
+                    if(binding is null)
                         throw new CompilationFailure(Diagnostic.Error(file,specifier.Imported,"TS2305",
                             $"Module '{import.ModulePath.Value}' has no exported type member '{specifier.Imported.Text}'."));
                     Binder.ImportType(file,node.Scope,specifier,binding);

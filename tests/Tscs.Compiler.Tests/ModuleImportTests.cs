@@ -224,4 +224,55 @@ public sealed class ModuleImportTests
         Assert.Equal("Type 'string' is not assignable to type 'boolean'.",error.Message);
     }
 
+
+    [Fact]
+    public void TypeOnlyExportsTraverseTransitiveAndLocalAliasChains()
+    {
+        var host=new Host();
+        host.Files["/virtual/models.ts"]="export interface Reading { value: number } export type Choice = Reading | number;";
+        host.Files["/virtual/barrel.ts"]="export type { Reading as Model, Choice } from \"./models.js\";";
+        host.Files["/virtual/relay.ts"]="import type { Model } from \"./barrel.js\"; export type { Model as PublicModel };";
+        host.Files["/virtual/logic.ts"]="import type { PublicModel } from \"./relay.js\"; export function twice(x: PublicModel): number { return x.value * 2; }";
+        host.Files["/virtual/main.ts"]="import type { PublicModel } from \"./relay.js\"; import { twice } from \"./logic.js\"; const x: PublicModel = {value: 21}; export const result: number = twice(x);";
+        var program=CompilerProgram.Load(host,["main.ts"],new CompilerOptions
+            {NoLib=true,Target=CompilerTarget.Es2015,Module=CompilerModule.Es2015});
+        Assert.Equal(5,program.Sources.Count);
+        Assert.Empty(program.Analyze().Diagnostics);
+        var output=program.EmitJavaScript();
+        Assert.Equal(5,output.Count);
+        Assert.All(output,item=>Assert.DoesNotContain("export type",item.Text,StringComparison.Ordinal));
+        Assert.All(output,item=>Assert.DoesNotContain("import type",item.Text,StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void TypeOnlyReexportErrorsNeverBecomeSuccess()
+    {
+        var host=new Host();
+        host.Files["/virtual/model.ts"]="export type Present = number;";
+        host.Files["/virtual/main.ts"]="export type { Missing } from \"./model.js\";";
+        Assert.Equal("TS2305",Assert.Single(CompilerProgram.Load(host,["main.ts"]).Analyze().Diagnostics).Code);
+        host.Files["/virtual/main.ts"]="export type { Missing };";
+        Assert.Equal("TS2304",Assert.Single(CompilerProgram.Load(host,["main.ts"]).Analyze().Diagnostics).Code);
+        host.Files["/virtual/main.ts"]="type Present = number; export type { Present as P, Present as P };";
+        Assert.Equal("TSCS1001",Assert.Single(CompilerProgram.Load(host,["main.ts"]).Analyze().Diagnostics).Code);
+        host.Files["/virtual/main.ts"]="export type { Present } from \"./model.js\"; export type { Present } from \"./model.js\";";
+        Assert.Equal("TSCS1001",Assert.Single(CompilerProgram.Load(host,["main.ts"]).Analyze().Diagnostics).Code);
+        host.Files["/virtual/main.ts"]="export type { Present } from \"./cycle.js\";";
+        host.Files["/virtual/cycle.ts"]="export type { Present } from \"./main.js\";";
+        Assert.Equal("TSCS1001",Assert.Single(CompilerProgram.Load(host,["main.ts"]).Analyze().Diagnostics).Code);
+    }
+
+    [Fact]
+    public void TypeOnlyReexportDoesNotInventValuesOrExposePrivateTypes()
+    {
+        var host=new Host();
+        host.Files["/virtual/model.ts"]="type Hidden = number; export type Public = string;";
+        host.Files["/virtual/barrel.ts"]="export type { Public } from \"./model.js\";";
+        host.Files["/virtual/main.ts"]="import type { Public } from \"./barrel.js\"; let x: Public = 42;";
+        Assert.Equal("TS2322",Assert.Single(CompilerProgram.Load(host,["main.ts"]).Analyze().Diagnostics).Code);
+        host.Files["/virtual/main.ts"]="import type { Hidden } from \"./barrel.js\"; let x: Hidden = 42;";
+        Assert.Equal("TS2305",Assert.Single(CompilerProgram.Load(host,["main.ts"]).Analyze().Diagnostics).Code);
+        host.Files["/virtual/main.ts"]="import { Public } from \"./barrel.js\"; let x: number = Public;";
+        Assert.Equal("TS2305",Assert.Single(CompilerProgram.Load(host,["main.ts"]).Analyze().Diagnostics).Code);
+    }
 }
