@@ -65,7 +65,9 @@ internal static class JavaScriptEmitter
                     break;
                 case CompoundAssignment compound:
                     Indent(depth);
-                    if(compound.Operator.Kind==TokenKind.PowerEqual)
+                    if(compound.Operator.Kind is TokenKind.AmpAmpEqual or TokenKind.BarBarEqual or TokenKind.QuestionQuestionEqual)
+                        WriteLogicalCompound(compound);
+                    else if(compound.Operator.Kind==TokenKind.PowerEqual)
                         WritePowerCompound(compound);
                     else
                     {
@@ -402,6 +404,34 @@ internal static class JavaScriptEmitter
             return names;
         }
 
+        private void WriteLogicalCompound(CompoundAssignment compound)
+        {
+            // ES2015 has no logical assignments. A checked identifier target
+            // has no receiver/getter or index effects. The ??= lowering also
+            // captures the value exactly once and keeps the RHS lazy.
+            if(compound.Target is not ValueAtom { Token.Kind:TokenKind.Identifier } identifier)
+                throw new NotSupportedException("Logical compound assignment requires a checked identifier.");
+            var name=identifier.Token.Text;
+            if(compound.Operator.Kind==TokenKind.QuestionQuestionEqual)
+            {
+                var referenced=ReferencedValueNames(compound.Value);
+                referenced.Add(name);
+                var old=FreshPowerTemporary(referenced);
+                output.Append("((").Append(old).Append(") => ")
+                    .Append(old).Append(" == null ? (").Append(name).Append(" = ");
+                WriteExpression(compound.Value);
+                output.Append(") : ").Append(old).Append(")(").Append(name).Append(')');
+            }
+            else
+            {
+                output.Append('(').Append(name)
+                    .Append(compound.Operator.Kind==TokenKind.AmpAmpEqual?" && (":" || (")
+                    .Append(name).Append(" = ");
+                WriteExpression(compound.Value);
+                output.Append("))");
+            }
+        }
+
         private void WritePowerCompound(CompoundAssignment compound)
         {
             // ES2015 has no ** or **=. Use Math.pow, preserving one evaluation
@@ -471,7 +501,9 @@ internal static class JavaScriptEmitter
                     WriteExpression(expression.Value);
                     break;
                 case CompoundAssignment compound:
-                    if(compound.Operator.Kind==TokenKind.PowerEqual)
+                    if(compound.Operator.Kind is TokenKind.AmpAmpEqual or TokenKind.BarBarEqual or TokenKind.QuestionQuestionEqual)
+                        WriteLogicalCompound(compound);
+                    else if(compound.Operator.Kind==TokenKind.PowerEqual)
                         WritePowerCompound(compound);
                     else
                     {

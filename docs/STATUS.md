@@ -1,3 +1,18 @@
+## 2026-10-31 — Bounded logical assignment operators (candidate; NOT_RUN)
+
+The shared scanner/parser/checker accepts short-circuit `&&=`, `||=`,
+and `??=` on initialized mutable identifier lvalues. Checked boolean
+`&&=`/`||=` and nullable `??=` preserve lazy RHS evaluation and
+lower into ES2015 without emitting native logical assignment syntax.
+Rebinding invalidates stale flow facts; const, imports and reads before
+initialization fail closed. Member/index logical assignment and
+general JavaScript truthiness are not yet implemented.
+Four-module runtime execution, negative no-JS programs and 12
+bounded pinned-Go diagnostic/exit cases are registered, NOT_RUN before CI.
+Original TS7 remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED,
+dynamic scope UNEXPANDED. Internal regressions do not count as upstream
+acceptance; no release gate, pin or test-count minimum was changed.
+
 ## 2026-10-31 — Checked nested and effectful optional deletion (candidate; NOT_RUN)
 
 Finite optional-member deletion now accepts type-checked nested object receivers,

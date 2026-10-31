@@ -140,11 +140,11 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                     }
                 }
                 else if(first=='&' && position<text.Length && text[position]=='&')
-                { position++;kind=TokenKind.AmpAmp; }
+                { position++;kind=TokenKind.AmpAmp; if(position<text.Length && text[position]=='=') { position++;kind=TokenKind.AmpAmpEqual; } }
                 else if(first=='|' && position<text.Length && text[position]=='|')
-                { position++;kind=TokenKind.BarBar; }
+                { position++;kind=TokenKind.BarBar; if(position<text.Length && text[position]=='=') { position++;kind=TokenKind.BarBarEqual; } }
                 else if(first=='?' && position<text.Length && text[position]=='?')
-                { position++;kind=TokenKind.QuestionQuestion; }
+                { position++;kind=TokenKind.QuestionQuestion; if(position<text.Length && text[position]=='=') { position++;kind=TokenKind.QuestionQuestionEqual; } }
                 else if(first=='?' && position<text.Length && text[position]=='.' &&
                         (position+1==text.Length || text[position+1] is not (>= '0' and <= '9')))
                 { position++;kind=TokenKind.QuestionDot; }

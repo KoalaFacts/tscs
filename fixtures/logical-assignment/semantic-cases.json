@@ -1,0 +1,73 @@
+{
+  "kind": "BOUNDED_LOGICAL_ASSIGNMENT_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "logical-assignment:positive-01",
+      "source": "let n:number|null=null;n??=21;",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-02",
+      "source": "let n:number|null=21;n??=42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-03",
+      "source": "function choose(n:number|null):number{n??=42;return n!;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-04",
+      "source": "let flag:boolean=true;flag&&=false;",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-05",
+      "source": "let flag:boolean=false;flag||=true;",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-06",
+      "source": "function choose(v:boolean):boolean{v&&=false;v||=true;return v;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-07",
+      "source": "let x:string|undefined=undefined;x??=\"ready\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-08",
+      "source": "let x:number|null|undefined=null;x??=1;",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:negative-01",
+      "source": "let n:number|null=null;n??=\"bad\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "logical-assignment:negative-02",
+      "source": "const n:number|null=null;n??=42;",
+      "expectedCodes": [
+        "TS2588"
+      ]
+    },
+    {
+      "id": "logical-assignment:negative-03",
+      "source": "let b:boolean=true;b&&=21;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "logical-assignment:negative-04",
+      "source": "let b:boolean=false;b||=\"bad\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}
