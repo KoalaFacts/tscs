@@ -669,8 +669,13 @@ internal sealed class Parser(string file, List<Token> tokens)
         {
             var keyword=Take();
             var operand=ReadTypePart(depth+1);
-            if(operand is not ArrayTypeSyntax array || array.Readonly)
+            if(operand is not ArrayTypeSyntax array)
+            {
                 Unsupported(keyword,"The readonly type modifier currently requires an array type.");
+                return default!;
+            }
+            if(array.Readonly)
+                Unsupported(keyword,"Repeated readonly array modifiers are not supported.");
             type=array with {Readonly=true};
         }
         else if(Current.Kind==TokenKind.Identifier && Current.Text=="keyof")

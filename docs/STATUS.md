@@ -1,3 +1,17 @@
+## 2026-11-01 — Bounded readonly array annotations (candidate; NOT_RUN)
+
+The checked C# type pipeline now distinguishes `readonly T[]` from mutable
+`T[]` through aliases, checked array reads, length and for..of. Mutable arrays
+may be viewed through readonly references; readonly references cannot flow
+back into mutable array contracts. Index assignment, updates and length writes
+are rejected on readonly arrays, while a nested mutable element remains writable.
+Source-backed C# tests, four linked ES2015 runtime modules, negative no-JS cases
+and 13 additive frozen pinned-Go source/code/exit cases are registered as NOT_RUN
+until exact-head validation. This does not implement `ReadonlyArray<T>`, tuples,
+or mapped readonly types. Original TS7 acceptance remains 0 PASS /
+15,523 SKIP_UNIMPLEMENTED; dynamic scope UNEXPANDED. No pin, release gate,
+threshold or protection changes.
+
 ## 2026-11-01 — Checked radix numeric literals (candidate; NOT_RUN)
 
 Hexadecimal, binary and octal safe integers with digit separators now reuse
