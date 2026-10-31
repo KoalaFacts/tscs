@@ -1,0 +1,77 @@
+{
+  "kind": "BOUNDED_NO_SUBSTITUTION_TEMPLATE_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "pin": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "cases": [
+    {
+      "id": "no-substitution-template:positive-01",
+      "source": "let label: string = `hello`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-02",
+      "source": "let label: \"hello\" = `hello`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-03",
+      "source": "type Label = `ready`; let label: Label = `ready`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-04",
+      "source": "function read(s: string): string { return `head` + s; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-05",
+      "source": "let n: number = `hello`.length;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-06",
+      "source": "let c: string = `hello`[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-07",
+      "source": "let b: boolean = `alpha` < `beta`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-08",
+      "source": "let s: string = `escaped \\` tick`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-09",
+      "source": "let s: string = `literal \\${name}`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-10",
+      "source": "let s: string = `first\nsecond`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:negative-01",
+      "source": "let n: number = `hello`;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "no-substitution-template:negative-02",
+      "source": "let n: \"right\" = `wrong`;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "no-substitution-template:negative-03",
+      "source": "let s: string = `hello`.missing;",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    }
+  ]
+}

@@ -37,6 +37,7 @@ node tools/verify-exponent-emit.ts
 node tools/verify-numeric-literal-emit.ts
 node tools/verify-string-add-emit.ts
 node tools/verify-string-primitive-emit.ts
+node tools/verify-no-substitution-template-emit.ts
 node tools/verify-type-operators-emit.ts
 node tools/verify-switch-emit.ts
 node tools/verify-switch-completion-emit.ts

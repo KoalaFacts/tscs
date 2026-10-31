@@ -41,7 +41,7 @@ public sealed class LiteralTypeTests
 
     [Theory]
     [InlineData("type X = 1e;")]
-    [InlineData("type X = `template`;")]
+    [InlineData("type X = `${string}`;")]
     [InlineData("type X = -\"wrong\";")]
     [InlineData("type X = \"yes\" & \"no\";")]
     public void UnsupportedLiteralSyntaxDoesNotSilentlySucceed(string code)=>

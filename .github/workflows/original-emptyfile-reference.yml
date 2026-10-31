@@ -61,6 +61,7 @@ jobs:
           node tools/verify-division-reference.ts "$reference" .artifacts/numeric-literals-reference fixtures/numeric-literals/semantic-cases.json
            node tools/verify-division-reference.ts "$reference" .artifacts/string-addition-reference fixtures/string-addition/semantic-cases.json
           node tools/verify-division-reference.ts "$reference" .artifacts/string-primitives-reference fixtures/string-primitives/semantic-cases.json
+          node tools/verify-division-reference.ts "$reference" .artifacts/no-substitution-template-reference fixtures/no-substitution-template/semantic-cases.json
           node tools/verify-type-operators-reference.ts "$reference" .artifacts/type-operators-reference
           node tools/verify-switch-reference.ts "$reference" .artifacts/switch-reference
           node tools/verify-switch-reference.ts "$reference" .artifacts/switch-completion-reference fixtures/switch-completion/semantic-cases.json
@@ -365,6 +366,14 @@ jobs:
           path: .artifacts/type-operators-reference/
           retention-days: 30
           if-no-files-found: warn
+      - name: Preserve bounded no-substitution template reference evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pinned-no-substitution-template-reference-${{ github.sha }}
+          path: .artifacts/no-substitution-template-reference/
+          if-no-files-found: warn
+          retention-days: 30
       - name: Preserve string primitive reference inputs and raw results
         if: always()
         uses: actions/upload-artifact@v4
