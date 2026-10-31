@@ -244,7 +244,9 @@ This is distinct from a `void` function return annotation. The `delete` operator
 Untagged backtick strings without `${...}` expressions use checked string/literal
 semantics and native ES2015 output. Escaped backticks, escaped `${` and
 multiline values are supported. Interpolated/tagged templates are **not**
-implemented and fail closed; full template literal types are not claimed.
+implemented and fail closed, including tagged calls across line breaks. Backticks
+cannot replace quoted module specifiers or bare quoted object/type property keys.
+Full template literal types are not claimed.
 
 ## Other implemented subsets
 

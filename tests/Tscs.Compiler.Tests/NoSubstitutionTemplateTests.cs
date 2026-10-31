@@ -26,6 +26,21 @@ public sealed class NoSubstitutionTemplateTests
     public void TemplateValuesRequireCorrectTypes(string source,string code) =>
         Assert.Contains(Compilation.Check("invalid-template.ts",source),d=>d.Code==code);
 
+    [Theory]
+    [InlineData("function tag(s: any): number { return 1; } const result = tag\n`hello`;")]
+    [InlineData("let label: string = \"value\"\n`hello`;")]
+    [InlineData("let data = { `key`: 21 };")]
+    [InlineData("type Data = { `key`: number };")]
+    [InlineData("import { value } from `./model.js`;")]
+    [InlineData("export { value } from `./model.js`;")]
+    public void TaggedOrQuotedOnlyTemplateSyntaxCannotBecomeInvalidJavaScript(string source) =>
+        Assert.Contains(Compilation.Check("unsafe-template.ts",source),d=>d.Code=="TSCS1001");
+
+    [Fact]
+    public void ATemplateAfterBareReturnIsNotMistakenForATag() =>
+        Assert.Empty(Compilation.Check("return-template.ts",
+            "function f(): void { return\n`standalone`; }"));
+
     [Fact]
     public void PhysicalCrLfIsAValidTemplateLineBreak() =>
         Assert.Empty(Compilation.Check("linebreak-template.ts","let s: string = `one\r\ntwo`;"));

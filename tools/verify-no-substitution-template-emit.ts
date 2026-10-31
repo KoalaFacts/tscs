@@ -51,6 +51,10 @@ try {
     ['wrong-literal','let s: "target" = `other`;','TS2322',2],
     ['unknown-member','let s: string = `hello`.missing;','TS2339',2],
     ['unimplemented-interpolation','let s: string = `hello${21}`;','TSCS1001',1],
+    ['tagged-newline','function tag(s: any): number { return 1; }\nlet result = tag\n`hello`;','TSCS1001',1],
+    ['unquoted-object-key','let data = { `key`: 21 };','TSCS1001',1],
+    ['unquoted-type-key','type Data = { `key`: number };','TSCS1001',1],
+    ['unquoted-module','import { value } from `./model.js`;','TSCS1001',1],
   ] as const;
   for(const [name,source,code,exit] of invalid){
     const path=join(folder,name+'.ts');
@@ -63,5 +67,5 @@ try {
     assert.match(rejected.stdout+rejected.stderr,new RegExp(code));
     assert.equal(existsSync(join(folder,name+'.js')),false,name+' emitted JS');
   }
-  console.log('no-substitution templates: 4 linked ES2015 modules executed; 4 invalid programs blocked.');
+  console.log('no-substitution templates: 4 linked ES2015 modules executed; 8 invalid programs blocked.');
 } finally {rmSync(folder,{recursive:true,force:true});}

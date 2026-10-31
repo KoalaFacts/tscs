@@ -61,8 +61,8 @@ internal sealed class Parser(string file, List<Token> tokens)
                 if(Current.Kind!=TokenKind.Identifier || Current.Text!="from")
                     Unsupported(Current,"Expected 'from' in an import declaration.");
                 Take();
-                if(Current.Kind!=TokenKind.String)
-                    Unsupported(Current,"Expected a string module specifier.");
+                if(Current.Kind!=TokenKind.String || IsNoSubstitutionTemplate(Current))
+                    Unsupported(Current,"Expected a quoted string module specifier.");
                 var module=Take();
                 statements.Add(new ImportDeclaration(module,specifiers,typeOnly));
                 EndStatement();
@@ -104,8 +104,8 @@ internal sealed class Parser(string file, List<Token> tokens)
                     if(Current.Kind==TokenKind.Identifier && Current.Text=="from")
                     {
                         Take();
-                        if(Current.Kind!=TokenKind.String)
-                            Unsupported(Current,"Expected a string module specifier in a re-export.");
+                        if(Current.Kind!=TokenKind.String || IsNoSubstitutionTemplate(Current))
+                            Unsupported(Current,"Expected a quoted string module specifier in a re-export.");
                         from=Take();
                         if(exports.Count==0)
                             Unsupported(from.Value,"An empty re-export list is not supported.");
@@ -277,7 +277,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                 if(Current.Kind is TokenKind.Semi or TokenKind.End or TokenKind.Close)
                     throw new CompilationFailure(Diagnostic.Error(file,Current,"TS1109","Expression expected."));
                 statements.Add(new ThrowStatement(keyword,ParseValue()));
-                EndStatement();
+                EndStatement(rejectTemplateContinuation:true);
                 continue;
             }
             if(Current.Kind==TokenKind.Return)
@@ -289,7 +289,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                 var returnExpression=Current.LineBreak || Current.Kind is TokenKind.Semi or TokenKind.End or TokenKind.Close
                     ? null : ParseValue();
                 statements.Add(new ReturnStatement(keyword,returnExpression));
-                EndStatement();
+                EndStatement(rejectTemplateContinuation:returnExpression is not null);
                 continue;
             }
             if(Current.Kind is TokenKind.Let or TokenKind.Const)
@@ -315,7 +315,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                         if(Current.Kind==TokenKind.Let) { Take(); Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","',' expected.")); }
                         continue;
                     }
-                    EndStatement();break;
+                    EndStatement(rejectTemplateContinuation:initializer is not null);break;
                 }
                 continue;
             }
@@ -340,7 +340,7 @@ internal sealed class Parser(string file, List<Token> tokens)
                 else Unsupported(Current,"Only identifier, named-property or array-element assignment targets are supported.");
             }
             else statements.Add(new Expression(value));
-            EndStatement();
+            EndStatement(rejectTemplateContinuation:true);
         }
         return new Block(statements);
     }
@@ -847,7 +847,7 @@ internal sealed class Parser(string file, List<Token> tokens)
         if(Current.Kind is TokenKind.Identifier or TokenKind.Let or TokenKind.Const or
             TokenKind.Import or TokenKind.Export or TokenKind.Type or TokenKind.Interface or TokenKind.Extends or TokenKind.Function or TokenKind.Return or TokenKind.Void or TokenKind.Delete or TokenKind.Throw or TokenKind.Try or TokenKind.Catch or TokenKind.Finally or
             TokenKind.If or TokenKind.Else or TokenKind.For or TokenKind.While or TokenKind.Do or TokenKind.Break or TokenKind.Continue or TokenKind.In or TokenKind.Typeof or TokenKind.True or TokenKind.False ||
-            (allowString && Current.Kind==TokenKind.String))return Take();
+            (allowString && Current.Kind==TokenKind.String && !IsNoSubstitutionTemplate(Current)))return Take();
         Unsupported(Current,"Expected a supported named object property.");
         return default;
     }
@@ -1449,8 +1449,18 @@ internal sealed class Parser(string file, List<Token> tokens)
         Unsupported(token,"Only primitive, object, named-property, parenthesized and named-call expressions are supported.");
         return default!;
     }
-    private void EndStatement()
+    // No-substitution templates are valid expressions, but a preceding value
+    // can act as a tag even across a newline (ASI does NOT split a tag call).
+    // Do not silently turn an unsupported tagged call into two JS statements.
+    // This check applies to expression-valued statements only; a bare return
+    // and type-only/module declarations can still use normal ASI.
+    private static bool IsNoSubstitutionTemplate(Token token) =>
+        token.Kind==TokenKind.String && token.Text.Length>0 && token.Text[0]=='`';
+
+    private void EndStatement(bool rejectTemplateContinuation=false)
     {
+        if(rejectTemplateContinuation && IsNoSubstitutionTemplate(Current))
+            Unsupported(Current,"Tagged template continuations are not supported.");
         if(Eat(TokenKind.Semi)||Current.Kind is TokenKind.End or TokenKind.Close||Current.LineBreak)return;
         Unsupported(Current,"This expression or statement form is not supported yet.");
     }

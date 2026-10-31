@@ -5,7 +5,11 @@ retaining checked literal/string types and native ES2015 output. Source-backed
 xUnit, four linked Node modules and 13 frozen pinned-Go code/exit cases are
 registered as NOT_RUN pending exact-head gates. Escaped backticks, literal
 `${` and physical line breaks are supported; interpolation `${expression}`
-remains explicitly unsupported and fails closed. Full original TS7 acceptance
+remains explicitly unsupported and fails closed. Tagged call continuations,
+including cross-newline tags, and backticks in quoted-only module/property positions
+are rejected instead of emitting malformed JavaScript. The original pre-feature
+negative literal syntax regression now tests interpolation, which remains
+unimplemented; no regression was skipped or removed. Full original TS7 acceptance
 remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic scope UNEXPANDED.
 
 ## 2026-11-01 — Single-statement loop bodies (source candidate; NOT_RUN until exact-head gates)
