@@ -68,4 +68,26 @@ public sealed class InOperatorTests
     [InlineData("type Entry={value?:number}|{message:string};function bad(e:Entry,key:string):number {if(key in e){return e.value??0;}return 0;}", "TS2339")]
     public void OptionalKeyAbsenceOrDynamicKeyDoesNotProveMembers(string source,string code) =>
         Assert.Contains(Compilation.Check("in-optional-flow-negative.ts",source),d=>d.Code==code);
+
+    // A static key is not a dynamic string lookup: only its proven value may
+    // narrow a finite union. Errors must remain real compiler failures.
+    [Theory]
+    [InlineData("type E={value:number}|{message:string};function read(e:E):number{const key=\"value\";if(key in e){return e.value;}return 0;}")]
+    [InlineData("type E={value:number}|{message:string};function read(e:E):number{const key=\"value\";if(!(key in e)){return 0;}return e.value;}")]
+    [InlineData("type E={value:number}|{message:string};function read(e:E,key:\"value\"):number{if(key in e){return e.value;}return 0;}")]
+    [InlineData("type E={value:number}|{message:string};function read(e:E):number{let key:\"value\"=\"value\";if(key in e){return e.value;}return 0;}")]
+    [InlineData("type E={0:number}|{message:string};function read(e:E):number{if(0 in e){return e[0];}return 0;}")]
+    [InlineData("type E={0:number}|{message:string};function read(e:E):number{const key=0;if(key in e){return e[0];}return 0;}")]
+    [InlineData("type E={value?:number}|{message:string};function read(e:E):number{const key=\"value\";if(key in e){return e.value??0;}return 0;}")]
+    [InlineData("type E={value:number}|{message:string};function read(e:E):number{const key=\"value\";return key in e?e.value:0;}")]
+    public void FiniteStaticInKeysNarrowUnionAlternatives(string source) =>
+        Assert.Empty(Compilation.Check("static-in-key.ts",source));
+
+    [Theory]
+    [InlineData("type E={value:number}|{message:string};function bad(e:E,key:string):number{if(key in e){return e.value;}return 0;}", "TS2339")]
+    [InlineData("type E={value:number}|{message:string};function bad(e:E):number{const key:string=\"value\";if(key in e){return e.value;}return 0;}", "TS2339")]
+    [InlineData("type E={value:number}|{message:string};function bad(e:E):number{let key=\"value\";if(key in e){return e.value;}return 0;}", "TS2339")]
+    [InlineData("type E={value:number}|{message:string};function bad(e:E):string{const key=\"value\";if(key in e){return e.message;}return \"ok\";}", "TS2339")]
+    public void DynamicKeysAndWrongMembersRemainRejected(string source,string code) =>
+        Assert.Contains(Compilation.Check("static-in-key-invalid.ts",source),d=>d.Code==code);
 }

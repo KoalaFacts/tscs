@@ -923,18 +923,82 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     }
 
 
-    // A literal property-existence guard partitions a named finite union.
-    // Required members contribute only to the present branch; missing members
-    // only to the absent branch. Optional members contribute to BOTH, because
-    // their key may exist or be absent at runtime. No dynamic-key or broad
-    // receiver inference is performed.
+    // A literal, singleton-typed variable, or directly initialized immutable
+    // literal variable has a known runtime property key. Widened/mutable keys
+    // cannot safely partition object union alternatives.
+    private static bool TryReadStaticInKey(ValueNode expression,Scope scope,out string key)
+    {
+        while(expression is ValueParenthesized group)expression=group.Expression;
+        if(expression is ValueAtom atom)
+        {
+            if(atom.Token.Kind==TokenKind.String)
+            {
+                key=Parser.PropertyName(atom.Token);
+                return true;
+            }
+            if(atom.Token.Kind==TokenKind.Number)
+                return TrySafeInIntegerKey(atom.Token.Text,out key);
+            if(atom.Token.Kind==TokenKind.Identifier)
+            {
+                var symbol=scope.Find(atom.Token.Text);
+                if(symbol is { Initialized:true })
+                {
+                    if(symbol.Type is LiteralTypeSymbol singleton)
+                    {
+                        if(singleton.Kind==PrimitiveKind.String)
+                        {
+                            key=singleton.Value;
+                            return true;
+                        }
+                        if(singleton.Kind==PrimitiveKind.Number)
+                            return TrySafeInIntegerKey(singleton.Value,out key);
+                    }
+                    // Bounded inference widens unannotated const primitives.
+                    // Their literal initializers remain stable, even via imports.
+                    // Explicit broad annotations must never be bypassed.
+                    if(symbol.IsConstant &&
+                       symbol.Declaration is Variable { Annotation:null,Initializer:{ } initializer })
+                    {
+                        while(initializer is ValueParenthesized parenthesized)
+                            initializer=parenthesized.Expression;
+                        if(initializer is ValueAtom initial)
+                        {
+                            if(initial.Token.Kind==TokenKind.String)
+                            {
+                                key=Parser.PropertyName(initial.Token);
+                                return true;
+                            }
+                            if(initial.Token.Kind==TokenKind.Number)
+                                return TrySafeInIntegerKey(initial.Token.Text,out key);
+                        }
+                    }
+                }
+            }
+        }
+        key="";
+        return false;
+    }
+
+    // Match finite, non-negative numeric member spelling. Do not guess
+    // JavaScript ToPropertyKey for fractional or unsafe large numbers.
+    private static bool TrySafeInIntegerKey(string text,out string key)
+    {
+        if(long.TryParse(text,System.Globalization.NumberStyles.None,
+               System.Globalization.CultureInfo.InvariantCulture,out var value) &&
+           value is >= 0 and <= 9007199254740991L)
+        {
+            key=value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            return true;
+        }
+        key="";
+        return false;
+    }
+
+    // Required keys partition into present/absent; optional keys contribute
+    // to both arms because the member may be absent at runtime.
     private static DiscriminantBranches? TryNarrowInProperty(ValueBinary comparison,Scope scope)
     {
-        var keyNode=comparison.Left;
-        while(keyNode is ValueParenthesized grouped)keyNode=grouped.Expression;
-        if(keyNode is not ValueAtom { Token.Kind:TokenKind.String } literal)return null;
-        var key=literal.Token.Value;
-        if(key is null)return null;
+        if(!TryReadStaticInKey(comparison.Left,scope,out var key))return null;
         var receiver=comparison.Right;
         while(receiver is ValueParenthesized receiverGroup)receiver=receiverGroup.Expression;
         if(receiver is not ValueAtom { Token.Kind:TokenKind.Identifier } name)return null;
