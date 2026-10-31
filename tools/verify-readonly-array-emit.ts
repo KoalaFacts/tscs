@@ -20,9 +20,9 @@ try {
   writeFileSync(join(folder,'minimal.d.ts'),readFileSync('fixtures/readonly-array/minimal.d.ts','utf8'));
   const modules={
     'model.ts':'export type Readings = readonly number[]; export type GenericReadings = ReadonlyArray<number>; export const mutable: number[] = [19,23]; export const view: Readings = mutable; export const genericView: GenericReadings = mutable; export const genericMutable: Array<number> = [19,23];',
-    'logic.ts':'import type {Readings,GenericReadings} from "./model.js"; export function sum(items:Readings):number { let total:number=0; for (const value of items) { total += value; } return total; } export function first(items:Readings):number { return items[0]; } export function genericSum(items:GenericReadings):number { let total:number=0; for (const value of items) { total += value; } return total; }',
-    'bridge.ts':'export {mutable,view,genericView,genericMutable} from "./model.js"; export {sum,first,genericSum} from "./logic.js";',
-    'entry.ts':'import {mutable,view,sum,first,genericView,genericMutable,genericSum} from "./bridge.js"; const copy:number[]=[...view]; copy[0]=21; const nested: Array<ReadonlyArray<number>> = [genericView]; export const result:number=sum(view); export const firstValue:number=first(view); export const sourceValue:number=mutable[0]; export const copyValue:number=copy[0]; export const genericResult:number=genericSum(nested[0]); export const genericFirst:number=genericMutable[0];'
+    'logic.ts':'import type {Readings,GenericReadings} from "./model.js"; export function sum(items:Readings):number { let total:number=0; for (const value of items) { total += value; } return total; } export function first(items:Readings):number { return items[0]; } export function genericSum(items:GenericReadings):number { let total:number=0; for (const value of items) { total += value; } return total; } export const makeGeneric = (n:number):Array<number>=>[n];',
+    'bridge.ts':'export {mutable,view,genericView,genericMutable} from "./model.js"; export {sum,first,genericSum,makeGeneric} from "./logic.js";',
+    'entry.ts':'import {mutable,view,sum,first,genericView,genericMutable,genericSum,makeGeneric} from "./bridge.js"; const copy:number[]=[...view]; copy[0]=21; const nested: Array<ReadonlyArray<number>> = [genericView]; export const result:number=sum(view); export const firstValue:number=first(view); export const sourceValue:number=mutable[0]; export const copyValue:number=copy[0]; export const genericResult:number=genericSum(nested[0]); export const genericFirst:number=genericMutable[0]; export const arrowValue:number=makeGeneric(21)[0];'
   };
   for(const [name,source] of Object.entries(modules))writeFileSync(join(folder,name),source);
   const built=compile(['--emitJs','--noLib','--module','es2015','--target','es2015','entry.ts','minimal.d.ts']);
@@ -33,7 +33,7 @@ try {
     assert.doesNotMatch(readFileSync(emitted,'utf8'),/\breadonly\b|\btype Readings\b|\bimport type\b/);
   }
   const run=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,firstValue,sourceValue,copyValue,genericResult,genericFirst} from "./entry.js"; if(result!==42||firstValue!==19||sourceValue!==19||copyValue!==21||genericResult!==42||genericFirst!==19)throw Error(JSON.stringify({result,firstValue,sourceValue,copyValue,genericResult,genericFirst}));'],
+    'import {result,firstValue,sourceValue,copyValue,genericResult,genericFirst,arrowValue} from "./entry.js"; if(result!==42||firstValue!==19||sourceValue!==19||copyValue!==21||genericResult!==42||genericFirst!==19||arrowValue!==21)throw Error(JSON.stringify({result,firstValue,sourceValue,copyValue,genericResult,genericFirst,arrowValue}));'],
     {cwd:folder,encoding:'utf8',timeout:15000});
   assert.equal(run.error,undefined,String(run.error));
   assert.equal(run.status,0,run.stdout+run.stderr);

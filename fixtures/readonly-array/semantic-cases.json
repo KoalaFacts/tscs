@@ -153,6 +153,11 @@
       "expectedCodes": [
         "TS2542"
       ]
+    },
+    {
+      "id": "readonly-array:positive-16",
+      "source": "const f=(n:number): Array<ReadonlyArray<number>>=>[[n]]; let result:number=f(21)[0][0];",
+      "expectedCodes": []
     }
   ]
 }

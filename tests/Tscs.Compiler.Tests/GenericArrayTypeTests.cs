@@ -17,6 +17,8 @@ public sealed class GenericArrayTypeTests
     [InlineData("function total(xs: ReadonlyArray<number>): number { let sum: number = 0; for (const x of xs) { sum += x; } return sum; } let n: number = total([21,21]);")]
     [InlineData("let xs: Array<Array<number>>=[[21]]; xs[0][0]=42;")]
     [InlineData("let xs: ReadonlyArray<number>= [21]; let n: number=xs[0];")]
+    [InlineData("const f=(n:number):Array<number>=>[n]; let x:number=f(21)[0];")]
+    [InlineData("const f=(n:number):Array<ReadonlyArray<number>>=>[[n]]; let x:number=f(21)[0][0];")]
     public void IntrinsicGenericsShareTheExistingArrayPipeline(string source) =>
         Assert.Empty(Compilation.Check("generic-array.ts",source));
 

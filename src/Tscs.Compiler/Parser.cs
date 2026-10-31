@@ -43,7 +43,21 @@ internal sealed class Parser(string file, List<Token> tokens)
             Kind=tail,Text=original.Text[1..],Start=original.Start+1,
             Length=original.Length-1,LineBreak=false
         });
-        return Take();
+        var closing=Take();
+        // After consuming the leading '>' of the scanner's '>=' token,
+        // its remaining '=' may join a contiguous next '>' to form '=>'.
+        // This matters for arrow returns spelled Array<T>=> without spaces.
+        if(tail==TokenKind.Equal && position+1<tokens.Count &&
+           tokens[position].Kind==TokenKind.Equal &&
+           tokens[position+1].Kind==TokenKind.GreaterThan &&
+           !tokens[position+1].LineBreak &&
+           tokens[position+1].Start==tokens[position].Start+1)
+        {
+            var equals=tokens[position];
+            tokens[position]=equals with {Kind=TokenKind.Arrow,Text="=>",Length=2};
+            tokens.RemoveAt(position+1);
+        }
+        return closing;
     }
     private bool Eat(TokenKind kind) { if(Current.Kind!=kind)return false; position++;return true; }
     public Block Parse(int depth=0,bool inFunction=false,bool switchClauseBody=false,bool singleStatementBody=false)

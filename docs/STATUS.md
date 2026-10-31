@@ -11,7 +11,7 @@ reject unsupported generic application instead of silently resolving a builtin.
 No general generic declarations, mapped types, tuples or Array methods.
 
 Source-backed xUnit checks, four actual ES2015 modules with error/no-emission
-checks and 13 additive bounded pinned-Go IDs are registered (existing 13
+checks and 14 additive bounded pinned-Go IDs are registered (existing 13
 preserved). Until exact-head validation these new checks are NOT_RUN. Original
 full TS7 acceptance remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic
 scope UNEXPANDED, and no pin/gate/threshold/protection changed.

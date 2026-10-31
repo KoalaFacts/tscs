@@ -27,7 +27,7 @@ assert.equal(suite.kind,readonlyArrays?'BOUNDED_READONLY_ARRAY_NOT_ORIGINAL_TS7_
   :power?'BOUNDED_NUMERIC_EXPONENTIATION_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :strings?'BOUNDED_STRING_ADDITION_MUTATION_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :'BOUNDED_NUMERIC_DIVISION_REMAINDER_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,readonlyArrays?26:templates?13:decimalLiterals?48:stringPrimitives?18:power?20:strings?25:24,'do not shrink the registered cohort');
+assert.equal(suite.cases.length,readonlyArrays?27:templates?13:decimalLiterals?48:stringPrimitives?18:power?20:strings?25:24,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 // The cohort includes number[] indexing and length. Use the already
 // verified array profile for BOTH compilers, not the empty bootstrap Array<T>.
