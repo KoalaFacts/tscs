@@ -157,6 +157,35 @@ public sealed class AmbientArrayGlobalsTests : IDisposable
         Assert.Contains("TSCS1002",stdout.ToString()+stderr.ToString());
     }
 
+
+    [Fact]
+    public void ExactArrayPushAmbientModelsMutableArrayReferenceSurfaceWithoutExposingCalls()
+    {
+        var (exit,output)=Compile(
+            "interface Array<T> { length:number; [index:number]:T; push(...items:T[]):number; }",
+            "const values: number[] = [21]; let n: number = values[0];");
+        Assert.Equal(0,exit);
+        Assert.Equal("",output);
+
+        // The ambient shape is only reference metadata: exposing an array
+        // method without a checked implementation would be a false pass.
+        var (unsupported,diagnostics)=Compile(
+            "interface Array<T> { length:number; [index:number]:T; push(...items:T[]):number; }",
+            "const values: number[] = [21]; values.push(42);");
+        Assert.NotEqual(0,unsupported);
+        Assert.Contains("TS2339",diagnostics);
+    }
+
+    [Theory]
+    [InlineData("interface Array<T> { length:number; [index:number]:T; push(...items:T[]):string; }")]
+    [InlineData("interface Array<T> { length:number; [index:number]:T; push(item:T):number; }")]
+    [InlineData("interface Array<T> { length:number; [index:number]:T; push(...items:T[]):number; push(...items:T[]):number; }")]
+    public void IncorrectArrayPushAmbientShapesFailClosed(string declaration)
+    {
+        var (exit,output)=Compile(declaration,"let values: number[] = [21];");
+        Assert.Equal(1,exit);
+        Assert.Contains("TSCS1002",output);
+    }
     [Fact]
     public void OriginalEmptyAmbientArrayContractRemainsAccepted()
     {

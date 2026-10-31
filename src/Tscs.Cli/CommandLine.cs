@@ -232,15 +232,18 @@ public static class CommandLine
     }
 
     // Member order and numeric-index parameter spelling are irrelevant.
-    // Both members must be present exactly once. This is validation of a
+    // Length/index must be present exactly once; the optional standard
+    // Array<T>.push declaration supplies the pinned reference's actual
+    // mutable-array distinction from ReadonlyArray<T>, but does NOT add
+    // push-call support to the checked product language. This validates a
     // source-level ambient contract, not a magic source filename or an AST
     // pass that infers arbitrary declaration types from regexes.
     private static bool IsSupportedArrayContract(string body,out bool iterator)
     {
-        var memberPattern=new Regex(@"\G\s*(?:(?<length>length\s*:\s*number)|(?<index>\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T)|(?<iterator>\[\s*Symbol\s*\.\s*iterator\s*\]\s*\(\s*\)\s*:\s*Iterator\s*<\s*T\s*>))\s*;",
+        var memberPattern=new Regex(@"\G\s*(?:(?<length>length\s*:\s*number)|(?<index>\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T)|(?<iterator>\[\s*Symbol\s*\.\s*iterator\s*\]\s*\(\s*\)\s*:\s*Iterator\s*<\s*T\s*>)|(?<push>push\s*\(\s*\.\.\.\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\[\s*\]\s*\)\s*:\s*number))\s*;",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         int position=0;
-        bool length=false,index=false;
+        bool length=false,index=false,push=false;
         iterator=false;
         while(position<body.Length)
         {
@@ -256,6 +259,11 @@ public static class CommandLine
             {
                 if(index)return false;
                 index=true;
+            }
+            else if(member.Groups["push"].Success)
+            {
+                if(push)return false;
+                push=true;
             }
             else
             {

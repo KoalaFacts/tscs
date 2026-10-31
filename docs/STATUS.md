@@ -7,8 +7,10 @@ back into mutable array contracts. Index assignment, updates and length writes
 are rejected on readonly arrays, while a nested mutable element remains writable.
 Source-backed C# tests, four linked ES2015 runtime modules, negative no-JS cases
 and 13 additive frozen pinned-Go source/code/exit cases are registered as NOT_RUN
-until exact-head validation. This does not implement `ReadonlyArray<T>`, tuples,
-or mapped readonly types. Original TS7 acceptance remains 0 PASS /
+until exact-head validation. The bounded ambient Array<T>.push signature
+makes mutable and readonly arrays structurally distinct in the fixed Go
+reference; it does not implement product array method calls. This does not
+implement `ReadonlyArray<T>` expressions, tuples or mapped readonly types. Original TS7 acceptance remains 0 PASS /
 15,523 SKIP_UNIMPLEMENTED; dynamic scope UNEXPANDED. No pin, release gate,
 threshold or protection changes.
 

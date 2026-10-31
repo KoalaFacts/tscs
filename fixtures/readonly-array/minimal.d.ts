@@ -1,4 +1,4 @@
-interface Array<T> { length: number; [index: number]: T; }
+interface Array<T> { length: number; [index: number]: T; push(...items: T[]): number; }
 interface ReadonlyArray<T> { readonly length: number; readonly [index: number]: T; }
 interface Boolean {}
 interface Function {}
