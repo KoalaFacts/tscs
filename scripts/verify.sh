@@ -17,6 +17,7 @@ node tools/verify-conformance.ts
 node tools/verify-js-emit.ts
 node tools/verify-named-types-emit.ts
 node tools/verify-readonly-emit.ts
+node tools/verify-readonly-array-emit.ts
 node tools/verify-literal-types-emit.ts
 node tools/verify-discriminant-emit.ts
 node tools/verify-guard-emit.ts

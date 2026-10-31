@@ -78,6 +78,7 @@ internal static class TypeDisplay
                         Text("[]");
                         Type(array.ElementType);
                     }
+                    if(array.Readonly)Text("readonly ");
                     break;
                 case UnionTypeSymbol union:
                     for(int i=union.Alternatives.Count-1;i>=0;i--)

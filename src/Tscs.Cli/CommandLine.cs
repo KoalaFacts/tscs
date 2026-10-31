@@ -195,6 +195,19 @@ public static class CommandLine
                 if(!valid||!extras.Add(name))
                     throw new InputFailure("Unsupported or duplicate iterable ambient declaration.");
             }
+            else if(name=="ReadonlyArray")
+            {
+                // This optional ambient interface describes the pinned Go
+                // reference's immutable array view. Do not add it to the
+                // required global list or accept arbitrary generic declarations.
+                // globals persists across all .d.ts inputs, unlike a local
+                // flag: identical index signatures in separate ambient files
+                // must not silently merge into one accepted declaration.
+                if(genericParameters!="<T>" ||
+                   !IsSupportedReadonlyArrayContract(members) ||
+                   !globals.Add(name))
+                    throw new InputFailure("Only one bounded readonly Array<T> ambient contract is supported.");
+            }
             else
             {
                 if(!GlobalTypes.Contains(name,StringComparer.Ordinal) ||
@@ -219,15 +232,18 @@ public static class CommandLine
     }
 
     // Member order and numeric-index parameter spelling are irrelevant.
-    // Both members must be present exactly once. This is validation of a
+    // Length/index must be present exactly once; the optional standard
+    // Array<T>.push declaration supplies the pinned reference's actual
+    // mutable-array distinction from ReadonlyArray<T>, but does NOT add
+    // push-call support to the checked product language. This validates a
     // source-level ambient contract, not a magic source filename or an AST
     // pass that infers arbitrary declaration types from regexes.
     private static bool IsSupportedArrayContract(string body,out bool iterator)
     {
-        var memberPattern=new Regex(@"\G\s*(?:(?<length>length\s*:\s*number)|(?<index>\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T)|(?<iterator>\[\s*Symbol\s*\.\s*iterator\s*\]\s*\(\s*\)\s*:\s*Iterator\s*<\s*T\s*>))\s*;",
+        var memberPattern=new Regex(@"\G\s*(?:(?<length>length\s*:\s*number)|(?<index>\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T)|(?<iterator>\[\s*Symbol\s*\.\s*iterator\s*\]\s*\(\s*\)\s*:\s*Iterator\s*<\s*T\s*>)|(?<push>push\s*\(\s*\.\.\.\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\[\s*\]\s*\)\s*:\s*number))\s*;",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         int position=0;
-        bool length=false,index=false;
+        bool length=false,index=false,push=false;
         iterator=false;
         while(position<body.Length)
         {
@@ -244,10 +260,44 @@ public static class CommandLine
                 if(index)return false;
                 index=true;
             }
+            else if(member.Groups["push"].Success)
+            {
+                if(push)return false;
+                push=true;
+            }
             else
             {
                 if(iterator)return false;
                 iterator=true;
+            }
+            position+=member.Length;
+        }
+        return length&&index;
+    }
+
+    // The optional readonly array global is accepted only when both
+    // immutable structural contracts are present exactly once. This is
+    // strictly ambient validation, not a generic value-declaration parser.
+    private static bool IsSupportedReadonlyArrayContract(string body)
+    {
+        var memberPattern=new Regex(@"\G\s*(?:(?<length>readonly\s+length\s*:\s*number)|(?<index>readonly\s+\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T))\s*;",
+            RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
+        int position=0;
+        bool length=false,index=false;
+        while(position<body.Length)
+        {
+            if(string.IsNullOrWhiteSpace(body[position..]))break;
+            var member=memberPattern.Match(body,position);
+            if(!member.Success)return false;
+            if(member.Groups["length"].Success)
+            {
+                if(length)return false;
+                length=true;
+            }
+            else
+            {
+                if(index)return false;
+                index=true;
             }
             position+=member.Length;
         }

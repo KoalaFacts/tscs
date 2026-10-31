@@ -14,7 +14,7 @@ internal sealed record PrimitiveTypeSyntax(Token Name) : TypeSyntax;
 internal sealed record LiteralTypeSyntax(Token Literal,bool Negative=false) : TypeSyntax;
 internal sealed record ObjectTypeProperty(Token Name,TypeSyntax Type,bool Readonly=false,bool Optional=false);
 internal sealed record ObjectTypeSyntax(Token Open,IReadOnlyList<ObjectTypeProperty> Properties,Token Close) : TypeSyntax;
-internal sealed record ArrayTypeSyntax(TypeSyntax Element,Token Open,Token Close) : TypeSyntax;
+internal sealed record ArrayTypeSyntax(TypeSyntax Element,Token Open,Token Close,bool Readonly=false) : TypeSyntax;
 internal sealed record NamedTypeSyntax(Token Name) : TypeSyntax;
 // Named callback signatures are type-only; typed expression arrows are checked value expressions.
 internal sealed record FunctionTypeParameter(Token Name,TypeSyntax Type,bool Optional=false,bool Rest=false);

@@ -663,7 +663,22 @@ internal sealed class Parser(string file, List<Token> tokens)
     {
         if(depth>64)Unsupported(Current,"Type nesting exceeds the compiler subset limit.");
         TypeSyntax type;
-        if(Current.Kind==TokenKind.Identifier && Current.Text=="keyof")
+        // A prefix readonly modifier applies to the outermost array only.
+        // Other readonly type operators (including tuples) remain unsupported.
+        if(Current.Kind==TokenKind.Identifier && Current.Text=="readonly")
+        {
+            var keyword=Take();
+            var operand=ReadTypePart(depth+1);
+            if(operand is not ArrayTypeSyntax array)
+            {
+                Unsupported(keyword,"The readonly type modifier currently requires an array type.");
+                return default!;
+            }
+            if(array.Readonly)
+                Unsupported(keyword,"Repeated readonly array modifiers are not supported.");
+            type=array with {Readonly=true};
+        }
+        else if(Current.Kind==TokenKind.Identifier && Current.Text=="keyof")
         {
             var keyword=Take();
             type=new KeyofTypeSyntax(keyword,ReadTypePart(depth+1));

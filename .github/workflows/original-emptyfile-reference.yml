@@ -59,6 +59,7 @@ jobs:
            node tools/verify-division-reference.ts "$reference" .artifacts/numeric-division-reference
           node tools/verify-division-reference.ts "$reference" .artifacts/numeric-exponent-reference fixtures/numeric-exponent/semantic-cases.json
           node tools/verify-division-reference.ts "$reference" .artifacts/numeric-literals-reference fixtures/numeric-literals/semantic-cases.json
+          node tools/verify-division-reference.ts "$reference" .artifacts/readonly-array-reference fixtures/readonly-array/semantic-cases.json
            node tools/verify-division-reference.ts "$reference" .artifacts/string-addition-reference fixtures/string-addition/semantic-cases.json
           node tools/verify-division-reference.ts "$reference" .artifacts/string-primitives-reference fixtures/string-primitives/semantic-cases.json
           node tools/verify-division-reference.ts "$reference" .artifacts/no-substitution-template-reference fixtures/no-substitution-template/semantic-cases.json
@@ -95,6 +96,14 @@ jobs:
           node tools/verify-function-expression-reference.ts "$reference" .artifacts/function-expression-reference
           node tools/verify-function-expression-reference.ts "$reference" .artifacts/object-method-reference fixtures/object-method/semantic-cases.json
           node tools/verify-interface-inheritance-reference.ts "$reference" .artifacts/interface-inheritance-reference
+      - name: Preserve bounded readonly array source and pinned reference evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-readonly-array-reference-${{ github.sha }}
+          path: .artifacts/readonly-array-reference/
+          if-no-files-found: warn
+          retention-days: 30
       - name: Preserve bounded unbraced conditional source and reference evidence
         if: always()
         uses: actions/upload-artifact@v4

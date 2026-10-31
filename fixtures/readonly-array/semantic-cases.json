@@ -1,0 +1,83 @@
+{
+  "kind": "BOUNDED_READONLY_ARRAY_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "upstream": "upstream.lock.json",
+  "cases": [
+    {
+      "id": "readonly-array:positive-01",
+      "source": "let values: readonly number[] = [21, 21]; let first: number = values[0]; let size: number = values.length;",
+      "expectedCodes": []
+    },
+    {
+      "id": "readonly-array:positive-02",
+      "source": "type Values = readonly number[]; let values: Values = [1, 2]; let first: number = values[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "readonly-array:positive-03",
+      "source": "function sum(values: readonly number[]): number { let total: number = 0; for (const n of values) { total += n; } return total; } let result: number = sum([21,21]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "readonly-array:positive-04",
+      "source": "let mutable: number[] = [21]; let view: readonly number[] = mutable; let value: number = view[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "readonly-array:positive-05",
+      "source": "let labels: readonly string[] = [\"a\",\"b\"]; let first: string = labels[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "readonly-array:positive-06",
+      "source": "let mixed: readonly (number | string)[] = [21,\"one\"]; let selected: number | string = mixed[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "readonly-array:positive-07",
+      "source": "let pairs: readonly number[][] = [[21,21]]; pairs[0][0] = 22; let value: number = pairs[0][0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "readonly-array:negative-01",
+      "source": "let values: readonly number[] = [1]; values[0] = 2;",
+      "expectedCodes": [
+        "TS2542"
+      ]
+    },
+    {
+      "id": "readonly-array:negative-02",
+      "source": "let values: readonly number[] = [1]; values[0] += 2;",
+      "expectedCodes": [
+        "TS2542"
+      ]
+    },
+    {
+      "id": "readonly-array:negative-03",
+      "source": "let values: readonly number[] = [1]; ++values[0];",
+      "expectedCodes": [
+        "TS2542"
+      ]
+    },
+    {
+      "id": "readonly-array:negative-04",
+      "source": "let values: readonly number[] = [1]; values.length = 2;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "readonly-array:negative-05",
+      "source": "let values: readonly number[] = [1]; let mutable: number[] = values;",
+      "expectedCodes": [
+        "TS4104"
+      ]
+    },
+    {
+      "id": "readonly-array:negative-06",
+      "source": "let values: readonly number[] = [1]; let bad: string = values[0];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}

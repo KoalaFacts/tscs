@@ -34,7 +34,7 @@ internal sealed record LiteralTypeSymbol(PrimitiveKind Kind,string Value) : Type
         ?System.Text.Json.JsonSerializer.Serialize(Value):Value;
 }
 
-internal sealed record ArrayTypeSymbol(TypeSymbol ElementType) : TypeSymbol
+internal sealed record ArrayTypeSymbol(TypeSymbol ElementType,bool Readonly=false) : TypeSymbol
 {
     public override string DisplayName=>TypeDisplay.Format(this);
 }
@@ -234,7 +234,7 @@ internal static class CompilerTypes
     public static TypeSymbol FromAnnotation(TypeSyntax syntax)=>syntax switch
     {
         PrimitiveTypeSyntax primitive=>FromAnnotation(primitive.Name.Text),
-        ArrayTypeSyntax array=>new ArrayTypeSymbol(FromAnnotation(array.Element)),
+        ArrayTypeSyntax array=>new ArrayTypeSymbol(FromAnnotation(array.Element),array.Readonly),
         ObjectTypeSyntax shape=>new ObjectTypeSymbol(shape.Properties.Select(p=>
             new KeyValuePair<string,TypeSymbol>(Parser.PropertyName(p.Name),FromAnnotation(p.Type))),
             shape.Properties.Where(p=>p.Readonly).Select(p=>Parser.PropertyName(p.Name)),
@@ -387,6 +387,7 @@ internal static class CompilerTypes
                             pending.Push((member,other));
                     break;
                 case (ArrayTypeSymbol a,ArrayTypeSymbol b):
+                    if(a.Readonly!=b.Readonly)return false;
                     pending.Push((a.ElementType,b.ElementType));
                     break;
                 case (FunctionTypeSymbol a,FunctionTypeSymbol b):
@@ -533,6 +534,7 @@ internal static class CompilerTypes
                     return primitive.Kind==literal.Kind;
                 if(required is ArrayTypeSymbol requiredArray)
                     return actual is ArrayTypeSymbol actualArray &&
+                        (requiredArray.Readonly || !actualArray.Readonly) &&
                         Check(actualArray.ElementType,requiredArray.ElementType);
                 if(required is FunctionTypeSymbol requiredFunction)
                 {
