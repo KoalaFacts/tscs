@@ -8,7 +8,9 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
 {
     private int position;
     public List<Diagnostic> Diagnostics { get; } = [];
-    private readonly List<(int Start,int End)> ignoredNextLines = [];
+    // The directive's source position is retained so embedded scanners can
+    // import only globally whole-line directives after offset relocation.
+    private readonly List<(int Start,int End,int DirectiveStart)> ignoredNextLines = [];
     private readonly HashSet<int> referenceDirectiveStarts=jsonMode
         ? []
         : TripleSlashPathReferences.Collect(text).Select(r=>r.Start).ToHashSet();
@@ -26,6 +28,33 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
             else return true;
         }
         return false;
+    }
+    // The outer scanner skips over complete template tokens, but nested
+    // expression scanners may discover whole-line @ts-ignore directives.
+    // Preserve the same source-global immediately-next-line semantics and
+    // keep the sorted range index used by diagnostic suppression.
+    internal void ImportSuppressedLines(Scanner embedded,int sourceOffset)
+    {
+        foreach(var local in embedded.ignoredNextLines)
+        {
+            int directive=sourceOffset+local.DirectiveStart;
+            int lineStart=directive;
+            while(lineStart>0 && !IsLineBreak(text[lineStart-1]))lineStart--;
+            bool wholeLine=true;
+            for(int i=lineStart;i<directive;i++)
+                if(text[i] is not (' ' or '\t' or '\uFEFF')){wholeLine=false;break;}
+            if(!wholeLine)continue;
+            var imported=(Start:local.Start+sourceOffset,End:local.End+sourceOffset,
+                DirectiveStart:directive);
+            int low=0,high=ignoredNextLines.Count;
+            while(low<high)
+            {
+                int mid=low+(high-low)/2;
+                if(ignoredNextLines[mid].Start<=imported.Start)low=mid+1;
+                else high=mid;
+            }
+            ignoredNextLines.Insert(low,imported);
+        }
     }
     // Cumulative lexical diagnostics available after each token was scanned.
     public List<int> DiagnosticCounts { get; } = [];
@@ -433,7 +462,7 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
         int following=end+(text[end]=='\r'&&end+1<text.Length&&text[end+1]=='\n'?2:1);
         int nextLineEnd=following;
         while(nextLineEnd<text.Length&&!IsLineBreak(text[nextLineEnd]))nextLineEnd++;
-        ignoredNextLines.Add((following,nextLineEnd));
+        ignoredNextLines.Add((following,nextLineEnd,start));
         return true;
     }
     private static int HexDigit(char c)=>c is >= '0' and <= '9'?c-'0':c is >= 'a' and <= 'f'?c-'a'+10:c is >= 'A' and <= 'F'?c-'A'+10:-1;

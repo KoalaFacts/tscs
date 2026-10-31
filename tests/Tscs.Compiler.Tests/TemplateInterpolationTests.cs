@@ -38,6 +38,41 @@ public sealed class TemplateInterpolationTests
             d.Start==source.IndexOf("missingName",StringComparison.Ordinal));
     }
 
+
+    [Fact]
+    public void UnicodeLineSeparatorEndsASubstitutionLineComment()
+    {
+        // This is an actual U+2028 character in the parsed TypeScript source.
+        var source="const s: string = `${1 // comment\u2028}`;";
+        Assert.Empty(Compilation.Check("unicode-lines.ts",source));
+    }
+
+    [Fact]
+    public void WholeLineTsIgnoreInsideSubstitutionSuppressesTheNextLine()
+    {
+        var source="const s: string = `${\n// @ts-ignore\nmissingName}`;";
+        Assert.Empty(Compilation.Check("ignored-substitution.ts",source));
+    }
+
+    [Fact]
+    public void TsIgnoreInsideSubstitutionCannotSuppressOutsideItsOwnLine()
+    {
+        var source="const s: string = `${\n// @ts-ignore\nmissingName}`;\nconst n: number = missingOutside;";
+        var diagnostics=Compilation.Check("bounded-ignore.ts",source);
+        Assert.Contains(diagnostics,d=>d.Code=="TS2304" &&
+            d.Start==source.IndexOf("missingOutside",StringComparison.Ordinal));
+        Assert.DoesNotContain(diagnostics,d=>d.Code=="TS2304" &&
+            d.Start==source.IndexOf("missingName",StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void InlineTsIgnoreIsNotPromotedToWholeLineDirective()
+    {
+        var source="const s: string = `${// @ts-ignore\nmissingName}`;";
+        Assert.Contains(Compilation.Check("inline-ignore.ts",source),
+            d=>d.Code=="TS2304" && d.Start==source.IndexOf("missingName",StringComparison.Ordinal));
+    }
+
     [Fact]
     public void TaggedInterpolationAcrossNewlineIsStillRejected() =>
         Assert.Contains(Compilation.Check("tagged.ts",

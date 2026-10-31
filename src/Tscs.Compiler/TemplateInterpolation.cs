@@ -34,7 +34,7 @@ internal static class TemplateInterpolation
                 if(text[i+1]=='/')
                 {
                     i+=2;
-                    while(i<text.Length && text[i] is not ('\r' or '\n'))i++;
+                    while(i<text.Length && !Scanner.IsLineBreak(text[i]))i++;
                     continue;
                 }
                 if(text[i+1]=='*')

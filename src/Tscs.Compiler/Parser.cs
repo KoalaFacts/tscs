@@ -1,7 +1,7 @@
 namespace Tscs;
 
 // Supported paths follow parseVariableDeclarationWorker and block/statement parsing upstream.
-internal sealed class Parser(string file, List<Token> tokens)
+internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceScanner=null)
 {
     private int position;
     private int callNesting;
@@ -1560,6 +1560,7 @@ internal sealed class Parser(string file, List<Token> tokens)
             if(scanner.Diagnostics.Count>0)
                 throw new CompilationFailure(scanner.Diagnostics[0] with
                     {Start=scanner.Diagnostics[0].Start+offset});
+            sourceScanner?.ImportSuppressedLines(scanner,offset);
             for(int j=0;j<nested.Count;j++)
                 nested[j]=nested[j] with {Start=nested[j].Start+offset};
             var nestedParser=new Parser(file,nested);

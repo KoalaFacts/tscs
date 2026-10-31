@@ -97,7 +97,7 @@ public static class Compilation
             var tokens=scanner.Scan();
             if(scanner.Diagnostics.Count>0)
                 return new ParsedSourceResult(null,scanner.Diagnostics.ToArray(),true);
-            var parser=new Parser(source.File,tokens);
+            var parser=new Parser(source.File,tokens,scanner);
             var block=parser.Parse();
             if(parser.Diagnostics.Count>0)
                 return new ParsedSourceResult(null,parser.Diagnostics.ToArray(),true);
