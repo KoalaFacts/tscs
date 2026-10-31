@@ -112,6 +112,45 @@
       "expectedCodes": [
         "TS2339"
       ]
+    },
+    {
+      "id": "in-operator:positive-15",
+      "source": "type Entry={value?:number}|{message:string};function read(e:Entry):number {if(\"value\" in e){return e.value??0;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-16",
+      "source": "type Entry={value?:number}|{message:string};function read(e:Entry):number {if(!(\"value\" in e)){return 0;}return e.value??0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-17",
+      "source": "type Entry={value?:number}|{message:string};function read(e:Entry):number {return \"value\" in e?(e.value??0):0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-18",
+      "source": "type Entry={value?:number}|{value:number}|{message:string};function read(e:Entry):number {if(\"value\" in e){return e.value??0;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-19",
+      "source": "type Entry={value?:number}|{message:string};function read(e:Entry):number {if(\"value\" in e && (e.value??0)>0){return e.value??0;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:negative-07",
+      "source": "type Entry={value?:number}|{message:string};function bad(e:Entry):string {if(!(\"value\" in e)){return e.message;}return \"ok\";}",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "in-operator:negative-08",
+      "source": "type Entry={value?:number}|{message:string};function bad(e:Entry,key:string):number {if(key in e){return e.value??0;}return 0;}",
+      "expectedCodes": [
+        "TS2339"
+      ]
     }
   ]
 }

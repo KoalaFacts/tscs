@@ -923,11 +923,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     }
 
 
-    // A literal property-existence guard refines only a named finite union
-    // whose object alternatives have disjoint REQUIRED property presence.
-    // Optional members can exist at runtime on either path, so the current
-    // checker leaves those unions unrefined. Dynamic keys, arrays, any,
-    // unknown and arbitrary receivers must not invent branch facts.
+    // A literal property-existence guard partitions a named finite union.
+    // Required members contribute only to the present branch; missing members
+    // only to the absent branch. Optional members contribute to BOTH, because
+    // their key may exist or be absent at runtime. No dynamic-key or broad
+    // receiver inference is performed.
     private static DiscriminantBranches? TryNarrowInProperty(ValueBinary comparison,Scope scope)
     {
         var keyNode=comparison.Left;
@@ -945,9 +945,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         var absent=new List<TypeSymbol>();
         foreach(var candidate in union.Alternatives)
         {
-            if(candidate is not ObjectTypeSymbol shape || shape.OptionalMembers.Contains(key))
-                return null;
-            (shape.Members.ContainsKey(key)?present:absent).Add(candidate);
+            if(candidate is not ObjectTypeSymbol shape)return null;
+            var hasMember=shape.Members.ContainsKey(key);
+            if(hasMember)present.Add(candidate);
+            if(!hasMember || shape.OptionalMembers.Contains(key))absent.Add(candidate);
         }
         if(present.Count==0 || absent.Count==0)return null;
         return new DiscriminantBranches(symbol,CompilerTypes.Union(present),CompilerTypes.Union(absent));
