@@ -68,6 +68,57 @@
       "expectedCodes": [
         "TS2678"
       ]
+    },
+    {
+      "id": "switch-completion:positive-09",
+      "source": "function f(n: number): number { switch(n) { case 1: return 1; default: { return 0; } } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-completion:positive-10",
+      "source": "function f(n:number):number { let result:number=0; switch(n) { case 1: result=20; case 2: result=result+1; break; default: break; } return result; }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-completion:positive-11",
+      "source": "function f(n:number):number { switch(n) { case 1: case 2: return 21; default: return 0; } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-completion:positive-12",
+      "source": "function f(n:number):number { switch(n) { case 1: { return 1; } default: return 0; } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-completion:positive-13",
+      "source": "type E={kind:\"ok\";value:number}|{kind:\"error\";message:string}; function f(e:E):number { switch(e.kind) { case \"ok\": return e.value; default: return 0; } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-completion:positive-14",
+      "source": "function f(n:number):number { switch(n) { case 1: if(n>0) { return n; } return 0; default: return 0; } }",
+      "expectedCodes": []
+    },
+    {
+      "id": "switch-completion:negative-05",
+      "source": "type E={kind:\"ok\";value:number}|{kind:\"error\";message:string}; function f(e:E):number { switch(e.kind) { case \"ok\": return e.message; default: return 0; } }",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "switch-completion:negative-06",
+      "source": "function f(n:number):number { let result:number=0; switch(n) { case 1: result=\"bad\"; break; default: return 0; } return result; }",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "switch-completion:negative-07",
+      "source": "type E={kind:\"ok\";value:number}|{kind:\"error\";message:string}; function f(e:E):number { switch(e.kind) { case \"other\": return 0; default: return 0; } }",
+      "expectedCodes": [
+        "TS2678"
+      ]
     }
   ]
 }
