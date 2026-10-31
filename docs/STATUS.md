@@ -1,3 +1,15 @@
+## 2026-10-31 — Runtime expression truthiness in control flow (source candidate; NOT_RUN)
+
+C# TypeChecker now accepts checked numeric, string, member, optional-member,
+call and arithmetic conditions in braced if, ternary, while, do/while and
+classic for. Standalone void is diagnosed TS1345. The existing stable symbol
+guards still narrow; arbitrary property paths do not gain unsafe flow facts.
+Ten positive and five negative immutable-ID pinned-Go comparisons, a four-module
+ES2015 Node runtime, and six no-JS invalid scenarios are registered as NOT_RUN
+at candidate creation. Original TS7 acceptance remains 0 PASS / 15,523
+SKIP_UNIMPLEMENTED; dynamic scope UNEXPANDED. Pin, release gate, CI
+threshold and protection are unchanged.
+
 ## 2026-10-31 — Bounded truthiness identifier guards (source candidate; NOT_RUN)
 
 The shared C# TypeChecker accepts runtime truthiness of checked identifier

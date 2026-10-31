@@ -82,8 +82,12 @@ and ternaries) distinguish definitely falsy nullish/literal alternatives from
 truthy objects, functions and arrays. Broad numbers/strings remain possible
 in the false arm because zero and empty strings are falsy. Reassignments
 invalidate branch refinements; runtime `!` accepts checked non-boolean
-operands. General expression truthiness in conditions and non-boolean
-`&&`/`||` result typing are not yet implemented.
+operands. Checked runtime truthiness now accepts member/index reads, calls and
+arithmetic expressions as conditions in `if`, ternaries, `while`,
+`do/while` and classic `for`. Standalone `void` conditions reject with
+TS1345. Only stable existing guards narrow symbols: a member test does not
+invent property-path flow facts. Non-boolean `&&`/`||` result typing remains
+unimplemented.
 
 Finite comparisons with unshadowed `undefined` or `void 0` now refine
 nullable locals and parameters on checked branches. Strict `===`/`!==`

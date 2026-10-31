@@ -464,16 +464,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     }
 
     // A while body can run zero times: no definite-initialisation effects
-    // escape into following statements. Loops retain the existing restricted
-    // boolean/any condition policy rather than inferring truthiness.
+    // escape into following statements. Runtime expression truthiness never implies
+    // definite assignment or unsafe property-path narrowing.
     private void CheckWhile(WhileStatement loop,Scope scope,TypeSymbol? expectedReturn)
     {
         // Both the body and the condition may be evaluated after a backedge.
         InvalidateLoopBackedgeFlowTypes(scope,loop.Body);
         var conditionType=TypeOf(loop.Condition,scope);
-        if(conditionType!=null && !CompilerTypes.IsAssignable(conditionType,CompilerTypes.Boolean))
-            throw new CompilationFailure(Diagnostic.Error(file,loop.Keyword,"TSCS1001",
-                "Only boolean or any while conditions are supported by the current flow checker."));
+        CheckRuntimeCondition(conditionType,loop.Keyword);
         var before=CaptureInitialized(scope);
         var writesBefore=CaptureFlowWriteVersions(scope);
         try { CheckBlock(loop.Body,scope,false,expectedReturn,true,true); }
@@ -670,9 +668,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         // rejects a do body that only *may* initialize a condition variable:
         // a continue or break may bypass its write on the first iteration.
         var conditionType=TypeOf(loop.Condition,scope);
-        if(conditionType!=null && !CompilerTypes.IsAssignable(conditionType,CompilerTypes.Boolean))
-            throw new CompilationFailure(Diagnostic.Error(file,loop.Keyword,"TSCS1001",
-                "Do/while conditions currently require boolean or any."));
+        CheckRuntimeCondition(conditionType,loop.Keyword);
         var before=CaptureInitialized(scope);
         var writesBefore=CaptureFlowWriteVersions(scope);
         try
@@ -704,9 +700,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         if(loop.Condition is { } condition)
         {
             var conditionType=TypeOf(condition,header);
-            if(conditionType!=null && !CompilerTypes.IsAssignable(conditionType,CompilerTypes.Boolean))
-                throw new CompilationFailure(Diagnostic.Error(file,loop.Keyword,"TSCS1001",
-                    "Classic for conditions currently require boolean or any."));
+            CheckRuntimeCondition(conditionType,loop.Keyword);
         }
         var before=CaptureInitialized(header);
         var writesBefore=CaptureFlowWriteVersions(header);
@@ -735,10 +729,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     private DiscriminantContinuation? CheckConditional(ConditionalStatement conditional,Scope scope,TypeSymbol? expectedReturn,bool allowBreak,bool allowContinue)
     {
         var conditionType=TypeOf(conditional.Condition,scope);
-        if(conditionType!=null && !CompilerTypes.IsAssignable(conditionType,CompilerTypes.Boolean) &&
-           !IsBoundedTruthyIdentifier(conditional.Condition))
-            throw new CompilationFailure(Diagnostic.Error(file,conditional.Keyword,"TSCS1001",
-                "Only boolean or bounded identifier truthiness conditions are supported by the current flow checker."));
+        CheckRuntimeCondition(conditionType,conditional.Keyword);
         // Discriminant types are a branch-local view of one existing symbol.
         // Never mutate the AST or permanently narrow the declaration type.
         var discriminant=TryNarrowDiscriminant(conditional.Condition,scope);
@@ -925,6 +916,16 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             :new DiscriminantBranches(symbol,onDifferent,onEqual);
     }
 
+
+    // Only the existing stable guards narrow symbols. A general checked
+    // JavaScript expression may be tested at runtime without gaining flow facts.
+    // TypeScript disallows testing a standalone void result (TS1345).
+    private void CheckRuntimeCondition(TypeSymbol? value,Token location)
+    {
+        if(value is PrimitiveTypeSymbol { Kind:PrimitiveKind.Void })
+            throw new CompilationFailure(Diagnostic.Error(file,location,"TS1345",
+                "An expression of type 'void' cannot be tested for truthiness."));
+    }
 
     // Only direct identifier reads have stable flow identity in this subset.
     private static bool IsBoundedTruthyIdentifier(ValueNode condition)
@@ -1767,10 +1768,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             if(node is ValueConditional chosen)
             {
                 var conditionType=TypeOf(chosen.Condition,scope);
-                if(conditionType!=null && !CompilerTypes.IsAssignable(conditionType,CompilerTypes.Boolean) &&
-                   !IsBoundedTruthyIdentifier(chosen.Condition))
-                    throw new CompilationFailure(Diagnostic.Error(file,chosen.Question,"TSCS1001",
-                        "Conditional values currently require boolean or bounded identifier truthiness."));
+                CheckRuntimeCondition(conditionType,chosen.Question);
                 // Reuse statement-branch discriminant and typeof narrowing.
                 // Both arms are independently checked; temporary read views
                 // are restored even if an arm reports an error.

@@ -7,6 +7,7 @@ public sealed class ConditionalValueTests
 {
     [Theory]
     [InlineData("let n: number = true ? 42 : 0;")]
+    [InlineData("const x = 1 ? 21 : 0;")]
     [InlineData("function choose(flag: boolean): number { return flag ? 21 : 0; } let n: number = choose(true);")]
     [InlineData("function choose(a: boolean,b: boolean): number { return a ? 1 : b ? 2 : 3; } let n: number = choose(false,true);")]
     [InlineData("function calculate(flag: boolean): number { return (flag ? 21 : 0) * 2; } let n: number = calculate(true);")]
@@ -37,7 +38,7 @@ public sealed class ConditionalValueTests
         Assert.Contains(Compilation.Check("conditional.ts",source),d=>d.Code==code);
 
     [Theory]
-    [InlineData("const x = 1 ? 21 : 0;")]
+    [InlineData("const x = void 0 ? 21 : 0;")]
     [InlineData("const x = true ? 21;")]
     [InlineData("let x: number = true ? 1 : false ? 2;")]
     public void UnsupportedOrMalformedConditionsFailClosed(string source) =>

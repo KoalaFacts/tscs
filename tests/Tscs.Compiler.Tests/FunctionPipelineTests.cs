@@ -55,6 +55,7 @@ public sealed class FunctionPipelineTests
     [Theory]
     [InlineData("function choose(flag: boolean): number { if (flag) { return 1; } else { return 2; } } let n: number = choose(true);")]
     [InlineData("function unsupported(flag: number): number { if (flag) { return 1; } else { return 2; } }")]
+    [InlineData("function selected(flag: number): number { if (flag + 1) { return 1; } else { return 2; } }")]
     [InlineData("function choose(flag: boolean): number { if (flag) { return 1; } return 2; } let n: number = choose(false);")]
     [InlineData("function choose(a: boolean, b: boolean): number { if (a) { return 1; } else if (b) { return 2; } else { return 3; } } let n: number = choose(false, true);")]
     [InlineData("function choose(flag: boolean): number { let n: number; if (flag) { n = 1; } else { n = 2; } return n; }")]
@@ -68,7 +69,7 @@ public sealed class FunctionPipelineTests
     [InlineData("function missing(flag: boolean): number { let n: number; if (flag) { n = 1; } return n; }","TSCS1001")]
     [InlineData("function bad(flag: boolean): number { if (flag) { return \"bad\"; } else { return 1; } }","TS2322")]
     [InlineData("function bad(flag: boolean): number { if (flag) { let inner = 1; } return inner; }","TS2304")]
-    [InlineData("function unsupported(flag: number): number { if (flag + 1) { return 1; } else { return 2; } }","TSCS1001")]
+    [InlineData("function unsupported(flag: number): number { if (void flag) { return 1; } else { return 2; } }","TS1345")]
     [InlineData("function unsupported(flag: boolean): number { if (flag) return 1; else { return 2; } }","TSCS1001")]
     public void ConditionalBoundariesRejectIncompleteOrUnsupportedPrograms(string source,string code) =>
         Assert.Contains(Compilation.Check("source.ts",source),d=>d.Code==code);
