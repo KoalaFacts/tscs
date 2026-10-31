@@ -50,16 +50,16 @@ try {
   assert.equal(run.error,undefined,String(run.error));
   assert.equal(run.status,0,run.stdout+run.stderr);
   const invalid=[
-    ['null-and','function wrong(n:number|null):number{return n && n+1;}','TS2322'],
-    ['bad-result','function wrong(n:number|null):string{return n || 21;}','TS2322'],
-    ['bad-member','function wrong(box:{value:number}|null):number{return box && box.missing;}','TS2339'],
-    ['nonboolean','function wrong(v:number|string):boolean{return typeof v === "number" && v;}','TS2322'],
-    ['void-logical','function noop():void{return;}function wrong():void{return noop() && noop();}','TSCS1001']
+    ['null-and','function wrong(n:number|null):number{return n && n+1;}','TS2322',2],
+    ['bad-result','function wrong(n:number|null):string{return n || 21;}','TS2322',2],
+    ['bad-member','function wrong(box:{value:number}|null):number{return box && box.missing;}','TS2339',2],
+    ['nonboolean','function wrong(v:number|string):boolean{return typeof v === "number" && v;}','TS2322',2],
+    ['void-logical','function noop():void{return;}function wrong():void{return noop() && noop();}','TSCS1001',1]
   ] as const;
-  for(const [name,source,code] of invalid){
+  for(const [name,source,code,expectedExit] of invalid){
     writeFileSync(join(folder,name+'.ts'),source);
     const r=compile(['--emitJs','--noLib','--target','es2015',name+'.ts','minimal.d.ts']);
-    assert.equal(r.status,2,r.stdout+r.stderr);
+    assert.equal(r.status,expectedExit,r.stdout+r.stderr);
     assert.match(r.stdout+r.stderr,new RegExp(code));
     assert.equal(existsSync(join(folder,name+'.js')),false,'invalid JS output: '+name);
   }
