@@ -471,7 +471,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         // Both the body and the condition may be evaluated after a backedge.
         InvalidateLoopBackedgeFlowTypes(scope,loop.Body);
         var conditionType=TypeOf(loop.Condition,scope);
-        CheckRuntimeCondition(conditionType,loop.Keyword);
+        CheckRuntimeCondition(loop.Condition,conditionType,loop.Keyword);
         var before=CaptureInitialized(scope);
         var writesBefore=CaptureFlowWriteVersions(scope);
         try { CheckBlock(loop.Body,scope,false,expectedReturn,true,true); }
@@ -668,7 +668,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         // rejects a do body that only *may* initialize a condition variable:
         // a continue or break may bypass its write on the first iteration.
         var conditionType=TypeOf(loop.Condition,scope);
-        CheckRuntimeCondition(conditionType,loop.Keyword);
+        CheckRuntimeCondition(loop.Condition,conditionType,loop.Keyword);
         var before=CaptureInitialized(scope);
         var writesBefore=CaptureFlowWriteVersions(scope);
         try
@@ -700,7 +700,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         if(loop.Condition is { } condition)
         {
             var conditionType=TypeOf(condition,header);
-            CheckRuntimeCondition(conditionType,loop.Keyword);
+            CheckRuntimeCondition(condition,conditionType,loop.Keyword);
         }
         var before=CaptureInitialized(header);
         var writesBefore=CaptureFlowWriteVersions(header);
@@ -729,7 +729,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     private DiscriminantContinuation? CheckConditional(ConditionalStatement conditional,Scope scope,TypeSymbol? expectedReturn,bool allowBreak,bool allowContinue)
     {
         var conditionType=TypeOf(conditional.Condition,scope);
-        CheckRuntimeCondition(conditionType,conditional.Keyword);
+        CheckRuntimeCondition(conditional.Condition,conditionType,conditional.Keyword);
         // Discriminant types are a branch-local view of one existing symbol.
         // Never mutate the AST or permanently narrow the declaration type.
         var discriminant=TryNarrowDiscriminant(conditional.Condition,scope);
@@ -920,9 +920,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     // Only the existing stable guards narrow symbols. A general checked
     // JavaScript expression may be tested at runtime without gaining flow facts.
     // TypeScript disallows testing a standalone void result (TS1345).
-    private void CheckRuntimeCondition(TypeSymbol? value,Token location)
+    private void CheckRuntimeCondition(ValueNode condition,TypeSymbol? value,Token location)
     {
-        if(value is PrimitiveTypeSymbol { Kind:PrimitiveKind.Void })
+        // Unary void evaluates its operand but has the semantic value
+        // 'undefined'. Keep that value type intact for assignments and
+        // nullish operators; detect forbidden condition syntax separately.
+        while(condition is ValueParenthesized group)condition=group.Expression;
+        if(value is PrimitiveTypeSymbol { Kind:PrimitiveKind.Void } ||
+           condition is ValueUnary { Operator.Kind:TokenKind.Void })
             throw new CompilationFailure(Diagnostic.Error(file,location,"TS1345",
                 "An expression of type 'void' cannot be tested for truthiness."));
     }
@@ -1768,7 +1773,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             if(node is ValueConditional chosen)
             {
                 var conditionType=TypeOf(chosen.Condition,scope);
-                CheckRuntimeCondition(conditionType,chosen.Question);
+                CheckRuntimeCondition(chosen.Condition,conditionType,chosen.Question);
                 // Reuse statement-branch discriminant and typeof narrowing.
                 // Both arms are independently checked; temporary read views
                 // are restored even if an arm reports an error.
