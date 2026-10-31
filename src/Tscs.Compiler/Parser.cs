@@ -18,12 +18,13 @@ internal sealed class Parser(string file, List<Token> tokens)
     public List<Diagnostic> Diagnostics { get; } = [];
     private Token Take() => tokens[position++];
     private bool Eat(TokenKind kind) { if(Current.Kind!=kind)return false; position++;return true; }
-    public Block Parse(int depth=0,bool inFunction=false,bool switchClauseBody=false)
+    public Block Parse(int depth=0,bool inFunction=false,bool switchClauseBody=false,bool singleStatementBody=false)
     {
         if(depth>128) Unsupported(Current,"Block nesting exceeds the bootstrap limit.");
         var statements=new List<Statement>();
         while(Current.Kind!=TokenKind.End && !(depth>0 && Current.Kind==TokenKind.Close) &&
-              !(switchClauseBody && (Current.Kind is TokenKind.Case or TokenKind.Default)))
+              !(switchClauseBody && (Current.Kind is TokenKind.Case or TokenKind.Default)) &&
+              (!singleStatementBody || statements.Count==0))
         {
             if(Current.Kind==TokenKind.Close) { Diagnostics.Add(Diagnostic.Error(file,Take(),"TS1128","Declaration or statement expected.")); continue; }
             if(Eat(TokenKind.Semi)) { statements.Add(new EmptyStatement()); continue; }
@@ -563,8 +564,26 @@ internal sealed class Parser(string file, List<Token> tokens)
         return new DoWhileStatement(keyword,body,condition);
     }
 
-    // Preserve distinct branch ASTs for later control flow and symbol analysis.
-    // Single-statement arms remain unsupported until the parser can represent them.
+    // One unbraced statement forms one branch; the nearest unmatched if
+    // consumes its own else. A synthetic Block preserves checked branch scopes
+    // and native ES2015 emission without a separate semantic pipeline.
+    private Block ParseConditionalArm(int depth,bool inFunction)
+    {
+        if(Eat(TokenKind.Open))
+        {
+            var body=Parse(depth+1,inFunction);
+            if(!Eat(TokenKind.Close))
+                Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+            return body;
+        }
+        if(Current.Kind is TokenKind.Let or TokenKind.Const)
+            Unsupported(Current,"Lexical declarations in if/else arms require braces.");
+        var single=Parse(depth+1,inFunction,singleStatementBody:true);
+        if(single.Statements.Count!=1)
+            Unsupported(Current,"Expected a statement after an if/else condition.");
+        return single;
+    }
+
     private ConditionalStatement ParseConditional(int depth,bool inFunction)
     {
         if(++conditionalNesting>128)
@@ -577,25 +596,12 @@ internal sealed class Parser(string file, List<Token> tokens)
             var condition=ParseValue();
             if(!Eat(TokenKind.CloseParen))
                 Unsupported(Current,"Expected ')' after the condition.");
-            if(!Eat(TokenKind.Open))
-                Unsupported(Current,"Conditional branches require a braced block.");
-            var consequent=Parse(depth+1,inFunction);
-            if(!Eat(TokenKind.Close))
-                Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+            var consequent=ParseConditionalArm(depth,inFunction);
             Statement? alternate=null;
             if(Eat(TokenKind.Else))
-            {
-                if(Current.Kind==TokenKind.If)
-                    alternate=ParseConditional(depth+1,inFunction);
-                else
-                {
-                    if(!Eat(TokenKind.Open))
-                        Unsupported(Current,"Conditional branches require a braced block.");
-                    alternate=Parse(depth+1,inFunction);
-                    if(!Eat(TokenKind.Close))
-                        Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
-                }
-            }
+                alternate=Current.Kind==TokenKind.If
+                    ?ParseConditional(depth+1,inFunction)
+                    :ParseConditionalArm(depth,inFunction);
             return new ConditionalStatement(keyword,condition,consequent,alternate);
         }
         finally { conditionalNesting--; }
