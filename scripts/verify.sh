@@ -23,6 +23,7 @@ node tools/verify-guard-emit.ts
 node tools/verify-typeof-emit.ts
 node tools/verify-conditional-emit.ts
 node tools/verify-nullish-emit.ts
+node tools/verify-logical-assignment-emit.ts
 node tools/verify-non-null-emit.ts
 node tools/verify-optional-chain-emit.ts
 node tools/verify-optional-call-emit.ts

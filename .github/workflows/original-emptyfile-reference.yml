@@ -51,6 +51,7 @@ jobs:
           node tools/verify-conditional-reference.ts "$reference" .artifacts/optional-call-reference fixtures/optional-call/semantic-cases.json
           node tools/verify-conditional-reference.ts "$reference" .artifacts/compound-guards-reference fixtures/compound-guards/semantic-cases.json
           node tools/verify-bitwise-reference.ts "$reference" .artifacts/numeric-bitwise-reference
+          node tools/verify-logical-assignment-reference.ts "$reference" .artifacts/logical-assignment-reference
            node tools/verify-division-reference.ts "$reference" .artifacts/numeric-division-reference
           node tools/verify-division-reference.ts "$reference" .artifacts/numeric-exponent-reference fixtures/numeric-exponent/semantic-cases.json
           node tools/verify-division-reference.ts "$reference" .artifacts/numeric-literals-reference fixtures/numeric-literals/semantic-cases.json
@@ -88,6 +89,14 @@ jobs:
           node tools/verify-function-expression-reference.ts "$reference" .artifacts/function-expression-reference
           node tools/verify-function-expression-reference.ts "$reference" .artifacts/object-method-reference fixtures/object-method/semantic-cases.json
           node tools/verify-interface-inheritance-reference.ts "$reference" .artifacts/interface-inheritance-reference
+      - name: Preserve bounded logical-assignment source and reference evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-logical-assignment-reference-${{ github.sha }}
+          path: .artifacts/logical-assignment-reference/
+          if-no-files-found: warn
+          retention-days: 30
       - name: Preserve bounded delete-optional source and reference evidence
         if: always()
         uses: actions/upload-artifact@v4

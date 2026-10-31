@@ -224,6 +224,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             Mismatch(assignment.Target.Name,valueType,propertyType);
                         break;
                     case CompoundAssignment compound:
+                        bool logicalAssignment=compound.Operator.Kind is TokenKind.AmpAmpEqual
+                            or TokenKind.BarBarEqual or TokenKind.QuestionQuestionEqual;
+                        // Identifier-only first: receiver/index assignment requires
+                        // its own once-only ES2015 lvalue lowering.
+                        if(logicalAssignment && compound.Target is not ValueAtom { Token.Kind:TokenKind.Identifier })
+                            throw new CompilationFailure(Diagnostic.Error(file,compound.Operator,"TSCS1001",
+                                "Logical compound assignments currently require an identifier target."));
+                        Symbol? logicalTarget=null;
                         TypeSymbol? targetType;
                         switch(compound.Target)
                         {
@@ -238,6 +246,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                                 else if(targetSymbol.IsConstant)
                                     Error(targetName.Token,"TS2588",$"Cannot assign to '{targetName.Token.Text}' because it is a constant.");
                                 targetType=targetSymbol.Type;
+                                if(logicalAssignment)logicalTarget=targetSymbol;
                                 break;
                             case ValuePropertyAccess propertyTarget:
                                 var compoundReceiver=TypeOf(propertyTarget.Receiver,scope);
@@ -263,7 +272,28 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         var operandType=TypeOf(compound.Value,scope);
                         if(targetType!=null && operandType!=null)
                         {
-                            if(compound.Operator.Kind==TokenKind.PlusEqual)
+                            if(logicalAssignment)
+                            {
+                                var declared=logicalTarget?.DeclaredType??targetType;
+                                if((compound.Operator.Kind is TokenKind.AmpAmpEqual or TokenKind.BarBarEqual) &&
+                                   !CompilerTypes.IsBoolean(targetType))
+                                    throw new CompilationFailure(Diagnostic.Error(file,compound.Operator,"TSCS1001",
+                                        "Logical &&= and ||= currently require a boolean target."));
+                                if((compound.Operator.Kind is TokenKind.AmpAmpEqual or TokenKind.BarBarEqual) &&
+                                   !CompilerTypes.IsBoolean(operandType))
+                                    Mismatch(compound.Operator,operandType,declared);
+                                else if(CheckContextualLiteral(compound.Value,declared,operandType) &&
+                                        !IsAssignableContextually(compound.Value,operandType,declared))
+                                    Mismatch(compound.Operator,operandType,declared);
+                                else if(logicalTarget is not null)
+                                {
+                                    // A conditional rebind invalidates previous branch
+                                    // narrowings rather than claiming an unconditional type.
+                                    logicalTarget.FlowWriteVersion++;
+                                    logicalTarget.Type=logicalTarget.DeclaredType??logicalTarget.Type;
+                                }
+                            }
+                            else if(compound.Operator.Kind==TokenKind.PlusEqual)
                             {
                                 // Unlike numeric-only operators, += can concatenate,
                                 // but its resulting string must still fit the target.
