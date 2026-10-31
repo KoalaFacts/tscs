@@ -173,7 +173,7 @@
     },
     {
       "id": "no-substitution-template:positive-25",
-      "source": "function label(n: number): string { return `n${n}`; } let s: string = `outer${label(`inner${21}`)}`;",
+      "source": "function label(n: string): string { return `n${n}`; } let s: string = `outer${label(`inner${21}`)}`;",
       "expectedCodes": []
     },
     {
