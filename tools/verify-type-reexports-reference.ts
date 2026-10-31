@@ -54,11 +54,9 @@ for(let i=0;i<suite.cases.length;i++){
     assert.match(name,/^[a-z][a-z0-9-]*\.ts$/);
     assert.equal(typeof source,'string');
     const value=source as string;
-    writeFileSync(join(cwd,name),value,{flag:'wx',flush:true});
     save(dirName+'/'+name,value);
     sources.push({name,length:Buffer.byteLength(value),sha256:sha(value)});
   }
-  writeFileSync(join(cwd,'minimal.d.ts'),minimal,{flag:'wx',flush:true});
   save(dirName+'/minimal.d.ts',minimal);
   const args=['--noEmit','--noLib','--target','es2015','--module','es2015',
     '--pretty','false','entry.ts','minimal.d.ts'];
