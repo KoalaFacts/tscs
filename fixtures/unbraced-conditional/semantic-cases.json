@@ -29,7 +29,9 @@
     {
       "id": "unbraced-conditional:positive-06",
       "source": "function f(n:number):number{if(n);else return 5;return 0;}",
-      "expectedCodes": []
+      "expectedCodes": [
+        "TS1313"
+      ]
     },
     {
       "id": "unbraced-conditional:positive-07",

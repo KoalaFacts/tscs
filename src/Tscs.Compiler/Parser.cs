@@ -567,7 +567,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     // One unbraced statement forms one branch; the nearest unmatched if
     // consumes its own else. A synthetic Block preserves checked branch scopes
     // and native ES2015 emission without a separate semantic pipeline.
-    private Block ParseConditionalArm(int depth,bool inFunction)
+    private Block ParseConditionalArm(int depth,bool inFunction,bool ifConsequent=false)
     {
         if(Eat(TokenKind.Open))
         {
@@ -578,6 +578,10 @@ internal sealed class Parser(string file, List<Token> tokens)
         }
         if(Current.Kind is TokenKind.Let or TokenKind.Const)
             Unsupported(Current,"Lexical declarations in if/else arms require braces.");
+        // TS1313 applies to a bare empty if consequent, not an else arm.
+        if(ifConsequent && Current.Kind==TokenKind.Semi)
+            Diagnostics.Add(Diagnostic.Error(file,Current,"TS1313",
+                "The body of an 'if' statement cannot be the empty statement."));
         var single=Parse(depth+1,inFunction,singleStatementBody:true);
         if(single.Statements.Count!=1)
             Unsupported(Current,"Expected a statement after an if/else condition.");
@@ -596,7 +600,7 @@ internal sealed class Parser(string file, List<Token> tokens)
             var condition=ParseValue();
             if(!Eat(TokenKind.CloseParen))
                 Unsupported(Current,"Expected ')' after the condition.");
-            var consequent=ParseConditionalArm(depth,inFunction);
+            var consequent=ParseConditionalArm(depth,inFunction,ifConsequent:true);
             Statement? alternate=null;
             if(Eat(TokenKind.Else))
                 alternate=Current.Kind==TokenKind.If
