@@ -160,7 +160,7 @@ public static class CommandLine
         var symbolPattern=new Regex(@"\G\s*declare\s+const\s+Symbol\s*:\s*SymbolConstructor\s*;\s*",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         var extras=new HashSet<string>(StringComparer.Ordinal);
-        bool symbolDeclared=false,arrayIterable=false,readonlyArrayDeclared=false;
+        bool symbolDeclared=false,arrayIterable=false;
         int position=0;
         while(position<text.Length)
         {
@@ -200,10 +200,13 @@ public static class CommandLine
                 // This optional ambient interface describes the pinned Go
                 // reference's immutable array view. Do not add it to the
                 // required global list or accept arbitrary generic declarations.
-                if(readonlyArrayDeclared || genericParameters!="<T>" ||
-                   !IsSupportedReadonlyArrayContract(members))
-                    throw new InputFailure("Only the bounded readonly Array<T> ambient contract is supported.");
-                readonlyArrayDeclared=true;
+                // globals persists across all .d.ts inputs, unlike a local
+                // flag: identical index signatures in separate ambient files
+                // must not silently merge into one accepted declaration.
+                if(genericParameters!="<T>" ||
+                   !IsSupportedReadonlyArrayContract(members) ||
+                   !globals.Add(name))
+                    throw new InputFailure("Only one bounded readonly Array<T> ambient contract is supported.");
             }
             else
             {

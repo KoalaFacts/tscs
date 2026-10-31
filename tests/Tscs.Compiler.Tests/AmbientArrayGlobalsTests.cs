@@ -135,6 +135,28 @@ public sealed class AmbientArrayGlobalsTests : IDisposable
         Assert.Equal(1,exit);
         Assert.Contains("TSCS1002",output);
     }
+
+    [Fact]
+    public void DuplicateReadonlyArrayContractsAcrossAmbientFilesFailClosed()
+    {
+        const string readonlyContract="interface ReadonlyArray<T> { readonly length: number; readonly [index: number]: T; }";
+        var first=Path.Combine(directory,"one.d.ts");
+        var second=Path.Combine(directory,"two.d.ts");
+        var source=Path.Combine(directory,"two-ambient.ts");
+        File.WriteAllText(first,
+            "interface Array<T> { length:number; [index:number]:T; }\n"+
+            readonlyContract+"\n"+
+            "interface Boolean {} interface Function {} interface CallableFunction {} interface NewableFunction {} "+
+            "interface IArguments {} interface Number {} interface Object {} interface RegExp {} interface String {}");
+        File.WriteAllText(second,readonlyContract);
+        File.WriteAllText(source,"let values: readonly number[] = [21]; let value: number = values[0];");
+        using var stdout=new StringWriter();
+        using var stderr=new StringWriter();
+        var exit=CommandLine.Run(["--noEmit","--noLib","--target","es2015",source,first,second],stdout,stderr);
+        Assert.Equal(1,exit);
+        Assert.Contains("TSCS1002",stdout.ToString()+stderr.ToString());
+    }
+
     [Fact]
     public void OriginalEmptyAmbientArrayContractRemainsAccepted()
     {
