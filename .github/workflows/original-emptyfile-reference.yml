@@ -42,6 +42,7 @@ jobs:
           node tools/verify-literal-types-reference.ts "$reference" .artifacts/literal-types-reference
           node tools/verify-discriminant-reference.ts "$reference" .artifacts/discriminant-reference
           node tools/verify-guard-reference.ts "$reference" .artifacts/guard-reference
+          node tools/verify-guard-reference.ts "$reference" .artifacts/truthy-guard-reference fixtures/truthy-guard/semantic-cases.json
           node tools/verify-typeof-reference.ts "$reference" .artifacts/typeof-primitive-reference
           node tools/verify-typeof-reference.ts "$reference" .artifacts/delete-optional-reference fixtures/delete-optional/semantic-cases.json
           node tools/verify-conditional-reference.ts "$reference" .artifacts/conditional-values-reference
@@ -462,6 +463,14 @@ jobs:
         with:
           name: pinned-typeof-primitive-reference-${{ github.sha }}
           path: .artifacts/typeof-primitive-reference/
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Preserve bounded truthiness reference inputs and raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-truthy-guard-reference-${{ github.sha }}
+          path: .artifacts/truthy-guard-reference/
           retention-days: 30
           if-no-files-found: warn
       - name: Preserve returning-guard reference inputs and raw results

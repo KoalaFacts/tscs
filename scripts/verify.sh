@@ -21,6 +21,7 @@ node tools/verify-literal-types-emit.ts
 node tools/verify-discriminant-emit.ts
 node tools/verify-guard-emit.ts
 node tools/verify-typeof-emit.ts
+node tools/verify-truthiness-emit.ts
 node tools/verify-conditional-emit.ts
 node tools/verify-nullish-emit.ts
 node tools/verify-logical-assignment-emit.ts

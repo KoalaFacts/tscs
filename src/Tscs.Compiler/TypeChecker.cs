@@ -735,9 +735,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     private DiscriminantContinuation? CheckConditional(ConditionalStatement conditional,Scope scope,TypeSymbol? expectedReturn,bool allowBreak,bool allowContinue)
     {
         var conditionType=TypeOf(conditional.Condition,scope);
-        if(conditionType!=null && !CompilerTypes.IsAssignable(conditionType,CompilerTypes.Boolean))
+        if(conditionType!=null && !CompilerTypes.IsAssignable(conditionType,CompilerTypes.Boolean) &&
+           !IsBoundedTruthyIdentifier(conditional.Condition))
             throw new CompilationFailure(Diagnostic.Error(file,conditional.Keyword,"TSCS1001",
-                "Only boolean or any conditions are supported by the current flow checker."));
+                "Only boolean or bounded identifier truthiness conditions are supported by the current flow checker."));
         // Discriminant types are a branch-local view of one existing symbol.
         // Never mutate the AST or permanently narrow the declaration type.
         var discriminant=TryNarrowDiscriminant(conditional.Condition,scope);
@@ -874,6 +875,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 ?new DiscriminantBranches(left.Symbol,left.WhenTrue,original)
                 :new DiscriminantBranches(left.Symbol,original,left.WhenFalse);
         }
+        if(TryNarrowTruthyIdentifier(condition,scope) is { } truthy)
+            return truthy;
         if(condition is not ValueBinary comparison)return null;
         if(comparison.Operator.Kind==TokenKind.In)
             return TryNarrowInProperty(comparison,scope);
@@ -922,6 +925,78 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             :new DiscriminantBranches(symbol,onDifferent,onEqual);
     }
 
+
+    // Only direct identifier reads have stable flow identity in this subset.
+    private static bool IsBoundedTruthyIdentifier(ValueNode condition)
+    {
+        while(condition is ValueParenthesized group)condition=group.Expression;
+        return condition is ValueAtom { Token.Kind:TokenKind.Identifier };
+    }
+
+    // Falsy number/string values are possible even when their types exclude
+    // nullish values. Retain broad numeric/string/boolean types in both arms.
+    // Only exact literal values and known always-truthy object/function shapes
+    // are partitioned; any/unknown and unhandled types never gain assumptions.
+    private static DiscriminantBranches? TryNarrowTruthyIdentifier(ValueNode condition,Scope scope)
+    {
+        if(!IsBoundedTruthyIdentifier(condition))return null;
+        while(condition is ValueParenthesized group)condition=group.Expression;
+        var atom=(ValueAtom)condition;
+        var symbol=scope.Find(atom.Token.Text);
+        if(symbol?.Type is not UnionTypeSymbol union)return null;
+        var truthy=new List<TypeSymbol>();
+        var falsy=new List<TypeSymbol>();
+        foreach(var alternative in union.Alternatives)
+        {
+            bool mayBeTruthy,mayBeFalsy;
+            switch(alternative)
+            {
+                case PrimitiveTypeSymbol { Kind:PrimitiveKind.Null or PrimitiveKind.Undefined }:
+                    mayBeTruthy=false;mayBeFalsy=true;
+                    break;
+                case PrimitiveTypeSymbol { Kind:PrimitiveKind.Void }:
+                    // A void-typed callback may still return a runtime value.
+                    // Never assume this constituent is always falsy.
+                    mayBeTruthy=true;mayBeFalsy=true;
+                    break;
+                case PrimitiveTypeSymbol { Kind:PrimitiveKind.Number or PrimitiveKind.String or PrimitiveKind.Boolean }:
+                    mayBeTruthy=true;mayBeFalsy=true;
+                    break;
+                case LiteralTypeSymbol { Kind:PrimitiveKind.Boolean } literalBoolean:
+                    mayBeTruthy=literalBoolean.Value=="true";
+                    mayBeFalsy=!mayBeTruthy;
+                    break;
+                case LiteralTypeSymbol { Kind:PrimitiveKind.String } literalString:
+                    mayBeTruthy=literalString.Value.Length>0;
+                    mayBeFalsy=!mayBeTruthy;
+                    break;
+                case LiteralTypeSymbol { Kind:PrimitiveKind.Number } literalNumber:
+                    if(!double.TryParse(literalNumber.Value,
+                        System.Globalization.NumberStyles.Float,
+                        System.Globalization.CultureInfo.InvariantCulture,out var numeric))
+                        return null;
+                    mayBeTruthy=numeric!=0 && !double.IsNaN(numeric);
+                    mayBeFalsy=!mayBeTruthy;
+                    break;
+                case ObjectTypeSymbol shape:
+                    // The empty structural {} contract also accepts 0, "" and
+                    // false. It is not proof of a non-falsy runtime object.
+                    mayBeTruthy=true;mayBeFalsy=shape.Members.Count==0;
+                    break;
+                case ArrayTypeSymbol or FunctionTypeSymbol:
+                    mayBeTruthy=true;mayBeFalsy=false;
+                    break;
+                default:
+                    return null;
+            }
+            if(mayBeTruthy)truthy.Add(alternative);
+            if(mayBeFalsy)falsy.Add(alternative);
+        }
+        // No unreachable-path modeling: both arms must have a live type.
+        if(truthy.Count==0 || falsy.Count==0)return null;
+        return new DiscriminantBranches(symbol,
+            CompilerTypes.Union(truthy),CompilerTypes.Union(falsy));
+    }
 
     // A literal, singleton-typed variable, or directly initialized immutable
     // literal variable has a known runtime property key. Widened/mutable keys
@@ -1692,9 +1767,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             if(node is ValueConditional chosen)
             {
                 var conditionType=TypeOf(chosen.Condition,scope);
-                if(conditionType!=null && !CompilerTypes.IsAssignable(conditionType,CompilerTypes.Boolean))
+                if(conditionType!=null && !CompilerTypes.IsAssignable(conditionType,CompilerTypes.Boolean) &&
+                   !IsBoundedTruthyIdentifier(chosen.Condition))
                     throw new CompilationFailure(Diagnostic.Error(file,chosen.Question,"TSCS1001",
-                        "Conditional values currently require boolean or any conditions."));
+                        "Conditional values currently require boolean or bounded identifier truthiness."));
                 // Reuse statement-branch discriminant and typeof narrowing.
                 // Both arms are independently checked; temporary read views
                 // are restored even if an arm reports an error.
@@ -2009,8 +2085,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 }
                 var operand=types.Pop();
                 if(operand==null)types.Push(null);
-                else if(unary.Operator.Kind==TokenKind.Bang &&
-                    (CompilerTypes.IsBoolean(operand)||operand.Equals(CompilerTypes.Any)))
+                else if(unary.Operator.Kind==TokenKind.Bang)
+                    // ECMAScript ! consumes truthiness for every checked runtime value.
                     types.Push(CompilerTypes.Boolean);
                 else if(unary.Operator.Kind==TokenKind.Typeof)
                     types.Push(CompilerTypes.String);
