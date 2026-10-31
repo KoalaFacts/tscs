@@ -28,7 +28,11 @@ try {
     'export const negative: -1.5 = -1.50;',
     'let steps: number = 0;',
     'for (let i: number = .5; i < 3; i += .5) { steps += 1; }',
-    'export const count: number = steps;'
+    'export const count: number = steps;',
+    'export const separated: number = 1_000 + 2_0.5_0;',
+    'export const exponentSeparated: number = 1_2.5_0e1_0;',
+    'export const keyed: { 10: number } = { 1_0: 42 };',
+    'export const indexed: number = keyed[1_0];'
   ].join('\n'));
   writeFileSync(join(folder,'project.json'),JSON.stringify({
     files:['entry.ts','minimal.d.ts'],
@@ -43,8 +47,10 @@ try {
   assert.equal(compiled.status,0,compiled.stdout+compiled.stderr);
   for(const name of ['model','logic','bridge','entry'])
     assert.ok(existsSync(join(folder,name+'.js')),'missing '+name+'.js');
+  assert.doesNotMatch(readFileSync(join(folder,'entry.js'),'utf8'), /\d_\d/,
+    'ES2015 output must not contain numeric separator syntax');
   const execute=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,decimal,scientific,tiny,trailing,leading,exact,negative,count} from "./entry.js"; if(result!==42||decimal!==.5||scientific!==42||tiny!==.25||trailing!==3||leading!==.5||exact!==100||negative!==-1.5||count!==5) throw Error("numeric literal runtime mismatch");'],
+    'import {result,decimal,scientific,tiny,trailing,leading,exact,negative,count,separated,exponentSeparated,indexed} from "./entry.js"; if(result!==42||decimal!==.5||scientific!==42||tiny!==.25||trailing!==3||leading!==.5||exact!==100||negative!==-1.5||count!==5||separated!==1020.5||exponentSeparated!==125000000000||indexed!==42) throw Error("numeric literal runtime mismatch");'],
     {cwd:folder,encoding:'utf8',timeout:15000});
   assert.equal(execute.error,undefined,String(execute.error));
   assert.equal(execute.status,0,execute.stdout+execute.stderr);
@@ -52,7 +58,9 @@ try {
     ['invalid-type','let n: string = 0.5;',2,/TS2322/],
     ['invalid-literal','type Half = .5; let n: Half = 0.25;',2,/TS2322/],
     ['invalid-exponent','let n: number = 1e+;',1,/TSCS1001/],
-    ['unsupported-separator','let n: number = 1_000;',1,/TSCS1001/]
+    ['invalid-separator','let n: number = 1__000;',1,/TSCS1001/],
+    ['invalid-exponent-separator','let n: number = 1e_2;',1,/TSCS1001/],
+    ['separator-type','let n: string = 1_000;',2,/TS2322/]
   ] as const) {
     writeFileSync(join(folder,name+'.ts'),source);
     const rejected=spawnSync(process.env.DOTNET??'dotnet',

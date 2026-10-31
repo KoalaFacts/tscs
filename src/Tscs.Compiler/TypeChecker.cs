@@ -1022,7 +1022,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 return true;
             }
             if(atom.Token.Kind==TokenKind.Number)
-                return TrySafeInIntegerKey(atom.Token.Text,out key);
+                return TrySafeInIntegerKey(atom.Token.Value??atom.Token.Text,out key);
             if(atom.Token.Kind==TokenKind.Identifier)
             {
                 var symbol=scope.Find(atom.Token.Text);
@@ -1054,7 +1054,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                                 return true;
                             }
                             if(initial.Token.Kind==TokenKind.Number)
-                                return TrySafeInIntegerKey(initial.Token.Text,out key);
+                                return TrySafeInIntegerKey(initial.Token.Value??initial.Token.Text,out key);
                         }
                     }
                 }
@@ -1130,7 +1130,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 var operand=voidExpr.Operand;
                 while(operand is ValueParenthesized grouped)operand=grouped.Expression;
                 if(operand is ValueAtom number && number.Token.Kind==TokenKind.Number &&
-                   number.Token.Text=="0")
+                   (number.Token.Value??number.Token.Text)=="0")
                 {
                     isNull=false;
                     return true;

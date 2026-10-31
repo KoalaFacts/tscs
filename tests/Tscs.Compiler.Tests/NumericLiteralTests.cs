@@ -40,12 +40,47 @@ public sealed class NumericLiteralTests
     [InlineData("let n = 1e;")]
     [InlineData("let n = 1E+;")]
     [InlineData("let n = 1e-;")]
-    [InlineData("let n = 1_000;")]
+    [InlineData("let n = 1__000;")]
+    [InlineData("let n = 1_;")]
+    [InlineData("let n = 1_.5;")]
+    [InlineData("let n = 1._5;")]
+    [InlineData("let n = 1e_2;")]
+    [InlineData("let n = 1e2_;")]
+    [InlineData("let n = 0_1;")]
     [InlineData("let n = 0x10;")]
     [InlineData("let n = 1e9999;")]
     [InlineData("let n = 1.2.3;")]
     public void UnsupportedOrMalformedNumericFormsRemainRejected(string source) =>
         Assert.Contains(Compilation.Check("numeric-literals.ts",source),d=>d.Code=="TSCS1001");
+
+    [Theory]
+    [InlineData("let n: number = 1_000;")]
+    [InlineData("let n: number = .1_25;")]
+    [InlineData("let n: number = 12_34.5_6e-2;")]
+    [InlineData("type Thousand = 1_000; let n: Thousand = 1000;")]
+    [InlineData("type Negative = -1_000; let n: Negative = -1000;")]
+    [InlineData("const slots: { 10: number } = { 1_0: 21 }; let n: number = slots[1_0];")]
+    [InlineData("function half(n: number): number { return n / 1_0; } let x: number = half(2_0);")]
+    public void DecimalNumericSeparatorsFlowThroughRealCompilation(string source) =>
+        Assert.Empty(Compilation.Check("numeric-separators.ts",source));
+
+    [Theory]
+    [InlineData("let n: string = 1_000;", "TS2322")]
+    [InlineData("type Count = 1_000; let n: Count = 2_000;", "TS2322")]
+    [InlineData("function take(n: 2_0): number { return n; } let n: number = take(1_0);", "TS2345")]
+    public void DecimalSeparatorsDoNotBypassTypeChecks(string source,string code) =>
+        Assert.Contains(Compilation.Check("invalid-numeric-separators.ts",source),d=>d.Code==code);
+
+    [Fact]
+    public void SeparatorTokensKeepSourceSpanAndDecodedValue()
+    {
+        var number=Assert.Single(new Scanner("separators.ts","1_000.2_5e1_0").Scan(),
+            token=>token.Kind==TokenKind.Number);
+        Assert.Equal("1_000.2_5e1_0",number.Text);
+        Assert.Equal(13,number.Length);
+        Assert.Equal("1000.25e10",number.Value);
+        Assert.Throws<CompilationFailure>(()=>new Scanner("strict.json","1_000",jsonMode:true).Scan());
+    }
 
     [Fact]
     public void ScannerKeepsPreciseSpansAndJsonBoundary()
