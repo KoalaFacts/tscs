@@ -68,7 +68,7 @@
     },
     {
       "id": "delete-optional:positive-14",
-      "source": "type Box={value?:number};let boxes:Box[]=[{value:21}];let r:boolean=delete boxes[0].value;",
+      "source": "type Box={value?:number};function clear(h:{inner:Box|null}):boolean{return delete h.inner?.[\"value\"];}",
       "expectedCodes": []
     },
     {
