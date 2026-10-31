@@ -56,7 +56,7 @@ try {
     assert.ok(existsSync(join(folder,name+'.js')),'missing '+name+'.js');
   assert.doesNotMatch(readFileSync(join(folder,'entry.js'),'utf8'), /\d_\d/,
     'ES2015 output must not contain numeric separator syntax');
-  assert.doesNotMatch(readFileSync(join(folder,'entry.js'),'utf8'), /\\b0[xXbBoO][0-9a-fA-F_]+/,
+  assert.doesNotMatch(readFileSync(join(folder,'entry.js'),'utf8'), /\b0[xXbBoO][0-9a-fA-F_]+/,
     'radix literals must emit checked decimal Number values');
   const execute=spawnSync(process.execPath,['--input-type=module','--eval',
     'import {result,decimal,scientific,tiny,trailing,leading,exact,negative,count,separated,exponentSeparated,indexed,hex,binary,octal,radixExact,radixIndexed,radixCrossModule} from "./entry.js"; if(result!==42||decimal!==.5||scientific!==42||tiny!==.25||trailing!==3||leading!==.5||exact!==100||negative!==-1.5||count!==5||separated!==1020.5||exponentSeparated!==125000000000||indexed!==42||hex!==42||binary!==42||octal!==42||radixExact!==42||radixIndexed!==21||radixCrossModule!==42) throw Error("numeric literal runtime mismatch");'],

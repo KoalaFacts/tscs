@@ -97,6 +97,7 @@ public sealed class NumericLiteralTests
             "12",jsonMode:true).Scan(),t=>t.Kind==TokenKind.Number).Kind);
     }
     [Theory]
+    [InlineData("let n = 0x10;")]
     [InlineData("let n: number = 0x2a;")]
     [InlineData("let n: number = 0X2_A;")]
     [InlineData("let n: number = 0b10_1010;")]
