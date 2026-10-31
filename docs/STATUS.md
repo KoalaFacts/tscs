@@ -1,3 +1,17 @@
+## 2026-10-31 — Checked numeric, string and object truthiness in logical assignment (source candidate; NOT_RUN)
+
+The C# TypeChecker now accepts `&&=` and `||=` on bounded numeric, string,
+nullable and finite object lvalues, including typed members and array indices,
+instead of incorrectly requiring a boolean target. RHS writes remain checked
+against the declared type, retaining readonly and uninitialized errors.
+Existing ES2015 output keeps JS truthiness, lazy RHS and once-only lvalue
+receiver/index capture. This package registers 13 source-backed xUnit positives,
+corrects former unsupported-only negative expectations, adds seven executed JS
+scenarios to the same four modules, and 16 additive bounded pinned-Go IDs.
+At source creation these new checks are NOT_RUN. Existing 22 reference IDs stay
+unchanged. Full TS7 original acceptance remains 0 PASS / 15,523
+SKIP_UNIMPLEMENTED; dynamic case expansion remains UNEXPANDED.
+
 ## 2026-10-31 — Checked logical assignments through object properties and indices (candidate; NOT_RUN)
 
 The C# type-checker now accepts bounded logical `&&=`, `||=` and `??=`
