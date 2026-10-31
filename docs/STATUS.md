@@ -1,3 +1,16 @@
+## 2026-10-31 — Guarded optional-member deletion (candidate; NOT_RUN)
+
+Finite `delete box?.value`, `delete box?.["value"]` and parenthesized
+variants now support named object receivers with explicit nullish alternatives.
+The generated ES2015 code evaluates the receiver once and returns true on
+nullish input; otherwise it removes the actual member. Required/readonly
+members, dynamic keys, arrays, nested/effectful receivers and continuation
+chains remain rejected. Five new immutable-ID positive pinned-Go references,
+C# source checks, four-module Node runtime and no-emit negatives are registered
+but NOT_RUN at source creation. No original TS7 acceptance credit is claimed;
+the 15,523 registered original cases remain SKIP_UNIMPLEMENTED and dynamic
+scope remains UNEXPANDED.
+
 ## 2026-10-31 — Bounded optional-member delete (source candidate; NOT_RUN)
 
 The C# scanner, parser, structural checker and ES2015 emitter support

@@ -586,31 +586,40 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         CompilerTypes.IsNumber(type)||type.Equals(CompilerTypes.Any);
 
 
-    // Only finite mutable optional members have sound bounded delete semantics.
-    // Dynamic/array/union/nested/optional-chain targets fail closed.
+    // Guarded delete accepts only named finite mutable optional members.
+    // A nullish receiver returns true; all dynamic, nested and writable
+    // required-member targets remain outside the supported subset.
     private void CheckDeleteOptionalMember(ValueNode operand,Scope scope,Token keyword)
     {
         while(operand is ValueParenthesized grouped)operand=grouped.Expression;
         ValueNode receiver;
         ValueNode? index=null;
         string? name=null;
+        bool guarded=false;
         switch(operand)
         {
-            case ValuePropertyAccess { Optional:false,ChainContinuation:false } member:
+            case ValuePropertyAccess { ChainContinuation:false } member:
                 receiver=member.Receiver;
                 name=member.Name.Text;
+                guarded=member.Optional;
                 break;
-            case ValueElementAccess { Optional:false,ChainContinuation:false } element:
+            case ValueElementAccess { ChainContinuation:false } element:
                 receiver=element.Receiver;
                 index=element.Index;
+                guarded=element.Optional;
                 break;
             default:
                 throw new CompilationFailure(Diagnostic.Error(file,keyword,"TSCS1001",
                     "Delete currently requires a finite optional object member target."));
         }
         while(receiver is ValueParenthesized groupedReceiver)receiver=groupedReceiver.Expression;
-        if(receiver is not ValueAtom { Token.Kind:TokenKind.Identifier } variable ||
-           scope.Find(variable.Token.Text)?.Type is not ObjectTypeSymbol shape)
+        if(receiver is not ValueAtom { Token.Kind:TokenKind.Identifier } variable)
+            throw new CompilationFailure(Diagnostic.Error(file,keyword,"TSCS1001",
+                "Delete currently requires a named finite object receiver."));
+        var receiverType=scope.Find(variable.Token.Text)?.Type;
+        var presentType=receiverType is null?null:guarded
+            ?CompilerTypes.NonNullAssertionResult(receiverType):receiverType;
+        if(presentType is not ObjectTypeSymbol shape)
             throw new CompilationFailure(Diagnostic.Error(file,keyword,"TSCS1001",
                 "Delete currently requires a named finite object receiver."));
         if(index is not null && !TryStaticNamedIndex(index,shape,out name))
