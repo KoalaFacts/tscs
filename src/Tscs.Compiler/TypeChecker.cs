@@ -226,11 +226,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     case CompoundAssignment compound:
                         bool logicalAssignment=compound.Operator.Kind is TokenKind.AmpAmpEqual
                             or TokenKind.BarBarEqual or TokenKind.QuestionQuestionEqual;
-                        // Identifier-only first: receiver/index assignment requires
-                        // its own once-only ES2015 lvalue lowering.
-                        if(logicalAssignment && compound.Target is not ValueAtom { Token.Kind:TokenKind.Identifier })
-                            throw new CompilationFailure(Diagnostic.Error(file,compound.Operator,"TSCS1001",
-                                "Logical compound assignments currently require an identifier target."));
+                        // Member and indexed logical assignments use the same checked
+                        // writable-target constraints as ordinary compound writes.
+                        // The emitter captures their receiver/key once and evaluates
+                        // the RHS only on the branch that actually writes.
                         Symbol? logicalTarget=null;
                         TypeSymbol? targetType;
                         switch(compound.Target)

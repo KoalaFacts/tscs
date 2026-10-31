@@ -1,3 +1,20 @@
+## 2026-10-31 — Checked logical assignments through object properties and indices (candidate; NOT_RUN)
+
+The C# type-checker now accepts bounded logical `&&=`, `||=` and `??=`
+writes to mutable finite object members and indexed array/object elements,
+including typed factory results and nested receivers. ES2015 lowering captures
+both receiver and computed key once and the original value for `??=`, while
+keeping RHS evaluation lazy. Required type and readonly checks remain active;
+writes through optional chains, union-typed receivers and unrestricted JS
+truthiness remain explicitly unsupported.
+
+Source-backed xUnit positives/negatives, four linked ES2015 Node modules,
+once-only side-effect probes, nine no-JS invalid cases and ten additive pinned
+Go source/code/exit comparison IDs are registered as NOT_RUN pending exact-head
+CI. Existing twelve oracle IDs remain unchanged. Complete original TS7 stays
+0 PASS / 15,523 SKIP_UNIMPLEMENTED; dynamic scope UNEXPANDED, no release
+acceptance credit, gate, pin or test minimum change.
+
 ## 2026-10-31 — Bounded logical assignment operators (candidate; NOT_RUN)
 
 The shared scanner/parser/checker accepts short-circuit `&&=`, `||=`,

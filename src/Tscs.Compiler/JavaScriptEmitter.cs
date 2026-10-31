@@ -406,30 +406,87 @@ internal static class JavaScriptEmitter
 
         private void WriteLogicalCompound(CompoundAssignment compound)
         {
-            // ES2015 has no logical assignments. A checked identifier target
-            // has no receiver/getter or index effects. The ??= lowering also
-            // captures the value exactly once and keeps the RHS lazy.
-            if(compound.Target is not ValueAtom { Token.Kind:TokenKind.Identifier } identifier)
-                throw new NotSupportedException("Logical compound assignment requires a checked identifier.");
-            var name=identifier.Token.Text;
+            // ES2015 lacks logical assignments. Keep the checked identifier
+            // lowering, which captures the old value for ??= and makes RHS lazy.
+            if(compound.Target is ValueAtom { Token.Kind:TokenKind.Identifier } identifier)
+            {
+                var name=identifier.Token.Text;
+                if(compound.Operator.Kind==TokenKind.QuestionQuestionEqual)
+                {
+                    var referenced=ReferencedValueNames(compound.Value);
+                    referenced.Add(name);
+                    var old=FreshPowerTemporary(referenced);
+                    output.Append("((").Append(old).Append(") => ")
+                        .Append(old).Append(" == null ? (").Append(name).Append(" = ");
+                    WriteExpression(compound.Value);
+                    output.Append(") : ").Append(old).Append(")(").Append(name).Append(')');
+                }
+                else
+                {
+                    output.Append('(').Append(name)
+                        .Append(compound.Operator.Kind==TokenKind.AmpAmpEqual?" && (":" || (")
+                        .Append(name).Append(" = ");
+                    WriteExpression(compound.Value);
+                    output.Append("))");
+                }
+                return;
+            }
+
+            // Evaluating an lvalue twice would repeat factory calls, key
+            // expressions and accessors. Capture the receiver/key before the
+            // first read; for ??= also capture the original property value.
+            // An arrow expression is valid in normal statements and for headers.
+            if(compound.Target is not (ValuePropertyAccess or ValueElementAccess))
+                throw new NotSupportedException("Unvalidated logical assignment lvalue.");
+            var used=ReferencedValueNames(compound.Value);
+            used.UnionWith(ReferencedValueNames(compound.Target));
+            var receiver=FreshPowerTemporary(used);
+            var index=compound.Target is ValueElementAccess?FreshPowerTemporary(used):null;
+
+            void Access()
+            {
+                output.Append(receiver);
+                if(compound.Target is ValuePropertyAccess property)
+                    output.Append('.').Append(property.Name.Text);
+                else
+                    output.Append('[').Append(index).Append(']');
+            }
+
+            output.Append("((").Append(receiver);
+            if(index is not null)output.Append(", ").Append(index);
+            output.Append(") => ");
             if(compound.Operator.Kind==TokenKind.QuestionQuestionEqual)
             {
-                var referenced=ReferencedValueNames(compound.Value);
-                referenced.Add(name);
-                var old=FreshPowerTemporary(referenced);
+                var old=FreshPowerTemporary(used);
                 output.Append("((").Append(old).Append(") => ")
-                    .Append(old).Append(" == null ? (").Append(name).Append(" = ");
+                    .Append(old).Append(" == null ? (");
+                Access();
+                output.Append(" = ");
                 WriteExpression(compound.Value);
-                output.Append(") : ").Append(old).Append(")(").Append(name).Append(')');
+                output.Append(") : ").Append(old).Append(")(");
+                Access();
+                output.Append(')');
             }
             else
             {
-                output.Append('(').Append(name)
-                    .Append(compound.Operator.Kind==TokenKind.AmpAmpEqual?" && (":" || (")
-                    .Append(name).Append(" = ");
+                output.Append('(');
+                Access();
+                output.Append(compound.Operator.Kind==TokenKind.AmpAmpEqual?" && (":" || (");
+                Access();
+                output.Append(" = ");
                 WriteExpression(compound.Value);
                 output.Append("))");
             }
+            output.Append(")(");
+            if(compound.Target is ValuePropertyAccess named)
+                WriteExpression(named.Receiver);
+            else if(compound.Target is ValueElementAccess keyed)
+            {
+                WriteExpression(keyed.Receiver);
+                output.Append(", ");
+                WriteExpression(keyed.Index);
+            }
+            output.Append(')');
         }
 
         private void WritePowerCompound(CompoundAssignment compound)
