@@ -951,8 +951,13 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             bool mayBeTruthy,mayBeFalsy;
             switch(alternative)
             {
-                case PrimitiveTypeSymbol { Kind:PrimitiveKind.Null or PrimitiveKind.Undefined or PrimitiveKind.Void }:
+                case PrimitiveTypeSymbol { Kind:PrimitiveKind.Null or PrimitiveKind.Undefined }:
                     mayBeTruthy=false;mayBeFalsy=true;
+                    break;
+                case PrimitiveTypeSymbol { Kind:PrimitiveKind.Void }:
+                    // A void-typed callback may still return a runtime value.
+                    // Never assume this constituent is always falsy.
+                    mayBeTruthy=true;mayBeFalsy=true;
                     break;
                 case PrimitiveTypeSymbol { Kind:PrimitiveKind.Number or PrimitiveKind.String or PrimitiveKind.Boolean }:
                     mayBeTruthy=true;mayBeFalsy=true;
