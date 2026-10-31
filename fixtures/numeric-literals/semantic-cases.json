@@ -123,6 +123,67 @@
       "expectedCodes": [
         "TS2345"
       ]
+    },
+    {
+      "id": "numeric-literals:positive-17",
+      "source": "let n: number = 1_000;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-18",
+      "source": "let n: number = 12_34.5_6;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-19",
+      "source": "let n: number = .1_25;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-20",
+      "source": "let n: number = 1_2e3_0;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-21",
+      "source": "let n: number = 1_2.3_4e-2;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-22",
+      "source": "type Thousand = 1_000; let n: Thousand = 1000;",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-23",
+      "source": "const slots: { 10: number } = { 1_0: 21 }; let n: number = slots[1_0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:positive-24",
+      "source": "function scale(n: number): number { return n / 1_0; } let r: number = scale(2_0);",
+      "expectedCodes": []
+    },
+    {
+      "id": "numeric-literals:negative-07",
+      "source": "let n: string = 1_000;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "numeric-literals:negative-08",
+      "source": "type Thousand = 1_000; let n: Thousand = 2_000;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "numeric-literals:negative-09",
+      "source": "function take(n: 2_0): number { return n; } let n: number = take(1_0);",
+      "expectedCodes": [
+        "TS2345"
+      ]
     }
   ]
 }

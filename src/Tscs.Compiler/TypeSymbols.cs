@@ -75,7 +75,7 @@ internal static class CompilerTypes
     public static LiteralTypeSymbol FromLiteralExact(Token token,bool negative=false)=>token.Kind switch
     {
         TokenKind.String when !negative=>new(PrimitiveKind.String,token.Value??token.Text),
-        TokenKind.Number=>new(PrimitiveKind.Number,CanonicalNumericLiteral(token.Text,negative)),
+        TokenKind.Number=>new(PrimitiveKind.Number,CanonicalNumericLiteral(token.Value??token.Text,negative)),
         TokenKind.True when !negative=>new(PrimitiveKind.Boolean,"true"),
         TokenKind.False when !negative=>new(PrimitiveKind.Boolean,"false"),
         _=>throw new ArgumentOutOfRangeException(nameof(token),"Only parsed primitive literals may form literal types.")

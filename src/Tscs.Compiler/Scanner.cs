@@ -87,12 +87,34 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                 // TS source mode accepts finite decimal/exponent spellings as a
                 // single number token: .5, 2., 2.e1, 2.5E-1.
                 bool leadingDot = first == '.';
-                while (position < text.Length && text[position] is >= '0' and <= '9') position++;
+                bool hasSeparator = false, validSeparators = true;
+                // Preserve raw source Text/Span. The decoded Value carries
+                // separator-free ES2015 spelling for semantics and emission.
+                void ReadDigits(bool precedingDigit)
+                {
+                    bool previousDigit = precedingDigit;
+                    while (position < text.Length &&
+                           (text[position] is >= '0' and <= '9' ||
+                            (!jsonMode && text[position] == '_')))
+                    {
+                        if (text[position] == '_')
+                        {
+                            hasSeparator = true;
+                            if (!previousDigit || position + 1 == text.Length ||
+                                text[position + 1] is not (>= '0' and <= '9'))
+                                validSeparators = false;
+                            previousDigit = false;
+                        }
+                        else previousDigit = true;
+                        position++;
+                    }
+                }
+                ReadDigits(!leadingDot);
                 int integerEnd = position;
                 if (!jsonMode && !leadingDot && position < text.Length && text[position] == '.')
                 {
                     position++;
-                    while (position < text.Length && text[position] is >= '0' and <= '9') position++;
+                    ReadDigits(false);
                 }
                 bool exponentComplete = true;
                 if (!jsonMode && position < text.Length && text[position] is 'e' or 'E')
@@ -100,16 +122,21 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                     position++;
                     if (position < text.Length && text[position] is '+' or '-') position++;
                     int exponentStart = position;
-                    while (position < text.Length && text[position] is >= '0' and <= '9') position++;
-                    exponentComplete = position > exponentStart;
+                    ReadDigits(false);
+                    exponentComplete = position > exponentStart && text[exponentStart] is >= '0' and <= '9';
                 }
+                var numericText = hasSeparator
+                    ? text[begin..position].Replace("_", "", StringComparison.Ordinal)
+                    : text[begin..position];
                 kind = TokenKind.Number;
-                if ((!leadingDot && first == '0' && integerEnd > begin + 1) ||
+                if (!validSeparators ||
+                    (!leadingDot && first == '0' && integerEnd > begin + 1) ||
                     !exponentComplete ||
                     (position < text.Length && (IsIdentifierPart(text[position]) || text[position] == '.')) ||
-                    (!jsonMode && (!double.TryParse(text[begin..position], NumberStyles.Float,
+                    (!jsonMode && (!double.TryParse(numericText, NumberStyles.Float,
                         CultureInfo.InvariantCulture, out var numeric) || !double.IsFinite(numeric))))
                     kind = TokenKind.Unsupported;
+                else if (hasSeparator) decodedValue = numericText;
             }
             else if (first is '\'' or '"')
             {

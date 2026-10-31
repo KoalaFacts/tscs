@@ -658,7 +658,9 @@ internal static class JavaScriptEmitter
             // The body has already been checked as a lexical function scope.
             void ObjectEntry(ObjectProperty entry)
             {
-                var key=entry.Computed?"["+entry.Name.Text+"]":entry.Name.Text;
+                var name=entry.Name.Kind==TokenKind.Number
+                    ?entry.Name.Value??entry.Name.Text:entry.Name.Text;
+                var key=entry.Computed?"["+name+"]":name;
                 if(!entry.Method)
                 {
                     Node(entry.Value);
@@ -774,7 +776,8 @@ internal static class JavaScriptEmitter
                 switch(node)
                 {
                     case ValueAtom atom:
-                        Text(atom.Token.Text);
+                        Text(atom.Token.Kind==TokenKind.Number
+                            ?atom.Token.Value??atom.Token.Text:atom.Token.Text);
                         break;
                     case ValueArrow arrow:
                         // Type annotations erase; ES2015 arrow captures remain lexical.

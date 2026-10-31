@@ -832,7 +832,7 @@ internal sealed class Parser(string file, List<Token> tokens)
         return new FunctionTypeSyntax(open,parameters,ReadTypeAnnotation(depth+1));
     }
 
-    internal static string PropertyName(Token token)=>token.Kind==TokenKind.String
+    internal static string PropertyName(Token token)=>token.Kind is TokenKind.String or TokenKind.Number
         ? token.Value??token.Text : token.Text;
 
     private Token ReadPropertyName(bool allowString,bool allowNumber=false)
@@ -840,7 +840,7 @@ internal sealed class Parser(string file, List<Token> tokens)
         // Only non-negative safe integers have an unambiguous static
         // property identity. Fractional/exponent keys are not in this subset.
         if(allowNumber && Current.Kind==TokenKind.Number &&
-           long.TryParse(Current.Text,System.Globalization.NumberStyles.None,
+           long.TryParse(Current.Value??Current.Text,System.Globalization.NumberStyles.None,
                System.Globalization.CultureInfo.InvariantCulture,out var integerKey) &&
            integerKey is >= 0 and <= 9007199254740991L)
             return Take();
