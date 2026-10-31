@@ -2,11 +2,18 @@
 
 C# TypeChecker now accepts checked numeric, string, member, optional-member,
 call and arithmetic conditions in braced if, ternary, while, do/while and
-classic for. Standalone void is diagnosed TS1345. The existing stable symbol
+classic for. Direct unary void expressions diagnose TS2873 (always falsy), while
+void-typed function calls used as conditions diagnose TS1345. The existing stable symbol
 guards still narrow; arbitrary property paths do not gain unsafe flow facts.
 Ten positive and five negative immutable-ID pinned-Go comparisons, a four-module
-ES2015 Node runtime, and six no-JS invalid scenarios are registered as NOT_RUN
-at candidate creation. Original TS7 acceptance remains 0 PASS / 15,523
+ES2015 Node runtime, and seven no-JS invalid scenarios are registered as NOT_RUN
+at candidate creation. The pinned Go reference on run 41199073081
+revealed the exact TS2873 diagnostic for the five frozen unary-void inputs;
+the candidate initially predicted TS1345 incorrectly. Their stable IDs and
+source hashes were retained, product diagnostics were corrected, and the
+explicit expected diagnostic was reconciled with the independently observed
+reference rather than relaxing any negative assertion. Original TS7 acceptance
+remains 0 PASS / 15,523
 SKIP_UNIMPLEMENTED; dynamic scope UNEXPANDED. Pin, release gate, CI
 threshold and protection are unchanged.
 

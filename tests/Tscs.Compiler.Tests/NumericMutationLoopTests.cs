@@ -30,7 +30,7 @@ public sealed class NumericMutationLoopTests
     [InlineData("function f():number { let n:number=1; n+=false; return n; }","TSCS1001")]
     [InlineData("function f():number { let n:number; n+=1; return 0; }","TSCS1001")]
     [InlineData("function f():number { let xs:number[]=[1]; xs[0]*=\"bad\"; return 0; }","TSCS1001")]
-    [InlineData("function f():number { let n:number=0; do { n++; } while(void n); return n; }","TS1345")]
+    [InlineData("function f():number { let n:number=0; do { n++; } while(void n); return n; }","TS2873")]
     [InlineData("function f():number { let n:number=0; --(n + 1); return n; }","TSCS1001")]
     [InlineData("function f():number { let n:number=0; do n++; while(n<2); return n; }","TSCS1001")]
     public void TypeAndGrammarErrorsRemainBlocking(string source,string code)=>

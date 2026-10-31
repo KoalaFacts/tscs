@@ -55,35 +55,35 @@
       "id": "condition-truthiness:negative-01",
       "source": "function wrong():number{if(void 0){return 21;}return 0;}",
       "expectedCodes": [
-        "TS1345"
+        "TS2873"
       ]
     },
     {
       "id": "condition-truthiness:negative-02",
       "source": "function wrong():number{return (void 0)?21:0;}",
       "expectedCodes": [
-        "TS1345"
+        "TS2873"
       ]
     },
     {
       "id": "condition-truthiness:negative-03",
       "source": "function wrong(n:number):number{while(void n){n=n-1;}return n;}",
       "expectedCodes": [
-        "TS1345"
+        "TS2873"
       ]
     },
     {
       "id": "condition-truthiness:negative-04",
       "source": "function wrong(n:number):number{do{n=n-1;}while(void n);return n;}",
       "expectedCodes": [
-        "TS1345"
+        "TS2873"
       ]
     },
     {
       "id": "condition-truthiness:negative-05",
       "source": "function wrong(n:number):number{for(;void n;){n=n-1;}return n;}",
       "expectedCodes": [
-        "TS1345"
+        "TS2873"
       ]
     }
   ]

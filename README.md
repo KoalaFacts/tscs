@@ -84,7 +84,8 @@ in the false arm because zero and empty strings are falsy. Reassignments
 invalidate branch refinements; runtime `!` accepts checked non-boolean
 operands. Checked runtime truthiness now accepts member/index reads, calls and
 arithmetic expressions as conditions in `if`, ternaries, `while`,
-`do/while` and classic `for`. Standalone `void` conditions reject with
+`do/while` and classic `for`. Direct unary `void` conditions reject with
+TS2873 (always falsy); testing a `void`-typed function result rejects with
 TS1345. Only stable existing guards narrow symbols: a member test does not
 invent property-path flow facts. Non-boolean `&&`/`||` result typing remains
 unimplemented.

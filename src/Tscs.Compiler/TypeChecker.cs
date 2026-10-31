@@ -919,15 +919,18 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
 
     // Only the existing stable guards narrow symbols. A general checked
     // JavaScript expression may be tested at runtime without gaining flow facts.
-    // TypeScript disallows testing a standalone void result (TS1345).
+    // TypeScript diagnoses an explicit void expression as always falsy
+    // (TS2873), separately from testing a void-typed function result (TS1345).
     private void CheckRuntimeCondition(ValueNode condition,TypeSymbol? value,Token location)
     {
         // Unary void evaluates its operand but has the semantic value
         // 'undefined'. Keep that value type intact for assignments and
         // nullish operators; detect forbidden condition syntax separately.
         while(condition is ValueParenthesized group)condition=group.Expression;
-        if(value is PrimitiveTypeSymbol { Kind:PrimitiveKind.Void } ||
-           condition is ValueUnary { Operator.Kind:TokenKind.Void })
+        if(condition is ValueUnary { Operator.Kind:TokenKind.Void })
+            throw new CompilationFailure(Diagnostic.Error(file,location,"TS2873",
+                "This kind of expression is always falsy."));
+        if(value is PrimitiveTypeSymbol { Kind:PrimitiveKind.Void })
             throw new CompilationFailure(Diagnostic.Error(file,location,"TS1345",
                 "An expression of type 'void' cannot be tested for truthiness."));
     }

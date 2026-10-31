@@ -56,12 +56,13 @@ try {
   assert.equal(run.error,undefined,String(run.error));
   assert.equal(run.status,0,run.stdout+run.stderr);
   const invalid=[
-    ['void-if','function bad():number{if(void 0){return 1;}return 0;}','TS1345'],
-    ['void-ternary','function bad():number{return (void 0)?1:0;}','TS1345'],
-    ['void-while','function bad(n:number):number{while(void n){n=n-1;}return n;}','TS1345'],
-    ['void-do','function bad(n:number):number{do{n=n-1;}while(void n);return n;}','TS1345'],
-    ['void-for','function bad(n:number):number{for(;void n;){n=n-1;}return n;}','TS1345'],
-    ['missing','function bad(box:{value:number}):number{if(box.missing){return 1;}return 0;}','TS2339']
+    ['void-if','function bad():number{if(void 0){return 1;}return 0;}','TS2873'],
+    ['void-ternary','function bad():number{return (void 0)?1:0;}','TS2873'],
+    ['void-while','function bad(n:number):number{while(void n){n=n-1;}return n;}','TS2873'],
+    ['void-do','function bad(n:number):number{do{n=n-1;}while(void n);return n;}','TS2873'],
+    ['void-for','function bad(n:number):number{for(;void n;){n=n-1;}return n;}','TS2873'],
+    ['missing','function bad(box:{value:number}):number{if(box.missing){return 1;}return 0;}','TS2339'],
+    ['void-call','function noop():void{return;}function bad():number{if(noop()){return 1;}return 0;}','TS1345']
   ] as const;
   for(const [name,source,code] of invalid){
     writeFileSync(join(folder,name+'.ts'),source);
@@ -70,5 +71,5 @@ try {
     assert.match(r.stdout+r.stderr,new RegExp(code));
     assert.equal(existsSync(join(folder,name+'.js')),false,'invalid JS output: '+name);
   }
-  console.log('Runtime truthiness: four linked modules executed; six invalid programs blocked.');
+  console.log('Runtime truthiness: four linked modules executed; seven invalid programs blocked.');
 } finally {rmSync(folder,{recursive:true,force:true});}

@@ -27,5 +27,12 @@ public sealed class ConditionTruthinessTests
     [InlineData("function wrong(n:number):number{do{n=n-1;}while(void n);return n;}")] // condition-truthiness:negative-04
     [InlineData("function wrong(n:number):number{for(;void n;){n=n-1;}return n;}")] // condition-truthiness:negative-05
     public void VoidExpressionConditionsAreRejected(string source) =>
-        Assert.Contains(Compilation.Check("condition-void.ts",source),d=>d.Code=="TS1345");
+        Assert.Contains(Compilation.Check("condition-void.ts",source),d=>d.Code=="TS2873");
+
+    [Fact]
+    public void VoidReturningFunctionConditionsKeepTheirDistinctDiagnostic()
+    {
+        const string source="function noop():void{return;}function bad():number{if(noop()){return 1;}return 0;}";
+        Assert.Contains(Compilation.Check("condition-void-call.ts",source),d=>d.Code=="TS1345");
+    }
 }
