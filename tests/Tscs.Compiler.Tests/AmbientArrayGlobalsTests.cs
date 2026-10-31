@@ -91,6 +91,50 @@ public sealed class AmbientArrayGlobalsTests : IDisposable
         Assert.Contains("TSCS1002",stdout.ToString()+stderr.ToString());
     }
 
+
+    private (int Exit,string Output) CompileReadonlyArrayAmbient(string declaration)
+    {
+        var source=Path.Combine(directory,"readonly-globals.d.ts");
+        var program=Path.Combine(directory,"readonly-input.ts");
+        File.WriteAllText(source,
+            "interface Array<T> { length:number; [index:number]:T; }\n"+
+            declaration+"\n"+
+            "interface Boolean {} interface Function {} interface CallableFunction {} interface NewableFunction {} "+
+            "interface IArguments {} interface Number {} interface Object {} interface RegExp {} interface String {}");
+        File.WriteAllText(program,"let source: number[] = [21]; let view: readonly number[] = source; let n: number = view[0];");
+        using var stdout=new StringWriter();
+        using var stderr=new StringWriter();
+        var exit=CommandLine.Run(["--noEmit","--noLib","--target","es2015",program,source],stdout,stderr);
+        return(exit,stdout.ToString()+stderr.ToString());
+    }
+
+    [Theory]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; }")]
+    [InlineData("interface ReadonlyArray < T > { readonly [i: number]:T; readonly length: number; }")]
+    public void ExactReadonlyArrayAmbientContractIsAccepted(string declaration)
+    {
+        var (exit,output)=CompileReadonlyArrayAmbient(declaration);
+        Assert.Equal(0,exit);
+        Assert.Equal("",output);
+    }
+
+    [Theory]
+    [InlineData("interface ReadonlyArray<T> { length:number; readonly [index:number]:T; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; [index:number]:T; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly [index:number]:T; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:string]:T; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:any; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly length:number; readonly [index:number]:T; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; push(x:T):number; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; } interface ReadonlyArray<T> {}")]
+    [InlineData("interface ReadonlyArray<T,K> { readonly length:number; readonly [index:number]:T; }")]
+    public void NonreadonlyOrMalformedArrayAmbientContractsFailClosed(string declaration)
+    {
+        var (exit,output)=CompileReadonlyArrayAmbient(declaration);
+        Assert.Equal(1,exit);
+        Assert.Contains("TSCS1002",output);
+    }
     [Fact]
     public void OriginalEmptyAmbientArrayContractRemainsAccepted()
     {

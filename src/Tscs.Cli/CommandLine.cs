@@ -160,7 +160,7 @@ public static class CommandLine
         var symbolPattern=new Regex(@"\G\s*declare\s+const\s+Symbol\s*:\s*SymbolConstructor\s*;\s*",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         var extras=new HashSet<string>(StringComparer.Ordinal);
-        bool symbolDeclared=false,arrayIterable=false;
+        bool symbolDeclared=false,arrayIterable=false,readonlyArrayDeclared=false;
         int position=0;
         while(position<text.Length)
         {
@@ -194,6 +194,16 @@ public static class CommandLine
                 };
                 if(!valid||!extras.Add(name))
                     throw new InputFailure("Unsupported or duplicate iterable ambient declaration.");
+            }
+            else if(name=="ReadonlyArray")
+            {
+                // This optional ambient interface describes the pinned Go
+                // reference's immutable array view. Do not add it to the
+                // required global list or accept arbitrary generic declarations.
+                if(readonlyArrayDeclared || genericParameters!="<T>" ||
+                   !IsSupportedReadonlyArrayContract(members))
+                    throw new InputFailure("Only the bounded readonly Array<T> ambient contract is supported.");
+                readonlyArrayDeclared=true;
             }
             else
             {
@@ -248,6 +258,35 @@ public static class CommandLine
             {
                 if(iterator)return false;
                 iterator=true;
+            }
+            position+=member.Length;
+        }
+        return length&&index;
+    }
+
+    // The optional readonly array global is accepted only when both
+    // immutable structural contracts are present exactly once. This is
+    // strictly ambient validation, not a generic value-declaration parser.
+    private static bool IsSupportedReadonlyArrayContract(string body)
+    {
+        var memberPattern=new Regex(@"\G\s*(?:(?<length>readonly\s+length\s*:\s*number)|(?<index>readonly\s+\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T))\s*;",
+            RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
+        int position=0;
+        bool length=false,index=false;
+        while(position<body.Length)
+        {
+            if(string.IsNullOrWhiteSpace(body[position..]))break;
+            var member=memberPattern.Match(body,position);
+            if(!member.Success)return false;
+            if(member.Groups["length"].Success)
+            {
+                if(length)return false;
+                length=true;
+            }
+            else
+            {
+                if(index)return false;
+                index=true;
             }
             position+=member.Length;
         }
