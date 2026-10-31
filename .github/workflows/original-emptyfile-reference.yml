@@ -47,6 +47,7 @@ jobs:
           node tools/verify-typeof-reference.ts "$reference" .artifacts/typeof-primitive-reference
           node tools/verify-typeof-reference.ts "$reference" .artifacts/delete-optional-reference fixtures/delete-optional/semantic-cases.json
           node tools/verify-conditional-reference.ts "$reference" .artifacts/conditional-values-reference
+          node tools/verify-conditional-reference.ts "$reference" .artifacts/unbraced-conditional-reference fixtures/unbraced-conditional/semantic-cases.json
           node tools/verify-conditional-reference.ts "$reference" .artifacts/logical-values-reference fixtures/logical-values/semantic-cases.json
           node tools/verify-conditional-reference.ts "$reference" .artifacts/nullish-coalescing-reference fixtures/nullish-coalescing/semantic-cases.json
           node tools/verify-conditional-reference.ts "$reference" .artifacts/non-null-reference fixtures/non-null/semantic-cases.json
@@ -92,6 +93,14 @@ jobs:
           node tools/verify-function-expression-reference.ts "$reference" .artifacts/function-expression-reference
           node tools/verify-function-expression-reference.ts "$reference" .artifacts/object-method-reference fixtures/object-method/semantic-cases.json
           node tools/verify-interface-inheritance-reference.ts "$reference" .artifacts/interface-inheritance-reference
+      - name: Preserve bounded unbraced conditional source and reference evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-unbraced-conditional-reference-${{ github.sha }}
+          path: .artifacts/unbraced-conditional-reference/
+          if-no-files-found: warn
+          retention-days: 30
       - name: Preserve bounded logical-assignment source and reference evidence
         if: always()
         uses: actions/upload-artifact@v4

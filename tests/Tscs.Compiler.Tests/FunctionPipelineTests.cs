@@ -70,7 +70,7 @@ public sealed class FunctionPipelineTests
     [InlineData("function bad(flag: boolean): number { if (flag) { return \"bad\"; } else { return 1; } }","TS2322")]
     [InlineData("function bad(flag: boolean): number { if (flag) { let inner = 1; } return inner; }","TS2304")]
     [InlineData("function unsupported(flag: number): number { if (void flag) { return 1; } else { return 2; } }","TS2873")]
-    [InlineData("function unsupported(flag: boolean): number { if (flag) return 1; else { return 2; } }","TSCS1001")]
+    [InlineData("function unsupported(flag: boolean): number { if (flag) let result = 1; else { return 2; } }","TSCS1001")]
     public void ConditionalBoundariesRejectIncompleteOrUnsupportedPrograms(string source,string code) =>
         Assert.Contains(Compilation.Check("source.ts",source),d=>d.Code==code);
 
