@@ -90,18 +90,20 @@ try {
   assert.equal(rejected.status,2,rejected.stdout+'\n'+rejected.stderr);
   assert.match(rejected.stdout+rejected.stderr,/TS2339/);
   assert.equal(existsSync(join(folder,'bad.js')),false);
-  for(const [filename,source,expectedCode] of [
+  // TypeScript semantic errors exit 2; explicitly unsupported TSCS syntax
+  // exits 1. Assert each real exit rather than treating unsupported as PASS.
+  for(const [filename,source,expectedCode,expectedExit] of [
     ['bad-unbraced.ts',
       'type E={kind:"ok";value:number}|{kind:"error";message:string}; '+
       'function bad(e:E):number {switch(e.kind){case "error": return e.value; default: return 0;}}',
-      'TS2339'],
+      'TS2339',2],
     ['bad-lexical.ts',
       'function bad(n:number):number {switch(n){case 1: let x:number=1; return x; default: return 0;}}',
-      'TSCS1001']
+      'TSCS1001',1]
   ] as const) {
     writeFileSync(join(folder,filename),source);
     const invalid=compile(['--emitJs','--noLib','--target','es2015',filename,'minimal.d.ts']);
-    assert.equal(invalid.status,2,invalid.stdout+'\n'+invalid.stderr);
+    assert.equal(invalid.status,expectedExit,invalid.stdout+'\n'+invalid.stderr);
     assert.match(invalid.stdout+invalid.stderr,new RegExp(expectedCode));
     assert.equal(existsSync(join(folder,filename.replace('.ts','.js'))),false);
   }
