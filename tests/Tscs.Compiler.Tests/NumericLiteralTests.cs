@@ -47,7 +47,7 @@ public sealed class NumericLiteralTests
     [InlineData("let n = 1e_2;")]
     [InlineData("let n = 1e2_;")]
     [InlineData("let n = 0_1;")]
-    [InlineData("let n = 0x10;")]
+    [InlineData("let n = 0x;")]
     [InlineData("let n = 1e9999;")]
     [InlineData("let n = 1.2.3;")]
     public void UnsupportedOrMalformedNumericFormsRemainRejected(string source) =>
@@ -96,4 +96,54 @@ public sealed class NumericLiteralTests
         Assert.Equal(TokenKind.Number,Assert.Single(new Scanner("settings.json",
             "12",jsonMode:true).Scan(),t=>t.Kind==TokenKind.Number).Kind);
     }
+    [Theory]
+    [InlineData("let n: number = 0x2a;")]
+    [InlineData("let n: number = 0X2_A;")]
+    [InlineData("let n: number = 0b10_1010;")]
+    [InlineData("let n: number = 0B101010;")]
+    [InlineData("let n: number = 0o52;")]
+    [InlineData("let n: number = 0O5_2;")]
+    [InlineData("type Answer = 0x2A; let n: Answer = 0b101010;")]
+    [InlineData("type Answer = 42; let n: Answer = 0o52;")]
+    [InlineData("type Negative = -0x2a; let n: Negative = -42;")]
+    [InlineData("function scale(n: number): number { return n * 0b10; } let r: number = scale(0o25);")]
+    [InlineData("const slots: { 0xA: number } = { 0b1010: 42 }; let n: number = slots[0o12];")]
+    [InlineData("let items: number[] = [0x2a, 0o52]; let n: number = items[0b1];")]
+    public void CheckedRadixLiteralsUseExistingTypesAndValues(string source) =>
+        Assert.Empty(Compilation.Check("radix-literals.ts",source));
+
+    [Theory]
+    [InlineData("let n: string = 0x2a;","TS2322")]
+    [InlineData("let n: boolean = 0b101010;","TS2322")]
+    [InlineData("type Answer = 0x2a; let n: Answer = 0o53;","TS2322")]
+    [InlineData("function take(n: 0x2a): number { return n; } let n: number = take(0b101011);","TS2345")]
+    public void RadixLiteralsKeepActualSemanticRejections(string source,string code) =>
+        Assert.Contains(Compilation.Check("invalid-radix-types.ts",source),d=>d.Code==code);
+
+    [Theory]
+    [InlineData("let n = 0x;")]
+    [InlineData("let n = 0b;")]
+    [InlineData("let n = 0o;")]
+    [InlineData("let n = 0x_FF;")]
+    [InlineData("let n = 0b_10;")]
+    [InlineData("let n = 0b102;")]
+    [InlineData("let n = 0o8;")]
+    [InlineData("let n = 0x1_;")]
+    [InlineData("let n = 0x1__0;")]
+    [InlineData("let n = 0x1g;")]
+    [InlineData("let n = 0x1.2;")]
+    [InlineData("let n = 0x20000000000000;")]
+    public void InvalidRadixSpellingOrUnmodelledUnsafeIntegerFailsClosed(string source) =>
+        Assert.Contains(Compilation.Check("invalid-radix-lexing.ts",source),d=>d.Code=="TSCS1001");
+
+    [Fact]
+    public void RadixTokenPreservesRawSourceAndExactDecodedNumber()
+    {
+        var tokens=new Scanner("radix-spans.ts","0X2_A 0b10_1010 0O5_2").Scan()
+            .Where(token=>token.Kind==TokenKind.Number).ToArray();
+        Assert.Equal(new[]{"0X2_A","0b10_1010","0O5_2"},tokens.Select(t=>t.Text));
+        Assert.All(tokens,t=>Assert.Equal(t.Text.Length,t.Length));
+        Assert.All(tokens,t=>Assert.Equal("42",t.Value));
+    }
+
 }

@@ -1,3 +1,14 @@
+## 2026-11-01 — Checked radix numeric literals (candidate; NOT_RUN)
+
+Hexadecimal, binary and octal safe integers with digit separators now reuse
+scanner Number values, existing type identities, structural property keys and
+ES2015 output. Source spans remain raw, emitted values are normalized decimal.
+Malformed spelling and values above 2^53 - 1 fail closed. Source-backed C#
+tests, four-module Node runtime and 15 immutable new IDs extend the existing
+pinned-Go numeric-literals cohort (33 to 48), retaining prior expectations.
+Exact-head checks are NOT_RUN until CI. Original TS7 acceptance remains
+0 PASS / 15,523 SKIP_UNIMPLEMENTED; dynamic scope UNEXPANDED.
+
 ## 2026-11-01 — Bounded no-substitution templates (candidate; NOT_RUN)
 
 The scanner now recognizes complete untagged backtick strings without interpolation,
