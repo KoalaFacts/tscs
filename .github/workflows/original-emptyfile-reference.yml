@@ -465,6 +465,14 @@ jobs:
           path: .artifacts/typeof-primitive-reference/
           retention-days: 30
           if-no-files-found: warn
+      - name: Preserve bounded truthiness reference inputs and raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-truthy-guard-reference-${{ github.sha }}
+          path: .artifacts/truthy-guard-reference/
+          retention-days: 30
+          if-no-files-found: warn
       - name: Preserve returning-guard reference inputs and raw results
         if: always()
         uses: actions/upload-artifact@v4
