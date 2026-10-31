@@ -64,13 +64,24 @@ try {
   ],{cwd:folder,encoding:'utf8',timeout:15000,env});
   assert.equal(executed.error,undefined,String(executed.error));
   assert.equal(executed.status,0,executed.stdout+'\n'+executed.stderr);
+  // The former unbraced-unsupported input is a real positive now, not a
+  // deleted regression or an invalid-program expectation.
+  writeFileSync(join(folder,'unbraced.ts'),'for(const key in {a:1})key;');
+  const unbraced=compile('unbraced.ts');
+  assert.equal(unbraced.status,0,unbraced.stdout+'\n'+unbraced.stderr);
+  assert.ok(existsSync(join(folder,'unbraced.js')),'unbraced for..in emitted no JS');
+  const unbracedRun=spawnSync(process.execPath,['--input-type=module','--eval',
+    'import "./unbraced.js";'
+  ],{cwd:folder,encoding:'utf8',timeout:15000,env});
+  assert.equal(unbracedRun.error,undefined,String(unbracedRun.error));
+  assert.equal(unbracedRun.status,0,unbracedRun.stdout+'\n'+unbracedRun.stderr);
   const invalid=[
     ['number-source','for(const key in 42){}','TS2407'],
     ['boolean-source','for(let key in true){}','TS2407'],
     ['wrong-key-type','for(const key in {a:1}){let n:number=key;}','TS2322'],
     ['wrong-body-type','for(const key in {a:1}){let s:string=1;}','TS2322'],
     ['outside-scope','for(const key in {a:1}){}let s:string=key;','TS2304'],
-    ['unbraced','for(const key in {a:1})key;','TSCS1001']
+    ['unbraced-lexical','for(const key in {a:1})const value=1;','TSCS1001']
   ] as const;
   for(const [name,source,code] of invalid){
     writeFileSync(join(folder,name+'.ts'),source);
