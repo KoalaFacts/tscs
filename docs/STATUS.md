@@ -1,3 +1,15 @@
+## 2026-10-31 — Checked nested and effectful optional deletion (candidate; NOT_RUN)
+
+Finite optional-member deletion now accepts type-checked nested object receivers,
+array elements and typed function results, including nullable nested receivers.
+Native or guarded ES2015 deletion removes the actual member and evaluates the
+receiver once. Dynamic keys, readonly/required members and optional-chain
+continuations still reject. The existing four-module Node run checks factory
+call counts, 13 invalid/no-emit programs and six additive pinned-Go source IDs.
+New-head checks remain NOT_RUN until CI executes. Existing 11 reference IDs,
+TS7 pin, internal test minimum and release gate are unchanged. Original full TS7
+remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED.
+
 ## 2026-10-31 — Guarded optional-member deletion (candidate; NOT_RUN)
 
 Finite `delete box?.value`, `delete box?.["value"]` and parenthesized

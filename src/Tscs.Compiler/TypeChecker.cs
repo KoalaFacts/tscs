@@ -586,9 +586,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         CompilerTypes.IsNumber(type)||type.Equals(CompilerTypes.Any);
 
 
-    // Guarded delete accepts only named finite mutable optional members.
-    // A nullish receiver returns true; all dynamic, nested and writable
-    // required-member targets remain outside the supported subset.
+    // Delete checks finite mutable optional members of typed receiver
+    // expressions. Nullish guarded receivers return true; unsafe targets fail closed.
     private void CheckDeleteOptionalMember(ValueNode operand,Scope scope,Token keyword)
     {
         while(operand is ValueParenthesized grouped)operand=grouped.Expression;
@@ -612,16 +611,15 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 throw new CompilationFailure(Diagnostic.Error(file,keyword,"TSCS1001",
                     "Delete currently requires a finite optional object member target."));
         }
-        while(receiver is ValueParenthesized groupedReceiver)receiver=groupedReceiver.Expression;
-        if(receiver is not ValueAtom { Token.Kind:TokenKind.Identifier } variable)
-            throw new CompilationFailure(Diagnostic.Error(file,keyword,"TSCS1001",
-                "Delete currently requires a named finite object receiver."));
-        var receiverType=scope.Find(variable.Token.Text)?.Type;
+        // Reuse the type checker for nested properties, array elements and
+        // typed function results. No implicit any or dynamic index signatures.
+        // Native delete or the ES2015 optional guard evaluates the receiver once.
+        var receiverType=TypeOf(receiver,scope);
         var presentType=receiverType is null?null:guarded
             ?CompilerTypes.NonNullAssertionResult(receiverType):receiverType;
         if(presentType is not ObjectTypeSymbol shape)
             throw new CompilationFailure(Diagnostic.Error(file,keyword,"TSCS1001",
-                "Delete currently requires a named finite object receiver."));
+                "Delete currently requires a finite object receiver."));
         if(index is not null && !TryStaticNamedIndex(index,shape,out name))
             throw new CompilationFailure(Diagnostic.Error(file,keyword,"TSCS1001",
                 "Delete currently requires a statically named object index."));
