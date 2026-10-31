@@ -48,7 +48,7 @@ public sealed class InOperatorTests
     [InlineData("type Entry={value:number}|{message:string};function bad(e:Entry):string {if(\"value\" in e){return e.message;}return \"ok\";}", "TS2339")]
     [InlineData("type Entry={value:number}|{message:string};function bad(e:Entry):number {if(\"value\" in e){e={message:\"changed\"};return e.value;}return 0;}", "TS2339")]
     [InlineData("type Entry={value:number}|{message:string};function bad(e:Entry,key:string):number {if(key in e){return e.value;}return 0;}", "TS2339")]
-    [InlineData("type Entry={value?:number}|{message:string};function bad(e:Entry):number {if(\"value\" in e){return e.value;}return 0;}", "TS2339")]
+    [InlineData("type Entry={value?:number}|{message:string};function bad(e:Entry):number {if(\"value\" in e){return e.value;}return 0;}", "TS2322")]
     public void MissingDynamicOptionalOrReassignedMemberIsNotPromoted(string source,string code) =>
         Assert.Contains(Compilation.Check("in-narrow-negative.ts",source),d=>d.Code==code);
 
