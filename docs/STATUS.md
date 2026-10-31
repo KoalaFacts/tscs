@@ -1,3 +1,21 @@
+## 2026-11-01 — Intrinsic generic array type spellings (source candidate; NOT_RUN)
+
+The bounded C# Parser maps one-argument intrinsic `Array<T>` and
+`ReadonlyArray<T>` type annotations into the same checked array type model
+as `T[]` and `readonly T[]`. Type aliases, functions, module imports,
+nested arrays, writable indices and readonly rejection reuse the Binder,
+TypeResolver, TypeChecker and ES2015 emitter. Only in type-argument contexts,
+the parser splits leading `>` tokens from shift/assignment punctuation;
+ordinary JS shift expressions remain unchanged. Shadowing named types
+reject unsupported generic application instead of silently resolving a builtin.
+No general generic declarations, mapped types, tuples or Array methods.
+
+Source-backed xUnit checks, four actual ES2015 modules with error/no-emission
+checks and 14 additive bounded pinned-Go IDs are registered (existing 13
+preserved). Until exact-head validation these new checks are NOT_RUN. Original
+full TS7 acceptance remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic
+scope UNEXPANDED, and no pin/gate/threshold/protection changed.
+
 ## 2026-11-01 — Bounded readonly array annotations (candidate; NOT_RUN)
 
 The checked C# type pipeline now distinguishes `readonly T[]` from mutable

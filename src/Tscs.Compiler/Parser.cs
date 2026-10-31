@@ -17,6 +17,48 @@ internal sealed class Parser(string file, List<Token> tokens)
     private Token Current => tokens[position];
     public List<Diagnostic> Diagnostics { get; } = [];
     private Token Take() => tokens[position++];
+    // Split shift/punctuation only while closing a type argument, retaining
+    // the original source offsets and the JS scanner's expression tokens.
+    private Token TakeArrayTypeClose()
+    {
+        if(Current.Kind==TokenKind.GreaterThan)return Take();
+        var original=Current;
+        var tail=original.Kind switch
+        {
+            TokenKind.RightShift=>TokenKind.GreaterThan,
+            TokenKind.UnsignedRightShift=>TokenKind.RightShift,
+            TokenKind.GreaterEqual=>TokenKind.Equal,
+            TokenKind.RightShiftEqual=>TokenKind.GreaterEqual,
+            TokenKind.UnsignedRightShiftEqual=>TokenKind.RightShiftEqual,
+            _=>TokenKind.Unsupported
+        };
+        if(tail==TokenKind.Unsupported)
+        {
+            Unsupported(Current,"Expected '>' after the single array type argument.");
+            return default;
+        }
+        tokens[position]=original with {Kind=TokenKind.GreaterThan,Text=">",Length=1};
+        tokens.Insert(position+1,original with
+        {
+            Kind=tail,Text=original.Text[1..],Start=original.Start+1,
+            Length=original.Length-1,LineBreak=false
+        });
+        var closing=Take();
+        // After consuming the leading '>' of the scanner's '>=' token,
+        // its remaining '=' may join a contiguous next '>' to form '=>'.
+        // This matters for arrow returns spelled Array<T>=> without spaces.
+        if(tail==TokenKind.Equal && position+1<tokens.Count &&
+           tokens[position].Kind==TokenKind.Equal &&
+           tokens[position+1].Kind==TokenKind.GreaterThan &&
+           !tokens[position+1].LineBreak &&
+           tokens[position+1].Start==tokens[position].Start+1)
+        {
+            var equals=tokens[position];
+            tokens[position]=equals with {Kind=TokenKind.Arrow,Text="=>",Length=2};
+            tokens.RemoveAt(position+1);
+        }
+        return closing;
+    }
     private bool Eat(TokenKind kind) { if(Current.Kind!=kind)return false; position++;return true; }
     public Block Parse(int depth=0,bool inFunction=false,bool switchClauseBody=false,bool singleStatementBody=false)
     {
@@ -674,6 +716,8 @@ internal sealed class Parser(string file, List<Token> tokens)
                 Unsupported(keyword,"The readonly type modifier currently requires an array type.");
                 return default!;
             }
+            if(array.GenericName is not null)
+                Unsupported(keyword,"A readonly prefix requires T[] syntax, not Array<T> or ReadonlyArray<T>.");
             if(array.Readonly)
                 Unsupported(keyword,"Repeated readonly array modifiers are not supported.");
             type=array with {Readonly=true};
@@ -700,8 +744,20 @@ internal sealed class Parser(string file, List<Token> tokens)
         else if(Current.Kind is TokenKind.Identifier or TokenKind.Void or TokenKind.Null)
         {
             var name=Take();
-            type=name.Text is "number" or "string" or "boolean" or "any" or "void" or "undefined" or "null"
-                ?new PrimitiveTypeSyntax(name):new NamedTypeSyntax(name);
+            if(name.Kind==TokenKind.Identifier &&
+               name.Text is "Array" or "ReadonlyArray" &&
+               Current.Kind==TokenKind.LessThan)
+            {
+                var open=Take();
+                if(Current.Kind is TokenKind.GreaterThan or TokenKind.Comma)
+                    Unsupported(Current,"Array<T> and ReadonlyArray<T> require exactly one type argument.");
+                var element=ReadTypeAnnotation(depth+1);
+                var close=TakeArrayTypeClose();
+                type=new ArrayTypeSyntax(element,open,close,name.Text=="ReadonlyArray",name);
+            }
+            else
+                type=name.Text is "number" or "string" or "boolean" or "any" or "void" or "undefined" or "null"
+                    ?new PrimitiveTypeSyntax(name):new NamedTypeSyntax(name);
         }
         else if(Current.Kind is TokenKind.String or TokenKind.Number or TokenKind.True or TokenKind.False)
         {

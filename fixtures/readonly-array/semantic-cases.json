@@ -78,6 +78,86 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "readonly-array:positive-08",
+      "source": "let xs: ReadonlyArray<number> = [21,21]; let first: number = xs[0]; let size: number = xs.length;",
+      "expectedCodes": []
+    },
+    {
+      "id": "readonly-array:positive-09",
+      "source": "let xs: Array<number> = [21]; xs[0] = 42; let result: number = xs[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "readonly-array:positive-10",
+      "source": "type Readings = ReadonlyArray<number>; let xs: Readings = [21]; let value: number = xs[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "readonly-array:positive-11",
+      "source": "function sum(xs: ReadonlyArray<number>): number { let total: number = 0; for (const n of xs) { total += n; } return total; } let result: number = sum([21,21]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "readonly-array:positive-12",
+      "source": "let xs: ReadonlyArray<Array<number>> = [[21]]; xs[0][0] = 42; let value: number = xs[0][0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "readonly-array:positive-13",
+      "source": "let xs: Array<ReadonlyArray<number>> = [[21]]; let value: number = xs[0][0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "readonly-array:positive-14",
+      "source": "let xs: ReadonlyArray<number | string> = [21,\"a\"]; let value: number | string = xs[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "readonly-array:positive-15",
+      "source": "let xs: ReadonlyArray<number>[] = [[21]]; xs[0] = [22]; let value: number = xs[0][0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "readonly-array:negative-07",
+      "source": "let xs: ReadonlyArray<number> = [21]; xs[0] = 22;",
+      "expectedCodes": [
+        "TS2542"
+      ]
+    },
+    {
+      "id": "readonly-array:negative-08",
+      "source": "let xs: ReadonlyArray<number> = [21]; xs.length = 0;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "readonly-array:negative-09",
+      "source": "let xs: ReadonlyArray<number> = [21]; let ys: Array<number> = xs;",
+      "expectedCodes": [
+        "TS4104"
+      ]
+    },
+    {
+      "id": "readonly-array:negative-10",
+      "source": "let xs: Array<number> = [21]; let value: string = xs[0];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "readonly-array:negative-11",
+      "source": "let xs: ReadonlyArray<Array<number>> = [[21]]; xs[0] = [22];",
+      "expectedCodes": [
+        "TS2542"
+      ]
+    },
+    {
+      "id": "readonly-array:positive-16",
+      "source": "const f=(n:number): Array<ReadonlyArray<number>>=>[[n]]; let result:number=f(21)[0][0];",
+      "expectedCodes": []
     }
   ]
 }
