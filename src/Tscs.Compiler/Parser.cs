@@ -1537,18 +1537,7 @@ internal sealed class Parser(string file, List<Token> tokens)
         for(int i=1;i<raw.Length-1;i++)
         {
             if(raw[i]=='\\'){i++;continue;}
-            if(raw[i]!='
-
-    private void EndStatement(bool rejectTemplateContinuation=false)
-    {
-        if(rejectTemplateContinuation && IsNoSubstitutionTemplate(Current))
-            Unsupported(Current,"Tagged template continuations are not supported.");
-        if(Eat(TokenKind.Semi)||Current.Kind is TokenKind.End or TokenKind.Close||Current.LineBreak)return;
-        Unsupported(Current,"This expression or statement form is not supported yet.");
-    }
-    private void Unsupported(Token token,string message)=>throw new CompilationFailure(Diagnostic.Error(file,token,"TSCS1001",message));
-}
- || i+1>=raw.Length-1 || raw[i+1]!='{')continue;
+            if(raw[i]!='$' || i+1>=raw.Length-1 || raw[i+1]!='{')continue;
             chunks.Add(raw[chunkStart..i]);
             int begin=i+2;
             int closing=TemplateInterpolation.FindClose(raw,begin);
