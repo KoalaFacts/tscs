@@ -88,6 +88,13 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "truthy-guard:negative-05",
+      "source": "function bad(v:{}|null):null{if(v){return null;}return v;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }
