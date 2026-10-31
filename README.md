@@ -239,6 +239,13 @@ Native ES2015 emission retains unary precedence, nested expressions and effects.
 This is distinct from a `void` function return annotation. The `delete` operator,
 `null` source literals and general nullable-flow narrowing remain unsupported.
 
+## No-substitution template literals (bounded)
+
+Untagged backtick strings without `${...}` expressions use checked string/literal
+semantics and native ES2015 output. Escaped backticks, escaped `${` and
+multiline values are supported. Interpolated/tagged templates are **not**
+implemented and fail closed; full template literal types are not claimed.
+
 ## Other implemented subsets
 
 The current pipeline includes primitive/`any` variables, lexical scopes, selected

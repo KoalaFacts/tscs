@@ -116,6 +116,13 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                 kind = TokenKind.String;
                 decodedValue = ScanString(first, out stringFlags);
             }
+            else if (first == '`' && !jsonMode)
+            {
+                // A complete no-substitution template is a checked string.
+                // Do not misparse interpolation as free-standing tokens.
+                kind = TokenKind.String;
+                decodedValue = ScanNoSubstitutionTemplate(begin, ref stringFlags);
+            }
             else kind = first switch { '.' when !jsonMode=>TokenKind.Dot,'['=>TokenKind.OpenBracket,']'=>TokenKind.CloseBracket,'(' when !jsonMode=>TokenKind.OpenParen,')' when !jsonMode=>TokenKind.CloseParen,'-'=>TokenKind.Minus, '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,'?' when !jsonMode=>TokenKind.Question,'+' when !jsonMode=>TokenKind.Plus,'*' when !jsonMode=>TokenKind.Star,'/' when !jsonMode=>TokenKind.Slash,'%' when !jsonMode=>TokenKind.Percent,'|' when !jsonMode=>TokenKind.Bar,'&' when !jsonMode=>TokenKind.Amp,'^' when !jsonMode=>TokenKind.Caret,'~' when !jsonMode=>TokenKind.Tilde,_=>TokenKind.Unsupported };
             // Maximal-munch binary/logical operators only in source mode. Keep
             // JSON scanning unchanged and refuse lone '&' or '|' as before.
@@ -214,6 +221,34 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
             if (kind == TokenKind.Unsupported) throw Error(token,"TSCS1001",$"Unsupported syntax '{token.Text}'.");
             tokens.Add(token);DiagnosticCounts.Add(Diagnostics.Count);
         }
+    }
+    // Untagged templates without substitutions reuse checked string values
+    // and native ES2015 emission. A template interpolation needs its own AST.
+    private string ScanNoSubstitutionTemplate(int start, ref StringTokenFlags flags)
+    {
+        var value=new StringBuilder();
+        while(position<text.Length)
+        {
+            char c=text[position];
+            if(c=='`') {position++;return value.ToString();}
+            if(c=='$' && position+1<text.Length && text[position+1]=='{')
+                throw Error(new(TokenKind.Unsupported,text[start..(position+2)],start,position+2-start),
+                    "TSCS1001","Template interpolation requires an expression-bearing AST.");
+            if(c=='\\') {value.Append(ScanStringEscape(ref flags));continue;}
+            // ECMAScript normalizes raw CRLF and CR in template values to LF.
+            if(c=='\r')
+            {
+                position++;
+                if(position<text.Length && text[position]=='\n')position++;
+                value.Append('\n');
+                continue;
+            }
+            value.Append(c);
+            position++;
+        }
+        flags|=StringTokenFlags.Unterminated;
+        Report("TS1160","Unterminated template literal.",start,position-start);
+        return value.ToString();
     }
     // The string scanner recovers locally: malformed escape spelling remains in
     // the value, and the caller receives both tokens and every lexical error.
