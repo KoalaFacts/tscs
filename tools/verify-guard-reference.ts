@@ -16,7 +16,7 @@ assert.ok(optionalSuitePath==null || truthiness,'unknown frozen bounded referenc
 const suitePath=optionalSuitePath??'fixtures/guard-flow/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
 assert.equal(suite.kind,truthiness?'BOUNDED_TRUTHINESS_IDENTIFIER_GUARD_NOT_ORIGINAL_TS7_ACCEPTANCE':'BOUNDED_DISCRIMINANT_GUARD_FLOW_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,truthiness?16:14,'do not shrink the registered cohort');
+assert.equal(suite.cases.length,truthiness?17:14,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const minimal=readFileSync('fixtures/minimal.d.ts','utf8');
 const hash=(data:string|Buffer)=>createHash('sha256').update(data).digest('hex');
