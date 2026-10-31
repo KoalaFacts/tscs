@@ -820,7 +820,7 @@ internal sealed class Parser(string file, List<Token> tokens)
            integerKey is >= 0 and <= 9007199254740991L)
             return Take();
         if(Current.Kind is TokenKind.Identifier or TokenKind.Let or TokenKind.Const or
-            TokenKind.Import or TokenKind.Export or TokenKind.Type or TokenKind.Interface or TokenKind.Extends or TokenKind.Function or TokenKind.Return or TokenKind.Void or TokenKind.Throw or TokenKind.Try or TokenKind.Catch or TokenKind.Finally or
+            TokenKind.Import or TokenKind.Export or TokenKind.Type or TokenKind.Interface or TokenKind.Extends or TokenKind.Function or TokenKind.Return or TokenKind.Void or TokenKind.Delete or TokenKind.Throw or TokenKind.Try or TokenKind.Catch or TokenKind.Finally or
             TokenKind.If or TokenKind.Else or TokenKind.For or TokenKind.While or TokenKind.Do or TokenKind.Break or TokenKind.Continue or TokenKind.In or TokenKind.Typeof or TokenKind.True or TokenKind.False ||
             (allowString && Current.Kind==TokenKind.String))return Take();
         Unsupported(Current,"Expected a supported named object property.");
@@ -1231,7 +1231,7 @@ internal sealed class Parser(string file, List<Token> tokens)
         // Avoid recursive parsing on input such as 20,000 whitespace-separated
         // prefix '+'/'-' operators; the TypeChecker also evaluates iteratively.
         var prefixes=new List<Token>();
-        while(Current.Kind is TokenKind.Minus or TokenKind.Plus or TokenKind.Bang or TokenKind.Typeof or TokenKind.Void or TokenKind.Tilde or TokenKind.PlusPlus or TokenKind.MinusMinus)prefixes.Add(Take());
+        while(Current.Kind is TokenKind.Minus or TokenKind.Plus or TokenKind.Bang or TokenKind.Typeof or TokenKind.Void or TokenKind.Delete or TokenKind.Tilde or TokenKind.PlusPlus or TokenKind.MinusMinus)prefixes.Add(Take());
         ValueNode value=ParseExponentiation();
         // An unparenthesized unary left operand of ** is invalid in TS/JS.
         if(prefixes.Count>0 && value is ValueBinary { Operator.Kind:TokenKind.Power } exponent)

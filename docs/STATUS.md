@@ -1,3 +1,17 @@
+## 2026-10-31 — Bounded optional-member delete (source candidate; NOT_RUN)
+
+The C# scanner, parser, structural checker and ES2015 emitter support
+native `delete obj.optional` and statically named `delete obj["optional"]`
+for mutable optional members on a named finite object. A successful operation
+has checked boolean type and preserves JavaScript runtime property removal.
+Required/readonly fields, dynamic indices, array holes, effectful/nested
+receivers and optional-chain deletes remain explicitly unsupported or errors.
+New source-backed positive/negative regressions, four-module executed ES2015
+and six independent pinned-Go code/exit cases are registered as NOT_RUN
+at source creation. Original TS7 remains 0 PASS / 15,523
+SKIP_UNIMPLEMENTED, dynamic UNEXPANDED; no accepted upstream credit,
+pin or release gate changed.
+
 ## 2026-10-31 — Checked undefined-sentinel guard flow (candidate; NOT_RUN)
 
 Finite nullable identifier unions may be narrowed by strict/loose comparisons
