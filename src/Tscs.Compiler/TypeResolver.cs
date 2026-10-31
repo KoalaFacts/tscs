@@ -148,7 +148,11 @@ internal static class TypeResolver
                     throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",failure.Message));
                 }
             }
-            case ArrayTypeSyntax array:return new ArrayTypeSymbol(Resolve(array.Element,scope,file,depth+1),array.Readonly);
+            case ArrayTypeSyntax array:
+                if(array.GenericName is { } name && scope.FindType(name.Text) is not null)
+                    throw new CompilationFailure(Diagnostic.Error(file,name,"TS2315",
+                        $"Type '{name.Text}' is not generic in the supported subset."));
+                return new ArrayTypeSymbol(Resolve(array.Element,scope,file,depth+1),array.Readonly);
             case InterfaceExtensionTypeSyntax inherited:
             {
                 // Never erase missing or incompatible inherited members. Each
