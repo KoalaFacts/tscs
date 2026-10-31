@@ -5,16 +5,18 @@ import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {join,resolve,basename} from 'node:path';
 
 // Independent bounded oracle, NOT full original TS7 harness acceptance.
-const [referenceArg,outputArg]=process.argv.slice(2);
+const [referenceArg,outputArg,optionalSuitePath]=process.argv.slice(2);
 assert.ok(referenceArg&&outputArg,'usage: node tools/verify-guard-reference.ts <pinned-go-tsc> <new-evidence-directory>');
 const reference=resolve(referenceArg),out=resolve(outputArg),root=process.cwd();
 assert.ok(!existsSync(out),'refusing to overwrite source-bound evidence');
 mkdirSync(out,{recursive:true});
 const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
-const suitePath='fixtures/typeof-primitive/semantic-cases.json';
+const deletion=optionalSuitePath==='fixtures/delete-optional/semantic-cases.json';
+assert.ok(optionalSuitePath==null||deletion,'unknown bounded reference cohort');
+const suitePath=optionalSuitePath??'fixtures/typeof-primitive/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
-assert.equal(suite.kind,'BOUNDED_TYPEOF_PRIMITIVE_NARROWING_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,18,'do not shrink the registered cohort');
+assert.equal(suite.kind,deletion?'BOUNDED_DELETE_OPTIONAL_NOT_ORIGINAL_TS7_ACCEPTANCE':'BOUNDED_TYPEOF_PRIMITIVE_NARROWING_NOT_ORIGINAL_TS7_ACCEPTANCE');
+assert.equal(suite.cases.length,deletion?6:18,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const minimal=readFileSync('fixtures/minimal.d.ts','utf8');
 const hash=(data:string|Buffer)=>createHash('sha256').update(data).digest('hex');
@@ -44,7 +46,7 @@ const diagnosticCodes=(r:ReturnType<typeof run>)=>
 const ids=new Set<string>(),results:object[]=[],mismatches:object[]=[];
 for(let i=0;i<suite.cases.length;i++){
   const item=suite.cases[i];
-  assert.match(item.id,/^typeof-primitive:(positive|negative)-\d+$/);
+  assert.match(item.id,deletion?/^delete-optional:positive-\d{2}$/:/^typeof-primitive:(positive|negative)-\d+$/);
   assert.ok(!ids.has(item.id),'duplicate stable case ID');ids.add(item.id);
   assert.equal(typeof item.source,'string');
   assert.ok(Array.isArray(item.expectedCodes));
@@ -78,4 +80,4 @@ for(const row of manifest){const bytes=readFileSync(join(out,row.path));
   assert.equal(bytes.length,row.length);assert.equal(hash(bytes),row.sha256);}
 writeFileSync(join(out,'manifest.json'),JSON.stringify({files:manifest},null,2),{flag:'wx',flush:true});
 assert.deepEqual(mismatches,[],'genuine pinned-Go mismatches; raw outputs preserved');
-console.log(String(results.length)+' bounded typeof primitive narrowing sources matched pinned Go codes/exits; no original TS7 acceptance.');
+console.log(String(results.length)+' bounded '+(deletion?'optional delete':'typeof primitive narrowing')+' sources matched pinned Go codes/exits; no original TS7 acceptance.');

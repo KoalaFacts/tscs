@@ -752,7 +752,7 @@ internal static class JavaScriptEmitter
                         break;
                     case ValueUnary unary:
                         Node(unary.Operand,precedence);
-                        Text(unary.Operator.Text+(unary.Operator.Kind is TokenKind.Plus or TokenKind.Minus or TokenKind.Typeof or TokenKind.Void?" ":""));
+                        Text(unary.Operator.Text+(unary.Operator.Kind is TokenKind.Plus or TokenKind.Minus or TokenKind.Typeof or TokenKind.Void or TokenKind.Delete?" ":""));
                         break;
                     case ValuePrefixUpdate prefix:
                         Node(prefix.Target,precedence);

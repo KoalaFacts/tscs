@@ -1,0 +1,35 @@
+{
+  "kind": "BOUNDED_DELETE_OPTIONAL_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "delete-optional:positive-01",
+      "source": "type Box={value?:number};let box:Box={value:21};let result:boolean=delete box.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "delete-optional:positive-02",
+      "source": "interface Box{value?:number;label:string}function clear(box:Box):boolean{return delete box.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "delete-optional:positive-03",
+      "source": "let box:{value?:number}={value:21};let result:boolean=delete box[\"value\"];",
+      "expectedCodes": []
+    },
+    {
+      "id": "delete-optional:positive-04",
+      "source": "const box:{value?:number}={value:21};let result:boolean=delete box.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "delete-optional:positive-05",
+      "source": "interface Task{run?(n:number):number}let task:Task={};let result:boolean=delete task.run;",
+      "expectedCodes": []
+    },
+    {
+      "id": "delete-optional:positive-06",
+      "source": "let box:{delete?:number}={delete:21};let result:boolean=delete box.delete;",
+      "expectedCodes": []
+    }
+  ]
+}

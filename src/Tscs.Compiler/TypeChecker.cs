@@ -585,6 +585,48 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     private static bool IsNumericMutationOperand(TypeSymbol type)=>
         CompilerTypes.IsNumber(type)||type.Equals(CompilerTypes.Any);
 
+
+    // Only finite mutable optional members have sound bounded delete semantics.
+    // Dynamic/array/union/nested/optional-chain targets fail closed.
+    private void CheckDeleteOptionalMember(ValueNode operand,Scope scope,Token keyword)
+    {
+        while(operand is ValueParenthesized grouped)operand=grouped.Expression;
+        ValueNode receiver;
+        ValueNode? index=null;
+        string? name=null;
+        switch(operand)
+        {
+            case ValuePropertyAccess { Optional:false,ChainContinuation:false } member:
+                receiver=member.Receiver;
+                name=member.Name.Text;
+                break;
+            case ValueElementAccess { Optional:false,ChainContinuation:false } element:
+                receiver=element.Receiver;
+                index=element.Index;
+                break;
+            default:
+                throw new CompilationFailure(Diagnostic.Error(file,keyword,"TSCS1001",
+                    "Delete currently requires a finite optional object member target."));
+        }
+        while(receiver is ValueParenthesized groupedReceiver)receiver=groupedReceiver.Expression;
+        if(receiver is not ValueAtom { Token.Kind:TokenKind.Identifier } variable ||
+           scope.Find(variable.Token.Text)?.Type is not ObjectTypeSymbol shape)
+            throw new CompilationFailure(Diagnostic.Error(file,keyword,"TSCS1001",
+                "Delete currently requires a named finite object receiver."));
+        if(index is not null && !TryStaticNamedIndex(index,shape,out name))
+            throw new CompilationFailure(Diagnostic.Error(file,keyword,"TSCS1001",
+                "Delete currently requires a statically named object index."));
+        if(name is null || !shape.Members.ContainsKey(name))
+            throw new CompilationFailure(Diagnostic.Error(file,keyword,"TSCS1001",
+                "Delete currently requires a declared optional object member."));
+        if(shape.ReadonlyMembers.Contains(name))
+            throw new CompilationFailure(Diagnostic.Error(file,keyword,"TS2704",
+                "The operand of a 'delete' operator cannot be a read-only property."));
+        if(!shape.OptionalMembers.Contains(name))
+            throw new CompilationFailure(Diagnostic.Error(file,keyword,"TS2790",
+                "The operand of a 'delete' operator must be optional."));
+    }
+
     private void CheckDoWhile(DoWhileStatement loop,Scope scope,TypeSymbol? expectedReturn)
     {
         // The condition and body can run again after a rebinding on the
@@ -1837,6 +1879,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 else if(unary.Operator.Kind==TokenKind.Void)
                     // JavaScript void evaluates the operand but produces undefined.
                     types.Push(CompilerTypes.Undefined);
+                else if(unary.Operator.Kind==TokenKind.Delete)
+                {
+                    CheckDeleteOptionalMember(unary.Operand,scope,unary.Operator);
+                    types.Push(CompilerTypes.Boolean);
+                }
                 else if(unary.Operator.Kind==TokenKind.Tilde &&
                     (CompilerTypes.IsNumber(operand)||operand.Equals(CompilerTypes.Any)))
                     types.Push(CompilerTypes.Number);
