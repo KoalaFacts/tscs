@@ -274,15 +274,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             if(logicalAssignment)
                             {
                                 var declared=logicalTarget?.DeclaredType??targetType;
-                                if((compound.Operator.Kind is TokenKind.AmpAmpEqual or TokenKind.BarBarEqual) &&
-                                   !CompilerTypes.IsBoolean(targetType))
-                                    throw new CompilationFailure(Diagnostic.Error(file,compound.Operator,"TSCS1001",
-                                        "Logical &&= and ||= currently require a boolean target."));
-                                if((compound.Operator.Kind is TokenKind.AmpAmpEqual or TokenKind.BarBarEqual) &&
-                                   !CompilerTypes.IsBoolean(operandType))
-                                    Mismatch(compound.Operator,operandType,declared);
-                                else if(CheckContextualLiteral(compound.Value,declared,operandType) &&
-                                        !IsAssignableContextually(compound.Value,operandType,declared))
+                                // Check writes against their declared type, while preserving JS
+                                // truthiness for numeric, string, object and nullish lvalues.
+                                if(CheckContextualLiteral(compound.Value,declared,operandType) &&
+                                   !IsAssignableContextually(compound.Value,operandType,declared))
                                     Mismatch(compound.Operator,operandType,declared);
                                 else if(logicalTarget is not null)
                                 {

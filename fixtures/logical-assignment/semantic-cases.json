@@ -126,6 +126,88 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "logical-assignment:positive-15",
+      "source": "let n:number=0;n||=21;",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-16",
+      "source": "let n:number=21;n&&=42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-17",
+      "source": "let s:string=\"\";s||=\"fallback\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-18",
+      "source": "let s:string=\"ready\";s&&=\"next\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-19",
+      "source": "let n:number|null=null;n||=21;",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-20",
+      "source": "let s:string|undefined=undefined;s||=\"ready\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-21",
+      "source": "let b:{value?:number}={};b.value||=42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-22",
+      "source": "let b:{value?:number}={value:21};b.value&&=42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-23",
+      "source": "let a:number[]=[0];a[0]||=42;",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/array-iteration/minimal.d.ts"
+    },
+    {
+      "id": "logical-assignment:positive-24",
+      "source": "let a:number[]=[21];a[0]&&=42;",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/array-iteration/minimal.d.ts"
+    },
+    {
+      "id": "logical-assignment:positive-25",
+      "source": "let box:{name:string}={name:\"\"};box.name||=\"ready\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-26",
+      "source": "let box:{name:string}={name:\"ok\"};box.name&&=\"done\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-27",
+      "source": "let b:{value:number}={value:1};b&&={value:2};",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-28",
+      "source": "let b:{value:number}={value:1};b||={value:2};",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-29",
+      "source": "let n:number=0;n&&=42;n||=21;",
+      "expectedCodes": []
+    },
+    {
+      "id": "logical-assignment:positive-30",
+      "source": "function change(n:number):number{n||=42;return n;}",
+      "expectedCodes": []
     }
   ]
 }
