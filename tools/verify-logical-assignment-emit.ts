@@ -37,7 +37,7 @@ try {
     ['const','const n:number|null=null;n??=21;','TS2588',2],
     ['wrong-and','let b:boolean=true;b&&=21;','TS2322',2],
     ['wrong-or','let b:boolean=false;b||="bad";','TS2322',2],
-    ['unsafe-target','let b:{value?:number}={};b.value??=42;','TSCS1001',1],
+    ['unsupported-truthiness','let b:{value?:number}={};b.value&&=false;','TSCS1001',1],
     ['uninitialised','let n:number;n??=42;','TSCS1001',1],
     ['readonly-member','let b:{readonly value?:number}={};b.value??=42;','TS2540',2],
     ['wrong-member-type','let b:{value?:number}={};b.value??="bad";','TS2322',2],

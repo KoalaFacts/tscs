@@ -16,8 +16,8 @@ const suite=JSON.parse(readFileSync(suitePath,'utf8'));
 assert.equal(suite.kind,'BOUNDED_LOGICAL_ASSIGNMENT_NOT_ORIGINAL_TS7_ACCEPTANCE');
 assert.equal(suite.cases.length,22,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
-// The cohort includes number[] indexing and length. Use the already
-// verified array profile for BOTH compilers, not the empty bootstrap Array<T>.
+// Both compiler sides receive the same pinned noLib minimal profile.
+// No array-indexing/standard-library assumptions are made in this cohort.
 const minimalProfile='fixtures/minimal.d.ts';
 const minimal=readFileSync(minimalProfile,'utf8');
 const hash=(data:string|Buffer)=>createHash('sha256').update(data).digest('hex');
