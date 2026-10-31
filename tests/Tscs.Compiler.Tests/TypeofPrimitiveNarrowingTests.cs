@@ -18,6 +18,14 @@ public sealed class TypeofPrimitiveNarrowingTests
     [InlineData("let kind: string = typeof (typeof \"ready\");")] // typeof-primitive:positive-10
     [InlineData("let box: { typeof: number } = { typeof: 21 }; let value: number = box.typeof;")] // typeof-primitive:positive-11
     [InlineData("type Input = number | string; function describe(value: Input): string { if (typeof value === \"string\") { return value; } else { return \"other\"; } }")] // typeof-primitive:positive-12
+    [InlineData("type Handler=(n:number)=>number; function call(v:Handler|undefined):number { if(typeof v===\"function\"){return v(21);} return 0; }")] // typeof-primitive:positive-13
+    [InlineData("type Handler=(n:number)=>number; function call(v:Handler|null):number { if(typeof v!==\"function\"){return 0;} return v(21); }")] // typeof-primitive:positive-14
+    [InlineData("type Handler=(n:number)=>number; function call(v:Handler|undefined|null):number { if(\"function\"===typeof (v)){return v(21);} return 0; }")] // typeof-primitive:positive-15
+    [InlineData("type Handler=(n:number)=>number; function choose(v:Handler|number):number { if(\"function\"!==typeof v){return v;} return v(21); }")] // typeof-primitive:positive-16
+    [InlineData("function choose(x:number|undefined):number { if(typeof x===\"undefined\"){return 0;} return x*2; }")] // typeof-primitive:positive-17
+    [InlineData("function choose(x:number|null):number { if(typeof x===\"object\"){return 0;} return x*2; }")] // typeof-primitive:positive-18
+    [InlineData("function show(x:string|undefined):string { if(\"undefined\"===typeof x){return \"none\";} return x; }")] // typeof-primitive:positive-19
+    [InlineData("type Handler=(n:number)=>number; function call(v:Handler|null|undefined):number { if(typeof v===\"undefined\"){return 0;} if(typeof v===\"object\"){return 0;} return v(21); }")] // typeof-primitive:positive-20
     public void TypeofGuardsAndRuntimeValuesUseCheckedCompilerPipeline(string source) =>
         Assert.Empty(Compilation.Check("typeof.ts",source));
 
@@ -28,6 +36,9 @@ public sealed class TypeofPrimitiveNarrowingTests
     [InlineData("function wrong(value: number | string): number { if (typeof value === \"number\") { let result: number = value; } return value; }", "TS2322")] // typeof-primitive:negative-04
     [InlineData("function wrong(value: number | string): number { if (typeof value === \"boolean\") { return 0; } let result: number = value; return result; }", "TS2322")] // typeof-primitive:negative-05
     [InlineData("function wrong(value: number | string): number { if (\"number\" !== typeof value) { return value; } return 0; }", "TS2322")] // typeof-primitive:negative-06
+    [InlineData("type Handler=(n:number)=>number; function bad(v:Handler|undefined):number { if(typeof v===\"undefined\"){let wrong:number=v;return 0;} return 0; }", "TS2322")] // typeof-primitive:negative-07
+    [InlineData("type Handler=(n:number)=>number; function bad(v:Handler|null):number { if(typeof v===\"function\"){let wrong:string=v(21);return 0;} return 0; }", "TS2322")] // typeof-primitive:negative-08
+    [InlineData("function bad(x:number|null):number { if(typeof x===\"object\"){let wrong:number=x;return 0;} return 0; }", "TS2322")] // typeof-primitive:negative-09
     public void WrongBranchAndUnnarrowedWritesRemainErrors(string source,string code) =>
         Assert.Contains(Compilation.Check("typeof-negative.ts",source),d=>d.Code==code);
     // Regression for review P2: narrowed *reads* may not overwrite the
@@ -67,6 +78,12 @@ public sealed class TypeofPrimitiveNarrowingTests
     [InlineData("function f(v: number | string): number { if (typeof v !== \"number\") { return 0; } let result: number = 0; do { result = v * 2; v = \"reset\"; } while (result < 2); return result; }", "TSCS1001")]
     public void BackedgesAndLexicalWritesCannotReuseStaleGuardFacts(string source,string code) =>
         Assert.Contains(Compilation.Check("flow-backedge.ts",source),d=>d.Code==code);
+
+    [Theory]
+    [InlineData("type H=(n:number)=>number; function bad(v:H|undefined):number { if(typeof v==="function"){v=undefined;return v(21);} return 0; }")]
+    [InlineData("type H=(n:number)=>number; function bad(v:H|{value:number}):number { if(typeof v==="function"){return v(21);} return 0; }")]
+    public void UnsafeRebindingOrUnclassifiedStructuralUnionCannotBecomeCallable(string source) =>
+        Assert.Contains(Compilation.Check("typeof-unsafe.ts",source),d=>d.Code=="TSCS1001");
 
     [Fact]
     public void ShadowedLoopLocalDoesNotInvalidateOuterGuard()
