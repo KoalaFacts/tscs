@@ -1,0 +1,93 @@
+{
+  "kind": "BOUNDED_TRUTHINESS_IDENTIFIER_GUARD_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "truthy-guard:positive-01",
+      "source": "function read(v:{value:number}|null):number{if(v){return v.value;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "truthy-guard:positive-02",
+      "source": "function read(v:{value:number}|null):number{if(!v){return 0;}return v.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "truthy-guard:positive-03",
+      "source": "function read(v:{value:number}|undefined|null):number{if(v){return v.value;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "truthy-guard:positive-04",
+      "source": "function twice(v:number|null):number{if(v){return v*2;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "truthy-guard:positive-05",
+      "source": "function label(v:string|null):string{return v?v:\"missing\";}",
+      "expectedCodes": []
+    },
+    {
+      "id": "truthy-guard:positive-06",
+      "source": "type Handler=(n:number)=>number;function invoke(v:Handler|undefined):number{if(v){return v(21);}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "truthy-guard:positive-07",
+      "source": "type Handler=(n:number)=>number;function invoke(v:Handler|null):number{if(!v){return 0;}return v(21);}",
+      "expectedCodes": []
+    },
+    {
+      "id": "truthy-guard:positive-08",
+      "source": "function choose(v:0|21):number{if(v){return v;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "truthy-guard:positive-09",
+      "source": "function score(v:number|string):number{if(v){return 21;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "truthy-guard:positive-10",
+      "source": "interface Box{value:number}type Maybe=Box|undefined;function read(v:Maybe):number{if(!v){return 0;}return v.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "truthy-guard:positive-11",
+      "source": "function read(v:{value:number}|null):number{return v?v.value:0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "truthy-guard:positive-12",
+      "source": "function read(v:{value:number}|null):number{if(((v))){return v.value;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "truthy-guard:negative-01",
+      "source": "function wrong(v:number|string):number{if(v){return v;}return 0;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "truthy-guard:negative-02",
+      "source": "function wrong(v:number|string):number{if(!v){return v;}return 0;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "truthy-guard:negative-03",
+      "source": "function wrong(v:number|string):number{return v?v:0;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "truthy-guard:negative-04",
+      "source": "function wrong(v:string|null):number{if(v){return v;}return 0;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}
