@@ -46,9 +46,8 @@ public sealed class NoSubstitutionTemplateTests
         Assert.Empty(Compilation.Check("linebreak-template.ts","let s: string = `one\r\ntwo`;"));
 
     [Fact]
-    public void InterpolationFailsClosed() =>
-        Assert.Contains(Compilation.Check("interpolation.ts","let s: string = `hello${21}`;"),
-            d=>d.Code=="TSCS1001");
+    public void InterpolationUsesCheckedStringExpressions() =>
+        Assert.Empty(Compilation.Check("interpolation.ts","let s: string = `hello${21}`;"));
 
     [Fact]
     public void UnterminatedTemplateReportsTs1160() =>

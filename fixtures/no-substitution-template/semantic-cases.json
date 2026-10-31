@@ -72,6 +72,79 @@
       "expectedCodes": [
         "TS2339"
       ]
+    },
+    {
+      "id": "no-substitution-template:positive-11",
+      "source": "const n: number = 21; const s: string = `value=${n}`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-12",
+      "source": "const a: number = 1; const b: number = 2; let s: string = `a${a}b${b}`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-13",
+      "source": "function double(n: number): number { return n * 2; } let s: string = `x${double(21)}`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-14",
+      "source": "const item: {value: number} = {value: 21}; let s: string = `x${item.value}`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-15",
+      "source": "let s: string = `escaped \\${literal}: ${21}`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-16",
+      "source": "let s: string = `${1 + 2}/${3 * 4}`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-17",
+      "source": "let s: string = `line\n${21}`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-18",
+      "source": "let s: string = `${\"ok\"}-${true}-${null}`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:positive-19",
+      "source": "let s: string = `${({value: 21}).value}`;",
+      "expectedCodes": []
+    },
+    {
+      "id": "no-substitution-template:negative-04",
+      "source": "let n: number = `x${21}`;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "no-substitution-template:negative-05",
+      "source": "let s: string = `${missingName}`;",
+      "expectedCodes": [
+        "TS2304"
+      ]
+    },
+    {
+      "id": "no-substitution-template:negative-06",
+      "source": "const item = {value: 21}; let s: string = `${item.bad}`;",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "no-substitution-template:negative-07",
+      "source": "let result: \"fixed\" = `x${21}`;",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }

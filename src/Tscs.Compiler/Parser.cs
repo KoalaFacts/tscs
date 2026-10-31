@@ -1,7 +1,7 @@
 namespace Tscs;
 
 // Supported paths follow parseVariableDeclarationWorker and block/statement parsing upstream.
-internal sealed class Parser(string file, List<Token> tokens)
+internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceScanner=null)
 {
     private int position;
     private int callNesting;
@@ -1513,6 +1513,7 @@ internal sealed class Parser(string file, List<Token> tokens)
             finally { groupNesting--; }
         }
         if(token.Kind==TokenKind.Function)return ParseFunctionExpression();
+        if(token.Kind==TokenKind.Template)return ParseInterpolatedTemplate();
         if(token.Kind==TokenKind.Identifier)return new ValueAtom(Take());
         if(token.Kind is TokenKind.Number or TokenKind.String or TokenKind.True or TokenKind.False or TokenKind.Null)
             return new ValueAtom(Take());
@@ -1524,13 +1525,70 @@ internal sealed class Parser(string file, List<Token> tokens)
         Unsupported(token,"Only primitive, object, named-property, parenthesized and named-call expressions are supported.");
         return default!;
     }
-    // No-substitution templates are valid expressions, but a preceding value
-    // can act as a tag even across a newline (ASI does NOT split a tag call).
-    // Do not silently turn an unsupported tagged call into two JS statements.
-    // This check applies to expression-valued statements only; a bare return
-    // and type-only/module declarations can still use normal ASI.
+    // Parse substitutions as genuine expression AST nodes. Only the token
+    // boundary is special: no string matching bypasses normal type checking.
+    private ValueTemplate ParseInterpolatedTemplate()
+    {
+        var literal=Take();
+        var raw=literal.Text;
+        var chunks=new List<string>();
+        var expressions=new List<ValueNode>();
+        int chunkStart=1;
+        for(int i=1;i<raw.Length-1;i++)
+        {
+            if(raw[i]=='\\'){i++;continue;}
+            if(raw[i]!='$' || i+1>=raw.Length-1 || raw[i+1]!='{')continue;
+            chunks.Add(raw[chunkStart..i]);
+            int begin=i+2;
+            int closing=TemplateInterpolation.FindClose(raw,begin);
+            if(closing<0 || closing>=raw.Length-1)
+                Unsupported(literal,"Template substitution is not properly closed.");
+            if(expressions.Count>=32)
+                Unsupported(literal,"Template substitution count exceeds the bounded limit.");
+            string embedded=raw[begin..closing];
+            if(string.IsNullOrWhiteSpace(embedded))
+                Unsupported(literal,"Template substitution requires an expression.");
+            int offset=literal.Start+begin;
+            var scanner=new Scanner(file,embedded);
+            List<Token> nested;
+            try {nested=scanner.Scan();}
+            catch(CompilationFailure failure)
+            {
+                throw new CompilationFailure(failure.Diagnostic with
+                    {Start=failure.Diagnostic.Start+offset});
+            }
+            if(scanner.Diagnostics.Count>0)
+                throw new CompilationFailure(scanner.Diagnostics[0] with
+                    {Start=scanner.Diagnostics[0].Start+offset});
+            sourceScanner?.ImportSuppressedLines(scanner,offset);
+            for(int j=0;j<nested.Count;j++)
+                nested[j]=nested[j] with {Start=nested[j].Start+offset};
+            var nestedParser=new Parser(file,nested);
+            expressions.Add(nestedParser.ParseEmbeddedExpression());
+            i=closing;
+            chunkStart=closing+1;
+        }
+        chunks.Add(raw[chunkStart..^1]);
+        if(expressions.Count==0)
+            Unsupported(literal,"Expected a template substitution.");
+        return new ValueTemplate(literal,chunks,expressions);
+    }
+
+    private ValueNode ParseEmbeddedExpression()
+    {
+        var expression=ParseValue();
+        if(Diagnostics.Count>0)
+            throw new CompilationFailure(Diagnostics[0]);
+        if(Current.Kind!=TokenKind.End)
+            Unsupported(Current,"Template substitution must contain one complete expression.");
+        return expression;
+    }
+
+    // Untagged templates are legal expressions; tag continuations cannot be
+    // split by automatic semicolon insertion, even across a newline.
     private static bool IsNoSubstitutionTemplate(Token token) =>
-        token.Kind==TokenKind.String && token.Text.Length>0 && token.Text[0]=='`';
+        (token.Kind is TokenKind.String or TokenKind.Template) &&
+        token.Text.Length>0 && token.Text[0]=='`';
 
     private void EndStatement(bool rejectTemplateContinuation=false)
     {

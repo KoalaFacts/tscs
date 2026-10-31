@@ -248,14 +248,17 @@ Emission uses normalized decimal values. Malformed digits and separators fail
 closed. Values beyond JavaScript's maximum safe integer (2^53 - 1) are
 explicitly unsupported rather than rounded. This is not full TS7 support.
 
-## No-substitution template literals (bounded)
+## Checked template expressions (bounded)
 
-Untagged backtick strings without `${...}` expressions use checked string/literal
-semantics and native ES2015 output. Escaped backticks, escaped `${` and
-multiline values are supported. Interpolated/tagged templates are **not**
-implemented and fail closed, including tagged calls across line breaks. Backticks
-cannot replace quoted module specifiers or bare quoted object/type property keys.
-Full template literal types are not claimed.
+Untagged backtick strings may contain checked ${expression} substitutions:
+the existing parser and type checker validate numeric, string, boolean,
+nullish, object-property, arithmetic and callable expressions, while ES2015
+output retains native runtime interpolation. Multiple substitutions, literal
+escapes and multiline text are preserved. Embedded parser diagnostics retain
+the original UTF-16 offsets. Nested backtick templates, template tags,
+unbounded interpolation nesting and complete template literal types are
+still unsupported and fail closed. Backticks cannot replace quoted module
+specifiers or bare quoted object/type property keys.
 
 ## Other implemented subsets
 

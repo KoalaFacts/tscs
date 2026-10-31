@@ -8,7 +8,9 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
 {
     private int position;
     public List<Diagnostic> Diagnostics { get; } = [];
-    private readonly List<(int Start,int End)> ignoredNextLines = [];
+    // The directive's source position is retained so embedded scanners can
+    // import only globally whole-line directives after offset relocation.
+    private readonly List<(int Start,int End,int DirectiveStart)> ignoredNextLines = [];
     private readonly HashSet<int> referenceDirectiveStarts=jsonMode
         ? []
         : TripleSlashPathReferences.Collect(text).Select(r=>r.Start).ToHashSet();
@@ -26,6 +28,33 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
             else return true;
         }
         return false;
+    }
+    // The outer scanner skips over complete template tokens, but nested
+    // expression scanners may discover whole-line @ts-ignore directives.
+    // Preserve the same source-global immediately-next-line semantics and
+    // keep the sorted range index used by diagnostic suppression.
+    internal void ImportSuppressedLines(Scanner embedded,int sourceOffset)
+    {
+        foreach(var local in embedded.ignoredNextLines)
+        {
+            int directive=sourceOffset+local.DirectiveStart;
+            int lineStart=directive;
+            while(lineStart>0 && !IsLineBreak(text[lineStart-1]))lineStart--;
+            bool wholeLine=true;
+            for(int i=lineStart;i<directive;i++)
+                if(text[i] is not (' ' or '\t' or '\uFEFF')){wholeLine=false;break;}
+            if(!wholeLine)continue;
+            var imported=(Start:local.Start+sourceOffset,End:local.End+sourceOffset,
+                DirectiveStart:directive);
+            int low=0,high=ignoredNextLines.Count;
+            while(low<high)
+            {
+                int mid=low+(high-low)/2;
+                if(ignoredNextLines[mid].Start<=imported.Start)low=mid+1;
+                else high=mid;
+            }
+            ignoredNextLines.Insert(low,imported);
+        }
     }
     // Cumulative lexical diagnostics available after each token was scanned.
     public List<int> DiagnosticCounts { get; } = [];
@@ -186,10 +215,11 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
             }
             else if (first == '`' && !jsonMode)
             {
-                // A complete no-substitution template is a checked string.
-                // Do not misparse interpolation as free-standing tokens.
-                kind = TokenKind.String;
-                decodedValue = ScanNoSubstitutionTemplate(begin, ref stringFlags);
+                // Capture the complete template as one lexical span. A
+                // substitution receives its own checked expression AST.
+                decodedValue = ScanNoSubstitutionTemplate(begin,ref stringFlags,out bool interpolated);
+                kind = interpolated ? TokenKind.Template : TokenKind.String;
+                if(interpolated)decodedValue=null;
             }
             else kind = first switch { '.' when !jsonMode=>TokenKind.Dot,'['=>TokenKind.OpenBracket,']'=>TokenKind.CloseBracket,'(' when !jsonMode=>TokenKind.OpenParen,')' when !jsonMode=>TokenKind.CloseParen,'-'=>TokenKind.Minus, '{'=>TokenKind.Open,'}'=>TokenKind.Close,':'=>TokenKind.Colon,';'=>TokenKind.Semi,'='=>TokenKind.Equal,','=>TokenKind.Comma,'?' when !jsonMode=>TokenKind.Question,'+' when !jsonMode=>TokenKind.Plus,'*' when !jsonMode=>TokenKind.Star,'/' when !jsonMode=>TokenKind.Slash,'%' when !jsonMode=>TokenKind.Percent,'|' when !jsonMode=>TokenKind.Bar,'&' when !jsonMode=>TokenKind.Amp,'^' when !jsonMode=>TokenKind.Caret,'~' when !jsonMode=>TokenKind.Tilde,_=>TokenKind.Unsupported };
             // Maximal-munch binary/logical operators only in source mode. Keep
@@ -290,18 +320,27 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
             tokens.Add(token);DiagnosticCounts.Add(Diagnostics.Count);
         }
     }
-    // Untagged templates without substitutions reuse checked string values
-    // and native ES2015 emission. A template interpolation needs its own AST.
-    private string ScanNoSubstitutionTemplate(int start, ref StringTokenFlags flags)
+    // Preserve one template token and its original source span. The
+    // embedded expressions are later checked by the ordinary Parser.
+    private string ScanNoSubstitutionTemplate(int start,ref StringTokenFlags flags,out bool interpolated)
     {
+        interpolated=false;
         var value=new StringBuilder();
         while(position<text.Length)
         {
             char c=text[position];
             if(c=='`') {position++;return value.ToString();}
             if(c=='$' && position+1<text.Length && text[position+1]=='{')
-                throw Error(new(TokenKind.Unsupported,text[start..(position+2)],start,position+2-start),
-                    "TSCS1001","Template interpolation requires an expression-bearing AST.");
+            {
+                interpolated=true;
+                int end=TemplateInterpolation.FindClose(text,position+2);
+                if(end<0)
+                    throw Error(new(TokenKind.Unsupported,text[start..Math.Min(text.Length,position+2)],
+                        start,Math.Min(text.Length,position+2)-start),"TSCS1001",
+                        "Unterminated, nested, or unbounded template substitution.");
+                position=end+1;
+                continue;
+            }
             if(c=='\\') {value.Append(ScanStringEscape(ref flags));continue;}
             // ECMAScript normalizes raw CRLF and CR in template values to LF.
             if(c=='\r')
@@ -423,7 +462,7 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
         int following=end+(text[end]=='\r'&&end+1<text.Length&&text[end+1]=='\n'?2:1);
         int nextLineEnd=following;
         while(nextLineEnd<text.Length&&!IsLineBreak(text[nextLineEnd]))nextLineEnd++;
-        ignoredNextLines.Add((following,nextLineEnd));
+        ignoredNextLines.Add((following,nextLineEnd,start));
         return true;
     }
     private static int HexDigit(char c)=>c is >= '0' and <= '9'?c-'0':c is >= 'a' and <= 'f'?c-'a'+10:c is >= 'A' and <= 'F'?c-'A'+10:-1;
