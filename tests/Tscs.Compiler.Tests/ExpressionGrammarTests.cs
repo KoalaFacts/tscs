@@ -7,6 +7,7 @@ public sealed class ExpressionGrammarTests
 {
     [Theory]
     [InlineData("let b: boolean = true || false && false;")]
+    [InlineData("let b: boolean = true || 1;")] // the unreachable numeric RHS must not widen this boolean result
     [InlineData("let b: boolean = !false && (true || false);")]
     [InlineData("let b: boolean = !1;")]
     [InlineData("let b: boolean = 1 + 2 * 3 > 5 && 4 <= 4;")]
@@ -36,7 +37,6 @@ public sealed class ExpressionGrammarTests
 
     [Theory]
     [InlineData("let b: boolean = 1 && 2;")]
-    [InlineData("let b: boolean = true || 1;")]
     public void NonBooleanLogicalResultsAreTypeChecked(string source) =>
         Assert.Contains(Compilation.Check("expr.ts",source),d=>d.Code=="TS2322");
 
