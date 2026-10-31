@@ -28,6 +28,7 @@ public sealed class TruthinessGuardTests
     [InlineData("function wrong(v:number|string):number{return v?v:0;}", "TS2322")] // truthy-guard:negative-03
     [InlineData("function wrong(v:string|null):number{if(v){return v;}return 0;}", "TS2322")] // truthy-guard:negative-04
     [InlineData("function wrong(v:{value:number}|undefined):number{if(v){v=undefined;return v.value;}return 0;}", "TS18048")]
+    [InlineData("function bad(v:{}|null):null{if(v){return null;}return v;}", "TS2322")]
     public void FalsyAlternativesAndReassignmentsAreNotNarrowedUnsafely(string source,string code) =>
         Assert.Contains(Compilation.Check("truthy-guard-invalid.ts",source),d=>d.Code==code);
 }
