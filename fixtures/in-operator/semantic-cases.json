@@ -151,6 +151,74 @@
       "expectedCodes": [
         "TS2339"
       ]
+    },
+    {
+      "id": "in-operator:positive-20",
+      "source": "type E={value:number}|{message:string};function read(e:E):number{const key=\"value\";if(key in e){return e.value;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-21",
+      "source": "type E={value:number}|{message:string};function read(e:E):number{const key=\"value\";if(!(key in e)){return 0;}return e.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-22",
+      "source": "type E={value:number}|{message:string};function read(e:E,key:\"value\"):number{if(key in e){return e.value;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-23",
+      "source": "type E={value:number}|{message:string};function read(e:E):number{let key:\"value\"=\"value\";if(key in e){return e.value;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-24",
+      "source": "type E={0:number}|{message:string};function read(e:E):number{if(0 in e){return e[0];}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-25",
+      "source": "type E={0:number}|{message:string};function read(e:E):number{const key=0;if(key in e){return e[0];}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-26",
+      "source": "type E={value?:number}|{message:string};function read(e:E):number{const key=\"value\";if(key in e){return e.value??0;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-27",
+      "source": "type E={value:number}|{message:string};function read(e:E):number{const key=\"value\";return key in e?e.value:0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:negative-09",
+      "source": "type E={value:number}|{message:string};function bad(e:E,key:string):number{if(key in e){return e.value;}return 0;}",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "in-operator:negative-10",
+      "source": "type E={value:number}|{message:string};function bad(e:E):number{const key:string=\"value\";if(key in e){return e.value;}return 0;}",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "in-operator:negative-11",
+      "source": "type E={value:number}|{message:string};function bad(e:E):number{let key=\"value\";if(key in e){return e.value;}return 0;}",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "in-operator:negative-12",
+      "source": "type E={value:number}|{message:string};function bad(e:E):string{const key=\"value\";if(key in e){return e.message;}return \"ok\";}",
+      "expectedCodes": [
+        "TS2339"
+      ]
     }
   ]
 }
