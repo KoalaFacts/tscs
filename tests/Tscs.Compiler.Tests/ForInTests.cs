@@ -30,8 +30,14 @@ public sealed class ForInTests
         Assert.Contains(Compilation.Check("for-in-invalid.ts",source),d=>d.Code==diagnostic);
 
     [Fact]
-    public void UnbracedForInIsExplicitlyUnsupported() =>
-        Assert.Contains(Compilation.Check("for-in-unbraced.ts","let data={a:1};for(const key in data)key;"),
+    public void UnbracedForInUsesTheCheckedLexicalKey() =>
+        Assert.Empty(Compilation.Check("for-in-unbraced.ts",
+            "let data={a:1};for(const key in data)key;"));
+
+    [Fact]
+    public void UnbracedForInLexicalDeclarationIsExplicitlyUnsupported() =>
+        Assert.Contains(Compilation.Check("for-in-unbraced.ts",
+            "let data={a:1};for(const key in data)const value=1;"),
             d=>d.Code=="TSCS1001");
 
     [Fact]

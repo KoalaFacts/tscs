@@ -19,6 +19,7 @@ public sealed class LoopControlFlowTests
     [InlineData("const data={ while:1, continue:2 }; let n:number=data.while+data.continue;")]
     [InlineData("function f(n:number):number { let i:number=0; while(i<n) { i++; if(i<2){continue;} return i; } return 0; }")]
     [InlineData("function f(n:number):number { while(1) {break;} return n; }")]
+    [InlineData("function f(n:number):number { while(n>0) n++; return n; }")]
     public void BracedWhileContinueAndGeneralBreakAreChecked(string source) =>
         Assert.Empty(Compilation.Check("loop-control.ts",source));
 
@@ -36,7 +37,7 @@ public sealed class LoopControlFlowTests
     [InlineData("function f(n:number):number { switch(n) { case 1: { continue; } default: { return n; } } }")]
     [InlineData("break;")]
     [InlineData("function f(n:number):number { if(n>0){break;} return n; }")]
-    [InlineData("function f(n:number):number { while(n>0) n++; return n; }")]
+    [InlineData("function f(n:number):number { while(n>0) const x=1; return n; }")]
     public void UnimplementedOrOutOfLoopControlFlowIsRejected(string source) =>
         Assert.Contains(Compilation.Check("loop-boundary.ts",source), d=>d.Code=="TSCS1001");
 

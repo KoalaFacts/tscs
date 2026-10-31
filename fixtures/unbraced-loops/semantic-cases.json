@@ -1,0 +1,91 @@
+{
+  "kind": "BOUNDED_UNBRACED_LOOPS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "cases": [
+    {
+      "id": "unbraced-loops:positive-01",
+      "source": "function f(n:number):number{while(n>0)n--;return n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "unbraced-loops:positive-02",
+      "source": "function f(n:number):number{let i:number=0;do i++;while(i<n);return i;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "unbraced-loops:positive-03",
+      "source": "function f(n:number):number{let sum:number=0;for(let i=0;i<n;i++)sum+=i;return sum;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "unbraced-loops:positive-04",
+      "source": "function f(values:number[]):number{let sum:number=0;for(const x of values)sum+=x;return sum;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "unbraced-loops:positive-05",
+      "source": "function f(data:{a:number;b:number}):number{let count:number=0;for(const key in data)count++;return count;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "unbraced-loops:positive-06",
+      "source": "function f(n:number):number{while(n>0)if(n===2)break;else n--;return n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "unbraced-loops:positive-07",
+      "source": "function f(n:number):number{do if(n===1)break;else n--;while(n>0);return n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "unbraced-loops:positive-08",
+      "source": "function f(n:number):number{let sum:number=0;for(let i=0;i<n;i++)if(i>2)break;else sum+=i;return sum;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "unbraced-loops:positive-09",
+      "source": "function f(values:number[]):number{let sum:number=0;for(const x of values)if(x<0)continue;else sum+=x;return sum;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "unbraced-loops:positive-10",
+      "source": "function f(data:{a:number;b:number}):number{let total:number=0;for(const key in data)if(key===\"a\")total++;else total+=2;return total;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "unbraced-loops:negative-01",
+      "source": "function f(n:number):number{while(n>0)n=\"bad\";return n;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "unbraced-loops:negative-02",
+      "source": "function f(n:number):number{do n=\"bad\";while(n>0);return n;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "unbraced-loops:negative-03",
+      "source": "function f(n:number):number{let total:number=0;for(let i=0;i<n;i++)total=\"bad\";return total;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "unbraced-loops:negative-04",
+      "source": "function f(values:number[]):number{let total:number=0;for(const x of values)total=\"bad\";return total;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "unbraced-loops:negative-05",
+      "source": "function f(data:{a:number}):number{let total:number=0;for(const key in data)total=\"bad\";return total;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}

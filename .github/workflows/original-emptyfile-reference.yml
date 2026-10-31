@@ -65,6 +65,7 @@ jobs:
           node tools/verify-switch-reference.ts "$reference" .artifacts/switch-reference
           node tools/verify-switch-reference.ts "$reference" .artifacts/switch-completion-reference fixtures/switch-completion/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/loop-control-reference fixtures/loop-control/semantic-cases.json
+          node tools/verify-switch-reference.ts "$reference" .artifacts/unbraced-loops-reference fixtures/unbraced-loops/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/classic-for-reference fixtures/classic-for/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/numeric-mutation-reference fixtures/numeric-mutation/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/throw-flow-reference fixtures/throw-flow/semantic-cases.json
@@ -426,6 +427,14 @@ jobs:
         with:
           name: pinned-classic-for-reference-${{ github.sha }}
           path: .artifacts/classic-for-reference/
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Preserve unbraced loop reference inputs and raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-unbraced-loops-reference-${{ github.sha }}
+          path: .artifacts/unbraced-loops-reference/
           retention-days: 30
           if-no-files-found: warn
       - name: Preserve while/continue reference inputs and raw results

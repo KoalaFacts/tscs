@@ -453,18 +453,14 @@ internal sealed class Parser(string file, List<Token> tokens)
                 Take();
                 var source=ParseValue();
                 if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after for..of source.");
-                if(!Eat(TokenKind.Open))Unsupported(Current,"for..of bodies must be braced.");
-                var body=Parse(depth+1,inFunction);
-                if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+                var body=ParseLoopBody(depth,inFunction);
                 return new ForOfStatement(keyword,name,constant,source,body);
             }
             if(Eat(TokenKind.In))
             {
                 var source=ParseValue();
                 if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after for..in source.");
-                if(!Eat(TokenKind.Open))Unsupported(Current,"for..in bodies must be braced.");
-                var body=Parse(depth+1,inFunction);
-                if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+                var body=ParseLoopBody(depth,inFunction);
                 return new ForInStatement(keyword,name,constant,source,body);
             }
             if(constant)Unsupported(name,"Classic for currently requires a mutable let binding.");
@@ -481,9 +477,7 @@ internal sealed class Parser(string file, List<Token> tokens)
         if(!Eat(TokenKind.Semi))Unsupported(Current,"Expected second ';' in classic for header.");
         Statement? update=Current.Kind==TokenKind.CloseParen?null:ParseForHeaderMutation();
         if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after classic for header.");
-        if(!Eat(TokenKind.Open))Unsupported(Current,"Classic for bodies must be braced.");
-        var statements=Parse(depth+1,inFunction);
-        if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+        var statements=ParseLoopBody(depth,inFunction);
         return new ClassicForStatement(keyword,initializer,condition,update,statements);
     }
 
@@ -534,17 +528,33 @@ internal sealed class Parser(string file, List<Token> tokens)
         return default!;
     }
 
-    // Braced while loops share the same checked condition and exit model as
-    // if/else, switch and for..of. Unbraced bodies remain outside this subset.
+    // One loop body is either a braced block or one statement. The synthetic
+    // Block reuses normal lexical checking, backedge flow and ES2015 emission.
+    private Block ParseLoopBody(int depth,bool inFunction)
+    {
+        if(Eat(TokenKind.Open))
+        {
+            var braced=Parse(depth+1,inFunction);
+            if(!Eat(TokenKind.Close))
+                Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+            return braced;
+        }
+        if(Current.Kind is TokenKind.Let or TokenKind.Const)
+            Unsupported(Current,"Unbraced loop bodies cannot contain lexical declarations.");
+        var single=Parse(depth+1,inFunction,singleStatementBody:true);
+        if(single.Statements.Count!=1)
+            Unsupported(Current,"Expected one statement after loop header.");
+        return single;
+    }
+
+    // Both braced and single-statement while loops share checked flow.
     private WhileStatement ParseWhile(int depth,bool inFunction)
     {
         var keyword=Take();
         if(!Eat(TokenKind.OpenParen))Unsupported(Current,"Expected '(' after 'while'.");
         var condition=ParseValue();
         if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after while condition.");
-        if(!Eat(TokenKind.Open))Unsupported(Current,"while bodies must be braced.");
-        var body=Parse(depth+1,inFunction);
-        if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+        var body=ParseLoopBody(depth,inFunction);
         return new WhileStatement(keyword,condition,body);
     }
 
@@ -553,9 +563,7 @@ internal sealed class Parser(string file, List<Token> tokens)
     private DoWhileStatement ParseDoWhile(int depth,bool inFunction)
     {
         var keyword=Take();
-        if(!Eat(TokenKind.Open))Unsupported(Current,"do/while bodies must be braced.");
-        var body=Parse(depth+1,inFunction);
-        if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+        var body=ParseLoopBody(depth,inFunction);
         if(!Eat(TokenKind.While))Unsupported(Current,"Expected 'while' after do body.");
         if(!Eat(TokenKind.OpenParen))Unsupported(Current,"Expected '(' after do/while.");
         var condition=ParseValue();
