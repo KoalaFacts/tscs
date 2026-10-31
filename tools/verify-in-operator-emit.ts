@@ -17,15 +17,21 @@ try {
   writeFileSync(join(folder,'logic.ts'),
     'export function hasValue(data:{value:number}):boolean{return "value" in data;}\n'+
     'export function read(data:{score:number}|{reason:string}):number{if("score" in data){return data.score;}return 0;}\n'+
-    'export function explain(data:{score:number}|{reason:string}):string{if("score" in data){return "present";}return data.reason;}\n');
-  writeFileSync(join(folder,'bridge.ts'),'export {hasValue,read,explain} from "./logic.js";\n');
+    'export function explain(data:{score:number}|{reason:string}):string{if("score" in data){return "present";}return data.reason;}\n'+
+    'export function optionalRead(data:{value?:number}|{message:string}):number{if("value" in data){return data.value??0;}return 0;}\n'+
+    'export function optionalInverse(data:{value?:number}|{message:string}):number{if(!("value" in data)){return 0;}return data.value??0;}\n');
+  writeFileSync(join(folder,'bridge.ts'),'export {hasValue,read,explain,optionalRead,optionalInverse} from "./logic.js";\n');
   writeFileSync(join(folder,'entry.ts'),[
     'import {seed,values} from "./model.js";',
-    'import {hasValue,read,explain} from "./bridge.js";',
+    'import {hasValue,read,explain,optionalRead,optionalInverse} from "./bridge.js";',
     'export const present:boolean=hasValue(seed);',
     'export const narrowedHit:number=read({score:42});',
     'export const narrowedMiss:number=read({reason:"not-found"});',
     'export const narrowedFalse:string=explain({reason:"missing"});',
+    'export const optionalHit:number=optionalRead({value:42});',
+    'export const optionalEmpty:number=optionalRead({});',
+    'export const optionalMiss:number=optionalRead({message:"missing"});',
+    'export const optionalInverseHit:number=optionalInverse({value:20});',
     'export const missing:boolean="absent" in seed;',
     'let key:string="label";',
     'export const dynamicKey:boolean=key in seed;',
@@ -65,8 +71,8 @@ try {
   for(const name of ['model','logic','bridge','entry'])
     assert.ok(existsSync(join(folder,name+'.js')),'missing '+name+'.js');
   const execution=spawnSync(process.execPath,['--input-type=module','--eval',[
-    'import {present,missing,dynamicKey,arrayIndex,arrayMissing,keyword,combined,callable,groupedFor,callFor,arrayFor,objectFor,conditionalFor,result,narrowedHit,narrowedMiss,narrowedFalse} from "./entry.js";',
-    'if(!present || missing || !dynamicKey || !arrayIndex || arrayMissing || !keyword || !combined || !callable || !groupedFor || !callFor || !arrayFor || !objectFor || !conditionalFor || result!==42 || narrowedHit!==42 || narrowedMiss!==0 || narrowedFalse!=="missing")',
+    'import {present,missing,dynamicKey,arrayIndex,arrayMissing,keyword,combined,callable,groupedFor,callFor,arrayFor,objectFor,conditionalFor,result,narrowedHit,narrowedMiss,narrowedFalse,optionalHit,optionalEmpty,optionalMiss,optionalInverseHit} from "./entry.js";',
+    'if(!present || missing || !dynamicKey || !arrayIndex || arrayMissing || !keyword || !combined || !callable || !groupedFor || !callFor || !arrayFor || !objectFor || !conditionalFor || result!==42 || narrowedHit!==42 || narrowedMiss!==0 || narrowedFalse!=="missing" || optionalHit!==42 || optionalEmpty!==0 || optionalMiss!==0 || optionalInverseHit!==20)',
     '  throw Error("in-operator emitted runtime mismatch");',
     'console.log(JSON.stringify({present,missing,dynamicKey,arrayIndex,arrayMissing,keyword,combined,result}));'
   ].join('\n')],{cwd:folder,encoding:'utf8',timeout:15000,env});

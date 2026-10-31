@@ -48,7 +48,24 @@ public sealed class InOperatorTests
     [InlineData("type Entry={value:number}|{message:string};function bad(e:Entry):string {if(\"value\" in e){return e.message;}return \"ok\";}", "TS2339")]
     [InlineData("type Entry={value:number}|{message:string};function bad(e:Entry):number {if(\"value\" in e){e={message:\"changed\"};return e.value;}return 0;}", "TS2339")]
     [InlineData("type Entry={value:number}|{message:string};function bad(e:Entry,key:string):number {if(key in e){return e.value;}return 0;}", "TS2339")]
-    [InlineData("type Entry={value?:number}|{message:string};function bad(e:Entry):number {if(\"value\" in e){return e.value;}return 0;}", "TS2339")]
+    [InlineData("type Entry={value?:number}|{message:string};function bad(e:Entry):number {if(\"value\" in e){return e.value;}return 0;}", "TS2322")]
     public void MissingDynamicOptionalOrReassignedMemberIsNotPromoted(string source,string code) =>
         Assert.Contains(Compilation.Check("in-narrow-negative.ts",source),d=>d.Code==code);
+
+    // Optional key presence is a union filter, not proof that the value is defined.
+    // The optional variant participates in both exits of the guard.
+    [Theory]
+    [InlineData("type Entry={value?:number}|{message:string};function read(e:Entry):number {if(\"value\" in e){return e.value??0;}return 0;}")]
+    [InlineData("type Entry={value?:number}|{message:string};function read(e:Entry):number {if(!(\"value\" in e)){return 0;}return e.value??0;}")]
+    [InlineData("type Entry={value?:number}|{message:string};function read(e:Entry):number {return \"value\" in e?(e.value??0):0;}")]
+    [InlineData("type Entry={value?:number}|{value:number}|{message:string};function read(e:Entry):number {if(\"value\" in e){return e.value??0;}return 0;}")]
+    [InlineData("type Entry={value?:number}|{message:string};function read(e:Entry):number {if(\"value\" in e && (e.value??0)>0){return e.value??0;}return 0;}")]
+    public void OptionalKeyPresenceRefinesOnlyThePresentBranch(string source) =>
+        Assert.Empty(Compilation.Check("in-optional-flow.ts",source));
+
+    [Theory]
+    [InlineData("type Entry={value?:number}|{message:string};function bad(e:Entry):string {if(!(\"value\" in e)){return e.message;}return \"ok\";}", "TS2339")]
+    [InlineData("type Entry={value?:number}|{message:string};function bad(e:Entry,key:string):number {if(key in e){return e.value??0;}return 0;}", "TS2339")]
+    public void OptionalKeyAbsenceOrDynamicKeyDoesNotProveMembers(string source,string code) =>
+        Assert.Contains(Compilation.Check("in-optional-flow-negative.ts",source),d=>d.Code==code);
 }

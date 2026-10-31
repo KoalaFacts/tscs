@@ -1,3 +1,16 @@
+## 2026-10-31 — Optional-member property-existence flow (source candidate; NOT_RUN)
+
+A bounded literal `"value" in receiver` guard now partitions finite structural
+unions containing optional properties. Optional alternatives survive in BOTH
+branches; a required member survives only when present and a missing member
+only when absent. Dynamic keys, broad/unknown receivers and unsafe reads of
+other union members remain rejected. The existing checker flow handles inverse
+guards, returns, ternaries, short-circuit conditions and assignment invalidation.
+Five additive positive and two negative pinned-Go code/exit cases, source-backed
+C# regressions, and four linked ES2015 runtime modules are registered as
+NOT_RUN before exact-head CI. The first 20 bounded `in` IDs remain intact;
+no original TS7 acceptance credit, reference pin or release gate changes.
+
 ## 2026-10-31 — Finite required-member `in` guard flow (source candidate; NOT_RUN)
 
 The shared C# TypeChecker now partitions finite structural unions on literal
