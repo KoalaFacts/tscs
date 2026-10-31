@@ -1,3 +1,15 @@
+## 2026-11-01 — Bounded nested untagged template interpolation (candidate; NOT_RUN)
+
+Nested untagged backtick values within `${expression}` now use the existing scanner,
+parser, checked expression AST, type checker and native ES2015 emitter. Lexical
+closing-brace detection skips nested templates, quoted braces and comments with
+a finite depth cap (eight levels). Source-backed xUnit, four linked executable
+ES2015 modules and 11 new pinned-Go source/code/exit cases extend the existing
+26 template cases to 37; exact-head gates are NOT_RUN at source creation.
+Tagged templates, template literal types and unbounded nesting remain unsupported.
+Original TS7 acceptance remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED; dynamic
+scope UNEXPANDED. No upstream pin, release gate or thresholds changed.
+
 ## 2026-11-01 — Checked expression-bearing template strings (candidate; NOT_RUN)
 
 The shared C# Scanner/Parser now retain native template chunks and parse each

@@ -255,9 +255,9 @@ the existing parser and type checker validate numeric, string, boolean,
 nullish, object-property, arithmetic and callable expressions, while ES2015
 output retains native runtime interpolation. Multiple substitutions, literal
 escapes and multiline text are preserved. Embedded parser diagnostics retain
-the original UTF-16 offsets. Nested backtick templates, template tags,
-unbounded interpolation nesting and complete template literal types are
-still unsupported and fail closed. Backticks cannot replace quoted module
+the original UTF-16 offsets. Nested untagged templates with up to eight lexical nesting levels are checked
+recursively and emitted as native ES2015 templates. Tagged templates, deeper
+nesting and complete template literal types remain unsupported and fail closed. Backticks cannot replace quoted module
 specifiers or bare quoted object/type property keys.
 
 ## Other implemented subsets

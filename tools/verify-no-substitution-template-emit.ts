@@ -21,18 +21,26 @@ try {
     'export function newline(): string { return `one\\ntwo`; }',
     'export function interpolate(c: Caption): string { return `v=${seed}:${c.text}`; }',
     'export function arithmetic(n: number): string { return `${n + 1}/${n * 2}`; }',
-    'export function escaped(): string { return `tick: \\` and \\${name}`; }'
+    'export function escaped(): string { return `tick: \\` and \\${name}`; }',
+    'export function nested(n: number): string { return `O${`I${n}`}`; }',
+    'export function deep(n: number): string { return `L${`M${`R${n}`}`}`; }',
+    'export function branch(n: number): string { return `A${n > 0 ? `B${n}` : `C${n}`}`; }',
+    'export function brace(n: number): string { return `Q${`brace${"}"}-${n}`}`; }'
   ].join('\n'));
-  writeFileSync(join(folder,'bridge.ts'),'export { decorate, newline, escaped, interpolate, arithmetic } from "./logic.js";\n');
+  writeFileSync(join(folder,'bridge.ts'),'export { decorate, newline, escaped, interpolate, arithmetic, nested, deep, branch, brace } from "./logic.js";\n');
   writeFileSync(join(folder,'entry.ts'),[
     'import { base } from "./model.js";',
-    'import { decorate, newline, escaped, interpolate, arithmetic } from "./bridge.js";',
+    'import { decorate, newline, escaped, interpolate, arithmetic, nested, deep, branch, brace } from "./bridge.js";',
     'export const result: string = decorate({ text: base });',
     'export const lines: string = newline();',
     'export const quoted: string = escaped();',
     'export const rendered: string = interpolate({ text: "ok" });',
     'export const calculated: string = arithmetic(21);',
-    'export const literal: "fixed" = `fixed`;'
+    'export const literal: "fixed" = `fixed`;',
+    'export const nestedResult: string = nested(21);',
+    'export const deepResult: string = deep(21);',
+    'export const branchResult: string = branch(21);',
+    'export const braceResult: string = brace(21);'
   ].join('\n'));
   writeFileSync(join(folder,'project.json'),JSON.stringify({
     files:['entry.ts','minimal.d.ts'],
@@ -48,7 +56,7 @@ try {
   for(const name of ['model','logic','bridge','entry'])
     assert.ok(existsSync(join(folder,name+'.js')),'missing '+name+'.js');
   const executed=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,lines,quoted,literal,rendered,calculated} from "./entry.js"; if(rendered!=="v=21:ok"||calculated!=="22/42"||result!=="alpha!"||lines!=="one\\ntwo"||quoted!=="tick: ` and ${name}"||literal!=="fixed") throw Error("template runtime mismatch");'],
+    'import {result,lines,quoted,literal,rendered,calculated,nestedResult,deepResult,branchResult,braceResult} from "./entry.js"; if(nestedResult!=="OI21"||deepResult!=="LMR21"||branchResult!=="AB21"||braceResult!=="Qbrace}-21"||rendered!=="v=21:ok"||calculated!=="22/42"||result!=="alpha!"||lines!=="one\\ntwo"||quoted!=="tick: ` and ${name}"||literal!=="fixed") throw Error("template runtime mismatch");'],
     {cwd:folder,encoding:'utf8',timeout:15000});
   assert.equal(executed.error,undefined,String(executed.error));
   assert.equal(executed.status,0,executed.stdout+executed.stderr);
@@ -63,6 +71,9 @@ try {
     ['unquoted-object-key','let data = { `key`: 21 };','TSCS1001',1],
     ['unquoted-type-key','type Data = { `key`: number };','TSCS1001',1],
     ['unquoted-module','import { value } from `./model.js`;','TSCS1001',1],
+    ['nested-unknown','let s: string = `${`inner${notDeclared}`}`;','TS2304',2],
+    ['nested-type-mismatch','let n: number = `${`inner${21}`}`;','TS2322',2],
+    ['nested-empty','let s: string = `${`inner${}`}`;','TSCS1001',1],
   ] as const;
   for(const [name,source,code,exit] of invalid){
     const path=join(folder,name+'.ts');
@@ -75,5 +86,5 @@ try {
     assert.match(rejected.stdout+rejected.stderr,new RegExp(code));
     assert.equal(existsSync(join(folder,name+'.js')),false,name+' emitted JS');
   }
-  console.log('no-substitution templates: 4 linked ES2015 modules executed; 10 invalid programs blocked.');
+  console.log('no-substitution templates: 4 linked ES2015 modules executed; 13 invalid programs blocked.');
 } finally {rmSync(folder,{recursive:true,force:true});}
