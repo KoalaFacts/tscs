@@ -1,3 +1,16 @@
+## 2026-10-31 — Finite required-member `in` guard flow (source candidate; NOT_RUN)
+
+The shared C# TypeChecker now partitions finite structural unions on literal
+property-existence guards such as `"value" in item`, including negation,
+short-circuit RHS checking, inverse/early-return flow and assignment invalidation.
+Only named identifier receivers and required members with distinct presence are
+classified; dynamic keys, optional members and arbitrary shapes keep their
+unrefined types. Five source-backed positives, negative diagnostic guards, four
+linked ES2015 Node runtime modules and eight additive fixed-Go code/exit cases
+are registered, pending exact-head CI. The prior twelve in-operator reference IDs
+remain unchanged. **Not** original TS7 acceptance: 0 PASS / 15,523
+SKIP_UNIMPLEMENTED; dynamic domains UNEXPANDED.
+
 ## 2026-10-31 — Checked typeof function/undefined/null guards (candidate; NOT_RUN)
 
 The C# TypeChecker now partitions finite primitive, callable and explicit nullish

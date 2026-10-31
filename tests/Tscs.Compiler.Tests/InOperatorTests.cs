@@ -33,4 +33,22 @@ public sealed class InOperatorTests
     [InlineData("let obj={value:42};for(let present=false?false:\"value\" in obj;false;){}", "TSCS1001")]
     public void InvalidOperandOrResultIsRejected(string source,string code) =>
         Assert.Contains(Compilation.Check("in-operator.ts",source),d=>d.Code==code);
+
+    [Theory]
+    [InlineData("type Entry={value:number}|{message:string};function read(e:Entry):number {if(\"value\" in e){return e.value;}return 0;}")]
+    [InlineData("type Entry={value:number}|{message:string};function read(e:Entry):number {if(!(\"value\" in e)){return 0;}return e.value;}")]
+    [InlineData("type Entry={value:number}|{message:string};function message(e:Entry):string {if(\"value\" in e){return \"ok\";}return e.message;}")]
+    [InlineData("type Entry={value:number}|{message:string};function read(e:Entry):number {if(\"value\" in e && e.value>0){return e.value;}return 0;}")]
+    [InlineData("type Entry={value:number}|{message:string};function message(e:Entry):string {if(\"message\" in e){return e.message;}return \"ok\";}")]
+    public void RequiredPropertyExistenceNarrowingChecksBothBranches(string source) =>
+        Assert.Empty(Compilation.Check("in-narrow.ts",source));
+
+    [Theory]
+    [InlineData("type Entry={value:number}|{message:string};function bad(e:Entry):number {return e.value;}", "TS2339")]
+    [InlineData("type Entry={value:number}|{message:string};function bad(e:Entry):string {if(\"value\" in e){return e.message;}return \"ok\";}", "TS2339")]
+    [InlineData("type Entry={value:number}|{message:string};function bad(e:Entry):number {if(\"value\" in e){e={message:\"changed\"};return e.value;}return 0;}", "TS2339")]
+    [InlineData("type Entry={value:number}|{message:string};function bad(e:Entry,key:string):number {if(key in e){return e.value;}return 0;}", "TS2339")]
+    [InlineData("type Entry={value?:number}|{message:string};function bad(e:Entry):number {if(\"value\" in e){return e.value;}return 0;}", "TS2339")]
+    public void MissingDynamicOptionalOrReassignedMemberIsNotPromoted(string source,string code) =>
+        Assert.Contains(Compilation.Check("in-narrow-negative.ts",source),d=>d.Code==code);
 }

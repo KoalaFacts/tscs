@@ -66,6 +66,52 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "in-operator:positive-10",
+      "source": "type Entry={value:number}|{message:string};function read(e:Entry):number {if(\"value\" in e){return e.value;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-11",
+      "source": "type Entry={value:number}|{message:string};function read(e:Entry):number {if(!(\"value\" in e)){return 0;}return e.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-12",
+      "source": "type Entry={value:number}|{message:string};function read(e:Entry):string {if(\"value\" in e){return \"ok\";}return e.message;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-13",
+      "source": "type Entry={value:number}|{message:string};function read(e:Entry):number {if(\"value\" in e && e.value>0){return e.value;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:positive-14",
+      "source": "type Entry={value:number}|{message:string};function read(e:Entry):string {if(\"message\" in e){return e.message;}return \"ok\";}",
+      "expectedCodes": []
+    },
+    {
+      "id": "in-operator:negative-04",
+      "source": "type Entry={value:number}|{message:string};function bad(e:Entry):number {return e.value;}",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "in-operator:negative-05",
+      "source": "type Entry={value:number}|{message:string};function bad(e:Entry):string {if(\"value\" in e){return e.message;}return \"ok\";}",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "in-operator:negative-06",
+      "source": "type Entry={value:number}|{message:string};function bad(e:Entry):number {if(\"value\" in e){e={message:\"changed\"};return e.value;}return 0;}",
+      "expectedCodes": [
+        "TS2339"
+      ]
     }
   ]
 }
