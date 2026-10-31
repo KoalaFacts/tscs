@@ -24,12 +24,21 @@ internal static class ModuleLinker
             var node=new ModuleNode(source,Binder.BindModule(source.File,source.Root,global));
             void Add(Token exported,Token local,Token? from)
             {
+                // Explicit named type/value export aliases occupy one public
+                // export slot even though the underlying declarations can
+                // legally share separate type and value namespaces.
+                if(node.TypeReexports.ContainsKey(exported.Text))
+                    throw new CompilationFailure(Diagnostic.Error(source.File,exported,"TS2300",
+                        $"Duplicate identifier '{exported.Text}'."));
                 if(!node.Exports.TryAdd(exported.Text,new ExportBinding(local,from)))
                     throw new CompilationFailure(Diagnostic.Error(source.File,exported,"TSCS1001",
                         "Duplicate module export names are not supported yet."));
             }
             void AddType(Token exported,Token local,Token? from)
             {
+                if(node.Exports.ContainsKey(exported.Text))
+                    throw new CompilationFailure(Diagnostic.Error(source.File,exported,"TS2300",
+                        $"Duplicate identifier '{exported.Text}'."));
                 if(node.TypeExports.ContainsKey(exported.Text) ||
                    !node.TypeReexports.TryAdd(exported.Text,new TypeExportBinding(local,from)))
                     throw new CompilationFailure(Diagnostic.Error(source.File,exported,"TSCS1001",

@@ -263,6 +263,21 @@ public sealed class ModuleImportTests
     }
 
     [Fact]
+    public void ExplicitTypeAndValueExportAliasesCannotClaimTheSamePublicName()
+    {
+        var host=new Host();
+        const string prefix="type T = number; const n: number = 1;";
+        host.Files["/virtual/main.ts"]=prefix+" export type { T as X }; export { n as X };";
+        Assert.Equal("TS2300",Assert.Single(CompilerProgram.Load(host,["main.ts"]).Analyze().Diagnostics).Code);
+        host.Files["/virtual/main.ts"]=prefix+" export { n as X }; export type { T as X };";
+        Assert.Equal("TS2300",Assert.Single(CompilerProgram.Load(host,["main.ts"]).Analyze().Diagnostics).Code);
+        // A directly declared type and value can share a spelling because
+        // TypeScript has separate semantic namespaces for those declarations.
+        host.Files["/virtual/main.ts"]="export type X = number; export const X: number = 21;";
+        Assert.Empty(CompilerProgram.Load(host,["main.ts"]).Analyze().Diagnostics);
+    }
+
+    [Fact]
     public void TypeOnlyReexportDoesNotInventValuesOrExposePrivateTypes()
     {
         var host=new Host();
