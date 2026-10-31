@@ -41,9 +41,9 @@ public sealed class CompoundGuardTests
     }
 
     [Fact]
-    public void BooleanOnlyPolicyDoesNotSilentlyCoerceValues()
+    public void LogicalValueIsNotImplicitlyConvertedToBoolean()
     {
         const string source="function wrong(v: number | string): boolean { return typeof v === \"number\" && v; }";
-        Assert.Contains(Compilation.Check("compound-coercion.ts",source),d=>d.Code=="TSCS1001");
+        Assert.Contains(Compilation.Check("compound-coercion.ts",source),d=>d.Code=="TS2322");
     }
 }

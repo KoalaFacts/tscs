@@ -1,3 +1,18 @@
+## 2026-10-31 — Checked logical operand-value expressions (candidate; NOT_RUN)
+
+C# TypeChecker now models bounded non-boolean \`&&\` and \`||\` expression
+results as operand values. This preserves zero/empty-string/false/nullish
+short-circuit alternatives, exact finite literal identities, and the RHS type
+on the corresponding execution path; existing discriminant narrowing still
+checks the RHS with safe branch facts. The native ES2015 emitter already
+preserves lazy evaluation, so the package includes a four-module Node runtime
+with side-effect counters, five invalid/no-JS programs, and fourteen additive
+stable-ID pinned-Go source/code/exit comparisons. At source creation these
+checks are NOT_RUN. \`void\`, \`unknown\` and other unbounded types remain explicit
+non-implementation, not test success. Original TS7 remains 0 PASS /
+15,523 SKIP_UNIMPLEMENTED, dynamic range UNEXPANDED, with no upstream pin,
+release gate or verification threshold changes.
+
 ## 2026-10-31 — Runtime expression truthiness in control flow (source candidate; NOT_RUN)
 
 C# TypeChecker now accepts checked numeric, string, member, optional-member,

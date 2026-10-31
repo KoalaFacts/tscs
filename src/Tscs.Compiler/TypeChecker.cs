@@ -1624,9 +1624,6 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     // only when it is false. In particular, typecheck a member
                     // read on the RHS under the precise discriminated union arm.
                     var leftType=TypeOf(logical.Left,scope);
-                    if(leftType!=null && !CompilerTypes.IsBoolean(leftType))
-                        throw new CompilationFailure(Diagnostic.Error(file,logical.Operator,"TSCS1001",
-                            "Logical binary expressions currently require boolean operands."));
                     var leftFacts=TryNarrowDiscriminant(logical.Left,scope);
                     var original=leftFacts?.Symbol.Type;
                     TypeSymbol? rightType;
@@ -1641,10 +1638,24 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     {
                         if(leftFacts is { } facts)facts.Symbol.Type=original;
                     }
-                    if(rightType!=null && !CompilerTypes.IsBoolean(rightType))
-                        throw new CompilationFailure(Diagnostic.Error(file,logical.Operator,"TSCS1001",
-                            "Logical binary expressions currently require boolean operands."));
-                    types.Push(leftType!=null && rightType!=null?CompilerTypes.Boolean:null);
+                    if(leftType is null || rightType is null)
+                    {
+                        types.Push(null);
+                        continue;
+                    }
+                    try
+                    {
+                        var result=CompilerTypes.LogicalValueResult(leftType,rightType,
+                            logical.Operator.Kind==TokenKind.AmpAmp);
+                        if(result is null)
+                            throw new CompilationFailure(Diagnostic.Error(file,logical.Operator,
+                                "TSCS1001","Logical expression operand types are outside the supported finite subset."));
+                        types.Push(result);
+                    }
+                    catch(InvalidOperationException failure)
+                    {
+                        throw new CompilationFailure(Diagnostic.Error(file,logical.Operator,"TSCS1001",failure.Message));
+                    }
                 }
                 finally { logicalEvaluationDepth--; }
                 continue;

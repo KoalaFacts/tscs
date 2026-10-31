@@ -11,6 +11,7 @@ const reference=resolve(referenceArg),out=resolve(outputArg),root=process.cwd();
 assert.ok(!existsSync(out),'refusing to overwrite source-bound evidence');
 mkdirSync(out,{recursive:true});
 const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
+const logicalValues=cohortArg==='fixtures/logical-values/semantic-cases.json';
 const compound=cohortArg==='fixtures/compound-guards/semantic-cases.json';
 const nullish=cohortArg==='fixtures/nullish-coalescing/semantic-cases.json';
 const nonNull=cohortArg==='fixtures/non-null/semantic-cases.json';
@@ -19,10 +20,11 @@ const optionalCall=cohortArg==='fixtures/optional-call/semantic-cases.json';
 const voidUnary=cohortArg==='fixtures/void-unary/semantic-cases.json';
 const nullLiteral=cohortArg==='fixtures/null-literal/semantic-cases.json';
 const undefinedFlow=cohortArg==='fixtures/undefined-flow/semantic-cases.json';
-assert.ok(!cohortArg||compound||nullish||nonNull||optionalChain||optionalCall||voidUnary||nullLiteral||undefinedFlow,'unknown frozen bounded cohort');
+assert.ok(!cohortArg||logicalValues||compound||nullish||nonNull||optionalChain||optionalCall||voidUnary||nullLiteral||undefinedFlow,'unknown frozen bounded cohort');
 const suitePath=cohortArg??'fixtures/conditional-value/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
-assert.equal(suite.kind,compound?'BOUNDED_COMPOUND_GUARDS_NOT_ORIGINAL_TS7_ACCEPTANCE'
+assert.equal(suite.kind,logicalValues?'BOUNDED_LOGICAL_VALUE_EXPRESSIONS_NOT_ORIGINAL_TS7_ACCEPTANCE'
+    :compound?'BOUNDED_COMPOUND_GUARDS_NOT_ORIGINAL_TS7_ACCEPTANCE'
     :nullish?'BOUNDED_NULLISH_COALESCING_NOT_ORIGINAL_TS7_ACCEPTANCE'
     :nonNull?'BOUNDED_POSTFIX_NON_NULL_NOT_ORIGINAL_TS7_ACCEPTANCE'
     :optionalCall?'BOUNDED_OPTIONAL_CALLS_NOT_ORIGINAL_TS7_ACCEPTANCE'
@@ -31,7 +33,7 @@ assert.equal(suite.kind,compound?'BOUNDED_COMPOUND_GUARDS_NOT_ORIGINAL_TS7_ACCEP
     :nullLiteral?'BOUNDED_NULL_LITERAL_NOT_ORIGINAL_TS7_ACCEPTANCE'
     :optionalChain?'BOUNDED_OPTIONAL_MEMBER_ACCESS_NOT_ORIGINAL_TS7_ACCEPTANCE'
     :'BOUNDED_CONDITIONAL_VALUES_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,undefinedFlow?11:nullLiteral?26:voidUnary?15:compound?18:nullish?10:nonNull?14:optionalChain?26:optionalCall?10:23,'do not shrink the registered cohort');
+assert.equal(suite.cases.length,logicalValues?14:undefinedFlow?11:nullLiteral?26:voidUnary?15:compound?18:nullish?10:nonNull?14:optionalChain?26:optionalCall?10:23,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 // The cohort includes number[] indexing and length. Use the already
 // verified array profile for BOTH compilers, not the empty bootstrap Array<T>.
@@ -67,7 +69,8 @@ const diagnosticCodes=(r:ReturnType<typeof run>)=>
 const ids=new Set<string>(),results:object[]=[],mismatches:object[]=[];
 for(let i=0;i<suite.cases.length;i++){
   const item=suite.cases[i];
-  assert.match(item.id,undefinedFlow?/^undefined-flow:(positive|negative)-\d{2}$/
+  assert.match(item.id,logicalValues?/^logical-values:(positive|negative)-\d{2}$/
+    :undefinedFlow?/^undefined-flow:(positive|negative)-\d{2}$/
     :compound?/^compound-guards:(positive|negative)-\d+$/
     :nullish?/^nullish-coalescing:(positive|negative)-\d+$/
     :nonNull?/^non-null:(positive|negative)-\d+$/
@@ -110,4 +113,4 @@ for(const row of manifest){const bytes=readFileSync(join(out,row.path));
   assert.equal(bytes.length,row.length);assert.equal(hash(bytes),row.sha256);}
 writeFileSync(join(out,'manifest.json'),JSON.stringify({files:manifest},null,2),{flag:'wx',flush:true});
 assert.deepEqual(mismatches,[],'genuine pinned-Go mismatches; raw outputs preserved');
-console.log(String(results.length)+' bounded '+(compound?'compound guard':nullish?'nullish coalescing':nonNull?'postfix non-null':optionalCall?'optional calls':voidUnary?'void unary':undefinedFlow?'undefined sentinel flow':nullLiteral?'null literal':optionalChain?'optional member access':'conditional value')+' sources matched pinned Go codes/exits; no original TS7 acceptance.');
+console.log(String(results.length)+' bounded '+(logicalValues?'logical value':compound?'compound guard':nullish?'nullish coalescing':nonNull?'postfix non-null':optionalCall?'optional calls':voidUnary?'void unary':undefinedFlow?'undefined sentinel flow':nullLiteral?'null literal':optionalChain?'optional member access':'conditional value')+' sources matched pinned Go codes/exits; no original TS7 acceptance.');

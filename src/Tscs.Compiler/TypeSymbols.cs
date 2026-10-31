@@ -133,6 +133,73 @@ internal static class CompilerTypes
         return Union(union.Alternatives.Where(type=>!type.Equals(Undefined)&&!type.Equals(Null)));
     }
 
+
+    // The value of a JavaScript logical expression is an operand, not a coerced
+    // boolean. Preserve its possibly falsy left value (&&) or truthy left
+    // value (||) alongside the lazily evaluated right operand.
+    // Unknown/void are deliberately excluded until the full TS semantics are
+    // represented; callers report an explicit unsupported diagnostic.
+    public static TypeSymbol? LogicalValueResult(TypeSymbol left,TypeSymbol right,bool conjunction)
+    {
+        if(left.Equals(Any)||right.Equals(Any))return Any;
+        var alternatives=left is UnionTypeSymbol union?union.Alternatives.ToArray():[left];
+        var truthy=new List<TypeSymbol>();
+        var falsy=new List<TypeSymbol>();
+        foreach(var candidate in alternatives)
+        {
+            switch(candidate)
+            {
+                case PrimitiveTypeSymbol { Kind:PrimitiveKind.Null or PrimitiveKind.Undefined }:
+                    falsy.Add(candidate);
+                    break;
+                case PrimitiveTypeSymbol { Kind:PrimitiveKind.Boolean }:
+                    truthy.Add(new LiteralTypeSymbol(PrimitiveKind.Boolean,"true"));
+                    falsy.Add(new LiteralTypeSymbol(PrimitiveKind.Boolean,"false"));
+                    break;
+                case PrimitiveTypeSymbol { Kind:PrimitiveKind.Number }:
+                    truthy.Add(candidate);
+                    falsy.Add(new LiteralTypeSymbol(PrimitiveKind.Number,"0"));
+                    break;
+                case PrimitiveTypeSymbol { Kind:PrimitiveKind.String }:
+                    truthy.Add(candidate);
+                    falsy.Add(new LiteralTypeSymbol(PrimitiveKind.String,""));
+                    break;
+                case LiteralTypeSymbol { Kind:PrimitiveKind.Boolean } boolean:
+                    (boolean.Value=="true"?truthy:falsy).Add(candidate);
+                    break;
+                case LiteralTypeSymbol { Kind:PrimitiveKind.String } str:
+                    (str.Value.Length>0?truthy:falsy).Add(candidate);
+                    break;
+                case LiteralTypeSymbol { Kind:PrimitiveKind.Number } number:
+                    if(!double.TryParse(number.Value,
+                        System.Globalization.NumberStyles.Float,
+                        System.Globalization.CultureInfo.InvariantCulture,out var n))
+                        return null;
+                    (n!=0 && !double.IsNaN(n)?truthy:falsy).Add(candidate);
+                    break;
+                case ObjectTypeSymbol objectType:
+                    truthy.Add(candidate);
+                    // Structural {} also accepts falsy primitive values.
+                    if(objectType.Members.Count==0)falsy.Add(candidate);
+                    break;
+                case ArrayTypeSymbol or FunctionTypeSymbol:
+                    truthy.Add(candidate);
+                    break;
+                case PrimitiveTypeSymbol { Kind:PrimitiveKind.Never }:
+                    break;
+                default:
+                    return null;
+            }
+        }
+        if(conjunction)
+        {
+            if(truthy.Count!=0)falsy.Add(right);
+            return Union(falsy);
+        }
+        if(falsy.Count!=0)truthy.Add(right);
+        return Union(truthy);
+    }
+
     public static TypeSymbol CoalescingResult(TypeSymbol left,TypeSymbol right)
     {
         if(left.Equals(Any) || right.Equals(Any))return Any;
