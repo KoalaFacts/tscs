@@ -1006,12 +1006,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             :new DiscriminantBranches(symbol,other,equal);
     }
 
-    // Bounded checkTypeOfExpression/narrowTypeByTypeof: split only unions of
-    // primitive families and their literals. Do not guess about any/objects.
+    // Match only runtime families known from finite TypeScript types.
+    // typeof null is "object"; a declared function value is "function".
+    // Arbitrary structural objects, any, unknown and void do not gain
+    // unsound flow refinements.
     private static DiscriminantBranches? TryNarrowPrimitiveTypeof(ValueBinary comparison,Scope scope)
     {
         Token variable=default;
-        PrimitiveKind? expected=null;
+        string? expected=null;
         if(TryReadTypeofVariable(comparison.Left,out variable))
             expected=TryReadTypeofTag(comparison.Right);
         if(expected==null && TryReadTypeofVariable(comparison.Right,out variable))
@@ -1024,10 +1026,17 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         var remaining=new List<TypeSymbol>();
         foreach(var alternative in union.Alternatives)
         {
-            PrimitiveKind? family=alternative switch
+            string? family=alternative switch
             {
-                PrimitiveTypeSymbol { Kind:PrimitiveKind.Number or PrimitiveKind.String or PrimitiveKind.Boolean } primitive=>primitive.Kind,
-                LiteralTypeSymbol { Kind:PrimitiveKind.Number or PrimitiveKind.String or PrimitiveKind.Boolean } literal=>literal.Kind,
+                PrimitiveTypeSymbol { Kind:PrimitiveKind.Number } => "number",
+                PrimitiveTypeSymbol { Kind:PrimitiveKind.String } => "string",
+                PrimitiveTypeSymbol { Kind:PrimitiveKind.Boolean } => "boolean",
+                PrimitiveTypeSymbol { Kind:PrimitiveKind.Undefined } => "undefined",
+                PrimitiveTypeSymbol { Kind:PrimitiveKind.Null } => "object",
+                LiteralTypeSymbol { Kind:PrimitiveKind.Number } => "number",
+                LiteralTypeSymbol { Kind:PrimitiveKind.String } => "string",
+                LiteralTypeSymbol { Kind:PrimitiveKind.Boolean } => "boolean",
+                FunctionTypeSymbol => "function",
                 _=>null
             };
             if(family==null)return null;
@@ -1058,15 +1067,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         return false;
     }
 
-    private static PrimitiveKind? TryReadTypeofTag(ValueNode source)
+    private static string? TryReadTypeofTag(ValueNode source)
     {
         while(source is ValueParenthesized group)source=group.Expression;
         if(source is not ValueAtom { Token.Kind:TokenKind.String } literal)return null;
         return literal.Token.Value switch
         {
-            "number"=>PrimitiveKind.Number,
-            "string"=>PrimitiveKind.String,
-            "boolean"=>PrimitiveKind.Boolean,
+            "number" or "string" or "boolean" or "undefined" or "function" or "object"
+                =>literal.Token.Value,
             _=>null
         };
     }

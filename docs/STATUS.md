@@ -1,3 +1,16 @@
+## 2026-10-31 — Checked typeof function/undefined/null guards (candidate; NOT_RUN)
+
+The C# TypeChecker now partitions finite primitive, callable and explicit nullish
+unions by JavaScript runtime typeof tags. Callable signatures can be invoked
+after a function guard, undefined is distinguished from other primitives, and
+null follows the runtime object tag. Inverse and early-return guards reuse
+existing flow and rebinding invalidation. Structural objects, any, unknown and
+void remain deliberately unclassified. Source-backed C# tests, four-module
+ES2015 Node execution, and 11 additional stable pinned-Go cases are registered;
+new verification remains NOT_RUN pending exact-head CI. The original 18 oracle
+IDs remain, and TS7 original acceptance is still 0 PASS / 15,523
+SKIP_UNIMPLEMENTED with dynamic scope UNEXPANDED.
+
 ## 2026-10-31 — Checked numeric, string and object truthiness in logical assignment (source candidate; NOT_RUN)
 
 The C# TypeChecker now accepts `&&=` and `||=` on bounded numeric, string,

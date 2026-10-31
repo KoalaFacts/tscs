@@ -16,7 +16,7 @@ assert.ok(optionalSuitePath==null||deletion,'unknown bounded reference cohort');
 const suitePath=optionalSuitePath??'fixtures/typeof-primitive/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
 assert.equal(suite.kind,deletion?'BOUNDED_DELETE_OPTIONAL_NOT_ORIGINAL_TS7_ACCEPTANCE':'BOUNDED_TYPEOF_PRIMITIVE_NARROWING_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,deletion?22:18,'do not shrink the registered cohort');
+assert.equal(suite.cases.length,deletion?22:29,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const minimal=readFileSync('fixtures/minimal.d.ts','utf8');
 const hash=(data:string|Buffer)=>createHash('sha256').update(data).digest('hex');
@@ -80,4 +80,4 @@ for(const row of manifest){const bytes=readFileSync(join(out,row.path));
   assert.equal(bytes.length,row.length);assert.equal(hash(bytes),row.sha256);}
 writeFileSync(join(out,'manifest.json'),JSON.stringify({files:manifest},null,2),{flag:'wx',flush:true});
 assert.deepEqual(mismatches,[],'genuine pinned-Go mismatches; raw outputs preserved');
-console.log(String(results.length)+' bounded '+(deletion?'optional delete':'typeof primitive narrowing')+' sources matched pinned Go codes/exits; no original TS7 acceptance.');
+console.log(String(results.length)+' bounded '+(deletion?'optional delete':'typeof primitive/callable/nullish narrowing')+' sources matched pinned Go codes/exits; no original TS7 acceptance.');
