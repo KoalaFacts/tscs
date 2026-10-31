@@ -1,0 +1,90 @@
+{
+  "kind": "BOUNDED_RUNTIME_TRUTHINESS_CONDITIONS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "condition-truthiness:positive-01",
+      "source": "function read(box:{value:number}):number{if(box.value){return box.value;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "condition-truthiness:positive-02",
+      "source": "function choose(cb:()=>number):number{if(cb()){return 21;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "condition-truthiness:positive-03",
+      "source": "function choose(n:number):number{return n+1?21:0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "condition-truthiness:positive-04",
+      "source": "function label(box:{name:string}):string{return box.name?\"yes\":\"no\";}",
+      "expectedCodes": []
+    },
+    {
+      "id": "condition-truthiness:positive-05",
+      "source": "function loop(n:number):number{while(n){n=n-1;}return n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "condition-truthiness:positive-06",
+      "source": "function loop(n:number):number{do{n=n-1;}while(n);return n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "condition-truthiness:positive-07",
+      "source": "function loop(n:number):number{for(;n;){n=n-1;}return n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "condition-truthiness:positive-08",
+      "source": "function choose(box:{value?:number}):number{return box.value?21:0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "condition-truthiness:positive-09",
+      "source": "function choose(box:{value:number}|null):number{if(box?.value){return 21;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "condition-truthiness:positive-10",
+      "source": "function choose(box:{value:number}):number{if(box.value+1){return 21;}return 0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "condition-truthiness:negative-01",
+      "source": "function wrong():number{if(void 0){return 21;}return 0;}",
+      "expectedCodes": [
+        "TS2873"
+      ]
+    },
+    {
+      "id": "condition-truthiness:negative-02",
+      "source": "function wrong():number{return (void 0)?21:0;}",
+      "expectedCodes": [
+        "TS2873"
+      ]
+    },
+    {
+      "id": "condition-truthiness:negative-03",
+      "source": "function wrong(n:number):number{while(void n){n=n-1;}return n;}",
+      "expectedCodes": [
+        "TS2873"
+      ]
+    },
+    {
+      "id": "condition-truthiness:negative-04",
+      "source": "function wrong(n:number):number{do{n=n-1;}while(void n);return n;}",
+      "expectedCodes": [
+        "TS2873"
+      ]
+    },
+    {
+      "id": "condition-truthiness:negative-05",
+      "source": "function wrong(n:number):number{for(;void n;){n=n-1;}return n;}",
+      "expectedCodes": [
+        "TS2873"
+      ]
+    }
+  ]
+}
