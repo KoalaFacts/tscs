@@ -46,7 +46,7 @@ public sealed class VariableBindingPatternTests
     [Fact]
     public void ExcessiveNestedObjectShorthandFailsWithDiagnosticRatherThanCrash()
     {
-        var pattern=string.Concat(Enumerable.Repeat("{a:",33))+"value"+new string('}',33);
+        var pattern=string.Concat(Enumerable.Repeat("{a:",32))+"{value}"+new string('}',32);
         var result=Compilation.Check("nested.ts","const "+pattern+"={a:1};");
         Assert.Contains(result,d=>d.Code=="TSCS1001");
     }
