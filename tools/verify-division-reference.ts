@@ -17,6 +17,7 @@ const power=suitePath==='fixtures/numeric-exponent/semantic-cases.json';
 const stringPrimitives=suitePath==='fixtures/string-primitives/semantic-cases.json';
 const stringMethods=suitePath==='fixtures/string-methods/semantic-cases.json';
 const stringExtraction=suitePath==='fixtures/string-extraction/semantic-cases.json';
+const stringUnicode=suitePath==='fixtures/string-unicode/semantic-cases.json';
 const templates=suitePath==='fixtures/no-substitution-template/semantic-cases.json';
 const decimalLiterals=suitePath==='fixtures/numeric-literals/semantic-cases.json';
 const readonlyArrays=suitePath==='fixtures/readonly-array/semantic-cases.json';
@@ -26,7 +27,7 @@ const arrayQueries=suitePath==='fixtures/array-queries/semantic-cases.json';
 const arrayCallbacks=suitePath==='fixtures/array-callbacks/semantic-cases.json';
 const arrayFolds=suitePath==='fixtures/array-filter-reduce/semantic-cases.json';
 const arrayMap=suitePath==='fixtures/array-map/semantic-cases.json';
-assert.ok(optionalSuitePath==null||strings||power||stringPrimitives||stringMethods||stringExtraction||decimalLiterals||templates||readonlyArrays||arrayMethods||arrayInPlace||arrayQueries||arrayCallbacks||arrayFolds||arrayMap,'unknown bounded reference cohort');
+assert.ok(optionalSuitePath==null||strings||power||stringPrimitives||stringMethods||stringExtraction||stringUnicode||decimalLiterals||templates||readonlyArrays||arrayMethods||arrayInPlace||arrayQueries||arrayCallbacks||arrayFolds||arrayMap,'unknown bounded reference cohort');
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
 assert.equal(suite.kind,arrayMap?'BOUNDED_ARRAY_MAP_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :arrayFolds?'BOUNDED_ARRAY_FILTER_REDUCE_NOT_ORIGINAL_TS7_ACCEPTANCE'
@@ -37,13 +38,14 @@ assert.equal(suite.kind,arrayMap?'BOUNDED_ARRAY_MAP_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :readonlyArrays?'BOUNDED_READONLY_ARRAY_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :templates?'BOUNDED_NO_SUBSTITUTION_TEMPLATE_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :decimalLiterals?'BOUNDED_NUMERIC_LITERALS_NOT_ORIGINAL_TS7_ACCEPTANCE'
+  :stringUnicode?'BOUNDED_STRING_UNICODE_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :stringExtraction?'BOUNDED_STRING_EXTRACTION_NOT_ORIGINAL_TS7_ACCEPTANCE'
    :stringMethods?'BOUNDED_STRING_METHODS_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :stringPrimitives?'BOUNDED_STRING_PRIMITIVES_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :power?'BOUNDED_NUMERIC_EXPONENTIATION_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :strings?'BOUNDED_STRING_ADDITION_MUTATION_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :'BOUNDED_NUMERIC_DIVISION_REMAINDER_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,arrayMap?20:arrayFolds?20:arrayCallbacks?19:arrayQueries?41:arrayMethods?21:arrayInPlace?26:readonlyArrays?27:templates?37:decimalLiterals?48:stringExtraction?28:stringMethods?24:stringPrimitives?18:power?20:strings?25:24,'do not shrink the registered cohort');
+assert.equal(suite.cases.length,arrayMap?20:arrayFolds?20:arrayCallbacks?19:arrayQueries?41:arrayMethods?21:arrayInPlace?26:readonlyArrays?27:templates?37:decimalLiterals?48:stringUnicode?28:stringExtraction?28:stringMethods?24:stringPrimitives?18:power?20:strings?25:24,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 // The cohort includes number[] indexing and length. Use the already
 // verified array profile for BOTH compilers, not the empty bootstrap Array<T>.
@@ -54,6 +56,7 @@ const minimalProfile=arrayMap?'fixtures/array-map/minimal.d.ts':
   arrayMethods?'fixtures/array-methods/minimal.d.ts':
   arrayInPlace?'fixtures/array-in-place/minimal.d.ts':
   readonlyArrays?'fixtures/readonly-array/minimal.d.ts':
+  stringUnicode?'fixtures/string-unicode/minimal.d.ts':
   stringExtraction?'fixtures/string-extraction/minimal.d.ts':
   stringMethods?'fixtures/string-methods/minimal.d.ts':
   (stringPrimitives||templates)?'fixtures/string-primitives/minimal.d.ts':'fixtures/array-iteration/minimal.d.ts';
@@ -92,6 +95,7 @@ for(let i=0;i<suite.cases.length;i++){
     :arrayMethods?/^array-methods:(positive|negative)-\d{2}$/
     :arrayInPlace?/^array-in-place:(positive|negative)-\d{2}$/
     :readonlyArrays?/^readonly-array:(positive|negative)-\d{2}$/
+    :stringUnicode?/^string-unicode:(positive|negative)-\d{2}$/
     :stringExtraction?/^string-extraction:(positive|negative)-\d{2}$/
     :templates?/^no-substitution-template:(positive|negative)-\d{2}$/
     :decimalLiterals?/^numeric-literals:(positive|negative)-\d+$/:stringMethods?/^string-methods:(positive|negative)-\d{2}$/:stringPrimitives?/^string-primitives:(positive|negative)-\d+$/:power?/^numeric-exponent:(positive|negative)-\d+$/:strings?/^string-addition:(positive|negative)-\d+$/:/^numeric-division:(positive|negative)-\d+$/);
@@ -129,4 +133,4 @@ for(const row of manifest){const bytes=readFileSync(join(out,row.path));
   assert.equal(bytes.length,row.length);assert.equal(hash(bytes),row.sha256);}
 writeFileSync(join(out,'manifest.json'),JSON.stringify({files:manifest},null,2),{flag:'wx',flush:true});
 assert.deepEqual(mismatches,[],'genuine pinned-Go mismatches; raw outputs preserved');
-console.log(String(results.length)+' bounded '+(arrayFolds?'readonly/mutable array filtering and folds':arrayCallbacks?'readonly/mutable array predicate callbacks':arrayQueries?'readonly and mutable array query methods' :arrayMethods?'mutable array methods' :arrayInPlace?'native array in-place methods' : readonlyArrays?'readonly array types and mutation' : templates?'bounded interpolated and no-substitution template literals':decimalLiterals?'numeric decimal/exponent/radix literals':stringExtraction?'native string extraction and replacement':stringMethods?'native string transformations and searches':stringPrimitives?'string primitives':power?'numeric exponentiation':strings?'string addition and mutation':'numeric division and remainder')+' sources matched pinned Go codes/exits; no original TS7 acceptance.');
+console.log(String(results.length)+' bounded '+(arrayFolds?'readonly/mutable array filtering and folds':arrayCallbacks?'readonly/mutable array predicate callbacks':arrayQueries?'readonly and mutable array query methods' :arrayMethods?'mutable array methods' :arrayInPlace?'native array in-place methods' : readonlyArrays?'readonly array types and mutation' : templates?'bounded interpolated and no-substitution template literals':decimalLiterals?'numeric decimal/exponent/radix literals':stringUnicode?'native Unicode and string formatting':stringExtraction?'native string extraction and replacement':stringMethods?'native string transformations and searches':stringPrimitives?'string primitives':power?'numeric exponentiation':strings?'string addition and mutation':'numeric division and remainder')+' sources matched pinned Go codes/exits; no original TS7 acceptance.');
