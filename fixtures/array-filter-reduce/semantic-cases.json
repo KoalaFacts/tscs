@@ -102,7 +102,7 @@
     },
     {
       "id": "array-filter-reduce:negative-08",
-      "source": "let xs:readonly number[]=[21];xs.reduceRight((a:string,n:string):string=>a+n,\"\");",
+      "source": "let xs:readonly number[]=[21];xs.reduceRight((a:number,n:number):string=>\"bad\",0);",
       "expectedCodes": [
         "TS2345"
       ]

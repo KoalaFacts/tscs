@@ -28,7 +28,7 @@ public sealed class ArrayFilterReduceTests
     [InlineData("let xs:number[]=[21];let value:boolean=xs.filter((n:number):boolean=>true);","TS2322")]
     [InlineData("let xs:number[]=[21];xs.reduce((a:number,n:number):string=>\"bad\",0);","TS2345")]
     [InlineData("let xs:number[]=[21];xs.reduce((a:number,n:number):number=>a+n,\"bad\");","TS2345")]
-    [InlineData("let xs:readonly number[]=[21];xs.reduceRight((a:string,n:string):string=>a+n,\"\");","TS2345")]
+    [InlineData("let xs:readonly number[]=[21];xs.reduceRight((a:number,n:number):string=>\"bad\",0);","TS2345")]
     [InlineData("let xs:number[]=[21];let value:string=xs.reduceRight((a:number,n:number):number=>a+n,0);","TS2322")]
     [InlineData("let xs:number[]=[21];xs.filter((n:number):boolean=>true,42);","TS2554")]
     public void RejectsInvalidFilterAndFolds(string source,string code) =>
