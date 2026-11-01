@@ -20,6 +20,7 @@ node tools/verify-readonly-emit.ts
 node tools/verify-readonly-array-emit.ts
 node tools/verify-array-methods-emit.ts
 node tools/verify-array-in-place-emit.ts
+node tools/verify-array-callbacks-emit.ts
 node tools/verify-array-queries-emit.ts
 node tools/verify-literal-types-emit.ts
 node tools/verify-discriminant-emit.ts

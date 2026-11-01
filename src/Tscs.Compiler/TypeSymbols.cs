@@ -432,6 +432,23 @@ internal static class CompilerTypes
             if(name=="slice")
                 return new FunctionTypeSymbol([Union([Number,Undefined]),Union([Number,Undefined])],
                     new ArrayTypeSymbol(array.ElementType),0);
+            // Native ES2015 array predicate methods on mutable/readonly views.
+            // This bounded contract intentionally requires one explicitly typed
+            // value parameter; no contextual inference or predicate type guards.
+            if(name is "some" or "every" or "find" or "findIndex" or "forEach")
+            {
+                var callback=new FunctionTypeSymbol([array.ElementType],
+                    name=="forEach"?Void:Boolean);
+                TypeSymbol result=name switch
+                {
+                    "some" or "every" => Boolean,
+                    "find" => Union([array.ElementType,Undefined]),
+                    "findIndex" => Number,
+                    "forEach" => Void,
+                    _ => throw new InvalidOperationException()
+                };
+                return new FunctionTypeSymbol([callback],result);
+            }
             if(array.Readonly)return null;
             return name switch
             {

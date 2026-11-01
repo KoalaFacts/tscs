@@ -1,0 +1,120 @@
+{
+  "kind": "BOUNDED_ARRAY_CALLBACKS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "array-callbacks:positive-01",
+      "source": "let xs:number[]=[19,21];let result:boolean=xs.some((n:number):boolean=>n>20);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-callbacks:positive-02",
+      "source": "let xs:readonly number[]=[19,21];let result:boolean=xs.every((n:number):boolean=>n>0);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-callbacks:positive-03",
+      "source": "let xs:ReadonlyArray<number>=[19,21];let result:number|undefined=xs.find((n:number):boolean=>n>19);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-callbacks:positive-04",
+      "source": "let xs:Array<number>=[19,21];let result:number=xs.findIndex((n:number):boolean=>n===21);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-callbacks:positive-05",
+      "source": "let xs:readonly number[]=[19,21];let sum:number=0;xs.forEach((n:number):void=>{sum=sum+n;});",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-callbacks:positive-06",
+      "source": "let xs:string[]=[\"a\",\"b\"];let hit:string|undefined=xs.find((s:string):boolean=>s===\"b\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-callbacks:positive-07",
+      "source": "type Readings=readonly number[];let xs:Readings=[1,2];let result:boolean=xs.some((n:number)=>n>1);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-callbacks:positive-08",
+      "source": "function count(xs:ReadonlyArray<number>):number{let sum:number=0;xs.forEach((n:number):void=>{sum=sum+n;});return sum;}let result:number=count([2,3]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-callbacks:positive-09",
+      "source": "let xs:number[]=[1,2];let result:boolean=xs.every((n:number):boolean=>{return n>0;});",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-callbacks:negative-01",
+      "source": "let xs:number[]=[21];xs.every();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "array-callbacks:negative-02",
+      "source": "let xs:number[]=[21];xs.some(42);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-callbacks:negative-03",
+      "source": "let xs:readonly number[]=[21];xs.find((n:string):boolean=>true);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-callbacks:negative-04",
+      "source": "let xs:number[]=[21];xs.findIndex((n:number):string=>\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-callbacks:negative-05",
+      "source": "let xs:ReadonlyArray<number>=[21];xs.forEach();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "array-callbacks:negative-06",
+      "source": "let xs:number[]=[21];xs.forEach((n:string):void=>{});",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-callbacks:negative-07",
+      "source": "let xs:number[]=[21];let wrong:number=xs.every((n:number):boolean=>true);",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-callbacks:negative-08",
+      "source": "let xs:number[]=[21];let wrong:boolean=xs.findIndex((n:number):boolean=>true);",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-callbacks:negative-09",
+      "source": "let xs:number[]=[21];let wrong:number=xs.forEach((n:number):void=>{});",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-callbacks:negative-10",
+      "source": "let xs:number[]=[21];xs.some((n:number):boolean=>true,(n:number):boolean=>true);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    }
+  ]
+}

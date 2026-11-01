@@ -278,6 +278,13 @@ two element parameters and a numeric return. These methods are not available
 through readonly views. Contextual callback inference and method overloads
 remain unsupported; this bounded addition is not original TS7 acceptance.
 
+Both mutable and readonly arrays now accept bounded native `every`, `some`,
+`find`, `findIndex` and `forEach` with explicitly typed single-value
+callbacks, checked predicate/void results and ES2015 output. Index/array
+callback parameters, contextual inference, `thisArg`, type-guard predicates
+and full standard-library overloads remain unsupported. These are not original
+TS7 acceptance results.
+
 ## Other implemented subsets
 
 The current pipeline includes primitive/`any` variables, lexical scopes, selected
