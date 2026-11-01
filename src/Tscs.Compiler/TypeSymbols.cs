@@ -609,6 +609,13 @@ internal static class CompilerTypes
                 if(required is FunctionTypeSymbol requiredFunction)
                 {
                     if(actual is not FunctionTypeSymbol actualFunction)return false;
+                    // This bounded native map marker is not a monomorphic
+                    // (callback => any[]) function. A concrete annotation
+                    // would erase its output-type dependency and could lie
+                    // about the resulting element type. Reject unsupported
+                    // explicit conversion instead of trusting the any[] stub.
+                    if(actualFunction.NativeArrayMapElementType is not null &&
+                       requiredFunction.NativeArrayMapElementType is null)return false;
                     // This bounded function relation admits only identical arity
                     // families. Do not guess at optional/rest compatibility.
                     // Parameter inputs are contravariant; return values covariant.
