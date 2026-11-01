@@ -44,8 +44,10 @@ const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 // The frozen bootstrap profile has an intentionally empty Array<T>; reuse
 // the existing bounded array profile symmetrically for both compilers.
 // Keep the original switch profiles and every case/expectation unchanged.
-const minimalProfile=(spreadArguments||arraySpreads)?'fixtures/spread-arguments/minimal.d.ts':
-  (loop||classic||numeric||restParameters||forIn||unbracedLoops||bindingPatterns)?'fixtures/array-iteration/minimal.d.ts':'fixtures/minimal.d.ts';
+// Destructuring is iterable-based in the pinned Go compiler. Reuse the
+// already accepted Symbol.iterator array profile for BOTH compilers.
+const minimalProfile=(spreadArguments||arraySpreads||bindingPatterns)?'fixtures/spread-arguments/minimal.d.ts':
+  (loop||classic||numeric||restParameters||forIn||unbracedLoops)?'fixtures/array-iteration/minimal.d.ts':'fixtures/minimal.d.ts';
 const minimal=readFileSync(minimalProfile,'utf8');
 // An explicitly registered case may choose the already-checked readonly String
 // ambient profile. Both compilers receive identical file bytes for that case.

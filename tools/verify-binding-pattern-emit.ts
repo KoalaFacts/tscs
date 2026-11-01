@@ -18,7 +18,7 @@ function compile(file:string) {
 }
 try {
   writeFileSync(join(dir,'package.json'),'{"type":"module"}\n');
-  writeFileSync(join(dir,'minimal.d.ts'),readFileSync('fixtures/array-iteration/minimal.d.ts','utf8'));
+  writeFileSync(join(dir,'minimal.d.ts'),readFileSync('fixtures/spread-arguments/minimal.d.ts','utf8'));
   const modules={
     'model.ts':'export const box={value:21,nested:{tag:"ok"}};export const readings:number[]=[10,20,30,40];',
     'logic.ts':'export function add(a:number,b:number):number{return a+b;}',
