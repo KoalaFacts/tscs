@@ -1,0 +1,173 @@
+{
+  "kind": "BOUNDED_STRING_UNICODE_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "string-unicode:positive-01",
+      "source": "let s:string=\"  ab \".trimStart();",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-unicode:positive-02",
+      "source": "let s:string=\" ab  \".trimEnd();",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-unicode:positive-03",
+      "source": "let s:string=\"7\".padStart(3,\"0\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-unicode:positive-04",
+      "source": "let s:string=\"7\".padEnd(3,\".\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-unicode:positive-05",
+      "source": "let s:string=\"x\".padStart(3);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-unicode:positive-06",
+      "source": "let s:string=\"x\".padEnd(3,undefined);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-unicode:positive-07",
+      "source": "let s:string=\"café\".normalize();",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-unicode:positive-08",
+      "source": "let s:string=\"café\".normalize(\"NFD\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-unicode:positive-09",
+      "source": "let n:number|undefined=\"Ab\".codePointAt(0);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-unicode:positive-10",
+      "source": "let n:number=\"hello\".localeCompare(\"hello\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-unicode:positive-11",
+      "source": "let s:string=\" X \".trimStart().trimEnd().padStart(3,\"0\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-unicode:positive-12",
+      "source": "let n:number=\"Aa\".normalize(\"NFC\").localeCompare(\"Aa\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-unicode:positive-13",
+      "source": "let s:\"x\"|\"y\"=\"x\";let p:string=s.padStart(2,\"0\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-unicode:positive-14",
+      "source": "let n:number|undefined=\"😀\".codePointAt(0);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-unicode:negative-01",
+      "source": "let s:string=\"x\";s.trimStart(1);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "string-unicode:negative-02",
+      "source": "let s:string=\"x\";s.trimEnd(\"x\");",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "string-unicode:negative-03",
+      "source": "let s:string=\"x\";s.padStart();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "string-unicode:negative-04",
+      "source": "let s:string=\"x\";s.padEnd();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "string-unicode:negative-05",
+      "source": "let s:string=\"x\";s.padStart(\"3\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "string-unicode:negative-06",
+      "source": "let s:string=\"x\";s.padEnd(3,7);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "string-unicode:negative-07",
+      "source": "let s:string=\"x\";s.normalize(2);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "string-unicode:negative-08",
+      "source": "let s:string=\"x\";s.codePointAt();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "string-unicode:negative-09",
+      "source": "let s:string=\"x\";s.codePointAt(\"0\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "string-unicode:negative-10",
+      "source": "let s:string=\"x\";s.localeCompare();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "string-unicode:negative-11",
+      "source": "let s:string=\"x\";s.localeCompare(2);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "string-unicode:negative-12",
+      "source": "let n:number=\"x\".trimStart();",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-unicode:negative-13",
+      "source": "let n:number=\"x\".padStart(3);",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-unicode:negative-14",
+      "source": "let s:string=\"x\".codePointAt(0);",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}

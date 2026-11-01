@@ -511,6 +511,16 @@ internal static class CompilerTypes
                 "split" => new FunctionTypeSymbol([String,Union([Number,Undefined])],
                     new ArrayTypeSymbol(String),1),
                 "repeat" => new FunctionTypeSymbol([Number],String),
+                // Native string formatting / Unicode methods are checked on
+                // known string receivers; no arbitrary standard library.
+                "trimStart" or "trimEnd" => new FunctionTypeSymbol([],String),
+                "padStart" or "padEnd" =>
+                    new FunctionTypeSymbol([Number,Union([String,Undefined])],String,1),
+                "normalize" =>
+                    new FunctionTypeSymbol([Union([String,Undefined])],String,0),
+                "codePointAt" =>
+                    new FunctionTypeSymbol([Number],Union([Number,Undefined])),
+                "localeCompare" => new FunctionTypeSymbol([String],Number),
                 _ => null
             };
         if(receiver is ObjectTypeSymbol shape)
