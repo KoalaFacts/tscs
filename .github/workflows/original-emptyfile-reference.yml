@@ -61,6 +61,7 @@ jobs:
           node tools/verify-division-reference.ts "$reference" .artifacts/numeric-exponent-reference fixtures/numeric-exponent/semantic-cases.json
           node tools/verify-division-reference.ts "$reference" .artifacts/numeric-literals-reference fixtures/numeric-literals/semantic-cases.json
           node tools/verify-division-reference.ts "$reference" .artifacts/readonly-array-reference fixtures/readonly-array/semantic-cases.json
+          node tools/verify-division-reference.ts "$reference" .artifacts/array-methods-reference fixtures/array-methods/semantic-cases.json
            node tools/verify-division-reference.ts "$reference" .artifacts/string-addition-reference fixtures/string-addition/semantic-cases.json
           node tools/verify-division-reference.ts "$reference" .artifacts/string-primitives-reference fixtures/string-primitives/semantic-cases.json
           node tools/verify-division-reference.ts "$reference" .artifacts/no-substitution-template-reference fixtures/no-substitution-template/semantic-cases.json
@@ -103,6 +104,14 @@ jobs:
         with:
           name: pinned-type-reexports-reference-${{ github.sha }}
           path: .artifacts/type-reexports-reference/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Preserve bounded mutable array method reference evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-array-methods-reference-${{ github.sha }}
+          path: .artifacts/array-methods-reference/
           if-no-files-found: warn
           retention-days: 30
       - name: Preserve bounded readonly array source and pinned reference evidence

@@ -15,6 +15,18 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         CheckBlock(block,global,true);
         return diagnostics;
     }
+    // A valid, bounded element union may become too wide when a method adds
+    // undefined to its return type. Surface this as a compiler diagnostic,
+    // rather than leaking an unchecked InvalidOperationException to CLI hosts.
+    private TypeSymbol? CheckedProperty(TypeSymbol receiver,Token name)
+    {
+        try {return CompilerTypes.TryGetProperty(receiver,name.Text);}
+        catch(InvalidOperationException failure)
+        {
+            throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",failure.Message));
+        }
+    }
+
     private void CheckBlock(Block block,Scope? parent,bool rootAlreadyBound=false,TypeSymbol? expectedReturn=null,bool allowBreak=false,bool allowContinue=false,bool preboundLocal=false)
     {
         var scope=rootAlreadyBound?parent!:Binder.Bind(file,block,parent);
@@ -2090,7 +2102,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     Error(property.Name,"TS18046","Caught value is of type 'unknown'.");
                     presentMember=null;
                 }
-                else if(CompilerTypes.TryGetProperty(presentReceiver,property.Name.Text) is { } member)
+                else if(CheckedProperty(presentReceiver,property.Name) is { } member)
                     presentMember=member;
                 else
                 {
@@ -2101,7 +2113,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     var presentOnly=CompilerTypes.NonNullAssertionResult(presentReceiver);
                     if(CompilerTypes.ContainsNullish(presentReceiver) &&
                        (presentOnly.Equals(CompilerTypes.Never) ||
-                        CompilerTypes.TryGetProperty(presentOnly,property.Name.Text) is not null))
+                        CheckedProperty(presentOnly,property.Name) is not null))
                     {
                         bool hasNull=presentReceiver.Equals(CompilerTypes.Null) ||
                             presentReceiver is UnionTypeSymbol nullable &&

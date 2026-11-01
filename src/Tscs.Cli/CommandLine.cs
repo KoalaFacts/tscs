@@ -233,17 +233,16 @@ public static class CommandLine
 
     // Member order and numeric-index parameter spelling are irrelevant.
     // Length/index must be present exactly once; the optional standard
-    // Array<T>.push declaration supplies the pinned reference's actual
-    // mutable-array distinction from ReadonlyArray<T>, but does NOT add
-    // push-call support to the checked product language. This validates a
-    // source-level ambient contract, not a magic source filename or an AST
-    // pass that infers arbitrary declaration types from regexes.
+    // Array<T> mutator declarations supply the pinned reference's actual
+    // mutable-array distinction from ReadonlyArray<T>. They validate exact
+    // source-level signatures only; the product's independent semantic
+    // method table checks calls, never an arbitrary regex-derived declaration.
     private static bool IsSupportedArrayContract(string body,out bool iterator)
     {
-        var memberPattern=new Regex(@"\G\s*(?:(?<length>length\s*:\s*number)|(?<index>\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T)|(?<iterator>\[\s*Symbol\s*\.\s*iterator\s*\]\s*\(\s*\)\s*:\s*Iterator\s*<\s*T\s*>)|(?<push>push\s*\(\s*\.\.\.\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\[\s*\]\s*\)\s*:\s*number))\s*;",
+        var memberPattern=new Regex(@"\G\s*(?:(?<length>length\s*:\s*number)|(?<index>\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T)|(?<iterator>\[\s*Symbol\s*\.\s*iterator\s*\]\s*\(\s*\)\s*:\s*Iterator\s*<\s*T\s*>)|(?<push>push\s*\(\s*\.\.\.\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\[\s*\]\s*\)\s*:\s*number)|(?<unshift>unshift\s*\(\s*\.\.\.\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\[\s*\]\s*\)\s*:\s*number)|(?<pop>pop\s*\(\s*\)\s*:\s*T\s*\|\s*undefined)|(?<shift>shift\s*\(\s*\)\s*:\s*T\s*\|\s*undefined))\s*;",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         int position=0;
-        bool length=false,index=false,push=false;
+        bool length=false,index=false,push=false,unshift=false,pop=false,shift=false;
         iterator=false;
         while(position<body.Length)
         {
@@ -264,6 +263,21 @@ public static class CommandLine
             {
                 if(push)return false;
                 push=true;
+            }
+            else if(member.Groups["unshift"].Success)
+            {
+                if(unshift)return false;
+                unshift=true;
+            }
+            else if(member.Groups["pop"].Success)
+            {
+                if(pop)return false;
+                pop=true;
+            }
+            else if(member.Groups["shift"].Success)
+            {
+                if(shift)return false;
+                shift=true;
             }
             else
             {

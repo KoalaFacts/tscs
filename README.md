@@ -260,6 +260,16 @@ recursively and emitted as native ES2015 templates. Tagged templates, deeper
 nesting and complete template literal types remain unsupported and fail closed. Backticks cannot replace quoted module
 specifiers or bare quoted object/type property keys.
 
+## Checked mutable array methods (bounded)
+
+Mutable `T[]` and `Array<T>` now expose native ES2015 `push`, `pop`,
+`unshift` and `shift` through the existing checked property-call path.
+Element arguments are checked, rest/spread arguments retain the existing
+bounded call rules, `push`/`unshift` return `number`, and `pop`/`shift`
+return `T | undefined`. `readonly T[]` and `ReadonlyArray<T>`
+reject these mutating methods. This does not implement arbitrary Array methods,
+callbacks, general method overloads or external standard-library resolution.
+
 ## Other implemented subsets
 
 The current pipeline includes primitive/`any` variables, lexical scopes, selected
