@@ -224,6 +224,7 @@ internal static class CompilerTypes
         "string" => String,
         "boolean" => Boolean,
         "any" => Any,
+        "unknown" => Unknown,
         "void" => Void,
         "undefined" => Undefined,
         "null" => Null,

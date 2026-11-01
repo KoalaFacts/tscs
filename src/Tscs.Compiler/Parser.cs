@@ -1345,7 +1345,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 type=new ArrayTypeSyntax(element,open,close,name.Text=="ReadonlyArray",name);
             }
             else
-                type=name.Text is "number" or "string" or "boolean" or "any" or "void" or "undefined" or "null"
+                type=name.Text is "number" or "string" or "boolean" or "any" or "unknown" or "void" or "undefined" or "null"
                     ?new PrimitiveTypeSyntax(name):new NamedTypeSyntax(name);
         }
         else if(Current.Kind is TokenKind.String or TokenKind.Number or TokenKind.True or TokenKind.False)
