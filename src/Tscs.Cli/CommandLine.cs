@@ -256,6 +256,8 @@ public static class CommandLine
         @"|(?<every>every\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*boolean\s*\)\s*:\s*boolean)" +
         @"|(?<find>find\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*boolean\s*\)\s*:\s*T\s*\|\s*undefined)" +
         @"|(?<findIndex>findIndex\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*boolean\s*\)\s*:\s*number)" +
+        @"|(?<findLast>findLast\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*boolean\s*\)\s*:\s*T\s*\|\s*undefined)" +
+        @"|(?<findLastIndex>findLastIndex\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*boolean\s*\)\s*:\s*number)" +
         @"|(?<forEach>forEach\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*void\s*\)\s*:\s*void)" +
         @"|(?<filter>filter\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*boolean\s*\)\s*:\s*T\s*\[\s*\])" +
         @"|(?<reduce>reduce\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*T\s*(?:,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*T\s*)?\)\s*:\s*T)" +
@@ -403,7 +405,7 @@ public static class CommandLine
                 if(copyWithin)return false;
                 copyWithin=true;
             }
-            else if(new[]{"some","every","find","findIndex","forEach","filter","reduce","reduceRight","reduceGeneric","reduceRightGeneric","map"}
+            else if(new[]{"some","every","find","findIndex","findLast","findLastIndex","forEach","filter","reduce","reduceRight","reduceGeneric","reduceRightGeneric","map"}
                 .FirstOrDefault(name=>member.Groups[name].Success) is { } callback)
             {
                 if(!callbacks.Add(callback))return false;
@@ -503,7 +505,7 @@ public static class CommandLine
                 if(withMethod)return false;
                 withMethod=true;
             }
-            else if(new[]{"some","every","find","findIndex","forEach","filter","reduce","reduceRight","reduceGeneric","reduceRightGeneric","map"}
+            else if(new[]{"some","every","find","findIndex","findLast","findLastIndex","forEach","filter","reduce","reduceRight","reduceGeneric","reduceRightGeneric","map"}
                 .FirstOrDefault(name=>member.Groups[name].Success) is { } callback)
             {
                 if(!callbacks.Add(callback))return false;

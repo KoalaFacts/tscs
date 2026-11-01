@@ -65,6 +65,8 @@ public sealed class AmbientArrayGlobalsTests : IDisposable
     [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; with(index:number,value:T):T[]; }")]
     [InlineData("interface Array<T> { length:number; [index:number]:T; toSpliced(start:number,deleteCount:number,...items:T[]):T[]; toSpliced(start:number,deleteCount?:number):T[]; }")]
     [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; toSpliced(start:number,deleteCount:number,...items:T[]):T[]; toSpliced(start:number,deleteCount?:number):T[]; }")]
+    [InlineData("interface Array<T> { length:number; [index:number]:T; findLast(predicate:(value:T)=>boolean):T|undefined; findLastIndex(predicate:(value:T)=>boolean):number; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; findLast(predicate:(value:T)=>boolean):T|undefined; findLastIndex(predicate:(value:T)=>boolean):number; }")]
     public void ExactQueryMethodAmbientContractsAreAccepted(string declaration)
     {
         var source=Path.Combine(directory,"query-globals.d.ts");
@@ -109,6 +111,10 @@ public sealed class AmbientArrayGlobalsTests : IDisposable
     [InlineData("interface Array<T> { length:number; [index:number]:T; toSpliced(start:number,deleteCount:number,...items:number[]):T[]; }")]
     [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; toSpliced(start:number,deleteCount?:string):T[]; }")]
     [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; toSpliced(start:number,deleteCount?:number):T[]; toSpliced(start:number,deleteCount?:number):T[]; }")]
+    [InlineData("interface Array<T> { length:number; [index:number]:T; findLast(predicate:(value:T)=>string):T|undefined; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; findLastIndex(predicate:(value:T)=>boolean):string; }")]
+    [InlineData("interface Array<T> { length:number; [index:number]:T; findLast(predicate:(value:T)=>boolean):T|undefined; findLast(predicate:(value:T)=>boolean):T|undefined; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; findLastIndex(predicate:(value:T)=>boolean):number; findLastIndex(predicate:(value:T)=>boolean):number; }")]
     public void IncorrectQueryAmbientContractsRemainRejected(string declaration)
     {
         var source=Path.Combine(directory,"bad-query-globals.d.ts");
