@@ -49,6 +49,29 @@ Project configuration and source discovery share CompilerHost/VFS. Explicit
 files take precedence over excludes. Default implicit includes, `extends`,
 package resolution, symlink traversal and TSX/JS inputs are not complete.
 
+## Finite local destructuring bindings (bounded)
+
+Checked `const` and `let` declarations support finite object and array
+binding patterns, renames, skipped array positions and nested patterns:
+
+```typescript
+import { readings, box } from "./model.js";
+const { value, nested: { label } } = box;
+let [first, , third] = readings;
+first = value + third;
+```
+
+A binding initializer is evaluated once. Nested receivers are also evaluated
+once before extracting their children. The compiler lowers bindings to ordinary
+scoped variable declarations and type-checks every property/index read, binding
+assignment and module call with the existing Binder and TypeChecker; ES2015
+output contains no TypeScript binding annotations. This is an intentionally
+bounded subset: default-valued and rest bindings, dynamic/computed binding keys,
+array-iterator destructuring beyond checked arrays, parameter/catch binding
+patterns and unrestricted cross-module destructured exports remain unsupported.
+The source-backed, executed and pinned-Go checks are bounded, not the full TS7
+original harness.
+
 ## Structural object data
 
 Required named object members now use the same AST, Binder, semantic types,

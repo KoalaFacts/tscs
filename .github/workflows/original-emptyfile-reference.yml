@@ -98,6 +98,7 @@ jobs:
           node tools/verify-switch-reference.ts "$reference" .artifacts/in-operator-reference fixtures/in-operator/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/for-in-reference fixtures/for-in/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/numeric-object-keys-reference fixtures/numeric-object-keys/semantic-cases.json
+          node tools/verify-switch-reference.ts "$reference" .artifacts/binding-pattern-reference fixtures/binding-pattern/semantic-cases.json
           node tools/verify-keyof-object-reference.ts "$reference" .artifacts/keyof-object-reference
           node tools/verify-indexed-access-reference.ts "$reference" .artifacts/indexed-access-reference
           node tools/verify-indexed-access-reference.ts "$reference" .artifacts/object-intersection-reference fixtures/object-intersection/semantic-cases.json
@@ -107,6 +108,14 @@ jobs:
           node tools/verify-function-expression-reference.ts "$reference" .artifacts/function-expression-reference
           node tools/verify-function-expression-reference.ts "$reference" .artifacts/object-method-reference fixtures/object-method/semantic-cases.json
           node tools/verify-interface-inheritance-reference.ts "$reference" .artifacts/interface-inheritance-reference
+      - name: Preserve finite variable binding pattern reference evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-binding-pattern-reference-${{ github.sha }}
+          path: .artifacts/binding-pattern-reference/
+          if-no-files-found: warn
+          retention-days: 30
       - name: Preserve bounded type-only reexport source and reference evidence
         if: always()
         uses: actions/upload-artifact@v4

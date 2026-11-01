@@ -1,3 +1,22 @@
+## 2026-11-01 — Finite object and array variable binding patterns (candidate; NOT_RUN)
+
+The Parser lowers checked `const`/`let` finite object and array binding patterns
+into ordinary lexical variables, with a collision-avoiding per-source temporary
+evaluating the initializer once. Nested receivers are bound once; renamed
+object members, skipped array indices, nested object/array selections and
+explicit source annotations reuse existing scope binding, TypeChecker,
+ModuleLinker and ES2015 emitter. Direct cross-module **use** of destructured
+values in functions is tested. General iterator semantics, defaults, rest,
+computed binding keys, parameter/catch patterns and unrestricted direct
+destructured exports are not claimed. Invalid reads/assignments must emit no JS.
+
+Source-backed xUnit, a four-module Node runtime check and 16 stable frozen
+pinned-Go source/code/exit cases (8 positive, 8 negative) have been registered.
+**NOT_RUN** until exact-head CI; neither fixture count nor local cases count
+as original upstream acceptance. Original TS7 remains 0 PASS /
+15,523 SKIP_UNIMPLEMENTED; dynamic scope UNEXPANDED. No upstream pin,
+global test minimum, release gate or branch protections changed.
+
 ## 2026-11-01 — Different accumulator types for native array folds (candidate; NOT_RUN)
 
 Native `reduce` and `reduceRight` derive distinct accumulator U from an explicitly typed callback when a checked U initial value is present. Mutable and readonly T arrays use the ordinary function checker; no-initial-value folds keep the same-element T contract. Intrinsic erasure into ordinary function types is forbidden. Sixteen immutable bounded source/diagnostic IDs, source-backed xUnit and four-module Node runtime execution are registered; **NOT_RUN** until exact-head CI. This is not full generic overloads or contextual inference. Original TS7: 0 PASS / 15,523 SKIP_UNIMPLEMENTED; dynamic scope UNEXPANDED.

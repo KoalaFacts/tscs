@@ -66,7 +66,9 @@ internal sealed record ValueObject(Token Open,IReadOnlyList<ObjectProperty> Prop
 internal sealed record ValueArray(Token Open,IReadOnlyList<ValueNode> Elements,Token Close) : ValueNode;
 // Spread operands are evaluated once, in element order, and must have a checked array type.
 internal sealed record ValueArraySpread(Token Keyword,ValueNode Operand) : ValueNode;
-internal sealed record ValueElementAccess(ValueNode Receiver,Token Open,ValueNode Index,Token Close,bool Optional=false,bool ChainContinuation=false) : ValueNode;
+// BindingArrayElement marks a compiler-generated index read that must validate
+// an actual checked array receiver, not a string or numeric object property.
+internal sealed record ValueElementAccess(ValueNode Receiver,Token Open,ValueNode Index,Token Close,bool Optional=false,bool ChainContinuation=false,bool BindingArrayElement=false) : ValueNode;
 // Optional member/index access is a guarded read; it does not assert non-nullness.
 internal sealed record ValuePropertyAccess(ValueNode Receiver,Token Name,bool Optional=false,bool ChainContinuation=false) : ValueNode;
 internal sealed record PropertyAssignment(ValuePropertyAccess Target,ValueNode Value) : Statement;

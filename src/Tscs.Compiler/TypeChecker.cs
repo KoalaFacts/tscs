@@ -1977,6 +1977,13 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 }
                 var indexType=types.Pop();
                 var receiverType=types.Pop();
+                // Native array destructuring iterates its receiver. A normal
+                // numeric index on a string/object is not sufficient evidence:
+                // those reads have different observable JavaScript semantics.
+                if(indexed.BindingArrayElement && receiverType!=null &&
+                   receiverType is not ArrayTypeSymbol)
+                    throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
+                        "Binding array patterns require a statically checked array receiver."));
                 var inheritedSkip=indexed.ChainContinuation &&
                     optionalSkipped.TryGetValue(indexed.Receiver,out var indexSkip) && indexSkip;
                 var mayBeUndefined=(indexed.Optional && receiverType!=null &&
