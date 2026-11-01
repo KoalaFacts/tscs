@@ -241,6 +241,15 @@ public static class CommandLine
         @"|(?<join>join\s*\(\s*(?:[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*string\s*)?\)\s*:\s*string)" +
         @"|(?<slice>slice\s*\(\s*(?:[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number\s*(?:,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number\s*)?)?\)\s*:\s*T\s*\[\s*\])";
 
+    // Only the bounded, one-value callback declarations are accepted in
+    // isolated .d.ts profiles. The product's semantic signatures stay separate.
+    private const string ArrayCallbackMemberPattern =
+        @"(?<some>some\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*boolean\s*\)\s*:\s*boolean)" +
+        @"(?<every>every\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*boolean\s*\)\s*:\s*boolean)" +
+        @"(?<find>find\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*boolean\s*\)\s*:\s*T\s*\|\s*undefined)" +
+        @"(?<findIndex>findIndex\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*boolean\s*\)\s*:\s*number)" +
+        @"(?<forEach>forEach\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*void\s*\)\s*:\s*void)";
+
     // In-place array methods are an exact finite ambient allowlist. No
     // arbitrary method signature or .d.ts standard library is accepted.
     private const string ArrayInPlaceMemberPattern =
@@ -257,12 +266,13 @@ public static class CommandLine
     // method table checks calls, never an arbitrary regex-derived declaration.
     private static bool IsSupportedArrayContract(string body,out bool iterator)
     {
-        var memberPattern=new Regex(@"\G\s*(?:(?<length>length\s*:\s*number)|(?<index>\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T)|(?<iterator>\[\s*Symbol\s*\.\s*iterator\s*\]\s*\(\s*\)\s*:\s*Iterator\s*<\s*T\s*>)|(?<push>push\s*\(\s*\.\.\.\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\[\s*\]\s*\)\s*:\s*number)|(?<unshift>unshift\s*\(\s*\.\.\.\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\[\s*\]\s*\)\s*:\s*number)|(?<pop>pop\s*\(\s*\)\s*:\s*T\s*\|\s*undefined)|(?<shift>shift\s*\(\s*\)\s*:\s*T\s*\|\s*undefined)|"+ArrayQueryMemberPattern+"|"+ArrayInPlaceMemberPattern+@")\s*;",
+        var memberPattern=new Regex(@"\G\s*(?:(?<length>length\s*:\s*number)|(?<index>\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T)|(?<iterator>\[\s*Symbol\s*\.\s*iterator\s*\]\s*\(\s*\)\s*:\s*Iterator\s*<\s*T\s*>)|(?<push>push\s*\(\s*\.\.\.\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\[\s*\]\s*\)\s*:\s*number)|(?<unshift>unshift\s*\(\s*\.\.\.\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\[\s*\]\s*\)\s*:\s*number)|(?<pop>pop\s*\(\s*\)\s*:\s*T\s*\|\s*undefined)|(?<shift>shift\s*\(\s*\)\s*:\s*T\s*\|\s*undefined)|"+ArrayQueryMemberPattern+"|"+ArrayInPlaceMemberPattern+"|"+ArrayCallbackMemberPattern+@")\s*;",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         int position=0;
         bool length=false,index=false,push=false,unshift=false,pop=false,shift=false;
         bool includes=false,indexOf=false,lastIndexOf=false,join=false,slice=false;
         bool reverse=false,sort=false,fill=false,copyWithin=false;
+        var callbacks=new HashSet<string>(StringComparer.Ordinal);
         iterator=false;
         while(position<body.Length)
         {
@@ -344,6 +354,11 @@ public static class CommandLine
                 if(copyWithin)return false;
                 copyWithin=true;
             }
+            else if(new[]{"some","every","find","findIndex","forEach"}
+                .FirstOrDefault(name=>member.Groups[name].Success) is { } callback)
+            {
+                if(!callbacks.Add(callback))return false;
+            }
             else
             {
                 if(iterator)return false;
@@ -359,10 +374,11 @@ public static class CommandLine
     // strictly ambient validation, not a generic value-declaration parser.
     private static bool IsSupportedReadonlyArrayContract(string body)
     {
-        var memberPattern=new Regex(@"\G\s*(?:(?<length>readonly\s+length\s*:\s*number)|(?<index>readonly\s+\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T)|"+ArrayQueryMemberPattern+@")\s*;",
+        var memberPattern=new Regex(@"\G\s*(?:(?<length>readonly\s+length\s*:\s*number)|(?<index>readonly\s+\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T)|"+ArrayQueryMemberPattern+"|"+ArrayCallbackMemberPattern+@")\s*;",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         int position=0;
         bool length=false,index=false,includes=false,indexOf=false,lastIndexOf=false,join=false,slice=false;
+        var callbacks=new HashSet<string>(StringComparer.Ordinal);
         while(position<body.Length)
         {
             if(string.IsNullOrWhiteSpace(body[position..]))break;
@@ -398,11 +414,17 @@ public static class CommandLine
                 if(join)return false;
                 join=true;
             }
-            else
+            else if(member.Groups["slice"].Success)
             {
                 if(slice)return false;
                 slice=true;
             }
+            else if(new[]{"some","every","find","findIndex","forEach"}
+                .FirstOrDefault(name=>member.Groups[name].Success) is { } callback)
+            {
+                if(!callbacks.Add(callback))return false;
+            }
+            else return false;
             position+=member.Length;
         }
         return length&&index;
