@@ -63,10 +63,19 @@ public sealed class VariableBindingPatternTests
     [InlineData("function fail({x}:{x:number},x:number):number{return x;}","TS2300")]
     [InlineData("function fail({x}:{x:number},y:number=x):number{return y;}","TSCS1001")]
     [InlineData("function fail({x=1}:{x?:number},y:number):number{return x+y;}","TSCS1001")]
+    [InlineData("function fail(first:number=21,{value}:{value:number}={value:42}):number{return value;}","TSCS1001")]
     [InlineData("function fail({value}:{value:number}):number{return value;}value=21;","TS2304")]
     [InlineData("const [value=21]:(number|undefined)[]=[undefined];let wrong:string=value;","TS2322")]
     public void BadBindingsOrAssignmentsProduceRealDiagnostics(string source,string code) =>
         Assert.Contains(Compilation.Check("binding.ts",source),diagnostic=>diagnostic.Code==code);
+
+    [Fact]
+    public void InvalidTypedParameterDefaultReportsThePrimaryErrorOnly()
+    {
+        var diagnostics=Compilation.Check("binding.ts",
+            "function fail({value=\"no\"}:{value?:number}):number{return value;}");
+        Assert.Equal(new[] {"TS2322"},diagnostics.Select(d=>d.Code).ToArray());
+    }
 
     [Theory]
     [InlineData("const {...rest}={value:21};")]

@@ -1864,6 +1864,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     partition?.Symbol.Type??whenFalse;
                 bool undefinedOnly=chosen.BindingDefault &&
                     selectedType?.Equals(CompilerTypes.Undefined)==true;
+                bool invalidBindingDefault=false;
                 if(chosen.BindingDefaultConstrained &&
                    selectedType is { } expectedDefault &&
                    whenTrue is { } fallback)
@@ -1883,8 +1884,17 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         contextualTarget=optionalUnion.Alternatives.OfType<ObjectTypeSymbol>().Single();
                     if(CheckContextualLiteral(chosen.WhenTrue,contextualTarget,fallback) &&
                        !IsAssignableContextually(chosen.WhenTrue,fallback,expectedDefault))
+                    {
                         Mismatch(chosen.Question,fallback,expectedDefault);
+                        invalidBindingDefault=true;
+                    }
                 }
+                // The invalid fallback has already produced its primary
+                // diagnostic. Do not poison the synthetic binding's inferred
+                // result type with the rejected value and then emit misleading
+                // secondary assignment/return errors in user code.
+                if(invalidBindingDefault && whenFalse is not null)
+                    whenTrue=whenFalse;
                 conditionalResults[chosen]=(whenTrue,
                     undefinedOnly?CompilerTypes.Never:whenFalse);
                 if(conditionType==null || whenTrue==null || whenFalse==null)

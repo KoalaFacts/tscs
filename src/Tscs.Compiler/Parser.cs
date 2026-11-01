@@ -486,6 +486,11 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                         if(!Eat(TokenKind.Colon))Unsupported(Current,"Function parameters require an explicit supported type.");
                         var annotation=ReadTypeAnnotation();
                         var defaultValue=Eat(TokenKind.Equal)?ParseValue():null;
+                        // An earlier parameter initializer executes before this
+                        // pattern binds its names; body-entry lowering cannot
+                        // reproduce an outer-name capture or TDZ dependency.
+                        if(parameterPattern is not null && sawDefaultParameter)
+                            Unsupported(parameter,"Binding patterns after a defaulted parameter are not supported.");
                         if(parameterBindings.Count>0 && defaultValue is not null)
                             Unsupported(parameter,"Later parameter defaults after a destructured parameter are not supported.");
                         if(rest)
