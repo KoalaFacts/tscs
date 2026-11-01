@@ -35,6 +35,8 @@ public sealed class VariableBindingPatternTests
     [InlineData("function update({value}:{value:number}):number{value=value+1;return value;}const n:number=update({value:20});")]
     [InlineData("function combine({left}:{left:number},[right]:number[]):number{return left+right;}const n:number=combine({left:20},[22]);")]
     [InlineData("function take({value}:{value:number}={value:42}):number{return value;}const n:number=take();")]
+    [InlineData("function seed():number{return 42;}function f({x=seed()}:{x?:number}):number{return x;}let n:number=f({});")]
+    [InlineData("const seed:number=42;function f({x}:{x:number}={x:seed}):number{return x;}let n:number=f();")]
     [InlineData("const seed={value:21};const {value}=seed, after=value+1;let n:number=after;")]
     [InlineData("const list:number[]=[10,20];const [first,second]=list;let n:number=first+second;")]
     public void FinitePatternsFlowThroughNormalVariableTyping(string source) =>
@@ -65,6 +67,9 @@ public sealed class VariableBindingPatternTests
     [InlineData("function fail({x=1}:{x?:number},y:number):number{return x+y;}","TSCS1001")]
     [InlineData("function fail(first:number=21,{value}:{value:number}={value:42}):number{return value;}","TSCS1001")]
     [InlineData("function fail({value}:{value:number}):number{return value;}value=21;","TS2304")]
+    [InlineData("function seed():number{return 1;}function f({x=seed()}:{x?:number}):number{function seed():number{return 2;}return x;}let n:number=f({});","TSCS1001")]
+    [InlineData("let x:number=42;function f({x}:{x:number}={x:x}):number{return x;}let n:number=f();","TSCS1001")]
+    [InlineData("let x:number=42;function f({x=x}:{x?:number}):number{return x;}let n:number=f({});","TSCS1001")]
     [InlineData("const [value=21]:(number|undefined)[]=[undefined];let wrong:string=value;","TS2322")]
     public void BadBindingsOrAssignmentsProduceRealDiagnostics(string source,string code) =>
         Assert.Contains(Compilation.Check("binding.ts",source),diagnostic=>diagnostic.Code==code);

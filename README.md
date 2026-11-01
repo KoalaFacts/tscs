@@ -81,7 +81,11 @@ Because finite destructuring is lowered into the function body, defaulted
 parameters preceding a binding pattern, later default parameters, and following
 parameters after a destructured element default are rejected rather than
 compiled with incorrect initialization order. Duplicate
-names across pattern and ordinary parameters are also diagnosed.
+names across pattern and ordinary parameters are also diagnosed. Parameter
+element defaults that would resolve a function-body declaration differently
+from native parameter initialization, and parameter defaults that reference
+their own destructured names, are explicitly rejected rather than miscompiled.
+Safe references to external declarations remain supported.
 The source-backed, executed and pinned-Go checks are bounded, not the full TS7
 original harness.
 

@@ -67,7 +67,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     // Every user-visible binding still passes Binder, TypeChecker and emitter.
     private abstract record BindingPattern;
     private sealed record BoundName(Token Name) : BindingPattern;
-    private sealed record BoundDefault(BindingPattern Target,ValueNode Fallback,Token Location) : BindingPattern;
+    private sealed record BoundDefault(BindingPattern Target,ValueNode Fallback,Token Location,int StartToken,int EndToken) : BindingPattern;
     private sealed record BoundObject(IReadOnlyList<(Token Key,BindingPattern Target)> Members) : BindingPattern;
     private sealed record BoundArray(Token Open,IReadOnlyList<BindingPattern?> Elements) : BindingPattern;
     private int bindingTemporaryOrdinal;
@@ -99,6 +99,47 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
         _ => false
     };
 
+    // Preserve the original token ranges of element defaults: expressions are
+    // parsed before the function body and must keep parameter-initialization
+    // name resolution, even though finite patterns are lowered at body entry.
+    private static void CollectBindingDefaults(BindingPattern pattern,List<BoundDefault> defaults)
+    {
+        switch(pattern)
+        {
+            case BoundDefault fallback:
+                defaults.Add(fallback);
+                CollectBindingDefaults(fallback.Target,defaults);
+                break;
+            case BoundObject obj:
+                foreach(var member in obj.Members)
+                    CollectBindingDefaults(member.Target,defaults);
+                break;
+            case BoundArray array:
+                foreach(var element in array.Elements)
+                    if(element is not null)CollectBindingDefaults(element,defaults);
+                break;
+        }
+    }
+
+    private bool DefaultReferencesAny(int start,int end,HashSet<string> names)
+    {
+        if(names.Count==0)return false;
+        for(int i=start;i<end;i++)
+        {
+            if(tokens[i].Kind!=TokenKind.Identifier || !names.Contains(tokens[i].Text))
+                continue;
+            // Static object-literal keys and non-computed property names do
+            // not read the identifier they spell. Shorthand members do.
+            if(i>start && tokens[i-1].Kind==TokenKind.Dot)
+                continue;
+            if(i>start && i+1<end && tokens[i+1].Kind==TokenKind.Colon &&
+               (tokens[i-1].Kind is TokenKind.Open or TokenKind.Comma))
+                continue;
+            return true;
+        }
+        return false;
+    }
+
     private Token NewBindingTemporary(Token location)
     {
         // Distinguish files compiled in shared script scopes, and never capture
@@ -118,7 +159,9 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
         if(allowDefault && Eat(TokenKind.Equal))
         {
             var location=Current;
-            pattern=new BoundDefault(pattern,ParseValue(),location);
+            var start=position;
+            var fallback=ParseValue();
+            pattern=new BoundDefault(pattern,fallback,location,start,position);
         }
         return pattern;
     }
@@ -146,7 +189,11 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 {
                     binding=new BoundName(key);
                     if(Eat(TokenKind.Equal))
-                        binding=new BoundDefault(binding,ParseValue(),key);
+                    {
+                        var start=position;
+                        var fallback=ParseValue();
+                        binding=new BoundDefault(binding,fallback,key,start,position);
+                    }
                 }
                 members.Add((key,binding));
                 if(!Eat(TokenKind.Comma))break;
@@ -430,6 +477,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 // Bind finite typed pattern parameters through ordinary hidden
                 // positional parameters and checked function-entry locals.
                 var parameterBindings=new List<Statement>();
+                var parameterElementDefaults=new List<BoundDefault>();
                 var userParameterNames=new HashSet<string>(StringComparer.Ordinal);
                 var patternedParameterNames=new HashSet<string>(StringComparer.Ordinal);
                 bool patternWithDefaultBeforeNext=false;
@@ -474,6 +522,20 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                             CollectParameterBindingNames(parameterPattern,exposedNames);
                         else
                             exposedNames.Add(parameter);
+                        if(parameterPattern is not null)
+                        {
+                            var defaults=new List<BoundDefault>();
+                            CollectBindingDefaults(parameterPattern,defaults);
+                            var localNames=exposedNames.Select(name=>name.Text)
+                                .ToHashSet(StringComparer.Ordinal);
+                            foreach(var fallback in defaults)
+                            {
+                                if(DefaultReferencesAny(fallback.StartToken,fallback.EndToken,localNames))
+                                    Unsupported(fallback.Location,
+                                        "A parameter element default cannot reference names bound by its own destructuring pattern.");
+                            }
+                            parameterElementDefaults.AddRange(defaults);
+                        }
                         foreach(var boundName in exposedNames)
                         {
                             if(!userParameterNames.Add(boundName.Text) &&
@@ -485,7 +547,17 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                         }
                         if(!Eat(TokenKind.Colon))Unsupported(Current,"Function parameters require an explicit supported type.");
                         var annotation=ReadTypeAnnotation();
-                        var defaultValue=Eat(TokenKind.Equal)?ParseValue():null;
+                        ValueNode? defaultValue=null;
+                        if(Eat(TokenKind.Equal))
+                        {
+                            var start=position;
+                            defaultValue=ParseValue();
+                            if(parameterPattern is not null &&
+                               DefaultReferencesAny(start,position,exposedNames.Select(name=>name.Text)
+                                   .ToHashSet(StringComparer.Ordinal)))
+                                Unsupported(parameter,
+                                    "A whole-parameter default cannot reference its own destructured names.");
+                        }
                         // An earlier parameter initializer executes before this
                         // pattern binds its names; body-entry lowering cannot
                         // reproduce an outer-name capture or TDZ dependency.
@@ -540,6 +612,29 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 if(!Eat(TokenKind.Open))Unsupported(Current,"Expected '{' before function body.");
                 var body=Parse(depth+1,true);
                 if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+                if(parameterElementDefaults.Count>0)
+                {
+                    // Body declarations have no scope in native parameter
+                    // initializers, but would shadow the same names after our
+                    // body-entry lowering. Reject that unsupported dependency
+                    // instead of silently calling/reading a different symbol.
+                    var bodyNames=new HashSet<string>(StringComparer.Ordinal);
+                    foreach(var statement in body.Statements)
+                    {
+                        switch(statement)
+                        {
+                            case Variable local: bodyNames.Add(local.Name.Text);break;
+                            case FunctionDeclaration localFunction:
+                                bodyNames.Add(localFunction.Name.Text);break;
+                        }
+                    }
+                    foreach(var fallback in parameterElementDefaults)
+                    {
+                        if(DefaultReferencesAny(fallback.StartToken,fallback.EndToken,bodyNames))
+                            Unsupported(fallback.Location,
+                                "Parameter element defaults cannot reference function-body declarations.");
+                    }
+                }
                 if(parameterBindings.Count>0)
                     body=new Block([..parameterBindings,..body.Statements]);
                 statements.Add(new FunctionDeclaration(name,parameters,result,body,exported));
