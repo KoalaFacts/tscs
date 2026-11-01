@@ -171,13 +171,23 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     new Token(TokenKind.Void,"void",defaulted.Location.Start,4),
                     new ValueAtom(new Token(TokenKind.Number,"0",defaulted.Location.Start,1)));
                 var missing=new ValueBinary(read,
-                    new Token(TokenKind.StrictEqual,"===",defaulted.Location.Start,3),undefined);
+                    new Token(TokenKind.StrictEqual,"===",defaulted.Location.Start,3),undefined,
+                    GeneratedUndefinedCheck:true);
                 var selected=new ValueConditional(missing,
                     new Token(TokenKind.Question,"?",defaulted.Location.Start,1),
                     defaulted.Fallback,
                     new Token(TokenKind.Colon,":",defaulted.Location.Start,1),
-                    new ValueAtom(candidate with {Start=candidate.Start+1}));
-                LowerBindingPattern(defaulted.Target,selected,constant,exported,target,depth);
+                    new ValueAtom(candidate with {Start=candidate.Start+1}),BindingDefault:true);
+                if(defaulted.Target is BoundName)
+                    LowerBindingPattern(defaulted.Target,selected,constant,exported,target,depth);
+                else
+                {
+                    // Do not re-evaluate a lazy fallback for each nested child.
+                    var receiver=NewBindingTemporary(defaulted.Location);
+                    target.Add(new Variable(receiver,true,null,selected));
+                    LowerBindingPattern(defaulted.Target,
+                        new ValueAtom(receiver with {Start=receiver.Start+1}),constant,exported,target,depth);
+                }
                 return;
             case BoundObject objectPattern:
                 foreach(var (key,binding) in objectPattern.Members)

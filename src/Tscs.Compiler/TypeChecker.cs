@@ -1855,6 +1855,16 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 {
                     if(partition is { } narrowed) narrowed.Symbol.Type=original;
                 }
+                // Generated destructuring defaults must obey the selected
+                // member's non-undefined type, not widen an optional number
+                // to number|string when the fallback is invalid.
+                if(chosen.BindingDefault && partition is { } defaultBranch &&
+                   CompilerTypes.ContainsUndefined(defaultBranch.Symbol.DeclaredType??
+                       defaultBranch.Symbol.Type??CompilerTypes.Never) &&
+                   whenTrue is { } fallback && whenFalse is { } present &&
+                   CheckContextualLiteral(chosen.WhenTrue,present,fallback) &&
+                   !IsAssignableContextually(chosen.WhenTrue,fallback,present))
+                    Mismatch(chosen.Question,fallback,present);
                 conditionalResults[chosen]=(whenTrue,whenFalse);
                 if(conditionType==null || whenTrue==null || whenFalse==null)
                     types.Push(null);
@@ -2398,7 +2408,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             }
             else if(binary.Operator.Kind is TokenKind.EqualEqual or TokenKind.BangEqual or TokenKind.StrictEqual or TokenKind.StrictNotEqual)
             {
-                if(!CompilerTypes.CanCompareEquality(left,right))
+                if(!binary.GeneratedUndefinedCheck && !CompilerTypes.CanCompareEquality(left,right))
                 {
                     // Keep the comparison invalid, but continue semantic traversal
                     // so unsafe reads in either branch still produce their own

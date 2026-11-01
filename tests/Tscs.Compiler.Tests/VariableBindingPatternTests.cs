@@ -34,6 +34,7 @@ public sealed class VariableBindingPatternTests
     [InlineData("const [value]=[21];value=22;","TS2588")]
     [InlineData("let {value}:{value:number}={value:\"bad\"};","TS2322")]
     [InlineData("const {missing=21}:{value:number}={value:21};","TS2339")]
+    [InlineData("const {value=\"wrong\"}:{value?:number}={};","TS2322")]
     [InlineData("const {value=21}:{value?:number}={};value=22;","TS2588")]
     [InlineData("const {value=21}:{value?:number}={};let wrong:string=value;","TS2322")]
     [InlineData("const [value=21]:(number|undefined)[]=[undefined];let wrong:string=value;","TS2322")]
