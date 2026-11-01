@@ -3,6 +3,8 @@ interface Array<T> { length: number; [index: number]: T;
   every(callback: (value: T) => boolean): boolean;
   find(callback: (value: T) => boolean): T | undefined;
   findIndex(callback: (value: T) => boolean): number;
+  findLast(callback: (value: T) => boolean): T | undefined;
+  findLastIndex(callback: (value: T) => boolean): number;
   forEach(callback: (value: T) => void): void;
 }
 interface ReadonlyArray<T> { readonly length: number; readonly [index: number]: T;
@@ -10,6 +12,8 @@ interface ReadonlyArray<T> { readonly length: number; readonly [index: number]: 
   every(callback: (value: T) => boolean): boolean;
   find(callback: (value: T) => boolean): T | undefined;
   findIndex(callback: (value: T) => boolean): number;
+  findLast(callback: (value: T) => boolean): T | undefined;
+  findLastIndex(callback: (value: T) => boolean): number;
   forEach(callback: (value: T) => void): void;
 }
 interface Boolean {}

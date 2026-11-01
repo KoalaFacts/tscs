@@ -115,6 +115,102 @@
       "expectedCodes": [
         "TS2554"
       ]
+    },
+    {
+      "id": "array-callbacks:positive-10",
+      "source": "let xs:number[]=[19,20,21,22];let last:number|undefined=xs.findLast((n:number):boolean=>n>20);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-callbacks:positive-11",
+      "source": "let xs:readonly number[]=[19,20,21,22];let pos:number=xs.findLastIndex((n:number):boolean=>n>20);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-callbacks:positive-12",
+      "source": "let xs:ReadonlyArray<string>=[\"a\",\"b\",\"a\"];let last:string|undefined=xs.findLast((s:string):boolean=>s===\"a\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-callbacks:positive-13",
+      "source": "let xs:Array<number>=[1,2,3];let pos:number=xs.findLastIndex((n:number)=>n>1);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-callbacks:positive-14",
+      "source": "type Inputs=ReadonlyArray<number>;let xs:Inputs=[1,2];let found:number|undefined=xs.findLast((n:number):boolean=>n>2);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-callbacks:positive-15",
+      "source": "function reverseSearch(xs:readonly number[]):number{return xs.findLastIndex((n:number):boolean=>n===2);}let index:number=reverseSearch([2,3,2]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-callbacks:positive-16",
+      "source": "let xs:number[]=[1,2,3];let result:number|undefined=xs.findLast((n:number):boolean=>{return n>=2;});",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-callbacks:positive-17",
+      "source": "let xs:ReadonlyArray<number>=[4,5,6];let answer:number=xs.findLastIndex((n:number):boolean=>n<5);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-callbacks:negative-11",
+      "source": "let xs:number[]=[21];xs.findLast();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "array-callbacks:negative-12",
+      "source": "let xs:readonly number[]=[21];xs.findLastIndex();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "array-callbacks:negative-13",
+      "source": "let xs:number[]=[21];xs.findLast(42);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-callbacks:negative-14",
+      "source": "let xs:ReadonlyArray<number>=[21];xs.findLast((s:string):boolean=>true);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-callbacks:negative-15",
+      "source": "let xs:number[]=[21];xs.findLastIndex((n:number):string=>\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-callbacks:negative-16",
+      "source": "let xs:readonly number[]=[21];let wrong:string=xs.findLast((n:number):boolean=>true);",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-callbacks:negative-17",
+      "source": "let xs:ReadonlyArray<number>=[21];let wrong:boolean=xs.findLastIndex((n:number):boolean=>true);",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-callbacks:negative-18",
+      "source": "let xs:number[]=[21];xs.findLast((n:number):boolean=>true,1);",
+      "expectedCodes": [
+        "TS2554"
+      ]
     }
   ]
 }

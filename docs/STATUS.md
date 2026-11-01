@@ -1,3 +1,21 @@
+## 2026-11-02 — Bounded ES2023 reverse array predicate callbacks
+
+Native `findLast` and `findLastIndex` are checked on mutable and readonly
+arrays through the existing type relations and callable checker. Their results
+are `T | undefined` and `number`, respectively. Emitted JavaScript keeps
+native right-to-left predicate evaluation without mutating the array. This
+bounded contract requires an explicitly typed single-value boolean predicate;
+it does not implement contextual inference, the optional `thisArg` or
+unrestricted standard-library callback overloads.
+
+Eight positive and eight negative stable differential IDs augment the unchanged
+19-case array-callback cohort to 35. Source-backed C# tests, four linked native
+ES2015 modules executed in Node, and invalid/no-JavaScript checks are attached;
+exact-SHA workflow results establish execution, not this source statement.
+Complete original TS7 acceptance remains historically 0 PASS /
+15,523 SKIP_UNIMPLEMENTED with dynamic UNEXPANDED. No original acceptance
+credit, upstream pin, global test threshold or release gate is changed.
+
 ## 2026-11-02 — Finite typed expression parameter patterns (candidate; NOT_RUN)
 
 Finite object/array binding patterns in typed arrows, function expressions and
