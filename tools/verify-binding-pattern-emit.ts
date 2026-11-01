@@ -41,7 +41,11 @@ try {
       'function makePair():{a:number,b:number}{calls=calls+1;return {a:1,b:2};}',
       'const {pair:{a:defaultA,b:defaultB}=makePair()}:{pair?:{a:number,b:number}}={};',
       'export const defaults:number=missing+present+defaultFirst+defaultThird+defaultValue+defaultA+defaultB;',
-      'export const defaultCalls:number=calls;'
+      'export const defaultCalls:number=calls;',
+      'const {onlyUndefined=42}={onlyUndefined:undefined};',
+      'const {optionalUndefined=undefined}:{optionalUndefined?:number}={};',
+      'export const undefinedOnly:number=onlyUndefined;',
+      'export const optionalUndefinedValue:number|undefined=optionalUndefined;'
     ].join('\n')
   };
   for(const [name,source] of Object.entries(modules))writeFileSync(join(dir,name),source);
@@ -53,8 +57,8 @@ try {
   assert.match(emitted,/__tscs_binding_/,'binding temporaries must be emitted');
   assert.doesNotMatch(emitted,/\{\s*value\s*,\s*nested\s*:/,'TypeScript binding syntax was not lowered');
   const run=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,label,doubled,defaults,defaultCalls} from "./entry.js";'+
-    'if(result!==83||label!=="ok"||doubled!==42||defaults!==135||defaultCalls!==3)throw Error(JSON.stringify({result,label,doubled,defaults,defaultCalls}));'],
+    'import {result,label,doubled,defaults,defaultCalls,undefinedOnly,optionalUndefinedValue} from "./entry.js";'+
+    'if(result!==83||label!=="ok"||doubled!==42||defaults!==135||defaultCalls!==3||undefinedOnly!==42||optionalUndefinedValue!==undefined)throw Error(JSON.stringify({result,label,doubled,defaults,defaultCalls}));'],
     {cwd:dir,encoding:'utf8',timeout:15000,env});
   assert.equal(run.error,undefined,String(run.error));
   assert.equal(run.status,0,run.stdout+run.stderr);

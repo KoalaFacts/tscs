@@ -1855,19 +1855,27 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 {
                     if(partition is { } narrowed) narrowed.Symbol.Type=original;
                 }
-                // Generated destructuring defaults must obey the selected
-                // member's non-undefined type, not widen an optional number
-                // to number|string when the fallback is invalid.
-                if(chosen.BindingDefault && partition is { } defaultBranch &&
-                   CompilerTypes.ContainsUndefined(defaultBranch.Symbol.DeclaredType??
-                       defaultBranch.Symbol.Type??CompilerTypes.Never) &&
-                   whenTrue is { } fallback && whenFalse is { } present &&
-                   CheckContextualLiteral(chosen.WhenTrue,present,fallback) &&
-                   !IsAssignableContextually(chosen.WhenTrue,fallback,present))
-                    Mismatch(chosen.Question,fallback,present);
-                conditionalResults[chosen]=(whenTrue,whenFalse);
+                // Defaults must respect the original selection contract,
+                // including undefined: a fallback of undefined is valid for
+                // an optional number, but a string is not. If the selection
+                // is *only* undefined, the fallback determines the type and
+                // the impossible present arm contributes nothing.
+                var selectedType=partition?.Symbol.DeclaredType??
+                    partition?.Symbol.Type??whenFalse;
+                bool undefinedOnly=chosen.BindingDefault &&
+                    selectedType?.Equals(CompilerTypes.Undefined)==true;
+                if(chosen.BindingDefault && !undefinedOnly &&
+                   selectedType is { } expectedDefault &&
+                   whenTrue is { } fallback &&
+                   CheckContextualLiteral(chosen.WhenTrue,expectedDefault,fallback) &&
+                   !IsAssignableContextually(chosen.WhenTrue,fallback,expectedDefault))
+                    Mismatch(chosen.Question,fallback,expectedDefault);
+                conditionalResults[chosen]=(whenTrue,
+                    undefinedOnly?CompilerTypes.Never:whenFalse);
                 if(conditionType==null || whenTrue==null || whenFalse==null)
                     types.Push(null);
+                else if(undefinedOnly)
+                    types.Push(whenTrue);
                 else
                 {
                     try {types.Push(CompilerTypes.Union([whenTrue,whenFalse]));}

@@ -14,6 +14,8 @@ public sealed class VariableBindingPatternTests
     [InlineData("const {left:a,right:b}={left:20,right:22};let answer:number=a+b;")]
     [InlineData("const [value]=[21];const {answer}={answer:value*2};")]
     [InlineData("const {value=21}:{value?:number}={};let n:number=value;")]
+    [InlineData("const {value=42}={value:undefined};let n:number=value;")]
+    [InlineData("const {value=undefined}:{value?:number}={};let n:number|undefined=value;")]
     [InlineData("const {value:alias=42}:{value?:number}={};let n:number=alias;")]
     [InlineData("const [value=21]:(number|undefined)[]=[undefined];let n:number=value;")]
     [InlineData("const {nested:{value=42}}:{nested:{value?:number}}={nested:{}};let n:number=value;")]
