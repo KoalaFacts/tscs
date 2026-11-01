@@ -296,7 +296,7 @@
     },
     {
       "id": "array-queries:negative-20",
-      "source": "let xs:readonly number[]=[1];xs.concat([\"bad\"]);",
+      "source": "let xs:readonly number[]=[1];let wrong:string[]=[\"bad\"];xs.concat(wrong);",
       "expectedCodes": [
         "TS2345"
       ]

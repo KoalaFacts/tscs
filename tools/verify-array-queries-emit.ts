@@ -51,7 +51,7 @@ try {
     ['bad-slice-result','let xs:ReadonlyArray<number>=[21];let n:number=xs.slice(0);','TS2322'],
     ['bad-slice-element','let xs:readonly string[]=["a"];let n:number[]=xs.slice();','TS2322'],
     ['bad-concat-1',"let xs:number[]=[1];xs.concat(\"bad\");",'TS2345'],
-    ['bad-concat-2',"let xs:readonly number[]=[1];xs.concat([\"bad\"]);",'TS2345'],
+    ['bad-concat-2',"let xs:readonly number[]=[1];let wrong:string[]=[\"bad\"];xs.concat(wrong);",'TS2345'],
     ['bad-concat-3',"let xs:number[]=[1];let wrong:string[]=xs.concat(2);",'TS2322'],
     ['bad-concat-4',"let xs:readonly string[]=[\"a\"];xs.concat(42);",'TS2345'],
     ['bad-concat-5',"let xs:number[]=[1];let extra:string[]=[\"bad\"];xs.concat(...extra);",'TS2345'],

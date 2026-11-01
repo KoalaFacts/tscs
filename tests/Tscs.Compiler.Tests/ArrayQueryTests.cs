@@ -53,7 +53,7 @@ public sealed class ArrayQueryTests
     [InlineData("let xs:readonly string[]=[\"a\"];let wrong:number[]=xs.slice();","TS2322")]
     [InlineData("let xs:number[]=[21];xs.slice(true);","TS2345")]
     [InlineData("let xs:number[]=[1];xs.concat(\"bad\");","TS2345")]
-    [InlineData("let xs:readonly number[]=[1];xs.concat([\"bad\"]);","TS2345")]
+    [InlineData("let xs:readonly number[]=[1];let wrong:string[]=[\"bad\"];xs.concat(wrong);","TS2345")]
     [InlineData("let xs:number[]=[1];let wrong:string[]=xs.concat(2);","TS2322")]
     [InlineData("let xs:readonly string[]=[\"a\"];xs.concat(42);","TS2345")]
     [InlineData("let xs:number[]=[1];let extra:string[]=[\"bad\"];xs.concat(...extra);","TS2345")]
