@@ -178,7 +178,11 @@ public class CommandLineTests : IDisposable
     public void FiniteConcatAmbientRequiresAnExactNonDuplicatedSignature()
     {
         var source=Write("concat-ambient.ts","let xs:readonly number[]=[1,2];let ys:number[]=xs.concat([3],4);");
-        var profile=File.ReadAllText(Path.Combine("fixtures","array-queries","minimal.d.ts"));
+        const string profile=
+            "interface Array<T> { length: number; [index: number]: T; concat(...items: (T | ReadonlyArray<T>)[]): T[]; }\n" +
+            "interface ReadonlyArray<T> { readonly length: number; readonly [index: number]: T; concat(...items: (T | ReadonlyArray<T>)[]): T[]; }\n" +
+            "interface Boolean {} interface Function {} interface IArguments {} interface Number {} " +
+            "interface Object {} interface RegExp {} interface String {} interface CallableFunction {} interface NewableFunction {}";
         var ambient=Write("concat-ambient.d.ts",profile);
         var ok=Run("--noEmit","--noLib","--target","es2015",source,ambient);
         Assert.Equal(0,ok.Code);
