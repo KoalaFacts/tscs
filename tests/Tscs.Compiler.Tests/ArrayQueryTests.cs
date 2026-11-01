@@ -24,6 +24,15 @@ public sealed class ArrayQueryTests
     [InlineData("let xs:readonly string[]=[\"a\",\"b\"];let copy:string[]=xs.slice(0,undefined);")]
     [InlineData("let xs:readonly number[]=[20,21];let copy:number[]=xs.slice();copy[0]=42;")]
     [InlineData("function copy(xs:readonly number[]):number[]{return xs.slice();}let out:number[]=copy([20,21]);")]
+    [InlineData("let xs:number[]=[1,2];let result:number[]=xs.concat();")]
+    [InlineData("let xs:readonly number[]=[1,2];let result:number[]=xs.concat(3);result[0]=9;")]
+    [InlineData("let xs:ReadonlyArray<number>=[1,2];let result:number[]=xs.concat([3,4]);")]
+    [InlineData("let xs:readonly number[]=[1,2];let extra:readonly number[]=[3,4];let result:number[]=xs.concat(extra,5);")]
+    [InlineData("let xs:string[]=[\"a\"];let result:string[]=xs.concat(\"b\",[\"c\"]);")]
+    [InlineData("let xs:number[]=[1];let next:number[]=[2,3];let result:number[]=xs.concat(...next);")]
+    [InlineData("function extend(xs:readonly number[],rest:readonly number[]):number[]{return xs.concat(rest,7);}let result:number[]=extend([1],[2,3]);")]
+    [InlineData("type Samples=ReadonlyArray<number>;let xs:Samples=[1,2];let result:number[]=xs.concat([3]);")]
+    [InlineData("let xs:number[]=[1,2];let result:number[]=xs.concat(3).slice(1);")]
     public void ReadonlyAndMutableArraysCanPerformCheckedQueries(string source) =>
         Assert.Empty(Compilation.Check("array-queries.ts",source));
 
@@ -43,6 +52,13 @@ public sealed class ArrayQueryTests
     [InlineData("let xs:ReadonlyArray<number>=[21];let wrong:number=xs.slice(0);","TS2322")]
     [InlineData("let xs:readonly string[]=[\"a\"];let wrong:number[]=xs.slice();","TS2322")]
     [InlineData("let xs:number[]=[21];xs.slice(true);","TS2345")]
+    [InlineData("let xs:number[]=[1];xs.concat(\"bad\");","TS2345")]
+    [InlineData("let xs:readonly number[]=[1];xs.concat([\"bad\"]);","TS2345")]
+    [InlineData("let xs:number[]=[1];let wrong:string[]=xs.concat(2);","TS2322")]
+    [InlineData("let xs:readonly string[]=[\"a\"];xs.concat(42);","TS2345")]
+    [InlineData("let xs:number[]=[1];let extra:string[]=[\"bad\"];xs.concat(...extra);","TS2345")]
+    [InlineData("let xs:ReadonlyArray<number>=[1];let wrong:readonly string[]=xs.concat([2]);","TS2322")]
+    [InlineData("let xs:number[]=[1];xs.concat(true);","TS2345")]
     public void InvalidQueriesAndReadonlyMutationDoNotSucceed(string source,string expectedCode) =>
         Assert.Contains(Compilation.Check("array-queries-invalid.ts",source),d=>d.Code==expectedCode);
 
@@ -60,9 +76,9 @@ public sealed class ArrayQueryTests
         const string root="/virtual/array-queries";
         var host=new Host();
         host.Files[root+"/model.ts"]="export type Readings=ReadonlyArray<number>;export const values:number[]=[19,20,21,19];";
-        host.Files[root+"/logic.ts"]="import type {Readings} from \"./model.js\";export function contains(xs:Readings,n:number):boolean{return xs.includes(n);}export function first(xs:Readings,n:number):number{return xs.indexOf(n);}export function last(xs:Readings,n:number):number{return xs.lastIndexOf(n);}export function label(xs:Readings):string{return xs.join(\"/\");}export function middle(xs:Readings):number[]{return xs.slice(1,-1);}export function copy(xs:Readings):number[]{return xs.slice();}";
-        host.Files[root+"/bridge.ts"]="export {values} from \"./model.js\";export {contains,first,last,label,middle,copy} from \"./logic.js\";";
-        host.Files[root+"/entry.ts"]="import {values,contains,first,last,label,middle,copy} from \"./bridge.js\";export const present:boolean=contains(values,21);export const firstIndex:number=first(values,19);export const lastIndex:number=last(values,19);export const joined:string=label(values);export const sliced:number[]=middle(values);export const writable:number[]=copy(values);writable[0]=99;";
+        host.Files[root+"/logic.ts"]="import type {Readings} from \"./model.js\";export function contains(xs:Readings,n:number):boolean{return xs.includes(n);}export function first(xs:Readings,n:number):number{return xs.indexOf(n);}export function last(xs:Readings,n:number):number{return xs.lastIndexOf(n);}export function label(xs:Readings):string{return xs.join(\"/\");}export function middle(xs:Readings):number[]{return xs.slice(1,-1);}export function copy(xs:Readings):number[]{return xs.slice();}export function append(xs:Readings,rest:Readings):number[]{return xs.concat(rest,22);}";
+        host.Files[root+"/bridge.ts"]="export {values} from \"./model.js\";export {contains,first,last,label,middle,copy,append} from \"./logic.js\";";
+        host.Files[root+"/entry.ts"]="import {values,contains,first,last,label,middle,copy,append} from \"./bridge.js\";export const present:boolean=contains(values,21);export const firstIndex:number=first(values,19);export const lastIndex:number=last(values,19);export const joined:string=label(values);export const sliced:number[]=middle(values);export const writable:number[]=copy(values);writable[0]=99;export const appended:number[]=append(values,[23,24]);appended[0]=42;";
         var program=CompilerProgram.Load(host,[root+"/entry.ts"],new CompilerOptions {
             NoLib=true,Target=CompilerTarget.Es2015,Module=CompilerModule.Es2015
         });
@@ -74,5 +90,6 @@ public sealed class ArrayQueryTests
         Assert.Contains(output,js=>js.Text.Contains(".lastIndexOf(",StringComparison.Ordinal));
         Assert.Contains(output,js=>js.Text.Contains(".join(",StringComparison.Ordinal));
         Assert.Contains(output,js=>js.Text.Contains(".slice(",StringComparison.Ordinal));
+        Assert.Contains(output,js=>js.Text.Contains(".concat(",StringComparison.Ordinal));
     }
 }

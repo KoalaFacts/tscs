@@ -432,6 +432,15 @@ internal static class CompilerTypes
             if(name=="slice")
                 return new FunctionTypeSymbol([Union([Number,Undefined]),Union([Number,Undefined])],
                     new ArrayTypeSymbol(array.ElementType),0);
+            // Native concat returns a new writable array even for readonly views.
+            // This finite signature accepts values and (readonly) arrays of T;
+            // it does not claim Symbol.isConcatSpreadable or general overloads.
+            if(name=="concat")
+            {
+                var item=Union([array.ElementType,new ArrayTypeSymbol(array.ElementType,Readonly:true)]);
+                return new FunctionTypeSymbol([new ArrayTypeSymbol(item)],
+                    new ArrayTypeSymbol(array.ElementType),0,item);
+            }
             // Native ES2015 array predicate methods on mutable/readonly views.
             // This bounded contract intentionally requires one explicitly typed
             // value parameter; no contextual inference or predicate type guards.

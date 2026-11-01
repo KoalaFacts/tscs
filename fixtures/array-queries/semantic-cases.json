@@ -241,6 +241,100 @@
       "expectedCodes": [
         "TS2345"
       ]
+    },
+    {
+      "id": "array-queries:positive-24",
+      "source": "let xs:number[]=[1,2];let result:number[]=xs.concat();",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-25",
+      "source": "let xs:readonly number[]=[1,2];let result:number[]=xs.concat(3);result[0]=9;",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-26",
+      "source": "let xs:ReadonlyArray<number>=[1,2];let result:number[]=xs.concat([3,4]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-27",
+      "source": "let xs:readonly number[]=[1,2];let extra:readonly number[]=[3,4];let result:number[]=xs.concat(extra,5);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-28",
+      "source": "let xs:string[]=[\"a\"];let result:string[]=xs.concat(\"b\",[\"c\"]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-29",
+      "source": "let xs:number[]=[1];let next:number[]=[2,3];let result:number[]=xs.concat(...next);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-30",
+      "source": "function extend(xs:readonly number[],rest:readonly number[]):number[]{return xs.concat(rest,7);}let result:number[]=extend([1],[2,3]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-31",
+      "source": "type Samples=ReadonlyArray<number>;let xs:Samples=[1,2];let result:number[]=xs.concat([3]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-32",
+      "source": "let xs:number[]=[1,2];let result:number[]=xs.concat(3).slice(1);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:negative-19",
+      "source": "let xs:number[]=[1];xs.concat(\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-queries:negative-20",
+      "source": "let xs:readonly number[]=[1];xs.concat([\"bad\"]);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-queries:negative-21",
+      "source": "let xs:number[]=[1];let wrong:string[]=xs.concat(2);",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-queries:negative-22",
+      "source": "let xs:readonly string[]=[\"a\"];xs.concat(42);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-queries:negative-23",
+      "source": "let xs:number[]=[1];let extra:string[]=[\"bad\"];xs.concat(...extra);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-queries:negative-24",
+      "source": "let xs:ReadonlyArray<number>=[1];let wrong:readonly string[]=xs.concat([2]);",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-queries:negative-25",
+      "source": "let xs:number[]=[1];xs.concat(true);",
+      "expectedCodes": [
+        "TS2345"
+      ]
     }
   ]
 }
