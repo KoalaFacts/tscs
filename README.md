@@ -304,6 +304,17 @@ generic type-inference engine. Callback value parameters require explicit types;
 index/array callback parameters, `thisArg`, method overloads and untyped arrow
 inference are not supported. The emitted ES2015 JavaScript calls native `map`.
 
+## Checked native string operations (bounded)
+
+Primitive strings and string literal values support non-mutating
+`toUpperCase()`, `toLowerCase()`, `trim()`, `slice(start?, end?)`,
+`includes(search, position?)`, `startsWith(search, position?)`
+and `endsWith(search, endPosition?)` through ordinary checked calls
+and native ES2015 emission. Arguments, return types and arity are checked;
+the finite `String` ambient contract rejects unknown, duplicate or
+incompatible declarations. This does not implement complete standard-library
+loading, overloads, regex methods or original TS7 acceptance.
+
 ## Other implemented subsets
 
 The current pipeline includes primitive/`any` variables, lexical scopes, selected

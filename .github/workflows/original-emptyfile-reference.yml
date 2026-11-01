@@ -69,6 +69,7 @@ jobs:
           node tools/verify-division-reference.ts "$reference" .artifacts/array-queries-reference fixtures/array-queries/semantic-cases.json
            node tools/verify-division-reference.ts "$reference" .artifacts/string-addition-reference fixtures/string-addition/semantic-cases.json
           node tools/verify-division-reference.ts "$reference" .artifacts/string-primitives-reference fixtures/string-primitives/semantic-cases.json
+          node tools/verify-division-reference.ts "$reference" .artifacts/string-methods-reference fixtures/string-methods/semantic-cases.json
           node tools/verify-division-reference.ts "$reference" .artifacts/no-substitution-template-reference fixtures/no-substitution-template/semantic-cases.json
           node tools/verify-type-operators-reference.ts "$reference" .artifacts/type-operators-reference
           node tools/verify-switch-reference.ts "$reference" .artifacts/switch-reference
@@ -133,6 +134,14 @@ jobs:
         with:
           name: pinned-array-filter-reduce-reference-${{ github.sha }}
           path: .artifacts/array-filter-reduce-reference/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Preserve native string method reference evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-string-methods-reference-${{ github.sha }}
+          path: .artifacts/string-methods-reference/
           if-no-files-found: warn
           retention-days: 30
       - name: Preserve bounded array map reference evidence

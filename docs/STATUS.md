@@ -1,3 +1,18 @@
+## 2026-11-01 — Bounded native string transformations and searches (candidate; NOT_RUN)
+
+The C# semantic String property resolver now provides seven non-mutating
+methods for primitive and literal strings, including case conversion,
+whitespace trimming, slicing, substring search, prefix and suffix checks.
+The ordinary call checker enforces argument types, optional numeric positions
+and string/boolean results, while four linked ES2015 modules exercise native
+runtime semantics. A strict `String` ambient contract rejects duplicate and
+unsupported member declarations. Twenty-four stable-ID pinned-Go comparison
+cases (12 positive, 12 negative), source-backed xUnit checks and negative
+no-JavaScript-emission scenarios are registered. These are candidate
+NOT_RUN until the exact-head checks execute. Original TS7 remains 0 PASS /
+15,523 SKIP_UNIMPLEMENTED; dynamic scope UNEXPANDED. No pin, CI threshold
+or release gate has changed.
+
 ## 2026-11-01 — Native array map with checked output element types (candidate; NOT_RUN)
 
 C# array property resolution now recognises native `map` on mutable and
