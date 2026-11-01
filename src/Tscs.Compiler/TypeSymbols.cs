@@ -429,6 +429,9 @@ internal static class CompilerTypes
                     name=="includes"?Boolean:Number,1);
             if(name=="join")
                 return new FunctionTypeSymbol([Union([String,Undefined])],String,0);
+            if(name=="slice")
+                return new FunctionTypeSymbol([Union([Number,Undefined]),Union([Number,Undefined])],
+                    new ArrayTypeSymbol(array.ElementType),0);
             if(array.Readonly)return null;
             return name switch
             {
