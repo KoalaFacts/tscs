@@ -2209,6 +2209,19 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 if(callableType is not FunctionTypeSymbol signature)
                     throw new CompilationFailure(Diagnostic.Error(file,call.Open,"TSCS1001",
                         "Calls currently require a declared function with an explicit signature."));
+                // A supplied initial accumulator permits a distinct explicit U.
+                // Validate both callback contravariance and the initial value
+                // through the existing function argument checker. Without an
+                // initial value the older same-element fold contract remains.
+                if(signature.NativeArrayReduceElementType is { } element &&
+                   call.SpreadIndex<0 && arguments.Length==2 &&
+                   arguments[0] is FunctionTypeSymbol fold && fold.Parameters.Count==2)
+                {
+                    var accumulator=fold.Parameters[0];
+                    signature=new FunctionTypeSymbol(
+                        [new FunctionTypeSymbol([accumulator,element],accumulator),accumulator],
+                        accumulator,2,NativeArrayReduceElementType:element);
+                }
                 var resultType=optionalMissing
                     ?CompilerTypes.Union([signature.ReturnType,CompilerTypes.Undefined])
                     :signature.ReturnType;
