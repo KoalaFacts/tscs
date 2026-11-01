@@ -1855,9 +1855,42 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 {
                     if(partition is { } narrowed) narrowed.Symbol.Type=original;
                 }
-                conditionalResults[chosen]=(whenTrue,whenFalse);
+                // Defaults must respect the original selection contract,
+                // including undefined: a fallback of undefined is valid for
+                // an optional number, but a string is not. If the selection
+                // is *only* undefined, the fallback determines the type and
+                // the impossible present arm contributes nothing.
+                var selectedType=partition?.Symbol.DeclaredType??
+                    partition?.Symbol.Type??whenFalse;
+                bool undefinedOnly=chosen.BindingDefault &&
+                    selectedType?.Equals(CompilerTypes.Undefined)==true;
+                if(chosen.BindingDefaultConstrained &&
+                   selectedType is { } expectedDefault &&
+                   whenTrue is { } fallback)
+                {
+                    // A source annotation constrains defaults; an inferred
+                    // selection does not. A literal fallback may have a
+                    // different type from a non-optional inferred member.
+                    // Preserve recursive fresh-object checking for an
+                    // optional object instead of stopping at union keys.
+                    TypeSymbol contextualTarget=expectedDefault;
+                    if(chosen.WhenTrue is ValueObject &&
+                       expectedDefault is UnionTypeSymbol optionalUnion &&
+                       optionalUnion.Alternatives.Count(t=>t is ObjectTypeSymbol)==1 &&
+                       optionalUnion.Alternatives.All(t=>t is ObjectTypeSymbol ||
+                           t.Equals(CompilerTypes.Undefined) ||
+                           t.Equals(CompilerTypes.Null)))
+                        contextualTarget=optionalUnion.Alternatives.OfType<ObjectTypeSymbol>().Single();
+                    if(CheckContextualLiteral(chosen.WhenTrue,contextualTarget,fallback) &&
+                       !IsAssignableContextually(chosen.WhenTrue,fallback,expectedDefault))
+                        Mismatch(chosen.Question,fallback,expectedDefault);
+                }
+                conditionalResults[chosen]=(whenTrue,
+                    undefinedOnly?CompilerTypes.Never:whenFalse);
                 if(conditionType==null || whenTrue==null || whenFalse==null)
                     types.Push(null);
+                else if(undefinedOnly)
+                    types.Push(whenTrue);
                 else
                 {
                     try {types.Push(CompilerTypes.Union([whenTrue,whenFalse]));}
@@ -2111,6 +2144,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 }
                 else if(CheckedProperty(presentReceiver,property.Name) is { } member)
                     presentMember=member;
+                else if(property.BindingFreshOmittedDefault &&
+                        presentReceiver is ObjectTypeSymbol)
+                    // Missing own key in a directly fresh initializer with a
+                    // default is contextually undefined. Runtime still reads it.
+                    presentMember=CompilerTypes.Undefined;
                 else
                 {
                     // For a known member on the non-nullish alternatives,
@@ -2398,7 +2436,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             }
             else if(binary.Operator.Kind is TokenKind.EqualEqual or TokenKind.BangEqual or TokenKind.StrictEqual or TokenKind.StrictNotEqual)
             {
-                if(!CompilerTypes.CanCompareEquality(left,right))
+                if(!binary.GeneratedUndefinedCheck && !CompilerTypes.CanCompareEquality(left,right))
                 {
                     // Keep the comparison invalid, but continue semantic traversal
                     // so unsafe reads in either branch still produce their own

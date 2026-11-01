@@ -65,8 +65,11 @@ A binding initializer is evaluated once. Nested receivers are also evaluated
 once before extracting their children. The compiler lowers bindings to ordinary
 scoped variable declarations and type-checks every property/index read, binding
 assignment and module call with the existing Binder and TypeChecker; ES2015
-output contains no TypeScript binding annotations. This is an intentionally
-bounded subset: default-valued and rest bindings, dynamic/computed binding keys,
+output contains no TypeScript binding annotations. Finite object and array elements also accept checked `= fallback` defaults,
+including aliases and nested elements. Selected values are read once and
+fallbacks run lazily only for `undefined`, not other falsy values. These are
+lowered to checked conditional expressions. This is an intentionally
+bounded subset: rest bindings, dynamic/computed binding keys,
 array-iterator destructuring beyond checked arrays, parameter/catch binding
 patterns and unrestricted cross-module destructured exports remain unsupported.
 The source-backed, executed and pinned-Go checks are bounded, not the full TS7
