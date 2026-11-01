@@ -182,6 +182,33 @@ public sealed class AmbientArrayGlobalsTests : IDisposable
         Assert.Contains("TS2339",missing);
     }
 
+    [Fact]
+    public void ExactMutableArrayMethodAmbientsValidateRuntimeContracts()
+    {
+        const string array =
+            "interface Array<T> { length:number; [index:number]:T; "+
+            "push(...items:T[]):number; pop():T|undefined; "+
+            "unshift(...items:T[]):number; shift():T|undefined; }";
+        var (exit,output)=Compile(array,
+            "let values:number[]=[21]; let n:number=values.push(22); "+
+            "let first:number|undefined=values.shift();");
+        Assert.Equal(0,exit);
+        Assert.Equal("",output);
+    }
+
+    [Theory]
+    [InlineData("interface Array<T> {length:number;[index:number]:T;pop():T;}")]
+    [InlineData("interface Array<T> {length:number;[index:number]:T;shift():T;}")]
+    [InlineData("interface Array<T> {length:number;[index:number]:T;unshift(...items:T[]):string;}")]
+    [InlineData("interface Array<T> {length:number;[index:number]:T;pop():T|undefined;pop():T|undefined;}")]
+    [InlineData("interface Array<T> {length:number;[index:number]:T;unshift(...items:T[]):number;unshift(...items:T[]):number;}")]
+    public void MalformedOrDuplicateArrayMutatorAmbientContractsStillFailClosed(string declaration)
+    {
+        var (exit,output)=Compile(declaration,"let values:number[]=[21];");
+        Assert.Equal(1,exit);
+        Assert.Contains("TSCS1002",output);
+    }
+
     [Theory]
     [InlineData("interface Array<T> { length:number; [index:number]:T; push(...items:T[]):string; }")]
     [InlineData("interface Array<T> { length:number; [index:number]:T; push(item:T):number; }")]
