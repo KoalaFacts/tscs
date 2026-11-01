@@ -431,6 +431,102 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "array-queries:positive-41",
+      "source": "let xs:number[]=[3,1,2];let out:number[]=xs.toReversed();",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-42",
+      "source": "let xs:readonly number[]=[3,1,2];let out:number[]=xs.toReversed();out[0]=9;",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-43",
+      "source": "let xs:ReadonlyArray<string>=[\"a\",\"b\"];let out:string[]=xs.toReversed();",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-44",
+      "source": "let xs:readonly number[]=[3,1,2];let out:number[]=xs.toSorted((a:number,b:number):number=>a-b);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-45",
+      "source": "let xs:number[]=[3,1,2];let out:number[]=xs.toSorted();",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-46",
+      "source": "let xs:number[]=[3,1,2];let out:number[]=xs.toSorted(undefined);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-47",
+      "source": "function reverseCopy(xs:readonly number[]):number[]{return xs.toReversed();}let out:number[]=reverseCopy([1,2]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-48",
+      "source": "let xs:readonly string[]=[\"b\",\"a\"];let out:string[]=xs.toSorted();",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:negative-34",
+      "source": "let xs:number[]=[1];xs.toReversed(0);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "array-queries:negative-35",
+      "source": "let xs:ReadonlyArray<number>=[1];xs.toSorted(1);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-queries:negative-36",
+      "source": "let xs:number[]=[1];xs.toSorted((a:number,b:number):boolean=>true);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-queries:negative-37",
+      "source": "let xs:readonly string[]=[\"a\"];let out:number[]=xs.toReversed();",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-queries:negative-38",
+      "source": "let xs:number[]=[1];let out:string[]=xs.toSorted();",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-queries:negative-39",
+      "source": "let xs:ReadonlyArray<number>=[1];xs.toSorted((a:string,b:string):number=>0);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-queries:negative-40",
+      "source": "let xs:number[]=[1];xs.toSorted(undefined,undefined);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "array-queries:negative-41",
+      "source": "let xs:number[]=[1];xs.toReversed(\"bad\");",
+      "expectedCodes": [
+        "TS2554"
+      ]
     }
   ]
 }
