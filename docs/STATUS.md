@@ -1,3 +1,16 @@
+## 2026-11-01 — Checked in-place array methods (candidate, NOT_RUN)
+
+The C# semantic member resolver and ordinary checked-call path support native
+ES2015 `reverse`, `sort` with optional explicitly typed comparator, `fill`
+and `copyWithin`. Results retain mutable element types, and JavaScript mutates
+the existing receiver. Readonly arrays reject mutators. Thirteen positive and
+thirteen negative source-backed pinned-Go cases use a separate ambient profile
+and stable IDs: all old fixture bytes, expected codes and profiles remain intact.
+Four linked executable ES2015 modules and invalid/no-output checks are
+registered but NOT_RUN before exact-head CI. Original full TS7 acceptance:
+0 PASS / 15,523 SKIP_UNIMPLEMENTED; dynamic scope UNEXPANDED. No release
+gate, source pin, test minimum or branch protection changed.
+
 ## 2026-11-01 — Checked non-mutating array queries (candidate; NOT_RUN)
 
 Bounded mutable and readonly array values now expose native `includes`,
