@@ -168,6 +168,78 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "binding-pattern:positive-15",
+      "source": "function pick({value}:{value:number}):number{return value;}let n:number=pick({value:21});",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-16",
+      "source": "function pick([first,,third]:number[]):number{return first+third;}let n:number=pick([20,1,22]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-17",
+      "source": "function pick({inner:{value}}:{inner:{value:number}}):number{return value;}let n:number=pick({inner:{value:42}});",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-18",
+      "source": "function pick({value=21}:{value?:number}):number{return value;}let n:number=pick({});",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-19",
+      "source": "function update({value}:{value:number}):number{value=value+1;return value;}let n:number=update({value:20});",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-20",
+      "source": "function combine({left}:{left:number},[right]:number[]):number{return left+right;}let n:number=combine({left:20},[22]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:negative-15",
+      "source": "function fail({missing}:{value:number}):number{return missing;}",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-16",
+      "source": "function fail({value}:{value:number}):string{return value;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-17",
+      "source": "function fail({value=\"no\"}:{value?:number}):number{return value;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-18",
+      "source": "function fail([value]:number[]):number{return value;}let wrong:string=fail([21]);",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-19",
+      "source": "function fail({value}:{value:number}):number{return value;}let n:number=fail({value:\"no\"});",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-20",
+      "source": "function fail({value}:{value:number}):number{return value;}value=\"bad\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }

@@ -400,6 +400,9 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 Take();
                 if(!Eat(TokenKind.OpenParen))Unsupported(Current,"Expected '(' after function name.");
                 var parameters=new List<ParameterDeclaration>();
+                // Bind finite typed pattern parameters through ordinary hidden
+                // positional parameters and checked function-entry locals.
+                var parameterBindings=new List<Statement>();
                 bool sawOptionalParameter=false;
                 bool sawDefaultParameter=false;
                 bool sawRestParameter=false;
@@ -411,10 +414,25 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                             Diagnostics.Add(Diagnostic.Error(file,Current,"TS1014",
                                 "A rest parameter must be last in a parameter list."));
                         bool rest=Eat(TokenKind.Ellipsis);
-                        var parameter=Current;
-                        if(parameter.Kind!=TokenKind.Identifier)Unsupported(parameter,"Expected a named parameter.");
-                        Take();
+                        BindingPattern? parameterPattern=null;
+                        Token parameter;
+                        if(Current.Kind is TokenKind.Open or TokenKind.OpenBracket)
+                        {
+                            if(rest)Unsupported(Current,"Rest binding-pattern parameters are not supported.");
+                            var location=Current;
+                            parameterPattern=ReadBindingPattern(0);
+                            parameter=NewBindingTemporary(location);
+                        }
+                        else
+                        {
+                            parameter=Current;
+                            if(parameter.Kind!=TokenKind.Identifier)
+                                Unsupported(parameter,"Expected a named or finite binding-pattern parameter.");
+                            Take();
+                        }
                         bool questionOptional=Eat(TokenKind.Question);
+                        if(parameterPattern is not null && questionOptional)
+                            Unsupported(parameter,"Binding-pattern parameters cannot be marked optional; use an explicit default.");
                         if(!Eat(TokenKind.Colon))Unsupported(Current,"Function parameters require an explicit supported type.");
                         var annotation=ReadTypeAnnotation();
                         var defaultValue=Eat(TokenKind.Equal)?ParseValue():null;
@@ -446,6 +464,12 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                         sawOptionalParameter|=optional;
                         sawDefaultParameter|=defaultValue is not null;
                         parameters.Add(new ParameterDeclaration(parameter,annotation,optional,defaultValue,rest));
+                        if(parameterPattern is not null)
+                            // Parameter bindings are mutable (not const). Reuse
+                            // the ordinary finite binding/default semantics.
+                            LowerBindingPattern(parameterPattern,
+                                new ValueAtom(parameter with {Start=parameter.Start+1}),
+                                false,false,parameterBindings,annotatedBinding:true);
                         if(!Eat(TokenKind.Comma))break;
                     }
                 }
@@ -455,6 +479,8 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 if(!Eat(TokenKind.Open))Unsupported(Current,"Expected '{' before function body.");
                 var body=Parse(depth+1,true);
                 if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+                if(parameterBindings.Count>0)
+                    body=new Block([..parameterBindings,..body.Statements]);
                 statements.Add(new FunctionDeclaration(name,parameters,result,body,exported));
                 continue;
             }

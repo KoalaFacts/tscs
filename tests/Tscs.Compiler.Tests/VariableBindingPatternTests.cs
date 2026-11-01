@@ -28,6 +28,13 @@ public sealed class VariableBindingPatternTests
     [InlineData("const {value={nested:{n:42}}}:{value?:{nested:{n:number}}}={};let n:number=value.nested.n;")]
     [InlineData("const [value=21]=[21];let n:number=value;")]
     [InlineData("function calculate(x:{value:number}):number{const {value}=x;return value*2;}const n:number=calculate({value:21});")]
+    [InlineData("function pick({value}:{value:number}):number{return value;}const n:number=pick({value:21});")]
+    [InlineData("function pick([first,,third]:number[]):number{return first+third;}const n:number=pick([20,1,22]);")]
+    [InlineData("function pick({inner:{value}}:{inner:{value:number}}):number{return value;}const n:number=pick({inner:{value:42}});")]
+    [InlineData("function pick({value=21}:{value?:number}):number{return value;}const n:number=pick({});")]
+    [InlineData("function update({value}:{value:number}):number{value=value+1;return value;}const n:number=update({value:20});")]
+    [InlineData("function combine({left}:{left:number},[right]:number[]):number{return left+right;}const n:number=combine({left:20},[22]);")]
+    [InlineData("function take({value}:{value:number}={value:42}):number{return value;}const n:number=take();")]
     [InlineData("const seed={value:21};const {value}=seed, after=value+1;let n:number=after;")]
     [InlineData("const list:number[]=[10,20];const [first,second]=list;let n:number=first+second;")]
     public void FinitePatternsFlowThroughNormalVariableTyping(string source) =>
@@ -48,6 +55,11 @@ public sealed class VariableBindingPatternTests
     [InlineData("const {value={nested:{n:1,extra:2}}}:{value?:{nested:{n:number}}}={};","TS2353")]
     [InlineData("const {value=21}:{value?:number}={};value=22;","TS2588")]
     [InlineData("const {value=21}:{value?:number}={};let wrong:string=value;","TS2322")]
+    [InlineData("function fail({missing}:{value:number}):number{return missing;}","TS2339")]
+    [InlineData("function fail({value}:{value:number}):string{return value;}","TS2322")]
+    [InlineData("function fail({value=\"no\"}:{value?:number}):number{return value;}","TS2322")]
+    [InlineData("function fail([value]:number[]):number{return value;}let wrong:string=fail([21]);","TS2322")]
+    [InlineData("function fail({value}:{value:number}):number{return value;}let wrong:number=fail({value:\"no\"});","TS2345")]
     [InlineData("const [value=21]:(number|undefined)[]=[undefined];let wrong:string=value;","TS2322")]
     public void BadBindingsOrAssignmentsProduceRealDiagnostics(string source,string code) =>
         Assert.Contains(Compilation.Check("binding.ts",source),diagnostic=>diagnostic.Code==code);
