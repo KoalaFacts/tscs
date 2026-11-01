@@ -2282,6 +2282,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             [new FunctionTypeSymbol([accumulator,element],accumulator),accumulator],
                             accumulator,2,NativeArrayReduceElementType:element);
                 }
+                // The short toSpliced(start, deleteCount?) overload permits an
+                // omitted/undefined delete count. Inserting items selects the
+                // long overload, where deleteCount must be number. Preserve
+                // the ordinary argument checker/diagnostics for both paths.
+                if(signature.NativeArrayToSplicedElementType is { } splicedElement &&
+                   arguments.Length>=3)
+                    signature=signature with {Parameters=[CompilerTypes.Number,
+                        CompilerTypes.Number,splicedElement]};
                 var resultType=optionalMissing
                     ?CompilerTypes.Union([signature.ReturnType,CompilerTypes.Undefined])
                     :signature.ReturnType;

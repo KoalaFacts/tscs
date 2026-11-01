@@ -623,6 +623,13 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "array-queries:negative-50",
+      "source": "let xs:number[]=[1,2];xs.toSpliced(0,undefined,3);",
+      "expectedCodes": [
+        "TS2345"
+      ]
     }
   ]
 }

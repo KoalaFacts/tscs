@@ -48,7 +48,7 @@ internal sealed record UnionTypeSymbol(IReadOnlyList<TypeSymbol> Alternatives) :
 // can inspect fresh operand literals rather than only the joined type.
 internal sealed record LogicalValueOutcome(TypeSymbol Result,TypeSymbol? LeftResult,TypeSymbol Right,bool RightReachable);
 
-internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null,TypeSymbol? NativeArrayMapElementType=null,TypeSymbol? NativeArrayReduceElementType=null) : TypeSymbol
+internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null,TypeSymbol? NativeArrayMapElementType=null,TypeSymbol? NativeArrayReduceElementType=null,TypeSymbol? NativeArrayToSplicedElementType=null) : TypeSymbol
 {
     public int MinimumArguments=>RequiredParameterCount<0?Parameters.Count:RequiredParameterCount;
     public override string DisplayName=>TypeDisplay.Format(this);
@@ -452,7 +452,8 @@ internal static class CompilerTypes
             if(name=="toSpliced")
                 return new FunctionTypeSymbol(
                     [Number,Union([Number,Undefined]),array.ElementType],
-                    new ArrayTypeSymbol(array.ElementType),1,array.ElementType);
+                    new ArrayTypeSymbol(array.ElementType),1,array.ElementType,
+                    NativeArrayToSplicedElementType:array.ElementType);
             // Native concat returns a new writable array even for readonly views.
             // This finite signature accepts values and (readonly) arrays of T;
             // it does not claim Symbol.isConcatSpreadable or general overloads.

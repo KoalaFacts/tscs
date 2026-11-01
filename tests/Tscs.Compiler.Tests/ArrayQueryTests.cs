@@ -108,6 +108,7 @@ public sealed class ArrayQueryTests
     [InlineData("let xs:number[]=[1,2];let out:string[]=xs.toSpliced(0,1);","TS2322")]
     [InlineData("let xs:readonly string[]=[\"a\"];let out:number[]=xs.toSpliced(0,0,\"b\");","TS2322")]
     [InlineData("let xs:number[]=[1,2];xs.toSpliced(0,1,\"bad\");","TS2345")]
+    [InlineData("let xs:number[]=[1,2];xs.toSpliced(0,undefined,3);","TS2345")]
     public void InvalidQueriesAndReadonlyMutationDoNotSucceed(string source,string expectedCode) =>
         Assert.Contains(Compilation.Check("array-queries-invalid.ts",source),d=>d.Code==expectedCode);
 

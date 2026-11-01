@@ -80,7 +80,8 @@ try {
     ['spliced-arity','let xs:number[]=[1];xs.toSpliced();','TS2554'],
     ['spliced-start','let xs:number[]=[1];xs.toSpliced("bad",0);','TS2345'],
     ['spliced-item','let xs:number[]=[1];xs.toSpliced(0,1,"bad");','TS2345'],
-    ['spliced-assignment','let xs:number[]=[1];let out:string[]=xs.toSpliced(0,1);','TS2322']
+    ['spliced-assignment','let xs:number[]=[1];let out:string[]=xs.toSpliced(0,1);','TS2322'],
+    ['spliced-undefined-insertion','let xs:number[]=[1,2];xs.toSpliced(0,undefined,3);','TS2345']
   ];
   for(const [name,source,expected] of rejected) {
     writeFileSync(join(folder,name+'.ts'),source);
@@ -89,5 +90,5 @@ try {
     assert.match(result.stdout+result.stderr,new RegExp(expected),name);
     assert.equal(existsSync(join(folder,name+'.js')),false,'invalid program emitted JS: '+name);
   }
-  console.log('array queries: four linked ES2015 modules executed; forty-six invalid programs blocked output.');
+  console.log('array queries: four linked ES2015 modules executed; forty-seven invalid programs blocked output.');
 } finally {rmSync(folder,{recursive:true,force:true});}
