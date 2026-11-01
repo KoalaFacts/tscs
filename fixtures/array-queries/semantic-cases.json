@@ -335,6 +335,102 @@
       "expectedCodes": [
         "TS2345"
       ]
+    },
+    {
+      "id": "array-queries:positive-33",
+      "source": "let xs:number[]=[10,20];let n:number|undefined=xs.at(0);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-34",
+      "source": "let xs:readonly number[]=[10,20];let n:number|undefined=xs.at(-1);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-35",
+      "source": "let xs:ReadonlyArray<string>=[\"a\",\"b\"];let n:string|undefined=xs.at(-2);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-36",
+      "source": "let xs:number[]=[];let n:number|undefined=xs.at(0);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-37",
+      "source": "type Items=readonly number[];let xs:Items=[2,4];let n:number|undefined=xs.at(-3);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-38",
+      "source": "function last(xs:readonly number[]):number|undefined{return xs.at(-1);}let n:number|undefined=last([9]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-39",
+      "source": "let xs:readonly number[]=[2,4];let n:number|undefined=xs.slice(0,1).at(0);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-40",
+      "source": "let xs:ReadonlyArray<number>=[1,2,3];let i:number=1;let n:number|undefined=xs.at(i-3);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:negative-26",
+      "source": "let xs:number[]=[1];xs.at();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "array-queries:negative-27",
+      "source": "let xs:number[]=[1];xs.at(\"0\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-queries:negative-28",
+      "source": "let xs:readonly number[]=[1];xs.at(true);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-queries:negative-29",
+      "source": "let xs:readonly number[]=[1];xs.at(0,1);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "array-queries:negative-30",
+      "source": "let xs:number[]=[1];let wrong:string=xs.at(0);",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-queries:negative-31",
+      "source": "let xs:ReadonlyArray<number>=[1];let wrong:boolean=xs.at(-1);",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-queries:negative-32",
+      "source": "let xs:number[]=[1];xs.at((n:number):number=>n);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-queries:negative-33",
+      "source": "let xs:readonly string[]=[\"a\"];let wrong:number|undefined=xs.at(0);",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }

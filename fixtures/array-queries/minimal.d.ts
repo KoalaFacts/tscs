@@ -7,6 +7,7 @@ interface Array<T> {
   join(separator?: string): string;
   slice(start?: number, end?: number): T[];
   concat(...items: (T | ReadonlyArray<T>)[]): T[];
+  at(index: number): T | undefined;
 }
 interface ReadonlyArray<T> {
   readonly length: number;
@@ -17,6 +18,7 @@ interface ReadonlyArray<T> {
   join(separator?: string): string;
   slice(start?: number, end?: number): T[];
   concat(...items: (T | ReadonlyArray<T>)[]): T[];
+  at(index: number): T | undefined;
 }
 interface Boolean {}
 interface Function {}

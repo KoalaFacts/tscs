@@ -432,6 +432,10 @@ internal static class CompilerTypes
             if(name=="slice")
                 return new FunctionTypeSymbol([Union([Number,Undefined]),Union([Number,Undefined])],
                     new ArrayTypeSymbol(array.ElementType),0);
+            // Native ES2022 at() accepts signed numeric positions and may miss.
+            // Emission keeps the ordinary JavaScript call; no polyfill is supplied.
+            if(name=="at")
+                return new FunctionTypeSymbol([Number],Union([array.ElementType,Undefined]));
             // Native concat returns a new writable array even for readonly views.
             // This finite signature accepts values and (readonly) arrays of T;
             // it does not claim Symbol.isConcatSpreadable or general overloads.
