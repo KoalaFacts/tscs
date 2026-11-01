@@ -60,6 +60,117 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
         return closing;
     }
     private bool Eat(TokenKind kind) { if(Current.Kind!=kind)return false; position++;return true; }
+
+    // Lower finite binding patterns to ordinary checked variable declarations.
+    // The generated read-only temporary evaluates the source exactly once;
+    // nested temporaries likewise preserve each nested receiver evaluation.
+    // Every user-visible binding still passes Binder, TypeChecker and emitter.
+    private abstract record BindingPattern;
+    private sealed record BoundName(Token Name) : BindingPattern;
+    private sealed record BoundObject(IReadOnlyList<(Token Key,BindingPattern Target)> Members) : BindingPattern;
+    private sealed record BoundArray(Token Open,IReadOnlyList<BindingPattern?> Elements) : BindingPattern;
+    private int bindingTemporaryOrdinal;
+
+    private Token NewBindingTemporary(Token location)
+    {
+        // Distinguish files compiled in shared script scopes, and never capture
+        // a user identifier even when it resembles our generated prefix.
+        var fileId=Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
+            System.Text.Encoding.UTF8.GetBytes(file)))[..12];
+        string name;
+        do { name="__tscs_binding_"+fileId+"_"+(++bindingTemporaryOrdinal); }
+        while(tokens.Any(token=>token.Kind==TokenKind.Identifier && token.Text==name));
+        return new Token(TokenKind.Identifier,name,location.Start,location.Length);
+    }
+
+    private BindingPattern ReadBindingPattern(int depth)
+    {
+        if(depth>32)Unsupported(Current,"Binding pattern nesting exceeds the supported limit.");
+        if(Eat(TokenKind.Open))
+        {
+            var members=new List<(Token Key,BindingPattern Target)>();
+            while(Current.Kind!=TokenKind.Close)
+            {
+                if(members.Count>=64)Unsupported(Current,"Binding pattern has too many members.");
+                var key=Current;
+                if(key.Kind!=TokenKind.Identifier)
+                    Unsupported(key,"Only static identifier object binding keys are supported.");
+                Take();
+                var binding=Eat(TokenKind.Colon)?ReadBindingPattern(depth+1):new BoundName(key);
+                members.Add((key,binding));
+                if(!Eat(TokenKind.Comma))break;
+            }
+            if(members.Count==0)Unsupported(Current,"Empty binding patterns are not supported.");
+            if(!Eat(TokenKind.Close))Unsupported(Current,"Expected '}' after object binding pattern.");
+            return new BoundObject(members);
+        }
+        if(Current.Kind==TokenKind.OpenBracket)
+        {
+            var open=Take();
+            var elements=new List<BindingPattern?>();
+            while(Current.Kind!=TokenKind.CloseBracket)
+            {
+                if(elements.Count>=64)Unsupported(Current,"Array binding pattern has too many elements.");
+                // A leading/interior comma is an intentionally skipped index.
+                if(Eat(TokenKind.Comma)) { elements.Add(null);continue; }
+                elements.Add(ReadBindingPattern(depth+1));
+                if(!Eat(TokenKind.Comma))break;
+            }
+            if(elements.All(item=>item is null))
+                Unsupported(Current,"Empty array binding patterns are not supported.");
+            if(!Eat(TokenKind.CloseBracket))
+                Unsupported(Current,"Expected ']' after array binding pattern.");
+            return new BoundArray(open,elements);
+        }
+        if(Current.Kind!=TokenKind.Identifier)
+            Unsupported(Current,"Only finite identifier, object and array bindings are supported.");
+        return new BoundName(Take());
+    }
+
+    private void LowerBindingPattern(BindingPattern pattern,ValueNode source,bool constant,
+        bool exported,List<Statement> target,int depth=0)
+    {
+        if(depth>32)throw new InvalidOperationException("Validated binding pattern depth exceeded.");
+        switch(pattern)
+        {
+            case BoundName name:
+                target.Add(new Variable(name.Name,constant,null,source,exported));
+                return;
+            case BoundObject objectPattern:
+                foreach(var (key,binding) in objectPattern.Members)
+                    LowerBindingChild(binding,new ValuePropertyAccess(source,key),key,
+                        constant,exported,target,depth+1);
+                return;
+            case BoundArray arrayPattern:
+                for(var index=0;index<arrayPattern.Elements.Count;index++)
+                {
+                    var binding=arrayPattern.Elements[index];
+                    if(binding is null)continue;
+                    var number=index.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    var numberToken=new Token(TokenKind.Number,number,arrayPattern.Open.Start,number.Length);
+                    var closing=new Token(TokenKind.CloseBracket,"]",arrayPattern.Open.Start,1);
+                    LowerBindingChild(binding,
+                        new ValueElementAccess(source,arrayPattern.Open,new ValueAtom(numberToken),closing),
+                        arrayPattern.Open,constant,exported,target,depth+1);
+                }
+                return;
+            default:
+                throw new InvalidOperationException("Unexpected validated binding pattern.");
+        }
+    }
+
+    private void LowerBindingChild(BindingPattern binding,ValueNode read,Token location,
+        bool constant,bool exported,List<Statement> target,int depth)
+    {
+        if(binding is BoundName)
+        {
+            LowerBindingPattern(binding,read,constant,exported,target,depth);
+            return;
+        }
+        var temporary=NewBindingTemporary(location);
+        target.Add(new Variable(temporary,true,null,read));
+        LowerBindingPattern(binding,new ValueAtom(temporary),constant,exported,target,depth);
+    }
     public Block Parse(int depth=0,bool inFunction=false,bool switchClauseBody=false,bool singleStatementBody=false)
     {
         if(depth>128) Unsupported(Current,"Block nesting exceeds the bootstrap limit.");
@@ -343,6 +454,21 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 bool constant=Take().Kind==TokenKind.Const;
                 while(true)
                 {
+                    if(Current.Kind is TokenKind.Open or TokenKind.OpenBracket)
+                    {
+                        var location=Current;
+                        var pattern=ReadBindingPattern(0);
+                        var patternType=Eat(TokenKind.Colon)?ReadTypeAnnotation():null;
+                        if(!Eat(TokenKind.Equal))
+                            Unsupported(Current,"Variable binding patterns require an initializer.");
+                        var source=ParseValue();
+                        var temporary=NewBindingTemporary(location);
+                        statements.Add(new Variable(temporary,true,patternType,source));
+                        LowerBindingPattern(pattern,new ValueAtom(temporary),constant,exported,statements);
+                        if(Eat(TokenKind.Comma))continue;
+                        EndStatement(rejectTemplateContinuation:true);
+                        break;
+                    }
                     var name=Current;
                     if(name.Kind!=TokenKind.Identifier) Unsupported(name,"Only named variable declarations are supported.");
                     Take(); TypeSyntax? annotation=null;
