@@ -273,6 +273,31 @@ public sealed class AmbientArrayGlobalsTests : IDisposable
         Assert.Equal(1,exit);
         Assert.Contains("TSCS1002",output);
     }
+    [Theory]
+    [InlineData("interface Array<T> { length:number;[index:number]:T;reverse():T[]; }")]
+    [InlineData("interface Array<T> { length:number;[index:number]:T;sort(compareFn?: (a:T,b:T)=>number):T[]; }")]
+    [InlineData("interface Array<T> { length:number;[index:number]:T;fill(value:T,start?:number,end?:number):T[]; }")]
+    [InlineData("interface Array<T> { length:number;[index:number]:T;copyWithin(target:number,start:number,end?:number):T[]; }")]
+    public void ExactInPlaceMutatorAmbientDeclarationsAreAccepted(string declaration)
+    {
+        var (exit,output)=Compile(declaration,"let xs:number[]=[2,1];let length:number=xs.length;");
+        Assert.Equal(0,exit);
+        Assert.Equal("",output);
+    }
+
+    [Theory]
+    [InlineData("interface Array<T> {length:number;[index:number]:T;reverse():ReadonlyArray<T>;}")]
+    [InlineData("interface Array<T> {length:number;[index:number]:T;sort(compareFn?: (a:T,b:T)=>string):T[];}")]
+    [InlineData("interface Array<T> {length:number;[index:number]:T;fill(value:string):T[];}")]
+    [InlineData("interface Array<T> {length:number;[index:number]:T;copyWithin(target:number):T[];}")]
+    [InlineData("interface Array<T> {length:number;[index:number]:T;reverse():T[];reverse():T[];}")]
+    public void InvalidInPlaceMutatorAmbientDeclarationsFailClosed(string declaration)
+    {
+        var (exit,output)=Compile(declaration,"let xs:number[]=[2,1];");
+        Assert.Equal(1,exit);
+        Assert.Contains("TSCS1002",output);
+    }
+
     [Fact]
     public void OriginalEmptyAmbientArrayContractRemainsAccepted()
     {

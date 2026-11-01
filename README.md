@@ -270,6 +270,14 @@ return `T | undefined`. `readonly T[]` and `ReadonlyArray<T>`
 reject these mutating methods. This does not implement arbitrary Array methods,
 callbacks, general method overloads or external standard-library resolution.
 
+Native mutable-array `reverse()`, `sort(compareFn?)`, `fill(value,start?,end?)`
+and `copyWithin(target,start,end?)` now retain the same checked `T[]`
+type and mutate the original receiver through native ES2015 calls. The
+optional `sort` callback requires an explicitly typed function/arrow with
+two element parameters and a numeric return. These methods are not available
+through readonly views. Contextual callback inference and method overloads
+remain unsupported; this bounded addition is not original TS7 acceptance.
+
 ## Other implemented subsets
 
 The current pipeline includes primitive/`any` variables, lexical scopes, selected
