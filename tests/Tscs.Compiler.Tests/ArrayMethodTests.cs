@@ -63,7 +63,7 @@ public sealed class ArrayMethodTests
         Assert.Empty(program.Analyze().Diagnostics);
         var output = program.EmitJavaScript();
         Assert.Equal(4,output.Count);
-        Assert.True(output.Any(js=>js.Text.Contains(".push(",StringComparison.Ordinal)));
-        Assert.True(output.Any(js=>js.Text.Contains(".shift(",StringComparison.Ordinal)));
+        Assert.Contains(output, js=>js.Text.Contains(".push(",StringComparison.Ordinal));
+        Assert.Contains(output, js=>js.Text.Contains(".shift(",StringComparison.Ordinal));
     }
 }
