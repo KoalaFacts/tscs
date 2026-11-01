@@ -14,6 +14,9 @@ interface IArguments {}
 interface Number {}
 interface Object {}
 interface RegExp {}
-interface String {}
+interface String {
+  readonly length: number;
+  readonly [index: number]: string;
+}
 interface CallableFunction {}
 interface NewableFunction {}
