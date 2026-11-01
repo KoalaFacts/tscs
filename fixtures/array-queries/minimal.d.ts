@@ -6,6 +6,7 @@ interface Array<T> {
   lastIndexOf(searchElement: T, fromIndex?: number): number;
   join(separator?: string): string;
   slice(start?: number, end?: number): T[];
+  concat(...items: (T | ReadonlyArray<T>)[]): T[];
 }
 interface ReadonlyArray<T> {
   readonly length: number;
@@ -15,6 +16,7 @@ interface ReadonlyArray<T> {
   lastIndexOf(searchElement: T, fromIndex?: number): number;
   join(separator?: string): string;
   slice(start?: number, end?: number): T[];
+  concat(...items: (T | ReadonlyArray<T>)[]): T[];
 }
 interface Boolean {}
 interface Function {}

@@ -174,6 +174,36 @@ public class CommandLineTests : IDisposable
             ()=>{if(code=="TSCS1001")Assert.Contains("The built-in globalThis type is not supported yet.",text.Out);},
             ()=>{if(code=="TSCS1001")Assert.DoesNotContain("TS2304",text.Out);});
     }
+    [Fact]
+    public void FiniteConcatAmbientRequiresAnExactNonDuplicatedSignature()
+    {
+        var source=Write("concat-ambient.ts","let xs:readonly number[]=[1,2];let ys:number[]=xs.concat([3],4);");
+        const string profile=
+            "interface Array<T> { length: number; [index: number]: T; concat(...items: (T | ReadonlyArray<T>)[]): T[]; }\n" +
+            "interface ReadonlyArray<T> { readonly length: number; readonly [index: number]: T; concat(...items: (T | ReadonlyArray<T>)[]): T[]; }\n" +
+            "interface Boolean {} interface Function {} interface IArguments {} interface Number {} " +
+            "interface Object {} interface RegExp {} interface String {} interface CallableFunction {} interface NewableFunction {}";
+        var ambient=Write("concat-ambient.d.ts",profile);
+        var ok=Run("--noEmit","--noLib","--target","es2015",source,ambient);
+        Assert.Equal(0,ok.Code);
+
+        // An ambient profile may not invent broader array operations, alter the
+        // return type, or quietly merge duplicate native declarations.
+        foreach(var invalid in new[]{
+            profile.Replace("concat(...items: (T | ReadonlyArray<T>)[]): T[];",
+                "concat(...items: (T | ReadonlyArray<T>)[]): any[];",StringComparison.Ordinal),
+            profile.Replace("concat(...items: (T | ReadonlyArray<T>)[]): T[];",
+                "concat(...items: (T | ReadonlyArray<T>)[]): T[]; concat(...items: (T | ReadonlyArray<T>)[]): T[];",StringComparison.Ordinal),
+            profile.Replace("concat(...items: (T | ReadonlyArray<T>)[]): T[];",
+                "concat(...items: any[]): T[];",StringComparison.Ordinal)
+        })
+        {
+            File.WriteAllText(ambient,invalid);
+            var rejected=Run("--noEmit","--noLib","--target","es2015",source,ambient);
+            Assert.Equal(1,rejected.Code);
+            Assert.Contains("TSCS1002",rejected.Out);
+        }
+    }
     [Fact] public void MissingGlobalsAreReported()=>Assert.Contains("TS2318",Run("--noEmit","--noLib",Write("a.ts","let x = 1;")).Out);
     [Fact] public void UnsupportedAmbientMembersAreRejected()=>Assert.Equal(1,Run("--noEmit","--noLib",Write("a.ts","let x = 1;"),Write("bad.d.ts","interface Object { x: number } ")).Code);
     [Fact] public void MissingGlobalsPrecedeCheckerGrammarErrors()

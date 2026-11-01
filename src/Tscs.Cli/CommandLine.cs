@@ -239,7 +239,9 @@ public static class CommandLine
         @"|(?<indexOf>indexOf\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*(?:,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number\s*)?\)\s*:\s*number)" +
         @"|(?<lastIndexOf>lastIndexOf\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*(?:,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number\s*)?\)\s*:\s*number)" +
         @"|(?<join>join\s*\(\s*(?:[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*string\s*)?\)\s*:\s*string)" +
-        @"|(?<slice>slice\s*\(\s*(?:[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number\s*(?:,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number\s*)?)?\)\s*:\s*T\s*\[\s*\])";
+        @"|(?<slice>slice\s*\(\s*(?:[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number\s*(?:,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number\s*)?)?\)\s*:\s*T\s*\[\s*\])" +
+        // Exactly the symmetric bounded TypeScript reference contract; not a generic .d.ts parser.
+        @"|(?<concat>concat\s*\(\s*\.\.\.\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*T\s*\|\s*ReadonlyArray\s*<\s*T\s*>\s*\)\s*\[\s*\]\s*\)\s*:\s*T\s*\[\s*\])";
 
     // Only the bounded, one-value callback declarations are accepted in
     // isolated .d.ts profiles. The product's semantic signatures stay separate.
@@ -276,7 +278,7 @@ public static class CommandLine
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         int position=0;
         bool length=false,index=false,push=false,unshift=false,pop=false,shift=false;
-        bool includes=false,indexOf=false,lastIndexOf=false,join=false,slice=false;
+        bool includes=false,indexOf=false,lastIndexOf=false,join=false,slice=false,concat=false;
         bool reverse=false,sort=false,fill=false,copyWithin=false;
         var callbacks=new HashSet<string>(StringComparer.Ordinal);
         iterator=false;
@@ -340,6 +342,11 @@ public static class CommandLine
                 if(slice)return false;
                 slice=true;
             }
+            else if(member.Groups["concat"].Success)
+            {
+                if(concat)return false;
+                concat=true;
+            }
             else if(member.Groups["reverse"].Success)
             {
                 if(reverse)return false;
@@ -383,7 +390,7 @@ public static class CommandLine
         var memberPattern=new Regex(@"\G\s*(?:(?<length>readonly\s+length\s*:\s*number)|(?<index>readonly\s+\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T)|"+ArrayQueryMemberPattern+"|"+ArrayCallbackMemberPattern+@")\s*;",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         int position=0;
-        bool length=false,index=false,includes=false,indexOf=false,lastIndexOf=false,join=false,slice=false;
+        bool length=false,index=false,includes=false,indexOf=false,lastIndexOf=false,join=false,slice=false,concat=false;
         var callbacks=new HashSet<string>(StringComparer.Ordinal);
         while(position<body.Length)
         {
@@ -424,6 +431,11 @@ public static class CommandLine
             {
                 if(slice)return false;
                 slice=true;
+            }
+            else if(member.Groups["concat"].Success)
+            {
+                if(concat)return false;
+                concat=true;
             }
             else if(new[]{"some","every","find","findIndex","forEach","filter","reduce","reduceRight","reduceGeneric","reduceRightGeneric","map"}
                 .FirstOrDefault(name=>member.Groups[name].Success) is { } callback)
