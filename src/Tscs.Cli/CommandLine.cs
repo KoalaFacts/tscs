@@ -466,7 +466,7 @@ public static class CommandLine
             @"|(?<padEnd>padEnd\s*\(\s*"+id+@"\s*:\s*number(?:\s*,\s*"+id+@"\s*\?\s*:\s*string)?\s*\)\s*:\s*string)" +
             @"|(?<normalize>normalize\s*\(\s*(?:"+id+@"\s*\?\s*:\s*string)?\s*\)\s*:\s*string)" +
             @"|(?<codePointAt>codePointAt\s*\(\s*"+id+@"\s*:\s*number\s*\)\s*:\s*number\s*\|\s*undefined)" +
-            @"|(?<localeCompare>localeCompare\s*\(\s*"+id+@"\s*:\s*string\s*\)\s*:\s*number))\s*;"
+            @"|(?<localeCompare>localeCompare\s*\(\s*"+id+@"\s*:\s*string\s*\)\s*:\s*number))\s*;",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         int position=0;
         bool length=false,index=false;
