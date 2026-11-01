@@ -72,6 +72,33 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     private sealed record BoundArray(Token Open,IReadOnlyList<BindingPattern?> Elements) : BindingPattern;
     private int bindingTemporaryOrdinal;
 
+    private static void CollectParameterBindingNames(BindingPattern pattern,List<Token> names)
+    {
+        switch(pattern)
+        {
+            case BoundName bound: names.Add(bound.Name);break;
+            case BoundDefault fallback:
+                CollectParameterBindingNames(fallback.Target,names);break;
+            case BoundObject obj:
+                foreach(var member in obj.Members)
+                    CollectParameterBindingNames(member.Target,names);
+                break;
+            case BoundArray array:
+                foreach(var element in array.Elements)
+                    if(element is not null)CollectParameterBindingNames(element,names);
+                break;
+        }
+    }
+
+    private static bool PatternContainsDefault(BindingPattern pattern) => pattern switch
+    {
+        BoundDefault _ => true,
+        BoundObject obj => obj.Members.Any(member=>PatternContainsDefault(member.Target)),
+        BoundArray array => array.Elements.Any(element=>
+            element is not null && PatternContainsDefault(element)),
+        _ => false
+    };
+
     private Token NewBindingTemporary(Token location)
     {
         // Distinguish files compiled in shared script scopes, and never capture
@@ -403,6 +430,9 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 // Bind finite typed pattern parameters through ordinary hidden
                 // positional parameters and checked function-entry locals.
                 var parameterBindings=new List<Statement>();
+                var userParameterNames=new HashSet<string>(StringComparer.Ordinal);
+                var patternedParameterNames=new HashSet<string>(StringComparer.Ordinal);
+                bool patternWithDefaultBeforeNext=false;
                 bool sawOptionalParameter=false;
                 bool sawDefaultParameter=false;
                 bool sawRestParameter=false;
@@ -410,6 +440,12 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 {
                     while(true)
                     {
+                        // Pattern element defaults execute during parameter binding
+                        // in TypeScript, but the finite lowering occurs at body entry.
+                        // Reject subsequent parameters instead of reordering effects
+                        // or observing a later parameter outside its TDZ.
+                        if(patternWithDefaultBeforeNext)
+                            Unsupported(Current,"Parameters after a binding pattern with defaults are not supported.");
                         if(sawRestParameter)
                             Diagnostics.Add(Diagnostic.Error(file,Current,"TS1014",
                                 "A rest parameter must be last in a parameter list."));
@@ -433,9 +469,25 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                         bool questionOptional=Eat(TokenKind.Question);
                         if(parameterPattern is not null && questionOptional)
                             Unsupported(parameter,"Binding-pattern parameters cannot be marked optional; use an explicit default.");
+                        var exposedNames=new List<Token>();
+                        if(parameterPattern is not null)
+                            CollectParameterBindingNames(parameterPattern,exposedNames);
+                        else
+                            exposedNames.Add(parameter);
+                        foreach(var boundName in exposedNames)
+                        {
+                            if(!userParameterNames.Add(boundName.Text) &&
+                               (parameterPattern is not null || patternedParameterNames.Contains(boundName.Text)))
+                                Diagnostics.Add(Diagnostic.Error(file,boundName,"TS2300",
+                                    $"Duplicate identifier '{boundName.Text}'."));
+                            if(parameterPattern is not null)
+                                patternedParameterNames.Add(boundName.Text);
+                        }
                         if(!Eat(TokenKind.Colon))Unsupported(Current,"Function parameters require an explicit supported type.");
                         var annotation=ReadTypeAnnotation();
                         var defaultValue=Eat(TokenKind.Equal)?ParseValue():null;
+                        if(parameterBindings.Count>0 && defaultValue is not null)
+                            Unsupported(parameter,"Later parameter defaults after a destructured parameter are not supported.");
                         if(rest)
                         {
                             if(annotation is not ArrayTypeSyntax)
@@ -465,11 +517,15 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                         sawDefaultParameter|=defaultValue is not null;
                         parameters.Add(new ParameterDeclaration(parameter,annotation,optional,defaultValue,rest));
                         if(parameterPattern is not null)
+                        {
                             // Parameter bindings are mutable (not const). Reuse
                             // the ordinary finite binding/default semantics.
                             LowerBindingPattern(parameterPattern,
                                 new ValueAtom(parameter with {Start=parameter.Start+1}),
                                 false,false,parameterBindings,annotatedBinding:true);
+                            patternWithDefaultBeforeNext|=
+                                PatternContainsDefault(parameterPattern) || defaultValue is not null;
+                        }
                         if(!Eat(TokenKind.Comma))break;
                     }
                 }

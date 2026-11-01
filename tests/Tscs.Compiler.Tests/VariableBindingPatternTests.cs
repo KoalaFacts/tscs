@@ -59,7 +59,11 @@ public sealed class VariableBindingPatternTests
     [InlineData("function fail({value}:{value:number}):string{return value;}","TS2322")]
     [InlineData("function fail({value=\"no\"}:{value?:number}):number{return value;}","TS2322")]
     [InlineData("function fail([value]:number[]):number{return value;}let wrong:string=fail([21]);","TS2322")]
-    [InlineData("function fail({value}:{value:number}):number{return value;}let wrong:number=fail({value:\"no\"});","TS2345")]
+    [InlineData("function fail({value}:{value:number}):number{return value;}const input={value:\"no\"};let wrong:number=fail(input);","TS2345")]
+    [InlineData("function fail({x}:{x:number},x:number):number{return x;}","TS2300")]
+    [InlineData("function fail({x}:{x:number},y:number=x):number{return y;}","TSCS1001")]
+    [InlineData("function fail({x=1}:{x?:number},y:number):number{return x+y;}","TSCS1001")]
+    [InlineData("function fail({value}:{value:number}):number{return value;}value=21;","TS2304")]
     [InlineData("const [value=21]:(number|undefined)[]=[undefined];let wrong:string=value;","TS2322")]
     public void BadBindingsOrAssignmentsProduceRealDiagnostics(string source,string code) =>
         Assert.Contains(Compilation.Check("binding.ts",source),diagnostic=>diagnostic.Code==code);

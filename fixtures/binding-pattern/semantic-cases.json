@@ -229,14 +229,14 @@
     },
     {
       "id": "binding-pattern:negative-19",
-      "source": "function fail({value}:{value:number}):number{return value;}let n:number=fail({value:\"no\"});",
+      "source": "function fail({value}:{value:number}):number{return value;}const input={value:\"no\"};let n:number=fail(input);",
       "expectedCodes": [
         "TS2345"
       ]
     },
     {
       "id": "binding-pattern:negative-20",
-      "source": "function fail({value}:{value:number}):number{return value;}value=\"bad\";",
+      "source": "function fail({value}:{value:number}):number{value=\"bad\";return value;}",
       "expectedCodes": [
         "TS2322"
       ]

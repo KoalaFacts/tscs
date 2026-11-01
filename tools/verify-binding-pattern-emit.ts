@@ -84,7 +84,10 @@ try {
     ['wrong-annotation','let {value}:{value:number}={value:"bad"};','TS2322',2],
     ['parameter-missing','function f({missing}:{value:number}):number{return missing;}','TS2339',2],
     ['parameter-return','function f({value}:{value:number}):string{return value;}','TS2322',2],
-    ['parameter-argument','function f({value}:{value:number}):number{return value;}let n:number=f({value:"no"});','TS2345',2]
+    ['parameter-argument','function f({value}:{value:number}):number{return value;}const input={value:"no"};let n:number=f(input);','TS2345',2],
+    ['parameter-duplicate','function f({x}:{x:number},x:number):number{return x;}','TS2300',2],
+    ['parameter-later-default','function f({x}:{x:number},y:number=x):number{return y;}','TSCS1001',1],
+    ['parameter-scope','function f({value}:{value:number}):number{return value;}value=21;','TS2304',2]
   ] as const;
   for(const [name,source,code,status] of negative) {
     writeFileSync(join(dir,'invalid-'+name+'.ts'),source);
@@ -93,5 +96,5 @@ try {
     assert.match(bad.stdout+bad.stderr,new RegExp(code));
     assert.equal(existsSync(join(dir,'invalid-'+name+'.js')),false,'invalid program emitted JS: '+name);
   }
-  console.log('Finite object/array binding patterns: four linked ES2015 modules executed; fourteen invalid programs emitted no JavaScript.');
+  console.log('Finite object/array binding patterns: four linked ES2015 modules executed; seventeen invalid programs emitted no JavaScript.');
 } finally {rmSync(dir,{recursive:true,force:true});}

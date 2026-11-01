@@ -77,6 +77,10 @@ patterns, including nested elements and checked defaults. Hidden typed
 positional bindings and mutable function-entry locals preserve existing checked
 call signatures and ES2015 output. Rest/computed patterns, arbitrary iterator
 destructuring and arrow/function-expression parameter patterns remain unsupported.
+Because finite destructuring is lowered into the function body, later default
+parameters and following parameters after a destructured element default are
+rejected rather than compiled with incorrect initialization order. Duplicate
+names across pattern and ordinary parameters are also diagnosed.
 The source-backed, executed and pinned-Go checks are bounded, not the full TS7
 original harness.
 
