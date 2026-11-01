@@ -149,6 +149,98 @@
       "expectedCodes": [
         "TS2339"
       ]
+    },
+    {
+      "id": "array-queries:positive-14",
+      "source": "let xs:number[]=[20,21,22];let copy:number[]=xs.slice();",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-15",
+      "source": "let xs:readonly number[]=[20,21,22];let copy:number[]=xs.slice(1);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-16",
+      "source": "let xs:ReadonlyArray<number>=[20,21,22];let copy:number[]=xs.slice(1,2);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-17",
+      "source": "let xs:Array<number>=[20,21,22];let copy:number[]=xs.slice(undefined,2);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-18",
+      "source": "let xs:readonly string[]=[\"a\",\"b\"];let copy:string[]=xs.slice(0,undefined);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-19",
+      "source": "let xs:number[]=[20,21];let copy:number[]=xs.slice(-1);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-20",
+      "source": "let xs:ReadonlyArray<number>=[20,21];let copy:number[]=xs.slice(0,0);copy[0]=42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-21",
+      "source": "function copy(xs:readonly number[]):number[]{return xs.slice();}let v:number[]=copy([20,21]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-22",
+      "source": "type Readings=readonly number[];let xs:Readings=[20,21];let copy:number[]=xs.slice(0);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:positive-23",
+      "source": "let xs:readonly number[]=[20,21];let copy:number[]=xs.slice(0);let joined:string=copy.join(\",\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-queries:negative-13",
+      "source": "let xs:number[]=[21];xs.slice(\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-queries:negative-14",
+      "source": "let xs:readonly number[]=[21];xs.slice(0,\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-queries:negative-15",
+      "source": "let xs:number[]=[21];xs.slice(0,1,2);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "array-queries:negative-16",
+      "source": "let xs:ReadonlyArray<number>=[21];let wrong:number=xs.slice(0);",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-queries:negative-17",
+      "source": "let xs:readonly string[]=[\"a\"];let wrong:number[]=xs.slice();",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-queries:negative-18",
+      "source": "let xs:number[]=[21];xs.slice(true);",
+      "expectedCodes": [
+        "TS2345"
+      ]
     }
   ]
 }

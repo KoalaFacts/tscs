@@ -53,6 +53,8 @@ public sealed class AmbientArrayGlobalsTests : IDisposable
     [Theory]
     [InlineData("interface Array<T> { length:number; [index:number]:T; includes(value:T,fromIndex?:number):boolean; indexOf(value:T,fromIndex?:number):number; lastIndexOf(value:T,fromIndex?:number):number; join(separator?:string):string; }")]
     [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; includes(value:T,fromIndex?:number):boolean; indexOf(value:T,fromIndex?:number):number; lastIndexOf(value:T,fromIndex?:number):number; join(separator?:string):string; }")]
+    [InlineData("interface Array<T> { length:number; [index:number]:T; slice(start?:number,end?:number):T[]; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; slice(start?:number,end?:number):T[]; }")]
     public void ExactQueryMethodAmbientContractsAreAccepted(string declaration)
     {
         var source=Path.Combine(directory,"query-globals.d.ts");
@@ -80,6 +82,10 @@ public sealed class AmbientArrayGlobalsTests : IDisposable
     [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; indexOf(value:T):boolean; }")]
     [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; join(separator?:number):string; }")]
     [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; push(value:T):number; }")]
+    [InlineData("interface Array<T> { length:number; [index:number]:T; slice(start?:string,end?:number):T[]; }")]
+    [InlineData("interface Array<T> { length:number; [index:number]:T; slice(start?:number,end?:number):ReadonlyArray<T>; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; slice(start?:number,end?:number):T[]; slice(start?:number,end?:number):T[]; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; slice(start:number,end?:number):T[]; }")]
     public void IncorrectQueryAmbientContractsRemainRejected(string declaration)
     {
         var source=Path.Combine(directory,"bad-query-globals.d.ts");

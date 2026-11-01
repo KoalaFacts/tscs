@@ -238,7 +238,8 @@ public static class CommandLine
         @"(?<includes>includes\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*(?:,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number\s*)?\)\s*:\s*boolean)" +
         @"|(?<indexOf>indexOf\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*(?:,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number\s*)?\)\s*:\s*number)" +
         @"|(?<lastIndexOf>lastIndexOf\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*(?:,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number\s*)?\)\s*:\s*number)" +
-        @"|(?<join>join\s*\(\s*(?:[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*string\s*)?\)\s*:\s*string)";
+        @"|(?<join>join\s*\(\s*(?:[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*string\s*)?\)\s*:\s*string)" +
+        @"|(?<slice>slice\s*\(\s*(?:[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number\s*(?:,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number\s*)?)?\)\s*:\s*T\s*\[\s*\])";
 
     // Member order and numeric-index parameter spelling are irrelevant.
     // Length/index must be present exactly once; the optional standard
@@ -252,7 +253,7 @@ public static class CommandLine
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         int position=0;
         bool length=false,index=false,push=false,unshift=false,pop=false,shift=false;
-        bool includes=false,indexOf=false,lastIndexOf=false,join=false;
+        bool includes=false,indexOf=false,lastIndexOf=false,join=false,slice=false;
         iterator=false;
         while(position<body.Length)
         {
@@ -309,6 +310,11 @@ public static class CommandLine
                 if(join)return false;
                 join=true;
             }
+            else if(member.Groups["slice"].Success)
+            {
+                if(slice)return false;
+                slice=true;
+            }
             else
             {
                 if(iterator)return false;
@@ -327,7 +333,7 @@ public static class CommandLine
         var memberPattern=new Regex(@"\G\s*(?:(?<length>readonly\s+length\s*:\s*number)|(?<index>readonly\s+\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T)|"+ArrayQueryMemberPattern+@")\s*;",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         int position=0;
-        bool length=false,index=false,includes=false,indexOf=false,lastIndexOf=false,join=false;
+        bool length=false,index=false,includes=false,indexOf=false,lastIndexOf=false,join=false,slice=false;
         while(position<body.Length)
         {
             if(string.IsNullOrWhiteSpace(body[position..]))break;
@@ -358,10 +364,15 @@ public static class CommandLine
                 if(lastIndexOf)return false;
                 lastIndexOf=true;
             }
-            else
+            else if(member.Groups["join"].Success)
             {
                 if(join)return false;
                 join=true;
+            }
+            else
+            {
+                if(slice)return false;
+                slice=true;
             }
             position+=member.Length;
         }
