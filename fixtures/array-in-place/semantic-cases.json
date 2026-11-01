@@ -1,0 +1,161 @@
+{
+  "kind": "BOUNDED_ARRAY_IN_PLACE_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "array-in-place:positive-01",
+      "source": "let xs:number[]=[3,1,2];let out:number[]=xs.reverse();",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-in-place:positive-02",
+      "source": "let xs:Array<number>=[3,1,2];let out:number[]=xs.sort();",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-in-place:positive-03",
+      "source": "let xs:number[]=[3,1,2];let out:number[]=xs.sort((a:number,b:number):number=>a-b);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-in-place:positive-04",
+      "source": "let xs:number[]=[3,1,2];let out:number[]=xs.sort(undefined);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-in-place:positive-05",
+      "source": "let xs:number[]=[1,2];let out:number[]=xs.fill(4);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-in-place:positive-06",
+      "source": "let xs:Array<number>=[1,2];let out:number[]=xs.fill(9,1);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-in-place:positive-07",
+      "source": "let xs:number[]=[1,2];let out:number[]=xs.fill(9,0,1);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-in-place:positive-08",
+      "source": "let xs:number[]=[1,2];let out:number[]=xs.fill(9,undefined,undefined);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-in-place:positive-09",
+      "source": "let xs:number[]=[1,2,3];let out:number[]=xs.copyWithin(1,0);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-in-place:positive-10",
+      "source": "let xs:number[]=[1,2,3];let out:number[]=xs.copyWithin(1,0,2);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-in-place:positive-11",
+      "source": "let xs:number[]=[1,2,3];let out:number[]=xs.copyWithin(1,0,undefined);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-in-place:positive-12",
+      "source": "function ordered(xs:number[]):number[]{return xs.sort();}let out:number[]=ordered([2,1]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-in-place:positive-13",
+      "source": "let xs:string[]=[\"b\",\"a\"];let out:string[]=xs.sort();",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-in-place:negative-01",
+      "source": "let xs:readonly number[]=[2,1];xs.reverse();",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "array-in-place:negative-02",
+      "source": "let xs:ReadonlyArray<number>=[2,1];xs.sort();",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "array-in-place:negative-03",
+      "source": "let xs:readonly number[]=[2,1];xs.fill(0);",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "array-in-place:negative-04",
+      "source": "let xs:ReadonlyArray<number>=[2,1];xs.copyWithin(0,1);",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "array-in-place:negative-05",
+      "source": "let xs:number[]=[2,1];xs.reverse(1);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "array-in-place:negative-06",
+      "source": "let xs:number[]=[2,1];xs.sort(42);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-in-place:negative-07",
+      "source": "let xs:number[]=[2,1];xs.fill(\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-in-place:negative-08",
+      "source": "let xs:number[]=[2,1];xs.fill();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "array-in-place:negative-09",
+      "source": "let xs:number[]=[2,1];xs.fill(0,\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-in-place:negative-10",
+      "source": "let xs:number[]=[2,1];xs.copyWithin(0);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "array-in-place:negative-11",
+      "source": "let xs:number[]=[2,1];xs.copyWithin(\"bad\",1);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-in-place:negative-12",
+      "source": "let xs:number[]=[2,1];xs.copyWithin(0,1,2,3);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "array-in-place:negative-13",
+      "source": "let xs:string[]=[\"a\"];let result:number[]=xs.reverse();",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}
