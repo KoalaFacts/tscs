@@ -65,6 +65,7 @@ jobs:
           node tools/verify-division-reference.ts "$reference" .artifacts/array-in-place-reference fixtures/array-in-place/semantic-cases.json
           node tools/verify-division-reference.ts "$reference" .artifacts/array-callbacks-reference fixtures/array-callbacks/semantic-cases.json
           node tools/verify-division-reference.ts "$reference" .artifacts/array-filter-reduce-reference fixtures/array-filter-reduce/semantic-cases.json
+          node tools/verify-division-reference.ts "$reference" .artifacts/array-map-reference fixtures/array-map/semantic-cases.json
           node tools/verify-division-reference.ts "$reference" .artifacts/array-queries-reference fixtures/array-queries/semantic-cases.json
            node tools/verify-division-reference.ts "$reference" .artifacts/string-addition-reference fixtures/string-addition/semantic-cases.json
           node tools/verify-division-reference.ts "$reference" .artifacts/string-primitives-reference fixtures/string-primitives/semantic-cases.json
@@ -132,6 +133,14 @@ jobs:
         with:
           name: pinned-array-filter-reduce-reference-${{ github.sha }}
           path: .artifacts/array-filter-reduce-reference/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Preserve bounded array map reference evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-array-map-reference-${{ github.sha }}
+          path: .artifacts/array-map-reference/
           if-no-files-found: warn
           retention-days: 30
       - name: Preserve checked in-place array method reference evidence

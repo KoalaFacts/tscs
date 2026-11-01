@@ -1,3 +1,19 @@
+## 2026-11-01 — Native array map with checked output element types (candidate; NOT_RUN)
+
+C# array property resolution now recognises native `map` on mutable and
+readonly arrays. A finite intrinsic marker lets the ordinary call checker
+validate explicitly typed callback input while deriving the fresh writable
+result array's element type from its checked return, including `number[]`
+to `string[]`, objects and chained calls. This is not general generics or
+contextual callback inference. Twelve positive and eleven negative source-backed
+checks, four linked ES2015 modules executed through Node and 20 stable pinned-Go
+reference cases are registered as NOT_RUN pending exact-head CI. The
+bounded String length/index ambient contract is shared by both reference
+and product for string-to-number map cases; original raw Go TS2339 failures
+at source IDs positive-03/09 were retained as evidence before repair. The complete
+original TS7 scope remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED; dynamic scope
+UNEXPANDED. No pinned upstream, CI threshold, release gate or protection changed.
+
 ## 2026-11-01 — Checked in-place array methods (candidate, NOT_RUN)
 
 The C# semantic member resolver and ordinary checked-call path support native

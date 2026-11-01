@@ -1,0 +1,121 @@
+{
+  "kind": "BOUNDED_ARRAY_MAP_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "array-map:positive-01",
+      "source": "let xs:number[]=[19,21];let labels:string[]=xs.map((n:number):string=>`n:${n}`);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-map:positive-02",
+      "source": "let xs:readonly number[]=[1,2];let labels:string[]=xs.map((n:number):string=>\"ok\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-map:positive-03",
+      "source": "let xs:ReadonlyArray<string>=[\"a\",\"bb\"];let sizes:number[]=xs.map((s:string):number=>s.length);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-map:positive-04",
+      "source": "let xs:string[]=[\"a\",\"b\"];let ys:string[]=xs.map((s:string):string=>s+\"!\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-map:positive-05",
+      "source": "let xs:number[]=[1,2];let flags:boolean[]=xs.map((n:number):boolean=>n>1);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-map:positive-06",
+      "source": "let xs:number[]=[1,2];let ys:number[][]=xs.map((n:number):number[]=>[n,n+1]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-map:positive-07",
+      "source": "let xs:number[]=[1,2];function label(n:number):string{return \"n\"+n;}let labels:string[]=xs.map(label);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-map:positive-08",
+      "source": "type Items=readonly number[];function convert(xs:Items):string[]{return xs.map((n:number):string=>`v${n}`);}let names:string[]=convert([1,2]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-map:positive-09",
+      "source": "let xs:number[]=[1,2];let lengths:number[]=xs.map((n:number):string=>\"x\").map((s:string):number=>s.length);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-map:positive-10",
+      "source": "let xs:number[]=[3,5];let boxes:{value:number}[]=xs.map((n:number):{value:number}=>{return {value:n};});",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-map:positive-11",
+      "source": "let xs:number[]=[1,2];let ys:readonly string[]=xs.map((n:number):string=>\"x\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-map:positive-12",
+      "source": "let xs:number[]=[1,2];let mapped:string[]=xs.map(function(n:number):string{return `x${n}`;});",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-map:negative-01",
+      "source": "let xs:number[]=[21];xs.map();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "array-map:negative-02",
+      "source": "let xs:number[]=[21];xs.map(42);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-map:negative-03",
+      "source": "let xs:number[]=[21];xs.map((s:string):string=>s);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-map:negative-04",
+      "source": "let xs:number[]=[21];let wrong:number[]=xs.map((n:number):string=>\"x\");",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-map:negative-05",
+      "source": "let xs:readonly number[]=[21];xs.map((s:string):string=>s);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-map:negative-06",
+      "source": "let xs:number[]=[21];xs.map((n:number):number=>n,42);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "array-map:negative-07",
+      "source": "let xs:number[]=[21];let strings:string[]=xs.map((n:number):string=>\"x\");strings[0]=3;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-map:negative-08",
+      "source": "let xs:number[]=[21];let wrong:boolean[]=xs.map((n:number):number=>n*2);",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}
