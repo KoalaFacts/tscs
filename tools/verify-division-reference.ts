@@ -22,9 +22,11 @@ const arrayMethods=suitePath==='fixtures/array-methods/semantic-cases.json';
 const arrayInPlace=suitePath==='fixtures/array-in-place/semantic-cases.json';
 const arrayQueries=suitePath==='fixtures/array-queries/semantic-cases.json';
 const arrayCallbacks=suitePath==='fixtures/array-callbacks/semantic-cases.json';
-assert.ok(optionalSuitePath==null||strings||power||stringPrimitives||decimalLiterals||templates||readonlyArrays||arrayMethods||arrayInPlace||arrayQueries||arrayCallbacks,'unknown bounded reference cohort');
+const arrayFolds=suitePath==='fixtures/array-filter-reduce/semantic-cases.json';
+assert.ok(optionalSuitePath==null||strings||power||stringPrimitives||decimalLiterals||templates||readonlyArrays||arrayMethods||arrayInPlace||arrayQueries||arrayCallbacks||arrayFolds,'unknown bounded reference cohort');
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
-assert.equal(suite.kind,arrayCallbacks?'BOUNDED_ARRAY_CALLBACKS_NOT_ORIGINAL_TS7_ACCEPTANCE'
+assert.equal(suite.kind,arrayFolds?'BOUNDED_ARRAY_FILTER_REDUCE_NOT_ORIGINAL_TS7_ACCEPTANCE'
+  :arrayCallbacks?'BOUNDED_ARRAY_CALLBACKS_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :arrayQueries?'BOUNDED_ARRAY_QUERIES_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :arrayMethods?'BOUNDED_ARRAY_MUTATION_METHODS_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :arrayInPlace?'BOUNDED_ARRAY_IN_PLACE_NOT_ORIGINAL_TS7_ACCEPTANCE'
@@ -35,11 +37,12 @@ assert.equal(suite.kind,arrayCallbacks?'BOUNDED_ARRAY_CALLBACKS_NOT_ORIGINAL_TS7
   :power?'BOUNDED_NUMERIC_EXPONENTIATION_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :strings?'BOUNDED_STRING_ADDITION_MUTATION_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :'BOUNDED_NUMERIC_DIVISION_REMAINDER_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,arrayCallbacks?19:arrayQueries?41:arrayMethods?21:arrayInPlace?26:readonlyArrays?27:templates?37:decimalLiterals?48:stringPrimitives?18:power?20:strings?25:24,'do not shrink the registered cohort');
+assert.equal(suite.cases.length,arrayFolds?20:arrayCallbacks?19:arrayQueries?41:arrayMethods?21:arrayInPlace?26:readonlyArrays?27:templates?37:decimalLiterals?48:stringPrimitives?18:power?20:strings?25:24,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 // The cohort includes number[] indexing and length. Use the already
 // verified array profile for BOTH compilers, not the empty bootstrap Array<T>.
-const minimalProfile=arrayCallbacks?'fixtures/array-callbacks/minimal.d.ts':
+const minimalProfile=arrayFolds?'fixtures/array-filter-reduce/minimal.d.ts':
+  arrayCallbacks?'fixtures/array-callbacks/minimal.d.ts':
   arrayQueries?'fixtures/array-queries/minimal.d.ts':
   arrayMethods?'fixtures/array-methods/minimal.d.ts':
   arrayInPlace?'fixtures/array-in-place/minimal.d.ts':
@@ -73,7 +76,8 @@ const diagnosticCodes=(r:ReturnType<typeof run>)=>
 const ids=new Set<string>(),results:object[]=[],mismatches:object[]=[];
 for(let i=0;i<suite.cases.length;i++){
   const item=suite.cases[i];
-  assert.match(item.id,arrayCallbacks?/^array-callbacks:(positive|negative)-\d{2}$/
+  assert.match(item.id,arrayFolds?/^array-filter-reduce:(positive|negative)-\d{2}$/
+    :arrayCallbacks?/^array-callbacks:(positive|negative)-\d{2}$/
     :arrayQueries?/^array-queries:(positive|negative)-\d{2}$/
     :arrayMethods?/^array-methods:(positive|negative)-\d{2}$/
     :arrayInPlace?/^array-in-place:(positive|negative)-\d{2}$/
@@ -114,4 +118,4 @@ for(const row of manifest){const bytes=readFileSync(join(out,row.path));
   assert.equal(bytes.length,row.length);assert.equal(hash(bytes),row.sha256);}
 writeFileSync(join(out,'manifest.json'),JSON.stringify({files:manifest},null,2),{flag:'wx',flush:true});
 assert.deepEqual(mismatches,[],'genuine pinned-Go mismatches; raw outputs preserved');
-console.log(String(results.length)+' bounded '+(arrayCallbacks?'readonly/mutable array predicate callbacks':arrayQueries?'readonly and mutable array query methods' :arrayMethods?'mutable array methods' :arrayInPlace?'native array in-place methods' : readonlyArrays?'readonly array types and mutation' : templates?'bounded interpolated and no-substitution template literals':decimalLiterals?'numeric decimal/exponent/radix literals':stringPrimitives?'string primitives':power?'numeric exponentiation':strings?'string addition and mutation':'numeric division and remainder')+' sources matched pinned Go codes/exits; no original TS7 acceptance.');
+console.log(String(results.length)+' bounded '+(arrayFolds?'readonly/mutable array filtering and folds':arrayCallbacks?'readonly/mutable array predicate callbacks':arrayQueries?'readonly and mutable array query methods' :arrayMethods?'mutable array methods' :arrayInPlace?'native array in-place methods' : readonlyArrays?'readonly array types and mutation' : templates?'bounded interpolated and no-substitution template literals':decimalLiterals?'numeric decimal/exponent/radix literals':stringPrimitives?'string primitives':power?'numeric exponentiation':strings?'string addition and mutation':'numeric division and remainder')+' sources matched pinned Go codes/exits; no original TS7 acceptance.');

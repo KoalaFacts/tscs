@@ -1,0 +1,125 @@
+{
+  "kind": "BOUNDED_ARRAY_FILTER_REDUCE_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "array-filter-reduce:positive-01",
+      "source": "let xs:number[]=[19,20,21];let result:number[]=xs.filter((n:number):boolean=>n>19);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-filter-reduce:positive-02",
+      "source": "let xs:readonly number[]=[1,2,3];let selected:number[]=xs.filter((n:number):boolean=>n>1);selected[0]=7;",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-filter-reduce:positive-03",
+      "source": "let xs:ReadonlyArray<string>=[\"a\",\"b\"];let selected:string[]=xs.filter((s:string):boolean=>s===\"b\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-filter-reduce:positive-04",
+      "source": "let xs:number[]=[1,2,3];let total:number=xs.reduce((acc:number,n:number):number=>acc+n,0);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-filter-reduce:positive-05",
+      "source": "let xs:number[]=[1,2,3];let total:number=xs.reduce((acc:number,n:number):number=>acc+n);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-filter-reduce:positive-06",
+      "source": "let xs:number[]=[1,2,3];let folded:number=xs.reduceRight((acc:number,n:number):number=>acc*10+n,0);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-filter-reduce:positive-07",
+      "source": "let xs:readonly number[]=[2,3,4];let total:number=xs.reduce((acc:number,n:number):number=>acc+n,0);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-filter-reduce:positive-08",
+      "source": "let xs:ReadonlyArray<number>=[2,3,4];let folded:number=xs.reduceRight((acc:number,n:number):number=>acc+n,0);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-filter-reduce:positive-09",
+      "source": "let xs:string[]=[\"a\",\"b\"];let folded:string=xs.reduce((acc:string,s:string):string=>acc+s,\"\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-filter-reduce:positive-10",
+      "source": "type Readings=readonly number[];function even(xs:Readings):number[]{return xs.filter((n:number):boolean=>n%2===0);}let values:number[]=even([1,2,3,4]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-filter-reduce:negative-01",
+      "source": "let xs:number[]=[21];xs.filter();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "array-filter-reduce:negative-02",
+      "source": "let xs:number[]=[21];xs.filter(42);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-filter-reduce:negative-03",
+      "source": "let xs:readonly number[]=[21];xs.filter((n:string):boolean=>true);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-filter-reduce:negative-04",
+      "source": "let xs:number[]=[21];xs.filter((n:number):string=>\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-filter-reduce:negative-05",
+      "source": "let xs:number[]=[21];let value:boolean=xs.filter((n:number):boolean=>true);",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-filter-reduce:negative-06",
+      "source": "let xs:number[]=[21];xs.reduce((a:number,n:number):string=>\"bad\",0);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-filter-reduce:negative-07",
+      "source": "let xs:number[]=[21];xs.reduce((a:number,n:number):number=>a+n,\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-filter-reduce:negative-08",
+      "source": "let xs:readonly number[]=[21];xs.reduceRight((a:number,n:number):string=>\"bad\",0);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-filter-reduce:negative-09",
+      "source": "let xs:number[]=[21];let value:string=xs.reduceRight((a:number,n:number):number=>a+n,0);",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-filter-reduce:negative-10",
+      "source": "let xs:number[]=[21];xs.filter((n:number):boolean=>true,42);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    }
+  ]
+}
