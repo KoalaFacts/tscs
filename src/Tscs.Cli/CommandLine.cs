@@ -253,8 +253,8 @@ public static class CommandLine
         @"|(?<reduce>reduce\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*T\s*(?:,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*T\s*)?\)\s*:\s*T)" +
         @"|(?<reduceRight>reduceRight\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*T\s*(?:,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*T\s*)?\)\s*:\s*T)" +
         @"|(?<map>map\s*<\s*U\s*>\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*U\s*\)\s*:\s*U\s*\[\s*\])" +
-        @"|(?<reduceGeneric>reduce\s*<\s*U\s*>\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*U\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*U\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*U\s*\)\s*:\s*U) +
-        @"|(?<reduceRightGeneric>reduceRight\s*<\s*U\s*>\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*U\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*U\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*U\s*\)\s*:\s*U);
+        @"|(?<reduceGeneric>reduce\s*<\s*U\s*>\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*U\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*U\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*U\s*\)\s*:\s*U)" +
+        @"|(?<reduceRightGeneric>reduceRight\s*<\s*U\s*>\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*U\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*U\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*U\s*\)\s*:\s*U)";
 
     // In-place array methods are an exact finite ambient allowlist. No
     // arbitrary method signature or .d.ts standard library is accepted.
