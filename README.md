@@ -296,6 +296,14 @@ the runtime error when reducing an empty array without an initial value.
 General different-type accumulators, contextual callback inference,
 index/array callback parameters and type-guard predicates are unsupported.
 
+Native `map` now transforms mutable or readonly arrays into fresh mutable
+arrays, preserving the explicitly typed callback return element type:
+`readonly number[]` may map through `(n: number): string => ...` to `string[]`.
+This is a bounded intrinsic on checked array method calls, not a general
+generic type-inference engine. Callback value parameters require explicit types;
+index/array callback parameters, `thisArg`, method overloads and untyped arrow
+inference are not supported. The emitted ES2015 JavaScript calls native `map`.
+
 ## Other implemented subsets
 
 The current pipeline includes primitive/`any` variables, lexical scopes, selected
