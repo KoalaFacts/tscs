@@ -133,67 +133,97 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     private static bool DefaultReferencesAny(ValueNode expression,HashSet<string> names,HashSet<string> scoped)
     {
         if(names.Count==0)return false;
-        switch(expression)
+        // TypeScript binary chains can be hundreds of thousands of nodes deep.
+        // Walk values on the heap; recursive left-spine traversal would turn
+        // a valid source file into a process-fatal native stack overflow.
+        var pending=new Stack<(ValueNode Node,HashSet<string> Scope)>();
+        pending.Push((expression,scoped));
+        while(pending.Count>0)
         {
-            case ValueAtom atom:
-                return ReferencesName(atom.Token,names,scoped);
-            case ValueTemplate template:
-                return template.Expressions.Any(item=>DefaultReferencesAny(item,names,scoped));
-            case ValueBinary binary:
-                return DefaultReferencesAny(binary.Left,names,scoped) ||
-                       DefaultReferencesAny(binary.Right,names,scoped);
-            case ValueConditional conditional:
-                return DefaultReferencesAny(conditional.Condition,names,scoped) ||
-                       DefaultReferencesAny(conditional.WhenTrue,names,scoped) ||
-                       DefaultReferencesAny(conditional.WhenFalse,names,scoped);
-            case ValueTypeOperator typeOp:
-                return DefaultReferencesAny(typeOp.Expression,names,scoped);
-            case ValueNonNull asserted:
-                return DefaultReferencesAny(asserted.Expression,names,scoped);
-            case ValueUnary unary:
-                return DefaultReferencesAny(unary.Operand,names,scoped);
-            case ValuePrefixUpdate update:
-                return DefaultReferencesAny(update.Target,names,scoped);
-            case ValuePostfixUpdate update:
-                return DefaultReferencesAny(update.Target,names,scoped);
-            case ValueParenthesized group:
-                return DefaultReferencesAny(group.Expression,names,scoped);
-            case ValueArrow arrow:
+            var (node,active)=pending.Pop();
+            switch(node)
             {
-                var callableScope=new HashSet<string>(scoped,StringComparer.Ordinal);
-                foreach(var parameter in arrow.Parameters)
-                    callableScope.Add(parameter.Name.Text);
-                if(arrow.FunctionName is { } functionName)
-                    callableScope.Add(functionName.Text);
-                return arrow.Parameters.Any(parameter=>
-                           parameter.DefaultValue is { } value &&
-                           DefaultReferencesAny(value,names,callableScope)) ||
-                       (arrow.Body is { } body &&
-                        DefaultReferencesAny(body,names,callableScope)) ||
-                       (arrow.BlockBody is { } block &&
-                        DefaultReferencesAny(block,names,callableScope));
+                case ValueAtom atom:
+                    if(ReferencesName(atom.Token,names,active))return true;
+                    break;
+                case ValueTemplate template:
+                    foreach(var item in template.Expressions)pending.Push((item,active));
+                    break;
+                case ValueBinary binary:
+                    pending.Push((binary.Left,active));
+                    pending.Push((binary.Right,active));
+                    break;
+                case ValueConditional conditional:
+                    pending.Push((conditional.Condition,active));
+                    pending.Push((conditional.WhenTrue,active));
+                    pending.Push((conditional.WhenFalse,active));
+                    break;
+                case ValueTypeOperator typeOp:
+                    pending.Push((typeOp.Expression,active));
+                    break;
+                case ValueNonNull asserted:
+                    pending.Push((asserted.Expression,active));
+                    break;
+                case ValueUnary unary:
+                    pending.Push((unary.Operand,active));
+                    break;
+                case ValuePrefixUpdate update:
+                    pending.Push((update.Target,active));
+                    break;
+                case ValuePostfixUpdate update:
+                    pending.Push((update.Target,active));
+                    break;
+                case ValueParenthesized group:
+                    pending.Push((group.Expression,active));
+                    break;
+                case ValueArrow arrow:
+                {
+                    var callableScope=new HashSet<string>(active,StringComparer.Ordinal);
+                    foreach(var parameter in arrow.Parameters)
+                        callableScope.Add(parameter.Name.Text);
+                    if(arrow.FunctionName is { } functionName)
+                        callableScope.Add(functionName.Text);
+                    foreach(var parameter in arrow.Parameters)
+                        if(parameter.DefaultValue is { } value)
+                            pending.Push((value,callableScope));
+                    if(arrow.Body is { } body)
+                        pending.Push((body,callableScope));
+                    if(arrow.BlockBody is { } block &&
+                       DefaultReferencesAny(block,names,callableScope))return true;
+                    break;
+                }
+                case ValueCall call:
+                    pending.Push((call.Callee,active));
+                    foreach(var arg in call.Arguments)pending.Push((arg,active));
+                    break;
+                case ValueObject obj:
+                    foreach(var property in obj.Properties)
+                    {
+                        if(property.Computed && ReferencesName(property.Name,names,active))
+                            return true;
+                        pending.Push((property.Value,active));
+                    }
+                    break;
+                case ValueArray array:
+                    foreach(var element in array.Elements)pending.Push((element,active));
+                    break;
+                case ValueArraySpread spread:
+                    pending.Push((spread.Operand,active));
+                    break;
+                case ValueElementAccess index:
+                    pending.Push((index.Receiver,active));
+                    pending.Push((index.Index,active));
+                    break;
+                case ValuePropertyAccess property:
+                    // Both .member and ?.member name a property, not a binding.
+                    pending.Push((property.Receiver,active));
+                    break;
+                default:
+                    // A new AST node cannot silently bypass scope validation.
+                    return true;
             }
-            case ValueCall call:
-                return DefaultReferencesAny(call.Callee,names,scoped) ||
-                       call.Arguments.Any(arg=>DefaultReferencesAny(arg,names,scoped));
-            case ValueObject obj:
-                return obj.Properties.Any(property=>
-                    (property.Computed && ReferencesName(property.Name,names,scoped)) ||
-                    DefaultReferencesAny(property.Value,names,scoped));
-            case ValueArray array:
-                return array.Elements.Any(element=>DefaultReferencesAny(element,names,scoped));
-            case ValueArraySpread spread:
-                return DefaultReferencesAny(spread.Operand,names,scoped);
-            case ValueElementAccess index:
-                return DefaultReferencesAny(index.Receiver,names,scoped) ||
-                       DefaultReferencesAny(index.Index,names,scoped);
-            case ValuePropertyAccess property:
-                // Both obj.member and obj?.member read only the receiver.
-                return DefaultReferencesAny(property.Receiver,names,scoped);
-            default:
-                // New unrecognised syntax must not bypass a TDZ/scope check.
-                return true;
         }
+        return false;
     }
 
     private static bool DefaultReferencesAny(Block block,HashSet<string> names,HashSet<string> scoped)
@@ -287,13 +317,13 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             case ForOfStatement loop:
             {
                 var inner=new HashSet<string>(scoped,StringComparer.Ordinal) {loop.Name.Text};
-                return DefaultReferencesAny(loop.Source,names,scoped) ||
+                return DefaultReferencesAny(loop.Source,names,inner) ||
                        DefaultReferencesAny(loop.Body,names,inner);
             }
             case ForInStatement loop:
             {
                 var inner=new HashSet<string>(scoped,StringComparer.Ordinal) {loop.Name.Text};
-                return DefaultReferencesAny(loop.Source,names,scoped) ||
+                return DefaultReferencesAny(loop.Source,names,inner) ||
                        DefaultReferencesAny(loop.Body,names,inner);
             }
             case ClassicForStatement loop:

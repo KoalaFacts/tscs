@@ -79,6 +79,21 @@ public sealed class VariableBindingPatternTests
     public void BadBindingsOrAssignmentsProduceRealDiagnostics(string source,string code) =>
         Assert.Contains(Compilation.Check("binding.ts",source),diagnostic=>diagnostic.Code==code);
 
+    [Theory]
+    [InlineData("let x:string=\"outer\";function f({x}:{x:string}={x:(():string=>{for(let x in {read:():string=>x}){}return \"ok\";})()}):string{return x;}let n:string=f();")]
+    [InlineData("let x:string=\"outer\";function f({x}:{x:string}={x:(():string=>{for(let x of [\"item\"]){}return \"ok\";})()}):string{return x;}let n:string=f();")]
+    public void NestedLoopSourcesRespectTheirOwnBindingScope(string source) =>
+        Assert.Empty(Compilation.Check("binding.ts",source));
+
+    [Fact]
+    public void LongParameterDefaultExpressionsUseBoundedNativeStack()
+    {
+        var chain=string.Join("+",Enumerable.Repeat("1",30000));
+        var diagnostics=Compilation.Check("long-binding.ts",
+            "function f({x="+chain+"}:{x?:number}):number{return x;}");
+        Assert.Empty(diagnostics);
+    }
+
     [Fact]
     public void InvalidTypedParameterDefaultReportsThePrimaryErrorOnly()
     {
