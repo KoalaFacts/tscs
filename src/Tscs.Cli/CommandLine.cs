@@ -231,6 +231,30 @@ public static class CommandLine
             throw new InputFailure("Incomplete bounded iterable Array<T> declaration protocol.");
     }
 
+    // Accept only the exact four non-mutating Array<T> and ReadonlyArray<T>
+    // signatures used by the bounded pinned-Go reference. No arbitrary .d.ts
+    // methods, wrong return types, or duplicate method declarations may pass.
+    // Strip validated query signatures before the existing length/index/mutator
+    // validator runs, preserving all historical shape and iterable restrictions.
+    private static string? RemoveCheckedArrayQueryContracts(string body)
+    {
+        var pattern=new Regex(
+            @"(?<![A-Za-z0-9_$])(?:(?<lookup>includes|indexOf|lastIndexOf)\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*(?:,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number\s*)?\)\s*:\s*(?<returns>boolean|number)|(?<join>join)\s*\(\s*(?:[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*string\s*)?\)\s*:\s*string)\s*;",
+            RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
+        var seen=new HashSet<string>(StringComparer.Ordinal);
+        bool valid=true;
+        var remaining=pattern.Replace(body,match=>
+        {
+            var lookup=match.Groups["lookup"].Value;
+            var name=lookup.Length>0?lookup:"join";
+            if(!seen.Add(name) || lookup.Length>0 &&
+               match.Groups["returns"].Value!=(lookup=="includes"?"boolean":"number"))
+                valid=false;
+            return "";
+        });
+        return valid?remaining:null;
+    }
+
     // Member order and numeric-index parameter spelling are irrelevant.
     // Length/index must be present exactly once; the optional standard
     // Array<T> mutator declarations supply the pinned reference's actual
@@ -239,6 +263,9 @@ public static class CommandLine
     // method table checks calls, never an arbitrary regex-derived declaration.
     private static bool IsSupportedArrayContract(string body,out bool iterator)
     {
+        var reduced=RemoveCheckedArrayQueryContracts(body);
+        if(reduced is null) { iterator=false; return false; }
+        body=reduced;
         var memberPattern=new Regex(@"\G\s*(?:(?<length>length\s*:\s*number)|(?<index>\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T)|(?<iterator>\[\s*Symbol\s*\.\s*iterator\s*\]\s*\(\s*\)\s*:\s*Iterator\s*<\s*T\s*>)|(?<push>push\s*\(\s*\.\.\.\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\[\s*\]\s*\)\s*:\s*number)|(?<unshift>unshift\s*\(\s*\.\.\.\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\[\s*\]\s*\)\s*:\s*number)|(?<pop>pop\s*\(\s*\)\s*:\s*T\s*\|\s*undefined)|(?<shift>shift\s*\(\s*\)\s*:\s*T\s*\|\s*undefined))\s*;",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         int position=0;
@@ -294,6 +321,9 @@ public static class CommandLine
     // strictly ambient validation, not a generic value-declaration parser.
     private static bool IsSupportedReadonlyArrayContract(string body)
     {
+        var reduced=RemoveCheckedArrayQueryContracts(body);
+        if(reduced is null)return false;
+        body=reduced;
         var memberPattern=new Regex(@"\G\s*(?:(?<length>readonly\s+length\s*:\s*number)|(?<index>readonly\s+\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T))\s*;",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         int position=0;
