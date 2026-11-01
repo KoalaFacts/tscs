@@ -169,7 +169,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
         }
         var temporary=NewBindingTemporary(location);
         target.Add(new Variable(temporary,true,null,read));
-        LowerBindingPattern(binding,new ValueAtom(temporary),constant,exported,target,depth);
+        LowerBindingPattern(binding,new ValueAtom(temporary with {Start=temporary.Start+1}),constant,exported,target,depth);
     }
     public Block Parse(int depth=0,bool inFunction=false,bool switchClauseBody=false,bool singleStatementBody=false)
     {
@@ -464,7 +464,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                         var source=ParseValue();
                         var temporary=NewBindingTemporary(location);
                         statements.Add(new Variable(temporary,true,patternType,source));
-                        LowerBindingPattern(pattern,new ValueAtom(temporary),constant,exported,statements);
+                        LowerBindingPattern(pattern,new ValueAtom(temporary with {Start=temporary.Start+1}),constant,exported,statements);
                         if(Eat(TokenKind.Comma))continue;
                         EndStatement(rejectTemplateContinuation:true);
                         break;
