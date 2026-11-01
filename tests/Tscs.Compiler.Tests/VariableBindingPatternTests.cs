@@ -28,6 +28,18 @@ public sealed class VariableBindingPatternTests
     [InlineData("const {value={nested:{n:42}}}:{value?:{nested:{n:number}}}={};let n:number=value.nested.n;")]
     [InlineData("const [value=21]=[21];let n:number=value;")]
     [InlineData("function calculate(x:{value:number}):number{const {value}=x;return value*2;}const n:number=calculate({value:21});")]
+    [InlineData("function pick({value}:{value:number}):number{return value;}const n:number=pick({value:21});")]
+    [InlineData("function pick([first,,third]:number[]):number{return first+third;}const n:number=pick([20,1,22]);")]
+    [InlineData("function pick({inner:{value}}:{inner:{value:number}}):number{return value;}const n:number=pick({inner:{value:42}});")]
+    [InlineData("function pick({value=21}:{value?:number}):number{return value;}const n:number=pick({});")]
+    [InlineData("function update({value}:{value:number}):number{value=value+1;return value;}const n:number=update({value:20});")]
+    [InlineData("function combine({left}:{left:number},[right]:number[]):number{return left+right;}const n:number=combine({left:20},[22]);")]
+    [InlineData("function take({value}:{value:number}={value:42}):number{return value;}const n:number=take();")]
+    [InlineData("function seed():number{return 42;}function f({x=seed()}:{x?:number}):number{return x;}let n:number=f({});")]
+    [InlineData("const seed:number=42;function f({x}:{x:number}={x:seed}):number{return x;}let n:number=f();")]
+    [InlineData("const obj={x:42};function f({x=obj?.x??0}:{x?:number}):number{return x;}let n:number=f({});")]
+    [InlineData("function f({x=((x:number):number=>x)(42)}:{x?:number}):number{return x;}let n:number=f({});")]
+    [InlineData("function f({x}:{x:number}={x:((x:number):number=>x)(42)}):number{return x;}let n:number=f();")]
     [InlineData("const seed={value:21};const {value}=seed, after=value+1;let n:number=after;")]
     [InlineData("const list:number[]=[10,20];const [first,second]=list;let n:number=first+second;")]
     public void FinitePatternsFlowThroughNormalVariableTyping(string source) =>
@@ -48,9 +60,47 @@ public sealed class VariableBindingPatternTests
     [InlineData("const {value={nested:{n:1,extra:2}}}:{value?:{nested:{n:number}}}={};","TS2353")]
     [InlineData("const {value=21}:{value?:number}={};value=22;","TS2588")]
     [InlineData("const {value=21}:{value?:number}={};let wrong:string=value;","TS2322")]
+    [InlineData("function fail({missing}:{value:number}):number{return missing;}","TS2339")]
+    [InlineData("function fail({value}:{value:number}):string{return value;}","TS2322")]
+    [InlineData("function fail({value=\"no\"}:{value?:number}):number{return value;}","TS2322")]
+    [InlineData("function fail([value]:number[]):number{return value;}let wrong:string=fail([21]);","TS2322")]
+    [InlineData("function fail({value}:{value:number}):number{return value;}const input={value:\"no\"};let wrong:number=fail(input);","TS2345")]
+    [InlineData("function fail({x}:{x:number},x:number):number{return x;}","TS2300")]
+    [InlineData("function fail({x}:{x:number},y:number=x):number{return y;}","TSCS1001")]
+    [InlineData("function fail({x=1}:{x?:number},y:number):number{return x+y;}","TSCS1001")]
+    [InlineData("function fail(first:number=21,{value}:{value:number}={value:42}):number{return value;}","TSCS1001")]
+    [InlineData("function fail({value}:{value:number}):number{return value;}value=21;","TS2304")]
+    [InlineData("function seed():number{return 1;}function f({x=seed()}:{x?:number}):number{function seed():number{return 2;}return x;}let n:number=f({});","TSCS1001")]
+    [InlineData("let x:number=42;function f({x}:{x:number}={x:x}):number{return x;}let n:number=f();","TSCS1001")]
+    [InlineData("let x:number=42;function f({x=x}:{x?:number}):number{return x;}let n:number=f({});","TSCS1001")]
+    [InlineData("let x:string=\"outer\";function f({x}:{x:string}={x:`\u0024{x}`}):string{return x;}let n:string=f();","TSCS1001")]
+    [InlineData("let x:string=\"outer\";function f({x=`\u0024{x}`}:{x?:string}):string{return x;}let n:string=f({});","TSCS1001")]
     [InlineData("const [value=21]:(number|undefined)[]=[undefined];let wrong:string=value;","TS2322")]
     public void BadBindingsOrAssignmentsProduceRealDiagnostics(string source,string code) =>
         Assert.Contains(Compilation.Check("binding.ts",source),diagnostic=>diagnostic.Code==code);
+
+    [Theory]
+    [InlineData("let x:string=\"outer\";function f({x}:{x:string}={x:(():string=>{for(let x in {read:():string=>x}){}return \"ok\";})()}):string{return x;}let n:string=f();")]
+    [InlineData("let x:string=\"outer\";function f({x}:{x:string}={x:(():string=>{for(let x of [\"item\"]){}return \"ok\";})()}):string{return x;}let n:string=f();")]
+    public void NestedLoopSourcesRespectTheirOwnBindingScope(string source) =>
+        Assert.Empty(Compilation.Check("binding.ts",source));
+
+    [Fact]
+    public void LongParameterDefaultExpressionsUseBoundedNativeStack()
+    {
+        var chain=string.Join("+",Enumerable.Repeat("1",30000));
+        var diagnostics=Compilation.Check("long-binding.ts",
+            "function f({x="+chain+"}:{x?:number}):number{return x;}");
+        Assert.Empty(diagnostics);
+    }
+
+    [Fact]
+    public void InvalidTypedParameterDefaultReportsThePrimaryErrorOnly()
+    {
+        var diagnostics=Compilation.Check("binding.ts",
+            "function fail({value=\"no\"}:{value?:number}):number{return value;}");
+        Assert.Equal(new[] {"TS2322"},diagnostics.Select(d=>d.Code).ToArray());
+    }
 
     [Theory]
     [InlineData("const {...rest}={value:21};")]

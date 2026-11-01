@@ -1,3 +1,23 @@
+## 2026-11-01 — Typed finite function parameter binding patterns (candidate; NOT_RUN)
+
+Named function declarations lower finite typed object/array parameter patterns
+through their existing signatures, checked property/index reads, scoped mutable
+variables and native ES2015 emitter. Nested and defaulted selections are
+checked, with no repeated argument evaluation. Rest/computed and expression
+function parameter patterns remain unsupported. The bounded parser rejects
+prior or later parameter defaults that would change binding order, as well as
+duplicate names across parameter forms, rather than emitting incorrect JS.
+Invalid constrained element defaults retain their primary type error without
+propagating a rejected fallback type into secondary return diagnostics.
+Parameter element defaults now reject body-shadowing references, while both
+element and whole-parameter defaults reject references to their own pattern
+bindings, avoiding incorrect initialization scope and TDZ behaviour. These
+are bounded fail-closed restrictions, not full TS7 parameter initialization. Twelve new stable pinned-Go
+source/diagnostic/exit cases extend the original 28-case binding cohort.
+Source-backed xUnit, four linked Node modules and negative/no-emission cases
+are registered, NOT_RUN until exact-head verification. Original upstream remains
+0 PASS / 15,523 SKIP_UNIMPLEMENTED with dynamic UNEXPANDED.
+
 ## 2026-11-01 — Finite variable binding defaults (candidate, NOT_RUN)
 
 Checked nested object and array variable binding defaults lower through the

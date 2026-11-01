@@ -72,6 +72,277 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     private sealed record BoundArray(Token Open,IReadOnlyList<BindingPattern?> Elements) : BindingPattern;
     private int bindingTemporaryOrdinal;
 
+    private static void CollectParameterBindingNames(BindingPattern pattern,List<Token> names)
+    {
+        switch(pattern)
+        {
+            case BoundName bound: names.Add(bound.Name);break;
+            case BoundDefault fallback:
+                CollectParameterBindingNames(fallback.Target,names);break;
+            case BoundObject obj:
+                foreach(var member in obj.Members)
+                    CollectParameterBindingNames(member.Target,names);
+                break;
+            case BoundArray array:
+                foreach(var element in array.Elements)
+                    if(element is not null)CollectParameterBindingNames(element,names);
+                break;
+        }
+    }
+
+    private static bool PatternContainsDefault(BindingPattern pattern) => pattern switch
+    {
+        BoundDefault _ => true,
+        BoundObject obj => obj.Members.Any(member=>PatternContainsDefault(member.Target)),
+        BoundArray array => array.Elements.Any(element=>
+            element is not null && PatternContainsDefault(element)),
+        _ => false
+    };
+
+    private static void CollectBindingDefaults(BindingPattern pattern,List<BoundDefault> defaults)
+    {
+        switch(pattern)
+        {
+            case BoundDefault fallback:
+                defaults.Add(fallback);
+                CollectBindingDefaults(fallback.Target,defaults);
+                break;
+            case BoundObject obj:
+                foreach(var member in obj.Members)
+                    CollectBindingDefaults(member.Target,defaults);
+                break;
+            case BoundArray array:
+                foreach(var element in array.Elements)
+                    if(element is not null)CollectBindingDefaults(element,defaults);
+                break;
+        }
+    }
+
+    // Analyse actual expression references, not scanner token spellings:
+    // interpolated templates contain parsed substitution nodes, optional
+    // property names are not variable reads, and nested callables bind locals.
+    // The finite parameter lowering uses this to reject only unsafe captures
+    // of the pattern's own bindings or declarations in the function body.
+    private static bool ReferencesName(Token token,HashSet<string> names,HashSet<string> scoped) =>
+        token.Kind==TokenKind.Identifier && names.Contains(token.Text) &&
+        !scoped.Contains(token.Text);
+
+    private static bool DefaultReferencesAny(ValueNode expression,HashSet<string> names) =>
+        DefaultReferencesAny(expression,names,new HashSet<string>(StringComparer.Ordinal));
+
+    private static bool DefaultReferencesAny(ValueNode expression,HashSet<string> names,HashSet<string> scoped)
+    {
+        if(names.Count==0)return false;
+        // TypeScript binary chains can be hundreds of thousands of nodes deep.
+        // Walk values on the heap; recursive left-spine traversal would turn
+        // a valid source file into a process-fatal native stack overflow.
+        var pending=new Stack<(ValueNode Node,HashSet<string> Scope)>();
+        pending.Push((expression,scoped));
+        while(pending.Count>0)
+        {
+            var (node,active)=pending.Pop();
+            switch(node)
+            {
+                case ValueAtom atom:
+                    if(ReferencesName(atom.Token,names,active))return true;
+                    break;
+                case ValueTemplate template:
+                    foreach(var item in template.Expressions)pending.Push((item,active));
+                    break;
+                case ValueBinary binary:
+                    pending.Push((binary.Left,active));
+                    pending.Push((binary.Right,active));
+                    break;
+                case ValueConditional conditional:
+                    pending.Push((conditional.Condition,active));
+                    pending.Push((conditional.WhenTrue,active));
+                    pending.Push((conditional.WhenFalse,active));
+                    break;
+                case ValueTypeOperator typeOp:
+                    pending.Push((typeOp.Expression,active));
+                    break;
+                case ValueNonNull asserted:
+                    pending.Push((asserted.Expression,active));
+                    break;
+                case ValueUnary unary:
+                    pending.Push((unary.Operand,active));
+                    break;
+                case ValuePrefixUpdate update:
+                    pending.Push((update.Target,active));
+                    break;
+                case ValuePostfixUpdate update:
+                    pending.Push((update.Target,active));
+                    break;
+                case ValueParenthesized group:
+                    pending.Push((group.Expression,active));
+                    break;
+                case ValueArrow arrow:
+                {
+                    var callableScope=new HashSet<string>(active,StringComparer.Ordinal);
+                    foreach(var parameter in arrow.Parameters)
+                        callableScope.Add(parameter.Name.Text);
+                    if(arrow.FunctionName is { } functionName)
+                        callableScope.Add(functionName.Text);
+                    foreach(var parameter in arrow.Parameters)
+                        if(parameter.DefaultValue is { } value)
+                            pending.Push((value,callableScope));
+                    if(arrow.Body is { } body)
+                        pending.Push((body,callableScope));
+                    if(arrow.BlockBody is { } block &&
+                       DefaultReferencesAny(block,names,callableScope))return true;
+                    break;
+                }
+                case ValueCall call:
+                    pending.Push((call.Callee,active));
+                    foreach(var arg in call.Arguments)pending.Push((arg,active));
+                    break;
+                case ValueObject obj:
+                    foreach(var property in obj.Properties)
+                    {
+                        if(property.Computed && ReferencesName(property.Name,names,active))
+                            return true;
+                        pending.Push((property.Value,active));
+                    }
+                    break;
+                case ValueArray array:
+                    foreach(var element in array.Elements)pending.Push((element,active));
+                    break;
+                case ValueArraySpread spread:
+                    pending.Push((spread.Operand,active));
+                    break;
+                case ValueElementAccess index:
+                    pending.Push((index.Receiver,active));
+                    pending.Push((index.Index,active));
+                    break;
+                case ValuePropertyAccess property:
+                    // Both .member and ?.member name a property, not a binding.
+                    pending.Push((property.Receiver,active));
+                    break;
+                default:
+                    // A new AST node cannot silently bypass scope validation.
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    private static bool DefaultReferencesAny(Block block,HashSet<string> names,HashSet<string> scoped)
+    {
+        var blockScope=new HashSet<string>(scoped,StringComparer.Ordinal);
+        foreach(var statement in block.Statements)
+        {
+            if(statement is Variable variable)blockScope.Add(variable.Name.Text);
+            if(statement is FunctionDeclaration function)blockScope.Add(function.Name.Text);
+        }
+        return block.Statements.Any(statement=>DefaultReferencesAny(statement,names,blockScope));
+    }
+
+    private static bool DefaultReferencesAny(Statement statement,HashSet<string> names,HashSet<string> scoped)
+    {
+        switch(statement)
+        {
+            case EmptyStatement:
+            case BreakStatement:
+            case ContinueStatement:
+            case TypeAliasDeclaration:
+            case InterfaceDeclaration:
+            case ImportDeclaration:
+            case ExportDeclaration:
+                return false;
+            case Block block:
+                return DefaultReferencesAny(block,names,scoped);
+            case Variable variable:
+                return variable.Initializer is { } initializer &&
+                       DefaultReferencesAny(initializer,names,scoped);
+            case Expression expression:
+                return DefaultReferencesAny(expression.Value,names,scoped);
+            case ReturnStatement result:
+                return result.Value is { } returned && DefaultReferencesAny(returned,names,scoped);
+            case ThrowStatement thrown:
+                return DefaultReferencesAny(thrown.Value,names,scoped);
+            case Assignment assignment:
+                return ReferencesName(assignment.Name,names,scoped) ||
+                       DefaultReferencesAny(assignment.Value,names,scoped);
+            case PostfixUpdate update:
+                return ReferencesName(update.Name,names,scoped);
+            case PropertyAssignment assignment:
+                return DefaultReferencesAny(assignment.Target,names,scoped) ||
+                       DefaultReferencesAny(assignment.Value,names,scoped);
+            case ElementAssignment assignment:
+                return DefaultReferencesAny(assignment.Target,names,scoped) ||
+                       DefaultReferencesAny(assignment.Value,names,scoped);
+            case CompoundAssignment assignment:
+                return DefaultReferencesAny(assignment.Target,names,scoped) ||
+                       DefaultReferencesAny(assignment.Value,names,scoped);
+            case ParameterDeclaration parameter:
+                return parameter.DefaultValue is { } value &&
+                       DefaultReferencesAny(value,names,scoped);
+            case FunctionDeclaration function:
+            {
+                var functionScope=new HashSet<string>(scoped,StringComparer.Ordinal) {function.Name.Text};
+                foreach(var parameter in function.Parameters)
+                    functionScope.Add(parameter.Name.Text);
+                return function.Parameters.Any(parameter=>
+                           parameter.DefaultValue is { } value &&
+                           DefaultReferencesAny(value,names,functionScope)) ||
+                       DefaultReferencesAny(function.Body,names,functionScope);
+            }
+            case ConditionalStatement conditional:
+                return DefaultReferencesAny(conditional.Condition,names,scoped) ||
+                       DefaultReferencesAny(conditional.Consequent,names,scoped) ||
+                       (conditional.Alternate is { } alternate &&
+                        DefaultReferencesAny(alternate,names,scoped));
+            case TryStatement attempt:
+            {
+                var catchScope=new HashSet<string>(scoped,StringComparer.Ordinal);
+                if(attempt.CatchBinding is { } binding)catchScope.Add(binding.Text);
+                return DefaultReferencesAny(attempt.Body,names,scoped) ||
+                       (attempt.CatchBody is { } caught &&
+                        DefaultReferencesAny(caught,names,catchScope)) ||
+                       (attempt.FinallyBody is { } cleanup &&
+                        DefaultReferencesAny(cleanup,names,scoped));
+            }
+            case SwitchStatement selection:
+                return DefaultReferencesAny(selection.Selector,names,scoped) ||
+                       selection.Clauses.Any(clause=>
+                           (clause.Label is { } label &&
+                            DefaultReferencesAny(label,names,scoped)) ||
+                           DefaultReferencesAny(clause.Body,names,scoped));
+            case WhileStatement loop:
+                return DefaultReferencesAny(loop.Condition,names,scoped) ||
+                       DefaultReferencesAny(loop.Body,names,scoped);
+            case DoWhileStatement loop:
+                return DefaultReferencesAny(loop.Body,names,scoped) ||
+                       DefaultReferencesAny(loop.Condition,names,scoped);
+            case ForOfStatement loop:
+            {
+                var inner=new HashSet<string>(scoped,StringComparer.Ordinal) {loop.Name.Text};
+                return DefaultReferencesAny(loop.Source,names,inner) ||
+                       DefaultReferencesAny(loop.Body,names,inner);
+            }
+            case ForInStatement loop:
+            {
+                var inner=new HashSet<string>(scoped,StringComparer.Ordinal) {loop.Name.Text};
+                return DefaultReferencesAny(loop.Source,names,inner) ||
+                       DefaultReferencesAny(loop.Body,names,inner);
+            }
+            case ClassicForStatement loop:
+            {
+                var inner=new HashSet<string>(scoped,StringComparer.Ordinal);
+                if(loop.Initializer is Variable local)inner.Add(local.Name.Text);
+                return (loop.Initializer is { } init &&
+                        DefaultReferencesAny(init,names,inner)) ||
+                       (loop.Condition is { } condition &&
+                        DefaultReferencesAny(condition,names,inner)) ||
+                       (loop.Update is { } update &&
+                        DefaultReferencesAny(update,names,inner)) ||
+                       DefaultReferencesAny(loop.Body,names,inner);
+            }
+            default:
+                return true;
+        }
+    }
+
     private Token NewBindingTemporary(Token location)
     {
         // Distinguish files compiled in shared script scopes, and never capture
@@ -119,7 +390,9 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 {
                     binding=new BoundName(key);
                     if(Eat(TokenKind.Equal))
+                    {
                         binding=new BoundDefault(binding,ParseValue(),key);
+                    }
                 }
                 members.Add((key,binding));
                 if(!Eat(TokenKind.Comma))break;
@@ -400,6 +673,13 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 Take();
                 if(!Eat(TokenKind.OpenParen))Unsupported(Current,"Expected '(' after function name.");
                 var parameters=new List<ParameterDeclaration>();
+                // Bind finite typed pattern parameters through ordinary hidden
+                // positional parameters and checked function-entry locals.
+                var parameterBindings=new List<Statement>();
+                var parameterElementDefaults=new List<BoundDefault>();
+                var userParameterNames=new HashSet<string>(StringComparer.Ordinal);
+                var patternedParameterNames=new HashSet<string>(StringComparer.Ordinal);
+                bool patternWithDefaultBeforeNext=false;
                 bool sawOptionalParameter=false;
                 bool sawDefaultParameter=false;
                 bool sawRestParameter=false;
@@ -407,17 +687,82 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 {
                     while(true)
                     {
+                        // Pattern element defaults execute during parameter binding
+                        // in TypeScript, but the finite lowering occurs at body entry.
+                        // Reject subsequent parameters instead of reordering effects
+                        // or observing a later parameter outside its TDZ.
+                        if(patternWithDefaultBeforeNext)
+                            Unsupported(Current,"Parameters after a binding pattern with defaults are not supported.");
                         if(sawRestParameter)
                             Diagnostics.Add(Diagnostic.Error(file,Current,"TS1014",
                                 "A rest parameter must be last in a parameter list."));
                         bool rest=Eat(TokenKind.Ellipsis);
-                        var parameter=Current;
-                        if(parameter.Kind!=TokenKind.Identifier)Unsupported(parameter,"Expected a named parameter.");
-                        Take();
+                        BindingPattern? parameterPattern=null;
+                        Token parameter;
+                        if(Current.Kind is TokenKind.Open or TokenKind.OpenBracket)
+                        {
+                            if(rest)Unsupported(Current,"Rest binding-pattern parameters are not supported.");
+                            var location=Current;
+                            parameterPattern=ReadBindingPattern(0);
+                            parameter=NewBindingTemporary(location);
+                        }
+                        else
+                        {
+                            parameter=Current;
+                            if(parameter.Kind!=TokenKind.Identifier)
+                                Unsupported(parameter,"Expected a named or finite binding-pattern parameter.");
+                            Take();
+                        }
                         bool questionOptional=Eat(TokenKind.Question);
+                        if(parameterPattern is not null && questionOptional)
+                            Unsupported(parameter,"Binding-pattern parameters cannot be marked optional; use an explicit default.");
+                        var exposedNames=new List<Token>();
+                        if(parameterPattern is not null)
+                            CollectParameterBindingNames(parameterPattern,exposedNames);
+                        else
+                            exposedNames.Add(parameter);
+                        if(parameterPattern is not null)
+                        {
+                            var defaults=new List<BoundDefault>();
+                            CollectBindingDefaults(parameterPattern,defaults);
+                            var localNames=exposedNames.Select(name=>name.Text)
+                                .ToHashSet(StringComparer.Ordinal);
+                            foreach(var fallback in defaults)
+                            {
+                                if(DefaultReferencesAny(fallback.Fallback,localNames))
+                                    Unsupported(fallback.Location,
+                                        "A parameter element default cannot reference names bound by its own destructuring pattern.");
+                            }
+                            parameterElementDefaults.AddRange(defaults);
+                        }
+                        foreach(var boundName in exposedNames)
+                        {
+                            if(!userParameterNames.Add(boundName.Text) &&
+                               (parameterPattern is not null || patternedParameterNames.Contains(boundName.Text)))
+                                Diagnostics.Add(Diagnostic.Error(file,boundName,"TS2300",
+                                    $"Duplicate identifier '{boundName.Text}'."));
+                            if(parameterPattern is not null)
+                                patternedParameterNames.Add(boundName.Text);
+                        }
                         if(!Eat(TokenKind.Colon))Unsupported(Current,"Function parameters require an explicit supported type.");
                         var annotation=ReadTypeAnnotation();
-                        var defaultValue=Eat(TokenKind.Equal)?ParseValue():null;
+                        ValueNode? defaultValue=null;
+                        if(Eat(TokenKind.Equal))
+                        {
+                            defaultValue=ParseValue();
+                            if(parameterPattern is not null &&
+                               DefaultReferencesAny(defaultValue,exposedNames.Select(name=>name.Text)
+                                   .ToHashSet(StringComparer.Ordinal)))
+                                Unsupported(parameter,
+                                    "A whole-parameter default cannot reference its own destructured names.");
+                        }
+                        // An earlier parameter initializer executes before this
+                        // pattern binds its names; body-entry lowering cannot
+                        // reproduce an outer-name capture or TDZ dependency.
+                        if(parameterPattern is not null && sawDefaultParameter)
+                            Unsupported(parameter,"Binding patterns after a defaulted parameter are not supported.");
+                        if(parameterBindings.Count>0 && defaultValue is not null)
+                            Unsupported(parameter,"Later parameter defaults after a destructured parameter are not supported.");
                         if(rest)
                         {
                             if(annotation is not ArrayTypeSyntax)
@@ -446,6 +791,16 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                         sawOptionalParameter|=optional;
                         sawDefaultParameter|=defaultValue is not null;
                         parameters.Add(new ParameterDeclaration(parameter,annotation,optional,defaultValue,rest));
+                        if(parameterPattern is not null)
+                        {
+                            // Parameter bindings are mutable (not const). Reuse
+                            // the ordinary finite binding/default semantics.
+                            LowerBindingPattern(parameterPattern,
+                                new ValueAtom(parameter with {Start=parameter.Start+1}),
+                                false,false,parameterBindings,annotatedBinding:true);
+                            patternWithDefaultBeforeNext|=
+                                PatternContainsDefault(parameterPattern) || defaultValue is not null;
+                        }
                         if(!Eat(TokenKind.Comma))break;
                     }
                 }
@@ -455,6 +810,31 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 if(!Eat(TokenKind.Open))Unsupported(Current,"Expected '{' before function body.");
                 var body=Parse(depth+1,true);
                 if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+                if(parameterElementDefaults.Count>0)
+                {
+                    // Body declarations have no scope in native parameter
+                    // initializers, but would shadow the same names after our
+                    // body-entry lowering. Reject that unsupported dependency
+                    // instead of silently calling/reading a different symbol.
+                    var bodyNames=new HashSet<string>(StringComparer.Ordinal);
+                    foreach(var statement in body.Statements)
+                    {
+                        switch(statement)
+                        {
+                            case Variable local: bodyNames.Add(local.Name.Text);break;
+                            case FunctionDeclaration localFunction:
+                                bodyNames.Add(localFunction.Name.Text);break;
+                        }
+                    }
+                    foreach(var fallback in parameterElementDefaults)
+                    {
+                        if(DefaultReferencesAny(fallback.Fallback,bodyNames))
+                            Unsupported(fallback.Location,
+                                "Parameter element defaults cannot reference function-body declarations.");
+                    }
+                }
+                if(parameterBindings.Count>0)
+                    body=new Block([..parameterBindings,..body.Statements]);
                 statements.Add(new FunctionDeclaration(name,parameters,result,body,exported));
                 continue;
             }

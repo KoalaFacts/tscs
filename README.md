@@ -70,8 +70,22 @@ including aliases and nested elements. Selected values are read once and
 fallbacks run lazily only for `undefined`, not other falsy values. These are
 lowered to checked conditional expressions. This is an intentionally
 bounded subset: rest bindings, dynamic/computed binding keys,
-array-iterator destructuring beyond checked arrays, parameter/catch binding
+array-iterator destructuring beyond checked arrays, catch binding
 patterns and unrestricted cross-module destructured exports remain unsupported.
+Named function declarations also support finite typed object/array parameter
+patterns, including nested elements and checked defaults. Hidden typed
+positional bindings and mutable function-entry locals preserve existing checked
+call signatures and ES2015 output. Rest/computed patterns, arbitrary iterator
+destructuring and arrow/function-expression parameter patterns remain unsupported.
+Because finite destructuring is lowered into the function body, defaulted
+parameters preceding a binding pattern, later default parameters, and following
+parameters after a destructured element default are rejected rather than
+compiled with incorrect initialization order. Duplicate
+names across pattern and ordinary parameters are also diagnosed. Parameter
+element defaults that would resolve a function-body declaration differently
+from native parameter initialization, and parameter defaults that reference
+their own destructured names, are explicitly rejected rather than miscompiled.
+Safe references to external declarations remain supported.
 The source-backed, executed and pinned-Go checks are bounded, not the full TS7
 original harness.
 

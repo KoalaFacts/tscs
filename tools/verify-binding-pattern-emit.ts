@@ -21,10 +21,16 @@ try {
   writeFileSync(join(dir,'minimal.d.ts'),readFileSync('fixtures/spread-arguments/minimal.d.ts','utf8'));
   const modules={
     'model.ts':'export const box={value:21,nested:{tag:"ok"}};export const readings:number[]=[10,20,30,40];',
-    'logic.ts':'export function add(a:number,b:number):number{return a+b;}',
-    'bridge.ts':'export {add} from "./logic.js";',
+    'logic.ts':[
+      'export function add(a:number,b:number):number{return a+b;}',
+      'export function unpack({value}:{value:number}):number{return value*2;}',
+      'export function pickArray([first,,third]:number[]):number{return first+third;}',
+      'export function pickNested({inner:{score=42}}:{inner:{score?:number}}):number{return score;}',
+      'export function modify({value}:{value:number}):number{value=value+1;return value;}'
+    ].join('\n'),
+    'bridge.ts':'export {add,unpack,pickArray,pickNested,modify} from "./logic.js";',
     'entry.ts':[
-      'import {box,readings} from "./model.js";import {add} from "./bridge.js";',
+      'import {box,readings} from "./model.js";import {add,unpack,pickArray,pickNested,modify} from "./bridge.js";',
       'const {value,nested:{tag}}=box;',
       'const [first,,third]=readings;',
       'let {value:mutable}:{value:number}=box;',
@@ -45,7 +51,8 @@ try {
       'const {onlyUndefined=42}={onlyUndefined:undefined};',
       'const {optionalUndefined=undefined}:{optionalUndefined?:number}={};',
       'export const undefinedOnly:number=onlyUndefined;',
-      'export const optionalUndefinedValue:number|undefined=optionalUndefined;'
+      'export const optionalUndefinedValue:number|undefined=optionalUndefined;',
+      'export const parameterResult:number=unpack(box)+pickArray(readings)+pickNested({inner:{}})+modify(box);'
     ].join('\n')
   };
   for(const [name,source] of Object.entries(modules))writeFileSync(join(dir,name),source);
@@ -57,8 +64,8 @@ try {
   assert.match(emitted,/__tscs_binding_/,'binding temporaries must be emitted');
   assert.doesNotMatch(emitted,/\{\s*value\s*,\s*nested\s*:/,'TypeScript binding syntax was not lowered');
   const run=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,label,doubled,defaults,defaultCalls,undefinedOnly,optionalUndefinedValue} from "./entry.js";'+
-    'if(result!==83||label!=="ok"||doubled!==42||defaults!==135||defaultCalls!==3||undefinedOnly!==42||optionalUndefinedValue!==undefined)throw Error(JSON.stringify({result,label,doubled,defaults,defaultCalls}));'],
+    'import {result,label,doubled,defaults,defaultCalls,undefinedOnly,optionalUndefinedValue,parameterResult} from "./entry.js";'+
+    'if(result!==83||label!=="ok"||doubled!==42||defaults!==135||defaultCalls!==3||undefinedOnly!==42||optionalUndefinedValue!==undefined||parameterResult!==146)throw Error(JSON.stringify({result,label,doubled,defaults,defaultCalls,parameterResult}));'],
     {cwd:dir,encoding:'utf8',timeout:15000,env});
   assert.equal(run.error,undefined,String(run.error));
   assert.equal(run.status,0,run.stdout+run.stderr);
@@ -74,7 +81,17 @@ try {
     ['default-mismatch','const {value=21}:{value?:number}={};let wrong:string=value;','TS2322',2],
     ['default-fallback-type','const {value="wrong"}:{value?:number}={};','TS2322',2],
     ['empty','const []=[21];','TSCS1001',1],
-    ['wrong-annotation','let {value}:{value:number}={value:"bad"};','TS2322',2]
+    ['wrong-annotation','let {value}:{value:number}={value:"bad"};','TS2322',2],
+    ['parameter-missing','function f({missing}:{value:number}):number{return missing;}','TS2339',2],
+    ['parameter-return','function f({value}:{value:number}):string{return value;}','TS2322',2],
+    ['parameter-argument','function f({value}:{value:number}):number{return value;}const input={value:"no"};let n:number=f(input);','TS2345',2],
+    ['parameter-duplicate','function f({x}:{x:number},x:number):number{return x;}','TS2300',2],
+    ['parameter-later-default','function f({x}:{x:number},y:number=x):number{return y;}','TSCS1001',1],
+    ['parameter-scope','function f({value}:{value:number}):number{return value;}value=21;','TS2304',2],
+    ['parameter-body-shadow','function seed():number{return 1;}function f({x=seed()}:{x?:number}):number{function seed():number{return 2;}return x;}let n:number=f({});','TSCS1001',1],
+    ['parameter-whole-self','let x:number=42;function f({x}:{x:number}={x:x}):number{return x;}let n:number=f();','TSCS1001',1],
+    ['parameter-element-self','let x:number=42;function f({x=x}:{x?:number}):number{return x;}let n:number=f({});','TSCS1001',1],
+    ['parameter-template-self','let x:string="outer";function f({x}:{x:string}={x:`\u0024{x}`}):string{return x;}let n:string=f();','TSCS1001',1]
   ] as const;
   for(const [name,source,code,status] of negative) {
     writeFileSync(join(dir,'invalid-'+name+'.ts'),source);
@@ -83,5 +100,5 @@ try {
     assert.match(bad.stdout+bad.stderr,new RegExp(code));
     assert.equal(existsSync(join(dir,'invalid-'+name+'.js')),false,'invalid program emitted JS: '+name);
   }
-  console.log('Finite object/array binding patterns: four linked ES2015 modules executed; eleven invalid programs emitted no JavaScript.');
+  console.log('Finite object/array binding patterns: four linked ES2015 modules executed; twenty-one invalid programs emitted no JavaScript.');
 } finally {rmSync(dir,{recursive:true,force:true});}
