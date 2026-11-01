@@ -245,10 +245,10 @@ public static class CommandLine
     // isolated .d.ts profiles. The product's semantic signatures stay separate.
     private const string ArrayCallbackMemberPattern =
         @"(?<some>some\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*boolean\s*\)\s*:\s*boolean)" +
-        @"(?<every>every\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*boolean\s*\)\s*:\s*boolean)" +
-        @"(?<find>find\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*boolean\s*\)\s*:\s*T\s*\|\s*undefined)" +
-        @"(?<findIndex>findIndex\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*boolean\s*\)\s*:\s*number)" +
-        @"(?<forEach>forEach\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*void\s*\)\s*:\s*void)";
+        @"|(?<every>every\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*boolean\s*\)\s*:\s*boolean)" +
+        @"|(?<find>find\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*boolean\s*\)\s*:\s*T\s*\|\s*undefined)" +
+        @"|(?<findIndex>findIndex\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*boolean\s*\)\s*:\s*number)" +
+        @"|(?<forEach>forEach\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*void\s*\)\s*:\s*void)";
 
     // In-place array methods are an exact finite ambient allowlist. No
     // arbitrary method signature or .d.ts standard library is accepted.
