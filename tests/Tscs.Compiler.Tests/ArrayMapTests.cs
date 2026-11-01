@@ -33,6 +33,7 @@ public sealed class ArrayMapTests
     [InlineData("let xs:number[]=[21];let wrong:boolean[]=xs.map((n:number):number=>n*2);", "TS2322")]
     [InlineData("function bad(xs:number[]|undefined):number{return xs?.map((n:number):string=>\"x\")[0] ?? 0;}", "TS2322")]
     [InlineData("let xs:number[]=[1];let f:(cb:(n:number)=>string)=>number[]=xs.map;", "TS2322")]
+    [InlineData("let xs:number[]=[1];let f=xs.map;f=(cb:(n:number)=>string):number[]=>[1];let ys:string[]=f((n:number):string=>\"x\");", "TS2322")]
     public void RejectsMapErrors(string source, string code) =>
         Assert.Contains(Compilation.Check("invalid-array-map.ts", source), d => d.Code == code);
 

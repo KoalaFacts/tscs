@@ -614,8 +614,10 @@ internal static class CompilerTypes
                     // would erase its output-type dependency and could lie
                     // about the resulting element type. Reject unsupported
                     // explicit conversion instead of trusting the any[] stub.
-                    if(actualFunction.NativeArrayMapElementType is not null &&
-                       requiredFunction.NativeArrayMapElementType is null)return false;
+                    if((actualFunction.NativeArrayMapElementType is not null &&
+                        requiredFunction.NativeArrayMapElementType is null) ||
+                       (actualFunction.NativeArrayMapElementType is null &&
+                        requiredFunction.NativeArrayMapElementType is not null))return false;
                     // This bounded function relation admits only identical arity
                     // families. Do not guess at optional/rest compatibility.
                     // Parameter inputs are contravariant; return values covariant.

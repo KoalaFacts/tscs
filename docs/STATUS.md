@@ -5,7 +5,7 @@ readonly arrays. A finite intrinsic marker lets the ordinary call checker
 validate explicitly typed callback input while deriving the fresh writable
 result array's element type from its checked return, including `number[]`
 to `string[]`, objects and chained calls. This is not general generics or
-contextual callback inference. Twelve positive and ten negative source-backed
+contextual callback inference. Twelve positive and eleven negative source-backed
 checks, four linked ES2015 modules executed through Node and 20 stable pinned-Go
 reference cases are registered as NOT_RUN pending exact-head CI. The
 bounded String length/index ambient contract is shared by both reference
