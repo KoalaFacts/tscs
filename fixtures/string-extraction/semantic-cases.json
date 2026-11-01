@@ -1,0 +1,173 @@
+{
+  "kind": "BOUNDED_STRING_EXTRACTION_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "string-extraction:positive-01",
+      "source": "let parts:string[]=\"a,b,c\".split(\",\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-extraction:positive-02",
+      "source": "let first:string=\"a,b\".split(\",\")[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-extraction:positive-03",
+      "source": "let code:number=\"abc\".charCodeAt(0);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-extraction:positive-04",
+      "source": "let ch:string=\"abc\".charAt(1);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-extraction:positive-05",
+      "source": "let part:string=\"abcd\".substring(1,3);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-extraction:positive-06",
+      "source": "let part:string=\"abcd\".substring(1);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-extraction:positive-07",
+      "source": "let pos:number=\"hello\".indexOf(\"e\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-extraction:positive-08",
+      "source": "let pos:number=\"hello\".lastIndexOf(\"l\",3);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-extraction:positive-09",
+      "source": "let s:string=\"hello\".replace(\"ll\",\"yy\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-extraction:positive-10",
+      "source": "let s:string=\"ab\".repeat(3);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-extraction:positive-11",
+      "source": "let parts:string[]=\"x:y\".replace(\":\",\"|\").split(\"|\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-extraction:positive-12",
+      "source": "let joined:string=\"a,b\".split(\",\").join(\"-\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-extraction:positive-13",
+      "source": "let s:string=\"hello\".charAt(1).repeat(2);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-extraction:positive-14",
+      "source": "let pos:number=\"hello\".indexOf(\"l\",2);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-extraction:negative-01",
+      "source": "let s:string=\"x\";s.charAt();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "string-extraction:negative-02",
+      "source": "let s:string=\"x\";s.charAt(\"0\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "string-extraction:negative-03",
+      "source": "let s:string=\"x\";s.charCodeAt(\"0\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "string-extraction:negative-04",
+      "source": "let s:string=\"x\";s.substring();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "string-extraction:negative-05",
+      "source": "let s:string=\"x\";s.substring(\"a\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "string-extraction:negative-06",
+      "source": "let s:string=\"x\";s.indexOf(2);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "string-extraction:negative-07",
+      "source": "let s:string=\"x\";s.lastIndexOf(\"x\",\"2\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "string-extraction:negative-08",
+      "source": "let s:string=\"x\";s.replace(\"a\",2);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "string-extraction:negative-09",
+      "source": "let s:string=\"x\";s.split(2);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "string-extraction:negative-10",
+      "source": "let s:string=\"x\";s.split(\",\",\"2\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "string-extraction:negative-11",
+      "source": "let s:string=\"x\";s.repeat(\"2\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "string-extraction:negative-12",
+      "source": "let n:number=\"x\".replace(\"x\",\"y\");",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-extraction:negative-13",
+      "source": "let s:string=\"x\".split(\",\");",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-extraction:negative-14",
+      "source": "let n:number=\"x\".charAt(0);",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}
