@@ -28,7 +28,8 @@ public sealed class ArrayAccumulatorTests
     [InlineData("let xs:number[]=[1];xs.reduce((a:string,n:number):string=>a+n,\"\",0);","TS2554")]
     [InlineData("let xs:ReadonlyArray<number>=[1];xs.reduceRight((a:string,n:boolean):string=>a+\"x\",\"\");","TS2345")]
     public void RejectsInvalidAccumulators(string source,string code) =>
-        Assert.Contains(Compilation.Check("invalid-accumulator.ts",source),d=>d.Code==code);
+        Assert.Equal(new[]{code},Compilation.Check("invalid-accumulator.ts",source)
+            .Select(d=>d.Code).ToArray());
 
     private sealed class Host : ICompilerHost
     {
