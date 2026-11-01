@@ -444,6 +444,15 @@ internal static class CompilerTypes
                 return new FunctionTypeSymbol(
                     [Union([new FunctionTypeSymbol([array.ElementType,array.ElementType],Number),Undefined])],
                     new ArrayTypeSymbol(array.ElementType),0);
+            // ES2023 copying methods accept readonly receivers but return
+            // writable copies. The native call is emitted without a polyfill.
+            if(name=="with")
+                return new FunctionTypeSymbol([Number,array.ElementType],
+                    new ArrayTypeSymbol(array.ElementType));
+            if(name=="toSpliced")
+                return new FunctionTypeSymbol(
+                    [Number,Union([Number,Undefined]),array.ElementType],
+                    new ArrayTypeSymbol(array.ElementType),1,array.ElementType);
             // Native concat returns a new writable array even for readonly views.
             // This finite signature accepts values and (readonly) arrays of T;
             // it does not claim Symbol.isConcatSpreadable or general overloads.
