@@ -47,7 +47,7 @@ assert.equal(suite.kind,arrayMap?'BOUNDED_ARRAY_MAP_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :power?'BOUNDED_NUMERIC_EXPONENTIATION_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :strings?'BOUNDED_STRING_ADDITION_MUTATION_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :'BOUNDED_NUMERIC_DIVISION_REMAINDER_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,arrayMap?20:arrayAccumulator?16:arrayFolds?20:arrayCallbacks?35:arrayQueries?106:arrayMethods?21:arrayInPlace?26:readonlyArrays?27:templates?37:decimalLiterals?48:stringUnicode?28:stringExtraction?28:stringMethods?24:stringPrimitives?18:power?20:strings?25:24,'do not shrink the registered cohort');
+assert.equal(suite.cases.length,arrayMap?20:arrayAccumulator?16:arrayFolds?20:arrayCallbacks?35:arrayQueries?106:arrayMethods?21:arrayInPlace?26:readonlyArrays?27:templates?37:decimalLiterals?48:stringUnicode?28:stringExtraction?28:stringMethods?40:stringPrimitives?18:power?20:strings?25:24,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 // The cohort includes number[] indexing and length. Use the already
 // verified array profile for BOTH compilers, not the empty bootstrap Array<T>.

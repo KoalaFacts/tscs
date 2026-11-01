@@ -551,6 +551,9 @@ internal static class CompilerTypes
                     new FunctionTypeSymbol([Number,Union([String,Undefined])],String,1),
                 "normalize" =>
                     new FunctionTypeSymbol([Union([String,Undefined])],String,0),
+                // ES2022 native string indexing uses UTF-16 code units and
+                // returns undefined when the signed index is out of range.
+                "at" => new FunctionTypeSymbol([Number],Union([String,Undefined])),
                 "codePointAt" =>
                     new FunctionTypeSymbol([Number],Union([Number,Undefined])),
                 "localeCompare" => new FunctionTypeSymbol([String],Number),

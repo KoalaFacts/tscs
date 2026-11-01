@@ -19,6 +19,14 @@ public sealed class StringNativeMethodsTests
     [InlineData("let s:string=\"hello\";let b:boolean=s.startsWith(\"e\",1);")]
     [InlineData("let s:string=\"hello\";let b:boolean=s.endsWith(\"lo\");")]
     [InlineData("let s:string=\"hello\";let b:boolean=s.trim().toUpperCase().slice(0,2).endsWith(\"E\");")]
+    [InlineData("let s:string=\"abc\";let result:string|undefined=s.at(-1);")]
+    [InlineData("let s:string=\"abc\";let result:string|undefined=s.at(0);")]
+    [InlineData("let s:string=\"\";let result:string|undefined=s.at(1);")]
+    [InlineData("let s:\"xyz\"=\"xyz\";let result:string|undefined=s.at(-1);")]
+    [InlineData("let s:string=\"😀\";let result:string|undefined=s.at(1);")]
+    [InlineData("let s:string=\"😀\";let result:string|undefined=s.at(-2);")]
+    [InlineData("function last(s:string):string|undefined{return s.at(-1);}let t:string|undefined=last(\"hi\");")]
+    [InlineData("let s:string=\"abc\";let result:string|undefined=s.at(999);")]
     public void NativeStringCallsHaveCheckedTypes(string source) =>
         Assert.Empty(Compilation.Check("string-methods.ts",source));
 
@@ -35,6 +43,14 @@ public sealed class StringNativeMethodsTests
     [InlineData("let t:string=\"x\".includes(\"x\");","TS2322")]
     [InlineData("let s:string=\"x\";s.slice(0,1,2);","TS2554")]
     [InlineData("let s:string=\"x\";s.includes(\"a\",0,1);","TS2554")]
+    [InlineData("let s:string=\"abc\";s.at();","TS2554")]
+    [InlineData("let s:string=\"abc\";s.at(\"1\");","TS2345")]
+    [InlineData("let s:string=\"abc\";s.at(true);","TS2345")]
+    [InlineData("let s:string=\"abc\";s.at(0,1);","TS2554")]
+    [InlineData("let s:string=\"abc\";let n:number=s.at(0);","TS2322")]
+    [InlineData("let s:string=\"abc\";let b:boolean=s.at(-1);","TS2322")]
+    [InlineData("let n:number=42;n.at(0);","TS2339")]
+    [InlineData("let s:string=\"abc\";s.at([1]);","TS2345")]
     public void InvalidStringCallsAreRejected(string source,string code) =>
         Assert.Contains(Compilation.Check("bad-string-methods.ts",source),d=>d.Code==code);
 }

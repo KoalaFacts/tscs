@@ -1,3 +1,18 @@
+## 2026-11-02 — Native ES2022 String.at with signed UTF-16 indexing (candidate; NOT_RUN)
+
+The C# compiler now checks native `string.at(index:number): string | undefined`
+for primitive, literal and string-family receivers through its existing member
+resolver, checked calls and ES2015 emitter. Signed indices and out-of-range
+results preserve native runtime behavior; astral characters are indexed as
+UTF-16 code units (not Unicode code points), with no polyfill supplied.
+The existing 24 pinned-Go string-method IDs, sources and expected diagnostics
+are unchanged; eight positive and eight negative IDs extend the bounded cohort
+to 40. Source-backed xUnit checks, four linked Node modules, rejected invalid
+programs and malformed ambient contracts are registered but NOT_RUN pending
+exact-head hosted verification. No original TS7 acceptance credit; historically
+0 PASS / 15,523 SKIP_UNIMPLEMENTED with dynamic scope UNEXPANDED. No release
+threshold, fixed upstream pin, branch protection or global test count changed.
+
 ## 2026-11-02 — Checked mixed array/string iterable unions (candidate; NOT_RUN)
 
 The existing for..of checker now admits finite union-typed sources when every
