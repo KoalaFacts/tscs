@@ -22,7 +22,7 @@ public sealed class VariableBindingPatternTests
     [Theory]
     [InlineData("const f=({missing}:{value:number}):number=>missing;","TS2339")]
     [InlineData("const f=({value}:{value:number}):string=>value;","TS2322")]
-    [InlineData("const f=({value}:{value:number}):number=>value;let n:number=f({value:\"no\"});","TS2345")]
+    [InlineData("const f=({value}:{value:number}):number=>value;const input={value:\"no\"};let n:number=f(input);","TS2345")]
     [InlineData("const f=({value=\"no\"}:{value?:number}):number=>value;","TS2322")]
     [InlineData("const f=([value]:number[]):string=>value;","TS2322")]
     [InlineData("const f=function({value}:{value:number}):string{return value;};","TS2322")]

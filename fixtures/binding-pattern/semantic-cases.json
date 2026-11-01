@@ -297,7 +297,7 @@
     },
     {
       "id": "binding-pattern:negative-23",
-      "source": "const f=({value}:{value:number}):number=>value;let n:number=f({value:\"no\"});",
+      "source": "const f=({value}:{value:number}):number=>value;const input={value:\"no\"};let n:number=f(input);",
       "expectedCodes": [
         "TS2345"
       ]
