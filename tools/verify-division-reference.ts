@@ -23,9 +23,11 @@ const arrayInPlace=suitePath==='fixtures/array-in-place/semantic-cases.json';
 const arrayQueries=suitePath==='fixtures/array-queries/semantic-cases.json';
 const arrayCallbacks=suitePath==='fixtures/array-callbacks/semantic-cases.json';
 const arrayFolds=suitePath==='fixtures/array-filter-reduce/semantic-cases.json';
-assert.ok(optionalSuitePath==null||strings||power||stringPrimitives||decimalLiterals||templates||readonlyArrays||arrayMethods||arrayInPlace||arrayQueries||arrayCallbacks||arrayFolds,'unknown bounded reference cohort');
+const arrayMap=suitePath==='fixtures/array-map/semantic-cases.json';
+assert.ok(optionalSuitePath==null||strings||power||stringPrimitives||decimalLiterals||templates||readonlyArrays||arrayMethods||arrayInPlace||arrayQueries||arrayCallbacks||arrayFolds||arrayMap,'unknown bounded reference cohort');
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
-assert.equal(suite.kind,arrayFolds?'BOUNDED_ARRAY_FILTER_REDUCE_NOT_ORIGINAL_TS7_ACCEPTANCE'
+assert.equal(suite.kind,arrayMap?'BOUNDED_ARRAY_MAP_NOT_ORIGINAL_TS7_ACCEPTANCE'
+  :arrayFolds?'BOUNDED_ARRAY_FILTER_REDUCE_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :arrayCallbacks?'BOUNDED_ARRAY_CALLBACKS_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :arrayQueries?'BOUNDED_ARRAY_QUERIES_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :arrayMethods?'BOUNDED_ARRAY_MUTATION_METHODS_NOT_ORIGINAL_TS7_ACCEPTANCE'
@@ -37,11 +39,12 @@ assert.equal(suite.kind,arrayFolds?'BOUNDED_ARRAY_FILTER_REDUCE_NOT_ORIGINAL_TS7
   :power?'BOUNDED_NUMERIC_EXPONENTIATION_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :strings?'BOUNDED_STRING_ADDITION_MUTATION_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :'BOUNDED_NUMERIC_DIVISION_REMAINDER_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,arrayFolds?20:arrayCallbacks?19:arrayQueries?41:arrayMethods?21:arrayInPlace?26:readonlyArrays?27:templates?37:decimalLiterals?48:stringPrimitives?18:power?20:strings?25:24,'do not shrink the registered cohort');
+assert.equal(suite.cases.length,arrayMap?20:arrayFolds?20:arrayCallbacks?19:arrayQueries?41:arrayMethods?21:arrayInPlace?26:readonlyArrays?27:templates?37:decimalLiterals?48:stringPrimitives?18:power?20:strings?25:24,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 // The cohort includes number[] indexing and length. Use the already
 // verified array profile for BOTH compilers, not the empty bootstrap Array<T>.
-const minimalProfile=arrayFolds?'fixtures/array-filter-reduce/minimal.d.ts':
+const minimalProfile=arrayMap?'fixtures/array-map/minimal.d.ts':
+  arrayFolds?'fixtures/array-filter-reduce/minimal.d.ts':
   arrayCallbacks?'fixtures/array-callbacks/minimal.d.ts':
   arrayQueries?'fixtures/array-queries/minimal.d.ts':
   arrayMethods?'fixtures/array-methods/minimal.d.ts':
@@ -76,7 +79,8 @@ const diagnosticCodes=(r:ReturnType<typeof run>)=>
 const ids=new Set<string>(),results:object[]=[],mismatches:object[]=[];
 for(let i=0;i<suite.cases.length;i++){
   const item=suite.cases[i];
-  assert.match(item.id,arrayFolds?/^array-filter-reduce:(positive|negative)-\d{2}$/
+  assert.match(item.id,arrayMap?/^array-map:(positive|negative)-\d{2}$/
+    :arrayFolds?/^array-filter-reduce:(positive|negative)-\d{2}$/
     :arrayCallbacks?/^array-callbacks:(positive|negative)-\d{2}$/
     :arrayQueries?/^array-queries:(positive|negative)-\d{2}$/
     :arrayMethods?/^array-methods:(positive|negative)-\d{2}$/
