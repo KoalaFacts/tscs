@@ -585,6 +585,24 @@ internal static class CompilerTypes
         IsString(type) || type is UnionTypeSymbol union &&
         union.Alternatives.Count>0 && union.Alternatives.All(IsStringFamily);
 
+    // A known union is iterable only when every branch is a checked array
+    // or string. Join the element types instead of selecting an arbitrary
+    // first branch; a nullish, any or unknown branch fails closed.
+    public static TypeSymbol? TryGetIterationElementType(TypeSymbol? source)
+    {
+        if(source is ArrayTypeSymbol array)return array.ElementType;
+        if(IsStringFamily(source))return String;
+        if(source is not UnionTypeSymbol union)return null;
+        var elements=new List<TypeSymbol>(union.Alternatives.Count);
+        foreach(var alternative in union.Alternatives)
+        {
+            if(alternative is ArrayTypeSymbol memberArray)elements.Add(memberArray.ElementType);
+            else if(IsStringFamily(alternative))elements.Add(String);
+            else return null;
+        }
+        return Union(elements);
+    }
+
     // Property keys and receivers must be checked, not coerced from arbitrary
     // primitive types. All alternatives in a union must satisfy the constraint.
     public static bool CanUseInLeft(TypeSymbol type) =>

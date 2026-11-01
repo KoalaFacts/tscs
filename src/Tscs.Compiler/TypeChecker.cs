@@ -444,8 +444,12 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         var sourceType=TypeOf(loop.Source,scope);
         // Native ES2015 for..of iterates strings by Unicode code point.
         // Other unknown or nullable sources remain unsupported.
-        var elementType=sourceType is ArrayTypeSymbol array ? array.ElementType :
-            CompilerTypes.IsStringFamily(sourceType) ? CompilerTypes.String : null;
+        TypeSymbol? elementType;
+        try { elementType=CompilerTypes.TryGetIterationElementType(sourceType); }
+        catch(InvalidOperationException failure)
+        {
+            throw new CompilationFailure(Diagnostic.Error(file,loop.Keyword,"TSCS1001",failure.Message));
+        }
         if(elementType is null)
             throw new CompilationFailure(Diagnostic.Error(file,loop.Keyword,"TSCS1001",
                 "Only checked array and string values are supported in for..of iteration."));
