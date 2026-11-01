@@ -1,19 +1,167 @@
 {
   "kind": "BOUNDED_ARRAY_INDEX_FOROF_NOT_ORIGINAL_TS7_ACCEPTANCE",
   "cases": [
-    {"id":"array-iteration:positive-01","source":"const xs = [21,21]; let result: number = xs[0] + xs[1];","expectedCodes":[]},
-    {"id":"array-iteration:positive-02","source":"let xs: number[] = [20,22]; xs[0] = 21; let n: number = xs[0];","expectedCodes":[]},
-    {"id":"array-iteration:positive-03","source":"let rows: number[][] = [[1,2],[3,4]]; let r: number = rows[0][1];","expectedCodes":[]},
-    {"id":"array-iteration:positive-04","source":"function sum(xs: number[]): number { let total: number = 0; for (const x of xs) { total = total + x; } return total; } let n: number = sum([21,21]);","expectedCodes":[]},
-    {"id":"array-iteration:positive-05","source":"const xs: { value: number }[] = [{ value: 21 }, { value: 22 }]; xs[0].value = 42;","expectedCodes":[]},
-    {"id":"array-iteration:positive-06","source":"const obj = { for: 21 }; let n: number = obj.for;","expectedCodes":[]},
-    {"id":"array-iteration:positive-07","source":"let xs: number[] = []; let n: number = xs.length;","expectedCodes":[]},
-    {"id":"array-iteration:positive-08","source":"let sum: number = 0; for (let n of [20,22]) { sum = sum + n; } let result: number = sum;","expectedCodes":[]},
-    {"id":"array-iteration:negative-01","source":"const xs = [1,2]; xs[0] = \"bad\";","expectedCodes":["TS2322"]},
-    {"id":"array-iteration:negative-02","source":"const xs = [1,2]; xs.missing;","expectedCodes":["TS2339"]},
-    {"id":"array-iteration:negative-03","source":"const xs = [1,2]; for (const x of xs) { x = 42; }","expectedCodes":["TS2588"]},
-    {"id":"array-iteration:negative-04","source":"let xs: number[] = [\"bad\"];","expectedCodes":["TS2322"]},
-    {"id":"array-iteration:negative-05","source":"const x: { items: number[] } = { items: [\"bad\"] };","expectedCodes":["TS2322"]},
-    {"id":"array-iteration:negative-06","source":"let xs: { value: number }[] = [{ value: \"bad\" }];","expectedCodes":["TS2322"]}
+    {
+      "id": "array-iteration:positive-01",
+      "source": "const xs = [21,21]; let result: number = xs[0] + xs[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-iteration:positive-02",
+      "source": "let xs: number[] = [20,22]; xs[0] = 21; let n: number = xs[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-iteration:positive-03",
+      "source": "let rows: number[][] = [[1,2],[3,4]]; let r: number = rows[0][1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-iteration:positive-04",
+      "source": "function sum(xs: number[]): number { let total: number = 0; for (const x of xs) { total = total + x; } return total; } let n: number = sum([21,21]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-iteration:positive-05",
+      "source": "const xs: { value: number }[] = [{ value: 21 }, { value: 22 }]; xs[0].value = 42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-iteration:positive-06",
+      "source": "const obj = { for: 21 }; let n: number = obj.for;",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-iteration:positive-07",
+      "source": "let xs: number[] = []; let n: number = xs.length;",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-iteration:positive-08",
+      "source": "let sum: number = 0; for (let n of [20,22]) { sum = sum + n; } let result: number = sum;",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-iteration:negative-01",
+      "source": "const xs = [1,2]; xs[0] = \"bad\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-iteration:negative-02",
+      "source": "const xs = [1,2]; xs.missing;",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "array-iteration:negative-03",
+      "source": "const xs = [1,2]; for (const x of xs) { x = 42; }",
+      "expectedCodes": [
+        "TS2588"
+      ]
+    },
+    {
+      "id": "array-iteration:negative-04",
+      "source": "let xs: number[] = [\"bad\"];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-iteration:negative-05",
+      "source": "const x: { items: number[] } = { items: [\"bad\"] };",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-iteration:negative-06",
+      "source": "let xs: { value: number }[] = [{ value: \"bad\" }];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-iteration:positive-09",
+      "source": "let text:string=\"ab\";let result:string=\"\";for(const ch of text){result=result+ch;}",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:positive-10",
+      "source": "for(let ch of \"ok\"){let value:string=ch;}",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:positive-11",
+      "source": "function collect(s:string):string{let out:string=\"\";for(const ch of s){out=out+ch;}return out;}let answer:string=collect(\"ab\");",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:positive-12",
+      "source": "let words:string[]=[\"ab\",\"cd\"];let count:number=0;for(const word of words){for(const ch of word){count++;}}",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:positive-13",
+      "source": "let s:\"ab\"=\"ab\";for(const ch of s){let value:string=ch;}",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:positive-14",
+      "source": "let s:string=\"x\";for(const ch of s){if(ch===\"x\"){break;}}",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:positive-15",
+      "source": "let s:string=\"a😀b\";let out:string=\"\";for(const ch of s){out=out+ch;}",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:positive-16",
+      "source": "function read(s:string):string{let out:string=\"\";for(let ch of s){if(ch===\"a\"){continue;}out=out+ch;}return out;}let r:string=read(\"abc\");",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:negative-07",
+      "source": "for(const ch of \"abc\"){ch=\"x\";}",
+      "expectedCodes": [
+        "TS2588"
+      ],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:negative-08",
+      "source": "for(const ch of \"abc\"){let wrong:number=ch;}",
+      "expectedCodes": [
+        "TS2322"
+      ],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:negative-09",
+      "source": "let s:string=\"a\";for(let ch of s){ch=42;}",
+      "expectedCodes": [
+        "TS2322"
+      ],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:negative-10",
+      "source": "for(const ch of \"abc\"){ch.missing;}",
+      "expectedCodes": [
+        "TS2339"
+      ],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    }
   ]
 }

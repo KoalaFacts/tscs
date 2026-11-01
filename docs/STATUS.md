@@ -1,3 +1,16 @@
+## 2026-11-02 — Checked Unicode string for..of (candidate; NOT_RUN)
+
+Strings, literal strings and string-only unions now pass through the existing
+for..of Binder, TypeChecker and JavaScriptEmitter. The element has type string;
+native ES2015 iteration preserves Unicode code points. Twelve new source-backed
+fixed-Go cases extend the unchanged fourteen-case array iteration cohort to
+twenty-six, using a symmetric validated String iterator ambient only on the
+new cases. Four linked JS files, illegal program no-emission, strict compiler
+regressions and reference comparison are NOT_RUN until exact-head hosted CI.
+Other iterables and downlevel output are not claimed. Original TS7 acceptance
+remains historically 0 PASS / 15,523 SKIP_UNIMPLEMENTED with UNEXPANDED
+dynamic scope. No original acceptance credit or release-gate changes.
+
 ## 2026-11-02 — Bounded ES2023 reverse array predicate callbacks
 
 Native `findLast` and `findLastIndex` are checked on mutable and readonly

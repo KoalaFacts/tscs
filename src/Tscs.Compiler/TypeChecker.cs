@@ -442,14 +442,18 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     private void CheckForOf(ForOfStatement loop,Scope scope,TypeSymbol? expectedReturn)
     {
         var sourceType=TypeOf(loop.Source,scope);
-        if(sourceType is not ArrayTypeSymbol array)
+        // Native ES2015 for..of iterates strings by Unicode code point.
+        // Other unknown or nullable sources remain unsupported.
+        var elementType=sourceType is ArrayTypeSymbol array ? array.ElementType :
+            CompilerTypes.IsStringFamily(sourceType) ? CompilerTypes.String : null;
+        if(elementType is null)
             throw new CompilationFailure(Diagnostic.Error(file,loop.Keyword,"TSCS1001",
-                "Only known array values are supported in for..of iteration."));
+                "Only checked array and string values are supported in for..of iteration."));
         CheckStrictModuleBinding(loop.Name);
         var before=CaptureInitialized(scope);
         var writesBefore=CaptureFlowWriteVersions(scope);
         var iteration=new Scope(scope);
-        Binder.DeclareIterationVariable(file,iteration,loop,array.ElementType);
+        Binder.DeclareIterationVariable(file,iteration,loop,elementType);
         // Backedges can observe a write from a previous iteration. A
         // narrower pre-loop read type is not a loop invariant.
         InvalidateLoopBackedgeFlowTypes(scope,loop.Body,iterationName:loop.Name.Text);

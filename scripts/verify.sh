@@ -53,6 +53,7 @@ node tools/verify-type-operators-emit.ts
 node tools/verify-switch-emit.ts
 node tools/verify-switch-completion-emit.ts
 node tools/verify-loop-control-emit.ts
+node tools/verify-string-forof-emit.ts
 node tools/verify-unbraced-loops-emit.ts
 node tools/verify-classic-for-emit.ts
 node tools/verify-numeric-mutation-emit.ts

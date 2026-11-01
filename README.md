@@ -94,6 +94,17 @@ Safe references to external declarations remain supported.
 The source-backed, executed and pinned-Go checks are bounded, not the full TS7
 original harness.
 
+## Unicode-aware string iteration (bounded)
+
+Checked `for (const character of text)` and `for (let character of text)`
+accept known string values and string-literal types alongside existing array
+iteration. The element has type `string`, with lexical scoping, assignment
+validation, break/continue and conservative flow invalidation. Native ES2015
+`for..of` output iterates Unicode code points, including astral characters.
+Other iterables, nullable/unknown sources and downlevel iteration remain
+unsupported. The pinned-Go differential uses a symmetric, strictly validated
+String iterator ambient; this does not enable general library declarations.
+
 ## Structural object data
 
 Required named object members now use the same AST, Binder, semantic types,
