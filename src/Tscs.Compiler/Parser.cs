@@ -96,7 +96,12 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 if(key.Kind!=TokenKind.Identifier)
                     Unsupported(key,"Only static identifier object binding keys are supported.");
                 Take();
-                var binding=Eat(TokenKind.Colon)?ReadBindingPattern(depth+1):new BoundName(key);
+                bool renamed=Eat(TokenKind.Colon);
+                // A shorthand identifier is one more binding level. Reject it
+                // before lowering, so depth overflow is a normal diagnostic.
+                if(!renamed && depth>=32)
+                    Unsupported(key,"Binding pattern nesting exceeds the supported limit.");
+                var binding=renamed?ReadBindingPattern(depth+1):new BoundName(key);
                 members.Add((key,binding));
                 if(!Eat(TokenKind.Comma))break;
             }
@@ -150,7 +155,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     var numberToken=new Token(TokenKind.Number,number,arrayPattern.Open.Start,number.Length);
                     var closing=new Token(TokenKind.CloseBracket,"]",arrayPattern.Open.Start,1);
                     LowerBindingChild(binding,
-                        new ValueElementAccess(source,arrayPattern.Open,new ValueAtom(numberToken),closing),
+                        new ValueElementAccess(source,arrayPattern.Open,new ValueAtom(numberToken),closing,BindingArrayElement:true),
                         arrayPattern.Open,constant,exported,target,depth+1);
                 }
                 return;

@@ -37,8 +37,19 @@ public sealed class VariableBindingPatternTests
     [InlineData("const []=[21];")]
     [InlineData("const {}={value:21};")]
     [InlineData("const {value}={value:21};const {value}={value:22};")]
+    [InlineData("const [value]={0:42};")]
+    [InlineData("const [value]=\"😀\";")]
+    [InlineData("const [[value]]=[{0:42}];")]
     public void UnsupportedOrDuplicateBindingsCannotSilentlyCompile(string source) =>
         Assert.NotEmpty(Compilation.Check("binding.ts",source));
+
+    [Fact]
+    public void ExcessiveNestedObjectShorthandFailsWithDiagnosticRatherThanCrash()
+    {
+        var pattern=string.Concat(Enumerable.Repeat("{a:",33))+"value"+new string('}',33);
+        var result=Compilation.Check("nested.ts","const "+pattern+"={a:1};");
+        Assert.Contains(result,d=>d.Code=="TSCS1001");
+    }
 
     [Fact]
     public void NestedBindingsFromImportedObjectsFeedLinkedFunctionsAndEmit()
