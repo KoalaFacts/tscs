@@ -285,6 +285,17 @@ callback parameters, contextual inference, `thisArg`, type-guard predicates
 and full standard-library overloads remain unsupported. These are not original
 TS7 acceptance results.
 
+## Checked array filtering and same-element folds (bounded)
+
+Native `filter`, `reduce`, and `reduceRight` operate on mutable and
+readonly array views through checked, explicitly typed callbacks.
+`filter((value: T) => boolean)` creates a fresh, mutable `T[]`;
+`reduce`/`reduceRight` accept `(accumulator: T, value: T) => T`
+with an optional `T` initial value. Native ES2015 preserves order and
+the runtime error when reducing an empty array without an initial value.
+General different-type accumulators, contextual callback inference,
+index/array callback parameters and type-guard predicates are unsupported.
+
 ## Other implemented subsets
 
 The current pipeline includes primitive/`any` variables, lexical scopes, selected

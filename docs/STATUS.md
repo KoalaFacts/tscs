@@ -831,6 +831,20 @@ are NOT_RUN at source creation. This is not original acceptance; original 0 PASS
 
 # tscs status
 
+## 2026-11-01 — Checked array filtering and same-element folds (candidate; NOT_RUN)
+
+The existing C# array member resolver now exposes native ES2015 `filter`,
+`reduce` and `reduceRight` on mutable and readonly arrays. `filter`
+returns a fresh writable array and folds retain the element type `T`
+for callback accumulator, optional initial value and result. Source-backed
+xUnit, four-module Node execution and invalid/no-JS assertions, plus 20
+independent fixed-Go source/diagnostic/exit cases, are registered as NOT_RUN
+before exact-head CI. Distinct accumulator types, contextual callback
+inference and callback index parameters remain unsupported. Original TS7:
+0 PASS / 15,523 SKIP_UNIMPLEMENTED; dynamic scope UNEXPANDED. No release
+gate, threshold, upstream pin or protection changes.
+
+
 ## 2026-10-29 — Numeric postfix value expressions (source candidate; NOT_RUN)
 
 Native ES2015 postfix ++/-- now produces the prior numeric value in nested

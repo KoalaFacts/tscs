@@ -449,6 +449,16 @@ internal static class CompilerTypes
                 };
                 return new FunctionTypeSymbol([callback],result);
             }
+            // Checked native array transformations: filter always creates a
+            // writable copy; same-element folds use an optional initial T.
+            if(name=="filter")
+                return new FunctionTypeSymbol(
+                    [new FunctionTypeSymbol([array.ElementType],Boolean)],
+                    new ArrayTypeSymbol(array.ElementType));
+            if(name is "reduce" or "reduceRight")
+                return new FunctionTypeSymbol(
+                    [new FunctionTypeSymbol([array.ElementType,array.ElementType],array.ElementType),
+                     array.ElementType],array.ElementType,1);
             if(array.Readonly)return null;
             return name switch
             {
