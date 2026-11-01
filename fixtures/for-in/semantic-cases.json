@@ -67,6 +67,102 @@
       "expectedCodes": [
         "TS2407"
       ]
+    },
+    {
+      "id": "for-in:positive-10",
+      "source": "type Choice={left:number}|{right:number};function count(x:Choice):number{let n:number=0;for(const k in x){n++;}return n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "for-in:positive-11",
+      "source": "function count(x:{a:number}|number[]):number{let n:number=0;for(const k in x){if(k===\"a\"){n++;}}return n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "for-in:positive-12",
+      "source": "function count(x:{a:number}|readonly number[]):number{let n:number=0;for(const k in x){n++;}return n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "for-in:positive-13",
+      "source": "function count(x:{a:number}|undefined):number{let n:number=0;for(const k in x){n++;}return n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "for-in:positive-14",
+      "source": "function count(x:{a:number}|null):number{let n:number=0;for(const k in x){n++;}return n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "for-in:positive-15",
+      "source": "function count(x:{a:number}|{b:string}|null|undefined):number{let n:number=0;for(const k in x){n++;}return n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "for-in:positive-16",
+      "source": "type A={a:number};type B={b:number};function count(x:A|B|undefined):number{let n:number=0;for(const k in x){n++;}return n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "for-in:positive-17",
+      "source": "function last(x:readonly number[]|number[]):string{let last:string=\"\";for(let k in x){last=k;}return last;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "for-in:negative-04",
+      "source": "function count(x:{a:number}|string):number{let n:number=0;for(const k in x){n++;}return n;}",
+      "expectedCodes": [
+        "TS2407"
+      ]
+    },
+    {
+      "id": "for-in:negative-05",
+      "source": "function count(x:number[]|number):number{let n:number=0;for(const k in x){n++;}return n;}",
+      "expectedCodes": [
+        "TS2407"
+      ]
+    },
+    {
+      "id": "for-in:negative-06",
+      "source": "function count(x:{a:number}|boolean):number{let n:number=0;for(const k in x){n++;}return n;}",
+      "expectedCodes": [
+        "TS2407"
+      ]
+    },
+    {
+      "id": "for-in:negative-07",
+      "source": "function count(x:unknown):number{let n:number=0;for(const k in x){n++;}return n;}",
+      "expectedCodes": [
+        "TS2407"
+      ]
+    },
+    {
+      "id": "for-in:negative-08",
+      "source": "function count(x:string|null):number{let n:number=0;for(const k in x){n++;}return n;}",
+      "expectedCodes": [
+        "TS2407"
+      ]
+    },
+    {
+      "id": "for-in:negative-09",
+      "source": "function count(x:number|string):number{let n:number=0;for(const k in x){n++;}return n;}",
+      "expectedCodes": [
+        "TS2407"
+      ]
+    },
+    {
+      "id": "for-in:negative-10",
+      "source": "function count(x:{a:number}|{b:number}):number{for(const k in x){let n:number=k;}return 1;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "for-in:negative-11",
+      "source": "function count(x:readonly number[]|string):number{let n:number=0;for(const k in x){n++;}return n;}",
+      "expectedCodes": [
+        "TS2407"
+      ]
     }
   ]
 }

@@ -22,6 +22,11 @@ try {
     '   if(key==="second"){total+=22;}',
     ' } return total;',
     '}',
+    'export function nullableKeys(source:{first:number}|number[]|null|undefined):number {',
+    ' let total:number=0;',
+    ' for(const key in source){total++;}',
+    ' return total;',
+    '}',
     'export function arrayKeys(numbers:number[]):number {',
     ' let total:number=0;',
     ' for(let index in numbers) {',
@@ -30,12 +35,15 @@ try {
     ' } return total;',
     '}'
   ].join('\n'));
-  writeFileSync(join(folder,'bridge.ts'),'export {objectKeys,arrayKeys} from "./logic.js";\n');
+  writeFileSync(join(folder,'bridge.ts'),'export {objectKeys,arrayKeys,nullableKeys} from "./logic.js";\n');
   writeFileSync(join(folder,'entry.ts'),[
     'import {record,numbers} from "./model.js";',
-    'import {objectKeys,arrayKeys} from "./bridge.js";',
+    'import {objectKeys,arrayKeys,nullableKeys} from "./bridge.js";',
     'export const result:number=objectKeys(record);',
     'export const arrayResult:number=arrayKeys(numbers);',
+    'export const unionObject:number=nullableKeys(record);',
+    'export const unionArray:number=nullableKeys(numbers);',
+    'export const unionNull:number=nullableKeys(null);',
     'let outer:string="outer";',
     'let count:number=0;',
     'for(let outer in record) {for(const inner in numbers){if(outer==="first" && inner==="0"){count+=42;}}}',
@@ -57,10 +65,10 @@ try {
   for(const name of ['model','logic','bridge','entry'])
     assert.ok(existsSync(join(folder,name+'.js')),'missing '+name+'.js');
   const executed=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,arrayResult,nested,retained,empty} from "./entry.js";'+
-    'if(result!==42 || arrayResult!==42 || nested!==42 || retained!=="outer" || empty!==0)'+
-    'throw Error("wrong checked for-in runtime: "+JSON.stringify({result,arrayResult,nested,retained,empty}));'+
-    'console.log(JSON.stringify({result,arrayResult,nested,retained,empty}));'
+    'import {result,arrayResult,nested,retained,empty,unionObject,unionArray,unionNull} from "./entry.js";'+
+    'if(result!==42 || arrayResult!==42 || nested!==42 || retained!=="outer" || empty!==0 || unionObject!==2 || unionArray!==2 || unionNull!==0)'+
+    'throw Error("wrong checked for-in runtime: "+JSON.stringify({result,arrayResult,nested,retained,empty,unionObject,unionArray,unionNull}));'+
+    'console.log(JSON.stringify({result,arrayResult,nested,retained,empty,unionObject,unionArray,unionNull}));'
   ],{cwd:folder,encoding:'utf8',timeout:15000,env});
   assert.equal(executed.error,undefined,String(executed.error));
   assert.equal(executed.status,0,executed.stdout+'\n'+executed.stderr);
@@ -78,6 +86,7 @@ try {
   const invalid=[
     ['number-source','for(const key in 42){}','TS2407'],
     ['boolean-source','for(let key in true){}','TS2407'],
+    ['primitive-union','function invalid(x:{first:number}|string):number{let n:number=0;for(const key in x){n++;}return n;}','TS2407'],
     ['wrong-key-type','for(const key in {a:1}){let n:number=key;}','TS2322'],
     ['wrong-body-type','for(const key in {a:1}){let s:string=1;}','TS2322'],
     ['outside-scope','for(const key in {a:1}){}let s:string=key;','TS2304'],
@@ -90,5 +99,5 @@ try {
     assert.match(rejected.stdout+'\n'+rejected.stderr,new RegExp(code));
     assert.equal(existsSync(join(folder,name+'.js')),false,'invalid for-in emitted JS: '+name);
   }
-  console.log('Checked for-in: four ES2015 modules executed; six invalid programs emitted no JS.');
+  console.log('Checked for-in: four ES2015 modules executed; seven invalid programs emitted no JS.');
 } finally { rmSync(folder,{recursive:true,force:true}); }

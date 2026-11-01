@@ -46,4 +46,29 @@ public sealed class ForInTests
         const string source="let record={a:1};let value:number;for(const key in record){value=42;}let result:number=value;";
         Assert.Contains(Compilation.Check("for-in-flow.ts",source),d=>d.Code=="TSCS1001");
     }
+    // Source-backed compiler checks, separate from original TS7 acceptance.
+    [Theory]
+    [InlineData("type Choice={left:number}|{right:number};function count(x:Choice):number{let n:number=0;for(const k in x){n++;}return n;}")]
+    [InlineData("function count(x:{a:number}|number[]):number{let n:number=0;for(const k in x){if(k===\"a\"){n++;}}return n;}")]
+    [InlineData("function count(x:{a:number}|readonly number[]):number{let n:number=0;for(const k in x){n++;}return n;}")]
+    [InlineData("function count(x:{a:number}|undefined):number{let n:number=0;for(const k in x){n++;}return n;}")]
+    [InlineData("function count(x:{a:number}|null):number{let n:number=0;for(const k in x){n++;}return n;}")]
+    [InlineData("function count(x:{a:number}|{b:string}|null|undefined):number{let n:number=0;for(const k in x){n++;}return n;}")]
+    [InlineData("type A={a:number};type B={b:number};function count(x:A|B|undefined):number{let n:number=0;for(const k in x){n++;}return n;}")]
+    [InlineData("function last(x:readonly number[]|number[]):string{let last:string=\"\";for(let k in x){last=k;}return last;}")]
+    public void FiniteForInUnionsKeepStringKeys(string source) =>
+        Assert.Empty(Compilation.Check("for-in-unions.ts",source));
+
+    [Theory]
+    [InlineData("function count(x:{a:number}|string):number{let n:number=0;for(const k in x){n++;}return n;}", "TS2407")]
+    [InlineData("function count(x:number[]|number):number{let n:number=0;for(const k in x){n++;}return n;}", "TS2407")]
+    [InlineData("function count(x:{a:number}|boolean):number{let n:number=0;for(const k in x){n++;}return n;}", "TS2407")]
+    [InlineData("function count(x:unknown):number{let n:number=0;for(const k in x){n++;}return n;}", "TS2407")]
+    [InlineData("function count(x:string|null):number{let n:number=0;for(const k in x){n++;}return n;}", "TS2407")]
+    [InlineData("function count(x:number|string):number{let n:number=0;for(const k in x){n++;}return n;}", "TS2407")]
+    [InlineData("function count(x:{a:number}|{b:number}):number{for(const k in x){let n:number=k;}return 1;}", "TS2322")]
+    [InlineData("function count(x:readonly number[]|string):number{let n:number=0;for(const k in x){n++;}return n;}", "TS2407")]
+    public void NonObjectForInAlternativesAreRejected(string source,string diagnostic) =>
+        Assert.Contains(Compilation.Check("for-in-invalid-unions.ts",source),d=>d.Code==diagnostic);
+
 }
