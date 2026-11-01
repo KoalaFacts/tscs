@@ -1,3 +1,18 @@
+## 2026-11-02 — Checked mixed array/string iterable unions (candidate; NOT_RUN)
+
+The existing for..of checker now admits finite union-typed sources when every
+alternative is a checked mutable/readonly array or string family. Binding types
+are the union of all yielded elements; a nullable/unknown/noniterable alternative
+rejects rather than silently broadening or emitting unsafe code. Existing native
+ES2015 output and module linking are unchanged. Eight positive and eight negative
+immutable bounded pinned-Go source/diagnostic IDs extend the 26-case array/string
+iteration cohort to 42. Source-backed xUnit, four linked JavaScript modules,
+invalid/no-emission and ambient validation checks are registered, NOT_RUN
+until the exact-head CI executes. This does not implement general iterators,
+downlevel iteration or original TS7 suite acceptance. Full original scope
+remains historically 0 PASS / 15,523 SKIP_UNIMPLEMENTED with
+dynamic UNEXPANDED; no pin, threshold, release gate or protection changed.
+
 ## 2026-11-02 — Checked Unicode string for..of (candidate; NOT_RUN)
 
 Strings, literal strings and string-only unions now pass through the existing

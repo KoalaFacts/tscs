@@ -162,6 +162,118 @@
         "TS2339"
       ],
       "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:positive-17",
+      "source": "function count(source:number[]|string):number{let n:number=0;for(const value of source){let checked:number|string=value;n++;}return n;}let a:number=count(\"a😀\");",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:positive-18",
+      "source": "function count(source:readonly number[]|string):number{let n:number=0;for(let v of source){let either:number|string=v;n++;}return n;}let a:number=count([3,4]);",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:positive-19",
+      "source": "function take(source:number[]|readonly number[]):number{let out:number=0;for(const v of source){out=out+v;}return out;}let r:number=take([1,2]);",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:positive-20",
+      "source": "function glue(source:string[]|string):number{let n:number=0;for(const s of source){let text:string=s;n++;}return n;}let result:number=glue([\"ab\",\"cd\"]);",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:positive-21",
+      "source": "type Feed=number[]|string;function view(feed:Feed):number{let n:number=0;for(const part of feed){let v:number|string=part;n++;}return n;}let count:number=view([1,2]);",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:positive-22",
+      "source": "type Blend=string[]|number[];function tally(b:Blend):number{let n:number=0;for(const v of b){let m:number|string=v;n++;}return n;}let count:number=tally([\"aa\"]);",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:positive-23",
+      "source": "type Values=readonly number[]|readonly string[];function tally(xs:Values):number{let c:number=0;for(const v of xs){let y:number|string=v;c++;}return c;}let count:number=tally([1,2]);",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:positive-24",
+      "source": "function scan(source:\"ab\"|number[]):number{let n:number=0;for(const x of source){let either:string|number=x;n++;}return n;}let count:number=scan(\"ab\");",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:negative-11",
+      "source": "function reject(xs:number[]|string):void{for(const v of xs){let wrong:number=v;}}",
+      "expectedCodes": [
+        "TS2322"
+      ],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:negative-12",
+      "source": "function reject(xs:string[]|number[]):void{for(const v of xs){let wrong:string=v;}}",
+      "expectedCodes": [
+        "TS2322"
+      ],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:negative-13",
+      "source": "function reject(xs:readonly number[]|string):void{for(const v of xs){let wrong:boolean=v;}}",
+      "expectedCodes": [
+        "TS2322"
+      ],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:negative-14",
+      "source": "function reject(xs:readonly string[]|number[]):void{for(const v of xs){let wrong:number=v;}}",
+      "expectedCodes": [
+        "TS2322"
+      ],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:negative-15",
+      "source": "function reject(xs:string|number[]):void{for(const v of xs){v=false;}}",
+      "expectedCodes": [
+        "TS2588"
+      ],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:negative-16",
+      "source": "function reject(xs:string[]|number[]):void{for(let v of xs){v=false;}}",
+      "expectedCodes": [
+        "TS2322"
+      ],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:negative-17",
+      "source": "function reject(xs:string|number[]):void{for(const v of xs){let wrong:undefined=v;}}",
+      "expectedCodes": [
+        "TS2322"
+      ],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
+    },
+    {
+      "id": "array-iteration:negative-18",
+      "source": "type Source=readonly number[]|string;function reject(s:Source):void{for(const v of s){let bad:string=v;}}",
+      "expectedCodes": [
+        "TS2322"
+      ],
+      "minimalProfile": "fixtures/string-iteration/minimal.d.ts"
     }
   ]
 }

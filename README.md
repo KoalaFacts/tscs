@@ -101,8 +101,12 @@ accept known string values and string-literal types alongside existing array
 iteration. The element has type `string`, with lexical scoping, assignment
 validation, break/continue and conservative flow invalidation. Native ES2015
 `for..of` output iterates Unicode code points, including astral characters.
-Other iterables, nullable/unknown sources and downlevel iteration remain
-unsupported. The pinned-Go differential uses a symmetric, strictly validated
+Known unions of arrays and strings may also be iterated; each yielded element
+retains the union of all possible member element types. Mixed arrays of mutable
+and readonly views and string literals use the same checked binding. Every
+union branch must be known iterable: optional/nullable, unknown, boolean and
+arbitrary iterator alternatives are rejected rather than miscompiled.
+Other iterables and downlevel iteration remain unsupported. The pinned-Go differential uses a symmetric, strictly validated
 String iterator ambient; this does not enable general library declarations.
 
 ## Structural object data

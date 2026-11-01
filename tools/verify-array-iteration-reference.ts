@@ -14,7 +14,7 @@ const pin=JSON.parse(readFileSync("upstream.lock.json","utf8"));
 const suitePath="fixtures/array-iteration/semantic-cases.json";
 const suite=JSON.parse(readFileSync(suitePath,"utf8"));
 assert.equal(suite.kind,"BOUNDED_ARRAY_INDEX_FOROF_NOT_ORIGINAL_TS7_ACCEPTANCE");
-assert.equal(suite.cases.length,26,"preserve all 14 original array cases and 12 new string iteration cases");
+assert.equal(suite.cases.length,42,"preserve all 26 prior array/string cases and 16 new mixed iterable union cases");
 const reference=resolve(referenceArgument);
 const out=resolve(outputArgument);
 assert.ok(!existsSync(out),"refusing to overwrite any existing evidence");
