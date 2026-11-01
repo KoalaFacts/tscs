@@ -27,11 +27,11 @@ try {
       'export function pickArray([first,,third]:number[]):number{return first+third;}',
       'export function pickNested({inner:{score=42}}:{inner:{score?:number}}):number{return score;}',
       'export function modify({value}:{value:number}):number{value=value+1;return value;}',
-      'export const arrowPick=({value}:{value:number}):number=>value*3;',
-      'export const arrowArray=([first,,third]:number[]):number=>first+third;',
-      'export const expressionPick=function({value}:{value:number}):number{return value+1;};',
-      'export const arrowDefault=({value=42}:{value?:number}):number=>value;',
-      'export const methodPick={read({value}:{value:number}):number{return value;}};'
+      'export const arrowPick:(input:{value:number})=>number=({value}:{value:number}):number=>value*3;',
+      'export const arrowArray:(input:number[])=>number=([first,,third]:number[]):number=>first+third;',
+      'export const expressionPick:(input:{value:number})=>number=function({value}:{value:number}):number{return value+1;};',
+      'export const arrowDefault:(input:{value?:number})=>number=({value=42}:{value?:number}):number=>value;',
+      'export const methodPick:{read(input:{value:number}):number}={read({value}:{value:number}):number{return value;}};'
     ].join('\n'),
     'bridge.ts':'export {add,unpack,pickArray,pickNested,modify,arrowPick,arrowArray,expressionPick,arrowDefault,methodPick} from "./logic.js";',
     'entry.ts':[
