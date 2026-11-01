@@ -2216,18 +2216,20 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 // checking still follows the ordinary function relation below.
                 // Only the result element is inferred from the explicit callable
                 // return type; no untyped-parameter or arbitrary generic inference.
+                TypeSymbol presentResult=signature.ReturnType;
                 if(signature.NativeArrayMapElementType is not null &&
                    call.SpreadIndex<0 && arguments.Length==1 &&
                    arguments[0] is FunctionTypeSymbol mapper)
                 {
                     var mapped=new ArrayTypeSymbol(mapper.ReturnType);
+                    presentResult=mapped;
                     resultType=optionalMissing
                         ?CompilerTypes.Union([mapped,CompilerTypes.Undefined])
                         :mapped;
                 }
                 if(call.Optional || call.ChainContinuation)
                 {
-                    optionalPresent[call]=signature.ReturnType;
+                    optionalPresent[call]=presentResult;
                     optionalSkipped[call]=optionalMissing;
                 }
                 // A bounded call spread expands one statically typed array into
