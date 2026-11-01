@@ -1,0 +1,101 @@
+{
+  "kind": "BOUNDED_VARIABLE_BINDING_PATTERNS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "binding-pattern:positive-01",
+      "source": "const {value}={value:21};let n:number=value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-02",
+      "source": "const {value:score}={value:21};let n:number=score;",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-03",
+      "source": "const {inner:{value}}={inner:{value:21}};let n:number=value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-04",
+      "source": "const [first,second]=[20,22];let n:number=first+second;",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-05",
+      "source": "const [first,,third]=[20,21,22];let n:number=first+third;",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-06",
+      "source": "let {value}:{value:number}={value:20};value=21;let n:number=value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-07",
+      "source": "function f(x:{value:number}):number{const {value}=x;return value*2;}let n:number=f({value:21});",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-08",
+      "source": "const [[first],[second]]=[[20],[22]];let n:number=first+second;",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:negative-01",
+      "source": "const {missing}={value:21};",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-02",
+      "source": "const {value}={value:21};value=22;",
+      "expectedCodes": [
+        "TS2588"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-03",
+      "source": "const [first]=[21];let wrong:string=first;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-04",
+      "source": "const {value:renamed}={value:\"wrong\"};let n:number=renamed;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-05",
+      "source": "const {inner:{value}}={inner:{value:21}};let b:boolean=value;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-06",
+      "source": "const [value]=[21];value=22;",
+      "expectedCodes": [
+        "TS2588"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-07",
+      "source": "let {value}:{value:number}={value:\"bad\"};",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-08",
+      "source": "function f(x:{value:number}):number{const {value}=x;return value;}let wrong:string=f({value:21});",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}
