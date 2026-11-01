@@ -32,7 +32,14 @@ try {
       'export const result:number=add(value,third)+first+mutable;',
       'export const label:string=tag;',
       'export function extract(input:{value:number}):number{const {value}=input;return value*2;}',
-      'export const doubled:number=extract(box);'
+      'export const doubled:number=extract(box);',
+      'let calls:number=0;',
+      'function fallback():number{calls=calls+1;return 42;}',
+      'const {missing=fallback(),present=fallback()}:{missing?:number,present?:number}={present:20};',
+      'const [first=fallback(),,third=fallback()]:(number|undefined)[]=[undefined,0,21];',
+      'const {inner:{value=7}}:{inner:{value?:number}}={inner:{}};',
+      'export const defaults:number=missing+present+first+third+value;',
+      'export const defaultCalls:number=calls;'
     ].join('\n')
   };
   for(const [name,source] of Object.entries(modules))writeFileSync(join(dir,name),source);
@@ -44,8 +51,8 @@ try {
   assert.match(emitted,/__tscs_binding_/,'binding temporaries must be emitted');
   assert.doesNotMatch(emitted,/\{\s*value\s*,\s*nested\s*:/,'TypeScript binding syntax was not lowered');
   const run=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,label,doubled} from "./entry.js";'+
-    'if(result!==83||label!=="ok"||doubled!==42)throw Error(JSON.stringify({result,label,doubled}));'],
+    'import {result,label,doubled,defaults,defaultCalls} from "./entry.js";'+
+    'if(result!==83||label!=="ok"||doubled!==42||defaults!==132||defaultCalls!==2)throw Error(JSON.stringify({result,label,doubled,defaults,defaultCalls}));'],
     {cwd:dir,encoding:'utf8',timeout:15000,env});
   assert.equal(run.error,undefined,String(run.error));
   assert.equal(run.status,0,run.stdout+run.stderr);
@@ -57,7 +64,8 @@ try {
     ['alias','const {value:renamed}={value:"wrong"};let wrong:number=renamed;','TS2322',2],
     ['nested','const {inner:{value}}={inner:{value:21}};let wrong:boolean=value;','TS2322',2],
     ['rest','const {...rest}={value:21};','TSCS1001',1],
-    ['default','const [value=21]=[21];','TSCS1001',1],
+    ['default-missing','const {missing=21}:{value:number}={value:21};','TS2339',2],
+    ['default-mismatch','const {value=21}:{value?:number}={};let wrong:string=value;','TS2322',2],
     ['empty','const []=[21];','TSCS1001',1],
     ['wrong-annotation','let {value}:{value:number}={value:"bad"};','TS2322',2]
   ] as const;
@@ -68,5 +76,5 @@ try {
     assert.match(bad.stdout+bad.stderr,new RegExp(code));
     assert.equal(existsSync(join(dir,'invalid-'+name+'.js')),false,'invalid program emitted JS: '+name);
   }
-  console.log('Finite object/array binding patterns: four linked ES2015 modules executed; nine invalid programs emitted no JavaScript.');
+  console.log('Finite object/array binding patterns: four linked ES2015 modules executed; ten invalid programs emitted no JavaScript.');
 } finally {rmSync(dir,{recursive:true,force:true});}

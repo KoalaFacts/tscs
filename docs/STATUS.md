@@ -1,3 +1,17 @@
+## 2026-11-01 — Finite variable binding defaults (candidate, NOT_RUN)
+
+Checked nested object and array variable binding defaults lower through the
+existing Parser, scoped Binder, TypeChecker and native ES2015 emitter.
+Each selection is read once; the unshadowable void-zero sentinel triggers a
+lazy fallback only on undefined, including aliases and nested members.
+Six positive/six negative new stable pinned-Go source/code/exit IDs extend
+the existing 16-case binding cohort without changing the old cases.
+Four linked runtime modules and source-backed C# tests are registered.
+New checks are NOT_RUN until exact-head CI. Iterator-based arbitrary arrays,
+rest/computed/parameter destructuring remain unsupported. Original upstream
+acceptance is still 0 PASS / 15,523 SKIP_UNIMPLEMENTED with dynamic
+UNEXPANDED; internal checks are not upstream credit.
+
 ## 2026-11-01 — Finite object and array variable binding patterns (candidate; NOT_RUN)
 
 The Parser lowers checked `const`/`let` finite object and array binding patterns

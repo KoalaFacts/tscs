@@ -96,6 +96,78 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "binding-pattern:positive-09",
+      "source": "const {value=21}:{value?:number}={};let result:number=value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-10",
+      "source": "const {value:answer=42}:{value?:number}={value:undefined};let result:number=answer;",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-11",
+      "source": "const [a=21]:(number|undefined)[]=[undefined];let result:number=a;",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-12",
+      "source": "const [a=20,,b=22]:(number|undefined)[]=[undefined,1,undefined];let sum:number=a+b;",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-13",
+      "source": "const {nested:{value=42}}:{nested:{value?:number}}={nested:{}};let answer:number=value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-14",
+      "source": "function pick(input:{value?:number}):number{const {value=21}=input;return value;}let n:number=pick({});",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:negative-09",
+      "source": "const {value=21}:{value?:number}={};let wrong:string=value;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-10",
+      "source": "const [value=21]:(number|undefined)[]=[undefined];let wrong:string=value;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-11",
+      "source": "const {missing=21}:{value:number}={value:21};",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-12",
+      "source": "const {value=21}:{value?:number}={};value=22;",
+      "expectedCodes": [
+        "TS2588"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-13",
+      "source": "const {inner:{value=21}}:{inner:{value?:number}}={inner:{}};let wrong:string=value;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-14",
+      "source": "const {value:renamed=21}:{value?:number}={};let wrong:string=renamed;",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }
