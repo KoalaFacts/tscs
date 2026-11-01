@@ -487,7 +487,21 @@ internal static class CompilerTypes
                 _ => null
             };
         }
-        if(name=="length" && IsStringFamily(receiver))return Number;
+        // These native string operations are non-mutating on primitive and
+        // literal string receivers. The existing call checker validates all
+        // arguments and ES2015 emission preserves JavaScript receiver semantics.
+        if(IsStringFamily(receiver))
+            return name switch
+            {
+                "length" => Number,
+                "toUpperCase" or "toLowerCase" or "trim" =>
+                    new FunctionTypeSymbol([],String),
+                "slice" => new FunctionTypeSymbol(
+                    [Union([Number,Undefined]),Union([Number,Undefined])],String,0),
+                "includes" or "startsWith" or "endsWith" =>
+                    new FunctionTypeSymbol([String,Union([Number,Undefined])],Boolean,1),
+                _ => null
+            };
         if(receiver is ObjectTypeSymbol shape)
         {
             if(!shape.Members.TryGetValue(name,out var value))return null;

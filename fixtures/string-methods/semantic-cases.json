@@ -1,0 +1,149 @@
+{
+  "kind": "BOUNDED_STRING_METHODS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "string-methods:positive-01",
+      "source": "let s:string=\"hello\";let t:string=s.toUpperCase();",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-methods:positive-02",
+      "source": "let s:\"HELLO\"=\"HELLO\";let t:string=s.toLowerCase();",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-methods:positive-03",
+      "source": "let s:string=\" x \";let t:string=s.trim();",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-methods:positive-04",
+      "source": "let s:string=\"hello\";let t:string=s.slice(1);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-methods:positive-05",
+      "source": "let s:string=\"hello\";let t:string=s.slice(1,3);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-methods:positive-06",
+      "source": "let s:string=\"hello\";let t:string=s.slice(undefined,3);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-methods:positive-07",
+      "source": "let s:string=\"hello\";let b:boolean=s.includes(\"ell\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-methods:positive-08",
+      "source": "let s:string=\"hello\";let b:boolean=s.includes(\"l\",3);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-methods:positive-09",
+      "source": "let s:string=\"hello\";let b:boolean=s.startsWith(\"he\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-methods:positive-10",
+      "source": "let s:string=\"hello\";let b:boolean=s.startsWith(\"e\",1);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-methods:positive-11",
+      "source": "let s:string=\"hello\";let b:boolean=s.endsWith(\"lo\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-methods:positive-12",
+      "source": "let s:string=\"hello\";let b:boolean=s.trim().toUpperCase().slice(0,2).endsWith(\"E\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-methods:negative-01",
+      "source": "let s:string=\"x\";s.toUpperCase(1);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "string-methods:negative-02",
+      "source": "let s:string=\"x\";s.toLowerCase(\"q\");",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "string-methods:negative-03",
+      "source": "let s:string=\"x\";s.trim(0);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "string-methods:negative-04",
+      "source": "let s:string=\"x\";s.slice(\"q\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "string-methods:negative-05",
+      "source": "let s:string=\"x\";s.slice(0,\"q\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "string-methods:negative-06",
+      "source": "let s:string=\"x\";s.includes(5);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "string-methods:negative-07",
+      "source": "let s:string=\"x\";s.startsWith();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "string-methods:negative-08",
+      "source": "let s:string=\"x\";s.endsWith(\"x\",\"q\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "string-methods:negative-09",
+      "source": "let n:number=\"x\".trim();",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-methods:negative-10",
+      "source": "let t:string=\"x\".includes(\"x\");",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-methods:negative-11",
+      "source": "let s:string=\"x\";s.slice(0,1,2);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "string-methods:negative-12",
+      "source": "let s:string=\"x\";s.includes(\"a\",0,1);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    }
+  ]
+}

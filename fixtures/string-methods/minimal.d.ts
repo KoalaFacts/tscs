@@ -1,0 +1,20 @@
+interface Array<T> { length: number; [index: number]: T; }
+interface Boolean {}
+interface Function {}
+interface IArguments {}
+interface Number {}
+interface Object {}
+interface RegExp {}
+interface String {
+  readonly length: number;
+  readonly [index: number]: string;
+  toUpperCase(): string;
+  toLowerCase(): string;
+  trim(): string;
+  slice(start?: number, end?: number): string;
+  includes(searchString: string, position?: number): boolean;
+  startsWith(searchString: string, position?: number): boolean;
+  endsWith(searchString: string, endPosition?: number): boolean;
+}
+interface CallableFunction {}
+interface NewableFunction {}

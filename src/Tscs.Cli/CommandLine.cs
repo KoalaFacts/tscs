@@ -439,10 +439,23 @@ public static class CommandLine
     // mutable indices, arbitrary methods, or unconstrained value types.
     private static bool IsSupportedStringContract(string body)
     {
-        var memberPattern=new Regex(@"\G\s*(?:(?<length>readonly\s+length\s*:\s*number)|(?<index>readonly\s+\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*string))\s*;",
+        // This is a finite declaration allowlist, not a generic .d.ts parser.
+        // The exact return/argument contracts mirror the checked native methods.
+        const string id=@"[A-Za-z_$][A-Za-z0-9_$]*";
+        var memberPattern=new Regex(
+            @"\G\s*(?:(?<length>readonly\s+length\s*:\s*number)" +
+            @"|(?<index>readonly\s+\[\s*"+id+@"\s*:\s*number\s*\]\s*:\s*string)" +
+            @"|(?<upper>toUpperCase\s*\(\s*\)\s*:\s*string)" +
+            @"|(?<lower>toLowerCase\s*\(\s*\)\s*:\s*string)" +
+            @"|(?<trim>trim\s*\(\s*\)\s*:\s*string)" +
+            @"|(?<slice>slice\s*\(\s*(?:"+id+@"\s*\?\s*:\s*number(?:\s*,\s*"+id+@"\s*\?\s*:\s*number)?)?\s*\)\s*:\s*string)" +
+            @"|(?<includes>includes\s*\(\s*"+id+@"\s*:\s*string(?:\s*,\s*"+id+@"\s*\?\s*:\s*number)?\s*\)\s*:\s*boolean)" +
+            @"|(?<startsWith>startsWith\s*\(\s*"+id+@"\s*:\s*string(?:\s*,\s*"+id+@"\s*\?\s*:\s*number)?\s*\)\s*:\s*boolean)" +
+            @"|(?<endsWith>endsWith\s*\(\s*"+id+@"\s*:\s*string(?:\s*,\s*"+id+@"\s*\?\s*:\s*number)?\s*\)\s*:\s*boolean))\s*;",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         int position=0;
         bool length=false,index=false;
+        var methods=new HashSet<string>(StringComparer.Ordinal);
         while(position<body.Length)
         {
             if(string.IsNullOrWhiteSpace(body[position..]))break;
@@ -453,10 +466,16 @@ public static class CommandLine
                 if(length)return false;
                 length=true;
             }
-            else
+            else if(member.Groups["index"].Success)
             {
                 if(index)return false;
                 index=true;
+            }
+            else
+            {
+                var method=new[]{"upper","lower","trim","slice","includes","startsWith","endsWith"}
+                    .FirstOrDefault(name=>member.Groups[name].Success);
+                if(method is null || !methods.Add(method))return false;
             }
             position+=member.Length;
         }
