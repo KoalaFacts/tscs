@@ -1,3 +1,14 @@
+## 2026-11-01 — Checked mutable array method calls (candidate; NOT_RUN)
+
+Four native mutators (`push`, `pop`, `unshift`, `shift`) on finite mutable
+array types reuse existing semantic property lookup, call argument checking,
+module linking and ES2015 emitter. Readonly array types reject mutation;
+wrong element types and arities are diagnosed. Source-backed xUnit, four
+linked Node runtime modules, nine invalid/no-emission checks and 21 stable
+pinned-Go source/code/exit comparisons are registered as NOT_RUN until exact-head
+CI. Full original TS7 remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED and dynamic
+UNEXPANDED. No pin, minimum, release gate or protections changed.
+
 ## 2026-11-01 — Bounded nested untagged template interpolation (candidate; NOT_RUN)
 
 Nested untagged backtick values within `${expression}` now use the existing scanner,

@@ -1,0 +1,130 @@
+{
+  "kind": "BOUNDED_ARRAY_MUTATION_METHODS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "array-methods:positive-01",
+      "source": "let xs:number[]=[20,21];let n:number=xs.push(22);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-methods:positive-02",
+      "source": "let xs:number[]=[20];let last:number|undefined=xs.pop();",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-methods:positive-03",
+      "source": "let xs:number[]=[20];let n:number=xs.unshift(19);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-methods:positive-04",
+      "source": "let xs:number[]=[20];let first:number|undefined=xs.shift();",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-methods:positive-05",
+      "source": "let xs:Array<number>=[21];let n:number=xs.push(22,23);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-methods:positive-06",
+      "source": "let xs:Array<string>=[\"a\"];let removed:string|undefined=xs.pop();",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-methods:positive-07",
+      "source": "let xs:number[]=[1];let count:number=xs.push();",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-methods:positive-08",
+      "source": "let xs:number[]=[1];let rest:number[]=[2,3];let count:number=xs.push(...rest);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-methods:positive-09",
+      "source": "function add(xs:number[],n:number):number{return xs.push(n);}let count:number=add([21],22);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-methods:positive-10",
+      "source": "let xs:{value:number}[]=[{value:21}];let count:number=xs.push({value:42});",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-methods:positive-11",
+      "source": "let xs:number[][]=[[21]];xs.unshift([42]);let v:number=xs[0][0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-methods:negative-01",
+      "source": "let xs:number[]=[21];xs.push(\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-methods:negative-02",
+      "source": "let xs:number[]=[21];xs.unshift(\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-methods:negative-03",
+      "source": "let xs:number[]=[21];xs.pop(1);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "array-methods:negative-04",
+      "source": "let xs:number[]=[21];xs.shift(1);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "array-methods:negative-05",
+      "source": "let xs:readonly number[]=[21];xs.push(22);",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "array-methods:negative-06",
+      "source": "let xs:ReadonlyArray<number>=[21];xs.pop();",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "array-methods:negative-07",
+      "source": "let xs:readonly number[]=[21];xs.unshift(20);",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "array-methods:negative-08",
+      "source": "let xs:ReadonlyArray<number>=[21];xs.shift();",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "array-methods:negative-09",
+      "source": "let xs:string[]=[\"x\"];xs.push(1);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-methods:negative-10",
+      "source": "let xs:number[]=[21];let s:string=xs.push(22);",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}

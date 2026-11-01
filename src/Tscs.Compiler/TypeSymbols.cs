@@ -417,7 +417,21 @@ internal static class CompilerTypes
     public static TypeSymbol? TryGetProperty(TypeSymbol receiver,string name)
     {
         if(receiver.Equals(Any))return Any;
-        if(name=="length" && (receiver is ArrayTypeSymbol || IsStringFamily(receiver)))return Number;
+        // The finite, built-in mutator surface is attached to mutable arrays only.
+        // The existing call checker validates each argument against the array's
+        // element type; ES2015 emits native method calls with the correct receiver.
+        if(receiver is ArrayTypeSymbol array)
+        {
+            if(name=="length")return Number;
+            if(array.Readonly)return null;
+            return name switch
+            {
+                "push" or "unshift" => new FunctionTypeSymbol([],Number,0,array.ElementType),
+                "pop" or "shift" => new FunctionTypeSymbol([],Union([array.ElementType,Undefined])),
+                _ => null
+            };
+        }
+        if(name=="length" && IsStringFamily(receiver))return Number;
         if(receiver is ObjectTypeSymbol shape)
         {
             if(!shape.Members.TryGetValue(name,out var value))return null;
