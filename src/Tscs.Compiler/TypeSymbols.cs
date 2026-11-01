@@ -436,6 +436,14 @@ internal static class CompilerTypes
             // Emission keeps the ordinary JavaScript call; no polyfill is supplied.
             if(name=="at")
                 return new FunctionTypeSymbol([Number],Union([array.ElementType,Undefined]));
+            // ES2023 copying methods accept readonly views and return writable arrays.
+            // Emission preserves native calls; no runtime polyfill is supplied.
+            if(name=="toReversed")
+                return new FunctionTypeSymbol([],new ArrayTypeSymbol(array.ElementType));
+            if(name=="toSorted")
+                return new FunctionTypeSymbol(
+                    [Union([new FunctionTypeSymbol([array.ElementType,array.ElementType],Number),Undefined])],
+                    new ArrayTypeSymbol(array.ElementType),0);
             // Native concat returns a new writable array even for readonly views.
             // This finite signature accepts values and (readonly) arrays of T;
             // it does not claim Symbol.isConcatSpreadable or general overloads.

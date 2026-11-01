@@ -8,6 +8,8 @@ interface Array<T> {
   slice(start?: number, end?: number): T[];
   concat(...items: (T | ReadonlyArray<T>)[]): T[];
   at(index: number): T | undefined;
+  toReversed(): T[];
+  toSorted(compareFn?: (a: T, b: T) => number): T[];
 }
 interface ReadonlyArray<T> {
   readonly length: number;
@@ -19,6 +21,8 @@ interface ReadonlyArray<T> {
   slice(start?: number, end?: number): T[];
   concat(...items: (T | ReadonlyArray<T>)[]): T[];
   at(index: number): T | undefined;
+  toReversed(): T[];
+  toSorted(compareFn?: (a: T, b: T) => number): T[];
 }
 interface Boolean {}
 interface Function {}
