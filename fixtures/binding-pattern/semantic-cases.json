@@ -240,6 +240,102 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "binding-pattern:positive-21",
+      "source": "const f=({value}:{value:number}):number=>value;let n:number=f({value:21});",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-22",
+      "source": "const f=([first,,third]:number[]):number=>first+third;let n:number=f([20,1,22]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-23",
+      "source": "const f=({inner:{value}}:{inner:{value:number}}):number=>value;let n:number=f({inner:{value:42}});",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-24",
+      "source": "const f=({value=42}:{value?:number}):number=>value;let n:number=f({});",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-25",
+      "source": "const f=function({value}:{value:number}):number{return value*2;};let n:number=f({value:21});",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-26",
+      "source": "const f=function([a,b]:number[]):number{return a+b;};let n:number=f([20,22]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-27",
+      "source": "const f=({value}:{value:number}):number=>{value=value+1;return value;};let n:number=f({value:41});",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-28",
+      "source": "const f=({left}:{left:number},[right]:number[]):number=>left+right;let n:number=f({left:20},[22]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:negative-21",
+      "source": "const f=({missing}:{value:number}):number=>missing;",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-22",
+      "source": "const f=({value}:{value:number}):string=>value;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-23",
+      "source": "const f=({value}:{value:number}):number=>value;const input={value:\"no\"};let n:number=f(input);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-24",
+      "source": "const f=({value=\"no\"}:{value?:number}):number=>value;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-25",
+      "source": "const f=([value]:number[]):string=>value;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-26",
+      "source": "const f=function({value}:{value:number}):string{return value;};",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-27",
+      "source": "const f=({inner:{missing}}:{inner:{value:number}}):number=>missing;",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-28",
+      "source": "const f=({value}:{value:number}):number=>{value=\"no\";return value;};",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }

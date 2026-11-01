@@ -1,3 +1,20 @@
+## 2026-11-02 — Finite typed expression parameter patterns (candidate; NOT_RUN)
+
+Finite object/array binding patterns in typed arrows, function expressions and
+concise object methods lower through existing typed hidden positional arguments,
+mutable entry locals, Binder, TypeChecker, modules and native ES2015 emission.
+Expression-bodied arrows become checked return blocks while retaining lexical
+capture and single-evaluation semantics; defaults are lazy. Incorrect property
+reads, return types and arguments are rejected before output. Rest/computed
+bindings, general iterable destructuring, untyped parameters, self references,
+unsafe parameter-default ordering and shadowed parameter-default references
+remain outside this bounded slice. Sixteen additive pinned-Go source/code/exit
+IDs extend the frozen binding cohort from 40 to 56 unchanged old cases. C#
+source-backed tests and four-module Node execution are registered; **NOT_RUN**
+until exact-head validation. Original TS7 acceptance remains 0 PASS /
+15,523 SKIP_UNIMPLEMENTED, dynamic scope UNEXPANDED. No upstream pin,
+test minimum, release gate or protection changes.
+
 ## 2026-11-01 — Typed finite function parameter binding patterns (candidate; NOT_RUN)
 
 Named function declarations lower finite typed object/array parameter patterns

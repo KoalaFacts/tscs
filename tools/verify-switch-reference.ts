@@ -38,7 +38,7 @@ assert.equal(suite.kind,bindingPatterns?'BOUNDED_VARIABLE_BINDING_PATTERNS_NOT_O
   ?'BOUNDED_WHILE_CONTINUE_BREAK_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :completion?'BOUNDED_SWITCH_COMPLETION_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :'BOUNDED_DISCRIMINANT_SWITCH_RETURN_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,bindingPatterns?40:unbracedLoops?15:numericKeys?12:forIn?12:inOperator?39:objectIndex?12:objectShorthand?12:objectSpreads?12:arraySpreads?12:spreadArguments?12:restParameters?12:defaultParameters?17:optionalParameters?12:voidReturn?12:tryCatch?14:throwFlow?22:completion?21:numeric?37:14,'do not shrink the registered cohort');
+assert.equal(suite.cases.length,bindingPatterns?56:unbracedLoops?15:numericKeys?12:forIn?12:inOperator?39:objectIndex?12:objectShorthand?12:objectSpreads?12:arraySpreads?12:spreadArguments?12:restParameters?12:defaultParameters?17:optionalParameters?12:voidReturn?12:tryCatch?14:throwFlow?22:completion?21:numeric?37:14,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 // Loop cases exercise number[] indexing, length and for..of element types.
 // The frozen bootstrap profile has an intentionally empty Array<T>; reuse

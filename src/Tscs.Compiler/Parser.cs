@@ -1594,14 +1594,16 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
         {
             if(!Eat(TokenKind.OpenParen))
                 Unsupported(Current,"Expected '(' after object method name.");
-            var parameters=ParseTypedExpressionParameters();
+            var bindings=new ExpressionParameterBindings();
+            var parameters=ParseTypedExpressionParameters(bindings);
             TypeSyntax? result=Eat(TokenKind.Colon)?ReadTypeAnnotation():null;
             if(!Eat(TokenKind.Open))
                 Unsupported(Current,"Object methods require a braced body.");
             var body=Parse(1,true);
             if(!Eat(TokenKind.Close))
                 Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
-            return new ValueArrow(name,parameters,result,null,body,FunctionExpression:true);
+            return new ValueArrow(name,parameters,result,null,
+                FinishExpressionParameterBindings(body,bindings),FunctionExpression:true);
         }
         finally { arrowNesting--; }
     }
@@ -1629,7 +1631,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 // Require an empty list or a named typed parameter; optional
                 // parameters have '?' before ':'. Do not confuse ternaries
                 // with return-type annotations.
-                return i==position+1 ||
+                return i==position+1 || LooksLikeTypedBindingArrowParameter(i) ||
                     (position+2<i && tokens[position+1].Kind==TokenKind.Identifier &&
                      (tokens[position+2].Kind==TokenKind.Colon ||
                       (position+3<i && tokens[position+2].Kind==TokenKind.Question &&
@@ -1646,65 +1648,157 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     }
 
 
-    // A single typed parameter grammar is shared by arrow and anonymous
-    // function expressions. Existing optional, default and rest checks apply.
-    private List<ParameterDeclaration> ParseTypedExpressionParameters()
+    // Recognise only an explicitly typed finite binding-pattern parameter.
+    // A parenthesized value followed by a ternary ':' is not an arrow.
+    private bool LooksLikeTypedBindingArrowParameter(int closingParen)
     {
-            var parameters=new List<ParameterDeclaration>();
-            var names=new HashSet<string>(StringComparer.Ordinal);
-            bool sawOptionalParameter=false;
-            bool sawDefaultParameter=false;
-            bool sawRestParameter=false;
-            while(Current.Kind!=TokenKind.CloseParen)
+        if(position+1>=closingParen ||
+           tokens[position+1].Kind is not (TokenKind.Open or TokenKind.OpenBracket))
+            return false;
+        int depth=0;
+        for(int i=position+1;i<closingParen;i++)
+        {
+            if(tokens[i].Kind is TokenKind.Open or TokenKind.OpenBracket)depth++;
+            else if(tokens[i].Kind is TokenKind.Close or TokenKind.CloseBracket)
             {
-                if(sawRestParameter)
-                    Diagnostics.Add(Diagnostic.Error(file,Current,"TS1014",
-                        "A rest parameter must be last in a parameter list."));
-                if(parameters.Count>=32)Unsupported(Current,"Arrow parameter count exceeds the supported limit.");
-                bool rest=Eat(TokenKind.Ellipsis);
+                if(--depth==0)
+                    return i+1<closingParen && tokens[i+1].Kind==TokenKind.Colon;
+            }
+        }
+        return false;
+    }
+
+    private sealed class ExpressionParameterBindings
+    {
+        public List<Statement> Locals { get; } = [];
+        public List<BoundDefault> ElementDefaults { get; } = [];
+    }
+
+    private Block FinishExpressionParameterBindings(Block body,ExpressionParameterBindings bindings)
+    {
+        if(bindings.ElementDefaults.Count>0)
+        {
+            // Native parameter initializers cannot capture function-body locals.
+            var bodyNames=new HashSet<string>(StringComparer.Ordinal);
+            foreach(var statement in body.Statements)
+            {
+                switch(statement)
+                {
+                    case Variable local:bodyNames.Add(local.Name.Text);break;
+                    case FunctionDeclaration localFunction:bodyNames.Add(localFunction.Name.Text);break;
+                }
+            }
+            foreach(var fallback in bindings.ElementDefaults)
+                if(DefaultReferencesAny(fallback.Fallback,bodyNames))
+                    Unsupported(fallback.Location,
+                        "Parameter element defaults cannot reference function-body declarations.");
+        }
+        return bindings.Locals.Count==0?body:new Block([..bindings.Locals,..body.Statements]);
+    }
+
+    // Typed arrows, function expressions and concise object methods use the
+    // same parameter checking and finite destructuring lowering.
+    private List<ParameterDeclaration> ParseTypedExpressionParameters(ExpressionParameterBindings bindings)
+    {
+        var parameters=new List<ParameterDeclaration>();
+        var names=new HashSet<string>(StringComparer.Ordinal);
+        bool sawOptionalParameter=false;
+        bool sawDefaultParameter=false;
+        bool sawRestParameter=false;
+        bool patternedDefaultBeforeNext=false;
+        while(Current.Kind!=TokenKind.CloseParen)
+        {
+            if(patternedDefaultBeforeNext)
+                Unsupported(Current,"Parameters after a binding pattern with defaults are not supported.");
+            if(sawRestParameter)
+                Diagnostics.Add(Diagnostic.Error(file,Current,"TS1014",
+                    "A rest parameter must be last in a parameter list."));
+            if(parameters.Count>=32)Unsupported(Current,"Arrow parameter count exceeds the supported limit.");
+            bool rest=Eat(TokenKind.Ellipsis);
+            BindingPattern? pattern=null;
+            Token name;
+            if(Current.Kind is TokenKind.Open or TokenKind.OpenBracket)
+            {
+                if(rest)Unsupported(Current,"Rest binding-pattern parameters are not supported.");
+                var location=Current;
+                pattern=ReadBindingPattern(0);
+                name=NewBindingTemporary(location);
+            }
+            else
+            {
                 if(Current.Kind!=TokenKind.Identifier)
                     Unsupported(Current,"Arrow parameters require explicitly named type annotations.");
-                var name=Take();
-                if(!names.Add(name.Text))
-                    Diagnostics.Add(Diagnostic.Error(file,name,"TS2300",$"Duplicate identifier '{name.Text}'."));
-                bool questionOptional=Eat(TokenKind.Question);
-                if(!Eat(TokenKind.Colon))
-                    Unsupported(Current,"Arrow parameters require explicit type annotations.");
-                var annotation=ReadTypeAnnotation();
-                var defaultValue=Eat(TokenKind.Equal)?ParseValue():null;
-                if(rest)
-                {
-                    // The pinned TS7 compiler also emits TS2370 for an
-                    // optional rest parameter, even if its written type is T[]:
-                    // the '?' makes it an invalid array-rest declaration.
-                    if(annotation is not ArrayTypeSyntax || questionOptional)
-                        Diagnostics.Add(Diagnostic.Error(file,name,"TS2370",
-                            "A rest parameter must be of an array type."));
-                    if(questionOptional)
-                        Diagnostics.Add(Diagnostic.Error(file,name,"TS1047",
-                            "A rest parameter cannot be optional."));
-                    if(defaultValue is not null)
-                        Diagnostics.Add(Diagnostic.Error(file,name,"TS1048",
-                            "A rest parameter cannot have an initializer."));
-                    sawRestParameter=true;
-                }
-                if(questionOptional && defaultValue is not null)
-                    Diagnostics.Add(Diagnostic.Error(file,name,"TS1015",
-                        "Parameter cannot have question mark and initializer."));
-                bool optional=questionOptional||defaultValue is not null||rest;
-                // Keep the same conservative trailing-default boundary as named
-                // functions; nontrailing defaults need positional hole semantics.
-                if(sawDefaultParameter && !optional)
-                    Unsupported(name,"Required arrow parameters after defaults are not supported yet.");
-                if(sawOptionalParameter && !optional && !sawRestParameter)
-                    Diagnostics.Add(Diagnostic.Error(file,name,"TS1016",
-                        "A required parameter cannot follow an optional parameter."));
-                sawOptionalParameter|=optional;
-                sawDefaultParameter|=defaultValue is not null;
-                parameters.Add(new ParameterDeclaration(name,annotation,optional,defaultValue,rest));
-                if(!Eat(TokenKind.Comma))break;
+                name=Take();
             }
-            if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after arrow parameters.");
+            var exposedNames=new List<Token>();
+            if(pattern is not null)
+            {
+                CollectParameterBindingNames(pattern,exposedNames);
+                var defaults=new List<BoundDefault>();
+                CollectBindingDefaults(pattern,defaults);
+                var localNames=exposedNames.Select(item=>item.Text).ToHashSet(StringComparer.Ordinal);
+                foreach(var fallback in defaults)
+                    if(DefaultReferencesAny(fallback.Fallback,localNames))
+                        Unsupported(fallback.Location,
+                            "A parameter element default cannot reference names bound by its own destructuring pattern.");
+                bindings.ElementDefaults.AddRange(defaults);
+            }
+            else exposedNames.Add(name);
+            foreach(var exposed in exposedNames)
+                if(!names.Add(exposed.Text))
+                    Diagnostics.Add(Diagnostic.Error(file,exposed,"TS2300",
+                        $"Duplicate identifier '{exposed.Text}'."));
+            bool questionOptional=Eat(TokenKind.Question);
+            if(pattern is not null && questionOptional)
+                Unsupported(name,"Binding-pattern parameters cannot be marked optional; use an explicit default.");
+            if(!Eat(TokenKind.Colon))
+                Unsupported(Current,"Arrow parameters require explicit type annotations.");
+            var annotation=ReadTypeAnnotation();
+            var defaultValue=Eat(TokenKind.Equal)?ParseValue():null;
+            if(pattern is not null && defaultValue is not null &&
+               DefaultReferencesAny(defaultValue,exposedNames.Select(item=>item.Text)
+                   .ToHashSet(StringComparer.Ordinal)))
+                Unsupported(name,"A whole-parameter default cannot reference its own destructured names.");
+            if(pattern is not null && sawDefaultParameter)
+                Unsupported(name,"Binding patterns after a defaulted parameter are not supported.");
+            if(bindings.Locals.Count>0 && defaultValue is not null)
+                Unsupported(name,"Later parameter defaults after a destructured parameter are not supported.");
+            if(rest)
+            {
+                if(annotation is not ArrayTypeSyntax || questionOptional)
+                    Diagnostics.Add(Diagnostic.Error(file,name,"TS2370",
+                        "A rest parameter must be of an array type."));
+                if(questionOptional)
+                    Diagnostics.Add(Diagnostic.Error(file,name,"TS1047",
+                        "A rest parameter cannot be optional."));
+                if(defaultValue is not null)
+                    Diagnostics.Add(Diagnostic.Error(file,name,"TS1048",
+                        "A rest parameter cannot have an initializer."));
+                sawRestParameter=true;
+            }
+            if(questionOptional && defaultValue is not null)
+                Diagnostics.Add(Diagnostic.Error(file,name,"TS1015",
+                    "Parameter cannot have question mark and initializer."));
+            bool optional=questionOptional||defaultValue is not null||rest;
+            if(sawDefaultParameter && !optional)
+                Unsupported(name,"Required arrow parameters after defaults are not supported yet.");
+            if(sawOptionalParameter && !optional && !sawRestParameter)
+                Diagnostics.Add(Diagnostic.Error(file,name,"TS1016",
+                    "A required parameter cannot follow an optional parameter."));
+            sawOptionalParameter|=optional;
+            sawDefaultParameter|=defaultValue is not null;
+            parameters.Add(new ParameterDeclaration(name,annotation,optional,defaultValue,rest));
+            if(pattern is not null)
+            {
+                LowerBindingPattern(pattern,
+                    new ValueAtom(name with {Start=name.Start+1}),
+                    false,false,bindings.Locals,annotatedBinding:true);
+                patternedDefaultBeforeNext|=
+                    PatternContainsDefault(pattern)||defaultValue is not null;
+            }
+            if(!Eat(TokenKind.Comma))break;
+        }
+        if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after arrow parameters.");
         return parameters;
     }
 
@@ -1720,14 +1814,16 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             Token? name=Current.Kind==TokenKind.Identifier?Take():null;
             if(!Eat(TokenKind.OpenParen))
                 Unsupported(Current,"Function expressions require a typed parameter list.");
-            var parameters=ParseTypedExpressionParameters();
+            var bindings=new ExpressionParameterBindings();
+            var parameters=ParseTypedExpressionParameters(bindings);
             TypeSyntax? returns=Eat(TokenKind.Colon)?ReadTypeAnnotation():null;
             if(!Eat(TokenKind.Open))
                 Unsupported(Current,"Function expressions require a braced body.");
             var body=Parse(1,true);
             if(!Eat(TokenKind.Close))
                 Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
-            return new ValueArrow(keyword,parameters,returns,null,body,FunctionExpression:true,FunctionName:name);
+            return new ValueArrow(keyword,parameters,returns,null,
+                FinishExpressionParameterBindings(body,bindings),FunctionExpression:true,FunctionName:name);
         }
         finally {arrowNesting--;}
     }
@@ -1738,7 +1834,8 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
         if(++arrowNesting>32)Unsupported(open,"Arrow expression nesting exceeds the compiler subset limit.");
         try
         {
-            var parameters=ParseTypedExpressionParameters();
+            var bindings=new ExpressionParameterBindings();
+            var parameters=ParseTypedExpressionParameters(bindings);
             TypeSyntax? returns=Eat(TokenKind.Colon)?ReadTypeAnnotation():null;
             if(!Eat(TokenKind.Arrow))Unsupported(Current,"Expected '=>' after arrow signature.");
             if(Eat(TokenKind.Open))
@@ -1748,9 +1845,19 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 var body=Parse(1,true);
                 if(!Eat(TokenKind.Close))
                     Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
-                return new ValueArrow(open,parameters,returns,null,body);
+                return new ValueArrow(open,parameters,returns,null,
+                    FinishExpressionParameterBindings(body,bindings));
             }
-            return new ValueArrow(open,parameters,returns,ParseWithInAllowed(ParseValue));
+            var expression=ParseWithInAllowed(ParseValue);
+            if(bindings.Locals.Count==0)
+                return new ValueArrow(open,parameters,returns,expression);
+            // Keep the native lexical arrow; checked entry-local destructuring
+            // runs before the expression's single return.
+            var returned=new ReturnStatement(
+                new Token(TokenKind.Return,"return",open.Start,6),expression);
+            var expressionBody=new Block([returned]);
+            return new ValueArrow(open,parameters,returns,null,
+                FinishExpressionParameterBindings(expressionBody,bindings));
         }
         finally {arrowNesting--;}
     }
