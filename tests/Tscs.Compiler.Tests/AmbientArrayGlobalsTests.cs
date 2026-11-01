@@ -82,7 +82,10 @@ public sealed class AmbientArrayGlobalsTests : IDisposable
     {
         var source=Path.Combine(directory,"bad-query-globals.d.ts");
         var program=Path.Combine(directory,"bad-query-input.ts");
-        File.WriteAllText(source,"interface Array<T> {}\n"+declaration+"\n"+
+        File.WriteAllText(source,(declaration.StartsWith("interface Array<T>",StringComparison.Ordinal)
+            ?"interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; }\n"
+            :"interface Array<T> { length:number; [index:number]:T; }\n")+
+            declaration+"\n"+
             "interface Boolean {} interface Function {} interface CallableFunction {} interface NewableFunction {} "+
             "interface IArguments {} interface Number {} interface Object {} interface RegExp {} interface String {}");
         File.WriteAllText(program,"let xs: number[] = [21]; let n: number = xs[0];");
