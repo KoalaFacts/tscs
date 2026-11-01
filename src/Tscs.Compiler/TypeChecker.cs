@@ -2212,6 +2212,19 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 var resultType=optionalMissing
                     ?CompilerTypes.Union([signature.ReturnType,CompilerTypes.Undefined])
                     :signature.ReturnType;
+                // Native Array<T>.map<U> is a bounded intrinsic: callback input
+                // checking still follows the ordinary function relation below.
+                // Only the result element is inferred from the explicit callable
+                // return type; no untyped-parameter or arbitrary generic inference.
+                if(signature.NativeArrayMapElementType is not null &&
+                   call.SpreadIndex<0 && arguments.Length==1 &&
+                   arguments[0] is FunctionTypeSymbol mapper)
+                {
+                    var mapped=new ArrayTypeSymbol(mapper.ReturnType);
+                    resultType=optionalMissing
+                        ?CompilerTypes.Union([mapped,CompilerTypes.Undefined])
+                        :mapped;
+                }
                 if(call.Optional || call.ChainContinuation)
                 {
                     optionalPresent[call]=signature.ReturnType;
