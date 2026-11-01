@@ -49,6 +49,14 @@ public sealed class ArrayQueryTests
     [InlineData("let xs:number[]=[3,1,2];let out:number[]=xs.toSorted(undefined);")]
     [InlineData("function reverseCopy(xs:readonly number[]):number[]{return xs.toReversed();}let out:number[]=reverseCopy([1,2]);")]
     [InlineData("let xs:readonly string[]=[\"b\",\"a\"];let out:string[]=xs.toSorted();")]
+    [InlineData("let xs:number[]=[1,2,3];let out:number[]=xs.with(1,9);")]
+    [InlineData("let xs:readonly number[]=[1,2,3];let out:number[]=xs.with(-1,7);out[0]=9;")]
+    [InlineData("let xs:ReadonlyArray<string>=[\"a\",\"b\"];let out:string[]=xs.with(0,\"z\");")]
+    [InlineData("function replace(xs:readonly number[]):number[]{return xs.with(0,5);}let out:number[]=replace([1,2]);")]
+    [InlineData("let xs:number[]=[1,2,3];let out:number[]=xs.toSpliced(1,1,9);")]
+    [InlineData("let xs:readonly number[]=[1,2,3];let out:number[]=xs.toSpliced(1);")]
+    [InlineData("let xs:ReadonlyArray<string>=[\"a\",\"b\"];let out:string[]=xs.toSpliced(0,0,\"x\",\"y\");")]
+    [InlineData("function insert(xs:readonly number[]):number[]{return xs.toSpliced(1,0,4,5);}let out:number[]=insert([1,2]);")]
     public void ReadonlyAndMutableArraysCanPerformCheckedQueries(string source) =>
         Assert.Empty(Compilation.Check("array-queries.ts",source));
 
@@ -91,6 +99,16 @@ public sealed class ArrayQueryTests
     [InlineData("let xs:ReadonlyArray<number>=[1];xs.toSorted((a:string,b:string):number=>0);","TS2345")]
     [InlineData("let xs:number[]=[1];xs.toSorted(undefined,undefined);","TS2554")]
     [InlineData("let xs:number[]=[1];xs.toReversed(\"bad\");","TS2554")]
+    [InlineData("let xs:number[]=[1];xs.with();","TS2554")]
+    [InlineData("let xs:number[]=[1];xs.with(0);","TS2554")]
+    [InlineData("let xs:readonly number[]=[1];xs.with(\"0\",2);","TS2345")]
+    [InlineData("let xs:number[]=[1];xs.with(0,\"x\");","TS2345")]
+    [InlineData("let xs:readonly string[]=[\"a\"];let out:number[]=xs.with(0,\"b\");","TS2322")]
+    [InlineData("let xs:number[]=[1];xs.toSpliced();","TS2555")]
+    [InlineData("let xs:number[]=[1,2];let out:string[]=xs.toSpliced(0,1);","TS2322")]
+    [InlineData("let xs:readonly string[]=[\"a\"];let out:number[]=xs.toSpliced(0,0,\"b\");","TS2322")]
+    [InlineData("let xs:number[]=[1,2];xs.toSpliced(0,1,\"bad\");","TS2345")]
+    [InlineData("let xs:number[]=[1,2];xs.toSpliced(0,undefined,3);","TS2345")]
     public void InvalidQueriesAndReadonlyMutationDoNotSucceed(string source,string expectedCode) =>
         Assert.Contains(Compilation.Check("array-queries-invalid.ts",source),d=>d.Code==expectedCode);
 

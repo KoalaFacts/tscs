@@ -10,6 +10,9 @@ interface Array<T> {
   at(index: number): T | undefined;
   toReversed(): T[];
   toSorted(compareFn?: (a: T, b: T) => number): T[];
+  toSpliced(start: number, deleteCount: number, ...items: T[]): T[];
+  toSpliced(start: number, deleteCount?: number): T[];
+  with(index: number, value: T): T[];
 }
 interface ReadonlyArray<T> {
   readonly length: number;
@@ -23,6 +26,9 @@ interface ReadonlyArray<T> {
   at(index: number): T | undefined;
   toReversed(): T[];
   toSorted(compareFn?: (a: T, b: T) => number): T[];
+  toSpliced(start: number, deleteCount: number, ...items: T[]): T[];
+  toSpliced(start: number, deleteCount?: number): T[];
+  with(index: number, value: T): T[];
 }
 interface Boolean {}
 interface Function {}

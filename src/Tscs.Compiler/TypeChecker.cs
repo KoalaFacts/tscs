@@ -2282,6 +2282,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             [new FunctionTypeSymbol([accumulator,element],accumulator),accumulator],
                             accumulator,2,NativeArrayReduceElementType:element);
                 }
+                // The short toSpliced(start, deleteCount?) overload permits an
+                // omitted/undefined delete count. Inserting items selects the
+                // long overload, where deleteCount must be number. Preserve
+                // the ordinary argument checker/diagnostics for both paths.
+                if(signature.NativeArrayToSplicedElementType is { } splicedElement &&
+                   arguments.Length>=3)
+                    signature=signature with {Parameters=[CompilerTypes.Number,
+                        CompilerTypes.Number,splicedElement]};
                 var resultType=optionalMissing
                     ?CompilerTypes.Union([signature.ReturnType,CompilerTypes.Undefined])
                     :signature.ReturnType;
@@ -2342,7 +2350,12 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         :signature.MinimumArguments==signature.Parameters.Count
                             ?signature.Parameters.Count.ToString()
                             :$"{signature.MinimumArguments}-{signature.Parameters.Count}";
-                    Error(call.Open,"TS2554",$"Expected {expected} arguments, but got {supplied}.");
+                    // For a native toSpliced call with no start argument,
+                    // the pinned TS7 overload emits TS2555 (minimum arity),
+                    // not TS2554. Preserve the real failure in both paths.
+                    Error(call.Open,signature.NativeArrayToSplicedElementType is not null &&
+                        supplied==0?"TS2555":"TS2554",
+                        $"Expected {expected} arguments, but got {supplied}.");
                     // TS7 reports only the native reducing overload's arity
                     // error when the number of arguments is wrong. Keep the
                     // failure but avoid unrelated parameter mismatch noise.

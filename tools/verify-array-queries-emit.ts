@@ -20,9 +20,9 @@ try {
   writeFileSync(join(folder,'minimal.d.ts'),readFileSync('fixtures/array-queries/minimal.d.ts','utf8'));
   const modules={
     'model.ts':'export type Readings=ReadonlyArray<number>;export const values:number[]=[19,20,21,19];',
-    'logic.ts':'import type {Readings} from "./model.js";export function contains(xs:Readings,n:number):boolean{return xs.includes(n);}export function first(xs:Readings,n:number):number{return xs.indexOf(n);}export function last(xs:Readings,n:number):number{return xs.lastIndexOf(n);}export function after(xs:Readings,n:number):number{return xs.indexOf(n,1);}export function label(xs:Readings):string{return xs.join("/");}export function middle(xs:Readings):number[]{return xs.slice(1,-1);}export function copy(xs:Readings):number[]{return xs.slice();}export function append(xs:Readings,rest:Readings):number[]{return xs.concat(rest,22);}export function atEnd(xs:Readings):number|undefined{return xs.at(-1);}export function outOfRange(xs:Readings):number|undefined{return xs.at(-9);}export function reversedCopy(xs:Readings):number[]{return xs.toReversed();}export function sortedCopy(xs:Readings):number[]{return xs.toSorted((a:number,b:number):number=>a-b);}',
-    'bridge.ts':'export {values} from "./model.js";export {contains,first,last,after,label,middle,copy,append,atEnd,outOfRange,reversedCopy,sortedCopy} from "./logic.js";',
-    'entry.ts':'import {values,contains,first,last,after,label,middle,copy,append,atEnd,outOfRange,reversedCopy,sortedCopy} from "./bridge.js";export const found:boolean=contains(values,21);export const firstIndex:number=first(values,19);export const lastIndex:number=last(values,19);export const laterIndex:number=after(values,19);export const joined:string=label(values);export const sliced:number[]=middle(values);export const writable:number[]=copy(values);writable[0]=99;export const original:number=values[0];export const appended:number[]=append(values,[23,24]);appended[0]=42;export const end:number|undefined=atEnd(values);export const missing:number|undefined=outOfRange(values);export const reversed:number[]=reversedCopy(values);export const sorted:number[]=sortedCopy(values);'
+    'logic.ts':'import type {Readings} from "./model.js";export function contains(xs:Readings,n:number):boolean{return xs.includes(n);}export function first(xs:Readings,n:number):number{return xs.indexOf(n);}export function last(xs:Readings,n:number):number{return xs.lastIndexOf(n);}export function after(xs:Readings,n:number):number{return xs.indexOf(n,1);}export function label(xs:Readings):string{return xs.join("/");}export function middle(xs:Readings):number[]{return xs.slice(1,-1);}export function copy(xs:Readings):number[]{return xs.slice();}export function append(xs:Readings,rest:Readings):number[]{return xs.concat(rest,22);}export function atEnd(xs:Readings):number|undefined{return xs.at(-1);}export function outOfRange(xs:Readings):number|undefined{return xs.at(-9);}export function reversedCopy(xs:Readings):number[]{return xs.toReversed();}export function sortedCopy(xs:Readings):number[]{return xs.toSorted((a:number,b:number):number=>a-b);}export function withCopy(xs:Readings):number[]{return xs.with(-1,99);}export function splicedCopy(xs:Readings):number[]{return xs.toSpliced(1,2,41,42);}export function trimmedCopy(xs:Readings):number[]{return xs.toSpliced(2);}',
+    'bridge.ts':'export {values} from "./model.js";export {contains,first,last,after,label,middle,copy,append,atEnd,outOfRange,reversedCopy,sortedCopy,withCopy,splicedCopy,trimmedCopy} from "./logic.js";',
+    'entry.ts':'import {values,contains,first,last,after,label,middle,copy,append,atEnd,outOfRange,reversedCopy,sortedCopy,withCopy,splicedCopy,trimmedCopy} from "./bridge.js";export const found:boolean=contains(values,21);export const firstIndex:number=first(values,19);export const lastIndex:number=last(values,19);export const laterIndex:number=after(values,19);export const joined:string=label(values);export const sliced:number[]=middle(values);export const writable:number[]=copy(values);writable[0]=99;export const original:number=values[0];export const appended:number[]=append(values,[23,24]);appended[0]=42;export const end:number|undefined=atEnd(values);export const missing:number|undefined=outOfRange(values);export const reversed:number[]=reversedCopy(values);export const sorted:number[]=sortedCopy(values);export const replaced:number[]=withCopy(values);export const spliced:number[]=splicedCopy(values);export const trimmed:number[]=trimmedCopy(values);'
   };
   for(const [name,source] of Object.entries(modules))writeFileSync(join(folder,name),source);
   const built=compile(['--emitJs','--noLib','--module','es2015','--target','es2015','entry.ts','minimal.d.ts']);
@@ -30,7 +30,7 @@ try {
   for(const name of ['model','logic','bridge','entry'])
     assert.ok(existsSync(join(folder,name+'.js')),'missing '+name+'.js');
   const run=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {found,firstIndex,lastIndex,laterIndex,joined,sliced,writable,original,appended,end,missing,reversed,sorted} from "./entry.js";import {values} from "./model.js";if(values.join(",")!=="19,20,21,19"||reversed===values||sorted===values||reversed.join(",")!=="19,21,20,19"||sorted.join(",")!=="19,19,20,21"||found!==true||firstIndex!==0||lastIndex!==3||laterIndex!==3||joined!=="19/20/21/19"||sliced.length!==2||sliced[0]!==20||sliced[1]!==21||writable[0]!==99||original!==19||appended.length!==7||appended[0]!==42||appended[4]!==23||appended[5]!==24||appended[6]!==22||end!==19||missing!==undefined)throw Error(JSON.stringify({found,firstIndex,lastIndex,laterIndex,joined,sliced,writable,original,appended,end,missing}));'],
+    'import {found,firstIndex,lastIndex,laterIndex,joined,sliced,writable,original,appended,end,missing,reversed,sorted,replaced,spliced,trimmed} from "./entry.js";import {values} from "./model.js";if(replaced===values||spliced===values||trimmed===values||replaced.join(",")!=="19,20,21,99"||spliced.join(",")!=="19,41,42,19"||trimmed.join(",")!=="19,20"||values.join(",")!=="19,20,21,19"||reversed===values||sorted===values||reversed.join(",")!=="19,21,20,19"||sorted.join(",")!=="19,19,20,21"||found!==true||firstIndex!==0||lastIndex!==3||laterIndex!==3||joined!=="19/20/21/19"||sliced.length!==2||sliced[0]!==20||sliced[1]!==21||writable[0]!==99||original!==19||appended.length!==7||appended[0]!==42||appended[4]!==23||appended[5]!==24||appended[6]!==22||end!==19||missing!==undefined)throw Error(JSON.stringify({found,firstIndex,lastIndex,laterIndex,joined,sliced,writable,original,appended,end,missing}));'],
     {cwd:folder,encoding:'utf8',timeout:15_000});
   assert.equal(run.error,undefined,String(run.error));
   assert.equal(run.status,0,run.stdout+run.stderr);
@@ -72,7 +72,16 @@ try {
     ['copy-sort-assignment','let xs:number[]=[1];let out:string[]=xs.toSorted();','TS2322'],
     ['copy-sort-comparator','let xs:ReadonlyArray<number>=[1];xs.toSorted((a:string,b:string):number=>0);','TS2345'],
     ['copy-sort-extra','let xs:number[]=[1];xs.toSorted(undefined,undefined);','TS2554'],
-    ['copy-reverse-extra','let xs:number[]=[1];xs.toReversed("bad");','TS2554']
+    ['copy-reverse-extra','let xs:number[]=[1];xs.toReversed("bad");','TS2554'],
+    ['with-arity','let xs:number[]=[1];xs.with(0);','TS2554'],
+    ['with-index','let xs:number[]=[1];xs.with("bad",2);','TS2345'],
+    ['with-value','let xs:number[]=[1];xs.with(0,"bad");','TS2345'],
+    ['with-assignment','let xs:readonly string[]=["a"];let out:number[]=xs.with(0,"b");','TS2322'],
+    ['spliced-arity','let xs:number[]=[1];xs.toSpliced();','TS2555'],
+    ['spliced-start','let xs:number[]=[1];xs.toSpliced("bad",0);','TS2345'],
+    ['spliced-item','let xs:number[]=[1];xs.toSpliced(0,1,"bad");','TS2345'],
+    ['spliced-assignment','let xs:number[]=[1];let out:string[]=xs.toSpliced(0,1);','TS2322'],
+    ['spliced-undefined-insertion','let xs:number[]=[1,2];xs.toSpliced(0,undefined,3);','TS2345']
   ];
   for(const [name,source,expected] of rejected) {
     writeFileSync(join(folder,name+'.ts'),source);
@@ -81,5 +90,5 @@ try {
     assert.match(result.stdout+result.stderr,new RegExp(expected),name);
     assert.equal(existsSync(join(folder,name+'.js')),false,'invalid program emitted JS: '+name);
   }
-  console.log('array queries: four linked ES2015 modules executed; thirty-eight invalid programs blocked output.');
+  console.log('array queries: four linked ES2015 modules executed; forty-seven invalid programs blocked output.');
 } finally {rmSync(folder,{recursive:true,force:true});}

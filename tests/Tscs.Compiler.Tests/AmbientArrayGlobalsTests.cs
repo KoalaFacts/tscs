@@ -61,6 +61,10 @@ public sealed class AmbientArrayGlobalsTests : IDisposable
     [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; toReversed():T[]; }")]
     [InlineData("interface Array<T> { length:number; [index:number]:T; toSorted(compareFn?:(a:T,b:T)=>number):T[]; }")]
     [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; toSorted(compareFn?:(a:T,b:T)=>number):T[]; }")]
+    [InlineData("interface Array<T> { length:number; [index:number]:T; with(index:number,value:T):T[]; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; with(index:number,value:T):T[]; }")]
+    [InlineData("interface Array<T> { length:number; [index:number]:T; toSpliced(start:number,deleteCount:number,...items:T[]):T[]; toSpliced(start:number,deleteCount?:number):T[]; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; toSpliced(start:number,deleteCount:number,...items:T[]):T[]; toSpliced(start:number,deleteCount?:number):T[]; }")]
     public void ExactQueryMethodAmbientContractsAreAccepted(string declaration)
     {
         var source=Path.Combine(directory,"query-globals.d.ts");
@@ -99,6 +103,12 @@ public sealed class AmbientArrayGlobalsTests : IDisposable
     [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; toSorted(compareFn?:(a:T,b:T)=>boolean):T[]; }")]
     [InlineData("interface Array<T> { length:number; [index:number]:T; toSorted(compareFn?:(a:T,b:T)=>number):T[]; toSorted(compareFn?:(a:T,b:T)=>number):T[]; }")]
     [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; toReversed():T[]; toReversed():T[]; }")]
+    [InlineData("interface Array<T> { length:number; [index:number]:T; with(index:string,value:T):T[]; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; with(index:number,value:T):ReadonlyArray<T>; }")]
+    [InlineData("interface Array<T> { length:number; [index:number]:T; with(index:number,value:T):T[]; with(index:number,value:T):T[]; }")]
+    [InlineData("interface Array<T> { length:number; [index:number]:T; toSpliced(start:number,deleteCount:number,...items:number[]):T[]; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; toSpliced(start:number,deleteCount?:string):T[]; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; toSpliced(start:number,deleteCount?:number):T[]; toSpliced(start:number,deleteCount?:number):T[]; }")]
     public void IncorrectQueryAmbientContractsRemainRejected(string declaration)
     {
         var source=Path.Combine(directory,"bad-query-globals.d.ts");
