@@ -69,7 +69,12 @@ internal static class TypeResolver
                 };
                 foreach(var member in query.Members)
                 {
-                    var resolved=CompilerTypes.TryGetProperty(target,Parser.PropertyName(member));
+                    TypeSymbol? resolved;
+                    try {resolved=CompilerTypes.TryGetProperty(target,Parser.PropertyName(member));}
+                    catch(InvalidOperationException failure)
+                    {
+                        throw new CompilationFailure(Diagnostic.Error(file,member,"TSCS1001",failure.Message));
+                    }
                     if(resolved is null)
                         throw new CompilationFailure(Diagnostic.Error(file,member,"TS2339",
                             $"Property '{Parser.PropertyName(member)}' does not exist on type '{target.DisplayName}'."));

@@ -19,6 +19,7 @@ public sealed class ArrayMethodTests
     [InlineData("let xs: { value: number }[] = [{value:21}]; xs.push({value:42});")]
     [InlineData("function append(xs: number[], n: number): number { return xs.push(n); } let size: number = append([21], 22);")]
     [InlineData("type Numbers = Array<number>; let xs: Numbers = [21]; let n: number = xs.push(22);")]
+    [InlineData("let xs:number[]=[1]; let push:(...items:number[])=>number=xs.push;")]
     public void MutableArrayMethodsUseTheCheckedCallPipeline(string source) =>
         Assert.Empty(Compilation.Check("array-methods.ts", source));
 
@@ -35,6 +36,14 @@ public sealed class ArrayMethodTests
     [InlineData("let xs: number[] = [21]; let result: string = xs.push(22);", "TS2322")]
     public void WrongArgumentsAndReadonlyMutatorsFailClosed(string source, string code) =>
         Assert.Contains(Compilation.Check("invalid-array-methods.ts", source), d=>d.Code==code);
+
+    [Fact]
+    public void UnionOverflowFromRemovingArrayElementIsAControlledDiagnostic()
+    {
+        var alternatives=string.Join(" | ",Enumerable.Range(1,64));
+        var source="type Item="+alternatives+"; let xs:Item[]=[]; xs.pop();";
+        Assert.Contains(Compilation.Check("oversized-array-result.ts",source),d=>d.Code=="TSCS1001");
+    }
 
     private sealed class Host : ICompilerHost
     {

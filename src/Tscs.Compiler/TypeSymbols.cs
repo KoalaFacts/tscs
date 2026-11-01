@@ -426,7 +426,8 @@ internal static class CompilerTypes
             if(array.Readonly)return null;
             return name switch
             {
-                "push" or "unshift" => new FunctionTypeSymbol([],Number,0,array.ElementType),
+                "push" or "unshift" => new FunctionTypeSymbol([new ArrayTypeSymbol(array.ElementType)],
+                    Number,0,array.ElementType),
                 "pop" or "shift" => new FunctionTypeSymbol([],Union([array.ElementType,Undefined])),
                 _ => null
             };
