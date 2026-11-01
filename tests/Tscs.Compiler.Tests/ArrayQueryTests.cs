@@ -1,0 +1,64 @@
+using Tscs;
+using Xunit;
+
+namespace Tscs.Tests;
+
+// Source-backed product checks, not original TS7 upstream acceptance.
+public sealed class ArrayQueryTests
+{
+    [Theory]
+    [InlineData("let xs:number[]=[20,21];let found:boolean=xs.includes(21);")]
+    [InlineData("let xs:readonly number[]=[20,21];let found:boolean=xs.includes(21,1);")]
+    [InlineData("let xs:ReadonlyArray<number>=[20,21];let p:number=xs.indexOf(20);")]
+    [InlineData("let xs:number[]=[20,21,20];let p:number=xs.lastIndexOf(20,1);")]
+    [InlineData("let xs:readonly string[]=[\"a\",\"b\"];let p:number=xs.indexOf(\"a\");")]
+    [InlineData("let xs:number[]=[20,21];let s:string=xs.join(\"/\");")]
+    [InlineData("let xs:ReadonlyArray<number>=[20,21];let s:string=xs.join();")]
+    [InlineData("let xs:number[]=[20,21];let s:string=xs.join(undefined);")]
+    [InlineData("let xs:readonly number[]=[20,21];let b:boolean=xs.includes(21,undefined);")]
+    [InlineData("function find(xs:readonly number[],n:number):number{return xs.indexOf(n);}let p:number=find([20,21],21);")]
+    public void ReadonlyAndMutableArraysCanPerformCheckedQueries(string source) =>
+        Assert.Empty(Compilation.Check("array-queries.ts",source));
+
+    [Theory]
+    [InlineData("let xs:number[]=[21];xs.includes(\"bad\");","TS2345")]
+    [InlineData("let xs:number[]=[21];xs.includes();","TS2554")]
+    [InlineData("let xs:number[]=[21];xs.includes(21,\"bad\");","TS2345")]
+    [InlineData("let xs:number[]=[21];xs.indexOf();","TS2554")]
+    [InlineData("let xs:number[]=[21];xs.lastIndexOf(\"bad\");","TS2345")]
+    [InlineData("let xs:readonly number[]=[21];xs.join(42);","TS2345")]
+    [InlineData("let xs:number[]=[21];xs.join(\",\",\",\");","TS2554")]
+    [InlineData("let xs:number[]=[21];let b:boolean=xs.indexOf(21);","TS2322")]
+    [InlineData("let xs:readonly number[]=[21];xs.push(22);","TS2339")]
+    public void InvalidQueriesAndReadonlyMutationDoNotSucceed(string source,string expectedCode) =>
+        Assert.Contains(Compilation.Check("array-queries-invalid.ts",source),d=>d.Code==expectedCode);
+
+    private sealed class Host : ICompilerHost
+    {
+        public StringComparer FileNameComparer => StringComparer.Ordinal;
+        public Dictionary<string,string> Files { get; } = new(StringComparer.Ordinal);
+        public string GetCanonicalFileName(string path) => Path.GetFullPath(path);
+        public string ReadFile(string path) => Files[path];
+    }
+
+    [Fact]
+    public void QueryMethodsCrossModuleLinkingAndOutput()
+    {
+        const string root="/virtual/array-queries";
+        var host=new Host();
+        host.Files[root+"/model.ts"]="export type Readings=ReadonlyArray<number>;export const values:number[]=[19,20,21,19];";
+        host.Files[root+"/logic.ts"]="import type {Readings} from \"./model.js\";export function contains(xs:Readings,n:number):boolean{return xs.includes(n);}export function first(xs:Readings,n:number):number{return xs.indexOf(n);}export function last(xs:Readings,n:number):number{return xs.lastIndexOf(n);}export function label(xs:Readings):string{return xs.join(\"/\");}";
+        host.Files[root+"/bridge.ts"]="export {values} from \"./model.js\";export {contains,first,last,label} from \"./logic.js\";";
+        host.Files[root+"/entry.ts"]="import {values,contains,first,last,label} from \"./bridge.js\";export const present:boolean=contains(values,21);export const firstIndex:number=first(values,19);export const lastIndex:number=last(values,19);export const joined:string=label(values);";
+        var program=CompilerProgram.Load(host,[root+"/entry.ts"],new CompilerOptions {
+            NoLib=true,Target=CompilerTarget.Es2015,Module=CompilerModule.Es2015
+        });
+        Assert.Empty(program.Analyze().Diagnostics);
+        var output=program.EmitJavaScript();
+        Assert.Equal(4,output.Count);
+        Assert.Contains(output,js=>js.Text.Contains(".includes(",StringComparison.Ordinal));
+        Assert.Contains(output,js=>js.Text.Contains(".indexOf(",StringComparison.Ordinal));
+        Assert.Contains(output,js=>js.Text.Contains(".lastIndexOf(",StringComparison.Ordinal));
+        Assert.Contains(output,js=>js.Text.Contains(".join(",StringComparison.Ordinal));
+    }
+}

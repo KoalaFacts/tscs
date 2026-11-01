@@ -417,12 +417,18 @@ internal static class CompilerTypes
     public static TypeSymbol? TryGetProperty(TypeSymbol receiver,string name)
     {
         if(receiver.Equals(Any))return Any;
-        // The finite, built-in mutator surface is attached to mutable arrays only.
-        // The existing call checker validates each argument against the array's
-        // element type; ES2015 emits native method calls with the correct receiver.
+        // Native array reads are available through mutable and readonly views.
+        // Optional arguments include explicit undefined, matching TypeScript's
+        // standard array signatures. The ordinary call checker and ES2015
+        // emitter validate inputs and preserve the native receiver.
         if(receiver is ArrayTypeSymbol array)
         {
             if(name=="length")return Number;
+            if(name is "includes" or "indexOf" or "lastIndexOf")
+                return new FunctionTypeSymbol([array.ElementType,Union([Number,Undefined])],
+                    name=="includes"?Boolean:Number,1);
+            if(name=="join")
+                return new FunctionTypeSymbol([Union([String,Undefined])],String,0);
             if(array.Readonly)return null;
             return name switch
             {
