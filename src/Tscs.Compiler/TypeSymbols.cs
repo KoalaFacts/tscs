@@ -500,6 +500,17 @@ internal static class CompilerTypes
                     [Union([Number,Undefined]),Union([Number,Undefined])],String,0),
                 "includes" or "startsWith" or "endsWith" =>
                     new FunctionTypeSymbol([String,Union([Number,Undefined])],Boolean,1),
+                // Split produces a fresh mutable array; all other methods
+                // preserve native string semantics in the ES2015 emitter.
+                "charAt" => new FunctionTypeSymbol([Number],String),
+                "charCodeAt" => new FunctionTypeSymbol([Number],Number),
+                "substring" => new FunctionTypeSymbol([Number,Union([Number,Undefined])],String,1),
+                "indexOf" or "lastIndexOf" =>
+                    new FunctionTypeSymbol([String,Union([Number,Undefined])],Number,1),
+                "replace" => new FunctionTypeSymbol([String,String],String),
+                "split" => new FunctionTypeSymbol([String,Union([Number,Undefined])],
+                    new ArrayTypeSymbol(String),1),
+                "repeat" => new FunctionTypeSymbol([Number],String),
                 _ => null
             };
         if(receiver is ObjectTypeSymbol shape)

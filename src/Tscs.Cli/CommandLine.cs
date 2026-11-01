@@ -451,7 +451,15 @@ public static class CommandLine
             @"|(?<slice>slice\s*\(\s*(?:"+id+@"\s*\?\s*:\s*number(?:\s*,\s*"+id+@"\s*\?\s*:\s*number)?)?\s*\)\s*:\s*string)" +
             @"|(?<includes>includes\s*\(\s*"+id+@"\s*:\s*string(?:\s*,\s*"+id+@"\s*\?\s*:\s*number)?\s*\)\s*:\s*boolean)" +
             @"|(?<startsWith>startsWith\s*\(\s*"+id+@"\s*:\s*string(?:\s*,\s*"+id+@"\s*\?\s*:\s*number)?\s*\)\s*:\s*boolean)" +
-            @"|(?<endsWith>endsWith\s*\(\s*"+id+@"\s*:\s*string(?:\s*,\s*"+id+@"\s*\?\s*:\s*number)?\s*\)\s*:\s*boolean))\s*;",
+            @"|(?<endsWith>endsWith\s*\(\s*"+id+@"\s*:\s*string(?:\s*,\s*"+id+@"\s*\?\s*:\s*number)?\s*\)\s*:\s*boolean)" +
+            @"|(?<charAt>charAt\s*\(\s*"+id+@"\s*:\s*number\s*\)\s*:\s*string)" +
+            @"|(?<charCodeAt>charCodeAt\s*\(\s*"+id+@"\s*:\s*number\s*\)\s*:\s*number)" +
+            @"|(?<substring>substring\s*\(\s*"+id+@"\s*:\s*number(?:\s*,\s*"+id+@"\s*\?\s*:\s*number)?\s*\)\s*:\s*string)" +
+            @"|(?<indexOf>indexOf\s*\(\s*"+id+@"\s*:\s*string(?:\s*,\s*"+id+@"\s*\?\s*:\s*number)?\s*\)\s*:\s*number)" +
+            @"|(?<lastIndexOf>lastIndexOf\s*\(\s*"+id+@"\s*:\s*string(?:\s*,\s*"+id+@"\s*\?\s*:\s*number)?\s*\)\s*:\s*number)" +
+            @"|(?<replace>replace\s*\(\s*"+id+@"\s*:\s*string\s*,\s*"+id+@"\s*:\s*string\s*\)\s*:\s*string)" +
+            @"|(?<split>split\s*\(\s*"+id+@"\s*:\s*string(?:\s*,\s*"+id+@"\s*\?\s*:\s*number)?\s*\)\s*:\s*string\s*\[\s*\])" +
+            @"|(?<repeat>repeat\s*\(\s*"+id+@"\s*:\s*number\s*\)\s*:\s*string))\s*;",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         int position=0;
         bool length=false,index=false;
@@ -473,7 +481,9 @@ public static class CommandLine
             }
             else
             {
-                var method=new[]{"upper","lower","trim","slice","includes","startsWith","endsWith"}
+                var method=new[]{"upper","lower","trim","slice","includes","startsWith","endsWith",
+                    "charAt","charCodeAt","substring","indexOf","lastIndexOf",
+                    "replace","split","repeat"}
                     .FirstOrDefault(name=>member.Groups[name].Success);
                 if(method is null || !methods.Add(method))return false;
             }
