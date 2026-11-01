@@ -241,6 +241,14 @@ public static class CommandLine
         @"|(?<join>join\s*\(\s*(?:[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*string\s*)?\)\s*:\s*string)" +
         @"|(?<slice>slice\s*\(\s*(?:[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number\s*(?:,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number\s*)?)?\)\s*:\s*T\s*\[\s*\])";
 
+    // In-place array methods are an exact finite ambient allowlist. No
+    // arbitrary method signature or .d.ts standard library is accepted.
+    private const string ArrayInPlaceMemberPattern =
+        @"(?<reverse>reverse\s*\(\s*\)\s*:\s*T\s*\[\s*\])" +
+        @"|(?<sort>sort\s*\(\s*(?:[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*number\s*)?\)\s*:\s*T\s*\[\s*\])" +
+        @"|(?<fill>fill\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T(?:\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number(?:\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number)?)?\s*\)\s*:\s*T\s*\[\s*\])" +
+        @"|(?<copyWithin>copyWithin\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number(?:\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number)?\s*\)\s*:\s*T\s*\[\s*\])";
+
     // Member order and numeric-index parameter spelling are irrelevant.
     // Length/index must be present exactly once; the optional standard
     // Array<T> mutator declarations supply the pinned reference's actual
@@ -249,11 +257,12 @@ public static class CommandLine
     // method table checks calls, never an arbitrary regex-derived declaration.
     private static bool IsSupportedArrayContract(string body,out bool iterator)
     {
-        var memberPattern=new Regex(@"\G\s*(?:(?<length>length\s*:\s*number)|(?<index>\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T)|(?<iterator>\[\s*Symbol\s*\.\s*iterator\s*\]\s*\(\s*\)\s*:\s*Iterator\s*<\s*T\s*>)|(?<push>push\s*\(\s*\.\.\.\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\[\s*\]\s*\)\s*:\s*number)|(?<unshift>unshift\s*\(\s*\.\.\.\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\[\s*\]\s*\)\s*:\s*number)|(?<pop>pop\s*\(\s*\)\s*:\s*T\s*\|\s*undefined)|(?<shift>shift\s*\(\s*\)\s*:\s*T\s*\|\s*undefined)|"+ArrayQueryMemberPattern+@")\s*;",
+        var memberPattern=new Regex(@"\G\s*(?:(?<length>length\s*:\s*number)|(?<index>\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T)|(?<iterator>\[\s*Symbol\s*\.\s*iterator\s*\]\s*\(\s*\)\s*:\s*Iterator\s*<\s*T\s*>)|(?<push>push\s*\(\s*\.\.\.\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\[\s*\]\s*\)\s*:\s*number)|(?<unshift>unshift\s*\(\s*\.\.\.\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\[\s*\]\s*\)\s*:\s*number)|(?<pop>pop\s*\(\s*\)\s*:\s*T\s*\|\s*undefined)|(?<shift>shift\s*\(\s*\)\s*:\s*T\s*\|\s*undefined)|"+ArrayQueryMemberPattern+"|"+ArrayInPlaceMemberPattern+@")\s*;",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         int position=0;
         bool length=false,index=false,push=false,unshift=false,pop=false,shift=false;
         bool includes=false,indexOf=false,lastIndexOf=false,join=false,slice=false;
+        bool reverse=false,sort=false,fill=false,copyWithin=false;
         iterator=false;
         while(position<body.Length)
         {
@@ -314,6 +323,26 @@ public static class CommandLine
             {
                 if(slice)return false;
                 slice=true;
+            }
+            else if(member.Groups["reverse"].Success)
+            {
+                if(reverse)return false;
+                reverse=true;
+            }
+            else if(member.Groups["sort"].Success)
+            {
+                if(sort)return false;
+                sort=true;
+            }
+            else if(member.Groups["fill"].Success)
+            {
+                if(fill)return false;
+                fill=true;
+            }
+            else if(member.Groups["copyWithin"].Success)
+            {
+                if(copyWithin)return false;
+                copyWithin=true;
             }
             else
             {

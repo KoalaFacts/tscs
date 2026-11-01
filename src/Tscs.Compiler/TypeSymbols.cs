@@ -438,6 +438,18 @@ internal static class CompilerTypes
                 "push" or "unshift" => new FunctionTypeSymbol([new ArrayTypeSymbol(array.ElementType)],
                     Number,0,array.ElementType),
                 "pop" or "shift" => new FunctionTypeSymbol([],Union([array.ElementType,Undefined])),
+                // The native ES2015 emitter preserves the receiver identity;
+                // these four methods mutate the original mutable array.
+                "reverse" => new FunctionTypeSymbol([],new ArrayTypeSymbol(array.ElementType)),
+                "sort" => new FunctionTypeSymbol(
+                    [Union([new FunctionTypeSymbol([array.ElementType,array.ElementType],Number),Undefined])],
+                    new ArrayTypeSymbol(array.ElementType),0),
+                "fill" => new FunctionTypeSymbol(
+                    [array.ElementType,Union([Number,Undefined]),Union([Number,Undefined])],
+                    new ArrayTypeSymbol(array.ElementType),1),
+                "copyWithin" => new FunctionTypeSymbol(
+                    [Number,Number,Union([Number,Undefined])],
+                    new ArrayTypeSymbol(array.ElementType),2),
                 _ => null
             };
         }
