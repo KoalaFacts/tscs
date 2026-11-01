@@ -469,13 +469,36 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         }
     }
 
+    // Finite object/array unions retain native for..in semantics. Nullish
+    // alternatives are harmless no-ops, but a nullish-only or primitive
+    // source has no checked object alternative and must be rejected.
+    private static bool CanEnumerateForInKeys(TypeSymbol? source)
+    {
+        if(source is null)return false;
+        if(source.Equals(CompilerTypes.Any))return true;
+        if(source is ObjectTypeSymbol or ArrayTypeSymbol)return true;
+        if(source is not UnionTypeSymbol union)return false;
+        bool hasObject=false;
+        foreach(var alternative in union.Alternatives)
+        {
+            if(alternative is ObjectTypeSymbol or ArrayTypeSymbol)
+            {
+                hasObject=true;
+                continue;
+            }
+            if(alternative.Equals(CompilerTypes.Null)||alternative.Equals(CompilerTypes.Undefined))
+                continue;
+            return false;
+        }
+        return hasObject;
+    }
+
     // Keys, not values, are bound inside the lexical loop scope. A for..in
     // body may execute zero times, so its writes cannot initialize outer locals.
     private void CheckForIn(ForInStatement loop,Scope scope,TypeSymbol? expectedReturn)
     {
         var sourceType=TypeOf(loop.Source,scope);
-        if(sourceType is not ObjectTypeSymbol and not ArrayTypeSymbol &&
-           (sourceType==null || !sourceType.Equals(CompilerTypes.Any)))
+        if(!CanEnumerateForInKeys(sourceType))
             throw new CompilationFailure(Diagnostic.Error(file,loop.Keyword,"TS2407",
                 "The right-hand side of a 'for...in' statement must have an object or any type."));
         CheckStrictModuleBinding(loop.Name);

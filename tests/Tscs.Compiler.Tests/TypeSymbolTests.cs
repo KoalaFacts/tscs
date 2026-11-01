@@ -17,7 +17,11 @@ public sealed class TypeSymbolTests
         Assert.False(CompilerTypes.IsAssignable(CompilerTypes.Number,CompilerTypes.String));
         Assert.True(CompilerTypes.IsNumber(CompilerTypes.Number));
         Assert.False(CompilerTypes.IsNumber(CompilerTypes.Any));
-        Assert.Throws<ArgumentOutOfRangeException>(()=>CompilerTypes.FromAnnotation("unknown"));
+        // Unknown is now a real intrinsic type, not an unresolved alias.
+        Assert.Same(CompilerTypes.Unknown,CompilerTypes.FromAnnotation("unknown"));
+        Assert.True(CompilerTypes.IsAssignable(CompilerTypes.Number,CompilerTypes.Unknown));
+        Assert.False(CompilerTypes.IsAssignable(CompilerTypes.Unknown,CompilerTypes.Number));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>CompilerTypes.FromAnnotation("notAType"));
     }
     [Fact]
     public void BoundedFunctionAssignmentUsesContravariantInputsAndCovariantReturns()
