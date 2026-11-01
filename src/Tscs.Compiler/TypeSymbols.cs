@@ -48,7 +48,7 @@ internal sealed record UnionTypeSymbol(IReadOnlyList<TypeSymbol> Alternatives) :
 // can inspect fresh operand literals rather than only the joined type.
 internal sealed record LogicalValueOutcome(TypeSymbol Result,TypeSymbol? LeftResult,TypeSymbol Right,bool RightReachable);
 
-internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null) : TypeSymbol
+internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null,TypeSymbol? NativeArrayMapElementType=null) : TypeSymbol
 {
     public int MinimumArguments=>RequiredParameterCount<0?Parameters.Count:RequiredParameterCount;
     public override string DisplayName=>TypeDisplay.Format(this);
@@ -449,6 +449,13 @@ internal static class CompilerTypes
                 };
                 return new FunctionTypeSymbol([callback],result);
             }
+            // A native map callback may return a type different from the element.
+            // The checker derives that result from the checked callback signature;
+            // this intrinsic marker cannot be supplied by user declarations.
+            if(name=="map")
+                return new FunctionTypeSymbol(
+                    [new FunctionTypeSymbol([array.ElementType],Any)],
+                    new ArrayTypeSymbol(Any),NativeArrayMapElementType:array.ElementType);
             // Checked native array transformations: filter always creates a
             // writable copy; same-element folds use an optional initial T.
             if(name=="filter")
