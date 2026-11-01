@@ -67,7 +67,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     // Every user-visible binding still passes Binder, TypeChecker and emitter.
     private abstract record BindingPattern;
     private sealed record BoundName(Token Name) : BindingPattern;
-    private sealed record BoundDefault(BindingPattern Target,ValueNode Fallback,Token Location,int StartToken,int EndToken) : BindingPattern;
+    private sealed record BoundDefault(BindingPattern Target,ValueNode Fallback,Token Location) : BindingPattern;
     private sealed record BoundObject(IReadOnlyList<(Token Key,BindingPattern Target)> Members) : BindingPattern;
     private sealed record BoundArray(Token Open,IReadOnlyList<BindingPattern?> Elements) : BindingPattern;
     private int bindingTemporaryOrdinal;
@@ -99,45 +99,199 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
         _ => false
     };
 
-    // Preserve the original token ranges of element defaults: expressions are
-    // parsed before the function body and must keep parameter-initialization
-    // name resolution, even though finite patterns are lowered at body entry.
-    private static void CollectBindingDefaults(BindingPattern pattern,List<BoundDefault> defaults)
+    // Analyse actual expression references, not scanner token spellings:
+    // interpolated templates contain parsed substitution nodes, optional
+    // property names are not variable reads, and nested callables bind locals.
+    // The finite parameter lowering uses this to reject only unsafe captures
+    // of the pattern's own bindings or declarations in the function body.
+    private static bool ReferencesName(Token token,HashSet<string> names,HashSet<string> scoped) =>
+        token.Kind==TokenKind.Identifier && names.Contains(token.Text) &&
+        !scoped.Contains(token.Text);
+
+    private static bool DefaultReferencesAny(ValueNode expression,HashSet<string> names) =>
+        DefaultReferencesAny(expression,names,new HashSet<string>(StringComparer.Ordinal));
+
+    private static bool DefaultReferencesAny(ValueNode expression,HashSet<string> names,HashSet<string> scoped)
     {
-        switch(pattern)
+        if(names.Count==0)return false;
+        switch(expression)
         {
-            case BoundDefault fallback:
-                defaults.Add(fallback);
-                CollectBindingDefaults(fallback.Target,defaults);
-                break;
-            case BoundObject obj:
-                foreach(var member in obj.Members)
-                    CollectBindingDefaults(member.Target,defaults);
-                break;
-            case BoundArray array:
-                foreach(var element in array.Elements)
-                    if(element is not null)CollectBindingDefaults(element,defaults);
-                break;
+            case ValueAtom atom:
+                return ReferencesName(atom.Token,names,scoped);
+            case ValueTemplate template:
+                return template.Expressions.Any(item=>DefaultReferencesAny(item,names,scoped));
+            case ValueBinary binary:
+                return DefaultReferencesAny(binary.Left,names,scoped) ||
+                       DefaultReferencesAny(binary.Right,names,scoped);
+            case ValueConditional conditional:
+                return DefaultReferencesAny(conditional.Condition,names,scoped) ||
+                       DefaultReferencesAny(conditional.WhenTrue,names,scoped) ||
+                       DefaultReferencesAny(conditional.WhenFalse,names,scoped);
+            case ValueTypeOperator typeOp:
+                return DefaultReferencesAny(typeOp.Expression,names,scoped);
+            case ValueNonNull asserted:
+                return DefaultReferencesAny(asserted.Expression,names,scoped);
+            case ValueUnary unary:
+                return DefaultReferencesAny(unary.Operand,names,scoped);
+            case ValuePrefixUpdate update:
+                return DefaultReferencesAny(update.Target,names,scoped);
+            case ValuePostfixUpdate update:
+                return DefaultReferencesAny(update.Target,names,scoped);
+            case ValueParenthesized group:
+                return DefaultReferencesAny(group.Expression,names,scoped);
+            case ValueArrow arrow:
+            {
+                var callableScope=new HashSet<string>(scoped,StringComparer.Ordinal);
+                foreach(var parameter in arrow.Parameters)
+                    callableScope.Add(parameter.Name.Text);
+                if(arrow.FunctionName is { } functionName)
+                    callableScope.Add(functionName.Text);
+                return arrow.Parameters.Any(parameter=>
+                           parameter.DefaultValue is { } value &&
+                           DefaultReferencesAny(value,names,callableScope)) ||
+                       (arrow.Body is { } body &&
+                        DefaultReferencesAny(body,names,callableScope)) ||
+                       (arrow.BlockBody is { } block &&
+                        DefaultReferencesAny(block,names,callableScope));
+            }
+            case ValueCall call:
+                return DefaultReferencesAny(call.Callee,names,scoped) ||
+                       call.Arguments.Any(arg=>DefaultReferencesAny(arg,names,scoped));
+            case ValueObject obj:
+                return obj.Properties.Any(property=>
+                    (property.Computed && ReferencesName(property.Name,names,scoped)) ||
+                    DefaultReferencesAny(property.Value,names,scoped));
+            case ValueArray array:
+                return array.Elements.Any(element=>DefaultReferencesAny(element,names,scoped));
+            case ValueArraySpread spread:
+                return DefaultReferencesAny(spread.Operand,names,scoped);
+            case ValueElementAccess index:
+                return DefaultReferencesAny(index.Receiver,names,scoped) ||
+                       DefaultReferencesAny(index.Index,names,scoped);
+            case ValuePropertyAccess property:
+                // Both obj.member and obj?.member read only the receiver.
+                return DefaultReferencesAny(property.Receiver,names,scoped);
+            default:
+                // New unrecognised syntax must not bypass a TDZ/scope check.
+                return true;
         }
     }
 
-    private bool DefaultReferencesAny(int start,int end,HashSet<string> names)
+    private static bool DefaultReferencesAny(Block block,HashSet<string> names,HashSet<string> scoped)
     {
-        if(names.Count==0)return false;
-        for(int i=start;i<end;i++)
+        var blockScope=new HashSet<string>(scoped,StringComparer.Ordinal);
+        foreach(var statement in block.Statements)
         {
-            if(tokens[i].Kind!=TokenKind.Identifier || !names.Contains(tokens[i].Text))
-                continue;
-            // Static object-literal keys and non-computed property names do
-            // not read the identifier they spell. Shorthand members do.
-            if(i>start && tokens[i-1].Kind==TokenKind.Dot)
-                continue;
-            if(i>start && i+1<end && tokens[i+1].Kind==TokenKind.Colon &&
-               (tokens[i-1].Kind is TokenKind.Open or TokenKind.Comma))
-                continue;
-            return true;
+            if(statement is Variable variable)blockScope.Add(variable.Name.Text);
+            if(statement is FunctionDeclaration function)blockScope.Add(function.Name.Text);
         }
-        return false;
+        return block.Statements.Any(statement=>DefaultReferencesAny(statement,names,blockScope));
+    }
+
+    private static bool DefaultReferencesAny(Statement statement,HashSet<string> names,HashSet<string> scoped)
+    {
+        switch(statement)
+        {
+            case EmptyStatement:
+            case BreakStatement:
+            case ContinueStatement:
+            case TypeAliasDeclaration:
+            case InterfaceDeclaration:
+            case ImportDeclaration:
+            case ExportDeclaration:
+                return false;
+            case Block block:
+                return DefaultReferencesAny(block,names,scoped);
+            case Variable variable:
+                return variable.Initializer is { } initializer &&
+                       DefaultReferencesAny(initializer,names,scoped);
+            case Expression expression:
+                return DefaultReferencesAny(expression.Value,names,scoped);
+            case ReturnStatement result:
+                return result.Value is { } returned && DefaultReferencesAny(returned,names,scoped);
+            case ThrowStatement thrown:
+                return DefaultReferencesAny(thrown.Value,names,scoped);
+            case Assignment assignment:
+                return ReferencesName(assignment.Name,names,scoped) ||
+                       DefaultReferencesAny(assignment.Value,names,scoped);
+            case PostfixUpdate update:
+                return ReferencesName(update.Name,names,scoped);
+            case PropertyAssignment assignment:
+                return DefaultReferencesAny(assignment.Target,names,scoped) ||
+                       DefaultReferencesAny(assignment.Value,names,scoped);
+            case ElementAssignment assignment:
+                return DefaultReferencesAny(assignment.Target,names,scoped) ||
+                       DefaultReferencesAny(assignment.Value,names,scoped);
+            case CompoundAssignment assignment:
+                return DefaultReferencesAny(assignment.Target,names,scoped) ||
+                       DefaultReferencesAny(assignment.Value,names,scoped);
+            case ParameterDeclaration parameter:
+                return parameter.DefaultValue is { } value &&
+                       DefaultReferencesAny(value,names,scoped);
+            case FunctionDeclaration function:
+            {
+                var functionScope=new HashSet<string>(scoped,StringComparer.Ordinal) {function.Name.Text};
+                foreach(var parameter in function.Parameters)
+                    functionScope.Add(parameter.Name.Text);
+                return function.Parameters.Any(parameter=>
+                           parameter.DefaultValue is { } value &&
+                           DefaultReferencesAny(value,names,functionScope)) ||
+                       DefaultReferencesAny(function.Body,names,functionScope);
+            }
+            case ConditionalStatement conditional:
+                return DefaultReferencesAny(conditional.Condition,names,scoped) ||
+                       DefaultReferencesAny(conditional.Consequent,names,scoped) ||
+                       (conditional.Alternate is { } alternate &&
+                        DefaultReferencesAny(alternate,names,scoped));
+            case TryStatement attempt:
+            {
+                var catchScope=new HashSet<string>(scoped,StringComparer.Ordinal);
+                if(attempt.CatchBinding is { } binding)catchScope.Add(binding.Text);
+                return DefaultReferencesAny(attempt.Body,names,scoped) ||
+                       (attempt.CatchBody is { } caught &&
+                        DefaultReferencesAny(caught,names,catchScope)) ||
+                       (attempt.FinallyBody is { } cleanup &&
+                        DefaultReferencesAny(cleanup,names,scoped));
+            }
+            case SwitchStatement selection:
+                return DefaultReferencesAny(selection.Selector,names,scoped) ||
+                       selection.Clauses.Any(clause=>
+                           (clause.Label is { } label &&
+                            DefaultReferencesAny(label,names,scoped)) ||
+                           DefaultReferencesAny(clause.Body,names,scoped));
+            case WhileStatement loop:
+                return DefaultReferencesAny(loop.Condition,names,scoped) ||
+                       DefaultReferencesAny(loop.Body,names,scoped);
+            case DoWhileStatement loop:
+                return DefaultReferencesAny(loop.Body,names,scoped) ||
+                       DefaultReferencesAny(loop.Condition,names,scoped);
+            case ForOfStatement loop:
+            {
+                var inner=new HashSet<string>(scoped,StringComparer.Ordinal) {loop.Name.Text};
+                return DefaultReferencesAny(loop.Source,names,scoped) ||
+                       DefaultReferencesAny(loop.Body,names,inner);
+            }
+            case ForInStatement loop:
+            {
+                var inner=new HashSet<string>(scoped,StringComparer.Ordinal) {loop.Name.Text};
+                return DefaultReferencesAny(loop.Source,names,scoped) ||
+                       DefaultReferencesAny(loop.Body,names,inner);
+            }
+            case ClassicForStatement loop:
+            {
+                var inner=new HashSet<string>(scoped,StringComparer.Ordinal);
+                if(loop.Initializer is Variable local)inner.Add(local.Name.Text);
+                return (loop.Initializer is { } init &&
+                        DefaultReferencesAny(init,names,inner)) ||
+                       (loop.Condition is { } condition &&
+                        DefaultReferencesAny(condition,names,inner)) ||
+                       (loop.Update is { } update &&
+                        DefaultReferencesAny(update,names,inner)) ||
+                       DefaultReferencesAny(loop.Body,names,inner);
+            }
+            default:
+                return true;
+        }
     }
 
     private Token NewBindingTemporary(Token location)
@@ -159,9 +313,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
         if(allowDefault && Eat(TokenKind.Equal))
         {
             var location=Current;
-            var start=position;
-            var fallback=ParseValue();
-            pattern=new BoundDefault(pattern,fallback,location,start,position);
+            pattern=new BoundDefault(pattern,ParseValue(),location);
         }
         return pattern;
     }
@@ -190,9 +342,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     binding=new BoundName(key);
                     if(Eat(TokenKind.Equal))
                     {
-                        var start=position;
-                        var fallback=ParseValue();
-                        binding=new BoundDefault(binding,fallback,key,start,position);
+                        binding=new BoundDefault(binding,ParseValue(),key);
                     }
                 }
                 members.Add((key,binding));
@@ -530,7 +680,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                                 .ToHashSet(StringComparer.Ordinal);
                             foreach(var fallback in defaults)
                             {
-                                if(DefaultReferencesAny(fallback.StartToken,fallback.EndToken,localNames))
+                                if(DefaultReferencesAny(fallback.Fallback,localNames))
                                     Unsupported(fallback.Location,
                                         "A parameter element default cannot reference names bound by its own destructuring pattern.");
                             }
@@ -550,10 +700,9 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                         ValueNode? defaultValue=null;
                         if(Eat(TokenKind.Equal))
                         {
-                            var start=position;
                             defaultValue=ParseValue();
                             if(parameterPattern is not null &&
-                               DefaultReferencesAny(start,position,exposedNames.Select(name=>name.Text)
+                               DefaultReferencesAny(defaultValue,exposedNames.Select(name=>name.Text)
                                    .ToHashSet(StringComparer.Ordinal)))
                                 Unsupported(parameter,
                                     "A whole-parameter default cannot reference its own destructured names.");
@@ -630,7 +779,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     }
                     foreach(var fallback in parameterElementDefaults)
                     {
-                        if(DefaultReferencesAny(fallback.StartToken,fallback.EndToken,bodyNames))
+                        if(DefaultReferencesAny(fallback.Fallback,bodyNames))
                             Unsupported(fallback.Location,
                                 "Parameter element defaults cannot reference function-body declarations.");
                     }

@@ -37,6 +37,9 @@ public sealed class VariableBindingPatternTests
     [InlineData("function take({value}:{value:number}={value:42}):number{return value;}const n:number=take();")]
     [InlineData("function seed():number{return 42;}function f({x=seed()}:{x?:number}):number{return x;}let n:number=f({});")]
     [InlineData("const seed:number=42;function f({x}:{x:number}={x:seed}):number{return x;}let n:number=f();")]
+    [InlineData("const obj={x:42};function f({x=obj?.x??0}:{x?:number}):number{return x;}let n:number=f({});")]
+    [InlineData("function f({x=((x:number):number=>x)(42)}:{x?:number}):number{return x;}let n:number=f({});")]
+    [InlineData("function f({x}:{x:number}={x:((x:number):number=>x)(42)}):number{return x;}let n:number=f();")]
     [InlineData("const seed={value:21};const {value}=seed, after=value+1;let n:number=after;")]
     [InlineData("const list:number[]=[10,20];const [first,second]=list;let n:number=first+second;")]
     public void FinitePatternsFlowThroughNormalVariableTyping(string source) =>
@@ -70,6 +73,8 @@ public sealed class VariableBindingPatternTests
     [InlineData("function seed():number{return 1;}function f({x=seed()}:{x?:number}):number{function seed():number{return 2;}return x;}let n:number=f({});","TSCS1001")]
     [InlineData("let x:number=42;function f({x}:{x:number}={x:x}):number{return x;}let n:number=f();","TSCS1001")]
     [InlineData("let x:number=42;function f({x=x}:{x?:number}):number{return x;}let n:number=f({});","TSCS1001")]
+    [InlineData("let x:string=\"outer\";function f({x}:{x:string}={x:`\u0024{x}`}):string{return x;}let n:string=f();","TSCS1001")]
+    [InlineData("let x:string=\"outer\";function f({x=`\u0024{x}`}:{x?:string}):string{return x;}let n:string=f({});","TSCS1001")]
     [InlineData("const [value=21]:(number|undefined)[]=[undefined];let wrong:string=value;","TS2322")]
     public void BadBindingsOrAssignmentsProduceRealDiagnostics(string source,string code) =>
         Assert.Contains(Compilation.Check("binding.ts",source),diagnostic=>diagnostic.Code==code);

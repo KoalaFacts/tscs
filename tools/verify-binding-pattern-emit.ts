@@ -90,7 +90,8 @@ try {
     ['parameter-scope','function f({value}:{value:number}):number{return value;}value=21;','TS2304',2],
     ['parameter-body-shadow','function seed():number{return 1;}function f({x=seed()}:{x?:number}):number{function seed():number{return 2;}return x;}let n:number=f({});','TSCS1001',1],
     ['parameter-whole-self','let x:number=42;function f({x}:{x:number}={x:x}):number{return x;}let n:number=f();','TSCS1001',1],
-    ['parameter-element-self','let x:number=42;function f({x=x}:{x?:number}):number{return x;}let n:number=f({});','TSCS1001',1]
+    ['parameter-element-self','let x:number=42;function f({x=x}:{x?:number}):number{return x;}let n:number=f({});','TSCS1001',1],
+    ['parameter-template-self','let x:string="outer";function f({x}:{x:string}={x:`\u0024{x}`}):string{return x;}let n:string=f();','TSCS1001',1]
   ] as const;
   for(const [name,source,code,status] of negative) {
     writeFileSync(join(dir,'invalid-'+name+'.ts'),source);
@@ -99,5 +100,5 @@ try {
     assert.match(bad.stdout+bad.stderr,new RegExp(code));
     assert.equal(existsSync(join(dir,'invalid-'+name+'.js')),false,'invalid program emitted JS: '+name);
   }
-  console.log('Finite object/array binding patterns: four linked ES2015 modules executed; twenty invalid programs emitted no JavaScript.');
+  console.log('Finite object/array binding patterns: four linked ES2015 modules executed; twenty-one invalid programs emitted no JavaScript.');
 } finally {rmSync(dir,{recursive:true,force:true});}
