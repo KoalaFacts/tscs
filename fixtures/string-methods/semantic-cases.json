@@ -144,6 +144,102 @@
       "expectedCodes": [
         "TS2554"
       ]
+    },
+    {
+      "id": "string-methods:positive-13",
+      "source": "let s:string=\"abc\";let result:string|undefined=s.at(-1);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-methods:positive-14",
+      "source": "let s:string=\"abc\";let result:string|undefined=s.at(0);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-methods:positive-15",
+      "source": "let s:string=\"\";let result:string|undefined=s.at(1);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-methods:positive-16",
+      "source": "let s:\"xyz\"=\"xyz\";let result:string|undefined=s.at(-1);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-methods:positive-17",
+      "source": "let s:string=\"😀\";let result:string|undefined=s.at(1);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-methods:positive-18",
+      "source": "let s:string=\"😀\";let result:string|undefined=s.at(-2);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-methods:positive-19",
+      "source": "function last(s:string):string|undefined{return s.at(-1);}let t:string|undefined=last(\"hi\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-methods:positive-20",
+      "source": "let s:string=\"abc\";let result:string|undefined=s.at(999);",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-methods:negative-13",
+      "source": "let s:string=\"abc\";s.at();",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "string-methods:negative-14",
+      "source": "let s:string=\"abc\";s.at(\"1\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "string-methods:negative-15",
+      "source": "let s:string=\"abc\";s.at(true);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "string-methods:negative-16",
+      "source": "let s:string=\"abc\";s.at(0,1);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "string-methods:negative-17",
+      "source": "let s:string=\"abc\";let n:number=s.at(0);",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-methods:negative-18",
+      "source": "let s:string=\"abc\";let b:boolean=s.at(-1);",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-methods:negative-19",
+      "source": "let n:number=42;n.at(0);",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "string-methods:negative-20",
+      "source": "let s:string=\"abc\";s.at([1]);",
+      "expectedCodes": [
+        "TS2345"
+      ]
     }
   ]
 }

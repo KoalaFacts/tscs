@@ -551,6 +551,7 @@ public static class CommandLine
             @"|(?<padStart>padStart\s*\(\s*"+id+@"\s*:\s*number(?:\s*,\s*"+id+@"\s*\?\s*:\s*string)?\s*\)\s*:\s*string)" +
             @"|(?<padEnd>padEnd\s*\(\s*"+id+@"\s*:\s*number(?:\s*,\s*"+id+@"\s*\?\s*:\s*string)?\s*\)\s*:\s*string)" +
             @"|(?<normalize>normalize\s*\(\s*(?:"+id+@"\s*\?\s*:\s*string)?\s*\)\s*:\s*string)" +
+            @"|(?<atMethod>at\s*\(\s*"+id+@"\s*:\s*number\s*\)\s*:\s*string\s*\|\s*undefined)" +
             @"|(?<codePointAt>codePointAt\s*\(\s*"+id+@"\s*:\s*number\s*\)\s*:\s*number\s*\|\s*undefined)" +
             @"|(?<localeCompare>localeCompare\s*\(\s*"+id+@"\s*:\s*string\s*\)\s*:\s*number))\s*;",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
@@ -582,7 +583,7 @@ public static class CommandLine
                 var method=new[]{"upper","lower","trim","slice","includes","startsWith","endsWith",
                     "charAt","charCodeAt","substring","indexOf","lastIndexOf",
                     "replace","split","repeat","trimStart","trimEnd","padStart",
-                    "padEnd","normalize","codePointAt","localeCompare"}
+                    "padEnd","normalize","atMethod","codePointAt","localeCompare"}
                     .FirstOrDefault(name=>member.Groups[name].Success);
                 if(method is null || !methods.Add(method))return false;
             }

@@ -15,6 +15,7 @@ interface String {
   includes(searchString: string, position?: number): boolean;
   startsWith(searchString: string, position?: number): boolean;
   endsWith(searchString: string, endPosition?: number): boolean;
+  at(index: number): string | undefined;
 }
 interface CallableFunction {}
 interface NewableFunction {}

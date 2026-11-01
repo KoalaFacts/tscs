@@ -21,9 +21,9 @@ try {
   writeFileSync(join(folder,'minimal.d.ts'),minimal);
   const modules={
     'model.ts':'export type Label={text:string};export const sample:Label={text:"  DevWorld  "};',
-    'logic.ts':'import type {Label} from "./model.js";export function short(x:Label):string{return x.text.trim().toUpperCase().slice(0,4);}export function match(x:Label):boolean{return x.text.toLowerCase().includes("dev") && x.text.startsWith("  ");}export function suffix(x:Label):boolean{return x.text.trim().endsWith("World");}',
-    'bridge.ts':'export {short,match,suffix} from "./logic.js";',
-    'entry.ts':'import {sample} from "./model.js";import {short,match,suffix} from "./bridge.js";export const label:string=short(sample);export const found:boolean=match(sample);export const ended:boolean=suffix(sample);export const empty:string="abc".slice();'
+    'logic.ts':'import type {Label} from "./model.js";export function short(x:Label):string{return x.text.trim().toUpperCase().slice(0,4);}export function match(x:Label):boolean{return x.text.toLowerCase().includes("dev") && x.text.startsWith("  ");}export function suffix(x:Label):boolean{return x.text.trim().endsWith("World");}export function tail(x:Label):string|undefined{return x.text.at(-3);}export function utf16Tail():string|undefined{return "😀".at(-1);}',
+    'bridge.ts':'export {short,match,suffix,tail,utf16Tail} from "./logic.js";',
+    'entry.ts':'import {sample} from "./model.js";import {short,match,suffix,tail,utf16Tail} from "./bridge.js";export const label:string=short(sample);export const found:boolean=match(sample);export const ended:boolean=suffix(sample);export const empty:string="abc".slice();export const last:string|undefined=tail(sample);export const missing:string|undefined=sample.text.at(999);export const lowUnit:string|undefined=utf16Tail();'
   };
   for(const [name,source] of Object.entries(modules))writeFileSync(join(folder,name),source);
   const result=compile(['--emitJs','--noLib','--module','es2015','--target','es2015','entry.ts','minimal.d.ts']);
@@ -31,11 +31,17 @@ try {
   for(const name of ['model','logic','bridge','entry'])
     assert.ok(existsSync(join(folder,name+'.js')),'missing '+name+'.js');
   const run=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {label,found,ended,empty} from "./entry.js";if(label!=="DEVW"||found!==true||ended!==true||empty!=="abc")throw Error(JSON.stringify({label,found,ended,empty}));'],
+    'import {label,found,ended,empty,last,missing,lowUnit} from "./entry.js";if(label!=="DEVW"||found!==true||ended!==true||empty!=="abc"||last!=="d"||missing!==undefined||lowUnit?.charCodeAt(0)!==0xde00)throw Error(JSON.stringify({label,found,ended,empty,last,missing,lowUnit}));'],
     {cwd:folder,encoding:'utf8',timeout:15000});
   assert.equal(run.error,undefined,String(run.error));
   assert.equal(run.status,0,run.stdout+run.stderr);
-  const invalid=[["let s:string=\"x\";s.toUpperCase(1);","TS2554"],["let s:string=\"x\";s.toLowerCase(\"q\");","TS2554"],["let s:string=\"x\";s.trim(0);","TS2554"],["let s:string=\"x\";s.slice(\"q\");","TS2345"],["let s:string=\"x\";s.slice(0,\"q\");","TS2345"],["let s:string=\"x\";s.includes(5);","TS2345"],["let s:string=\"x\";s.startsWith();","TS2554"],["let s:string=\"x\";s.endsWith(\"x\",\"q\");","TS2345"],["let n:number=\"x\".trim();","TS2322"],["let t:string=\"x\".includes(\"x\");","TS2322"],["let s:string=\"x\";s.slice(0,1,2);","TS2554"],["let s:string=\"x\";s.includes(\"a\",0,1);","TS2554"]];
+  const cohort=JSON.parse(readFileSync('fixtures/string-methods/semantic-cases.json','utf8'));
+  const invalid=cohort.cases.filter((entry:{id:string})=>entry.id.startsWith('string-methods:negative-'))
+    .map((entry:{source:string;expectedCodes:string[]})=>{
+      assert.equal(entry.expectedCodes.length,1,'negative case must have one diagnostic');
+      return [entry.source,entry.expectedCodes[0]];
+    });
+  assert.equal(invalid.length,20,'do not silently omit registered negative programs');
   for(let i=0;i<invalid.length;i++){
     const [source,code]=invalid[i],name='invalid-'+i;
     writeFileSync(join(folder,name+'.ts'),source);
@@ -48,7 +54,9 @@ try {
   const badAmbient=[
     minimal.replace('  trim(): string;','  trim(): string;\n  trim(): string;'),
     minimal.replace('  trim(): string;','  trim(value: number): string;'),
-    minimal.replace('  trim(): string;','  imaginary(): string;')
+    minimal.replace('  trim(): string;','  imaginary(): string;'),
+    minimal.replace('  at(index: number): string | undefined;','  at(index: string): string | undefined;'),
+    minimal.replace('  at(index: number): string | undefined;','  at(index: number): string | undefined;\n  at(index: number): string | undefined;')
   ];
   for(let i=0;i<badAmbient.length;i++){
     const name='ambient-'+i;
@@ -59,5 +67,5 @@ try {
     assert.match(result.stdout+result.stderr,/TSCS1002/,name);
     assert.equal(existsSync(join(folder,name+'.js')),false,name+' emitted JS');
   }
-  console.log('String native methods: four linked ES2015 modules executed, '+invalid.length+' negative programs and 3 malformed ambient profiles rejected.');
+  console.log('String native methods: four linked ES2015 modules executed, '+invalid.length+' negative programs and 5 malformed ambient profiles rejected.');
 } finally {rmSync(folder,{recursive:true,force:true});}
