@@ -1,0 +1,101 @@
+{
+  "kind": "BOUNDED_ARRAY_ACCUMULATOR_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "cases": [
+    {
+      "id": "array-accumulator:positive-01",
+      "source": "let xs:number[]=[2,3,4];let result:string=xs.reduce((a:string,n:number):string=>a+n,\"\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-accumulator:positive-02",
+      "source": "let xs:readonly number[]=[2,3,4];let result:string=xs.reduceRight((a:string,n:number):string=>a+n,\"\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-accumulator:positive-03",
+      "source": "let xs:ReadonlyArray<number>=[10,20];let result:string=xs.reduce((a:string,n:number):string=>a+n,\"#\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-accumulator:positive-04",
+      "source": "let xs:number[]=[2,3];let f=(a:string,n:number):string=>a+n;let result:string=xs.reduce(f,\"\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-accumulator:positive-05",
+      "source": "let xs:number[]=[2,3,4];let result:{total:number}=xs.reduce((a:{total:number},n:number):{total:number}=>({total:a.total+n}),{total:0});",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-accumulator:positive-06",
+      "source": "let xs:string[]=[\"a\",\"b\"];let result:number=xs.reduce((a:number,s:string):number=>a+(s===\"a\"?1:2),0);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-accumulator:positive-07",
+      "source": "function append(a:string,n:number):string{return a+n;}let xs:readonly number[]=[2,3];let result:string=xs.reduce(append,\"\");",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-accumulator:positive-08",
+      "source": "type Items=ReadonlyArray<number>;function label(xs:Items):string{return xs.reduceRight((a:string,n:number):string=>a+n,\"start\");}let result:string=label([1,2]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-accumulator:negative-01",
+      "source": "let xs:number[]=[1];xs.reduce((a:string,n:number):string=>a+n,0);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-accumulator:negative-02",
+      "source": "let xs:number[]=[1];xs.reduce((a:string,n:string):string=>a+n,\"\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-accumulator:negative-03",
+      "source": "let xs:number[]=[1];xs.reduce((a:string,n:number):number=>n,\"\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-accumulator:negative-04",
+      "source": "let xs:number[]=[1];let wrong:number=xs.reduce((a:string,n:number):string=>a+n,\"\");",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-accumulator:negative-05",
+      "source": "let xs:readonly number[]=[1];xs.reduceRight((a:string,n:number):string=>a+n,21);",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-accumulator:negative-06",
+      "source": "let xs:number[]=[1];xs.reduce(21,\"\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "array-accumulator:negative-07",
+      "source": "let xs:number[]=[1];xs.reduce((a:string,n:number):string=>a+n,\"\",0);",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "array-accumulator:negative-08",
+      "source": "let xs:ReadonlyArray<number>=[1];xs.reduceRight((a:string,n:boolean):string=>a+\"x\",\"\");",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    }
+  ]
+}

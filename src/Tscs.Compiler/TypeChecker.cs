@@ -2209,6 +2209,24 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 if(callableType is not FunctionTypeSymbol signature)
                     throw new CompilationFailure(Diagnostic.Error(file,call.Open,"TSCS1001",
                         "Calls currently require a declared function with an explicit signature."));
+                // A supplied initial accumulator permits a distinct explicit U.
+                // Validate both callback contravariance and the initial value
+                // through the existing function argument checker. Without an
+                // initial value the older same-element fold contract remains.
+                if(signature.NativeArrayReduceElementType is { } element &&
+                   call.SpreadIndex<0 && arguments.Length==2)
+                {
+                    // A callable callback fixes U from its explicitly typed
+                    // first parameter; if the callback itself is invalid,
+                    // the checked seed still fixes U, so only the bad callback
+                    // gets TS2345 (matching pinned TS7 diagnostics).
+                    TypeSymbol? accumulator=arguments[0] is FunctionTypeSymbol fold &&
+                        fold.Parameters.Count==2 ? fold.Parameters[0] : arguments[1];
+                    if(accumulator is not null)
+                        signature=new FunctionTypeSymbol(
+                            [new FunctionTypeSymbol([accumulator,element],accumulator),accumulator],
+                            accumulator,2,NativeArrayReduceElementType:element);
+                }
                 var resultType=optionalMissing
                     ?CompilerTypes.Union([signature.ReturnType,CompilerTypes.Undefined])
                     :signature.ReturnType;
@@ -2270,6 +2288,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             ?signature.Parameters.Count.ToString()
                             :$"{signature.MinimumArguments}-{signature.Parameters.Count}";
                     Error(call.Open,"TS2554",$"Expected {expected} arguments, but got {supplied}.");
+                    // TS7 reports only the native reducing overload's arity
+                    // error when the number of arguments is wrong. Keep the
+                    // failure but avoid unrelated parameter mismatch noise.
+                    if(signature.NativeArrayReduceElementType is not null)
+                    {
+                        types.Push(resultType);
+                        continue;
+                    }
                 }
                 for(int i=0;i<arguments.Length;i++)
                 {

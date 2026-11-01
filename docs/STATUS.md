@@ -1,3 +1,7 @@
+## 2026-11-01 — Different accumulator types for native array folds (candidate; NOT_RUN)
+
+Native `reduce` and `reduceRight` derive distinct accumulator U from an explicitly typed callback when a checked U initial value is present. Mutable and readonly T arrays use the ordinary function checker; no-initial-value folds keep the same-element T contract. Intrinsic erasure into ordinary function types is forbidden. Sixteen immutable bounded source/diagnostic IDs, source-backed xUnit and four-module Node runtime execution are registered; **NOT_RUN** until exact-head CI. This is not full generic overloads or contextual inference. Original TS7: 0 PASS / 15,523 SKIP_UNIMPLEMENTED; dynamic scope UNEXPANDED.
+
 ## 2026-11-01 — Bounded native string transformations and searches (candidate; NOT_RUN)
 
 The C# semantic String property resolver now provides seven non-mutating

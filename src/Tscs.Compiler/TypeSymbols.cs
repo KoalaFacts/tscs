@@ -48,7 +48,7 @@ internal sealed record UnionTypeSymbol(IReadOnlyList<TypeSymbol> Alternatives) :
 // can inspect fresh operand literals rather than only the joined type.
 internal sealed record LogicalValueOutcome(TypeSymbol Result,TypeSymbol? LeftResult,TypeSymbol Right,bool RightReachable);
 
-internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null,TypeSymbol? NativeArrayMapElementType=null) : TypeSymbol
+internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null,TypeSymbol? NativeArrayMapElementType=null,TypeSymbol? NativeArrayReduceElementType=null) : TypeSymbol
 {
     public int MinimumArguments=>RequiredParameterCount<0?Parameters.Count:RequiredParameterCount;
     public override string DisplayName=>TypeDisplay.Format(this);
@@ -465,7 +465,7 @@ internal static class CompilerTypes
             if(name is "reduce" or "reduceRight")
                 return new FunctionTypeSymbol(
                     [new FunctionTypeSymbol([array.ElementType,array.ElementType],array.ElementType),
-                     array.ElementType],array.ElementType,1);
+                     array.ElementType],array.ElementType,1,NativeArrayReduceElementType:array.ElementType);
             if(array.Readonly)return null;
             return name switch
             {
@@ -653,6 +653,13 @@ internal static class CompilerTypes
                         requiredFunction.NativeArrayMapElementType is null) ||
                        (actualFunction.NativeArrayMapElementType is null &&
                         requiredFunction.NativeArrayMapElementType is not null))return false;
+                    // Reducing calls derive U from their explicitly typed callback.
+                    // Do not erase that dependency into an ordinary callable.
+                    if((actualFunction.NativeArrayReduceElementType is null) !=
+                       (requiredFunction.NativeArrayReduceElementType is null))return false;
+                    if(actualFunction.NativeArrayReduceElementType is { } foldActual &&
+                       requiredFunction.NativeArrayReduceElementType is { } foldRequired &&
+                       !Check(foldActual,foldRequired))return false;
                     // This bounded function relation admits only identical arity
                     // families. Do not guess at optional/rest compatibility.
                     // Parameter inputs are contravariant; return values covariant.
