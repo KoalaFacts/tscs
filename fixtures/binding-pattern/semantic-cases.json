@@ -43,7 +43,7 @@
     },
     {
       "id": "binding-pattern:negative-01",
-      "source": "const {missing}={value:21};",
+      "source": "let data:{value:number}={value:21};const {missing}=data;",
       "expectedCodes": [
         "TS2339"
       ]
