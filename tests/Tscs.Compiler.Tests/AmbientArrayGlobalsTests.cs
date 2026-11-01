@@ -159,21 +159,27 @@ public sealed class AmbientArrayGlobalsTests : IDisposable
 
 
     [Fact]
-    public void ExactArrayPushAmbientModelsMutableArrayReferenceSurfaceWithoutExposingCalls()
+    public void ExactArrayPushAmbientModelsMutableArrayReferenceSurfaceAndCheckedCalls()
     {
-        var (exit,output)=Compile(
-            "interface Array<T> { length:number; [index:number]:T; push(...items:T[]):number; }",
+        const string ambient =
+            "interface Array<T> { length:number; [index:number]:T; push(...items:T[]):number; }";
+        var (exit,output)=Compile(ambient,
             "const values: number[] = [21]; let n: number = values[0];");
         Assert.Equal(0,exit);
         Assert.Equal("",output);
 
-        // The ambient shape is only reference metadata: exposing an array
-        // method without a checked implementation would be a false pass.
-        var (unsupported,diagnostics)=Compile(
-            "interface Array<T> { length:number; [index:number]:T; push(...items:T[]):number; }",
-            "const values: number[] = [21]; values.push(42);");
+        // Push now has a checked product implementation; the exact ambient
+        // contract is still validated rather than treated as a generic method map.
+        var (supported,diagnostics)=Compile(ambient,
+            "const values: number[] = [21]; let size: number = values.push(42);");
+        Assert.Equal(0,supported);
+        Assert.Equal("",diagnostics);
+
+        // Unimplemented methods do not become available by virtue of push.
+        var (unsupported,missing)=Compile(ambient,
+            "const values: number[] = [21]; values.splice(0,1);");
         Assert.NotEqual(0,unsupported);
-        Assert.Contains("TS2339",diagnostics);
+        Assert.Contains("TS2339",missing);
     }
 
     [Theory]
