@@ -16,6 +16,14 @@ public sealed class ArrayCallbackTests
     [InlineData("type Readings=readonly number[];let xs:Readings=[1,2];let result:boolean=xs.some((n:number)=>n>1);")]
     [InlineData("function count(xs:ReadonlyArray<number>):number{let sum:number=0;xs.forEach((n:number):void=>{sum=sum+n;});return sum;}let result:number=count([2,3]);")]
     [InlineData("let xs:number[]=[1,2];let result:boolean=xs.every((n:number):boolean=>{return n>0;});")]
+    [InlineData("let xs:number[]=[19,20,21];let found:number|undefined=xs.findLast((n:number):boolean=>n>19);")]
+    [InlineData("let xs:readonly number[]=[19,20,21];let index:number=xs.findLastIndex((n:number):boolean=>n>19);")]
+    [InlineData("let xs:ReadonlyArray<string>=[\"a\",\"b\"];let found:string|undefined=xs.findLast((s:string):boolean=>s===\"b\");")]
+    [InlineData("let xs:Array<number>=[1,2];let index:number=xs.findLastIndex((n:number)=>n>1);")]
+    [InlineData("type Values=readonly number[];let xs:Values=[1];let result:number|undefined=xs.findLast((n:number):boolean=>n>2);")]
+    [InlineData("function last(xs:readonly number[]):number{return xs.findLastIndex((n:number):boolean=>n===2);}let result:number=last([2,3,2]);")]
+    [InlineData("let xs:number[]=[1,2];let found:number|undefined=xs.findLast((n:number):boolean=>{return n>=2;});")]
+    [InlineData("let xs:ReadonlyArray<number>=[4,5];let result:number=xs.findLastIndex((n:number):boolean=>n<5);")]
     public void TypeChecksNativeArrayCallbacks(string source) =>
         Assert.Empty(Compilation.Check("array-callbacks.ts",source));
 
@@ -30,6 +38,14 @@ public sealed class ArrayCallbackTests
     [InlineData("let xs:number[]=[21];let wrong:boolean=xs.findIndex((n:number):boolean=>true);","TS2322")]
     [InlineData("let xs:number[]=[21];let wrong:number=xs.forEach((n:number):void=>{});","TS2322")]
     [InlineData("let xs:number[]=[21];xs.some((n:number):boolean=>true,(n:number):boolean=>true);","TS2554")]
+    [InlineData("let xs:number[]=[21];xs.findLast();","TS2554")]
+    [InlineData("let xs:readonly number[]=[21];xs.findLastIndex();","TS2554")]
+    [InlineData("let xs:number[]=[21];xs.findLast(42);","TS2345")]
+    [InlineData("let xs:ReadonlyArray<number>=[21];xs.findLast((s:string):boolean=>true);","TS2345")]
+    [InlineData("let xs:number[]=[21];xs.findLastIndex((n:number):string=>\"bad\");","TS2345")]
+    [InlineData("let xs:readonly number[]=[21];let wrong:string=xs.findLast((n:number):boolean=>true);","TS2322")]
+    [InlineData("let xs:ReadonlyArray<number>=[21];let wrong:boolean=xs.findLastIndex((n:number):boolean=>true);","TS2322")]
+    [InlineData("let xs:number[]=[21];xs.findLast((n:number):boolean=>true,1);","TS2554")]
     public void RejectsInvalidArrayCallbacks(string source,string code) =>
         Assert.Contains(Compilation.Check("invalid-callback.ts",source),d=>d.Code==code);
 
@@ -52,19 +68,20 @@ public sealed class ArrayCallbackTests
             "export function all(xs:Readings):boolean{return xs.every((n:number):boolean=>n>0);}"+
             "export function first(xs:Readings):number|undefined{return xs.find((n:number):boolean=>n>20);}"+
             "export function index(xs:Readings):number{return xs.findIndex((n:number):boolean=>n>20);}"+
+            "export function lastMatch(xs:Readings):number|undefined{return xs.findLast((n:number):boolean=>n<22);}export function lastPosition(xs:Readings):number{return xs.findLastIndex((n:number):boolean=>n<22);}export function noMatch(xs:Readings):number|undefined{return xs.findLast((n:number):boolean=>n>99);}export function noPosition(xs:Readings):number{return xs.findLastIndex((n:number):boolean=>n>99);}export function visits(xs:Readings):number{let count:number=0;xs.findLast((n:number):boolean=>{count=count+1;return n<22;});return count;}" +
             "export function total(xs:Readings):number{let sum:number=0;xs.forEach((n:number):void=>{sum=sum+n;});return sum;}";
-        host.Files[root+"/bridge.ts"]="export {values} from \"./model.js\";export {any,all,first,index,total} from \"./logic.js\";";
-        host.Files[root+"/entry.ts"]="import {values,any,all,first,index,total} from \"./bridge.js\";"+
+        host.Files[root+"/bridge.ts"]="export {values} from \"./model.js\";export {any,all,first,index,lastMatch,lastPosition,noMatch,noPosition,visits,total} from \"./logic.js\";";
+        host.Files[root+"/entry.ts"]="import {values,any,all,first,index,lastMatch,lastPosition,noMatch,noPosition,visits,total} from \"./bridge.js\";"+
             "export const some:boolean=any(values);export const every:boolean=all(values);"+
             "export const found:number|undefined=first(values);export const position:number=index(values);"+
-            "export const sum:number=total(values);";
+            "export const sum:number=total(values);export const reverseFound:number|undefined=lastMatch(values);export const reverseIndex:number=lastPosition(values);export const absent:number|undefined=noMatch(values);export const absentIndex:number=noPosition(values);export const visitCount:number=visits(values);";
         var program=CompilerProgram.Load(host,[root+"/entry.ts"],new CompilerOptions {
             NoLib=true,Target=CompilerTarget.Es2015,Module=CompilerModule.Es2015
         });
         Assert.Empty(program.Analyze().Diagnostics);
         var output=program.EmitJavaScript();
         Assert.Equal(4,output.Count);
-        foreach(var method in new[]{".some(",".every(",".find(",".findIndex(",".forEach("})
+        foreach(var method in new[]{".some(",".every(",".find(",".findIndex(",".findLast(",".findLastIndex(",".forEach("})
             Assert.Contains(output,js=>js.Text.Contains(method,StringComparison.Ordinal));
     }
 }

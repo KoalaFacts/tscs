@@ -463,18 +463,20 @@ internal static class CompilerTypes
                 return new FunctionTypeSymbol([new ArrayTypeSymbol(item)],
                     new ArrayTypeSymbol(array.ElementType),0,item);
             }
-            // Native ES2015 array predicate methods on mutable/readonly views.
+            // Native array predicate methods on mutable and readonly views,
+            // including ES2023 right-to-left findLast/findLastIndex.
+            // Runtime methods preserve native iteration and do not mutate.
             // This bounded contract intentionally requires one explicitly typed
             // value parameter; no contextual inference or predicate type guards.
-            if(name is "some" or "every" or "find" or "findIndex" or "forEach")
+            if(name is "some" or "every" or "find" or "findIndex" or "findLast" or "findLastIndex" or "forEach")
             {
                 var callback=new FunctionTypeSymbol([array.ElementType],
                     name=="forEach"?Void:Boolean);
                 TypeSymbol result=name switch
                 {
                     "some" or "every" => Boolean,
-                    "find" => Union([array.ElementType,Undefined]),
-                    "findIndex" => Number,
+                    "find" or "findLast" => Union([array.ElementType,Undefined]),
+                    "findIndex" or "findLastIndex" => Number,
                     "forEach" => Void,
                     _ => throw new InvalidOperationException()
                 };
