@@ -1864,7 +1864,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     partition?.Symbol.Type??whenFalse;
                 bool undefinedOnly=chosen.BindingDefault &&
                     selectedType?.Equals(CompilerTypes.Undefined)==true;
-                if(chosen.BindingDefaultConstrained && !undefinedOnly &&
+                if(chosen.BindingDefaultConstrained &&
                    selectedType is { } expectedDefault &&
                    whenTrue is { } fallback)
                 {
@@ -2144,6 +2144,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 }
                 else if(CheckedProperty(presentReceiver,property.Name) is { } member)
                     presentMember=member;
+                else if(property.BindingFreshOmittedDefault &&
+                        presentReceiver is ObjectTypeSymbol)
+                    // Missing own key in a directly fresh initializer with a
+                    // default is contextually undefined. Runtime still reads it.
+                    presentMember=CompilerTypes.Undefined;
                 else
                 {
                     // For a known member on the non-nullish alternatives,
