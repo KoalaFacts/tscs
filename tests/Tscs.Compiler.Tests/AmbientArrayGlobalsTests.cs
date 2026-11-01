@@ -72,6 +72,8 @@ public sealed class AmbientArrayGlobalsTests : IDisposable
     }
 
     [Theory]
+    [InlineData("interface Array<T> { length: includes(value:T):boolean; number; [i:number]:T; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length: includes(value:T):boolean; number; readonly [i:number]:T; }")]
     [InlineData("interface Array<T> { length:number; [index:number]:T; includes(value:T):number; }")]
     [InlineData("interface Array<T> { length:number; [index:number]:T; includes(value:T,fromIndex?:string):boolean; }")]
     [InlineData("interface Array<T> { length:number; [index:number]:T; includes(value:T,fromIndex?:number):boolean; includes(value:T):boolean; }")]
