@@ -231,6 +231,15 @@ public static class CommandLine
             throw new InputFailure("Incomplete bounded iterable Array<T> declaration protocol.");
     }
 
+    // Exact, shared, non-mutating query signatures on Array<T> and
+    // ReadonlyArray<T>. Sequential member parsing below enforces complete
+    // member boundaries, prevents substring deletion, and rejects duplicates.
+    private const string ArrayQueryMemberPattern =
+        @"(?<includes>includes\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*(?:,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number\s*)?\)\s*:\s*boolean)" +
+        @"|(?<indexOf>indexOf\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*(?:,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number\s*)?\)\s*:\s*number)" +
+        @"|(?<lastIndexOf>lastIndexOf\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*(?:,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number\s*)?\)\s*:\s*number)" +
+        @"|(?<join>join\s*\(\s*(?:[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*string\s*)?\)\s*:\s*string)";
+
     // Member order and numeric-index parameter spelling are irrelevant.
     // Length/index must be present exactly once; the optional standard
     // Array<T> mutator declarations supply the pinned reference's actual
@@ -239,10 +248,11 @@ public static class CommandLine
     // method table checks calls, never an arbitrary regex-derived declaration.
     private static bool IsSupportedArrayContract(string body,out bool iterator)
     {
-        var memberPattern=new Regex(@"\G\s*(?:(?<length>length\s*:\s*number)|(?<index>\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T)|(?<iterator>\[\s*Symbol\s*\.\s*iterator\s*\]\s*\(\s*\)\s*:\s*Iterator\s*<\s*T\s*>)|(?<push>push\s*\(\s*\.\.\.\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\[\s*\]\s*\)\s*:\s*number)|(?<unshift>unshift\s*\(\s*\.\.\.\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\[\s*\]\s*\)\s*:\s*number)|(?<pop>pop\s*\(\s*\)\s*:\s*T\s*\|\s*undefined)|(?<shift>shift\s*\(\s*\)\s*:\s*T\s*\|\s*undefined))\s*;",
+        var memberPattern=new Regex(@"\G\s*(?:(?<length>length\s*:\s*number)|(?<index>\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T)|(?<iterator>\[\s*Symbol\s*\.\s*iterator\s*\]\s*\(\s*\)\s*:\s*Iterator\s*<\s*T\s*>)|(?<push>push\s*\(\s*\.\.\.\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\[\s*\]\s*\)\s*:\s*number)|(?<unshift>unshift\s*\(\s*\.\.\.\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\[\s*\]\s*\)\s*:\s*number)|(?<pop>pop\s*\(\s*\)\s*:\s*T\s*\|\s*undefined)|(?<shift>shift\s*\(\s*\)\s*:\s*T\s*\|\s*undefined)|"+ArrayQueryMemberPattern+@")\s*;",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         int position=0;
         bool length=false,index=false,push=false,unshift=false,pop=false,shift=false;
+        bool includes=false,indexOf=false,lastIndexOf=false,join=false;
         iterator=false;
         while(position<body.Length)
         {
@@ -279,6 +289,26 @@ public static class CommandLine
                 if(shift)return false;
                 shift=true;
             }
+            else if(member.Groups["includes"].Success)
+            {
+                if(includes)return false;
+                includes=true;
+            }
+            else if(member.Groups["indexOf"].Success)
+            {
+                if(indexOf)return false;
+                indexOf=true;
+            }
+            else if(member.Groups["lastIndexOf"].Success)
+            {
+                if(lastIndexOf)return false;
+                lastIndexOf=true;
+            }
+            else if(member.Groups["join"].Success)
+            {
+                if(join)return false;
+                join=true;
+            }
             else
             {
                 if(iterator)return false;
@@ -294,10 +324,10 @@ public static class CommandLine
     // strictly ambient validation, not a generic value-declaration parser.
     private static bool IsSupportedReadonlyArrayContract(string body)
     {
-        var memberPattern=new Regex(@"\G\s*(?:(?<length>readonly\s+length\s*:\s*number)|(?<index>readonly\s+\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T))\s*;",
+        var memberPattern=new Regex(@"\G\s*(?:(?<length>readonly\s+length\s*:\s*number)|(?<index>readonly\s+\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T)|"+ArrayQueryMemberPattern+@")\s*;",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         int position=0;
-        bool length=false,index=false;
+        bool length=false,index=false,includes=false,indexOf=false,lastIndexOf=false,join=false;
         while(position<body.Length)
         {
             if(string.IsNullOrWhiteSpace(body[position..]))break;
@@ -308,10 +338,30 @@ public static class CommandLine
                 if(length)return false;
                 length=true;
             }
-            else
+            else if(member.Groups["index"].Success)
             {
                 if(index)return false;
                 index=true;
+            }
+            else if(member.Groups["includes"].Success)
+            {
+                if(includes)return false;
+                includes=true;
+            }
+            else if(member.Groups["indexOf"].Success)
+            {
+                if(indexOf)return false;
+                indexOf=true;
+            }
+            else if(member.Groups["lastIndexOf"].Success)
+            {
+                if(lastIndexOf)return false;
+                lastIndexOf=true;
+            }
+            else
+            {
+                if(join)return false;
+                join=true;
             }
             position+=member.Length;
         }

@@ -51,6 +51,54 @@ public sealed class AmbientArrayGlobalsTests : IDisposable
     }
 
     [Theory]
+    [InlineData("interface Array<T> { length:number; [index:number]:T; includes(value:T,fromIndex?:number):boolean; indexOf(value:T,fromIndex?:number):number; lastIndexOf(value:T,fromIndex?:number):number; join(separator?:string):string; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; includes(value:T,fromIndex?:number):boolean; indexOf(value:T,fromIndex?:number):number; lastIndexOf(value:T,fromIndex?:number):number; join(separator?:string):string; }")]
+    public void ExactQueryMethodAmbientContractsAreAccepted(string declaration)
+    {
+        var source=Path.Combine(directory,"query-globals.d.ts");
+        var program=Path.Combine(directory,"query-input.ts");
+        File.WriteAllText(source,(declaration.StartsWith("interface Array<T>",StringComparison.Ordinal)
+            ?"interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; }\n"
+            :"interface Array<T> { length:number; [index:number]:T; }\n")+
+            declaration+"\n"+
+            "interface Boolean {} interface Function {} interface CallableFunction {} interface NewableFunction {} "+
+            "interface IArguments {} interface Number {} interface Object {} interface RegExp {} interface String {}");
+        File.WriteAllText(program,"let source: number[] = [21]; let view: readonly number[] = source; let ok:boolean = view.includes(21);");
+        using var stdout=new StringWriter();
+        using var stderr=new StringWriter();
+        var result=CommandLine.Run(["--noEmit","--noLib","--target","es2015",program,source],stdout,stderr);
+        Assert.Equal(0,result);
+        Assert.Equal("",stdout.ToString()+stderr.ToString());
+    }
+
+    [Theory]
+    [InlineData("interface Array<T> { length: includes(value:T):boolean; number; [i:number]:T; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length: includes(value:T):boolean; number; readonly [i:number]:T; }")]
+    [InlineData("interface Array<T> { length:number; [index:number]:T; includes(value:T):number; }")]
+    [InlineData("interface Array<T> { length:number; [index:number]:T; includes(value:T,fromIndex?:string):boolean; }")]
+    [InlineData("interface Array<T> { length:number; [index:number]:T; includes(value:T,fromIndex?:number):boolean; includes(value:T):boolean; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; indexOf(value:T):boolean; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; join(separator?:number):string; }")]
+    [InlineData("interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; push(value:T):number; }")]
+    public void IncorrectQueryAmbientContractsRemainRejected(string declaration)
+    {
+        var source=Path.Combine(directory,"bad-query-globals.d.ts");
+        var program=Path.Combine(directory,"bad-query-input.ts");
+        File.WriteAllText(source,(declaration.StartsWith("interface Array<T>",StringComparison.Ordinal)
+            ?"interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; }\n"
+            :"interface Array<T> { length:number; [index:number]:T; }\n")+
+            declaration+"\n"+
+            "interface Boolean {} interface Function {} interface CallableFunction {} interface NewableFunction {} "+
+            "interface IArguments {} interface Number {} interface Object {} interface RegExp {} interface String {}");
+        File.WriteAllText(program,"let xs: number[] = [21]; let n: number = xs[0];");
+        using var stdout=new StringWriter();
+        using var stderr=new StringWriter();
+        var result=CommandLine.Run(["--noEmit","--noLib","--target","es2015",program,source],stdout,stderr);
+        Assert.Equal(1,result);
+        Assert.Contains("TSCS1002",stdout.ToString()+stderr.ToString());
+    }
+
+    [Theory]
     [InlineData("interface String { readonly length: number; readonly [index: number]: string; }")]
     [InlineData("interface String { readonly [position:number]:string;readonly length:number; }")]
     public void ExactReadonlyStringContractIsAccepted(string declaration)

@@ -1,3 +1,17 @@
+## 2026-11-01 — Checked non-mutating array queries (candidate; NOT_RUN)
+
+Bounded mutable and readonly array values now expose native `includes`,
+`indexOf`, `lastIndexOf` and `join` call contracts through the existing
+C# semantic property resolver, TypeChecker and ES2015 emitter. Mandatory
+element arguments, optional numeric start positions (including explicit
+`undefined`), optional string separators and return types are checked;
+readonly views remain non-mutating, and mutation methods remain unavailable.
+Four linked executable Node modules, negative/no-emission checks and 25
+source-backed pinned-Go comparison IDs are registered as NOT_RUN pending
+exact-head CI. This is not original TS7 acceptance: 0 PASS / 15,523
+SKIP_UNIMPLEMENTED, dynamic scope UNEXPANDED. No pin, release gate,
+test minimum or branch protections changed.
+
 ## 2026-11-01 — Checked mutable array method calls (candidate; NOT_RUN)
 
 Four native mutators (`push`, `pop`, `unshift`, `shift`) on finite mutable
