@@ -14,7 +14,7 @@ const pin=JSON.parse(readFileSync("upstream.lock.json","utf8"));
 const suitePath="fixtures/array-iteration/semantic-cases.json";
 const suite=JSON.parse(readFileSync(suitePath,"utf8"));
 assert.equal(suite.kind,"BOUNDED_ARRAY_INDEX_FOROF_NOT_ORIGINAL_TS7_ACCEPTANCE");
-assert.equal(suite.cases.length,14,"frozen bounded array cohort must not shrink");
+assert.equal(suite.cases.length,26,"preserve all 14 original array cases and 12 new string iteration cases");
 const reference=resolve(referenceArgument);
 const out=resolve(outputArgument);
 assert.ok(!existsSync(out),"refusing to overwrite any existing evidence");
@@ -62,7 +62,11 @@ for(let i=0;i<suite.cases.length;i++){
   assert.ok(Array.isArray(item.expectedCodes));
   const folder=join(out,`case-${String(i).padStart(3,"0")}`);mkdirSync(folder);
   save(`case-${String(i).padStart(3,"0")}/input.ts`,item.source);
-  save(`case-${String(i).padStart(3,"0")}/minimal.d.ts`,minimal);
+  const caseProfile=item.minimalProfile??minimalProfile;
+  assert.ok(caseProfile===minimalProfile||caseProfile==="fixtures/string-iteration/minimal.d.ts",
+    "unregistered declaration profile");
+  const caseMinimal=caseProfile===minimalProfile?minimal:readFileSync(caseProfile,"utf8");
+  save(`case-${String(i).padStart(3,"0")}/minimal.d.ts`,caseMinimal);
   const args=["--noEmit","--noLib","--target","es2015","--pretty","false","input.ts","minimal.d.ts"];
   const ref=run(reference,args,folder);
   const actual=run(process.env.DOTNET??"dotnet",[product,...args],folder);
@@ -74,7 +78,9 @@ for(let i=0;i<suite.cases.length;i++){
   const good=ref.status===expectedExit && actual.status===expectedExit &&
     JSON.stringify(codes(ref))===JSON.stringify(expectedCodes) &&
     JSON.stringify(codes(actual))===JSON.stringify(expectedCodes);
-  const row={id:item.id,inputSha256:hash(item.source),referenceCodes:codes(ref),productCodes:codes(actual),
+  const row={id:item.id,inputSha256:hash(item.source),
+    minimalProfile:caseProfile,minimalProfileSha256:hash(caseMinimal),
+    referenceCodes:codes(ref),productCodes:codes(actual),
     referenceExit:ref.status,productExit:actual.status,expectedCodes,
     result:good?"MATCH_EXIT_AND_DIAGNOSTIC_CODES":"MISMATCH",originalAcceptanceCredit:false};
   results.push(row);
@@ -84,7 +90,9 @@ save("results.json",JSON.stringify(results,null,2));
 save("summary.json",JSON.stringify({kind:suite.kind,sourceSha,upstreamCommit:pin.commit,
   referenceVersion:version.stdout.trim(),referenceBinarySha256:hash(readFileSync(reference)),
   productCliSha256:hash(readFileSync(product)),productCompilerSha256:hash(readFileSync(compiler)),
-  cohortSha256:hash(readFileSync(suitePath)),minimalProfileSha256:hash(readFileSync(minimalProfile)),scriptSha256:hash(readFileSync(import.meta.filename)),
+  cohortSha256:hash(readFileSync(suitePath)),minimalProfileSha256:hash(readFileSync(minimalProfile)),
+  registeredProfiles:[minimalProfile,"fixtures/string-iteration/minimal.d.ts"].map(path=>({path,sha256:hash(readFileSync(path))})),
+  scriptSha256:hash(readFileSync(import.meta.filename)),
   matches:results.length-mismatches.length,mismatches:mismatches.length,
   comparison:"exit and code arrays only; NOT original TS7 assertions or full diagnostic parity",
   referenceExecutable:basename(reference),originalAcceptanceCredit:0,releaseEligible:false},null,2));
@@ -92,4 +100,4 @@ for(const file of artifacts){const bytes=readFileSync(join(out,file.path));
   assert.equal(bytes.length,file.length);assert.equal(hash(bytes),file.sha256);}
 writeFileSync(join(out,"manifest.json"),JSON.stringify({artifacts},null,2),{flag:"wx",flush:true});
 assert.deepEqual(mismatches,[],"bounded array differential mismatches (raw evidence retained)");
-console.log(`${results.length} bounded array/index/for..of semantics matched pinned ${pin.commit}; original TS7 acceptance unchanged.`);
+console.log(`${results.length} bounded array/string for..of semantics matched pinned ${pin.commit}; original TS7 acceptance unchanged.`);

@@ -160,7 +160,7 @@ public static class CommandLine
         var symbolPattern=new Regex(@"\G\s*declare\s+const\s+Symbol\s*:\s*SymbolConstructor\s*;\s*",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         var extras=new HashSet<string>(StringComparer.Ordinal);
-        bool symbolDeclared=false,arrayIterable=false;
+        bool symbolDeclared=false,arrayIterable=false,stringIterable=false;
         int position=0;
         while(position<text.Length)
         {
@@ -217,7 +217,9 @@ public static class CommandLine
                 {
                     if(name=="Array" && IsSupportedArrayContract(members,out var iterable))
                         arrayIterable=iterable;
-                    else if(name!="String" || !IsSupportedStringContract(members))
+                    else if(name=="String" && IsSupportedStringContract(members,out var iterableString))
+                        stringIterable=iterableString;
+                    else
                         throw new InputFailure("Only bounded Array<T> and readonly String member contracts are supported in ambient globals.");
                 }
             }
@@ -225,8 +227,8 @@ public static class CommandLine
         }
         // Never accept a partial, invented iterator shape or a value
         // declaration that does not correspond to the recognized protocol.
-        if((symbolDeclared||arrayIterable||extras.Count>0) &&
-           !(symbolDeclared&&arrayIterable&&extras.SetEquals(
+        if((symbolDeclared||arrayIterable||stringIterable||extras.Count>0) &&
+           !(symbolDeclared&&(arrayIterable||stringIterable)&&extras.SetEquals(
                new[]{"SymbolConstructor","IteratorResult","Iterator"})))
             throw new InputFailure("Incomplete bounded iterable Array<T> declaration protocol.");
     }
@@ -519,14 +521,16 @@ public static class CommandLine
     // The String shape is intentionally read-only. Parsing exact source
     // members prevents an ambient declaration from granting unsupported
     // mutable indices, arbitrary methods, or unconstrained value types.
-    private static bool IsSupportedStringContract(string body)
+    private static bool IsSupportedStringContract(string body,out bool iterable)
     {
+        iterable=false;
         // This is a finite declaration allowlist, not a generic .d.ts parser.
         // The exact return/argument contracts mirror the checked native methods.
         const string id=@"[A-Za-z_$][A-Za-z0-9_$]*";
         var memberPattern=new Regex(
             @"\G\s*(?:(?<length>readonly\s+length\s*:\s*number)" +
             @"|(?<index>readonly\s+\[\s*"+id+@"\s*:\s*number\s*\]\s*:\s*string)" +
+            @"|(?<iterator>\[\s*Symbol\s*\.\s*iterator\s*\]\s*\(\s*\)\s*:\s*Iterator\s*<\s*string\s*>)" +
             @"|(?<upper>toUpperCase\s*\(\s*\)\s*:\s*string)" +
             @"|(?<lower>toLowerCase\s*\(\s*\)\s*:\s*string)" +
             @"|(?<trim>trim\s*\(\s*\)\s*:\s*string)" +
@@ -567,6 +571,11 @@ public static class CommandLine
             {
                 if(index)return false;
                 index=true;
+            }
+            else if(member.Groups["iterator"].Success)
+            {
+                if(iterable)return false;
+                iterable=true;
             }
             else
             {
