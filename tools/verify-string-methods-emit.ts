@@ -17,7 +17,8 @@ function compile(args:string[]){
 }
 try {
   writeFileSync(join(folder,'package.json'),'{"type":"module"}\n');
-  writeFileSync(join(folder,'minimal.d.ts'),readFileSync('fixtures/string-methods/minimal.d.ts'));
+  const minimal=readFileSync('fixtures/string-methods/minimal.d.ts','utf8');
+  writeFileSync(join(folder,'minimal.d.ts'),minimal);
   const modules={
     'model.ts':'export type Label={text:string};export const sample:Label={text:"  DevWorld  "};',
     'logic.ts':'import type {Label} from "./model.js";export function short(x:Label):string{return x.text.trim().toUpperCase().slice(0,4);}export function match(x:Label):boolean{return x.text.toLowerCase().includes("dev") && x.text.startsWith("  ");}export function suffix(x:Label):boolean{return x.text.trim().endsWith("World");}',
