@@ -39,7 +39,7 @@ internal sealed record ValueAtom(Token Token,bool Shorthand=false) : ValueNode;
 // Raw literal chunks and independently checked substitution AST nodes.
 internal sealed record ValueTemplate(Token Literal,IReadOnlyList<string> RawChunks,IReadOnlyList<ValueNode> Expressions) : ValueNode;
 internal sealed record ValueBinary(ValueNode Left, Token Operator, ValueNode Right,bool GeneratedUndefinedCheck=false) : ValueNode;
-internal sealed record ValueConditional(ValueNode Condition,Token Question,ValueNode WhenTrue,Token Colon,ValueNode WhenFalse,bool BindingDefault=false) : ValueNode;
+internal sealed record ValueConditional(ValueNode Condition,Token Question,ValueNode WhenTrue,Token Colon,ValueNode WhenFalse,bool BindingDefault=false,bool BindingDefaultConstrained=false) : ValueNode;
 // Contextual operators are erased in JS: 'as' asserts a new view,
 // 'satisfies' checks a constraint while retaining source inference.
 internal sealed record ValueTypeOperator(ValueNode Expression,Token Keyword,TypeSyntax Target) : ValueNode;

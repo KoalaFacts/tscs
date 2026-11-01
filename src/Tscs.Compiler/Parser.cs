@@ -152,7 +152,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     }
 
     private void LowerBindingPattern(BindingPattern pattern,ValueNode source,bool constant,
-        bool exported,List<Statement> target,int depth=0)
+        bool exported,List<Statement> target,int depth=0,bool annotatedBinding=false)
     {
         if(depth>32)throw new InvalidOperationException("Validated binding pattern depth exceeded.");
         switch(pattern)
@@ -177,22 +177,23 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     new Token(TokenKind.Question,"?",defaulted.Location.Start,1),
                     defaulted.Fallback,
                     new Token(TokenKind.Colon,":",defaulted.Location.Start,1),
-                    new ValueAtom(candidate with {Start=candidate.Start+1}),BindingDefault:true);
+                    new ValueAtom(candidate with {Start=candidate.Start+1}),BindingDefault:true,
+                    BindingDefaultConstrained:annotatedBinding);
                 if(defaulted.Target is BoundName)
-                    LowerBindingPattern(defaulted.Target,selected,constant,exported,target,depth);
+                    LowerBindingPattern(defaulted.Target,selected,constant,exported,target,depth,annotatedBinding);
                 else
                 {
                     // Do not re-evaluate a lazy fallback for each nested child.
                     var receiver=NewBindingTemporary(defaulted.Location);
                     target.Add(new Variable(receiver,true,null,selected));
                     LowerBindingPattern(defaulted.Target,
-                        new ValueAtom(receiver with {Start=receiver.Start+1}),constant,exported,target,depth);
+                        new ValueAtom(receiver with {Start=receiver.Start+1}),constant,exported,target,depth,annotatedBinding);
                 }
                 return;
             case BoundObject objectPattern:
                 foreach(var (key,binding) in objectPattern.Members)
                     LowerBindingChild(binding,new ValuePropertyAccess(source,key),key,
-                        constant,exported,target,depth+1);
+                        constant,exported,target,depth+1,annotatedBinding);
                 return;
             case BoundArray arrayPattern:
                 for(var index=0;index<arrayPattern.Elements.Count;index++)
@@ -204,7 +205,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     var closing=new Token(TokenKind.CloseBracket,"]",arrayPattern.Open.Start,1);
                     LowerBindingChild(binding,
                         new ValueElementAccess(source,arrayPattern.Open,new ValueAtom(numberToken),closing,BindingArrayElement:true),
-                        arrayPattern.Open,constant,exported,target,depth+1);
+                        arrayPattern.Open,constant,exported,target,depth+1,annotatedBinding);
                 }
                 return;
             default:
@@ -213,16 +214,16 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     }
 
     private void LowerBindingChild(BindingPattern binding,ValueNode read,Token location,
-        bool constant,bool exported,List<Statement> target,int depth)
+        bool constant,bool exported,List<Statement> target,int depth,bool annotatedBinding)
     {
         if(binding is BoundName or BoundDefault)
         {
-            LowerBindingPattern(binding,read,constant,exported,target,depth);
+            LowerBindingPattern(binding,read,constant,exported,target,depth,annotatedBinding);
             return;
         }
         var temporary=NewBindingTemporary(location);
         target.Add(new Variable(temporary,true,null,read));
-        LowerBindingPattern(binding,new ValueAtom(temporary with {Start=temporary.Start+1}),constant,exported,target,depth);
+        LowerBindingPattern(binding,new ValueAtom(temporary with {Start=temporary.Start+1}),constant,exported,target,depth,annotatedBinding);
     }
     public Block Parse(int depth=0,bool inFunction=false,bool switchClauseBody=false,bool singleStatementBody=false)
     {
@@ -517,7 +518,8 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                         var source=ParseValue();
                         var temporary=NewBindingTemporary(location);
                         statements.Add(new Variable(temporary,true,patternType,source));
-                        LowerBindingPattern(pattern,new ValueAtom(temporary with {Start=temporary.Start+1}),constant,exported,statements);
+                        LowerBindingPattern(pattern,new ValueAtom(temporary with {Start=temporary.Start+1}),constant,exported,statements,
+                             annotatedBinding:patternType is not null);
                         if(Eat(TokenKind.Comma))continue;
                         EndStatement(rejectTemplateContinuation:true);
                         break;

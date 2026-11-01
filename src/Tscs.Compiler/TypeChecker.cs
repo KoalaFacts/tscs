@@ -1864,12 +1864,27 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     partition?.Symbol.Type??whenFalse;
                 bool undefinedOnly=chosen.BindingDefault &&
                     selectedType?.Equals(CompilerTypes.Undefined)==true;
-                if(chosen.BindingDefault && !undefinedOnly &&
+                if(chosen.BindingDefaultConstrained && !undefinedOnly &&
                    selectedType is { } expectedDefault &&
-                   whenTrue is { } fallback &&
-                   CheckContextualLiteral(chosen.WhenTrue,expectedDefault,fallback) &&
-                   !IsAssignableContextually(chosen.WhenTrue,fallback,expectedDefault))
-                    Mismatch(chosen.Question,fallback,expectedDefault);
+                   whenTrue is { } fallback)
+                {
+                    // A source annotation constrains defaults; an inferred
+                    // selection does not. A literal fallback may have a
+                    // different type from a non-optional inferred member.
+                    // Preserve recursive fresh-object checking for an
+                    // optional object instead of stopping at union keys.
+                    TypeSymbol contextualTarget=expectedDefault;
+                    if(chosen.WhenTrue is ValueObject &&
+                       expectedDefault is UnionTypeSymbol optionalUnion &&
+                       optionalUnion.Alternatives.Count(t=>t is ObjectTypeSymbol)==1 &&
+                       optionalUnion.Alternatives.All(t=>t is ObjectTypeSymbol ||
+                           t.Equals(CompilerTypes.Undefined) ||
+                           t.Equals(CompilerTypes.Null)))
+                        contextualTarget=optionalUnion.Alternatives.OfType<ObjectTypeSymbol>().Single();
+                    if(CheckContextualLiteral(chosen.WhenTrue,contextualTarget,fallback) &&
+                       !IsAssignableContextually(chosen.WhenTrue,fallback,expectedDefault))
+                        Mismatch(chosen.Question,fallback,expectedDefault);
+                }
                 conditionalResults[chosen]=(whenTrue,
                     undefinedOnly?CompilerTypes.Never:whenFalse);
                 if(conditionType==null || whenTrue==null || whenFalse==null)
