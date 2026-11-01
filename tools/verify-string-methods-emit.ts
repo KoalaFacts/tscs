@@ -16,7 +16,7 @@ function compile(args:string[]){
   return result;
 }
 try {
-  writeFileSync(join(folder,'package.json'),'{"type":"module"}\\n');
+  writeFileSync(join(folder,'package.json'),'{"type":"module"}\n');
   writeFileSync(join(folder,'minimal.d.ts'),readFileSync('fixtures/string-methods/minimal.d.ts'));
   const modules={
     'model.ts':'export type Label={text:string};export const sample:Label={text:"  DevWorld  "};',
@@ -45,7 +45,7 @@ try {
   }
   // Malformed, duplicated and unsupported ambient methods may never grant APIs.
   const badAmbient=[
-    minimal.replace('  trim(): string;','  trim(): string;\\n  trim(): string;'),
+    minimal.replace('  trim(): string;','  trim(): string;\n  trim(): string;'),
     minimal.replace('  trim(): string;','  trim(value: number): string;'),
     minimal.replace('  trim(): string;','  imaginary(): string;')
   ];
