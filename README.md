@@ -75,8 +75,13 @@ patterns and unrestricted cross-module destructured exports remain unsupported.
 Named function declarations also support finite typed object/array parameter
 patterns, including nested elements and checked defaults. Hidden typed
 positional bindings and mutable function-entry locals preserve existing checked
-call signatures and ES2015 output. Rest/computed patterns, arbitrary iterator
-destructuring and arrow/function-expression parameter patterns remain unsupported.
+call signatures and ES2015 output. Rest/computed patterns and arbitrary iterator destructuring remain unsupported.
+Finite explicitly typed object/array binding parameters are also available in
+arrow values, function expressions and concise object methods. Expression-bodied
+arrows lower to checked return blocks; bindings remain scoped to the callable
+and are evaluated once. Unsafe initialization ordering and body-shadowed
+parameter defaults fail closed. Untyped patterns and general iterator semantics
+are not claimed.
 Because finite destructuring is lowered into the function body, defaulted
 parameters preceding a binding pattern, later default parameters, and following
 parameters after a destructured element default are rejected rather than

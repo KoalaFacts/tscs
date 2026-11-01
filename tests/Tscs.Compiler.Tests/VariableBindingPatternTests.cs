@@ -5,6 +5,40 @@ namespace Tscs.Tests;
 
 public sealed class VariableBindingPatternTests
 {
+    // Checked, executable expression-bound parameters use the same AST
+    // and diagnostics as ordinary named-function pattern parameters.
+    [Theory]
+    [InlineData("const f=({value}:{value:number}):number=>value;let n:number=f({value:21});")]
+    [InlineData("const f=([first,,third]:number[]):number=>first+third;let n:number=f([20,1,22]);")]
+    [InlineData("const f=({inner:{value}}:{inner:{value:number}}):number=>value;let n:number=f({inner:{value:42}});")]
+    [InlineData("const f=({value=42}:{value?:number}):number=>value;let n:number=f({});")]
+    [InlineData("const f=function({value}:{value:number}):number{return value*2;};let n:number=f({value:21});")]
+    [InlineData("const f=function([a,b]:number[]):number{return a+b;};let n:number=f([20,22]);")]
+    [InlineData("const f=({value}:{value:number}):number=>{value=value+1;return value;};let n:number=f({value:41});")]
+    [InlineData("const f=({left}:{left:number},[right]:number[]):number=>left+right;let n:number=f({left:20},[22]);")]
+    public void TypedArrowAndFunctionExpressionPatternsCompile(string source) =>
+        Assert.Empty(Compilation.Check("binding-expressions.ts",source));
+
+    [Theory]
+    [InlineData("const f=({missing}:{value:number}):number=>missing;","TS2339")]
+    [InlineData("const f=({value}:{value:number}):string=>value;","TS2322")]
+    [InlineData("const f=({value}:{value:number}):number=>value;let n:number=f({value:\"no\"});","TS2345")]
+    [InlineData("const f=({value=\"no\"}:{value?:number}):number=>value;","TS2322")]
+    [InlineData("const f=([value]:number[]):string=>value;","TS2322")]
+    [InlineData("const f=function({value}:{value:number}):string{return value;};","TS2322")]
+    [InlineData("const f=({inner:{missing}}:{inner:{value:number}}):number=>missing;","TS2339")]
+    [InlineData("const f=({value}:{value:number}):number=>{value=\"no\";return value;};","TS2322")]
+    public void InvalidTypedExpressionPatternSemanticsAreRejected(string source,string code) =>
+        Assert.Contains(Compilation.Check("binding-expressions.ts",source),
+            diagnostic=>diagnostic.Code==code);
+
+    [Theory]
+    [InlineData("const f=({...rest}:{value:number}):number=>1;")]
+    [InlineData("const f=({value}:{value:number},later:number=value):number=>later;")]
+    [InlineData("const seed:number=1;const f=({x=seed}:{x?:number}):number=>{const seed:number=2;return x;};")]
+    public void UnsupportedExpressionPatternFormsFailClosed(string source) =>
+        Assert.NotEmpty(Compilation.Check("binding-expressions.ts",source));
+
     [Theory]
     [InlineData("const {x,y:label}={x:21,y:\"yes\"};let n:number=x;let s:string=label;")]
     [InlineData("const {outer:{value}}={outer:{value:42}};let answer:number=value;")]
