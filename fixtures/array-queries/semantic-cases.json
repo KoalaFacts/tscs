@@ -607,7 +607,7 @@
       "id": "array-queries:negative-47",
       "source": "let xs:number[]=[1];xs.toSpliced();",
       "expectedCodes": [
-        "TS2554"
+        "TS2555"
       ]
     },
     {

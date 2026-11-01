@@ -77,7 +77,7 @@ try {
     ['with-index','let xs:number[]=[1];xs.with("bad",2);','TS2345'],
     ['with-value','let xs:number[]=[1];xs.with(0,"bad");','TS2345'],
     ['with-assignment','let xs:readonly string[]=["a"];let out:number[]=xs.with(0,"b");','TS2322'],
-    ['spliced-arity','let xs:number[]=[1];xs.toSpliced();','TS2554'],
+    ['spliced-arity','let xs:number[]=[1];xs.toSpliced();','TS2555'],
     ['spliced-start','let xs:number[]=[1];xs.toSpliced("bad",0);','TS2345'],
     ['spliced-item','let xs:number[]=[1];xs.toSpliced(0,1,"bad");','TS2345'],
     ['spliced-assignment','let xs:number[]=[1];let out:string[]=xs.toSpliced(0,1);','TS2322'],

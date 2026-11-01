@@ -104,7 +104,7 @@ public sealed class ArrayQueryTests
     [InlineData("let xs:readonly number[]=[1];xs.with(\"0\",2);","TS2345")]
     [InlineData("let xs:number[]=[1];xs.with(0,\"x\");","TS2345")]
     [InlineData("let xs:readonly string[]=[\"a\"];let out:number[]=xs.with(0,\"b\");","TS2322")]
-    [InlineData("let xs:number[]=[1];xs.toSpliced();","TS2554")]
+    [InlineData("let xs:number[]=[1];xs.toSpliced();","TS2555")]
     [InlineData("let xs:number[]=[1,2];let out:string[]=xs.toSpliced(0,1);","TS2322")]
     [InlineData("let xs:readonly string[]=[\"a\"];let out:number[]=xs.toSpliced(0,0,\"b\");","TS2322")]
     [InlineData("let xs:number[]=[1,2];xs.toSpliced(0,1,\"bad\");","TS2345")]
