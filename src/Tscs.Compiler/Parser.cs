@@ -99,6 +99,25 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
         _ => false
     };
 
+    private static void CollectBindingDefaults(BindingPattern pattern,List<BoundDefault> defaults)
+    {
+        switch(pattern)
+        {
+            case BoundDefault fallback:
+                defaults.Add(fallback);
+                CollectBindingDefaults(fallback.Target,defaults);
+                break;
+            case BoundObject obj:
+                foreach(var member in obj.Members)
+                    CollectBindingDefaults(member.Target,defaults);
+                break;
+            case BoundArray array:
+                foreach(var element in array.Elements)
+                    if(element is not null)CollectBindingDefaults(element,defaults);
+                break;
+        }
+    }
+
     // Analyse actual expression references, not scanner token spellings:
     // interpolated templates contain parsed substitution nodes, optional
     // property names are not variable reads, and nested callables bind locals.
