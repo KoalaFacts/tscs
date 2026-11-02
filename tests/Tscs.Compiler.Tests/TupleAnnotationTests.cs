@@ -89,6 +89,15 @@ public sealed class TupleAnnotationTests
     public void LabeledTuplesRejectInvalidValues(string source,string code) =>
         Assert.Contains(Compilation.Check("labeled-tuple-invalid.ts",source),d=>d.Code==code);
 
+    [Theory]
+    [InlineData("let private=21;")]
+    [InlineData("let yield=21;")]
+    [InlineData("function f(a:number,private:number):number{return a;}")]
+    [InlineData("function f(a:number,yield:number):number{return a;}")]
+    public void StrictReservedWordsOutsideTupleLabelsRemainUnsupported(string source) =>
+        Assert.Contains(Compilation.Check("reserved-outside-tuple.ts",source),
+            d=>d.Code=="TSCS1001");
+
     private sealed class Host : ICompilerHost
     {
         public StringComparer FileNameComparer => StringComparer.Ordinal;
