@@ -563,30 +563,46 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     // any must NOT match concrete types, even inside arrays/nested objects.
     // Unknown callable/recursive relationships fail closed rather than
     // accepting a write that is invalid for one union branch.
-    private static bool SameWritableType(TypeSymbol left,TypeSymbol right,int depth=0)
+    private static bool SameWritableType(TypeSymbol left,TypeSymbol right)
     {
-        if(ReferenceEquals(left,right))return true;
-        if(depth>=64)return false;
-        return (left,right) switch
+        // Shared alias graphs can otherwise cause exponentially many repeated
+        // comparisons. Use reference identity rather than record equality,
+        // which itself can recursively traverse structural type children.
+        var comparisons=new Dictionary<TypeSymbol,Dictionary<TypeSymbol,bool>>(ReferenceEqualityComparer.Instance);
+        int budget=16384;
+        bool Check(TypeSymbol a,TypeSymbol b,int depth)
         {
-            (PrimitiveTypeSymbol a,PrimitiveTypeSymbol b)=>a.Kind==b.Kind,
-            (LiteralTypeSymbol a,LiteralTypeSymbol b)=>a.Kind==b.Kind && a.Value==b.Value,
-            (ArrayTypeSymbol a,ArrayTypeSymbol b)=>a.Readonly==b.Readonly &&
-                SameWritableType(a.ElementType,b.ElementType,depth+1),
-            (ObjectTypeSymbol a,ObjectTypeSymbol b)=>
-                a.Members.Count==b.Members.Count &&
-                a.ReadonlyMembers.SetEquals(b.ReadonlyMembers) &&
-                a.OptionalMembers.SetEquals(b.OptionalMembers) &&
-                a.NumericMembers.SetEquals(b.NumericMembers) &&
-                a.Members.All(kv=>b.Members.TryGetValue(kv.Key,out var value) &&
-                    SameWritableType(kv.Value,value,depth+1)),
-            (UnionTypeSymbol a,UnionTypeSymbol b)=>
-                a.Alternatives.Count==b.Alternatives.Count &&
-                a.Alternatives.Select((value,i)=>SameWritableType(value,b.Alternatives[i],depth+1)).All(ok=>ok),
-            // Only a canonical identical callable identity is admitted.
-            // Full function-property variance remains outside this subset.
-            _=>false
-        };
+            if(ReferenceEquals(a,b))return true;
+            if(depth>=64)return false;
+            if(comparisons.TryGetValue(a,out var row) &&
+               row.TryGetValue(b,out var previous))return previous;
+            if(--budget<0)return false;
+            row ??=new Dictionary<TypeSymbol,bool>(ReferenceEqualityComparer.Instance);
+            comparisons[a]=row;
+            row[b]=false; // Recursive structural graphs fail closed.
+            bool result=(a,b) switch
+            {
+                (PrimitiveTypeSymbol x,PrimitiveTypeSymbol y)=>x.Kind==y.Kind,
+                (LiteralTypeSymbol x,LiteralTypeSymbol y)=>x.Kind==y.Kind && x.Value==y.Value,
+                (ArrayTypeSymbol x,ArrayTypeSymbol y)=>x.Readonly==y.Readonly &&
+                    Check(x.ElementType,y.ElementType,depth+1),
+                (ObjectTypeSymbol x,ObjectTypeSymbol y)=>
+                    x.Members.Count==y.Members.Count &&
+                    x.ReadonlyMembers.SetEquals(y.ReadonlyMembers) &&
+                    x.OptionalMembers.SetEquals(y.OptionalMembers) &&
+                    x.NumericMembers.SetEquals(y.NumericMembers) &&
+                    x.Members.All(kv=>y.Members.TryGetValue(kv.Key,out var value) &&
+                        Check(kv.Value,value,depth+1)),
+                (UnionTypeSymbol x,UnionTypeSymbol y)=>
+                    x.Alternatives.Count==y.Alternatives.Count &&
+                    x.Alternatives.Select((value,i)=>Check(value,y.Alternatives[i],depth+1)).All(ok=>ok),
+                // Only identical canonical callable references are admitted.
+                _=>false
+            };
+            row[b]=result;
+            return result;
+        }
+        return Check(left,right,0);
     }
 
     private TypeSymbol RequireCommonWritableUnionProperty(UnionTypeSymbol union,string name,Token location)

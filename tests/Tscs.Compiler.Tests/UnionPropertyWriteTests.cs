@@ -45,4 +45,21 @@ public sealed class UnionPropertyWriteTests
     [InlineData("function bad(x:{tag:'a';n:any[]}|{tag:'b';n:number[]}):number{x.n=['bad'];return 0;}")]
     public void UnmodelledUnionWriteContractsFailClosed(string source) =>
         Assert.Contains(Compilation.Check("union-write-outside.ts",source),d=>d.Code=="TSCS1001");
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void SharedAliasGraphsHaveBoundedWriteComparison(bool incompatible)
+    {
+        var source=new System.Text.StringBuilder();
+        source.Append("type A0={value:number};type B0={value:")
+            .Append(incompatible?"string":"number").Append("};");
+        for(var level=1;level<=30;level++)
+            source.Append($"type A{level}={{left:A{level-1};right:A{level-1}}};")
+                .Append($"type B{level}={{left:B{level-1};right:B{level-1}}};");
+        source.Append("function write(x:{tag:'a';n:A30}|{tag:'b';n:B30},value:A30):number{x.n=value;return 0;}");
+        var diagnostics=Compilation.Check("union-shared-dag.ts",source.ToString());
+        if(incompatible)Assert.Contains(diagnostics,d=>d.Code=="TSCS1001");
+        else Assert.Empty(diagnostics);
+    }
+
 }
