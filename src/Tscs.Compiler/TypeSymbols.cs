@@ -300,11 +300,12 @@ internal static class CompilerTypes
     }
 
     // Finite 'as const' preserves deeply readonly objects and tuples with
-    // exact primitive literal types. Unknown expressions and spreads fail closed.
+    // exact primitive literal types. Non-finite spreads fail closed.
     public static TypeSymbol? FromFiniteConstAssertion(ValueNode? value,int depth=0,
         Func<Token,TypeSymbol?>? identifierType=null,bool nestedLiteral=false,
         TypeSymbol? checkedType=null,Func<ValueArray,int,TypeSymbol?>? checkedArraySlot=null,
-        Func<ObjectProperty,ObjectTypeSymbol?>? checkedObjectSpreadSource=null)
+        Func<ObjectProperty,ObjectTypeSymbol?>? checkedObjectSpreadSource=null,
+        Func<ValueArraySpread,ArrayTypeSymbol?>? checkedTupleSpreadSource=null)
     {
         if(depth>64)return null;
         while(value is ValueParenthesized grouped)value=grouped.Expression;
@@ -324,21 +325,35 @@ internal static class CompilerTypes
             {
                 // A const array has stable per-position identity, not an
                 // out-of-bounds-permissive readonly array of a joined T.
-                if(tuple.Elements.Count>32 || tuple.Elements.Any(e=>e is ValueArraySpread))
-                    return null;
+                if(tuple.Elements.Count>32)return null;
                 var elements=new List<TypeSymbol>(tuple.Elements.Count);
                 for(int i=0;i<tuple.Elements.Count;i++)
                 {
                     var item=tuple.Elements[i];
+                    if(item is ValueArraySpread spread)
+                    {
+                        // A statically checked fixed tuple contributes its exact
+                        // slots. The new outer tuple is readonly, but referenced
+                        // nested objects retain their existing mutability.
+                        var source=checkedTupleSpreadSource?.Invoke(spread);
+                        if(source is not {TupleElements:{ } slots,TupleOptionalStart:-1} ||
+                           elements.Count+slots.Count>32)return null;
+                        elements.AddRange(slots);
+                        continue;
+                    }
                     // The checked array element union cannot recover exact slots.
                     var slot=checkedArraySlot?.Invoke(tuple,i);
                     var element=FromFiniteConstAssertion(item,depth+1,identifierType,
                         nestedLiteral:true,checkedType:slot,checkedArraySlot:checkedArraySlot,
-                        checkedObjectSpreadSource:checkedObjectSpreadSource);
+                        checkedObjectSpreadSource:checkedObjectSpreadSource,
+                        checkedTupleSpreadSource:checkedTupleSpreadSource);
                     if(element is null)return null;
                     elements.Add(element);
+                    // Spreads are already bounded above; ordinary elements
+                    // following a full 32-slot spread must be bounded too.
+                    if(elements.Count>32)return null;
                 }
-                try {return new ArrayTypeSymbol(Union(elements),Readonly:true,TupleElements:elements.ToArray());}
+                try {return FiniteTuple(elements,readonlyTuple:true);}
                 catch(InvalidOperationException) {return null;}
             }
             case ValueObject literal:
@@ -374,7 +389,8 @@ internal static class CompilerTypes
                         shape.Members.TryGetValue(key,out var found)?found:null;
                     var nested=FromFiniteConstAssertion(property.Value,depth+1,identifierType,
                         nestedLiteral:true,checkedType:member,checkedArraySlot:checkedArraySlot,
-                        checkedObjectSpreadSource:checkedObjectSpreadSource);
+                        checkedObjectSpreadSource:checkedObjectSpreadSource,
+                        checkedTupleSpreadSource:checkedTupleSpreadSource);
                     if(nested is null)return null;
                     members[key]=nested;
                     optionalMembers.Remove(key);

@@ -209,4 +209,60 @@ public sealed class TypeOperatorTests
     public void FiniteConstObjectSpreadsRejectReadonlyWritesAndInvalidTypes(string source,string code) =>
         Assert.Contains(Compilation.Check("const-object-spreads-invalid.ts",source),d=>d.Code==code);
 
+    // Bounded readonly tuple shells formed from fixed-length checked tuple operands.
+    // Neither an unknown-length array nor an optional-length tuple is treated as exact.
+    [Theory]
+    [InlineData("const tail=[21,\"go\"] as const;const x=[true,...tail] as const;let a:true=x[0];let b:21=x[1];let c:\"go\"=x[2];")]
+    [InlineData("let tail:[number,string]=[21,\"go\"];const x=[0,...tail] as const;let a:0=x[0];let b:number=x[1];let c:string=x[2];let n:3=x.length;")]
+    [InlineData("const tail:readonly [number,string]=[21,\"go\"];const x=[\"first\",...tail] as const;let a:\"first\"=x[0];let b:number=x[1];")]
+    [InlineData("const left=[21] as const;const right=[\"go\"] as const;const x=[...left,...right] as const;let a:21=x[0];let b:\"go\"=x[1];")]
+    [InlineData("const tail=[[21],{value:42}] as const;const x=[true,...tail] as const;let a:21=x[1][0];let b:42=x[2].value;")]
+    [InlineData("let tail:[number,string]=[21,\"go\"];const x=[...tail] as const;type Shape=typeof x;let copy:Shape=[21,\"go\"];")]
+    [InlineData("function take(x:readonly [true,number,string]):number{return x[1];}let tail:[number,string]=[21,\"go\"];let result:number=take([true,...tail] as const);")]
+    [InlineData("let tail:[number,string]=[21,\"go\"];const x={data:[...tail] as const} as const;let n:2=x.data.length;")]
+    public void ConstTupleSpreadsPreserveExactSlots(string source) =>
+        Assert.Empty(Compilation.Check("const-tuple-spreads.ts",source));
+
+    [Theory]
+    [InlineData("const tail=[21,\"go\"] as const;const x=[true,...tail] as const;x[1]=22;", "TS2540")]
+    [InlineData("const tail=[21,\"go\"] as const;const x=[true,...tail] as const;let bad= x[3];", "TS2493")]
+    [InlineData("let tail:[number,string]=[21,\"go\"];const x=[true,...tail] as const;let bad:22=x[1];", "TS2322")]
+    [InlineData("let tail:[number,string]=[21,\"go\"];const x=[true,...tail] as const;let bad:readonly [true,string,string]=x;", "TS2322")]
+    [InlineData("let tail:[number,string]=[21,\"go\"];const x=[true,...tail] as const;let bad:[true,number,string]=x;", "TS4104")]
+    [InlineData("const left=[21] as const;const right=[\"go\"] as const;const x=[...left,...right] as const;let bad:\"go\"=x[0];", "TS2322")]
+    [InlineData("const tail=[[21]] as const;const x=[...tail] as const;x[0][0]=22;", "TS2540")]
+    [InlineData("let tail:[number,string]=[21,\"go\"];const x=[...tail] as const;let bad:readonly [number,boolean]=x;", "TS2322")]
+    public void ConstTupleSpreadsRejectUnsafeOperations(string source,string code) =>
+        Assert.Contains(Compilation.Check("const-tuple-spreads-invalid.ts",source),d=>d.Code==code);
+
+    [Fact]
+    public void ConstTupleSpreadTypeQueriesRejectCircularAnnotations()
+    {
+        const string source="let tail:typeof x=[0];const x=[...tail] as const;";
+        Assert.Contains(Compilation.Check("const-tuple-type-cycle.ts",source),
+            diagnostic=>diagnostic.Code=="TSCS1001");
+    }
+
+    [Fact]
+    public void ConstTupleSpreadBoundIsIndependentOfElementOrder()
+    {
+        string tail=string.Join(",",Enumerable.Repeat("0",32));
+        string prefix=$"const tail=[{tail}] as const;";
+        Assert.Empty(Compilation.Check("const-tuple-exact-limit.ts",
+            prefix+"const exact=[...tail] as const;let n:32=exact.length;"));
+        Assert.Contains(Compilation.Check("const-tuple-limit-suffix.ts",
+            prefix+"const tooMany=[...tail,0] as const;"),
+            diagnostic=>diagnostic.Code=="TSCS1001");
+        Assert.Contains(Compilation.Check("const-tuple-limit-prefix.ts",
+            prefix+"const tooMany=[0,...tail] as const;"),
+            diagnostic=>diagnostic.Code=="TSCS1001");
+    }
+
+    [Fact]
+    public void ConstTupleSpreadsDoNotPretendAnUnknownLengthIsFinite()
+    {
+        const string source="let tail:number[]=[21,42];const snapshot=[true,...tail] as const;";
+        Assert.Contains(Compilation.Check("const-tuple-unbounded.ts",source),d=>d.Code=="TSCS1001");
+    }
 }
+
