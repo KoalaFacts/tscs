@@ -38,7 +38,7 @@ try {
     'export const immutable = { kind: "ready", nested: { value: 21, valid: true } } as const;',
     'export const immutableTuple = [21, "go"] as const;',
     'export const nestedTuple = { items: [true, [42]] } as const;',
-    'export function makePair(n: number, s: string): Pair { const p: Pair = [n, s]; p[0] = p[0] + 1; return p; }',
+    'export function makePair(n: number, s: string): Pair { const p: Pair = [n, s]; p[0]++; return p; }',
     'export function makeNestedPair(n: number): NestedPair { return [[n, "go"], { valid: true }]; }'
   ].join('\n'));
   writeFileSync(join(folder,'bridge.ts'),'export { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple, makePair, makeNestedPair } from "./factory.js";\n');
@@ -109,6 +109,9 @@ try {
     ['tuple-annotation-out-of-bounds','let p:[number,string]=[21,"go"];let n=p[2];','TS2493'],
     ['tuple-annotation-readonly-write','let p:readonly [number,string]=[21,"go"];p[0]=42;','TS2540'],
     ['tuple-annotation-readonly-copy','let p:readonly [number,string]=[21,"go"];let editable:[number,string]=p;','TS4104'],
+    ['tuple-annotation-update-nonnumber','let p:[number,string]=[21,"go"];p[1]++;','TSCS1001'],
+    ['tuple-annotation-update-out-of-bounds','let p:[number,string]=[21,"go"];p[2]++;','TS2493'],
+    ['tuple-annotation-update-readonly','let p:readonly [number,string]=[21,"go"];p[0]++;','TS2540'],
     ['tuple-annotation-rest-unsupported','type Bad=[...number[]];','TSCS1001'],
     ['tuple-annotation-optional-unsupported','type Bad=[number?];','TSCS1001'],
     ['fresh-extra-annotation','let x:{a:1}={a:1,b:2} as const;','TS2353'],
