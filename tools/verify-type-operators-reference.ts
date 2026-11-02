@@ -59,8 +59,16 @@ for(let i=0;i<suite.cases.length;i++){
   // Value spreads need the real iterable ambient under --noLib; old tuple
   // type-only cases retain their original byte-identical profile.
   const usesSpreadProfile=/^type-operators:(positive-(8[1-9]|9[0-6])|negative-(7[4-9]|8[0-9]))$/.test(item.id);
-  const profile=usesSpreadProfile?spreadProfile:usesTupleProfile?tupleProfile:minimalProfile;
-  save(key+'/minimal.d.ts',usesSpreadProfile?spreadMinimal:usesTupleProfile?tupleMinimal:minimal);
+  // A readonly tuple vs mutable Array<T> requires the mutating Array method
+  // contract. The previous minimal iteration ambient lacks push() and makes
+  // the pinned reference accept an otherwise invalid readonly-to-mutable
+  // assignment. Use the EXISTING readonly-array ambient on both compilers for
+  // this new case; preserve all source, ID, expected codes and old profiles.
+  const usesReadonlyMutationProfile=item.id==='type-operators:negative-96';
+  const profile=usesSpreadProfile?spreadProfile:
+    usesTupleProfile||usesReadonlyMutationProfile?tupleProfile:minimalProfile;
+  save(key+'/minimal.d.ts',usesSpreadProfile?spreadMinimal:
+    usesTupleProfile||usesReadonlyMutationProfile?tupleMinimal:minimal);
   const args=['--noEmit','--noLib','--target','es2015','--pretty','false','input.ts','minimal.d.ts'];
   const expected=run(reference,args,folder);
   const actual=run(process.env.DOTNET??'dotnet',[product,...args],folder);
