@@ -69,6 +69,9 @@ public sealed class TupleAnnotationTests
     [InlineData("type Pair=[first:number,second:string];function second(p:Pair):string{return p[1];}let s:string=second([21,\"go\"]);")]
     [InlineData("type Mixed=[first:number,string];let p:Mixed=[21,\"go\"];let n:number=p[0];")]
     [InlineData("type Mixed=[number,second:string];let p:Mixed=[21,\"go\"];let s:string=p[1];")]
+    [InlineData("type Pair=[type:number,value:string];let p:Pair=[21,\"go\"];let n:number=p[0];")]
+    [InlineData("type Pair=[interface:number,second:string];let p:Pair=[21,\"go\"];let s:string=p[1];")]
+    [InlineData("type Pair=[function:number,second:string];let p:Pair=[21,\"go\"];let n:number=p[0];")]
     public void LabeledAndMixedTuplesShareCheckedPositionalSemantics(string source) =>
         Assert.Empty(Compilation.Check("labeled-tuple.ts",source));
 

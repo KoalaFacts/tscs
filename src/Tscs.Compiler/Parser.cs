@@ -1413,7 +1413,10 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     Unsupported(Current,"Tuple holes and rest elements are not supported.");
                 // TS 5.2+ allows mixed labeled and unnamed tuple slots; labels
                 // are type-only metadata, so existing positional types suffice.
-                bool hasLabel=Current.Kind==TokenKind.Identifier &&
+                bool hasLabel=Current.Kind is (TokenKind.Identifier or
+                    TokenKind.Type or TokenKind.Interface or TokenKind.Function or
+                    TokenKind.Import or TokenKind.Let or TokenKind.Void or
+                    TokenKind.Typeof or TokenKind.True or TokenKind.False or TokenKind.Null) &&
                     position+1<tokens.Count && tokens[position+1].Kind==TokenKind.Colon;
                 if(hasLabel)
                 {
