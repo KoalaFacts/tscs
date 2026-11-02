@@ -70,7 +70,7 @@ public sealed class TupleAnnotationTests
     [InlineData("type Mixed=[first:number,string];let p:Mixed=[21,\"go\"];let n:number=p[0];")]
     [InlineData("type Mixed=[number,second:string];let p:Mixed=[21,\"go\"];let s:string=p[1];")]
     [InlineData("type Pair=[type:number,value:string];let p:Pair=[21,\"go\"];let n:number=p[0];")]
-    [InlineData("type Pair=[interface:number,second:string];let p:Pair=[21,\"go\"];let s:string=p[1];")]
+    [InlineData("type Pair=[function:number,second:string];let p:Pair=[21,\"go\"];let s:string=p[1];")]
     [InlineData("type Pair=[function:number,second:string];let p:Pair=[21,\"go\"];let n:number=p[0];")]
     public void LabeledAndMixedTuplesShareCheckedPositionalSemantics(string source) =>
         Assert.Empty(Compilation.Check("labeled-tuple.ts",source));
@@ -81,6 +81,11 @@ public sealed class TupleAnnotationTests
     [InlineData("type Named=readonly [first:number,second:string];let p:Named=[21,\"go\"];p[0]=42;","TS2540")]
     [InlineData("type Named=[first:number,second:string];let p:Named=[21,\"go\"];let bad=p[2];","TS2493")]
     [InlineData("type Named=[first:number,second:string];let p:Named=[21,\"go\"];p[1]=21;","TS2322")]
+    [InlineData("type Bad=[interface:number,second:string];","TS1212")]
+    [InlineData("type Bad=[let:number,second:string];","TS1212")]
+    [InlineData("type Bad=[private:number,second:string];","TS1212")]
+    [InlineData("type Bad=[yield:number,second:string];","TS1212")]
+    [InlineData("type Bad=[enum:number,second:string];","TSCS1001")]
     public void LabeledTuplesRejectInvalidValues(string source,string code) =>
         Assert.Contains(Compilation.Check("labeled-tuple-invalid.ts",source),d=>d.Code==code);
 

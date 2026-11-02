@@ -8,9 +8,12 @@ reuse the already implemented tuple model. TypeScript 5.2 removed the former
 TS5084 all-or-none label restriction; this fixed-Go TS7 revision accepts mixed
 labels. Optional/rest/labeled-optional and variadic tuples still fail closed.
 The previous 84 fixed-Go type-operator IDs, bytes and profiles are unchanged;
-15 initial stable cases (10 positive, 5 negative) plus 2 review-driven
-contextual keyword positives bring the bounded cohort to 101.
-All existing IDs/sources/expectations and profiles are preserved; xUnit
+15 initial stable cases (10 positive, 5 negative), 2 contextual keyword
+positives and 4 strict-reserved negative cases bring the bounded cohort to
+105. The strict TS7 reference rejects tuple labels such as `interface` and
+`let` with TS1212; the contextual `type` and `function` labels remain valid.
+The prior 84 main-branch IDs/sources/expectations and profiles are
+preserved; xUnit
 and four-module Node runtime checks cover the compiler path. Exact-head
 verification remains NOT_RUN at this revision's creation; no original
 upstream TS7 PASS is claimed (historical 0 PASS / 15,523

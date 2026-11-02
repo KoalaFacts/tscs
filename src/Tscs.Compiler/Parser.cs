@@ -1420,6 +1420,17 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     position+1<tokens.Count && tokens[position+1].Kind==TokenKind.Colon;
                 if(hasLabel)
                 {
+                    var label=Current;
+                    // The pinned TS7 reference is strict: a subset of
+                    // identifier-like words is forbidden as a binding label.
+                    if(label.Kind is TokenKind.Interface or TokenKind.Let ||
+                       label.Kind==TokenKind.Identifier && label.Text is
+                           ("implements" or "package" or "private" or "protected" or
+                            "public" or "static" or "yield"))
+                        throw new CompilationFailure(Diagnostic.Error(file,label,"TS1212",
+                            $"Identifier expected. '{label.Text}' is a reserved word in strict mode."));
+                    if(label.Kind==TokenKind.Identifier && label.Text=="enum")
+                        Unsupported(label,"Reserved enum tuple labels are not supported.");
                     Take(); // label, intentionally absent from runtime/type identity
                     Take(); // ':'
                 }
