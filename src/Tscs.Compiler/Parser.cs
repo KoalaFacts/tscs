@@ -1294,22 +1294,28 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     {
         if(depth>64)Unsupported(Current,"Type nesting exceeds the compiler subset limit.");
         TypeSyntax type;
-        // A prefix readonly modifier applies to the outermost array only.
-        // Other readonly type operators (including tuples) remain unsupported.
+        // A prefix readonly modifier applies only to arrays and fixed tuples.
         if(Current.Kind==TokenKind.Identifier && Current.Text=="readonly")
         {
             var keyword=Take();
             var operand=ReadTypePart(depth+1);
-            if(operand is not ArrayTypeSyntax array)
+            if(operand is TupleTypeSyntax tuple)
             {
-                Unsupported(keyword,"The readonly type modifier currently requires an array type.");
+                if(tuple.Readonly)Unsupported(keyword,"Repeated readonly tuple modifiers are not supported.");
+                type=tuple with {Readonly=true};
+            }
+            else if(operand is ArrayTypeSyntax array)
+            {
+                if(array.GenericName is not null)
+                    Unsupported(keyword,"A readonly prefix requires T[] syntax, not Array<T> or ReadonlyArray<T>.");
+                if(array.Readonly)Unsupported(keyword,"Repeated readonly array modifiers are not supported.");
+                type=array with {Readonly=true};
+            }
+            else
+            {
+                Unsupported(keyword,"The readonly type modifier requires an array or tuple type.");
                 return default!;
             }
-            if(array.GenericName is not null)
-                Unsupported(keyword,"A readonly prefix requires T[] syntax, not Array<T> or ReadonlyArray<T>.");
-            if(array.Readonly)
-                Unsupported(keyword,"Repeated readonly array modifiers are not supported.");
-            type=array with {Readonly=true};
         }
         else if(Current.Kind==TokenKind.Identifier && Current.Text=="keyof")
         {
@@ -1394,6 +1400,25 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
         {
             type=ReadTypeAnnotation(depth+1);
             if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' in parenthesized type.");
+        }
+        else if(Current.Kind==TokenKind.OpenBracket)
+        {
+            var open=Take();
+            var elements=new List<TypeSyntax>();
+            while(Current.Kind!=TokenKind.CloseBracket)
+            {
+                if(elements.Count>=32)
+                    Unsupported(Current,"Tuple types with over 32 elements are not supported yet.");
+                if(Current.Kind is TokenKind.Comma or TokenKind.Ellipsis)
+                    Unsupported(Current,"Tuple holes and rest elements are not supported.");
+                elements.Add(ReadTypeAnnotation(depth+1));
+                if(Current.Kind is TokenKind.Question or TokenKind.Colon)
+                    Unsupported(Current,"Optional and named tuple elements are not supported.");
+                if(!Eat(TokenKind.Comma))break;
+            }
+            if(Current.Kind!=TokenKind.CloseBracket)
+                Unsupported(Current,"Expected ']' after tuple type elements.");
+            type=new TupleTypeSyntax(open,elements,Take());
         }
         else if(Current.Kind==TokenKind.Open)
         {

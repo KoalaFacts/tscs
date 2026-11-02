@@ -195,6 +195,18 @@ inherited required members. Such unimplemented forms fail explicitly.
 Parser depth and diagnostic display are bounded. Runtime and validation details:
 [`structural-object-data`](docs/progress/structural-object-data.md).
 
+## Fixed tuple type annotations (bounded)
+
+Explicit positional tuples such as `type Pair = [number, string]` and
+`readonly [number, string]` retain each slot's checked type, fixed length,
+mutable/readonly index rules, aliases, typed function parameters and returns,
+and named ES2015 module boundaries. Fresh array literals are checked
+positionally and emitted as ordinary JavaScript arrays. Nested fixed tuples,
+`T[0]`, `T[number]` and `T["length"]` reuse existing type resolution.
+Optional/rest/labeled tuple elements, tuple spreads and general variadic
+inference remain unsupported and fail explicitly. This is bounded local
+semantics, not original TS7 suite acceptance.
+
 ## Array element types through indexed access (bounded)
 
 Array and readonly-array type annotations can select their element type with
@@ -419,7 +431,8 @@ literals, `T[]` annotations, numeric indexed reads/writes, `.length`, and braced
 with named object members and across ES2015 modules through the same checked
 AST and emitter. Empty evolving inference, heterogeneous unions, tuples,
 non-array iterables, index signatures, classic `for`/`for..in`, destructuring,
-and general array methods are **not** implemented. See
+and general array methods were **not** part of that initial slice; later sections
+and merged feature packages cover bounded variants. See
 [`array-index-forof`](docs/progress/array-index-forof.md) for validation and
 current merge status.
 

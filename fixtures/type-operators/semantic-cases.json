@@ -420,6 +420,85 @@
       "expectedCodes": [
         "TS2540"
       ]
+    },
+    {
+      "id": "type-operators:positive-40",
+      "source": "type Pair = [number, string]; const pair: Pair = [21, \"go\"]; let n: number = pair[0]; let s: string = pair[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-41",
+      "source": "type Pair = readonly [number, string]; const pair: Pair = [21, \"go\"]; let l: 2 = pair.length;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-42",
+      "source": "type Pair = [number, { label: string }]; const pair: Pair = [21, { label: \"go\" }]; let s: string = pair[1].label;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-43",
+      "source": "type Pair = [number, string]; type First = Pair[0]; type Second = Pair[1]; let n: First = 21; let s: Second = \"go\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-44",
+      "source": "type Pair = [number, string]; type Both = Pair[number]; let n: Both = 21; let s: Both = \"go\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-45",
+      "source": "type Nested = [readonly [21, \"go\"], boolean]; const tuple: Nested = [[21, \"go\"], true]; let first: 21 = tuple[0][0]; let flag: boolean = tuple[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-33",
+      "source": "type Pair = [number, string]; const pair: Pair = [21, 42];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-34",
+      "source": "type Pair = [number, string]; const pair: Pair = [21];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-35",
+      "source": "type Pair = [number, string]; const pair: Pair = [21, \"go\", true];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-36",
+      "source": "const pair: readonly [number, string] = [21, \"go\"]; pair[0] = 42;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-37",
+      "source": "const pair: readonly [number, string] = [21, \"go\"]; let editable: [number, string] = pair;",
+      "expectedCodes": [
+        "TS4104"
+      ]
+    },
+    {
+      "id": "type-operators:negative-38",
+      "source": "type Pair = [number, string]; const pair: Pair = [21, \"go\"]; let invalid = pair[2];",
+      "expectedCodes": [
+        "TS2493"
+      ]
+    },
+    {
+      "id": "type-operators:negative-39",
+      "source": "type Pair = [number, string]; let pair: Pair = [21, \"go\"]; pair[0] = \"wrong\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }

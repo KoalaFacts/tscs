@@ -1,3 +1,20 @@
+## 2026-11-03 — Finite explicit tuple annotations (bounded)
+
+The shared C# TypeSyntax, Parser, TypeResolver and ArrayTypeSymbol pipeline
+accepts positional `[T, U]` and `readonly [T, U]` annotations,
+including nested tuples, exact per-index reads, length, type aliases,
+typed function boundaries and four linked ES2015 modules. Fresh literals
+must match each slot; readonly writes, out-of-range indices and
+readonly-to-mutable assignment remain errors. Optional/rest/labeled
+tuple elements and variadic semantics fail closed. The prior 71
+type-operator pinned-Go source IDs, profiles and expected diagnostics
+are unchanged; 13 additive stable IDs exercise this bounded semantic
+slice with xUnit and Node checks. At source creation those checks are
+NOT_RUN; exact-head Actions evidence determines eventual outcomes.
+This does not credit the original TS7 suite: historically 0 PASS /
+15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED. No pin, global gate,
+release threshold or branch protection changes.
+
 ## 2026-11-02 — Finite deep-readonly const array tuples (candidate; NOT_RUN)
 
 The C# semantic array model now retains individual exact literal/readonly

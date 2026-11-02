@@ -795,7 +795,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             $"Property '{propertyName}' does not exist on type '{namedObject.DisplayName}'.");
                 }
                 else if(elementReceiver is ArrayTypeSymbol array)
-                    current=array.ElementType;
+                    current=array.TupleElements is not null && indexType is not null
+                        ?ResolveFiniteTupleRead(array,element.Index,indexType,element.Open)
+                        :array.ElementType;
                 else if(elementReceiver==null || indexType==null)
                     current=null;
                 else throw new CompilationFailure(Diagnostic.Error(file,element.Open,"TSCS1001",

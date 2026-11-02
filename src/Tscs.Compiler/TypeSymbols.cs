@@ -236,6 +236,7 @@ internal static class CompilerTypes
     {
         PrimitiveTypeSyntax primitive=>FromAnnotation(primitive.Name.Text),
         ArrayTypeSyntax array=>new ArrayTypeSymbol(FromAnnotation(array.Element),array.Readonly),
+        TupleTypeSyntax tuple=>FromTupleAnnotation(tuple),
         ObjectTypeSyntax shape=>new ObjectTypeSymbol(shape.Properties.Select(p=>
             new KeyValuePair<string,TypeSymbol>(Parser.PropertyName(p.Name),FromAnnotation(p.Type))),
             shape.Properties.Where(p=>p.Readonly).Select(p=>Parser.PropertyName(p.Name)),
@@ -243,6 +244,12 @@ internal static class CompilerTypes
             shape.Properties.Where(p=>p.Optional).Select(p=>Parser.PropertyName(p.Name))),
         _=>throw new ArgumentOutOfRangeException(nameof(syntax))
     };
+
+    private static ArrayTypeSymbol FromTupleAnnotation(TupleTypeSyntax tuple)
+    {
+        var slots=tuple.Elements.Select(FromAnnotation).ToArray();
+        return new ArrayTypeSymbol(Union(slots),tuple.Readonly,slots);
+    }
 
     // Finite 'as const' preserves deeply readonly objects and tuples with
     // exact primitive literal types. Unknown expressions and spreads fail closed.
