@@ -215,6 +215,31 @@ internal static class Binder
                 : null);
     }
 
+    // Prebinding and typeof queries must infer the same finite initializer.
+    // const primitive literals stay exact; mutable values and object members widen.
+    public static TypeSymbol? ResolveFiniteInitializerType(
+        ValueNode? initial,Scope scope,string file,bool constant,int depth=0)
+    {
+        while(initial is ValueParenthesized group)initial=group.Expression;
+        return initial switch
+        {
+            ValueTypeOperator { Keyword.Text:"as" } asserted =>
+                TypeResolver.Resolve(asserted.Target,scope,file,depth+1),
+            ValueTypeOperator { Keyword.Text:"satisfies" } satisfied =>
+                CompilerTypes.FromInitializer(satisfied.Expression) is { } source
+                    ?CompilerTypes.PreserveSatisfiedLiteralTypes(satisfied.Expression,source,
+                        TypeResolver.Resolve(satisfied.Target,scope,file,depth+1))
+                    :null,
+            ValueAtom atom when constant &&
+                (atom.Token.Kind is TokenKind.Number or TokenKind.String or TokenKind.True or TokenKind.False) =>
+                CompilerTypes.FromLiteralExact(atom.Token),
+            ValueUnary { Operator.Kind:TokenKind.Minus,Operand:ValueAtom number }
+                when constant && number.Token.Kind==TokenKind.Number =>
+                CompilerTypes.FromLiteralExact(number.Token,negative:true),
+            _=>CompilerTypes.FromInitializer(initial)
+        };
+    }
+
     public static void InitializeDeclaredTypes(Scope scope)
     {
         // Validate all declarations even when nothing references their aliases.
@@ -231,19 +256,8 @@ internal static class Binder
                     // Prebind cross-module assertion exports from their type,
                     // without changing the runtime initializer or skipping
                     // the later checked expression. Satisfies keeps inference.
-                    ValueNode? initial=declaration.Initializer;
-                    while(initial is ValueParenthesized group)initial=group.Expression;
-                    TypeSymbol? literalType=initial switch
-                    {
-                        ValueTypeOperator { Keyword.Text:"as" } asserted =>
-                            TypeResolver.Resolve(asserted.Target,scope,symbol.File),
-                        ValueTypeOperator { Keyword.Text:"satisfies" } satisfied =>
-                            CompilerTypes.FromInitializer(satisfied.Expression) is { } source
-                                ? CompilerTypes.PreserveSatisfiedLiteralTypes(satisfied.Expression,source,
-                                    TypeResolver.Resolve(satisfied.Target,scope,symbol.File))
-                                : null,
-                        _=>CompilerTypes.FromInitializer(initial)
-                    };
+                    TypeSymbol? literalType=ResolveFiniteInitializerType(
+                        declaration.Initializer,scope,symbol.File,declaration.Constant);
                     symbol.Type=declaration.Annotation is { } annotation
                         ? TypeResolver.Resolve(annotation,scope,symbol.File) : literalType;
                     symbol.Initialized=declaration.Initializer!=null;

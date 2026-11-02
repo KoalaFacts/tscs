@@ -157,7 +157,12 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         var source=v.Initializer is {} init?TypeOf(init,scope):null;
                         var annotatedType=v.Annotation is { } annotation
                             ? TypeResolver.Resolve(annotation,scope,file) : null;
-                        symbol.Type=annotatedType??source;
+                        // Check reads and type-level typeof must agree on const literals.
+                        var literal=v.Constant && v.Annotation==null &&
+                            (v.Initializer is ValueAtom or ValueUnary)
+                            ?Binder.ResolveFiniteInitializerType(v.Initializer,scope,file,true)
+                            :null;
+                        symbol.Type=annotatedType??literal??source;
                         symbol.DeclaredType=symbol.Type;
                         symbol.Initialized=v.Initializer!=null;
                         if(v.Constant&&v.Initializer==null) Error(v.Name,"TS1155","'const' declarations must be initialized.");
