@@ -14,7 +14,7 @@ const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
 const suitePath='fixtures/type-operators/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
 assert.equal(suite.kind,'BOUNDED_TYPE_ASSERTIONS_SATISFIES_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,84,'do not shrink the frozen type-operator cohort');
+assert.equal(suite.cases.length,99,'do not shrink the frozen type-operator cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const minimalProfile='fixtures/array-iteration/minimal.d.ts';
 const minimal=readFileSync(minimalProfile,'utf8');
@@ -53,7 +53,7 @@ for(let i=0;i<suite.cases.length;i++){
   const key='case-'+String(i).padStart(3,'0');
   const folder=join(out,key);mkdirSync(folder);
   save(key+'/input.ts',item.source);
-  const usesTupleProfile=/^type-operators:(positive-(3[0-9]|4[0-5])|negative-(2[5-9]|3[0-9]))$/.test(item.id);
+  const usesTupleProfile=/^type-operators:(positive-(3[0-9]|4[0-9]|5[0-3])|negative-(2[5-9]|3[0-9]|4[0-6]))$/.test(item.id);
   const profile=usesTupleProfile?tupleProfile:minimalProfile;
   save(key+'/minimal.d.ts',usesTupleProfile?tupleMinimal:minimal);
   const args=['--noEmit','--noLib','--target','es2015','--pretty','false','input.ts','minimal.d.ts'];

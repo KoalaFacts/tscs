@@ -1405,15 +1405,29 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
         {
             var open=Take();
             var elements=new List<TypeSyntax>();
+            bool? named=null;
             while(Current.Kind!=TokenKind.CloseBracket)
             {
                 if(elements.Count>=32)
                     Unsupported(Current,"Tuple types with over 32 elements are not supported yet.");
                 if(Current.Kind is TokenKind.Comma or TokenKind.Ellipsis)
                     Unsupported(Current,"Tuple holes and rest elements are not supported.");
+                // Labels are type-only documentation; every position must agree
+                // on their presence (TS5084), then use existing positional types.
+                bool hasLabel=Current.Kind==TokenKind.Identifier &&
+                    position+1<tokens.Count && tokens[position+1].Kind==TokenKind.Colon;
+                if(named is { } previous && previous!=hasLabel)
+                    throw new CompilationFailure(Diagnostic.Error(file,Current,"TS5084",
+                        "Tuple members must all have names or all not have names."));
+                named ??=hasLabel;
+                if(hasLabel)
+                {
+                    Take(); // label, intentionally absent from runtime/type identity
+                    Take(); // ':'
+                }
                 elements.Add(ReadTypeAnnotation(depth+1));
                 if(Current.Kind is TokenKind.Question or TokenKind.Colon)
-                    Unsupported(Current,"Optional and named tuple elements are not supported.");
+                    Unsupported(Current,"Optional tuple elements are not supported.");
                 if(!Eat(TokenKind.Comma))break;
             }
             if(Current.Kind!=TokenKind.CloseBracket)

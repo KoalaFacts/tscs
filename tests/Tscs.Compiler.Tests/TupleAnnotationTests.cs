@@ -53,10 +53,32 @@ public sealed class TupleAnnotationTests
     [InlineData("type Bad=[number?];")]
     [InlineData("type Bad=[...number[]];")]
     [InlineData("type Bad=[number,,string];")]
-    [InlineData("type Bad=[item:number];")]
-    public void OptionalRestHolesAndNamedTuplePartsFailClosed(string source) =>
+    [InlineData("type Bad=[item?:number];")]
+    public void OptionalRestAndHolesFailClosed(string source) =>
         Assert.Contains(Compilation.Check("tuple-annotation-unsupported.ts",source),
             d=>d.Code=="TSCS1001");
+
+    // Labels are metadata only; they cannot change slots, mutability or
+    // assignability to the equivalent unlabeled tuple.
+    [Theory]
+    [InlineData("type Pair=[first:number,second:string];let p:Pair=[21,\"go\"];let n:number=p[0];let s:string=p[1];")]
+    [InlineData("type Pair=readonly [first:number,second:string];let p:Pair=[21,\"go\"];let n:2=p.length;")]
+    [InlineData("type Pair=[item:{label:string},ready:boolean];let p:Pair=[{label:\"go\"},true];let s:string=p[0].label;")]
+    [InlineData("type Named=[first:number,second:string];type Plain=[number,string];let n:Named=[21,\"go\"];let p:Plain=n;let again:Named=p;")]
+    [InlineData("type Pair=[first:number,second:string];type Second=Pair[1];let s:Second=\"go\";")]
+    [InlineData("type Pair=[first:number,second:string];function second(p:Pair):string{return p[1];}let s:string=second([21,\"go\"]);")]
+    public void FullyLabeledTuplesShareCheckedPositionalSemantics(string source) =>
+        Assert.Empty(Compilation.Check("labeled-tuple.ts",source));
+
+    [Theory]
+    [InlineData("type Named=[first:number,second:string];let p:Named=[21,42];","TS2322")]
+    [InlineData("type Named=[first:number,second:string];let p:Named=[21];","TS2322")]
+    [InlineData("type Named=readonly [first:number,second:string];let p:Named=[21,\"go\"];p[0]=42;","TS2540")]
+    [InlineData("type Named=[first:number,second:string];let p:Named=[21,\"go\"];let bad=p[2];","TS2493")]
+    [InlineData("type Mixed=[first:number,string];","TS5084")]
+    [InlineData("type Mixed=[number,second:string];","TS5084")]
+    public void LabeledTuplesRejectInvalidValuesAndMixedLabels(string source,string code) =>
+        Assert.Contains(Compilation.Check("labeled-tuple-invalid.ts",source),d=>d.Code==code);
 
     private sealed class Host : ICompilerHost
     {
@@ -73,8 +95,8 @@ public sealed class TupleAnnotationTests
     {
         var host=new Host();
         host.Files["/virtual/model.ts"]=
-            "export type Pair=[number,string];"+
-            "export type Nested=[readonly [number,string],{valid:boolean}];";
+            "export type Pair=[first:number,second:string];"+
+            "export type Nested=[inner:readonly [count:number,label:string],flags:{valid:boolean}];";
         host.Files["/virtual/factory.ts"]=
             "import type {Pair,Nested} from \"./model.js\";"+
             "export function make(n:number,s:string):Pair {"+
