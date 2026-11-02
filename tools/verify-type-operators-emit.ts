@@ -19,20 +19,26 @@ function run(args:string[]) {
 try {
   writeFileSync(join(folder,'package.json'),'{"type":"module"}\n');
   writeFileSync(join(folder,'minimal.d.ts'),readFileSync('fixtures/array-iteration/minimal.d.ts'));
-  writeFileSync(join(folder,'model.ts'),'export type Item = { value: number; label: string };\n');
+  writeFileSync(join(folder,'model.ts'),'export type Item = { value: number; label: string }; export type Variant = { kind: "a"; value: number } | { kind: "b"; label: string };\n');
   writeFileSync(join(folder,'factory.ts'),[
-    'import type { Item } from "./model.js";',
+    'import type { Item, Variant } from "./model.js";',
     'export function fromAny(value: any): Item {',
     '  return (value as Item) satisfies Item;',
     '}',
     'export function make(value: number): Item {',
     '  const item = { value: value, label: "ok" } satisfies Item;',
     '  return item;',
+    '}',
+    'export function makeA(value: number): { kind: "a"; value: number } {',
+    '  return { kind: "a", value: value } satisfies Variant;',
+    '}',
+    'export function makeB(label: string): { kind: "b"; label: string } {',
+    '  return { kind: "b", label: label } satisfies Variant;',
     '}'
   ].join('\n'));
-  writeFileSync(join(folder,'bridge.ts'),'export { fromAny, make } from "./factory.js";\n');
+  writeFileSync(join(folder,'bridge.ts'),'export { fromAny, make, makeA, makeB } from "./factory.js";\n');
   writeFileSync(join(folder,'entry.ts'),[
-    'import { fromAny, make } from "./bridge.js";',
+    'import { fromAny, make, makeA, makeB } from "./bridge.js";',
     'const raw: any = { value: 21, label: "ready" };',
     'const item = fromAny(raw);',
     'export const result: number = make(item.value).value * 2;',
@@ -40,7 +46,10 @@ try {
     'export const extra: number = ({ value: 42, extra: 3 } as { value: number }).value;',
     'export const exact: 21 = (21 as 21);',
     'export const checked: string = "ready" satisfies string;',
-    'export const advanced: number = ((21 as number) satisfies number) + 21;'
+    'export const advanced: number = ((21 as number) satisfies number) + 21;',
+    'export const selected: number = makeA(23).value;',
+    'export const selectedTag: "a" = makeA(23).kind;',
+    'export const otherLabel: string = makeB("tagged").label;'
   ].join('\n'));
   writeFileSync(join(folder,'project.json'),JSON.stringify({
     files:['entry.ts','minimal.d.ts'],
@@ -51,14 +60,17 @@ try {
   for(const name of ['model','factory','bridge','entry'])
     assert.ok(existsSync(join(folder,name+'.js')),'missing '+name+'.js');
   const executed=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,label,extra,exact,checked,advanced} from "./entry.js"; if(result!==42||label!=="ready"||extra!==42||exact!==21||checked!=="ready"||advanced!==42) throw Error("type-operator JS runtime mismatch");'],
+    'import {result,label,extra,exact,checked,advanced,selected,selectedTag,otherLabel} from "./entry.js"; if(result!==42||label!=="ready"||extra!==42||exact!==21||checked!=="ready"||advanced!==42||selected!==23||selectedTag!=="a"||otherLabel!=="tagged") throw Error("type-operator JS runtime mismatch");'],
     {cwd:folder,encoding:'utf8',timeout:15000});
   assert.equal(executed.error,undefined,String(executed.error));
   assert.equal(executed.status,0,executed.stdout+executed.stderr);
   for(const [name,source,code] of [
     ['invalid-assert','let value: number = 21; let s = value as string;','TS2352'],
     ['invalid-satisfies','const value = "wrong" satisfies number;','TS1360'],
-    ['invalid-fresh','const bad = {value: 21, excess: 2} satisfies {value: number};','TS2353']
+    ['invalid-fresh','const bad = {value: 21, excess: 2} satisfies {value: number};','TS2353'],
+    ['invalid-tag-write',"type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; let p = { kind: \"a\", value: 21 } satisfies V; p.kind = \"b\";",'TS2322'],
+    ['invalid-tag-branch',"type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; let p = { kind: \"a\", value: \"bad\" } satisfies V;",'TS2322'],
+    ['invalid-extra-branch',"type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; let p = { kind: \"a\", value: 21, label: \"wrong\" } satisfies V;",'TS2353']
   ]) {
     writeFileSync(join(folder,name+'.ts'),source);
     const result=run(['--emitJs','--noLib','--target','es2015',join(folder,name+'.ts'),join(folder,'minimal.d.ts')]);

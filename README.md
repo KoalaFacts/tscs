@@ -291,6 +291,15 @@ JavaScript member call instead of extracting the function. Dynamic object
 index signatures, optional chaining, general `this` typing, generics and
 overloads remain unsupported.
 
+## Fresh discriminated object unions with `satisfies` (bounded)
+
+A fresh object literal with a concrete string tag can use `satisfies` against a
+finite union of disjoint, required string-literal-tagged object shapes. The
+compiler checks the selected branch, retains the exact discriminant for later
+safe writes and emits plain ES2015 JavaScript. Ambiguous, missing, widened or
+overlapping discriminants and spread objects fail closed; full TypeScript
+contextual inference is not claimed. See source-backed type-operator tests.
+
 ## Checked `void` expressions (bounded)
 
 Unary `void` checks and evaluates its operand once, returning semantic `undefined`.
