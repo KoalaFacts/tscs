@@ -220,12 +220,20 @@ internal static class Binder
     {
         var symbol=scope.Find(token.Text);
         if(symbol is null)return token.Text=="undefined"?CompilerTypes.Undefined:null;
-        if(!symbol.Initialized || symbol.PendingFunctionReturnInference ||
+        if(symbol.PendingFunctionReturnInference ||
            symbol.File==file && symbol.Declaration is not FunctionDeclaration &&
                token.Start<=symbol.DeclarationStart ||
            symbol.File!=file && !symbol.CrossFileTypeReady)
             return null;
-        return symbol.Type;
+        if(symbol.Initialized && symbol.Type is { } ready)return ready;
+        // Type queries run before all variable types have been prebound.
+        // A preceding declaration with an explicit annotation is already
+        // semantically known even when its initializer has not been checked.
+        // Do not infer an unannotated, uninitialized or forward reference.
+        if(symbol.File==file && symbol.Declaration is Variable
+            {Annotation:{ } annotation,Initializer:not null})
+            return TypeResolver.Resolve(annotation,symbol.DeclaringScope??scope,file);
+        return null;
     }
 
     // Cross-module exports must have their finite spread member types ready

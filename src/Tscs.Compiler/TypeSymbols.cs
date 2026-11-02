@@ -349,6 +349,9 @@ internal static class CompilerTypes
                         checkedTupleSpreadSource:checkedTupleSpreadSource);
                     if(element is null)return null;
                     elements.Add(element);
+                    // Spreads are already bounded above; ordinary elements
+                    // following a full 32-slot spread must be bounded too.
+                    if(elements.Count>32)return null;
                 }
                 try {return FiniteTuple(elements,readonlyTuple:true);}
                 catch(InvalidOperationException) {return null;}

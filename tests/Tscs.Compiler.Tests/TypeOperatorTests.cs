@@ -236,6 +236,21 @@ public sealed class TypeOperatorTests
         Assert.Contains(Compilation.Check("const-tuple-spreads-invalid.ts",source),d=>d.Code==code);
 
     [Fact]
+    public void ConstTupleSpreadBoundIsIndependentOfElementOrder()
+    {
+        string tail=string.Join(",",Enumerable.Repeat("0",32));
+        string prefix=$"const tail=[{tail}] as const;";
+        Assert.Empty(Compilation.Check("const-tuple-exact-limit.ts",
+            prefix+"const exact=[...tail] as const;let n:32=exact.length;"));
+        Assert.Contains(Compilation.Check("const-tuple-limit-suffix.ts",
+            prefix+"const tooMany=[...tail,0] as const;"),
+            diagnostic=>diagnostic.Code=="TSCS1001");
+        Assert.Contains(Compilation.Check("const-tuple-limit-prefix.ts",
+            prefix+"const tooMany=[0,...tail] as const;"),
+            diagnostic=>diagnostic.Code=="TSCS1001");
+    }
+
+    [Fact]
     public void ConstTupleSpreadsDoNotPretendAnUnknownLengthIsFinite()
     {
         const string source="let tail:number[]=[21,42];const snapshot=[true,...tail] as const;";
