@@ -301,7 +301,8 @@ internal static class CompilerTypes
 
     // Finite 'as const' preserves deeply readonly objects and tuples with
     // exact primitive literal types. Unknown expressions and spreads fail closed.
-    public static TypeSymbol? FromFiniteConstAssertion(ValueNode? value,int depth=0)
+    public static TypeSymbol? FromFiniteConstAssertion(ValueNode? value,int depth=0,
+        Func<Token,TypeSymbol?>? identifierType=null,bool nestedLiteral=false)
     {
         if(depth>64)return null;
         while(value is ValueParenthesized grouped)value=grouped.Expression;
@@ -313,6 +314,10 @@ internal static class CompilerTypes
             case ValueUnary {Operator.Kind:TokenKind.Minus,Operand:ValueAtom number}
                 when number.Token.Kind==TokenKind.Number:
                 return FromLiteralExact(number.Token,negative:true);
+            // Referenced values keep their own mutability; only freshly
+            // constructed nested literals gain readonly positions/members.
+            case ValueAtom atom when nestedLiteral && atom.Token.Kind==TokenKind.Identifier:
+                return identifierType?.Invoke(atom.Token);
             case ValueArray tuple:
             {
                 // A const array has stable per-position identity, not an
@@ -322,7 +327,7 @@ internal static class CompilerTypes
                 var elements=new List<TypeSymbol>(tuple.Elements.Count);
                 foreach(var item in tuple.Elements)
                 {
-                    var element=FromFiniteConstAssertion(item,depth+1);
+                    var element=FromFiniteConstAssertion(item,depth+1,identifierType,nestedLiteral:true);
                     if(element is null)return null;
                     elements.Add(element);
                 }
@@ -337,7 +342,7 @@ internal static class CompilerTypes
                 var numericMembers=new HashSet<string>(StringComparer.Ordinal);
                 foreach(var property in literal.Properties)
                 {
-                    var nested=FromFiniteConstAssertion(property.Value,depth+1);
+                    var nested=FromFiniteConstAssertion(property.Value,depth+1,identifierType,nestedLiteral:true);
                     if(nested is null)return null;
                     var key=Parser.PropertyName(property.Name);
                     members[key]=nested;

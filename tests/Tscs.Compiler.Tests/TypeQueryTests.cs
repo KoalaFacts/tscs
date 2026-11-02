@@ -169,4 +169,19 @@ public sealed class TypeQueryTests
             Assert.Single(CompilerProgram.Load(host,["a.ts"]).Analyze().Diagnostics).Code);
     }
 
+
+    [Fact]
+    public void NamedConstMembersCrossModulesAndReexports()
+    {
+        var host=new Host();
+        host.Files["/virtual/model.ts"]="export const seed=21;export const inner={count:21};";
+        host.Files["/virtual/factory.ts"]=
+            "import {seed,inner} from \"./model.js\";export const boxed={seed,nested:{inner}} as const;";
+        host.Files["/virtual/bridge.ts"]="export {boxed as state} from \"./factory.js\";";
+        host.Files["/virtual/entry.ts"]=
+            "import {state} from \"./bridge.js\";"+
+            "let exact:21=state.seed;state.nested.inner.count=42;"+
+            "export const result:number=state.nested.inner.count+exact;";
+        Assert.Empty(CompilerProgram.Load(host,["entry.ts"]).Analyze().Diagnostics);
+    }
 }

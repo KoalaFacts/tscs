@@ -215,6 +215,18 @@ internal static class Binder
                 : null);
     }
 
+    // Named members of a fresh const literal retain their original types.
+    private static TypeSymbol? ResolveConstAssertionIdentifier(Token token,Scope scope,string file)
+    {
+        var symbol=scope.Find(token.Text);
+        if(symbol is null)return token.Text=="undefined"?CompilerTypes.Undefined:null;
+        if(!symbol.Initialized || symbol.PendingFunctionReturnInference ||
+           symbol.File==file && token.Start<=symbol.DeclarationStart ||
+           symbol.File!=file && !symbol.CrossFileTypeReady)
+            return null;
+        return symbol.Type;
+    }
+
     // Prebinding and typeof queries must infer the same finite initializer.
     // const primitive literals stay exact; mutable values and object members widen.
     public static TypeSymbol? ResolveFiniteInitializerType(
@@ -227,7 +239,8 @@ internal static class Binder
         return initial switch
         {
             ValueTypeOperator { Keyword.Text:"as",Target:NamedTypeSyntax {Name.Kind:TokenKind.Const} } asserted =>
-                CompilerTypes.FromFiniteConstAssertion(asserted.Expression,depth+1),
+                CompilerTypes.FromFiniteConstAssertion(asserted.Expression,depth+1,
+                    token=>ResolveConstAssertionIdentifier(token,scope,file)),
             ValueTypeOperator { Keyword.Text:"as" } asserted =>
                 TypeResolver.Resolve(asserted.Target,scope,file,depth+1),
             ValueTypeOperator { Keyword.Text:"satisfies" } satisfied =>

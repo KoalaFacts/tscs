@@ -1090,6 +1090,102 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "type-operators:positive-97",
+      "source": "const seed=21;const box={seed} as const;let value:21=box.seed;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-98",
+      "source": "let seed:number=21;const box={seed} as const;let value:number=box.seed;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-99",
+      "source": "const label=\"ready\";const box={nested:{label}} as const;let value:\"ready\"=box.nested.label;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-100",
+      "source": "const seed=21;const box=[seed,true] as const;let value:21=box[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-101",
+      "source": "let seed:number=21;const box=[seed,false] as const;let value:number=box[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-102",
+      "source": "const seed=21;const box={values:[seed]} as const;let value:21=box.values[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-103",
+      "source": "const data={count:21};const box={data} as const;box.data.count=42;let value:number=box.data.count;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-104",
+      "source": "const data:[number,string]=[21,\"go\"];const box={data} as const;data[0]=42;let value:number=box.data[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-90",
+      "source": "const seed=21;const box={seed} as const;box.seed=22;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-91",
+      "source": "const seed=21;const box={seed} as const;let bad:22=box.seed;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-92",
+      "source": "let seed:number=21;const box={seed} as const;let bad:21=box.seed;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-93",
+      "source": "const seed=21;const box=[seed] as const;box[0]=22;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-94",
+      "source": "const seed=21;const box=[seed] as const;let bad:22=box[0];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-95",
+      "source": "const seed=21;const box={nested:{seed}} as const;box.nested.seed=22;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-96",
+      "source": "const seed=21;const box=[seed] as const;let mutable:number[]=box;",
+      "expectedCodes": [
+        "TS4104"
+      ]
+    },
+    {
+      "id": "type-operators:negative-97",
+      "source": "const seed=21;const box={inner:{seed}} as const;let bad:{inner:{seed:22}}=box;",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }
