@@ -1378,6 +1378,102 @@
       "expectedCodes": [
         "TS2339"
       ]
+    },
+    {
+      "id": "type-operators:positive-121",
+      "source": "const tail=[21,\"go\"] as const;const x=[true,...tail] as const;let a:true=x[0];let b:21=x[1];let c:\"go\"=x[2];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-122",
+      "source": "let tail:[number,string]=[21,\"go\"];const x=[0,...tail] as const;let a:0=x[0];let b:number=x[1];let c:string=x[2];let n:3=x.length;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-123",
+      "source": "const tail:readonly [number,string]=[21,\"go\"];const x=[\"first\",...tail] as const;let a:\"first\"=x[0];let b:number=x[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-124",
+      "source": "const left=[21] as const;const right=[\"go\"] as const;const x=[...left,...right] as const;let a:21=x[0];let b:\"go\"=x[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-125",
+      "source": "const tail=[[21],{value:42}] as const;const x=[true,...tail] as const;let a:21=x[1][0];let b:42=x[2].value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-126",
+      "source": "let tail:[number,string]=[21,\"go\"];const x=[...tail] as const;type Shape=typeof x;let copy:Shape=[21,\"go\"];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-127",
+      "source": "function take(x:readonly [true,number,string]):number{return x[1];}let tail:[number,string]=[21,\"go\"];let result:number=take([true,...tail] as const);",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-128",
+      "source": "let tail:[number,string]=[21,\"go\"];const x={data:[...tail] as const} as const;let n:2=x.data.length;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-114",
+      "source": "const tail=[21,\"go\"] as const;const x=[true,...tail] as const;x[1]=22;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-115",
+      "source": "const tail=[21,\"go\"] as const;const x=[true,...tail] as const;let bad= x[3];",
+      "expectedCodes": [
+        "TS2493"
+      ]
+    },
+    {
+      "id": "type-operators:negative-116",
+      "source": "let tail:[number,string]=[21,\"go\"];const x=[true,...tail] as const;let bad:22=x[1];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-117",
+      "source": "let tail:[number,string]=[21,\"go\"];const x=[true,...tail] as const;let bad:readonly [true,string,string]=x;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-118",
+      "source": "let tail:[number,string]=[21,\"go\"];const x=[true,...tail] as const;let bad:[true,number,string]=x;",
+      "expectedCodes": [
+        "TS4104"
+      ]
+    },
+    {
+      "id": "type-operators:negative-119",
+      "source": "const left=[21] as const;const right=[\"go\"] as const;const x=[...left,...right] as const;let bad:\"go\"=x[0];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-120",
+      "source": "const tail=[[21]] as const;const x=[...tail] as const;x[0][0]=22;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-121",
+      "source": "let tail:[number,string]=[21,\"go\"];const x=[...tail] as const;let bad:readonly [number,boolean]=x;",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }

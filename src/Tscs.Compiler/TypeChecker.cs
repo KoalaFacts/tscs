@@ -2140,7 +2140,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             checkedArrayElements.TryGetValue(tuple,out var slots) && index<slots.Length
                                 ?slots[index]:null,
                         checkedObjectSpreadSource:entry=>
-                            checkedObjectSpreadOperands.TryGetValue(entry,out var source)?source:null);
+                            checkedObjectSpreadOperands.TryGetValue(entry,out var source)?source:null,
+                        checkedTupleSpreadSource:entry=>
+                            checkedArraySpreadOperands.TryGetValue(entry,out var tupleSource)?tupleSource:null);
                     if(narrowed is null)
                     {
                         ValueNode operand=typeOperator.Expression;
@@ -2149,7 +2151,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         throw new CompilationFailure(Diagnostic.Error(file,typeOperator.Keyword,
                             unsupportedLiteral?"TSCS1001":"TS1355",
                             unsupportedLiteral
-                                ?"This const assertion exceeds the supported finite tuple/object subset or contains a spread/nonliteral member."
+                                ?"This const assertion requires a finite literal with statically checked spread operands."
                                 :"A const assertion must be applied to a literal expression."));
                     }
                     types.Push(actual==null?null:narrowed);
