@@ -15,14 +15,14 @@ public sealed class UnionPropertyWriteTests
     [InlineData("type Both={tag:'a';n:number}|{tag:'b';n:number};function write(x:Both):number{x.n ||= 42;return x.n;}")]
     [InlineData("type Both={tag:'a';n:number}|{tag:'b';n:number};function write(x:Both):number{x['n']+=2;return x['n'];}")]
     [InlineData("type Both={tag:'a';n:number}|{tag:'b';n:number};function write(x:Both):number{x.n ??= 42;return x.n;}")]
+    public void CommonRequiredWritableMembersAcceptSafeAssignmentForms(string source) =>
+        Assert.Empty(Compilation.Check("union-write.ts",source));
+
     [Theory]
     [InlineData("type Both={tag:'a';n:number}|{tag:'b';n:number};function write(x:Both):number{x['n']++;return x['n'];}")]
     [InlineData("type Both={tag:'a';n:number}|{tag:'b';n:number};function write(x:Both):number{++x['n'];return x['n'];}")]
     public void LiteralKeyUnionNumericUpdatesUseCheckedCommonMembers(string source) =>
         Assert.Empty(Compilation.Check("union-index-update.ts",source));
-
-    public void CommonRequiredWritableMembersAcceptSafeAssignmentForms(string source) =>
-        Assert.Empty(Compilation.Check("union-write.ts",source));
 
     [Theory]
     [InlineData("type Both={tag:'a';n:number}|{tag:'b';n:number};function bad(x:Both):number{x.n='bad';return 0;}","TS2322")]
