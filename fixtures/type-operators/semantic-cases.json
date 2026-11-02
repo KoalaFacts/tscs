@@ -622,6 +622,136 @@
       "expectedCodes": [
         "TS1212"
       ]
+    },
+    {
+      "id": "type-operators:positive-58",
+      "source": "type P=[number,string?];let p:P=[21];let n:number=p[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-59",
+      "source": "type P=[number,string?];let p:P=[21,\"go\"];let s:string|undefined=p[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-60",
+      "source": "type P=[id:number,label?:string];let p:P=[21];let l:1|2=p.length;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-61",
+      "source": "type P=readonly [number,string?];let p:P=[21];let l:1|2=p.length;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-62",
+      "source": "type P=[number,string?];type Item=P[1];let v:Item=undefined;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-63",
+      "source": "type P=[number,string?];type AnySlot=P[number];let v:AnySlot=undefined;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-64",
+      "source": "type P=[number,string?];let p:P=[21];p[1]=\"go\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-65",
+      "source": "type P=[number,string?];let short:[number]=[21];let p:P=short;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-66",
+      "source": "type P=[number,string?];let long:[number,string]=[21,\"go\"];let p:P=long;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-67",
+      "source": "function take(p:[number,string?]):number{return p[0];}let a:number=take([21]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-68",
+      "source": "type Named=[id:number,label?:string];type Plain=[number,string?];let n:Named=[21];let p:Plain=n;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-69",
+      "source": "type P=[number,string?];let p:P=[21,\"go\"];let n:1|2=p.length;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-51",
+      "source": "let p:[number,string?]=[];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-52",
+      "source": "let p:[number,string?]=[21,22];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-53",
+      "source": "let p:[number,string?]=[21,\"go\",true];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-54",
+      "source": "let p:[number,string?]=[21];let s:string=p[1];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-55",
+      "source": "let p:[number,string?]=[21];let l:1=p.length;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-56",
+      "source": "type P=[number,string?];let p:P=[21];let invalid=p[2];",
+      "expectedCodes": [
+        "TS2493"
+      ]
+    },
+    {
+      "id": "type-operators:negative-57",
+      "source": "let p:readonly [number,string?]=[21];p[1]=\"wrong\";",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-58",
+      "source": "type P=[number,string?];let p:P=[21];let required:[number,string]=p;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-59",
+      "source": "type Bad=[number?,string];",
+      "expectedCodes": [
+        "TS1257"
+      ]
+    },
+    {
+      "id": "type-operators:negative-60",
+      "source": "type Bad=[first?:number,second:string];",
+      "expectedCodes": [
+        "TS1257"
+      ]
     }
   ]
 }

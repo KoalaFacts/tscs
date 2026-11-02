@@ -1,3 +1,19 @@
+## 2026-11-03 — Finite trailing optional tuple elements (candidate; NOT_RUN)
+
+The C# parser, type resolver, tuple identities, assignability, indexed access,
+contextual literal checker and native ES2015 emitter support bounded trailing
+optional tuple elements, including named `label?: string` slots. Optional
+reads contain `undefined`; tuple lengths are unions of possible finite
+counts; short and full source tuples assign only when all their possible
+lengths and slot types fit the target. Required slots after optional ones
+reject with TS1257. Rest/spread and unbounded optional inference remain
+unsupported. The previous 105 pinned-Go type-operator case IDs/sources/
+profiles are unchanged; 22 new cases, source-backed xUnit and executed
+four-module JS checks extend this bounded profile. This candidate is NOT_RUN
+until exact SHA CI evidence. No original TS7 acceptance credit is claimed:
+historically 0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED.
+No pin, global release gate, minimum, protection or license changes.
+
 ## 2026-11-03 — Labeled and mixed positional tuples (candidate; NOT_RUN)
 
 The existing Parser/TypeResolver/Binder/TypeChecker/ES2015 emitter now accepts

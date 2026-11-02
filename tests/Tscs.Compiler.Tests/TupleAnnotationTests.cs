@@ -50,13 +50,39 @@ public sealed class TupleAnnotationTests
         Assert.Contains(Compilation.Check("tuple-update-invalid.ts",source),d=>d.Code==code);
 
     [Theory]
-    [InlineData("type Bad=[number?];")]
     [InlineData("type Bad=[...number[]];")]
     [InlineData("type Bad=[number,,string];")]
-    [InlineData("type Bad=[item?:number];")]
-    public void OptionalRestAndHolesFailClosed(string source) =>
+    public void RestAndHolesFailClosed(string source) =>
         Assert.Contains(Compilation.Check("tuple-annotation-unsupported.ts",source),
             d=>d.Code=="TSCS1001");
+
+    [Theory]
+    [InlineData("type P=[number,string?];let p:P=[21];let n:number=p[0];")]
+    [InlineData("type P=[number,string?];let p:P=[21,\"ok\"];let s:string|undefined=p[1];")]
+    [InlineData("type P=[first:number,second?:string];let p:P=[21];let l:1|2=p.length;")]
+    [InlineData("type P=readonly [number,string?];let p:P=[21];let l:1|2=p.length;")]
+    [InlineData("type P=[number,string?];type T=P[1];let s:T=undefined;")]
+    [InlineData("type P=[number,string?];type T=P[number];let s:T=undefined;")]
+    [InlineData("type P=[number,string?];let p:P=[21];p[1]=\"ok\";")]
+    [InlineData("type P=[number,string?];let short:[number]=[21];let p:P=short;")]
+    [InlineData("type P=[number,string?];let long:[number,string]=[21,\"ok\"];let p:P=long;")]
+    [InlineData("type P=[number,string?];function first(p:P):number{return p[0];}let n:number=first([21]);")]
+    public void FiniteOptionalTupleSuffixesSupportAbsentAndPresentElements(string source) =>
+        Assert.Empty(Compilation.Check("optional-tuple.ts",source));
+
+    [Theory]
+    [InlineData("let p:[number,string?]=[];","TS2322")]
+    [InlineData("let p:[number,string?]=[21,22];","TS2322")]
+    [InlineData("let p:[number,string?]=[21,\"ok\",true];","TS2322")]
+    [InlineData("let p:[number,string?]=[21];let s:string=p[1];","TS2322")]
+    [InlineData("let p:[number,string?]=[21];let l:1=p.length;","TS2322")]
+    [InlineData("type P=[number,string?];let p:P=[21];let invalid=p[2];","TS2493")]
+    [InlineData("let p:readonly [number,string?]=[21];p[1]=\"bad\";","TS2540")]
+    [InlineData("type P=[number,string?];let p:P=[21];let required:[number,string]=p;","TS2322")]
+    [InlineData("type Bad=[number?,string];","TS1257")]
+    [InlineData("type Bad=[first?:number,second:string];","TS1257")]
+    public void FiniteOptionalTuplesRejectInvalidLengthsReadsAndOrdering(string source,string code) =>
+        Assert.Contains(Compilation.Check("optional-tuple-invalid.ts",source),d=>d.Code==code);
 
     // Labels are metadata only; they cannot change slots, mutability or
     // assignability to the equivalent unlabeled tuple.

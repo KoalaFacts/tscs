@@ -625,6 +625,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 (PrimitiveTypeSymbol x,PrimitiveTypeSymbol y)=>x.Kind==y.Kind,
                 (LiteralTypeSymbol x,LiteralTypeSymbol y)=>x.Kind==y.Kind && x.Value==y.Value,
                 (ArrayTypeSymbol x,ArrayTypeSymbol y)=>x.Readonly==y.Readonly &&
+                    x.TupleOptionalStart==y.TupleOptionalStart &&
                     (x.TupleElements is null)==(y.TupleElements is null) &&
                     (x.TupleElements is null || x.TupleElements.Count==y.TupleElements!.Count &&
                        x.TupleElements.Select((t,i)=>Check(t,y.TupleElements[i],depth+1)).All(v=>v)) &&
@@ -710,7 +711,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             if(position>=slots.Count)
                 throw new CompilationFailure(Diagnostic.Error(file,location,"TS2493",
                     $"Tuple type '{receiver.DisplayName}' of length '{slots.Count}' has no element at index '{position}'."));
-            return slots[(int)position];
+            return CompilerTypes.TupleSlot(receiver,(int)position);
         }
         if(TryFiniteTupleIndex(syntax,out var direct))
             return At(direct.ToString(System.Globalization.CultureInfo.InvariantCulture));
@@ -2942,9 +2943,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             // never[] / T[] cannot fill a tuple just by sharing element type.
             if(targetArray.TupleElements is { } tuple)
             {
-                if(elements.Elements.Count!=tuple.Count ||
+                int minimum=targetArray.TupleOptionalStart<0?tuple.Count:targetArray.TupleOptionalStart;
+                if(elements.Elements.Count<minimum || elements.Elements.Count>tuple.Count ||
                    elements.Elements.Any(item=>item is ValueArraySpread))return false;
-                for(int i=0;i<tuple.Count;i++)
+                for(int i=0;i<elements.Elements.Count;i++)
                 {
                     var element=elements.Elements[i];
                     var checkedType=CheckedTupleElement(elements,i);
@@ -3054,7 +3056,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         {
             if(targetArray.TupleElements is { } slots)
             {
-                if(literalArray.Elements.Count!=slots.Count ||
+                int minimum=targetArray.TupleOptionalStart<0?slots.Count:targetArray.TupleOptionalStart;
+                if(literalArray.Elements.Count<minimum || literalArray.Elements.Count>slots.Count ||
                    literalArray.Elements.Any(item=>item is ValueArraySpread))
                 {
                     Error(literalArray.Open,"TS2322",
@@ -3062,7 +3065,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     return false;
                 }
                 bool tupleValid=true;
-                for(int i=0;i<slots.Count;i++)
+                for(int i=0;i<literalArray.Elements.Count;i++)
                 {
                     var element=literalArray.Elements[i];
                     var inferred=CheckedTupleElement(literalArray,i);

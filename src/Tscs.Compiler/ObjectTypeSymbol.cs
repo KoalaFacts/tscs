@@ -72,6 +72,7 @@ internal static class TypeDisplay
                         Text("]");
                         for(int i=tuple.Count-1;i>=0;i--)
                         {
+                            if(array.TupleOptionalStart>=0 && i>=array.TupleOptionalStart)Text("?");
                             Type(tuple[i]);
                             if(i>0)Text(", ");
                         }

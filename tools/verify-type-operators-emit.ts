@@ -19,7 +19,7 @@ function run(args:string[]) {
 try {
   writeFileSync(join(folder,'package.json'),'{"type":"module"}\n');
   writeFileSync(join(folder,'minimal.d.ts'),readFileSync('fixtures/array-iteration/minimal.d.ts'));
-  writeFileSync(join(folder,'model.ts'),'export type Item = { value: number; label: string }; export type Variant = { kind: "a"; value: number } | { kind: "b"; label: string }; export type Pair = [first: number, second: string]; export type NestedPair = [inner: readonly [count: number, string], { valid: boolean }];\n');
+  writeFileSync(join(folder,'model.ts'),'export type Item = { value: number; label: string }; export type Variant = { kind: "a"; value: number } | { kind: "b"; label: string }; export type Pair = [first: number, second: string]; export type NestedPair = [inner: readonly [count: number, string], { valid: boolean }]; export type OptionalPair = [value: number, label?: string];\n');
   writeFileSync(join(folder,'factory.ts'),[
     'import type { Item, Variant, Pair, NestedPair } from "./model.js";',
     'export function fromAny(value: any): Item {',
@@ -39,12 +39,13 @@ try {
     'export const immutableTuple = [21, "go"] as const;',
     'export const nestedTuple = { items: [true, [42]] } as const;',
     'export function makePair(n: number, s: string): Pair { const p: Pair = [n, s]; p[0]++; return p; }',
-    'export function makeNestedPair(n: number): NestedPair { return [[n, "go"], { valid: true }]; }'
+    'export function makeNestedPair(n: number): NestedPair { return [[n, "go"], { valid: true }]; }',
+    'export function makeOptional(n: number, include: boolean): OptionalPair { if(include) return [n, "ready"]; return [n]; }'
   ].join('\n'));
-  writeFileSync(join(folder,'bridge.ts'),'export { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple, makePair, makeNestedPair } from "./factory.js";\n');
+  writeFileSync(join(folder,'bridge.ts'),'export { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple, makePair, makeNestedPair, makeOptional } from "./factory.js";\n');
   writeFileSync(join(folder,'entry.ts'),[
-    'import { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple, makePair, makeNestedPair } from "./bridge.js";',
-    'import type { Pair, NestedPair } from "./model.js";',
+    'import { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple, makePair, makeNestedPair, makeOptional } from "./bridge.js";',
+    'import type { Pair, NestedPair, OptionalPair } from "./model.js";',
     'const raw: any = { value: 21, label: "ready" };',
     'const item = fromAny(raw);',
     'export const result: number = make(item.value).value * 2;',
@@ -68,7 +69,11 @@ try {
     'export const namedTupleNumber: number = namedPair[0];',
     'export const namedTupleText: string = namedPair[1];',
     'export const namedNestedNumber: number = namedNested[0][0];',
-    'export const namedNestedValid: boolean = namedNested[1].valid;'
+    'export const namedNestedValid: boolean = namedNested[1].valid;',
+    'const short: OptionalPair = makeOptional(21, false);',
+    'const long: OptionalPair = makeOptional(21, true);',
+    'export const optionalShortLength: 1 | 2 = short.length;',
+    'export const optionalLongLabel: string | undefined = long[1];'
   ].join('\n'));
   writeFileSync(join(folder,'project.json'),JSON.stringify({
     files:['entry.ts','minimal.d.ts'],
@@ -79,7 +84,7 @@ try {
   for(const name of ['model','factory','bridge','entry'])
     assert.ok(existsSync(join(folder,name+'.js')),'missing '+name+'.js');
   const executed=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,label,extra,exact,checked,advanced,selected,selectedTag,otherLabel,readonlyTag,readonlyValue,readonlyValid,tupleFirst,tupleSecond,tupleLength,nestedTupleValue,namedTupleNumber,namedTupleText,namedNestedNumber,namedNestedValid} from "./entry.js"; if(result!==42||label!=="ready"||extra!==42||exact!==21||checked!=="ready"||advanced!==42||selected!==23||selectedTag!=="a"||otherLabel!=="tagged"||readonlyTag!=="ready"||readonlyValue!==21||readonlyValid!==true||tupleFirst!==21||tupleSecond!=="go"||tupleLength!==2||nestedTupleValue!==42||namedTupleNumber!==21||namedTupleText!=="ready"||namedNestedNumber!==21||namedNestedValid!==true) throw Error("type-operator JS runtime mismatch");'],
+    'import {result,label,extra,exact,checked,advanced,selected,selectedTag,otherLabel,readonlyTag,readonlyValue,readonlyValid,tupleFirst,tupleSecond,tupleLength,nestedTupleValue,namedTupleNumber,namedTupleText,namedNestedNumber,namedNestedValid,optionalShortLength,optionalLongLabel} from "./entry.js"; if(result!==42||label!=="ready"||extra!==42||exact!==21||checked!=="ready"||advanced!==42||selected!==23||selectedTag!=="a"||otherLabel!=="tagged"||readonlyTag!=="ready"||readonlyValue!==21||readonlyValid!==true||tupleFirst!==21||tupleSecond!=="go"||tupleLength!==2||nestedTupleValue!==42||namedTupleNumber!==21||namedTupleText!=="ready"||namedNestedNumber!==21||namedNestedValid!==true||optionalShortLength!==1||optionalLongLabel!=="ready") throw Error("type-operator JS runtime mismatch");'],
     {cwd:folder,encoding:'utf8',timeout:15000});
   assert.equal(executed.error,undefined,String(executed.error));
   assert.equal(executed.status,0,executed.stdout+executed.stderr);
@@ -118,9 +123,10 @@ try {
     ['tuple-label-strict-let','type Invalid=[let:number,second:string];','TS1212'],
     ['tuple-label-strict-private','type Invalid=[private:number,second:string];','TS1212'],
     ['tuple-label-strict-yield','type Invalid=[yield:number,second:string];','TS1212'],
-    ['tuple-labeled-optional-unsupported','type Bad=[first?:number];','TSCS1001'],
+    ['tuple-optional-followed-by-required','type Bad=[first?:number,required:string];','TS1257'],
     ['tuple-annotation-rest-unsupported','type Bad=[...number[]];','TSCS1001'],
-    ['tuple-annotation-optional-unsupported','type Bad=[number?];','TSCS1001'],
+    ['tuple-optional-overlength','let p:[number,string?]=[21,"go",true];','TS2322'],
+    ['tuple-optional-possibly-undefined','let p:[number,string?]=[21];let x:string=p[1];','TS2322'],
     ['fresh-extra-annotation','let x:{a:1}={a:1,b:2} as const;','TS2353'],
     ['fresh-extra-satisfies','let x=({a:1,b:2} as const) satisfies {a:1};','TS2353']
   ]) {

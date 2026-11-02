@@ -186,14 +186,13 @@ internal static class TypeResolver
                                 if(value>=slots.Count)
                                     throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TS2493",
                                         $"Tuple type '{arrayType.DisplayName}' of length '{slots.Count}' has no element at index '{value}'."));
-                                return slots[(int)value];
+                                return CompilerTypes.TupleSlot(arrayType,(int)value);
                             }
                             return arrayType.ElementType;
                         }
                         if(key is LiteralTypeSymbol { Kind:PrimitiveKind.String,Value:"length" })
-                            return arrayType.TupleElements is { } tuple
-                                ?new LiteralTypeSymbol(PrimitiveKind.Number,tuple.Count.ToString(System.Globalization.CultureInfo.InvariantCulture))
-                                :CompilerTypes.Number;
+                            return arrayType.TupleElements is not null
+                                ?CompilerTypes.TupleLength(arrayType):CompilerTypes.Number;
                         throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
                             "Array indexed access requires a numeric key or the exact 'length' property."));
                     }
@@ -243,7 +242,7 @@ internal static class TypeResolver
             case TupleTypeSyntax tuple:
             {
                 var slots=tuple.Elements.Select(element=>Resolve(element,scope,file,depth+1)).ToArray();
-                try {return new ArrayTypeSymbol(CompilerTypes.Union(slots),tuple.Readonly,slots);}
+                try {return CompilerTypes.FiniteTuple(slots,tuple.Readonly,tuple.OptionalStart);}
                 catch(InvalidOperationException failure)
                 {
                     throw new CompilationFailure(Diagnostic.Error(file,tuple.Open,"TSCS1001",failure.Message));

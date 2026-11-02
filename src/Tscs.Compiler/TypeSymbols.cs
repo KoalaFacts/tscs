@@ -34,7 +34,7 @@ internal sealed record LiteralTypeSymbol(PrimitiveKind Kind,string Value) : Type
         ?System.Text.Json.JsonSerializer.Serialize(Value):Value;
 }
 
-internal sealed record ArrayTypeSymbol(TypeSymbol ElementType,bool Readonly=false,IReadOnlyList<TypeSymbol>? TupleElements=null) : TypeSymbol
+internal sealed record ArrayTypeSymbol(TypeSymbol ElementType,bool Readonly=false,IReadOnlyList<TypeSymbol>? TupleElements=null,int TupleOptionalStart=-1) : TypeSymbol
 {
     public override string DisplayName=>TypeDisplay.Format(this);
 }
@@ -245,10 +245,34 @@ internal static class CompilerTypes
         _=>throw new ArgumentOutOfRangeException(nameof(syntax))
     };
 
+    public static ArrayTypeSymbol FiniteTuple(IReadOnlyList<TypeSymbol> slots,bool readonlyTuple,int optionalStart=-1)
+    {
+        if(optionalStart<-1 || optionalStart>=slots.Count)
+            throw new InvalidOperationException("Invalid finite optional tuple suffix.");
+        var element=Union(optionalStart>=0?slots.Concat([Undefined]):slots);
+        return new ArrayTypeSymbol(element,readonlyTuple,slots,optionalStart);
+    }
+
+    public static TypeSymbol TupleSlot(ArrayTypeSymbol tuple,int index)
+    {
+        var type=tuple.TupleElements![index];
+        return tuple.TupleOptionalStart>=0 && index>=tuple.TupleOptionalStart
+            ?Union([type,Undefined]):type;
+    }
+
+    public static TypeSymbol TupleLength(ArrayTypeSymbol tuple)
+    {
+        var slots=tuple.TupleElements!;
+        int minimum=tuple.TupleOptionalStart<0?slots.Count:tuple.TupleOptionalStart;
+        return Union(Enumerable.Range(minimum,slots.Count-minimum+1)
+            .Select(length=>(TypeSymbol)new LiteralTypeSymbol(PrimitiveKind.Number,
+                length.ToString(System.Globalization.CultureInfo.InvariantCulture))));
+    }
+
     private static ArrayTypeSymbol FromTupleAnnotation(TupleTypeSyntax tuple)
     {
         var slots=tuple.Elements.Select(FromAnnotation).ToArray();
-        return new ArrayTypeSymbol(Union(slots),tuple.Readonly,slots);
+        return FiniteTuple(slots,tuple.Readonly,tuple.OptionalStart);
     }
 
     // Finite 'as const' preserves deeply readonly objects and tuples with
@@ -447,7 +471,7 @@ internal static class CompilerTypes
                             pending.Push((member,other));
                     break;
                 case (ArrayTypeSymbol a,ArrayTypeSymbol b):
-                    if(a.Readonly!=b.Readonly ||
+                    if(a.Readonly!=b.Readonly || a.TupleOptionalStart!=b.TupleOptionalStart ||
                        (a.TupleElements is null)!=(b.TupleElements is null))return false;
                     if(a.TupleElements is { } leftTuple && b.TupleElements is { } rightTuple)
                     {
@@ -518,9 +542,8 @@ internal static class CompilerTypes
         // emitter validate inputs and preserve the native receiver.
         if(receiver is ArrayTypeSymbol array)
         {
-            if(name=="length")return array.TupleElements is { } tuple
-                ?new LiteralTypeSymbol(PrimitiveKind.Number,tuple.Count.ToString(System.Globalization.CultureInfo.InvariantCulture))
-                :Number;
+            if(name=="length")return array.TupleElements is not null
+                ?TupleLength(array):Number;
             if(name is "includes" or "indexOf" or "lastIndexOf")
                 return new FunctionTypeSymbol([array.ElementType,Union([Number,Undefined])],
                     name=="includes"?Boolean:Number,1);
@@ -803,10 +826,16 @@ internal static class CompilerTypes
                        (!requiredArray.Readonly && actualArray.Readonly) ||
                        !Check(actualArray.ElementType,requiredArray.ElementType))return false;
                     if(requiredArray.TupleElements is not { } expectedSlots)return true;
-                    if(actualArray.TupleElements is not { } actualSlots ||
-                       actualSlots.Count!=expectedSlots.Count)return false;
-                    for(int i=0;i<expectedSlots.Count;i++)
-                        if(!Check(actualSlots[i],expectedSlots[i]))return false;
+                    if(actualArray.TupleElements is not { } actualSlots)return false;
+                    int expectedMin=requiredArray.TupleOptionalStart<0
+                        ?expectedSlots.Count:requiredArray.TupleOptionalStart;
+                    int actualMin=actualArray.TupleOptionalStart<0
+                        ?actualSlots.Count:actualArray.TupleOptionalStart;
+                    // Every length the source may have must fit the target's
+                    // range; an optional source cannot satisfy required slots.
+                    if(actualMin<expectedMin || actualSlots.Count>expectedSlots.Count)return false;
+                    for(int i=0;i<actualSlots.Count;i++)
+                        if(!Check(TupleSlot(actualArray,i),TupleSlot(requiredArray,i)))return false;
                     return true;
                 }
                 if(required is FunctionTypeSymbol requiredFunction)
