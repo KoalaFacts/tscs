@@ -73,6 +73,7 @@ public sealed class TupleAnnotationTests
     [Theory]
     [InlineData("let p:[number,string?]=[];","TS2322")]
     [InlineData("let p:[number,string?]=[21,22];","TS2322")]
+    [InlineData("let p:[number,string?]=[21];p[1]=42;","TS2322")]
     [InlineData("let p:[number,string?]=[21,\"ok\",true];","TS2322")]
     [InlineData("let p:[number,string?]=[21];let s:string=p[1];","TS2322")]
     [InlineData("let p:[number,string?]=[21];let l:1=p.length;","TS2322")]

@@ -706,7 +706,7 @@
     },
     {
       "id": "type-operators:negative-54",
-      "source": "let p:[number,string?]=[21];let s:string=p[1];",
+      "source": "let p:[number,string?]=[21];p[1]=42;",
       "expectedCodes": [
         "TS2322"
       ]
