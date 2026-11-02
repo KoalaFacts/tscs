@@ -45,6 +45,23 @@ public sealed class TypeQueryTests
         Assert.Empty(Compilation.Check("literal-inference-review.ts",source));
 
     [Theory]
+    [InlineData("const n=21;const m=n as 22|23;")]
+    [InlineData("const s=\"ready\";const t=s as \"later\"|\"next\";")]
+    [InlineData("const box={nested:({value:21} satisfies {value:21})};type V=typeof box.nested.value;let same:V=21;")]
+    public void LiteralInferenceSecondReviewRegressionsCompile(string source) =>
+        Assert.Empty(Compilation.Check("literal-second-review.ts",source));
+
+    [Theory]
+    [InlineData("const seed=21 as 21;let copy=seed;copy=42;","TS2322")]
+    [InlineData("const seed:21=21;const box={value:seed};box.value=42;","TS2322")]
+    [InlineData("const seed:21=21;const items=[seed];items[0]=42;","TS2322")]
+    [InlineData("const seed:21=21;const alias=seed;let copy=alias;copy=42;","TS2322")]
+    [InlineData("const n=21;const m=n as \"a\"|\"b\";","TS2352")]
+    [InlineData("const box={nested:({value:21} satisfies {value:21})};type V=typeof box.nested.value;let bad:V=22;","TS2322")]
+    public void LiteralInferenceSecondReviewRegressionsRejectInvalid(string source,string code) =>
+        Assert.Contains(Compilation.Check("literal-second-review-bad.ts",source),d=>d.Code==code);
+
+    [Theory]
     [InlineData("const seed=21;const box={value:seed as 21};box.value=42;","TS2322")]
     [InlineData("const seed=21;const items=[seed as 21];items[0]=42;","TS2322")]
     [InlineData("const seed=21;const t=seed as \"other\";","TS2352")]

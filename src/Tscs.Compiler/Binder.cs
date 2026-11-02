@@ -229,7 +229,7 @@ internal static class Binder
             ValueTypeOperator { Keyword.Text:"as" } asserted =>
                 TypeResolver.Resolve(asserted.Target,scope,file,depth+1),
             ValueTypeOperator { Keyword.Text:"satisfies" } satisfied =>
-                CompilerTypes.FromInitializer(satisfied.Expression) is { } source
+                ResolveFiniteInitializerType(satisfied.Expression,scope,file,false,depth+1) is { } source
                     ?CompilerTypes.PreserveSatisfiedLiteralTypes(satisfied.Expression,source,
                         TypeResolver.Resolve(satisfied.Target,scope,file,depth+1))
                     :null,
@@ -239,8 +239,10 @@ internal static class Binder
             ValueUnary { Operator.Kind:TokenKind.Minus,Operand:ValueAtom number }
                 when constant && number.Token.Kind==TokenKind.Number =>
                 CompilerTypes.FromLiteralExact(number.Token,negative:true),
-            _=>CompilerTypes.FromInitializer(initial) ??
-                ResolveFiniteCompositeInitializerType(initial,scope,file,depth+1)
+            _=>initial is ValueArray or ValueObject
+                ?ResolveFiniteCompositeInitializerType(initial,scope,file,depth+1) ??
+                    CompilerTypes.FromInitializer(initial)
+                :CompilerTypes.FromInitializer(initial)
         };
     }
 
