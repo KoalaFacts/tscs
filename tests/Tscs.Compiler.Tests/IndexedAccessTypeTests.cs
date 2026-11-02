@@ -22,6 +22,31 @@ public sealed class IndexedAccessTypeTests
         Assert.Empty(Compilation.Check("indexed-types.ts",source));
 
     [Theory]
+    [InlineData("type A=number[];type V=A[number];let x:V=42;")]
+    [InlineData("type A=number[];type V=A[0];let x:V=42;")]
+    [InlineData("type A=(readonly string[]);type V=A[number];let x:V=\"ok\";")]
+    [InlineData("type A=ReadonlyArray<boolean>;type V=A[1];let x:V=true;")]
+    [InlineData("type A=(number[]|string[]);type V=A[number];let x:V=\"hi\";")]
+    [InlineData("type A=number[];type V=A[\"length\"];let x:V=2;")]
+    [InlineData("type A=string[];type V=A[number|\"length\"];let x:V=2;let y:V=\"hi\";")]
+    [InlineData("type A={items:{id:number}[]};type V=A[\"items\"][number];let x:V={id:7};")]
+    [InlineData("const values:number[]=[1,2];type V=typeof values[number];let x:V=42;")]
+    public void BoundedArrayElementTypeSelectionsCompile(string source) =>
+        Assert.Empty(Compilation.Check("array-indexed-types.ts",source));
+
+    [Theory]
+    [InlineData("type V=number[][number];let x:V=\"bad\";", "TS2322")]
+    [InlineData("type V=(readonly string[])[number];let x:V=42;", "TS2322")]
+    [InlineData("type V=(number[]|string[])[number];let x:V=true;", "TS2322")]
+    [InlineData("type V=number[][\"length\"];let x:V=\"bad\";", "TS2322")]
+    [InlineData("type V={id:number}[][number];let x:V=\"bad\";", "TS2322")]
+    [InlineData("type V=number[][boolean];let x:V=42;", "TSCS1001")]
+    [InlineData("type V=number[][\"unknown\"];let x:V=42;", "TSCS1001")]
+    [InlineData("type V=(number[]|{id:number})[number];let x:V=42;", "TSCS1001")]
+    public void BoundedArrayIndexErrorsAreNotSilenced(string source,string code) =>
+        Assert.Contains(Compilation.Check("array-indexed-types-bad.ts",source),diagnostic=>diagnostic.Code==code);
+
+    [Theory]
     [InlineData("type V={value:number}[\"value\"];let x:V=\"bad\";", "TS2322")]
     [InlineData("type V={value:number}[\"missing\"];let x:V=42;", "TS2339")]
     [InlineData("type V={value:number}[\"value\"|\"missing\"];let x:V=42;", "TS2339")]
