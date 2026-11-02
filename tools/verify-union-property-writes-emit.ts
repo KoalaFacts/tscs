@@ -18,7 +18,7 @@ try {
   ].join('\n'));
   writeFileSync(join(folder,'logic.ts'),[
     'import type {Choice} from "./model.js";',
-    'export function bump(x:Choice):number {x.n+=1;x["n"]+=1;x.n++;return x.n;}',
+    'export function bump(x:Choice):number {x.n+=1;x["n"]+=1;x.n++;x["n"]++;return x.n;}',
     'export function set(x:Choice,value:number):number {x.n=value;return x.n;}',
     'export function fallback(x:Choice):number {x.n ||= 42;return x.n;}'
   ].join('\n'));
@@ -46,7 +46,7 @@ try {
     assert.ok(existsSync(join(folder,name+'.js')),'missing emitted '+name+'.js');
   const executed=spawnSync(process.execPath,['--input-type=module','--eval',[
     'import {resultA,resultB,resultC,resultD} from "./entry.js";',
-    'if(resultA!==23 || resultB!==24 || resultC!==42 || resultD!==24)',
+    'if(resultA!==24 || resultB!==25 || resultC!==42 || resultD!==25)',
     'throw Error("wrong union write runtime: "+JSON.stringify({resultA,resultB,resultC,resultD}));',
     'console.log(JSON.stringify({resultA,resultB,resultC,resultD}));'
   ].join('\n')],{cwd:folder,encoding:'utf8',timeout:15000,env});
@@ -59,7 +59,9 @@ try {
     ['readonly-arm','function f(x:{tag:"a";n:number}|{tag:"b";readonly n:number}):number{x.n=42;return 0;}','TS2540'],
     ['missing-arm','function f(x:{tag:"a";n:number}|{tag:"b";other:string}):number{x.n=42;return 0;}','TS2339'],
     ['different-types','function f(x:{tag:"a";n:number}|{tag:"b";n:string}):number{x.n=42;return 0;}','TSCS1001'],
-    ['optional-arm','function f(x:{tag:"a";n?:number}|{tag:"b";n:number}):number{x.n=42;return 0;}','TSCS1001']
+    ['optional-arm','function f(x:{tag:"a";n?:number}|{tag:"b";n:number}):number{x.n=42;return 0;}','TSCS1001'],
+    ['any-versus-number','function f(x:{tag:"a";n:any}|{tag:"b";n:number}):number{x.n="bad";return 0;}','TSCS1001'],
+    ['nested-any-versus-number','function f(x:{tag:"a";n:{value:any}}|{tag:"b";n:{value:number}}):number{x.n={value:"bad"};return 0;}','TSCS1001']
   ] as const;
   for(const [name,source,code] of invalid){
     writeFileSync(join(folder,name+'.ts'),source);
@@ -69,7 +71,7 @@ try {
     assert.equal(existsSync(join(folder,name+'.js')),false,
       'invalid union property write emitted JavaScript: '+name);
   }
-  console.log('Common union-property writes: four ES2015 modules executed and six invalid programs emitted no JS.');
+  console.log('Common union-property writes: four ES2015 modules executed and eight invalid programs emitted no JS.');
 } finally {
   rmSync(folder,{recursive:true,force:true});
 }
