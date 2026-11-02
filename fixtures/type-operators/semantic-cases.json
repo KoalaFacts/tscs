@@ -781,6 +781,27 @@
       "expectedCodes": [
         "TS17019"
       ]
+    },
+    {
+      "id": "type-operators:negative-63",
+      "source": "type P=[(number)|string?];",
+      "expectedCodes": [
+        "TS17019"
+      ]
+    },
+    {
+      "id": "type-operators:negative-64",
+      "source": "type P=[(number)&string?];",
+      "expectedCodes": [
+        "TS17019"
+      ]
+    },
+    {
+      "id": "type-operators:negative-65",
+      "source": "let p:[[{value:number}]?]=[[{value:1,extra:2}]];",
+      "expectedCodes": [
+        "TS2353"
+      ]
     }
   ]
 }

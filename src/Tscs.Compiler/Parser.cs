@@ -1413,10 +1413,9 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 if(Current.Kind is TokenKind.Comma or TokenKind.Ellipsis)
                     Unsupported(Current,"Tuple holes and rest elements are not supported.");
                 var slotStart=Current;
-                // Parenthesized unions/function types may carry a tuple's
-                // optional suffix, but a bare union or function type cannot:
-                // [number|string?] and [()=>number?] are TS17019.
-                bool groupedSlot=Current.Kind==TokenKind.OpenParen && !IsFunctionTypeStart();
+                // An optional marker on a union/function/intersection type
+                // requires parentheses around the *whole* slot type.
+                // A leading parenthesized operand is not enough.
                 // TS 5.2+ permits mixed labeled and unnamed slots. An optional
                 // label uses [name?: T], while an unnamed slot uses [T?].
                 bool labelToken=Current.Kind is (TokenKind.Identifier or
@@ -1446,9 +1445,24 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     optional=Eat(TokenKind.Question);
                     Take(); // ':', part of the recognized label
                 }
+                int typeStart=position;
                 var slotType=ReadTypeAnnotation(depth+1);
                 elements.Add(slotType);
-                if(!hasLabel && Current.Kind==TokenKind.Question && !groupedSlot &&
+                bool wholeTypeGrouped=false;
+                if(tokens[typeStart].Kind==TokenKind.OpenParen)
+                {
+                    int nesting=0;
+                    for(int tokenIndex=typeStart;tokenIndex<position;tokenIndex++)
+                    {
+                        if(tokens[tokenIndex].Kind==TokenKind.OpenParen)nesting++;
+                        else if(tokens[tokenIndex].Kind==TokenKind.CloseParen && --nesting==0)
+                        {
+                            wholeTypeGrouped=tokenIndex==position-1;
+                            break;
+                        }
+                    }
+                }
+                if(!hasLabel && Current.Kind==TokenKind.Question && !wholeTypeGrouped &&
                    slotType is UnionTypeSyntax or IntersectionTypeSyntax or FunctionTypeSyntax)
                     throw new CompilationFailure(Diagnostic.Error(file,Current,"TS17019",
                         "'?' at the end of a type is not valid TypeScript syntax; parenthesize the type."));

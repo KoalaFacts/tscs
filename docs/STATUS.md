@@ -8,7 +8,7 @@ counts; short and full source tuples assign only when all their possible
 lengths and slot types fit the target. Required slots after optional ones
 reject with TS1257. Rest/spread and unbounded optional inference remain
 unsupported. The previous 105 pinned-Go type-operator case IDs/sources/
-profiles are unchanged; 22 new cases, source-backed xUnit and executed
+profiles are unchanged; 30 new cases, source-backed xUnit and executed
 four-module JS checks extend this bounded profile. This candidate is NOT_RUN
 until exact SHA CI evidence. No original TS7 acceptance credit is claimed:
 historically 0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED.

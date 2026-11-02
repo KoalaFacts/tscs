@@ -3077,7 +3077,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         continue;
                     }
                     var slotType=CompilerTypes.TupleSlot(targetArray,i);
-                    if(!CheckContextualLiteral(element,slotType,inferred))tupleValid=false;
+                    // Fresh nested arrays/objects require the present slot
+                    // shape for excess-property checking; undefined is still
+                    // accepted by the separate optional-aware type relation.
+                    if(!CheckContextualLiteral(element,slots[i],inferred))tupleValid=false;
                     else if(!IsAssignableContextually(element,inferred,slotType))
                     {
                         Mismatch(literalArray.Open,inferred,slots[i]);
