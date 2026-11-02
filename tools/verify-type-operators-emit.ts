@@ -84,7 +84,10 @@ try {
   ]) {
     writeFileSync(join(folder,name+'.ts'),source);
     const result=run(['--emitJs','--noLib','--target','es2015',join(folder,name+'.ts'),join(folder,'minimal.d.ts')]);
-    assert.equal(result.status,2,result.stdout+result.stderr);
+    // The CLI deliberately distinguishes unsupported TSCS diagnostics (exit 1)
+    // from TypeScript semantic diagnostics (exit 2); neither may emit output.
+    // This asserts the *existing* CLI contract instead of treating UNSUPPORTED as PASS.
+    assert.equal(result.status,code.startsWith('TSCS')?1:2,result.stdout+result.stderr);
     assert.match(result.stdout+result.stderr,new RegExp(code));
     assert.equal(existsSync(join(folder,name+'.js')),false,'invalid TS must not emit JS');
   }

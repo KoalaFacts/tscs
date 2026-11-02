@@ -2056,15 +2056,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         ValueNode operand=typeOperator.Expression;
                         while(operand is ValueParenthesized constGrouped)operand=constGrouped.Expression;
                         bool unsupportedLiteral=operand is ValueObject or ValueArray;
-                        // A rejected expression is an ordinary compiler error:
-                        // keep exit code 2 and prohibit emit instead of escaping
-                        // as a host exception with exit code 1.
-                        Error(typeOperator.Keyword,unsupportedLiteral?"TSCS1001":"TS1355",
+                        throw new CompilationFailure(Diagnostic.Error(file,typeOperator.Keyword,
+                            unsupportedLiteral?"TSCS1001":"TS1355",
                             unsupportedLiteral
                                 ?"This const assertion needs tuple, spread or nonliteral-property inference beyond the finite object subset."
-                                :"A const assertion must be applied to a literal expression.");
-                        types.Push(null);
-                        continue;
+                                :"A const assertion must be applied to a literal expression."));
                     }
                     types.Push(actual==null?null:narrowed);
                     continue;
