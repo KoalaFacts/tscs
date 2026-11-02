@@ -6,6 +6,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     private readonly List<Diagnostic> diagnostics=[];
     private readonly Dictionary<ValueConditional,(TypeSymbol? True,TypeSymbol? False)> conditionalResults = new(ReferenceEqualityComparer.Instance);
     private readonly Dictionary<ValueBinary,LogicalValueOutcome> logicalResults = new(ReferenceEqualityComparer.Instance);
+    // Array inference collects exact checked types before primitive widening.
+    // Contextual tuple checks must use each slot, not the joined array element.
+    private readonly Dictionary<ValueArray,TypeSymbol?[]> checkedArrayElements = new(ReferenceEqualityComparer.Instance);
     // Logical expressions use bounded recursion only to check the RHS in the
     // appropriate short-circuit flow scope; other expression chains remain iterative.
     private int logicalEvaluationDepth;
@@ -2194,9 +2197,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 }
                 TypeSymbol element=CompilerTypes.Never;
                 bool known=true;
+                var checkedElements=new TypeSymbol?[arrayLiteral.Elements.Count];
                 for(int i=arrayLiteral.Elements.Count-1;i>=0;i--)
                 {
                     var next=types.Pop();
+                    checkedElements[i]=next;
                     if(next!=null)
                         next=WidenMutableLiteral(next,arrayLiteral.Elements[i],scope);
                     if(next==null)known=false;
@@ -2210,6 +2215,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         }
                     }
                 }
+                checkedArrayElements[arrayLiteral]=checkedElements;
                 types.Push(known?new ArrayTypeSymbol(element):null);
                 continue;
             }
@@ -2862,6 +2868,17 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         return null;
     }
 
+    // TypeOf has already evaluated these children, including identifiers,
+    // indexed reads and nested tuple values. Rechecking them could repeat
+    // side effects; synthesizing their types from a joined union loses slots.
+    private TypeSymbol? CheckedTupleElement(ValueArray array,int index)
+    {
+        if(checkedArrayElements.TryGetValue(array,out var checkedTypes) &&
+           index<checkedTypes.Length && checkedTypes[index] is { } checkedType)
+            return checkedType;
+        return CompilerTypes.FromInitializer(array.Elements[index]);
+    }
+
     private bool IsAssignableContextually(ValueNode expression,TypeSymbol actual,TypeSymbol expected,int depth=0)
     {
         if(depth>64)return false;
@@ -2928,9 +2945,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 for(int i=0;i<tuple.Count;i++)
                 {
                     var element=elements.Elements[i];
-                    if(!IsAssignableContextually(element,
-                        CompilerTypes.FromInitializer(element)??sourceArray.ElementType,
-                        tuple[i],depth+1))return false;
+                    var checkedType=CheckedTupleElement(elements,i);
+                    if(checkedType is null ||
+                       !IsAssignableContextually(element,checkedType,tuple[i],depth+1))
+                        return false;
                 }
                 return true;
             }
@@ -3045,7 +3063,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 for(int i=0;i<slots.Count;i++)
                 {
                     var element=literalArray.Elements[i];
-                    var inferred=CompilerTypes.FromInitializer(element)??sourceArray.ElementType;
+                    var inferred=CheckedTupleElement(literalArray,i);
+                    if(inferred is null)
+                    {
+                        Error(literalArray.Open,"TSCS1001",
+                            "Contextual tuple element type could not be checked.");
+                        tupleValid=false;
+                        continue;
+                    }
                     if(!CheckContextualLiteral(element,slots[i],inferred))tupleValid=false;
                     else if(!IsAssignableContextually(element,inferred,slots[i]))
                     {
