@@ -202,7 +202,9 @@ local or imported declarations. Exact constant primitives remain exact, mutable
 values retain their declared/widened types, and the fresh object/tuple shell is
 readonly without incorrectly freezing an object referred to by a member.
 These use the existing binder, type query, module and native ES2015 pipeline.
-A root `value as const` still rejects. Arbitrary computed nested values and
+A root `value as const` still rejects. Checked nested arithmetic and finite
+member/index expressions retain their inferred types; `21 + 1` is `number`,
+not a fabricated `22` literal. New object/tuple shells remain readonly;
 spread const assertions are not claimed.
 
 ## Fixed tuple type annotations (bounded)

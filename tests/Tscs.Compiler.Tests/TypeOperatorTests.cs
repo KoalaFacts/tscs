@@ -161,4 +161,28 @@ public sealed class TypeOperatorTests
     [InlineData("const seed=21;const bad=seed as const;","TS1355")]
     public void NamedConstLiteralMembersRejectInvalidAssignments(string source,string code) =>
         Assert.Contains(Compilation.Check("named-const-members-invalid.ts",source),d=>d.Code==code);
+
+    [Theory]
+    [InlineData("const result={sum:21+1} as const;let n:number=result.sum;")]
+    [InlineData("const box={nested:{sum:21+1}} as const;let n:number=box.nested.sum;")]
+    [InlineData("const list=[21+1,\"go\"] as const;let n:number=list[0];let s:\"go\"=list[1];")]
+    [InlineData("const list=[[21+1],[42+2]] as const;let n:number=list[0][0];")]
+    [InlineData("let seed:number=21;const box={sum:seed+1} as const;let n:number=box.sum;")]
+    [InlineData("const model={count:21};const box={read:model.count} as const;let n:number=box.read;")]
+    [InlineData("const box={label:\"a\"+\"b\"} as const;let s:string=box.label;")]
+    [InlineData("function make(n:number):{readonly value:number}{return {value:n+1} as const;}let out:number=make(21).value;")]
+    public void FiniteConstMembersPreserveCheckedComputationTypes(string source) =>
+        Assert.Empty(Compilation.Check("computed-const-members.ts",source));
+
+    [Theory]
+    [InlineData("const result={sum:21+1} as const;result.sum=22;", "TS2540")]
+    [InlineData("const result={sum:21+1} as const;let bad:22=result.sum;", "TS2322")]
+    [InlineData("const value=[21+1] as const;value[0]=22;", "TS2540")]
+    [InlineData("const value=[[21+1]] as const;value[0][0]=22;", "TS2540")]
+    [InlineData("const value={nested:{sum:21+1}} as const;value.nested.sum=22;", "TS2540")]
+    [InlineData("const value={label:\"a\"+\"b\"} as const;let bad:\"ab\"=value.label;", "TS2322")]
+    [InlineData("const value={value:21+1} as const;let bad:{readonly value:21}=value;", "TS2322")]
+    [InlineData("const value=[21+1,\"go\"] as const;let bad:21=value[0];", "TS2322")]
+    public void ComputedConstMembersDoNotInventLiteralsOrAllowReadonlyWrites(string source,string code) =>
+        Assert.Contains(Compilation.Check("computed-const-members-invalid.ts",source),d=>d.Code==code);
 }

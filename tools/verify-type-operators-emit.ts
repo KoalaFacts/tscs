@@ -47,11 +47,12 @@ try {
     'export function makeOptionalSpread(n: number, include: boolean): [number, string?] { let tail: [string?] = []; if(include) tail = ["tail"]; return [n, ...tail]; }',
     'export const namedSeed=21;',
     'export const mutableNamed={count:21};',
-    'export const namedSnapshot={seed:namedSeed,nested:{value:mutableNamed}} as const;'
+    'export const namedSnapshot={seed:namedSeed,nested:{value:mutableNamed}} as const;',
+    'export function makeComputed(n:number):{readonly total:number;readonly labels:readonly [number,string]} {return {total:n+1,labels:[n+2,"go"]} as const;}'
   ].join('\n'));
-  writeFileSync(join(folder,'bridge.ts'),'export { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple, makePair, makeNestedPair, makeOptional, makeRest, makeMaybeRest, makeSpreadTuple, makeOptionalSpread, namedSnapshot, mutableNamed } from "./factory.js";\n');
+  writeFileSync(join(folder,'bridge.ts'),'export { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple, makePair, makeNestedPair, makeOptional, makeRest, makeMaybeRest, makeSpreadTuple, makeOptionalSpread, makeComputed, namedSnapshot, mutableNamed } from "./factory.js";\n');
   writeFileSync(join(folder,'entry.ts'),[
-    'import { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple, makePair, makeNestedPair, makeOptional, makeRest, makeMaybeRest, makeSpreadTuple, makeOptionalSpread, namedSnapshot, mutableNamed } from "./bridge.js";',
+    'import { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple, makePair, makeNestedPair, makeOptional, makeRest, makeMaybeRest, makeSpreadTuple, makeOptionalSpread, makeComputed, namedSnapshot, mutableNamed } from "./bridge.js";',
     'import type { Pair, NestedPair, OptionalPair, RestPair, MaybeRest } from "./model.js";',
     'const raw: any = { value: 21, label: "ready" };',
     'const item = fromAny(raw);',
@@ -97,7 +98,10 @@ try {
     'export const optionalSpreadLongText: string | undefined = optionalSpreadLong[1];',
     'export const composedNamedSeed:21=namedSnapshot.seed;',
     'namedSnapshot.nested.value.count=42;',
-    'export const composedNamedMutable:number=mutableNamed.count;'
+    'export const composedNamedMutable:number=mutableNamed.count;',
+    'const computed=makeComputed(20);',
+    'export const computedTotal:number=computed.total;',
+    'export const computedFirst:number=computed.labels[0];'
   ].join('\n'));
   writeFileSync(join(folder,'project.json'),JSON.stringify({
     files:['entry.ts','minimal.d.ts'],
@@ -108,7 +112,7 @@ try {
   for(const name of ['model','factory','bridge','entry'])
     assert.ok(existsSync(join(folder,name+'.js')),'missing '+name+'.js');
   const executed=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,label,extra,exact,checked,advanced,selected,selectedTag,otherLabel,readonlyTag,readonlyValue,readonlyValid,tupleFirst,tupleSecond,tupleLength,nestedTupleValue,namedTupleNumber,namedTupleText,namedNestedNumber,namedNestedValid,optionalShortLength,optionalLongLabel,restLabel,restLength,maybeRestLength,spreadText,spreadLength,inlineSpreadText,optionalSpreadShortLength,optionalSpreadLongText,composedNamedSeed,composedNamedMutable} from "./entry.js"; if(result!==42||label!=="ready"||extra!==42||exact!==21||checked!=="ready"||advanced!==42||selected!==23||selectedTag!=="a"||otherLabel!=="tagged"||readonlyTag!=="ready"||readonlyValue!==21||readonlyValid!==true||tupleFirst!==21||tupleSecond!=="go"||tupleLength!==2||nestedTupleValue!==42||namedTupleNumber!==21||namedTupleText!=="ready"||namedNestedNumber!==21||namedNestedValid!==true||optionalShortLength!==1||optionalLongLabel!=="ready"||restLabel!=="go"||restLength!==3||maybeRestLength!==1||spreadText!=="ready"||spreadLength!==3||inlineSpreadText!=="ok"||optionalSpreadShortLength!==1||optionalSpreadLongText!=="tail"||composedNamedSeed!==21||composedNamedMutable!==42) throw Error("type-operator JS runtime mismatch");'],
+    'import {result,label,extra,exact,checked,advanced,selected,selectedTag,otherLabel,readonlyTag,readonlyValue,readonlyValid,tupleFirst,tupleSecond,tupleLength,nestedTupleValue,namedTupleNumber,namedTupleText,namedNestedNumber,namedNestedValid,optionalShortLength,optionalLongLabel,restLabel,restLength,maybeRestLength,spreadText,spreadLength,inlineSpreadText,optionalSpreadShortLength,optionalSpreadLongText,composedNamedSeed,composedNamedMutable,computedTotal,computedFirst} from "./entry.js"; if(result!==42||label!=="ready"||extra!==42||exact!==21||checked!=="ready"||advanced!==42||selected!==23||selectedTag!=="a"||otherLabel!=="tagged"||readonlyTag!=="ready"||readonlyValue!==21||readonlyValid!==true||tupleFirst!==21||tupleSecond!=="go"||tupleLength!==2||nestedTupleValue!==42||namedTupleNumber!==21||namedTupleText!=="ready"||namedNestedNumber!==21||namedNestedValid!==true||optionalShortLength!==1||optionalLongLabel!=="ready"||restLabel!=="go"||restLength!==3||maybeRestLength!==1||spreadText!=="ready"||spreadLength!==3||inlineSpreadText!=="ok"||optionalSpreadShortLength!==1||optionalSpreadLongText!=="tail"||composedNamedSeed!==21||composedNamedMutable!==42||computedTotal!==21||computedFirst!==22) throw Error("type-operator JS runtime mismatch");'],
     {cwd:folder,encoding:'utf8',timeout:15000});
   assert.equal(executed.error,undefined,String(executed.error));
   assert.equal(executed.status,0,executed.stdout+executed.stderr);
@@ -165,7 +169,10 @@ try {
     ['fresh-extra-annotation','let x:{a:1}={a:1,b:2} as const;','TS2353'],
     ['fresh-extra-satisfies','let x=({a:1,b:2} as const) satisfies {a:1};','TS2353'],
     ['named-readonly-write','const seed=21;const box={seed} as const;box.seed=22;','TS2540'],
-    ['named-tuple-bad-literal','const seed=21;const box=[seed] as const;let bad:22=box[0];','TS2322']
+    ['named-tuple-bad-literal','const seed=21;const box=[seed] as const;let bad:22=box[0];','TS2322'],
+    ['computed-readonly-write','const box={value:21+1} as const;box.value=1;','TS2540'],
+    ['computed-tuple-readonly','const tuple=[21+1] as const;tuple[0]=2;','TS2540'],
+    ['computed-not-singleton','const box={value:21+1} as const;let bad:22=box.value;','TS2322']
   ]) {
     writeFileSync(join(folder,name+'.ts'),source);
     const result=run(['--emitJs','--noLib','--target','es2015',join(folder,name+'.ts'),join(folder,'minimal.d.ts')]);

@@ -1186,6 +1186,102 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "type-operators:positive-105",
+      "source": "const result={sum:21+1} as const;let n:number=result.sum;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-106",
+      "source": "const box={nested:{sum:21+1}} as const;let n:number=box.nested.sum;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-107",
+      "source": "const list=[21+1,\"go\"] as const;let n:number=list[0];let s:\"go\"=list[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-108",
+      "source": "const list=[[21+1],[42+2]] as const;let n:number=list[0][0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-109",
+      "source": "let seed:number=21;const box={sum:seed+1} as const;let n:number=box.sum;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-110",
+      "source": "const model={count:21};const box={read:model.count} as const;let n:number=box.read;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-111",
+      "source": "const box={label:\"a\"+\"b\"} as const;let s:string=box.label;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-112",
+      "source": "function make(n:number):{readonly value:number}{return {value:n+1} as const;}let out:number=make(21).value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-98",
+      "source": "const result={sum:21+1} as const;result.sum=22;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-99",
+      "source": "const result={sum:21+1} as const;let bad:22=result.sum;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-100",
+      "source": "const value=[21+1] as const;value[0]=22;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-101",
+      "source": "const value=[[21+1]] as const;value[0][0]=22;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-102",
+      "source": "const value={nested:{sum:21+1}} as const;value.nested.sum=22;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-103",
+      "source": "const value={label:\"a\"+\"b\"} as const;let bad:\"ab\"=value.label;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-104",
+      "source": "const value={value:21+1} as const;let bad:{readonly value:21}=value;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-105",
+      "source": "const value=[21+1,\"go\"] as const;let bad:21=value[0];",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }
