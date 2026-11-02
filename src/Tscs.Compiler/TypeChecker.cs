@@ -2054,7 +2054,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     if(narrowed is null)
                     {
                         ValueNode operand=typeOperator.Expression;
-                        while(operand is ValueParenthesized grouped)operand=grouped.Expression;
+                        while(operand is ValueParenthesized constGrouped)operand=constGrouped.Expression;
                         bool unsupportedLiteral=operand is ValueObject or ValueArray;
                         throw new CompilationFailure(Diagnostic.Error(file,typeOperator.Keyword,
                             unsupportedLiteral?"TSCS1001":"TS1355",
