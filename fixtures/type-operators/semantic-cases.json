@@ -752,6 +752,35 @@
       "expectedCodes": [
         "TS1257"
       ]
+    },
+    {
+      "id": "type-operators:positive-70",
+      "source": "type P=[number,string?];let p:P=[21,undefined];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-71",
+      "source": "function take(p:[number,string?]):number{return p[0];}let n:number=take([21,undefined]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-72",
+      "source": "type P=[(number|string)?];let p:P=[];let n:0|1=p.length;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-61",
+      "source": "type P=[number|string?];",
+      "expectedCodes": [
+        "TS17019"
+      ]
+    },
+    {
+      "id": "type-operators:negative-62",
+      "source": "type P=[()=>number?];",
+      "expectedCodes": [
+        "TS17019"
+      ]
     }
   ]
 }

@@ -64,6 +64,9 @@ public sealed class TupleAnnotationTests
     [InlineData("type P=[number,string?];type T=P[1];let s:T=undefined;")]
     [InlineData("type P=[number,string?];type T=P[number];let s:T=undefined;")]
     [InlineData("type P=[number,string?];let p:P=[21];p[1]=\"ok\";")]
+    [InlineData("type P=[number,string?];let p:P=[21,undefined];")]
+    [InlineData("function take(p:[number,string?]):number{return p[0];}let n=take([21,undefined]);")]
+    [InlineData("type P=[(number|string)?];let p:P=[];let l:0|1=p.length;")]
     [InlineData("type P=[number,string?];let short:[number]=[21];let p:P=short;")]
     [InlineData("type P=[number,string?];let long:[number,string]=[21,\"ok\"];let p:P=long;")]
     [InlineData("type P=[number,string?];function first(p:P):number{return p[0];}let n:number=first([21]);")]
@@ -82,6 +85,8 @@ public sealed class TupleAnnotationTests
     [InlineData("type P=[number,string?];let p:P=[21];let required:[number,string]=p;","TS2322")]
     [InlineData("type Bad=[number?,string];","TS1257")]
     [InlineData("type Bad=[first?:number,second:string];","TS1257")]
+    [InlineData("type Bad=[number|string?];","TS17019")]
+    [InlineData("type Bad=[()=>number?];","TS17019")]
     public void FiniteOptionalTuplesRejectInvalidLengthsReadsAndOrdering(string source,string code) =>
         Assert.Contains(Compilation.Check("optional-tuple-invalid.ts",source),d=>d.Code==code);
 

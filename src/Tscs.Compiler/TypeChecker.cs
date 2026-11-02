@@ -2951,7 +2951,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     var element=elements.Elements[i];
                     var checkedType=CheckedTupleElement(elements,i);
                     if(checkedType is null ||
-                       !IsAssignableContextually(element,checkedType,tuple[i],depth+1))
+                       !IsAssignableContextually(element,checkedType,CompilerTypes.TupleSlot(targetArray,i),depth+1))
                         return false;
                 }
                 return true;
@@ -3076,8 +3076,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         tupleValid=false;
                         continue;
                     }
-                    if(!CheckContextualLiteral(element,slots[i],inferred))tupleValid=false;
-                    else if(!IsAssignableContextually(element,inferred,slots[i]))
+                    var slotType=CompilerTypes.TupleSlot(targetArray,i);
+                    if(!CheckContextualLiteral(element,slotType,inferred))tupleValid=false;
+                    else if(!IsAssignableContextually(element,inferred,slotType))
                     {
                         Mismatch(literalArray.Open,inferred,slots[i]);
                         tupleValid=false;

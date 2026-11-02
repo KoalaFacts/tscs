@@ -1413,6 +1413,10 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 if(Current.Kind is TokenKind.Comma or TokenKind.Ellipsis)
                     Unsupported(Current,"Tuple holes and rest elements are not supported.");
                 var slotStart=Current;
+                // Parenthesized unions/function types may carry a tuple's
+                // optional suffix, but a bare union or function type cannot:
+                // [number|string?] and [()=>number?] are TS17019.
+                bool groupedSlot=Current.Kind==TokenKind.OpenParen && !IsFunctionTypeStart();
                 // TS 5.2+ permits mixed labeled and unnamed slots. An optional
                 // label uses [name?: T], while an unnamed slot uses [T?].
                 bool labelToken=Current.Kind is (TokenKind.Identifier or
@@ -1442,7 +1446,12 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     optional=Eat(TokenKind.Question);
                     Take(); // ':', part of the recognized label
                 }
-                elements.Add(ReadTypeAnnotation(depth+1));
+                var slotType=ReadTypeAnnotation(depth+1);
+                elements.Add(slotType);
+                if(!hasLabel && Current.Kind==TokenKind.Question && !groupedSlot &&
+                   slotType is UnionTypeSyntax or IntersectionTypeSyntax or FunctionTypeSyntax)
+                    throw new CompilationFailure(Diagnostic.Error(file,Current,"TS17019",
+                        "'?' at the end of a type is not valid TypeScript syntax; parenthesize the type."));
                 if(!hasLabel)optional=Eat(TokenKind.Question);
                 else if(Current.Kind==TokenKind.Question)
                     Unsupported(Current,"A named tuple's optional marker must follow its label.");
