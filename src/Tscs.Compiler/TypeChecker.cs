@@ -577,16 +577,23 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     // any must NOT match concrete types, even inside arrays/nested objects.
     // Unknown callable/recursive relationships fail closed rather than
     // accepting a write that is invalid for one union branch.
-    private static bool TryFiniteTupleIndex(ValueNode index,out int position)
+    private static bool IsStaticTupleNumericIndex(ValueNode index)
+    {
+        while(index is ValueParenthesized grouped)index=grouped.Expression;
+        return index is ValueAtom {Token.Kind:TokenKind.Number} or
+            ValueUnary {Operator.Kind:TokenKind.Minus,Operand:ValueAtom {Token.Kind:TokenKind.Number}};
+    }
+
+    private static bool TryFiniteTupleIndex(ValueNode index,out long position)
     {
         while(index is ValueParenthesized grouped)index=grouped.Expression;
         if(index is ValueAtom {Token.Kind:TokenKind.Number} numeric &&
            double.TryParse(numeric.Token.Value??numeric.Token.Text,
                System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,
                out var value) && double.IsFinite(value) &&
-           value>=0 && value<=int.MaxValue && Math.Truncate(value)==value)
+           value>=0 && value<=9007199254740991d && Math.Truncate(value)==value)
         {
-            position=(int)value;
+            position=(long)value;
             return true;
         }
         position=0;
@@ -2219,12 +2226,19 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         "Indexed reads currently require a number expression."));
                 if(presentReceiver is ArrayTypeSymbol array)
                 {
-                    if(array.TupleElements is { } tuple && TryFiniteTupleIndex(indexed.Index,out var tupleIndex))
+                    if(array.TupleElements is { } tuple)
                     {
-                        if(tupleIndex>=tuple.Count)
-                            throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TS2493",
-                                $"Tuple type '{array.DisplayName}' of length '{tuple.Count}' has no element at index '{tupleIndex}'."));
-                        PushOptionalResult(indexed,tuple[tupleIndex],isChain,mayBeUndefined);
+                        if(TryFiniteTupleIndex(indexed.Index,out var tupleIndex))
+                        {
+                            if(tupleIndex>=tuple.Count)
+                                throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TS2493",
+                                    $"Tuple type '{array.DisplayName}' of length '{tuple.Count}' has no element at index '{tupleIndex}'."));
+                            PushOptionalResult(indexed,tuple[(int)tupleIndex],isChain,mayBeUndefined);
+                        }
+                        else if(IsStaticTupleNumericIndex(indexed.Index))
+                            throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
+                                "Tuple literal indices must be non-negative safe integers."));
+                        else PushOptionalResult(indexed,array.ElementType,isChain,mayBeUndefined);
                     }
                     else PushOptionalResult(indexed,array.ElementType,isChain,mayBeUndefined);
                 }

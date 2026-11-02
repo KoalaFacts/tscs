@@ -105,6 +105,9 @@ public sealed class TypeOperatorTests
     [InlineData("const tuple=[[21]] as const;tuple[0][0]=22;", "TS2540")]
     [InlineData("const tuple=[21] as const;let n=tuple[2];", "TS2493")]
     [InlineData("const tuple=[] as const;let n=tuple[0];", "TS2493")]
+    [InlineData("const tuple=[21] as const;let n=tuple[2147483648];", "TS2493")]
+    [InlineData("const tuple=[21] as const;let n=tuple[-1];", "TSCS1001")]
+    [InlineData("const tuple=[21] as const;let n=tuple[0.5];", "TSCS1001")]
     [InlineData("const tuple=[21,\"go\"] as const;let n:22=tuple[0];", "TS2322")]
     [InlineData("const tuple=[21] as const;let m:number[]=tuple;", "TS4104")]
     public void FiniteConstArraysRejectInvalidWritesIndicesAndAssignments(string source,string code) =>

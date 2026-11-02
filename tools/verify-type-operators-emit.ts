@@ -86,6 +86,8 @@ try {
     ['not-literal','let n=21;const p=n as const;','TS1355'],
     ['tuple-readonly','const p=[21,22] as const;p[0]=23;','TS2540'],
     ['tuple-out-of-bounds','const p=[21,22] as const;let x=p[3];','TS2493'],
+    ['tuple-huge-index','const p=[21,22] as const;let x=p[2147483648];','TS2493'],
+    ['tuple-negative-index','const p=[21,22] as const;let x=p[-1];','TSCS1001'],
     ['tuple-wrong-element','const p=[21,"go"] as const;let x:22=p[0];','TS2322'],
     ['tuple-to-mutable','const p=[21,22] as const;let copy:number[]=p;','TS4104'],
     ['tuple-spread-outside-scope','const p=[21,...[22]] as const;','TSCS1001'],
