@@ -2128,7 +2128,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 if(typeOperator.Keyword.Text=="as" &&
                    typeOperator.Target is NamedTypeSyntax {Name.Kind:TokenKind.Const})
                 {
-                    var narrowed=CompilerTypes.FromFiniteConstAssertion(typeOperator.Expression);
+                    // Already checked nested identifier leaves keep the declared
+                    // or inferred type; fresh literal shells alone are readonly.
+                    if(actual is null) {types.Push(null);continue;}
+                    var narrowed=CompilerTypes.FromFiniteConstAssertion(typeOperator.Expression,
+                        identifierType:token=>TypeOfAtom(token,scope));
                     if(narrowed is null)
                     {
                         ValueNode operand=typeOperator.Expression;

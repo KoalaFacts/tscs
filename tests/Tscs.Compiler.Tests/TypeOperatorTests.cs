@@ -135,4 +135,30 @@ public sealed class TypeOperatorTests
     [InlineData("let value=({a:1,b:2} as const) satisfies {a:1};", "TS2353")]
     public void FiniteConstAssertionsRejectWritesAndUnsupportedCases(string source,string code) =>
         Assert.Contains(Compilation.Check("const-assertions.ts",source),d=>d.Code==code);
+
+    [Theory]
+    [InlineData("const seed=21;const box={seed} as const;let v:21=box.seed;")]
+    [InlineData("let seed:number=21;const box={seed} as const;let v:number=box.seed;")]
+    [InlineData("const label=\"ready\";const box={nested:{label}} as const;let v:\"ready\"=box.nested.label;")]
+    [InlineData("const seed=21;const box=[seed,true] as const;let v:21=box[0];")]
+    [InlineData("let seed:number=21;const box=[seed,false] as const;let v:number=box[0];")]
+    [InlineData("const seed=21;const box={values:[seed]} as const;let v:21=box.values[0];")]
+    [InlineData("const data={count:21};const box={data} as const;box.data.count=42;let v:number=box.data.count;")]
+    [InlineData("const data:[number,string]=[21,\"go\"];const box={data} as const;data[0]=42;let v:number=box.data[0];")]
+    [InlineData("const box={read} as const;function read():number{return 21;}let value:number=box.read();")]
+    public void NamedConstLiteralMembersPreserveExistingTypes(string source) =>
+        Assert.Empty(Compilation.Check("named-const-members.ts",source));
+
+    [Theory]
+    [InlineData("const seed=21;const box={seed} as const;box.seed=22;","TS2540")]
+    [InlineData("const seed=21;const box={seed} as const;let bad:22=box.seed;","TS2322")]
+    [InlineData("let seed:number=21;const box={seed} as const;let bad:21=box.seed;","TS2322")]
+    [InlineData("const seed=21;const box=[seed] as const;box[0]=22;","TS2540")]
+    [InlineData("const seed=21;const box=[seed] as const;let bad:22=box[0];","TS2322")]
+    [InlineData("const seed=21;const box={nested:{seed}} as const;box.nested.seed=22;","TS2540")]
+    [InlineData("const seed=21;const box=[seed] as const;let mutable:number[]=box;","TS4104")]
+    [InlineData("const seed=21;const box={inner:{seed}} as const;let bad:{inner:{seed:22}}=box;","TS2322")]
+    [InlineData("const seed=21;const bad=seed as const;","TS1355")]
+    public void NamedConstLiteralMembersRejectInvalidAssignments(string source,string code) =>
+        Assert.Contains(Compilation.Check("named-const-members-invalid.ts",source),d=>d.Code==code);
 }

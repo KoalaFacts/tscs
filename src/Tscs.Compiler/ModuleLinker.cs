@@ -221,13 +221,53 @@ internal static class ModuleLinker
             }
         }
 
-        // Every module has its complete type and imported-value name spaces.
-        // Imported aliases are not treated as local declarations during this pass.
-        foreach(var node in nodes.Values)Binder.InitializeDeclaredTypes(node.Scope);
-        // Now restore the normal runtime/checker invariant: every value import
-        // must have a known semantic type, without inventing an any fallback.
+        // Validate each module once its imported value identities are known.
+        // Dependent typeof queries must not be validated while their origin's
+        // const-literal initializer is still awaiting an import. No exception
+        // is swallowed: genuinely unsupported type queries still fail when
+        // their dependencies are ready.
+        bool triedCyclicSignatures=false;
+        for(int pass=0;pass<=pending.Count+1;pass++)
+        {
+            foreach(var (file,node) in nodes)
+            {
+                if(pending.Any(p=>comparer.Equals(p.File,file) &&
+                    !p.Imported.CrossFileTypeReady))continue;
+                Binder.InitializeDeclaredTypes(node.Scope);
+            }
+            bool progressed=false;
+            foreach(var (file,specifier,imported,exported) in pending)
+            {
+                if(imported.CrossFileTypeReady || !exported.CrossFileTypeReady)continue;
+                Binder.CompleteImport(file,specifier,imported,exported);
+                progressed=true;
+            }
+            if(progressed)continue;
+            if(!triedCyclicSignatures && pending.Any(p=>!p.Imported.CrossFileTypeReady))
+            {
+                // An explicitly annotated circular value import is valid:
+                // bootstrap the remaining origins as before, then link them.
+                // Unknown cyclic inferred values still fail in the final check.
+                triedCyclicSignatures=true;
+                foreach(var (file,node) in nodes)
+                    if(pending.Any(p=>comparer.Equals(p.File,file) &&
+                       !p.Imported.CrossFileTypeReady))
+                        Binder.InitializeDeclaredTypes(node.Scope);
+                foreach(var (file,specifier,imported,exported) in pending)
+                {
+                    if(imported.CrossFileTypeReady || !exported.CrossFileTypeReady)continue;
+                    Binder.CompleteImport(file,specifier,imported,exported);
+                    progressed=true;
+                }
+                if(progressed)continue;
+            }
+            break;
+        }
+        // Preserve the old strict contract for all remaining unready aliases:
+        // neither a cycle nor a missing inferred type can become implicit any.
         foreach(var (file,specifier,imported,exported) in pending)
-            Binder.CompleteImport(file,specifier,imported,exported);
+            if(!imported.CrossFileTypeReady)
+                Binder.CompleteImport(file,specifier,imported,exported);
 
         return nodes.ToDictionary(pair=>pair.Key,pair=>pair.Value.Scope,comparer);
     }

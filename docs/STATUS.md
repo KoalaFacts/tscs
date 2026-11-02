@@ -1,3 +1,16 @@
+## 2026-11-03 — Named values inside finite const assertions (candidate; NOT_RUN)
+
+C# Binder and TypeChecker now infer already-checked identifier values nested
+inside fresh `as const` objects/tuples. Constant primitive precision is
+preserved, mutable variable types stay widened, and a referenced object retains
+its own mutability while new literal shells become readonly. Root expressions
+such as `name as const` remain invalid. Eight positive and eight negative
+source-backed cases extend the unchanged 183-case bounded reference suite to
+199; xUnit and four-module ES2015 execution/negative-output checks are added.
+Exact-head hosted verify/pinned Go remain NOT_RUN at source creation.
+Full original TS7 acceptance remains historically 0 PASS / 15,523
+SKIP_UNIMPLEMENTED and dynamic UNEXPANDED. No pin/gate/license changes.
+
 ## 2026-11-03 — Trailing finite optional tuple value spreads (candidate; NOT_RUN)
 
 The C# contextual tuple checker now retains each slot and the minimum/maximum

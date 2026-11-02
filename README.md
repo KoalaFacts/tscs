@@ -195,6 +195,16 @@ inherited required members. Such unimplemented forms fail explicitly.
 Parser depth and diagnostic display are bounded. Runtime and validation details:
 [`structural-object-data`](docs/progress/structural-object-data.md).
 
+## Const assertions with named literal members (bounded)
+
+Fresh `as const` objects and tuples can contain known identifier values from
+local or imported declarations. Exact constant primitives remain exact, mutable
+values retain their declared/widened types, and the fresh object/tuple shell is
+readonly without incorrectly freezing an object referred to by a member.
+These use the existing binder, type query, module and native ES2015 pipeline.
+A root `value as const` still rejects. Arbitrary computed nested values and
+spread const assertions are not claimed.
+
 ## Fixed tuple type annotations (bounded)
 
 Explicit positional tuples such as `type Pair = [number, string]` and

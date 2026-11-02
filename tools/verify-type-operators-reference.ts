@@ -14,7 +14,7 @@ const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
 const suitePath='fixtures/type-operators/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
 assert.equal(suite.kind,'BOUNDED_TYPE_ASSERTIONS_SATISFIES_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,183,'do not shrink the frozen type-operator cohort');
+assert.equal(suite.cases.length,199,'do not shrink the frozen type-operator cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const minimalProfile='fixtures/array-iteration/minimal.d.ts';
 const minimal=readFileSync(minimalProfile,'utf8');
@@ -48,7 +48,7 @@ const diagnosticCodes=(r:ReturnType<typeof run>)=>
 const ids=new Set<string>(),results:object[]=[],mismatches:object[]=[];
 for(let i=0;i<suite.cases.length;i++){
   const item=suite.cases[i];
-  assert.match(item.id,/^type-operators:(positive|negative)-\d{2}$/);
+  assert.match(item.id,/^type-operators:(positive|negative)-\d{2,3}$/);
   assert.ok(!ids.has(item.id),'duplicate stable case ID');ids.add(item.id);
   assert.equal(typeof item.source,'string');
   assert.ok(Array.isArray(item.expectedCodes));
@@ -59,8 +59,16 @@ for(let i=0;i<suite.cases.length;i++){
   // Value spreads need the real iterable ambient under --noLib; old tuple
   // type-only cases retain their original byte-identical profile.
   const usesSpreadProfile=/^type-operators:(positive-(8[1-9]|9[0-6])|negative-(7[4-9]|8[0-9]))$/.test(item.id);
-  const profile=usesSpreadProfile?spreadProfile:usesTupleProfile?tupleProfile:minimalProfile;
-  save(key+'/minimal.d.ts',usesSpreadProfile?spreadMinimal:usesTupleProfile?tupleMinimal:minimal);
+  // A readonly tuple vs mutable Array<T> requires the mutating Array method
+  // contract. The previous minimal iteration ambient lacks push() and makes
+  // the pinned reference accept an otherwise invalid readonly-to-mutable
+  // assignment. Use the EXISTING readonly-array ambient on both compilers for
+  // this new case; preserve all source, ID, expected codes and old profiles.
+  const usesReadonlyMutationProfile=item.id==='type-operators:negative-96';
+  const profile=usesSpreadProfile?spreadProfile:
+    usesTupleProfile||usesReadonlyMutationProfile?tupleProfile:minimalProfile;
+  save(key+'/minimal.d.ts',usesSpreadProfile?spreadMinimal:
+    usesTupleProfile||usesReadonlyMutationProfile?tupleMinimal:minimal);
   const args=['--noEmit','--noLib','--target','es2015','--pretty','false','input.ts','minimal.d.ts'];
   const expected=run(reference,args,folder);
   const actual=run(process.env.DOTNET??'dotnet',[product,...args],folder);
