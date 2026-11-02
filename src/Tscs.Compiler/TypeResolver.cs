@@ -240,6 +240,15 @@ internal static class TypeResolver
                     throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",failure.Message));
                 }
             }
+            case TupleTypeSyntax tuple:
+            {
+                var slots=tuple.Elements.Select(element=>Resolve(element,scope,file,depth+1)).ToArray();
+                try {return new ArrayTypeSymbol(CompilerTypes.Union(slots),tuple.Readonly,slots);}
+                catch(InvalidOperationException failure)
+                {
+                    throw new CompilationFailure(Diagnostic.Error(file,tuple.Open,"TSCS1001",failure.Message));
+                }
+            }
             case ArrayTypeSyntax array:
                 if(array.GenericName is { } genericName && scope.FindType(genericName.Text) is not null)
                     throw new CompilationFailure(Diagnostic.Error(file,genericName,"TS2315",
@@ -401,6 +410,7 @@ internal static class TypeResolver
         ObjectTypeSyntax value=>value.Open,
         InterfaceExtensionTypeSyntax value=>value.Name,
         ArrayTypeSyntax value=>value.Open,
+        TupleTypeSyntax value=>value.Open,
         IntersectionTypeSyntax value=>Location(value.Members[0]),
         UnionTypeSyntax value=>Location(value.Members[0]),
         _=>default

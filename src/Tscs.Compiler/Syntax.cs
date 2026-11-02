@@ -16,6 +16,8 @@ internal sealed record ObjectTypeProperty(Token Name,TypeSyntax Type,bool Readon
 internal sealed record ObjectTypeSyntax(Token Open,IReadOnlyList<ObjectTypeProperty> Properties,Token Close) : TypeSyntax;
 // Array<T>/ReadonlyArray<T> share the normal checked array AST, retaining the generic name for shadowing diagnostics.
 internal sealed record ArrayTypeSyntax(TypeSyntax Element,Token Open,Token Close,bool Readonly=false,Token? GenericName=null) : TypeSyntax;
+// Bounded fixed tuples share the array semantic model, retaining per-position types.
+internal sealed record TupleTypeSyntax(Token Open,IReadOnlyList<TypeSyntax> Elements,Token Close,bool Readonly=false) : TypeSyntax;
 internal sealed record NamedTypeSyntax(Token Name) : TypeSyntax;
 // Named callback signatures are type-only; typed expression arrows are checked value expressions.
 internal sealed record FunctionTypeParameter(Token Name,TypeSyntax Type,bool Optional=false,bool Rest=false);
