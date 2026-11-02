@@ -2400,11 +2400,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             [new FunctionTypeSymbol([accumulator,element],accumulator),accumulator],
                             accumulator,2,NativeArrayReduceElementType:element);
                 }
-                // The short toSpliced(start, deleteCount?) overload permits an
+                // The short splice/toSpliced(start, deleteCount?) overload permits an
                 // omitted/undefined delete count. Inserting items selects the
                 // long overload, where deleteCount must be number. Preserve
                 // the ordinary argument checker/diagnostics for both paths.
-                if(signature.NativeArrayToSplicedElementType is { } splicedElement &&
+                if(signature.NativeArraySpliceOverloadElementType is { } splicedElement &&
                    arguments.Length>=3)
                     signature=signature with {Parameters=[CompilerTypes.Number,
                         CompilerTypes.Number,splicedElement]};
@@ -2481,7 +2481,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     // For a native toSpliced call with no start argument,
                     // the pinned TS7 overload emits TS2555 (minimum arity),
                     // not TS2554. Preserve the real failure in both paths.
-                    Error(call.Open,signature.NativeArrayToSplicedElementType is not null &&
+                    Error(call.Open,signature.NativeArraySpliceOverloadElementType is not null &&
                         supplied==0?"TS2555":"TS2554",
                         $"Expected {expected} arguments, but got {supplied}.");
                     // TS7 reports only the native reducing overload's arity
@@ -2502,7 +2502,13 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     if(required is { } type && arguments[i] is { } actual &&
                        CheckContextualLiteral(call.Arguments[i],type,actual) &&
                        !IsAssignableContextually(call.Arguments[i],actual,type))
-                        Error(call.Open,"TS2345",
+                        // The pinned Go TS7 overload resolver reports TS2769
+                        // for a bad first/second argument in the two candidate
+                        // mutable splice overloads. With insertion (>=3
+                        // arguments), only the long overload participates and
+                        // the regular TS2345 parameter error is correct.
+                        Error(call.Open,signature.NativeMutableArraySplice &&
+                            arguments.Length<=2 && i<2?"TS2769":"TS2345",
                             $"Argument of type '{actual.DisplayName}' is not assignable to parameter of type '{type.DisplayName}'.");
                 }
                 types.Push(resultType);

@@ -47,7 +47,7 @@ assert.equal(suite.kind,arrayMap?'BOUNDED_ARRAY_MAP_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :power?'BOUNDED_NUMERIC_EXPONENTIATION_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :strings?'BOUNDED_STRING_ADDITION_MUTATION_NOT_ORIGINAL_TS7_ACCEPTANCE'
   :'BOUNDED_NUMERIC_DIVISION_REMAINDER_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,arrayMap?20:arrayAccumulator?16:arrayFolds?20:arrayCallbacks?35:arrayQueries?106:arrayMethods?21:arrayInPlace?26:readonlyArrays?27:templates?37:decimalLiterals?48:stringUnicode?28:stringExtraction?28:stringMethods?40:stringPrimitives?18:power?20:strings?25:24,'do not shrink the registered cohort');
+assert.equal(suite.cases.length,arrayMap?20:arrayAccumulator?16:arrayFolds?20:arrayCallbacks?35:arrayQueries?106:arrayMethods?21:arrayInPlace?42:readonlyArrays?27:templates?37:decimalLiterals?48:stringUnicode?28:stringExtraction?28:stringMethods?40:stringPrimitives?18:power?20:strings?25:24,'do not shrink the registered cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 // The cohort includes number[] indexing and length. Use the already
 // verified array profile for BOTH compilers, not the empty bootstrap Array<T>.
@@ -108,7 +108,12 @@ for(let i=0;i<suite.cases.length;i++){
   assert.ok(Array.isArray(item.expectedCodes));
   const folder=join(out,'case-'+String(i).padStart(3,'0'));mkdirSync(folder);
   save('case-'+String(i).padStart(3,'0')+'/input.ts',item.source);
-  save('case-'+String(i).padStart(3,'0')+'/minimal.d.ts',minimal);
+  const caseProfile=item.minimalProfile??minimalProfile;
+  assert.ok(caseProfile===minimalProfile||
+    (arrayInPlace&&caseProfile==='fixtures/array-in-place/splice-minimal.d.ts'),
+    'unregistered bounded ambient profile');
+  const caseMinimal=caseProfile===minimalProfile?minimal:readFileSync(caseProfile,'utf8');
+  save('case-'+String(i).padStart(3,'0')+'/minimal.d.ts',caseMinimal);
   const args=['--noEmit','--noLib','--target','es2015','--pretty','false','input.ts','minimal.d.ts'];
   const expected=run(reference,args,folder);
   const actual=run(process.env.DOTNET??'dotnet',[product,...args],folder);
@@ -119,7 +124,7 @@ for(let i=0;i<suite.cases.length;i++){
   const match=expected.exit===exit && actual.exit===exit &&
     JSON.stringify(codes)===JSON.stringify(refCodes) &&
     JSON.stringify(codes)===JSON.stringify(actualCodes);
-  const row={id:item.id,inputSha256:hash(item.source),expectedCodes:codes,referenceCodes:refCodes,
+  const row={id:item.id,inputSha256:hash(item.source),minimalProfile:caseProfile,minimalProfileSha256:hash(caseMinimal),expectedCodes:codes,referenceCodes:refCodes,
     productCodes:actualCodes,referenceExit:expected.exit,productExit:actual.exit,
     status:match?'MATCH_EXIT_AND_CODES':'MISMATCH',originalAcceptanceCredit:false};
   results.push(row);
@@ -130,6 +135,7 @@ save('summary.json',JSON.stringify({sourceSha,upstreamCommit:pin.commit,referenc
   referenceSha256:hash(readFileSync(reference)),productCliSha256:hash(readFileSync(product)),
   suitePath,suiteSha256:hash(readFileSync(suitePath)),scriptSha256:hash(readFileSync(import.meta.filename)),
   minimalProfile,minimalProfileSha256:hash(minimal),
+  registeredProfiles:arrayInPlace?[minimalProfile,'fixtures/array-in-place/splice-minimal.d.ts'].map(path=>({path,sha256:hash(readFileSync(path))})):[{path:minimalProfile,sha256:hash(minimal)}],
   matches:results.length-mismatches.length,mismatches:mismatches.length,originalAcceptanceCredit:0,
   fullOriginalScope:'UNEXPANDED',comparison:'bounded code arrays and exits, not original harness',
   referenceExecutable:basename(reference)},null,2));
