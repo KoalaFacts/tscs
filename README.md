@@ -211,8 +211,10 @@ contextual keyword labels such as `type` and `function`. Strict-mode
 reserved labels such as `interface`, `let` and `private` are rejected with
 TS1212. Trailing optional tuple elements such as [number, string?] and [id: number, label?: string]
 retain their optional read types and finite length unions; required elements may
-not follow optional elements. Rest elements, tuple spreads and general variadic
-inference remain unsupported and fail explicitly. This is bounded local
+not follow optional elements. Finite *trailing* tuple rest elements expand explicit fixed tuple types,
+including named imported aliases and finite optional tails, with exact checked
+indices and lengths. Unbounded array rests, nonterminal tuple rest, tuple value
+spreads and general variadic inference remain unsupported and fail explicitly. This is bounded local
 semantics, not original TS7 suite acceptance.
 
 ## Array element types through indexed access (bounded)

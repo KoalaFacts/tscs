@@ -1,3 +1,16 @@
+## 2026-11-03 — Trailing finite tuple type-rest expansion (candidate; NOT_RUN)
+
+The C# parser and owner-scope resolver expand trailing `...[T,U]` and
+`...Tail` where Tail is finite, including imported aliases, readonly
+enclosing tuples and finite optional tail slots. Checked indices, lengths,
+assignments, modules and native ES2015 emission reuse the compiler path.
+Unbounded array rest, nonterminal rest and variadic inference still reject.
+Eight positive and eight negative pinned-Go cases extend the frozen 135
+bounded cases without altering earlier IDs or expected diagnostics. Exact-SHA
+CI is NOT_RUN at source creation. Full original TS7 acceptance remains
+historically 0 PASS / 15,523 SKIP_UNIMPLEMENTED; dynamic UNEXPANDED.
+No upstream pin, test minimum, release gate or protection changes.
+
 ## 2026-11-03 — Finite trailing optional tuple elements (candidate; NOT_RUN)
 
 The C# parser, type resolver, tuple identities, assignability, indexed access,

@@ -802,6 +802,102 @@
       "expectedCodes": [
         "TS2353"
       ]
+    },
+    {
+      "id": "type-operators:positive-73",
+      "source": "type P=[number,...[string,boolean]];let p:P=[21,\"go\",true];let s:string=p[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-74",
+      "source": "type Tail=[string,boolean];type P=[number,...Tail];let p:P=[21,\"go\",true];let b:boolean=p[2];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-75",
+      "source": "type P=readonly [number,...[string,boolean]];let p:P=[21,\"go\",true];let l:3=p.length;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-76",
+      "source": "type P=[...[]];let p:P=[];let l:0=p.length;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-77",
+      "source": "type Tail=[string?];type P=[number,...Tail];let p:P=[21];let l:1|2=p.length;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-78",
+      "source": "type Tail=[string,boolean?];type P=[number,...Tail];let p:P=[21,\"go\"];let b:boolean|undefined=p[2];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-79",
+      "source": "type Tail=[string,boolean];type P=[...Tail];let p:P=[\"go\",true];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-80",
+      "source": "type Tail=[string,boolean];function first(p:[number,...Tail]):number{return p[0];}let n:number=first([21,\"go\",true]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-66",
+      "source": "type P=[number,...[string,boolean]];let p:P=[21,\"go\"];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-67",
+      "source": "type P=[number,...[string,boolean]];let p:P=[21,\"go\",true,42];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-68",
+      "source": "type P=[number,...[string,boolean]];let p:P=[21,42,true];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-69",
+      "source": "type P=[number,...[string,boolean]];let p:P=[21,\"go\",true];let n:number=p[1];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-70",
+      "source": "type P=readonly [number,...[string,boolean]];let p:P=[21,\"go\",true];p[1]=\"no\";",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-71",
+      "source": "type P=[number,...[string,boolean]];let p:P=[21,\"go\",true];let x=p[3];",
+      "expectedCodes": [
+        "TS2493"
+      ]
+    },
+    {
+      "id": "type-operators:negative-72",
+      "source": "type Tail=[string,boolean?];type P=[number,...Tail];let p:P=[21,\"go\"];let b:boolean=p[2];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-73",
+      "source": "type Tail=[string,boolean?];type P=[number,...Tail];let p:P=[21];",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }
