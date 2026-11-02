@@ -1,3 +1,16 @@
+## 2026-11-02 — String type-level indexed selection (candidate; NOT_RUN)
+
+The existing C# type resolver now accepts string, literal-string and string-only
+unions for bounded indexed-access types: numeric keys select a string UTF-16
+code unit and the exact "length" key selects number. The feature uses the
+existing type syntax, binder and ES2015 module emitter, and preserves explicit
+rejections for unknown keys. Eighteen fixed-source, fixed-code pinned-Go
+differentials, source-backed C# tests and four-module Node execution are
+registered with a symmetric standalone String ambient profile; exact-head CI
+is NOT_RUN until hosted execution. No full upstream TS7 acceptance is credited:
+historical 0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED. The
+upstream pin, prior cohorts and release gates remain unchanged.
+
 ## 2026-11-02 — Native string text normalization/replacement (candidate, NOT_RUN)
 
 The existing checked C# string member resolver now exposes native string-only

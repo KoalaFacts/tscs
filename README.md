@@ -205,6 +205,16 @@ fail explicitly. These types cross named ES2015 module boundaries, while
 ordinary JavaScript array indexing is emitted without a runtime helper.
 This is not general index-signature or standard-library compatibility.
 
+## String indexed-access types (bounded)
+
+Known string, string-literal and string-only union type operands expose
+`T[number]`, non-negative safe integer keys and `T["length"]`.
+The first two resolve to `string` (UTF-16 code units), while length resolves
+to `number`; finite key unions join these result types. These type selections
+erase in output and work across typed named-module boundaries. Unmodelled
+string members, arbitrary index signatures and full standard-library
+compatibility remain unsupported.
+
 ## Named aliases, interfaces and unions (bounded)
 
 The compiler supports non-generic `type` aliases, required named-member

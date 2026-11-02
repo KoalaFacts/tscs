@@ -116,6 +116,44 @@ internal static class TypeResolver
             {
                 var receiver=Resolve(indexed.Target,scope,file,depth+1);
                 var selector=Resolve(indexed.Index,scope,file,depth+1);
+
+                // A primitive or literal string has a UTF-16 code-unit index
+                // signature and a numeric length in the pinned String ambient.
+                // The type of a code unit is string, not the literal's character:
+                // even a literal's numeric index is not a tuple-style selection.
+                bool IsKnownString(TypeSymbol part)=>
+                    part.Equals(CompilerTypes.String) ||
+                    part is LiteralTypeSymbol { Kind:PrimitiveKind.String };
+                if(IsKnownString(receiver) ||
+                   receiver is UnionTypeSymbol stringUnion &&
+                   stringUnion.Alternatives.All(IsKnownString))
+                {
+                    TypeSymbol StringIndex(TypeSymbol key)
+                    {
+                        if(key is UnionTypeSymbol keys)
+                            return CompilerTypes.Union(keys.Alternatives.Select(StringIndex));
+                        if(key.Equals(CompilerTypes.Never))return CompilerTypes.Never;
+                        if(key.Equals(CompilerTypes.Number))return CompilerTypes.String;
+                        if(key is LiteralTypeSymbol { Kind:PrimitiveKind.Number } numeric)
+                        {
+                            if(!long.TryParse(numeric.Value,System.Globalization.NumberStyles.None,
+                                   System.Globalization.CultureInfo.InvariantCulture,out var value) ||
+                               value>9007199254740991L)
+                                throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
+                                    "String indexed-access numeric keys must be non-negative safe integers."));
+                            return CompilerTypes.String;
+                        }
+                        if(key is LiteralTypeSymbol { Kind:PrimitiveKind.String,Value:"length" })
+                            return CompilerTypes.Number;
+                        throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
+                            "String indexed access requires a numeric key or the exact 'length' property."));
+                    }
+                    try {return StringIndex(selector);}
+                    catch(InvalidOperationException failure)
+                    {
+                        throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",failure.Message));
+                    }
+                }
                 // Array indexed-access types expose their element for numeric keys
                 // and their length for the exact string key. A union of arrays
                 // is safe when every alternative is an array; never silently
