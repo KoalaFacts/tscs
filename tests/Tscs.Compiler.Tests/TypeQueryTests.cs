@@ -29,6 +29,31 @@ public sealed class TypeQueryTests
         Assert.Empty(Compilation.Check("inferred-query.ts",source));
 
     [Theory]
+    [InlineData("const seed=21;let copy=seed;copy=42;")]
+    [InlineData("const seed=\"ready\";let copy=seed;copy=\"later\";")]
+    [InlineData("const seed=true;let copy=seed;copy=false;")]
+    [InlineData("const seed=21;const box={value:seed};box.value=42;")]
+    [InlineData("const seed=21;const items=[seed];items[0]=42;")]
+    [InlineData("const seed=21;const box={value:seed as 21};type V=typeof box.value;const copy:V=21;")]
+    [InlineData("const seed=21;const items=[seed as 21];type N=(typeof items)[number];const n:N=21;")]
+    [InlineData("const n=(21);type N=typeof n;const copy:N=n;")]
+    [InlineData("const n=((21));type N=typeof n;const copy:N=n;")]
+    [InlineData("const s=(\"ready\");type S=typeof s;const copy:S=s;")]
+    [InlineData("const n=21;const m=n as 22;")]
+    [InlineData("const s=\"ready\";const t=s as \"later\";")]
+    public void LiteralInferenceReviewRegressionsCompile(string source) =>
+        Assert.Empty(Compilation.Check("literal-inference-review.ts",source));
+
+    [Theory]
+    [InlineData("const seed=21;const box={value:seed as 21};box.value=42;","TS2322")]
+    [InlineData("const seed=21;const items=[seed as 21];items[0]=42;","TS2322")]
+    [InlineData("const seed=21;const t=seed as \"other\";","TS2352")]
+    [InlineData("const seed=\"ready\";const t=seed as 22;","TS2352")]
+    [InlineData("const n=(21);type N=typeof n;let wrong:N=22;","TS2322")]
+    public void LiteralInferenceReviewRegressionsRejectInvalid(string source,string code) =>
+        Assert.Contains(Compilation.Check("literal-inference-review-bad.ts",source),d=>d.Code==code);
+
+    [Theory]
     [InlineData("const n=21;type T=typeof n;let bad:T=22;", "TS2322")]
     [InlineData("const s=\"ready\";type T=typeof s;let bad:T=\"later\";", "TS2322")]
     [InlineData("const box={value:21};type V=typeof box.value;let bad:V=\"no\";", "TS2322")]

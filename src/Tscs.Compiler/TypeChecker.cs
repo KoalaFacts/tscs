@@ -157,12 +157,21 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         var source=v.Initializer is {} init?TypeOf(init,scope):null;
                         var annotatedType=v.Annotation is { } annotation
                             ? TypeResolver.Resolve(annotation,scope,file) : null;
-                        // Check reads and type-level typeof must agree on const literals.
+                        // Parentheses are semantically transparent for const literals.
+                        // A type-level typeof query must agree with the checked read.
+                        ValueNode? constantInitializer=v.Initializer;
+                        while(constantInitializer is ValueParenthesized constGroup)
+                            constantInitializer=constGroup.Expression;
                         var constantLiteral=v.Constant && v.Annotation==null &&
-                            (v.Initializer is ValueAtom or ValueUnary)
-                            ?Binder.ResolveFiniteInitializerType(v.Initializer,scope,file,true)
+                            (constantInitializer is ValueAtom or ValueUnary)
+                            ?Binder.ResolveFiniteInitializerType(constantInitializer,scope,file,true)
                             :null;
-                        symbol.Type=annotatedType??constantLiteral??source;
+                        // A mutable binding widens an inferred literal read, but an
+                        // explicit annotation or assertion still keeps its constraint.
+                        var inferredSource=source is { } inferred && !v.Constant &&
+                            v.Annotation==null && v.Initializer is { } initializer
+                            ?WidenMutableLiteral(inferred,initializer):source;
+                        symbol.Type=annotatedType??constantLiteral??inferredSource;
                         symbol.DeclaredType=symbol.Type;
                         symbol.Initialized=v.Initializer!=null;
                         if(v.Constant&&v.Initializer==null) Error(v.Name,"TS1155","'const' declarations must be initialized.");
@@ -2046,7 +2055,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     // unrelated primitive/structural forms must not silently
                     // become casts that TypeScript itself would reject.
                     if(!CompilerTypes.IsAssignable(actual,expected) &&
-                       !CompilerTypes.IsAssignable(expected,actual))
+                       !CompilerTypes.IsAssignable(expected,actual) &&
+                       !(actual is LiteralTypeSymbol leftLiteral &&
+                         expected is LiteralTypeSymbol rightLiteral &&
+                         leftLiteral.Kind==rightLiteral.Kind))
                         Error(typeOperator.Keyword,"TS2352",
                             $"Conversion of type '{actual.DisplayName}' to type '{expected.DisplayName}' may be a mistake because neither type sufficiently overlaps with the other.");
                     types.Push(expected);
@@ -2100,6 +2112,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 for(int i=arrayLiteral.Elements.Count-1;i>=0;i--)
                 {
                     var next=types.Pop();
+                    if(next!=null)
+                        next=WidenMutableLiteral(next,arrayLiteral.Elements[i]);
                     if(next==null)known=false;
                     else if(element==CompilerTypes.Never)element=next;
                     else if(!CompilerTypes.IsEquivalent(element,next))
@@ -2217,7 +2231,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     else
                     {
                         var name=Parser.PropertyName(entry.Name);
-                        members[name]=memberType;
+                        // Fresh inferred object members are mutable. A primitive
+                        // literal read widens unless an explicit assertion supplied it.
+                        members[name]=WidenMutableLiteral(memberType,entry.Value);
                         optionalMembers.Remove(name);
                         if(entry.Name.Kind==TokenKind.Number)numericMembers.Add(name);
                         else numericMembers.Remove(name);
@@ -2618,6 +2634,22 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         }
         return types.Pop();
     }
+    // Inferred mutable bindings, array elements and object members widen
+    // primitive singleton reads. Explicit 'as' / 'satisfies' contracts keep
+    // their selected type; array spreads retain the source element contract.
+    private static TypeSymbol WidenMutableLiteral(TypeSymbol inferred,ValueNode value)
+    {
+        while(value is ValueParenthesized grouped)value=grouped.Expression;
+        if(value is ValueTypeOperator or ValueArraySpread)return inferred;
+        return inferred is LiteralTypeSymbol literal?literal.Kind switch
+        {
+            PrimitiveKind.Number=>CompilerTypes.Number,
+            PrimitiveKind.String=>CompilerTypes.String,
+            PrimitiveKind.Boolean=>CompilerTypes.Boolean,
+            _=>inferred
+        }:inferred;
+    }
+
     private TypeSymbol? TypeOfAtom(Token token,Scope scope,bool shorthand=false)
     {
         var literal=CompilerTypes.FromLiteral(token);
