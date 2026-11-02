@@ -9,6 +9,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     // Array inference collects exact checked types before primitive widening.
     // Contextual tuple checks must use each slot, not the joined array element.
     private readonly Dictionary<ValueArray,TypeSymbol?[]> checkedArrayElements = new(ReferenceEqualityComparer.Instance);
+    // Preserve each spread receiver's checked tuple positions. The array's
+    // aggregate element union is insufficient for contextual tuple assignment.
+    private readonly Dictionary<ValueArraySpread,ArrayTypeSymbol> checkedArraySpreadOperands = new(ReferenceEqualityComparer.Instance);
     // Logical expressions use bounded recursion only to check the RHS in the
     // appropriate short-circuit flow scope; other expression chains remain iterative.
     private int logicalEvaluationDepth;
@@ -2183,7 +2186,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 }
                 var operandType=types.Pop();
                 if(operandType is ArrayTypeSymbol expanded)
+                {
+                    checkedArraySpreadOperands[spread]=expanded;
                     types.Push(expanded.ElementType);
+                }
                 else if(operandType==null)types.Push(null);
                 else throw new CompilationFailure(Diagnostic.Error(file,spread.Keyword,"TSCS1001",
                     "Array spread requires a statically checked array operand."));
@@ -2874,6 +2880,34 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     // TypeOf has already evaluated these children, including identifiers,
     // indexed reads and nested tuple values. Rechecking them could repeat
     // side effects; synthesizing their types from a joined union loses slots.
+    // A finite tuple spread copies positional values without changing their
+    // types or mutability. Unknown-length arrays and optional-length tuple
+    // sources cannot establish a fixed contextual tuple's actual arity.
+    // All operand expressions were already checked once by TypeOf.
+    private bool TryExpandFiniteTupleValues(
+        ValueArray array,out List<(ValueNode? Literal,TypeSymbol Type)> expanded)
+    {
+        expanded=[];
+        if(!checkedArrayElements.TryGetValue(array,out var checkedTypes))return false;
+        for(int i=0;i<array.Elements.Count;i++)
+        {
+            if(array.Elements[i] is ValueArraySpread spread)
+            {
+                if(!checkedArraySpreadOperands.TryGetValue(spread,out var operand) ||
+                   operand.TupleElements is not { } slots || operand.TupleOptionalStart>=0)
+                    return false;
+                foreach(var slot in slots)expanded.Add((null,slot));
+            }
+            else
+            {
+                if(checkedTypes[i] is not { } type)return false;
+                expanded.Add((array.Elements[i],type));
+            }
+            if(expanded.Count>32)return false;
+        }
+        return true;
+    }
+
     private TypeSymbol? CheckedTupleElement(ValueArray array,int index)
     {
         if(checkedArrayElements.TryGetValue(array,out var checkedTypes) &&
@@ -2944,14 +2978,15 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             if(targetArray.TupleElements is { } tuple)
             {
                 int minimum=targetArray.TupleOptionalStart<0?tuple.Count:targetArray.TupleOptionalStart;
-                if(elements.Elements.Count<minimum || elements.Elements.Count>tuple.Count ||
-                   elements.Elements.Any(item=>item is ValueArraySpread))return false;
-                for(int i=0;i<elements.Elements.Count;i++)
+                if(!TryExpandFiniteTupleValues(elements,out var positions) ||
+                   positions.Count<minimum || positions.Count>tuple.Count)return false;
+                for(int i=0;i<positions.Count;i++)
                 {
-                    var element=elements.Elements[i];
-                    var checkedType=CheckedTupleElement(elements,i);
-                    if(checkedType is null ||
-                       !IsAssignableContextually(element,checkedType,CompilerTypes.TupleSlot(targetArray,i),depth+1))
+                    var (element,checkedType)=positions[i];
+                    var required=CompilerTypes.TupleSlot(targetArray,i);
+                    if(element is null
+                        ?!CompilerTypes.IsAssignable(checkedType,required)
+                        :!IsAssignableContextually(element,checkedType,required,depth+1))
                         return false;
                 }
                 return true;
@@ -3057,31 +3092,26 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             if(targetArray.TupleElements is { } slots)
             {
                 int minimum=targetArray.TupleOptionalStart<0?slots.Count:targetArray.TupleOptionalStart;
-                if(literalArray.Elements.Count<minimum || literalArray.Elements.Count>slots.Count ||
-                   literalArray.Elements.Any(item=>item is ValueArraySpread))
+                if(!TryExpandFiniteTupleValues(literalArray,out var positions) ||
+                   positions.Count<minimum || positions.Count>slots.Count)
                 {
                     Error(literalArray.Open,"TS2322",
                         $"Array literal does not match the length of tuple type '{targetArray.DisplayName}'.");
                     return false;
                 }
                 bool tupleValid=true;
-                for(int i=0;i<literalArray.Elements.Count;i++)
+                for(int i=0;i<positions.Count;i++)
                 {
-                    var element=literalArray.Elements[i];
-                    var inferred=CheckedTupleElement(literalArray,i);
-                    if(inferred is null)
-                    {
-                        Error(literalArray.Open,"TSCS1001",
-                            "Contextual tuple element type could not be checked.");
-                        tupleValid=false;
-                        continue;
-                    }
+                    var (element,inferred)=positions[i];
                     var slotType=CompilerTypes.TupleSlot(targetArray,i);
-                    // Fresh nested arrays/objects require the present slot
-                    // shape for excess-property checking; undefined is still
-                    // accepted by the separate optional-aware type relation.
-                    if(!CheckContextualLiteral(element,slots[i],inferred))tupleValid=false;
-                    else if(!IsAssignableContextually(element,inferred,slotType))
+                    // Spread operands are already checked values, not fresh
+                    // literal slots. Direct nested literals still undergo
+                    // their ordinary excess-property checks.
+                    if(element is not null && !CheckContextualLiteral(element,slots[i],inferred))
+                        tupleValid=false;
+                    else if(element is null
+                        ?!CompilerTypes.IsAssignable(inferred,slotType)
+                        :!IsAssignableContextually(element,inferred,slotType))
                     {
                         Mismatch(literalArray.Open,inferred,slots[i]);
                         tupleValid=false;

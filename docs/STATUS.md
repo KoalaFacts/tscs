@@ -1,3 +1,18 @@
+## 2026-11-03 — Fixed-length tuple value spreads (candidate; NOT_RUN)
+
+The checked C# array-spread path now preserves each verified fixed tuple operand's
+position types when copied into a contextual tuple literal, including readonly
+source tuples, multiple spreads and cross-module functions. Unknown-length
+arrays and optional-length tuple spread sources cannot establish the required
+arity and fail closed for tuple targets. Native ES2015 spread output evaluates
+each operand once. Sixteen additive bounded pinned-Go cases extend the frozen
+151-case type-operator cohort without altering prior IDs, source text or codes.
+Source-backed C# assertions and four-module executable JS acceptance are
+registered; exact-head verification is NOT_RUN until hosted CI. These are not
+original TS7 acceptance credits: historically 0 PASS / 15,523
+SKIP_UNIMPLEMENTED, dynamic UNEXPANDED. No upstream pin, threshold, release
+or branch protection changes.
+
 ## 2026-11-03 — Trailing finite tuple type-rest expansion (candidate; NOT_RUN)
 
 The C# parser and owner-scope resolver expand trailing `...[T,U]` and

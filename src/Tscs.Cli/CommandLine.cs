@@ -160,7 +160,7 @@ public static class CommandLine
         var symbolPattern=new Regex(@"\G\s*declare\s+const\s+Symbol\s*:\s*SymbolConstructor\s*;\s*",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         var extras=new HashSet<string>(StringComparer.Ordinal);
-        bool symbolDeclared=false,arrayIterable=false,stringIterable=false;
+        bool symbolDeclared=false,arrayIterable=false,readonlyArrayIterable=false,stringIterable=false;
         int position=0;
         while(position<text.Length)
         {
@@ -203,10 +203,12 @@ public static class CommandLine
                 // globals persists across all .d.ts inputs, unlike a local
                 // flag: identical index signatures in separate ambient files
                 // must not silently merge into one accepted declaration.
+                bool iterableReadonly=false;
                 if(genericParameters!="<T>" ||
-                   !IsSupportedReadonlyArrayContract(members) ||
+                   !IsSupportedReadonlyArrayContract(members,out iterableReadonly) ||
                    !globals.Add(name))
                     throw new InputFailure("Only one bounded readonly Array<T> ambient contract is supported.");
+                readonlyArrayIterable=iterableReadonly;
             }
             else
             {
@@ -227,8 +229,8 @@ public static class CommandLine
         }
         // Never accept a partial, invented iterator shape or a value
         // declaration that does not correspond to the recognized protocol.
-        if((symbolDeclared||arrayIterable||stringIterable||extras.Count>0) &&
-           !(symbolDeclared&&(arrayIterable||stringIterable)&&extras.SetEquals(
+        if((symbolDeclared||arrayIterable||readonlyArrayIterable||stringIterable||extras.Count>0) &&
+           !(symbolDeclared&&(arrayIterable||readonlyArrayIterable||stringIterable)&&extras.SetEquals(
                new[]{"SymbolConstructor","IteratorResult","Iterator"})))
             throw new InputFailure("Incomplete bounded iterable Array<T> declaration protocol.");
     }
@@ -437,13 +439,14 @@ public static class CommandLine
     // The optional readonly array global is accepted only when both
     // immutable structural contracts are present exactly once. This is
     // strictly ambient validation, not a generic value-declaration parser.
-    private static bool IsSupportedReadonlyArrayContract(string body)
+    private static bool IsSupportedReadonlyArrayContract(string body,out bool iterator)
     {
-        var memberPattern=new Regex(@"\G\s*(?:(?<length>readonly\s+length\s*:\s*number)|(?<index>readonly\s+\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T)|"+ArrayQueryMemberPattern+"|"+ArrayCallbackMemberPattern+@")\s*;",
+        var memberPattern=new Regex(@"\G\s*(?:(?<length>readonly\s+length\s*:\s*number)|(?<index>readonly\s+\[\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*\]\s*:\s*T)|(?<iterator>\[\s*Symbol\s*\.\s*iterator\s*\]\s*\(\s*\)\s*:\s*Iterator\s*<\s*T\s*>)|"+ArrayQueryMemberPattern+"|"+ArrayCallbackMemberPattern+@")\s*;",
             RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
         int position=0;
         bool length=false,index=false,includes=false,indexOf=false,lastIndexOf=false,join=false,slice=false,concat=false,atMethod=false,toReversed=false,toSorted=false,toSplicedRest=false,toSplicedShort=false,withMethod=false;
         var callbacks=new HashSet<string>(StringComparer.Ordinal);
+        iterator=false;
         while(position<body.Length)
         {
             if(string.IsNullOrWhiteSpace(body[position..]))break;
@@ -458,6 +461,11 @@ public static class CommandLine
             {
                 if(index)return false;
                 index=true;
+            }
+            else if(member.Groups["iterator"].Success)
+            {
+                if(iterator)return false;
+                iterator=true;
             }
             else if(member.Groups["includes"].Success)
             {

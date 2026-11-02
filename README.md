@@ -214,7 +214,7 @@ retain their optional read types and finite length unions; required elements may
 not follow optional elements. Finite *trailing* tuple rest elements expand explicit fixed tuple types,
 including named imported aliases and finite optional tails, with exact checked
 indices and lengths. Unbounded array rests, nonterminal tuple rest, tuple value
-spreads and general variadic inference remain unsupported and fail explicitly. This is bounded local
+spreads from unknown-length arrays and general variadic inference remain unsupported and fail explicitly. Explicit finite fixed-length tuple values may now be copied with `[head, ...tail]` in a checked contextual tuple literal, preserving each position's type without re-evaluating the operand. Optional-length tuple value spreads are not yet supported. This is bounded local
 semantics, not original TS7 suite acceptance.
 
 ## Array element types through indexed access (bounded)

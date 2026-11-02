@@ -31,4 +31,30 @@ public sealed class ArraySpreadsTests
     [InlineData("let xs:number[]=[...];","TSCS1001")]
     public void NonArrayOrIncompatibleSpreadCannotSucceed(string source,string code) =>
         Assert.Contains(Compilation.Check("spread.ts",source),d=>d.Code==code);
+
+    // Bounded tuple-value spreads copy exact checked positions rather than
+    // widening a spread tuple to its joined array element type.
+    [Theory]
+    [InlineData("let tail:[string,boolean]=[\"go\",true];let p:[number,string,boolean]=[21,...tail];let s:string=p[1];")]
+    [InlineData("type Tail=[string,boolean];let tail:Tail=[\"go\",true];let p:[number,...Tail]=[21,...tail];")]
+    [InlineData("let tail:readonly [string,boolean]=[\"go\",true];let p:[number,string,boolean]=[21,...tail];")]
+    [InlineData("let p:[number,string,boolean]=[21,...([\"go\",true] as const)];")]
+    [InlineData("let a:[number]=[21];let b:[string,boolean]=[\"go\",true];let p:[number,string,boolean]=[...a,...b];")]
+    [InlineData("function make(t:[string,boolean]):[number,string,boolean]{return [21,...t];}let p=make([\"go\",true]);")]
+    [InlineData("let t:[string]=[\"go\"];let p:[number,string?]=[21,...t];")]
+    [InlineData("let t:[string,boolean]=[\"go\",true];let p:readonly [number,string,boolean]=[21,...t];")]
+    public void FiniteValueTupleSpreadsRetainCheckedPositions(string source) =>
+        Assert.Empty(Compilation.Check("finite-value-spread.ts",source));
+
+    [Theory]
+    [InlineData("let t:[string,boolean]=[\"go\",true];let p:[number,number,boolean]=[21,...t];","TS2322")]
+    [InlineData("let t:[string]=[\"go\"];let p:[number,string,boolean]=[21,...t];","TS2322")]
+    [InlineData("let t:[string,boolean]=[\"go\",true];let p:[number,string]=[21,...t];","TS2322")]
+    [InlineData("let t:[string,boolean]=[\"go\",true];let p:[number,string,boolean]=[...t];","TS2322")]
+    [InlineData("let t:number[]=[1,2];let p:[number,number,number]=[21,...t];","TS2322")]
+    [InlineData("let t:[string,boolean]=[\"go\",true];let p:[number,string,boolean]=[21,...t];p[1]=21;","TS2322")]
+    [InlineData("let t:[string,boolean]=[\"go\",true];let p:readonly [number,string,boolean]=[21,...t];p[1]=\"no\";","TS2540")]
+    [InlineData("let t:[string,boolean]=[\"go\",true];let p:[number,string,boolean]=[21,...t];let bad=p[3];","TS2493")]
+    public void FiniteValueTupleSpreadsRejectWrongArityAndSlots(string source,string code) =>
+        Assert.Contains(Compilation.Check("finite-value-spread-invalid.ts",source),d=>d.Code==code);
 }

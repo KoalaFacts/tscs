@@ -898,6 +898,102 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "type-operators:positive-81",
+      "source": "let t:[string,boolean]=[\"go\",true];let p:[number,string,boolean]=[21,...t];let s:string=p[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-82",
+      "source": "type Tail=[string,boolean];let t:Tail=[\"go\",true];let p:[number,...Tail]=[21,...t];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-83",
+      "source": "let t:readonly [string,boolean]=[\"go\",true];let p:[number,string,boolean]=[21,...t];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-84",
+      "source": "let p:[number,string,boolean]=[21,...([\"go\",true] as const)];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-85",
+      "source": "let a:[number]=[21];let b:[string,boolean]=[\"go\",true];let p:[number,string,boolean]=[...a,...b];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-86",
+      "source": "function make(t:[string,boolean]):[number,string,boolean]{return [21,...t];}let p=make([\"go\",true]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-87",
+      "source": "let t:[string]=[\"go\"];let p:[number,string?]=[21,...t];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-88",
+      "source": "let t:[string,boolean]=[\"go\",true];let p:readonly [number,string,boolean]=[21,...t];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-74",
+      "source": "let t:[string,boolean]=[\"go\",true];let p:[number,number,boolean]=[21,...t];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-75",
+      "source": "let t:[string]=[\"go\"];let p:[number,string,boolean]=[21,...t];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-76",
+      "source": "let t:[string,boolean]=[\"go\",true];let p:[number,string]=[21,...t];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-77",
+      "source": "let t:[string,boolean]=[\"go\",true];let p:[number,string,boolean]=[...t];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-78",
+      "source": "let t:number[]=[1,2];let p:[number,number,number]=[21,...t];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-79",
+      "source": "let t:[string,boolean]=[\"go\",true];let p:[number,string,boolean]=[21,...t];p[1]=21;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-80",
+      "source": "let t:[string,boolean]=[\"go\",true];let p:readonly [number,string,boolean]=[21,...t];p[1]=\"no\";",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-81",
+      "source": "let t:[string,boolean]=[\"go\",true];let p:[number,string,boolean]=[21,...t];let bad=p[3];",
+      "expectedCodes": [
+        "TS2493"
+      ]
     }
   ]
 }
