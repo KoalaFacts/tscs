@@ -1,0 +1,102 @@
+{
+  "kind": "BOUNDED_COMMON_UNION_PROPERTY_WRITES_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "cases": [
+    {
+      "id": "union-property-writes:positive-01",
+      "source": "type Both={tag:'a';n:number}|{tag:'b';n:number};function write(x:Both):number{x.n=42;return x.n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "union-property-writes:positive-02",
+      "source": "type Both={tag:'a';n:number}|{tag:'b';n:number};function write(x:Both):number{x['n']=42;return x['n'];}",
+      "expectedCodes": []
+    },
+    {
+      "id": "union-property-writes:positive-03",
+      "source": "type Both={tag:'a';n:number}|{tag:'b';n:number};function write(x:Both):number{x.n+=2;return x.n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "union-property-writes:positive-04",
+      "source": "type Both={tag:'a';n:number}|{tag:'b';n:number};function write(x:Both):number{x.n++;return x.n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "union-property-writes:positive-05",
+      "source": "type Both={tag:'a';n:number}|{tag:'b';n:number};function write(x:Both):number{++x.n;return x.n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "union-property-writes:positive-06",
+      "source": "type Both={tag:'a';n:number}|{tag:'b';n:number};function write(x:Both):number{x.n ||= 42;return x.n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "union-property-writes:positive-07",
+      "source": "type Both={tag:'a';n:number}|{tag:'b';n:number};function write(x:Both):number{x['n']+=2;return x['n'];}",
+      "expectedCodes": []
+    },
+    {
+      "id": "union-property-writes:positive-08",
+      "source": "type Both={tag:'a';n:number}|{tag:'b';n:number};function write(x:Both):number{x.n ??= 42;return x.n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "union-property-writes:negative-01",
+      "source": "type Both={tag:'a';n:number}|{tag:'b';n:number};function bad(x:Both):number{x.n='bad';return 0;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "union-property-writes:negative-02",
+      "source": "type Both={tag:'a';n:number}|{tag:'b';n:number};function bad(x:Both):number{x.n=true;return 0;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "union-property-writes:negative-03",
+      "source": "type Both={tag:'a';n:number}|{tag:'b';n:number};function bad(x:Both):number{x.n+='bad';return 0;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "union-property-writes:negative-04",
+      "source": "function bad(x:{tag:'a';n:number}|{tag:'b';readonly n:number}):number{x.n=42;return 0;}",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "union-property-writes:negative-05",
+      "source": "function bad(x:{tag:'a';n:number}|{tag:'b';missing:string}):number{x.n=42;return 0;}",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "union-property-writes:negative-06",
+      "source": "type Both={tag:'a';n:number}|{tag:'b';n:number};function bad(x:Both):number{x['n']='bad';return 0;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "union-property-writes:negative-07",
+      "source": "type Both={tag:'a';n:number}|{tag:'b';n:number};function bad(x:Both):number{x.n ||= 'bad';return 0;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "union-property-writes:negative-08",
+      "source": "type Both={tag:'a';n:number}|{tag:'b';n:number};function bad(x:Both):number{x.n ??= 'bad';return 0;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}
