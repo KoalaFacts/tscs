@@ -2132,7 +2132,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     // or inferred type; fresh literal shells alone are readonly.
                     if(actual is null) {types.Push(null);continue;}
                     var narrowed=CompilerTypes.FromFiniteConstAssertion(typeOperator.Expression,
-                        identifierType:token=>TypeOfAtom(token,scope));
+                        identifierType:token=>TypeOfAtom(token,scope),checkedType:actual,
+                        checkedArraySlot:(tuple,index)=>
+                            checkedArrayElements.TryGetValue(tuple,out var slots) && index<slots.Length
+                                ?slots[index]:null);
                     if(narrowed is null)
                     {
                         ValueNode operand=typeOperator.Expression;

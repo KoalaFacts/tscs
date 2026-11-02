@@ -302,7 +302,8 @@ internal static class CompilerTypes
     // Finite 'as const' preserves deeply readonly objects and tuples with
     // exact primitive literal types. Unknown expressions and spreads fail closed.
     public static TypeSymbol? FromFiniteConstAssertion(ValueNode? value,int depth=0,
-        Func<Token,TypeSymbol?>? identifierType=null,bool nestedLiteral=false)
+        Func<Token,TypeSymbol?>? identifierType=null,bool nestedLiteral=false,
+        TypeSymbol? checkedType=null,Func<ValueArray,int,TypeSymbol?>? checkedArraySlot=null)
     {
         if(depth>64)return null;
         while(value is ValueParenthesized grouped)value=grouped.Expression;
@@ -317,7 +318,7 @@ internal static class CompilerTypes
             // Referenced values keep their own mutability; only freshly
             // constructed nested literals gain readonly positions/members.
             case ValueAtom atom when nestedLiteral && atom.Token.Kind==TokenKind.Identifier:
-                return identifierType?.Invoke(atom.Token);
+                return identifierType?.Invoke(atom.Token)??checkedType;
             case ValueArray tuple:
             {
                 // A const array has stable per-position identity, not an
@@ -325,9 +326,13 @@ internal static class CompilerTypes
                 if(tuple.Elements.Count>32 || tuple.Elements.Any(e=>e is ValueArraySpread))
                     return null;
                 var elements=new List<TypeSymbol>(tuple.Elements.Count);
-                foreach(var item in tuple.Elements)
+                for(int i=0;i<tuple.Elements.Count;i++)
                 {
-                    var element=FromFiniteConstAssertion(item,depth+1,identifierType,nestedLiteral:true);
+                    var item=tuple.Elements[i];
+                    // The checked array element union cannot recover exact slots.
+                    var slot=checkedArraySlot?.Invoke(tuple,i);
+                    var element=FromFiniteConstAssertion(item,depth+1,identifierType,
+                        nestedLiteral:true,checkedType:slot,checkedArraySlot:checkedArraySlot);
                     if(element is null)return null;
                     elements.Add(element);
                 }
@@ -342,9 +347,14 @@ internal static class CompilerTypes
                 var numericMembers=new HashSet<string>(StringComparer.Ordinal);
                 foreach(var property in literal.Properties)
                 {
-                    var nested=FromFiniteConstAssertion(property.Value,depth+1,identifierType,nestedLiteral:true);
-                    if(nested is null)return null;
                     var key=Parser.PropertyName(property.Name);
+                    // The already-checked expression supplies its inferred type.
+                    // Avoid re-running the checker or inventing literal precision.
+                    TypeSymbol? member=checkedType is ObjectTypeSymbol shape &&
+                        shape.Members.TryGetValue(key,out var found)?found:null;
+                    var nested=FromFiniteConstAssertion(property.Value,depth+1,identifierType,
+                        nestedLiteral:true,checkedType:member,checkedArraySlot:checkedArraySlot);
+                    if(nested is null)return null;
                     members[key]=nested;
                     if(property.Name.Kind==TokenKind.Number)numericMembers.Add(key);
                     else numericMembers.Remove(key);
@@ -352,7 +362,13 @@ internal static class CompilerTypes
                 return new ObjectTypeSymbol(members,
                     readonlyMembers:members.Keys,numericMembers:numericMembers);
             }
-            default:return null;
+            // Checked nested computations may keep their normal semantic type;
+            // the root remains restricted to actual literal expressions.
+            // Spread shells and unchecked nodes are still rejected.
+            default:return nestedLiteral && value is
+                (ValueBinary or ValuePropertyAccess or ValueElementAccess or
+                 ValueCall or ValueUnary or ValueConditional or ValueTypeOperator or ValueTemplate)
+                ?checkedType:null;
         }
     }
 
