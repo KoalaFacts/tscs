@@ -35,11 +35,13 @@ try {
     'export function makeB(label: string): { kind: "b"; label: string } {',
     '  return { kind: "b", label: label } satisfies Variant;',
     '}',
-    'export const immutable = { kind: "ready", nested: { value: 21, valid: true } } as const;'
+    'export const immutable = { kind: "ready", nested: { value: 21, valid: true } } as const;',
+    'export const immutableTuple = [21, "go"] as const;',
+    'export const nestedTuple = { items: [true, [42]] } as const;'
   ].join('\n'));
-  writeFileSync(join(folder,'bridge.ts'),'export { fromAny, make, makeA, makeB, immutable } from "./factory.js";\n');
+  writeFileSync(join(folder,'bridge.ts'),'export { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple } from "./factory.js";\n');
   writeFileSync(join(folder,'entry.ts'),[
-    'import { fromAny, make, makeA, makeB, immutable } from "./bridge.js";',
+    'import { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple } from "./bridge.js";',
     'const raw: any = { value: 21, label: "ready" };',
     'const item = fromAny(raw);',
     'export const result: number = make(item.value).value * 2;',
@@ -53,7 +55,11 @@ try {
     'export const otherLabel: string = makeB("tagged").label;',
     'export const readonlyTag: "ready" = immutable.kind;',
     'export const readonlyValue: 21 = immutable.nested.value;',
-    'export const readonlyValid: true = immutable.nested.valid;'
+    'export const readonlyValid: true = immutable.nested.valid;',
+    'export const tupleFirst: 21 = immutableTuple[0];',
+    'export const tupleSecond: "go" = immutableTuple[1];',
+    'export const tupleLength: 2 = immutableTuple.length;',
+    'export const nestedTupleValue: 42 = nestedTuple.items[1][0];'
   ].join('\n'));
   writeFileSync(join(folder,'project.json'),JSON.stringify({
     files:['entry.ts','minimal.d.ts'],
@@ -64,7 +70,7 @@ try {
   for(const name of ['model','factory','bridge','entry'])
     assert.ok(existsSync(join(folder,name+'.js')),'missing '+name+'.js');
   const executed=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,label,extra,exact,checked,advanced,selected,selectedTag,otherLabel,readonlyTag,readonlyValue,readonlyValid} from "./entry.js"; if(result!==42||label!=="ready"||extra!==42||exact!==21||checked!=="ready"||advanced!==42||selected!==23||selectedTag!=="a"||otherLabel!=="tagged"||readonlyTag!=="ready"||readonlyValue!==21||readonlyValid!==true) throw Error("type-operator JS runtime mismatch");'],
+    'import {result,label,extra,exact,checked,advanced,selected,selectedTag,otherLabel,readonlyTag,readonlyValue,readonlyValid,tupleFirst,tupleSecond,tupleLength,nestedTupleValue} from "./entry.js"; if(result!==42||label!=="ready"||extra!==42||exact!==21||checked!=="ready"||advanced!==42||selected!==23||selectedTag!=="a"||otherLabel!=="tagged"||readonlyTag!=="ready"||readonlyValue!==21||readonlyValid!==true||tupleFirst!==21||tupleSecond!=="go"||tupleLength!==2||nestedTupleValue!==42) throw Error("type-operator JS runtime mismatch");'],
     {cwd:folder,encoding:'utf8',timeout:15000});
   assert.equal(executed.error,undefined,String(executed.error));
   assert.equal(executed.status,0,executed.stdout+executed.stderr);
@@ -78,7 +84,11 @@ try {
     ['readonly-write','const p={kind:"ready"} as const;p.kind="later";','TS2540'],
     ['nested-readonly-write','const p={nested:{value:21}} as const;p.nested.value=22;','TS2540'],
     ['not-literal','let n=21;const p=n as const;','TS1355'],
-    ['tuple-outside-scope','const p=[21,22] as const;','TSCS1001'],
+    ['tuple-readonly','const p=[21,22] as const;p[0]=23;','TS2540'],
+    ['tuple-out-of-bounds','const p=[21,22] as const;let x=p[3];','TS2493'],
+    ['tuple-wrong-element','const p=[21,"go"] as const;let x:22=p[0];','TS2322'],
+    ['tuple-to-mutable','const p=[21,22] as const;let copy:number[]=p;','TS4104'],
+    ['tuple-spread-outside-scope','const p=[21,...[22]] as const;','TSCS1001'],
     ['fresh-extra-annotation','let x:{a:1}={a:1,b:2} as const;','TS2353'],
     ['fresh-extra-satisfies','let x=({a:1,b:2} as const) satisfies {a:1};','TS2353']
   ]) {

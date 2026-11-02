@@ -14,10 +14,12 @@ const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
 const suitePath='fixtures/type-operators/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
 assert.equal(suite.kind,'BOUNDED_TYPE_ASSERTIONS_SATISFIES_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,53,'do not shrink the frozen type-operator cohort');
+assert.equal(suite.cases.length,71,'do not shrink the frozen type-operator cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const minimalProfile='fixtures/array-iteration/minimal.d.ts';
 const minimal=readFileSync(minimalProfile,'utf8');
+const tupleProfile='fixtures/readonly-array/minimal.d.ts';
+const tupleMinimal=readFileSync(tupleProfile,'utf8');
 const hash=(data:string|Buffer)=>createHash('sha256').update(data).digest('hex');
 const manifest:{path:string;length:number;sha256:string}[]=[];
 function save(name:string,contents:string) {
@@ -51,7 +53,9 @@ for(let i=0;i<suite.cases.length;i++){
   const key='case-'+String(i).padStart(3,'0');
   const folder=join(out,key);mkdirSync(folder);
   save(key+'/input.ts',item.source);
-  save(key+'/minimal.d.ts',minimal);
+  const usesTupleProfile=/^type-operators:(positive-3[0-9]|negative-(2[5-9]|3[0-2]))$/.test(item.id);
+  const profile=usesTupleProfile?tupleProfile:minimalProfile;
+  save(key+'/minimal.d.ts',usesTupleProfile?tupleMinimal:minimal);
   const args=['--noEmit','--noLib','--target','es2015','--pretty','false','input.ts','minimal.d.ts'];
   const expected=run(reference,args,folder);
   const actual=run(process.env.DOTNET??'dotnet',[product,...args],folder);
@@ -62,7 +66,7 @@ for(let i=0;i<suite.cases.length;i++){
   const match=expected.exit===exit && actual.exit===exit &&
     JSON.stringify(codes)===JSON.stringify(refCodes) &&
     JSON.stringify(codes)===JSON.stringify(actualCodes);
-  const row={id:item.id,inputSha256:hash(item.source),expectedCodes:codes,referenceCodes:refCodes,
+  const row={id:item.id,inputSha256:hash(item.source),profile,expectedCodes:codes,referenceCodes:refCodes,
     productCodes:actualCodes,referenceExit:expected.exit,productExit:actual.exit,
     status:match?'MATCH_EXIT_AND_CODES':'MISMATCH',originalAcceptanceCredit:false};
   results.push(row);if(!match)mismatches.push(row);
@@ -71,7 +75,8 @@ save('results.json',JSON.stringify(results,null,2));
 save('summary.json',JSON.stringify({sourceSha,upstreamCommit:pin.commit,referenceVersion:version.stdout.trim(),
   referenceSha256:hash(readFileSync(reference)),productCliSha256:hash(readFileSync(product)),
   suitePath,suiteSha256:hash(readFileSync(suitePath)),scriptSha256:hash(readFileSync(import.meta.filename)),
-  minimalProfile,minimalProfileSha256:hash(minimal),matches:results.length-mismatches.length,
+  minimalProfile,minimalProfileSha256:hash(minimal),tupleProfile,tupleProfileSha256:hash(tupleMinimal),
+  matches:results.length-mismatches.length,
   mismatches:mismatches.length,originalAcceptanceCredit:0,fullOriginalScope:'UNEXPANDED',
   comparison:'bounded code arrays and exits, not original harness',referenceExecutable:basename(reference)},null,2));
 for(const item of manifest){

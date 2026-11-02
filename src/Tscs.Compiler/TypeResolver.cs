@@ -181,10 +181,19 @@ internal static class TypeResolver
                                value>9007199254740991L)
                                 throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
                                     "Array indexed-access numeric keys must be non-negative safe integers."));
+                            if(arrayType.TupleElements is { } slots)
+                            {
+                                if(value>=slots.Count)
+                                    throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TS2493",
+                                        $"Tuple type '{arrayType.DisplayName}' of length '{slots.Count}' has no element at index '{value}'."));
+                                return slots[(int)value];
+                            }
                             return arrayType.ElementType;
                         }
                         if(key is LiteralTypeSymbol { Kind:PrimitiveKind.String,Value:"length" })
-                            return CompilerTypes.Number;
+                            return arrayType.TupleElements is { } tuple
+                                ?new LiteralTypeSymbol(PrimitiveKind.Number,tuple.Count.ToString(System.Globalization.CultureInfo.InvariantCulture))
+                                :CompilerTypes.Number;
                         throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
                             "Array indexed access requires a numeric key or the exact 'length' property."));
                     }

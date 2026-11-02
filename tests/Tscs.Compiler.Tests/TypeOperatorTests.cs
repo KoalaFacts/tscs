@@ -91,13 +91,33 @@ public sealed class TypeOperatorTests
         Assert.Empty(Compilation.Check("const-assertions.ts",source));
 
     [Theory]
+    [InlineData("const tuple=[21,\"go\"] as const;let n:21=tuple[0];let s:\"go\"=tuple[1];")]
+    [InlineData("const tuple=[] as const;let n:0=tuple.length;")]
+    [InlineData("const tuple=[[21],[42]] as const;let n:21=tuple[0][0];let m:42=tuple[1][0];")]
+    [InlineData("const data={tuple:[true,21]} as const;let b:true=data.tuple[0];let n:21=data.tuple[1];")]
+    [InlineData("const tuple=[21,\"go\"] as const;type First=typeof tuple[0];type Last=typeof tuple[1];let n:First=21;let s:Last=\"go\";")]
+    [InlineData("const tuple=[21,\"go\"] as const;type Values=typeof tuple[number];type Length=typeof tuple[\"length\"];let n:Values=21;let s:Values=\"go\";let l:Length=2;")]
+    public void FiniteConstArraysKeepPerIndexReadonlyTupleTypes(string source) =>
+        Assert.Empty(Compilation.Check("const-tuples.ts",source));
+
+    [Theory]
+    [InlineData("const tuple=[21,\"go\"] as const;tuple[0]=21;", "TS2540")]
+    [InlineData("const tuple=[[21]] as const;tuple[0][0]=22;", "TS2540")]
+    [InlineData("const tuple=[21] as const;let n=tuple[2];", "TS2493")]
+    [InlineData("const tuple=[] as const;let n=tuple[0];", "TS2493")]
+    [InlineData("const tuple=[21,\"go\"] as const;let n:22=tuple[0];", "TS2322")]
+    [InlineData("const tuple=[21] as const;let m:number[]=tuple;", "TS4104")]
+    public void FiniteConstArraysRejectInvalidWritesIndicesAndAssignments(string source,string code) =>
+        Assert.Contains(Compilation.Check("const-tuples.ts",source),d=>d.Code==code);
+
+    [Theory]
     [InlineData("const state={tag:\"ready\"} as const;state.tag=\"later\";", "TS2540")]
     [InlineData("const state={nested:{count:21}} as const;state.nested.count=22;", "TS2540")]
     [InlineData("const state={count:21} as const;let wrong:22=state.count;", "TS2322")]
     [InlineData("const state={flag:true} as const;let wrong:false=state.flag;", "TS2322")]
     [InlineData("let value=21;const state=value as const;", "TS1355")]
     [InlineData("const state=(21+1) as const;", "TS1355")]
-    [InlineData("const state=[21,22] as const;", "TSCS1001")]
+    [InlineData("const state=[21,...[22]] as const;", "TSCS1001")]
     [InlineData("let value:{a:1}={a:1,b:2} as const;", "TS2353")]
     [InlineData("let value=({a:1,b:2} as const) satisfies {a:1};", "TS2353")]
     public void FiniteConstAssertionsRejectWritesAndUnsupportedCases(string source,string code) =>

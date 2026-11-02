@@ -314,6 +314,112 @@
       "expectedCodes": [
         "TS2353"
       ]
+    },
+    {
+      "id": "type-operators:positive-30",
+      "source": "const t=[21,\"go\"] as const;let n:21=t[0];let s:\"go\"=t[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-31",
+      "source": "const t=[] as const;let n:0=t.length;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-32",
+      "source": "const t=[true,false] as const;let a:true=t[0];let b:false=t[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-33",
+      "source": "const t=[-3,21] as const;let n:-3=t[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-34",
+      "source": "const t={data:[21,\"go\"]} as const;let a:21=t.data[0];let b:\"go\"=t.data[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-35",
+      "source": "const t=[[21],[42]] as const;let a:21=t[0][0];let b:42=t[1][0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-36",
+      "source": "const t=[21,42] as const;type E=typeof t[number];let n:E=21;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-37",
+      "source": "const t=[21,\"go\"] as const;type E=typeof t[1];let word:E=\"go\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-38",
+      "source": "const t=[21,\"go\"] as const;type L=typeof t[\"length\"];let length:L=2;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-39",
+      "source": "const t=[{tag:\"ready\"},[21]] as const;let s:\"ready\"=t[0].tag;let n:21=t[1][0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-25",
+      "source": "const t=[21,\"go\"] as const;t[0]=22;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-26",
+      "source": "const t=[21,\"go\"] as const;t[1]=\"later\";",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-27",
+      "source": "const t=[21,\"go\"] as const;let bad:22=t[0];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-28",
+      "source": "const t=[21,\"go\"] as const;let bad:\"later\"=t[1];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-29",
+      "source": "const t=[21] as const;let wrong=t[2];",
+      "expectedCodes": [
+        "TS2493"
+      ]
+    },
+    {
+      "id": "type-operators:negative-30",
+      "source": "const t=[] as const;let wrong=t[0];",
+      "expectedCodes": [
+        "TS2493"
+      ]
+    },
+    {
+      "id": "type-operators:negative-31",
+      "source": "const t=[21] as const;let bad:number[]=t;",
+      "expectedCodes": [
+        "TS4104"
+      ]
+    },
+    {
+      "id": "type-operators:negative-32",
+      "source": "const t=[[21]] as const;t[0][0]=22;",
+      "expectedCodes": [
+        "TS2540"
+      ]
     }
   ]
 }

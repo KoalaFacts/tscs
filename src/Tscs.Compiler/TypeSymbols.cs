@@ -34,7 +34,7 @@ internal sealed record LiteralTypeSymbol(PrimitiveKind Kind,string Value) : Type
         ?System.Text.Json.JsonSerializer.Serialize(Value):Value;
 }
 
-internal sealed record ArrayTypeSymbol(TypeSymbol ElementType,bool Readonly=false) : TypeSymbol
+internal sealed record ArrayTypeSymbol(TypeSymbol ElementType,bool Readonly=false,IReadOnlyList<TypeSymbol>? TupleElements=null) : TypeSymbol
 {
     public override string DisplayName=>TypeDisplay.Format(this);
 }
@@ -244,10 +244,8 @@ internal static class CompilerTypes
         _=>throw new ArgumentOutOfRangeException(nameof(syntax))
     };
 
-    // A finite 'as const' creates deeply readonly object fields and exact
-    // primitive literal types. Array literals require tuple semantics, which
-    // this semantic model does not yet represent; reject instead of inventing
-    // a broad readonly array that permits out-of-range tuple indices.
+    // Finite 'as const' preserves deeply readonly objects and tuples with
+    // exact primitive literal types. Unknown expressions and spreads fail closed.
     public static TypeSymbol? FromFiniteConstAssertion(ValueNode? value,int depth=0)
     {
         if(depth>64)return null;
@@ -260,6 +258,22 @@ internal static class CompilerTypes
             case ValueUnary {Operator.Kind:TokenKind.Minus,Operand:ValueAtom number}
                 when number.Token.Kind==TokenKind.Number:
                 return FromLiteralExact(number.Token,negative:true);
+            case ValueArray tuple:
+            {
+                // A const array has stable per-position identity, not an
+                // out-of-bounds-permissive readonly array of a joined T.
+                if(tuple.Elements.Count>32 || tuple.Elements.Any(e=>e is ValueArraySpread))
+                    return null;
+                var elements=new List<TypeSymbol>(tuple.Elements.Count);
+                foreach(var item in tuple.Elements)
+                {
+                    var element=FromFiniteConstAssertion(item,depth+1);
+                    if(element is null)return null;
+                    elements.Add(element);
+                }
+                try {return new ArrayTypeSymbol(Union(elements),Readonly:true,TupleElements:elements.ToArray());}
+                catch(InvalidOperationException) {return null;}
+            }
             case ValueObject literal:
             {
                 if(literal.Properties.Count>128 || literal.Properties.Any(p=>p.Spread))
@@ -426,7 +440,14 @@ internal static class CompilerTypes
                             pending.Push((member,other));
                     break;
                 case (ArrayTypeSymbol a,ArrayTypeSymbol b):
-                    if(a.Readonly!=b.Readonly)return false;
+                    if(a.Readonly!=b.Readonly ||
+                       (a.TupleElements is null)!=(b.TupleElements is null))return false;
+                    if(a.TupleElements is { } leftTuple && b.TupleElements is { } rightTuple)
+                    {
+                        if(leftTuple.Count!=rightTuple.Count)return false;
+                        for(int i=0;i<leftTuple.Count;i++)
+                            pending.Push((leftTuple[i],rightTuple[i]));
+                    }
                     pending.Push((a.ElementType,b.ElementType));
                     break;
                 case (FunctionTypeSymbol a,FunctionTypeSymbol b):
@@ -490,7 +511,9 @@ internal static class CompilerTypes
         // emitter validate inputs and preserve the native receiver.
         if(receiver is ArrayTypeSymbol array)
         {
-            if(name=="length")return Number;
+            if(name=="length")return array.TupleElements is { } tuple
+                ?new LiteralTypeSymbol(PrimitiveKind.Number,tuple.Count.ToString(System.Globalization.CultureInfo.InvariantCulture))
+                :Number;
             if(name is "includes" or "indexOf" or "lastIndexOf")
                 return new FunctionTypeSymbol([array.ElementType,Union([Number,Undefined])],
                     name=="includes"?Boolean:Number,1);
@@ -768,9 +791,17 @@ internal static class CompilerTypes
                    required is PrimitiveTypeSymbol primitive)
                     return primitive.Kind==literal.Kind;
                 if(required is ArrayTypeSymbol requiredArray)
-                    return actual is ArrayTypeSymbol actualArray &&
-                        (requiredArray.Readonly || !actualArray.Readonly) &&
-                        Check(actualArray.ElementType,requiredArray.ElementType);
+                {
+                    if(actual is not ArrayTypeSymbol actualArray ||
+                       (!requiredArray.Readonly && actualArray.Readonly) ||
+                       !Check(actualArray.ElementType,requiredArray.ElementType))return false;
+                    if(requiredArray.TupleElements is not { } expectedSlots)return true;
+                    if(actualArray.TupleElements is not { } actualSlots ||
+                       actualSlots.Count!=expectedSlots.Count)return false;
+                    for(int i=0;i<expectedSlots.Count;i++)
+                        if(!Check(actualSlots[i],expectedSlots[i]))return false;
+                    return true;
+                }
                 if(required is FunctionTypeSymbol requiredFunction)
                 {
                     if(actual is not FunctionTypeSymbol actualFunction)return false;

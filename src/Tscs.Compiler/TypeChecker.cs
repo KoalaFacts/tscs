@@ -577,6 +577,22 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     // any must NOT match concrete types, even inside arrays/nested objects.
     // Unknown callable/recursive relationships fail closed rather than
     // accepting a write that is invalid for one union branch.
+    private static bool TryFiniteTupleIndex(ValueNode index,out int position)
+    {
+        while(index is ValueParenthesized grouped)index=grouped.Expression;
+        if(index is ValueAtom {Token.Kind:TokenKind.Number} numeric &&
+           double.TryParse(numeric.Token.Value??numeric.Token.Text,
+               System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,
+               out var value) && double.IsFinite(value) &&
+           value>=0 && value<=int.MaxValue && Math.Truncate(value)==value)
+        {
+            position=(int)value;
+            return true;
+        }
+        position=0;
+        return false;
+    }
+
     private static bool SameWritableType(TypeSymbol left,TypeSymbol right)
     {
         // Shared alias graphs can otherwise cause exponentially many repeated
@@ -599,6 +615,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 (PrimitiveTypeSymbol x,PrimitiveTypeSymbol y)=>x.Kind==y.Kind,
                 (LiteralTypeSymbol x,LiteralTypeSymbol y)=>x.Kind==y.Kind && x.Value==y.Value,
                 (ArrayTypeSymbol x,ArrayTypeSymbol y)=>x.Readonly==y.Readonly &&
+                    (x.TupleElements is null)==(y.TupleElements is null) &&
+                    (x.TupleElements is null || x.TupleElements.Count==y.TupleElements!.Count &&
+                       x.TupleElements.Select((t,i)=>Check(t,y.TupleElements[i],depth+1)).All(v=>v)) &&
                     Check(x.ElementType,y.ElementType,depth+1),
                 (ObjectTypeSymbol x,ObjectTypeSymbol y)=>
                     x.Members.Count==y.Members.Count &&
@@ -646,8 +665,13 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     private void EnsureWritableIndex(ValueElementAccess target,TypeSymbol? receiver)
     {
         if(receiver is ArrayTypeSymbol {Readonly:true} readonlyArray)
+        {
+            if(readonlyArray.TupleElements is not null && TryFiniteTupleIndex(target.Index,out var position))
+                throw new CompilationFailure(Diagnostic.Error(file,target.Open,"TS2540",
+                    $"Cannot assign to '{position}' because it is a read-only property."));
             throw new CompilationFailure(Diagnostic.Error(file,target.Open,"TS2542",
                 $"Index signature in type '{readonlyArray.DisplayName}' only permits reading."));
+        }
         if(CompilerTypes.IsStringFamily(receiver))
             throw new CompilationFailure(Diagnostic.Error(file,target.Open,"TS2542",
                 "Index signature in type 'String' only permits reading."));
@@ -2059,7 +2083,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         throw new CompilationFailure(Diagnostic.Error(file,typeOperator.Keyword,
                             unsupportedLiteral?"TSCS1001":"TS1355",
                             unsupportedLiteral
-                                ?"This const assertion needs tuple, spread or nonliteral-property inference beyond the finite object subset."
+                                ?"This const assertion exceeds the supported finite tuple/object subset or contains a spread/nonliteral member."
                                 :"A const assertion must be applied to a literal expression."));
                     }
                     types.Push(actual==null?null:narrowed);
@@ -2194,7 +2218,16 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
                         "Indexed reads currently require a number expression."));
                 if(presentReceiver is ArrayTypeSymbol array)
-                    PushOptionalResult(indexed,array.ElementType,isChain,mayBeUndefined);
+                {
+                    if(array.TupleElements is { } tuple && TryFiniteTupleIndex(indexed.Index,out var tupleIndex))
+                    {
+                        if(tupleIndex>=tuple.Count)
+                            throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TS2493",
+                                $"Tuple type '{array.DisplayName}' of length '{tuple.Count}' has no element at index '{tupleIndex}'."));
+                        PushOptionalResult(indexed,tuple[tupleIndex],isChain,mayBeUndefined);
+                    }
+                    else PushOptionalResult(indexed,array.ElementType,isChain,mayBeUndefined);
+                }
                 else if(CompilerTypes.IsStringFamily(presentReceiver))
                     PushOptionalResult(indexed,CompilerTypes.String,isChain,mayBeUndefined);
                 else if(presentReceiver==null || indexType==null)
