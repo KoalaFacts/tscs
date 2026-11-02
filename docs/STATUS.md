@@ -1567,3 +1567,18 @@ declarations/maps, incremental/watch and other original domains remain incomplet
 No release is asserted and existing strict gates remain unchanged.
 
 [Unmodified prior status and evidence handoffs](progress/status-through-project-selectors.md).
+
+## 2026-11-03 — Finite const object-spread shells (candidate; NOT_RUN)
+
+A checked object spread inside a fresh `as const` object now preserves each source
+member's inferred type, optionality and later override precedence while making
+only the newly constructed outer members readonly; nested referenced objects
+stay mutable. This reuses existing Parser, object-spread checker, semantic type
+relations, module linking and native ES2015 emission. Eight positive and eight
+negative source-backed cases extend the frozen 215-case type-operator reference
+cohort to 231, without changing existing IDs/sources/profiles. C# regressions,
+four-module executable Node output and invalid/no-output checks are registered;
+exact-head CI and pinned-Go results remain NOT_RUN at candidate creation.
+Original full TS7 acceptance remains historically 0 PASS / 15,523
+SKIP_UNIMPLEMENTED with dynamic scope UNEXPANDED. No pin, global test floor,
+release gate or protection change.

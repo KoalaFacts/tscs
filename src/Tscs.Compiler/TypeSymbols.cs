@@ -303,7 +303,8 @@ internal static class CompilerTypes
     // exact primitive literal types. Unknown expressions and spreads fail closed.
     public static TypeSymbol? FromFiniteConstAssertion(ValueNode? value,int depth=0,
         Func<Token,TypeSymbol?>? identifierType=null,bool nestedLiteral=false,
-        TypeSymbol? checkedType=null,Func<ValueArray,int,TypeSymbol?>? checkedArraySlot=null)
+        TypeSymbol? checkedType=null,Func<ValueArray,int,TypeSymbol?>? checkedArraySlot=null,
+        Func<ObjectProperty,ObjectTypeSymbol?>? checkedObjectSpreadSource=null)
     {
         if(depth>64)return null;
         while(value is ValueParenthesized grouped)value=grouped.Expression;
@@ -332,7 +333,8 @@ internal static class CompilerTypes
                     // The checked array element union cannot recover exact slots.
                     var slot=checkedArraySlot?.Invoke(tuple,i);
                     var element=FromFiniteConstAssertion(item,depth+1,identifierType,
-                        nestedLiteral:true,checkedType:slot,checkedArraySlot:checkedArraySlot);
+                        nestedLiteral:true,checkedType:slot,checkedArraySlot:checkedArraySlot,
+                        checkedObjectSpreadSource:checkedObjectSpreadSource);
                     if(element is null)return null;
                     elements.Add(element);
                 }
@@ -341,26 +343,47 @@ internal static class CompilerTypes
             }
             case ValueObject literal:
             {
-                if(literal.Properties.Count>128 || literal.Properties.Any(p=>p.Spread))
-                    return null;
+                if(literal.Properties.Count>128)return null;
                 var members=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
                 var numericMembers=new HashSet<string>(StringComparer.Ordinal);
+                var optionalMembers=new HashSet<string>(StringComparer.Ordinal);
                 foreach(var property in literal.Properties)
                 {
+                    if(property.Spread)
+                    {
+                        // An object spread does not recursively freeze the
+                        // referenced values. Only the new outer shell is readonly.
+                        // Use the checked operand rather than the final merged
+                        // object, so right-to-left overrides keep their types.
+                        var source=checkedObjectSpreadSource?.Invoke(property);
+                        if(source is null)return null;
+                        foreach(var (key,type) in source.Members)
+                        {
+                            members[key]=type;
+                            if(source.NumericMembers.Contains(key))numericMembers.Add(key);
+                            else numericMembers.Remove(key);
+                            if(source.OptionalMembers.Contains(key))optionalMembers.Add(key);
+                            else optionalMembers.Remove(key);
+                        }
+                        continue;
+                    }
                     var key=Parser.PropertyName(property.Name);
-                    // The already-checked expression supplies its inferred type.
-                    // Avoid re-running the checker or inventing literal precision.
+                    // Normal checked inference supplies nonliteral values;
+                    // newly constructed nested literals keep exact readonly types.
                     TypeSymbol? member=checkedType is ObjectTypeSymbol shape &&
                         shape.Members.TryGetValue(key,out var found)?found:null;
                     var nested=FromFiniteConstAssertion(property.Value,depth+1,identifierType,
-                        nestedLiteral:true,checkedType:member,checkedArraySlot:checkedArraySlot);
+                        nestedLiteral:true,checkedType:member,checkedArraySlot:checkedArraySlot,
+                        checkedObjectSpreadSource:checkedObjectSpreadSource);
                     if(nested is null)return null;
                     members[key]=nested;
+                    optionalMembers.Remove(key);
                     if(property.Name.Kind==TokenKind.Number)numericMembers.Add(key);
                     else numericMembers.Remove(key);
                 }
                 return new ObjectTypeSymbol(members,
-                    readonlyMembers:members.Keys,numericMembers:numericMembers);
+                    readonlyMembers:members.Keys,numericMembers:numericMembers,
+                    optionalMembers:optionalMembers);
             }
             // Checked nested computations may keep their normal semantic type;
             // the root remains restricted to actual literal expressions.
