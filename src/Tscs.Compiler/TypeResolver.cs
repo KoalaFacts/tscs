@@ -241,8 +241,35 @@ internal static class TypeResolver
             }
             case TupleTypeSyntax tuple:
             {
-                var slots=tuple.Elements.Select(element=>Resolve(element,scope,file,depth+1)).ToArray();
-                try {return CompilerTypes.FiniteTuple(slots,tuple.Readonly,tuple.OptionalStart);}
+                var slots=new List<TypeSymbol>();
+                int optionalStart=-1;
+                for(int i=0;i<tuple.Elements.Count;i++)
+                {
+                    if(tuple.Elements[i] is TupleRestTypeSyntax spread)
+                    {
+                        // Resolve a named tail in its declaring type scope.
+                        // Preserve exact positions, optional suffix and length.
+                        var resolved=Resolve(spread.Target,scope,file,depth+1);
+                        if(resolved is not ArrayTypeSymbol { TupleElements: { } tail })
+                            throw new CompilationFailure(Diagnostic.Error(file,spread.Ellipsis,"TSCS1001",
+                                "A trailing rest must expand a finite tuple type, not an unbounded array."));
+                        if(optionalStart>=0 && tail.Count>0)
+                            throw new CompilationFailure(Diagnostic.Error(file,spread.Ellipsis,"TSCS1001",
+                                "A finite rest cannot follow an optional tuple element."));
+                        if(resolved.TupleOptionalStart>=0)
+                            optionalStart=slots.Count+resolved.TupleOptionalStart;
+                        slots.AddRange(tail);
+                    }
+                    else
+                    {
+                        if(i==tuple.OptionalStart)optionalStart=slots.Count;
+                        slots.Add(Resolve(tuple.Elements[i],scope,file,depth+1));
+                    }
+                    if(slots.Count>32)
+                        throw new CompilationFailure(Diagnostic.Error(file,tuple.Open,"TSCS1001",
+                            "Expanded finite tuple types with over 32 elements are unsupported."));
+                }
+                try {return CompilerTypes.FiniteTuple(slots,tuple.Readonly,optionalStart);}
                 catch(InvalidOperationException failure)
                 {
                     throw new CompilationFailure(Diagnostic.Error(file,tuple.Open,"TSCS1001",failure.Message));
@@ -410,6 +437,7 @@ internal static class TypeResolver
         InterfaceExtensionTypeSyntax value=>value.Name,
         ArrayTypeSyntax value=>value.Open,
         TupleTypeSyntax value=>value.Open,
+        TupleRestTypeSyntax value=>value.Ellipsis,
         IntersectionTypeSyntax value=>Location(value.Members[0]),
         UnionTypeSyntax value=>Location(value.Members[0]),
         _=>default

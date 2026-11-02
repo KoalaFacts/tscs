@@ -271,8 +271,32 @@ internal static class CompilerTypes
 
     private static ArrayTypeSymbol FromTupleAnnotation(TupleTypeSyntax tuple)
     {
-        var slots=tuple.Elements.Select(FromAnnotation).ToArray();
-        return FiniteTuple(slots,tuple.Readonly,tuple.OptionalStart);
+        var slots=new List<TypeSymbol>();
+        int optionalStart=-1;
+        for(int i=0;i<tuple.Elements.Count;i++)
+        {
+            if(tuple.Elements[i] is TupleRestTypeSyntax spread)
+            {
+                // Scope-free conversion handles literal finite tails only.
+                // Named tails use TypeResolver and the declaring type scope.
+                var resolved=FromAnnotation(spread.Target);
+                if(resolved is not ArrayTypeSymbol { TupleElements: { } tail })
+                    throw new InvalidOperationException("An unbounded rest is not a finite tuple.");
+                if(optionalStart>=0 && tail.Count>0)
+                    throw new InvalidOperationException("Required tuple slots cannot follow optional slots.");
+                if(resolved.TupleOptionalStart>=0)
+                    optionalStart=slots.Count+resolved.TupleOptionalStart;
+                slots.AddRange(tail);
+            }
+            else
+            {
+                if(i==tuple.OptionalStart)optionalStart=slots.Count;
+                slots.Add(FromAnnotation(tuple.Elements[i]));
+            }
+            if(slots.Count>32)
+                throw new InvalidOperationException("Expanded finite tuple exceeds 32 elements.");
+        }
+        return FiniteTuple(slots,tuple.Readonly,optionalStart);
     }
 
     // Finite 'as const' preserves deeply readonly objects and tuples with

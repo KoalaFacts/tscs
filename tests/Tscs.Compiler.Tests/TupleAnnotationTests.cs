@@ -134,6 +134,50 @@ public sealed class TupleAnnotationTests
         Assert.Contains(Compilation.Check("reserved-outside-tuple.ts",source),
             d=>d.Code=="TSCS1001");
 
+
+    [Theory]
+    [InlineData("type P=[number,...[string,boolean]];let p:P=[21,\"go\",true];let n:number=p[0];let s:string=p[1];let b:boolean=p[2];")]
+    [InlineData("type Tail=[string,boolean];type P=[number,...Tail];let p:P=[21,\"go\",true];let l:3=p.length;")]
+    [InlineData("type P=readonly [number,...[string,boolean]];let p:P=[21,\"go\",true];let b:boolean=p[2];")]
+    [InlineData("type P=[...[]];let p:P=[];let l:0=p.length;")]
+    [InlineData("type Tail=[string?];type P=[number,...Tail];let p:P=[21];let l:1|2=p.length;let s:string|undefined=p[1];")]
+    [InlineData("type Tail=[string,boolean?];type P=[number,...Tail];let p:P=[21,\"go\"];let b:boolean|undefined=p[2];")]
+    [InlineData("type Tail=[string,boolean];type P=[...Tail];let p:P=[\"go\",true];let b:boolean=p[1];")]
+    public void TrailingFiniteTupleRestsExpandIntoPositionallyCheckedSlots(string source) =>
+        Assert.Empty(Compilation.Check("finite-rest.ts",source));
+
+    [Theory]
+    [InlineData("type P=[number,...[string,boolean]];let p:P=[21,\"go\"];", "TS2322")]
+    [InlineData("type P=[number,...[string,boolean]];let p:P=[21,\"go\",true,42];", "TS2322")]
+    [InlineData("type P=[number,...[string,boolean]];let p:P=[21,42,true];", "TS2322")]
+    [InlineData("type P=[number,...[string,boolean]];let p:P=[21,\"go\",true];let n:number=p[1];", "TS2322")]
+    [InlineData("type P=readonly [number,...[string,boolean]];let p:P=[21,\"go\",true];p[1]=\"no\";", "TS2540")]
+    [InlineData("type P=[number,...[string,boolean]];let p:P=[21,\"go\",true];let n=p[3];", "TS2493")]
+    [InlineData("type Tail=[string,boolean?];type P=[number,...Tail];let p:P=[21,\"go\"];let b:boolean=p[2];", "TS2322")]
+    [InlineData("type Bad=[number,...string[]];", "TSCS1001")]
+    [InlineData("type Bad=[number,...[string],boolean];", "TSCS1001")]
+    public void TrailingFiniteTupleRestsRejectInvalidOrUnboundedCases(string source,string code) =>
+        Assert.Contains(Compilation.Check("finite-rest-invalid.ts",source),d=>d.Code==code);
+
+    [Fact]
+    public void FiniteRestAliasCrossesFourLinkedModules()
+    {
+        var host=new Host();
+        host.Files["/virtual/model.ts"]=
+            "export type Tail=[string,boolean];export type Rest=[number,...Tail];";
+        host.Files["/virtual/factory.ts"]=
+            "import type {Rest} from \"./model.js\";"+
+            "export function make(n:number):Rest{return [n,\"go\",true];}";
+        host.Files["/virtual/bridge.ts"]="export {make} from \"./factory.js\";";
+        host.Files["/virtual/entry.ts"]=
+            "import {make} from \"./bridge.js\";"+
+            "const p=make(21);export const n:number=p[0];"+
+            "export const s:string=p[1];export const l:3=p.length;";
+        var program=CompilerProgram.Load(host,["entry.ts"]);
+        Assert.Equal(4,program.Sources.Count);
+        Assert.Empty(program.Analyze().Diagnostics);
+    }
+
     private sealed class Host : ICompilerHost
     {
         public StringComparer FileNameComparer => StringComparer.Ordinal;

@@ -1410,8 +1410,23 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             {
                 if(elements.Count>=32)
                     Unsupported(Current,"Tuple types with over 32 elements are not supported yet.");
-                if(Current.Kind is TokenKind.Comma or TokenKind.Ellipsis)
-                    Unsupported(Current,"Tuple holes and rest elements are not supported.");
+                if(Current.Kind==TokenKind.Comma)
+                    Unsupported(Current,"Tuple holes are not supported.");
+                if(Current.Kind==TokenKind.Ellipsis)
+                {
+                    var ellipsis=Take();
+                    if(optionalStart>=0)
+                        Unsupported(ellipsis,"A finite rest cannot follow an optional tuple element.");
+                    // The bounded subset accepts only a trailing tuple rest.
+                    // Nonfinite array, named rest and variadic forms fail closed.
+                    var target=ReadTypeAnnotation(depth+1);
+                    elements.Add(new TupleRestTypeSyntax(ellipsis,target));
+                    if(Eat(TokenKind.Comma) && Current.Kind!=TokenKind.CloseBracket)
+                        Unsupported(Current,"Only trailing finite tuple rest elements are supported.");
+                    if(Current.Kind!=TokenKind.CloseBracket)
+                        Unsupported(Current,"A finite tuple rest must be the final element.");
+                    break;
+                }
                 var slotStart=Current;
                 // An optional marker on a union/function/intersection type
                 // requires parentheses around the *whole* slot type.
