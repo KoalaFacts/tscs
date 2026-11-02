@@ -563,7 +563,8 @@ internal static class CompilerTypes
             return name switch
             {
                 "length" => Number,
-                "toUpperCase" or "toLowerCase" or "trim" or "toWellFormed" =>
+                "toUpperCase" or "toLowerCase" or "toLocaleUpperCase" or "toLocaleLowerCase" or
+                    "trim" or "trimLeft" or "trimRight" or "toWellFormed" =>
                     new FunctionTypeSymbol([],String),
                 "isWellFormed" => new FunctionTypeSymbol([],Boolean),
                 "slice" => new FunctionTypeSymbol(
@@ -577,7 +578,7 @@ internal static class CompilerTypes
                 "substring" => new FunctionTypeSymbol([Number,Union([Number,Undefined])],String,1),
                 "indexOf" or "lastIndexOf" =>
                     new FunctionTypeSymbol([String,Union([Number,Undefined])],Number,1),
-                "replace" => new FunctionTypeSymbol([String,String],String),
+                "replace" or "replaceAll" => new FunctionTypeSymbol([String,String],String),
                 "split" => new FunctionTypeSymbol([String,Union([Number,Undefined])],
                     new ArrayTypeSymbol(String),1),
                 "repeat" => new FunctionTypeSymbol([Number],String),

@@ -544,8 +544,12 @@ public static class CommandLine
             @"|(?<index>readonly\s+\[\s*"+id+@"\s*:\s*number\s*\]\s*:\s*string)" +
             @"|(?<iterator>\[\s*Symbol\s*\.\s*iterator\s*\]\s*\(\s*\)\s*:\s*Iterator\s*<\s*string\s*>)" +
             @"|(?<upper>toUpperCase\s*\(\s*\)\s*:\s*string)" +
+             @"|(?<localeUpper>toLocaleUpperCase\s*\(\s*\)\s*:\s*string)" +
             @"|(?<lower>toLowerCase\s*\(\s*\)\s*:\s*string)" +
+             @"|(?<localeLower>toLocaleLowerCase\s*\(\s*\)\s*:\s*string)" +
             @"|(?<trim>trim\s*\(\s*\)\s*:\s*string)" +
+             @"|(?<trimLeft>trimLeft\s*\(\s*\)\s*:\s*string)" +
+             @"|(?<trimRight>trimRight\s*\(\s*\)\s*:\s*string)" +
             @"|(?<isWellFormed>isWellFormed\s*\(\s*\)\s*:\s*boolean)" +
             @"|(?<toWellFormed>toWellFormed\s*\(\s*\)\s*:\s*string)" +
             @"|(?<slice>slice\s*\(\s*(?:"+id+@"\s*\?\s*:\s*number(?:\s*,\s*"+id+@"\s*\?\s*:\s*number)?)?\s*\)\s*:\s*string)" +
@@ -558,6 +562,7 @@ public static class CommandLine
             @"|(?<indexOf>indexOf\s*\(\s*"+id+@"\s*:\s*string(?:\s*,\s*"+id+@"\s*\?\s*:\s*number)?\s*\)\s*:\s*number)" +
             @"|(?<lastIndexOf>lastIndexOf\s*\(\s*"+id+@"\s*:\s*string(?:\s*,\s*"+id+@"\s*\?\s*:\s*number)?\s*\)\s*:\s*number)" +
             @"|(?<replace>replace\s*\(\s*"+id+@"\s*:\s*string\s*,\s*"+id+@"\s*:\s*string\s*\)\s*:\s*string)" +
+             @"|(?<replaceAll>replaceAll\s*\(\s*"+id+@"\s*:\s*string\s*,\s*"+id+@"\s*:\s*string\s*\)\s*:\s*string)" +
             @"|(?<split>split\s*\(\s*"+id+@"\s*:\s*string(?:\s*,\s*"+id+@"\s*\?\s*:\s*number)?\s*\)\s*:\s*string\s*\[\s*\])" +
             @"|(?<repeat>repeat\s*\(\s*"+id+@"\s*:\s*number\s*\)\s*:\s*string)" +
             @"|(?<trimStart>trimStart\s*\(\s*\)\s*:\s*string)" +
@@ -594,9 +599,9 @@ public static class CommandLine
             }
             else
             {
-                var method=new[]{"upper","lower","trim","slice","includes","startsWith","endsWith",
+                var method=new[]{"upper","lower","localeUpper","localeLower","trim","trimLeft","trimRight","slice","includes","startsWith","endsWith",
                     "charAt","charCodeAt","substring","indexOf","lastIndexOf",
-                    "replace","split","repeat","trimStart","trimEnd","isWellFormed","toWellFormed","padStart",
+                    "replace","replaceAll","split","repeat","trimStart","trimEnd","isWellFormed","toWellFormed","padStart",
                     "padEnd","normalize","atMethod","codePointAt","localeCompare"}
                     .FirstOrDefault(name=>member.Groups[name].Success);
                 if(method is null || !methods.Add(method))return false;

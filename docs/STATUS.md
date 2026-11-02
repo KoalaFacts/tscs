@@ -1,3 +1,19 @@
+## 2026-11-02 — Native string text normalization/replacement (candidate, NOT_RUN)
+
+The existing checked C# string member resolver now exposes native string-only
+`replaceAll`, `trimLeft`, `trimRight`, `toLocaleUpperCase` and
+`toLocaleLowerCase` through the normal call checker and ES2015 module emitter.
+This deliberately finite contract uses string replacement operands and zero-arg
+locale casing; general RegExp callbacks, locale arguments and full library
+semantics are not implemented. A separate symmetric, strictly validated
+ambient profile extends the frozen 56-case string-methods cohort by 8 positive
+and 8 negative stable IDs, without changing the existing IDs, sources or
+minimal profiles. A four-linked-module executable Node check, 36 negative
+no-emission tests and 11 malformed ambient checks are registered; hosted .NET,
+Node and pinned Go execution is NOT_RUN until exact-head CI. Original TS7
+acceptance remains historically 0 PASS / 15,523 SKIP_UNIMPLEMENTED with
+dynamic UNEXPANDED; no upstream pin, global threshold or release gate changed.
+
 ## 2026-11-02 — Native ES2024 string well-formed operations (candidate; NOT_RUN)
 
 The C# string member resolver now checks `isWellFormed(): boolean` and

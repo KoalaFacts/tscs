@@ -352,6 +352,22 @@
         "TS2322"
       ],
       "minimalProfile": "fixtures/string-methods/well-formed-minimal.d.ts"
-    }
+    },
+    {"id":"string-methods:positive-29","source":"let s:string=\"a-b-a\";let result:string=s.replaceAll(\"a\",\"z\");","expectedCodes":[],"minimalProfile":"fixtures/string-methods/extended-minimal.d.ts"},
+    {"id":"string-methods:positive-30","source":"let s:\"aba\"=\"aba\";let result:string=s.replaceAll(\"a\",\"b\");","expectedCodes":[],"minimalProfile":"fixtures/string-methods/extended-minimal.d.ts"},
+    {"id":"string-methods:positive-31","source":"let s:string=\" x \";let result:string=s.trimLeft();","expectedCodes":[],"minimalProfile":"fixtures/string-methods/extended-minimal.d.ts"},
+    {"id":"string-methods:positive-32","source":"let s:string=\" x \";let result:string=s.trimRight();","expectedCodes":[],"minimalProfile":"fixtures/string-methods/extended-minimal.d.ts"},
+    {"id":"string-methods:positive-33","source":"let s:string=\"hello\";let result:string=s.toLocaleUpperCase();","expectedCodes":[],"minimalProfile":"fixtures/string-methods/extended-minimal.d.ts"},
+    {"id":"string-methods:positive-34","source":"let s:string=\"HELLO\";let result:string=s.toLocaleLowerCase();","expectedCodes":[],"minimalProfile":"fixtures/string-methods/extended-minimal.d.ts"},
+    {"id":"string-methods:positive-35","source":"let result:string=\"  ana  \".trimLeft().trimRight().replaceAll(\"a\",\"o\");","expectedCodes":[],"minimalProfile":"fixtures/string-methods/extended-minimal.d.ts"},
+    {"id":"string-methods:positive-36","source":"function normalize(s:string):string{return s.toLocaleUpperCase().replaceAll(\"A\",\"X\");}let result:string=normalize(\"aba\");","expectedCodes":[],"minimalProfile":"fixtures/string-methods/extended-minimal.d.ts"},
+    {"id":"string-methods:negative-29","source":"let s:string=\"abc\";s.replaceAll(\"a\");","expectedCodes":["TS2554"],"minimalProfile":"fixtures/string-methods/extended-minimal.d.ts"},
+    {"id":"string-methods:negative-30","source":"let s:string=\"abc\";s.replaceAll(1,\"x\");","expectedCodes":["TS2345"],"minimalProfile":"fixtures/string-methods/extended-minimal.d.ts"},
+    {"id":"string-methods:negative-31","source":"let s:string=\"abc\";s.replaceAll(\"a\",1);","expectedCodes":["TS2345"],"minimalProfile":"fixtures/string-methods/extended-minimal.d.ts"},
+    {"id":"string-methods:negative-32","source":"let s:string=\"abc\";s.replaceAll(\"a\",\"b\",\"c\");","expectedCodes":["TS2554"],"minimalProfile":"fixtures/string-methods/extended-minimal.d.ts"},
+    {"id":"string-methods:negative-33","source":"let s:string=\" hi \";s.trimLeft(1);","expectedCodes":["TS2554"],"minimalProfile":"fixtures/string-methods/extended-minimal.d.ts"},
+    {"id":"string-methods:negative-34","source":"let s:string=\" hi \";s.trimRight(\"a\");","expectedCodes":["TS2554"],"minimalProfile":"fixtures/string-methods/extended-minimal.d.ts"},
+    {"id":"string-methods:negative-35","source":"let s:string=\"hi\";s.toLocaleUpperCase(\"tr\");","expectedCodes":["TS2554"],"minimalProfile":"fixtures/string-methods/extended-minimal.d.ts"},
+    {"id":"string-methods:negative-36","source":"let result:boolean=\"HI\".toLocaleLowerCase();","expectedCodes":["TS2322"],"minimalProfile":"fixtures/string-methods/extended-minimal.d.ts"}
   ]
 }

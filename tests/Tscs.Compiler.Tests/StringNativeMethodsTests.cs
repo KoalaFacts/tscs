@@ -31,6 +31,14 @@ public sealed class StringNativeMethodsTests
     [InlineData("let s:string=\"ok\";let fixed:string=s.toWellFormed();")]
     [InlineData("let s:string=\"ok\";let good:boolean=s.toWellFormed().isWellFormed();")]
     [InlineData("function repair(s:string):string{return s.toWellFormed();}let value:string=repair(\"hi\");")]
+    [InlineData("let s:string=\"a-b-a\";let result:string=s.replaceAll(\"a\",\"z\");")]
+    [InlineData("let s:\"aba\"=\"aba\";let result:string=s.replaceAll(\"a\",\"b\");")]
+    [InlineData("let s:string=\" x \";let result:string=s.trimLeft();")]
+    [InlineData("let s:string=\" x \";let result:string=s.trimRight();")]
+    [InlineData("let s:string=\"hello\";let result:string=s.toLocaleUpperCase();")]
+    [InlineData("let s:string=\"HELLO\";let result:string=s.toLocaleLowerCase();")]
+    [InlineData("let result:string=\"  ana  \".trimLeft().trimRight().replaceAll(\"a\",\"o\");")]
+    [InlineData("function normalize(s:string):string{return s.toLocaleUpperCase().replaceAll(\"A\",\"X\");}let result:string=normalize(\"aba\");")]
     public void NativeStringCallsHaveCheckedTypes(string source) =>
         Assert.Empty(Compilation.Check("string-methods.ts",source));
 
@@ -61,6 +69,14 @@ public sealed class StringNativeMethodsTests
     [InlineData("let s:string=\"hi\";let wrong:boolean=s.toWellFormed();","TS2322")]
     [InlineData("let n:number=1;n.isWellFormed();","TS2339")]
     [InlineData("let n:number=1;n.toWellFormed();","TS2339")]
+    [InlineData("let s:string=\"abc\";s.replaceAll(\"a\");","TS2554")]
+    [InlineData("let s:string=\"abc\";s.replaceAll(1,\"x\");","TS2345")]
+    [InlineData("let s:string=\"abc\";s.replaceAll(\"a\",1);","TS2345")]
+    [InlineData("let s:string=\"abc\";s.replaceAll(\"a\",\"b\",\"c\");","TS2554")]
+    [InlineData("let s:string=\" hi \";s.trimLeft(1);","TS2554")]
+    [InlineData("let s:string=\" hi \";s.trimRight(\"a\");","TS2554")]
+    [InlineData("let s:string=\"hi\";s.toLocaleUpperCase(\"tr\");","TS2554")]
+    [InlineData("let result:boolean=\"HI\".toLocaleLowerCase();","TS2322")]
     public void InvalidStringCallsAreRejected(string source,string code) =>
         Assert.Contains(Compilation.Check("bad-string-methods.ts",source),d=>d.Code==code);
 }
