@@ -78,7 +78,9 @@ try {
     ['readonly-write','const p={kind:"ready"} as const;p.kind="later";','TS2540'],
     ['nested-readonly-write','const p={nested:{value:21}} as const;p.nested.value=22;','TS2540'],
     ['not-literal','let n=21;const p=n as const;','TS1355'],
-    ['tuple-outside-scope','const p=[21,22] as const;','TSCS1001']
+    ['tuple-outside-scope','const p=[21,22] as const;','TSCS1001'],
+    ['fresh-extra-annotation','let x:{a:1}={a:1,b:2} as const;','TS2353'],
+    ['fresh-extra-satisfies','let x=({a:1,b:2} as const) satisfies {a:1};','TS2353']
   ]) {
     writeFileSync(join(folder,name+'.ts'),source);
     const result=run(['--emitJs','--noLib','--target','es2015',join(folder,name+'.ts'),join(folder,'minimal.d.ts')]);

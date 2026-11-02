@@ -98,6 +98,8 @@ public sealed class TypeOperatorTests
     [InlineData("let value=21;const state=value as const;", "TS1355")]
     [InlineData("const state=(21+1) as const;", "TS1355")]
     [InlineData("const state=[21,22] as const;", "TSCS1001")]
+    [InlineData("let value:{a:1}={a:1,b:2} as const;", "TS2353")]
+    [InlineData("let value=({a:1,b:2} as const) satisfies {a:1};", "TS2353")]
     public void FiniteConstAssertionsRejectWritesAndUnsupportedCases(string source,string code) =>
         Assert.Contains(Compilation.Check("const-assertions.ts",source),d=>d.Code==code);
 }

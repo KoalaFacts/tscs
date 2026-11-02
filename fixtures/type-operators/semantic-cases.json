@@ -300,6 +300,20 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "type-operators:negative-23",
+      "source": "let value:{a:1}={a:1,b:2} as const;",
+      "expectedCodes": [
+        "TS2353"
+      ]
+    },
+    {
+      "id": "type-operators:negative-24",
+      "source": "let value=({a:1,b:2} as const) satisfies {a:1};",
+      "expectedCodes": [
+        "TS2353"
+      ]
     }
   ]
 }

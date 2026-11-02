@@ -2056,11 +2056,15 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         ValueNode operand=typeOperator.Expression;
                         while(operand is ValueParenthesized constGrouped)operand=constGrouped.Expression;
                         bool unsupportedLiteral=operand is ValueObject or ValueArray;
-                        throw new CompilationFailure(Diagnostic.Error(file,typeOperator.Keyword,
-                            unsupportedLiteral?"TSCS1001":"TS1355",
+                        // A rejected expression is an ordinary compiler error:
+                        // keep exit code 2 and prohibit emit instead of escaping
+                        // as a host exception with exit code 1.
+                        Error(typeOperator.Keyword,unsupportedLiteral?"TSCS1001":"TS1355",
                             unsupportedLiteral
                                 ?"This const assertion needs tuple, spread or nonliteral-property inference beyond the finite object subset."
-                                :"A const assertion must be applied to a literal expression."));
+                                :"A const assertion must be applied to a literal expression.");
+                        types.Push(null);
+                        continue;
                     }
                     types.Push(actual==null?null:narrowed);
                     continue;
@@ -2877,7 +2881,26 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     // types: a wider value in a variable remains structurally assignable.
     private bool CheckContextualLiteral(ValueNode value,TypeSymbol expected,TypeSymbol actual)
     {
-        while(value is ValueParenthesized group)value=group.Expression;
+        // Unlike an ordinary type assertion, 'as const' does not erase
+        // freshness. Preserve excess-property checks when a fresh const
+        // object is used under an annotation, return, call or 'satisfies'.
+        // Keep ordinary 'as SomeType' opaque: it deliberately changes the
+        // contextual expression being checked.
+        while(true)
+        {
+            if(value is ValueParenthesized literalGroup)
+            {
+                value=literalGroup.Expression;
+                continue;
+            }
+            if(value is ValueTypeOperator
+                {Keyword.Text:"as",Target:NamedTypeSyntax {Name.Kind:TokenKind.Const}} constant)
+            {
+                value=constant.Expression;
+                continue;
+            }
+            break;
+        }
         if(value is ValueConditional chosen && conditionalResults.TryGetValue(chosen,out var branches))
         {
             // Freshness is a property of the source arms, not the joined
