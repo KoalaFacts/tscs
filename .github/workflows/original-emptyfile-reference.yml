@@ -104,6 +104,7 @@ jobs:
           node tools/verify-keyof-object-reference.ts "$reference" .artifacts/keyof-object-reference
           node tools/verify-indexed-access-reference.ts "$reference" .artifacts/indexed-access-reference
           node tools/verify-indexed-access-reference.ts "$reference" .artifacts/array-indexed-types-reference fixtures/array-indexed-types/semantic-cases.json
+          node tools/verify-indexed-access-reference.ts "$reference" .artifacts/string-indexed-types-reference fixtures/string-indexed-types/semantic-cases.json
           node tools/verify-indexed-access-reference.ts "$reference" .artifacts/object-intersection-reference fixtures/object-intersection/semantic-cases.json
           node tools/verify-type-query-reference.ts "$reference" .artifacts/type-query-reference
           node tools/verify-type-query-reference.ts "$reference" .artifacts/function-types-reference fixtures/function-types/semantic-cases.json
@@ -205,6 +206,14 @@ jobs:
         with:
           name: pinned-array-queries-reference-${{ github.sha }}
           path: .artifacts/array-queries-reference/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Preserve bounded string indexed type source and pinned reference evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-string-indexed-types-reference-${{ github.sha }}
+          path: .artifacts/string-indexed-types-reference/
           if-no-files-found: warn
           retention-days: 30
       - name: Preserve bounded readonly array source and pinned reference evidence

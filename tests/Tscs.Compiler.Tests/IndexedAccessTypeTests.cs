@@ -63,4 +63,33 @@ public sealed class IndexedAccessTypeTests
     [InlineData("type A={0:number};type B={\"0\":number};let key:keyof (B|A)=\"0\";", "TS2322")]
     public void MissingOrUnimplementedIndexedTypesFailClosed(string source,string code) =>
         Assert.Contains(Compilation.Check("indexed-types-bad.ts",source),d=>d.Code==code);
+
+    [Theory]
+    [InlineData("type C=string[number];let x:C=\"a\";")]
+    [InlineData("type C=string[0];let x:C=\"a\";")]
+    [InlineData("type C=\"hello\"[1];let x:C=\"a\";")]
+    [InlineData("type C=string[\"length\"];let x:C=5;")]
+    [InlineData("type C=\"world\"[\"length\"];let x:C=5;")]
+    [InlineData("type C=string[number|\"length\"];let a:C=\"a\";let b:C=1;")]
+    [InlineData("type C=(\"abc\"|\"xyz\")[number];let a:C=\"q\";")]
+    [InlineData("type C=(\"abc\"|\"xyz\")[\"length\"];let a:C=1;")]
+    [InlineData("type K=number;type C=string[K];let a:C=\"a\";")]
+    [InlineData("type K=0|\"length\";type C=string[K];let a:C=1;let b:C=\"a\";")]
+    public void StringIndexedAccessTypesUseCodeUnitsAndLength(string source) =>
+        Assert.Empty(Compilation.Check("string-indexed-types.ts",source));
+
+    [Theory]
+    [InlineData("type C=string[number];let x:C=1;", "TS2322")]
+    [InlineData("type C=string[1];let x:C=true;", "TS2322")]
+    [InlineData("type C=\"hi\"[0];let x:C=42;", "TS2322")]
+    [InlineData("type C=string[\"length\"];let x:C=\"bad\";", "TS2322")]
+    [InlineData("type C=(\"a\"|\"b\")[\"length\"];let x:C=true;", "TS2322")]
+    [InlineData("type C=string[number|\"length\"];let x:C=false;", "TS2322")]
+    [InlineData("type K=\"length\";type C=string[K];let x:C=\"bad\";", "TS2322")]
+    [InlineData("const word:string=\"hi\";type C=typeof word[number];let x:C=false;", "TS2322")]
+    [InlineData("type C=string[\"missing\"];let x:C=1;", "TSCS1001")]
+    [InlineData("type C=string[boolean];let x:C=\"a\";", "TSCS1001")]
+    public void InvalidStringIndexedAccessTypesFailClosed(string source,string code) =>
+        Assert.Contains(Compilation.Check("string-indexed-types-bad.ts",source),
+            diagnostic=>diagnostic.Code==code);
 }

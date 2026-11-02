@@ -1,0 +1,113 @@
+{
+  "kind": "BOUNDED_STRING_INDEXED_TYPES_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "upstream": "upstream.lock.json",
+  "profile": "fixtures/string-indexed-types/minimal.d.ts",
+  "cases": [
+    {
+      "id": "string-indexed-types:positive-01",
+      "source": "type C=string[number];let x:C=\"a\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-indexed-types:positive-02",
+      "source": "type C=string[0];let x:C=\"a\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-indexed-types:positive-03",
+      "source": "type C=\"hello\"[1];let x:C=\"a\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-indexed-types:positive-04",
+      "source": "type C=string[\"length\"];let x:C=5;",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-indexed-types:positive-05",
+      "source": "type C=\"world\"[\"length\"];let x:C=5;",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-indexed-types:positive-06",
+      "source": "type C=string[number|\"length\"];let a:C=\"a\";let b:C=1;",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-indexed-types:positive-07",
+      "source": "type C=(\"abc\"|\"xyz\")[number];let a:C=\"q\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-indexed-types:positive-08",
+      "source": "type C=(\"abc\"|\"xyz\")[\"length\"];let a:C=1;",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-indexed-types:positive-09",
+      "source": "type K=number;type C=string[K];let a:C=\"a\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-indexed-types:positive-10",
+      "source": "type K=0|\"length\";type C=string[K];let a:C=1;let b:C=\"a\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "string-indexed-types:negative-01",
+      "source": "type C=string[number];let x:C=1;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-indexed-types:negative-02",
+      "source": "type C=string[1];let x:C=true;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-indexed-types:negative-03",
+      "source": "type C=\"hi\"[0];let x:C=42;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-indexed-types:negative-04",
+      "source": "type C=string[\"length\"];let x:C=\"bad\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-indexed-types:negative-05",
+      "source": "type C=(\"a\"|\"b\")[\"length\"];let x:C=true;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-indexed-types:negative-06",
+      "source": "type C=string[number|\"length\"];let x:C=false;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-indexed-types:negative-07",
+      "source": "type K=\"length\";type C=string[K];let x:C=\"bad\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "string-indexed-types:negative-08",
+      "source": "const word:string=\"hi\";type C=typeof word[number];let x:C=false;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}
