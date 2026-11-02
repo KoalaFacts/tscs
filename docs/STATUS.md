@@ -1,3 +1,18 @@
+## 2026-11-02 — Common callable members across object unions (candidate; NOT_RUN)
+
+When every finite object-union branch exposes a callable property with exactly
+matching checked input types, required arity and rest contract, the compiler now
+unifies those calls and joins their return types. Dot and literal-bracket member
+calls reuse the existing Parser, Binder, TypeChecker, module graph and native
+ES2015 emitter. Optional/missing properties, differing parameter contracts,
+mixed any/typed parameters and native intrinsic overloads are **not**
+silently merged. Sixteen stable bounded pinned-Go differential source/diagnostic
+IDs, source-backed C# tests and four linked Node modules have been registered,
+but are NOT_RUN pending exact-SHA hosted validation. Existing frozen cohorts and
+the full original TS7 0 PASS / 15,523 SKIP_UNIMPLEMENTED,
+dynamic UNEXPANDED, are unchanged. No source pin, release gate, test minimum
+or protection settings changed.
+
 ## 2026-11-02 — Native ES2022 String.at with signed UTF-16 indexing (candidate; NOT_RUN)
 
 The C# compiler now checks native `string.at(index:number): string | undefined`

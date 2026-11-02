@@ -78,6 +78,7 @@ node tools/verify-object-index-emit.ts
 node tools/verify-in-operator-emit.ts
 node tools/verify-for-in-emit.ts
 node tools/verify-union-property-writes-emit.ts
+node tools/verify-common-union-call-emit.ts
 node tools/verify-numeric-object-keys-emit.ts
 node tools/verify-keyof-object-emit.ts
 node tools/verify-indexed-access-emit.ts

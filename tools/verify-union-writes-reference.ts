@@ -5,17 +5,20 @@ import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {basename,join,resolve} from 'node:path';
 
 // An isolated, source-bound differential. Not original TS7 harness acceptance.
-const [referenceArg,outputArg]=process.argv.slice(2);
+const [referenceArg,outputArg,optionalSuitePath]=process.argv.slice(2);
 assert.ok(referenceArg&&outputArg,'usage: node tools/verify-union-writes-reference.ts <pinned-go-tsc> <fresh-evidence-directory>');
 const root=process.cwd(),reference=resolve(referenceArg),out=resolve(outputArg);
 assert.ok(!existsSync(out),'never overwrite prior evidence');
 mkdirSync(out,{recursive:true});
 const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
-const suitePath='fixtures/union-property-writes/semantic-cases.json';
+const calls=optionalSuitePath==='fixtures/union-callable/semantic-cases.json';
+assert.ok(optionalSuitePath==null||calls,'unregistered bounded cohort');
+const suitePath=optionalSuitePath??'fixtures/union-property-writes/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
-assert.equal(suite.kind,'BOUNDED_COMMON_UNION_PROPERTY_WRITES_NOT_ORIGINAL_TS7_ACCEPTANCE');
+assert.equal(suite.kind,calls?'BOUNDED_COMMON_UNION_CALLS_NOT_ORIGINAL_TS7_ACCEPTANCE':
+  'BOUNDED_COMMON_UNION_PROPERTY_WRITES_NOT_ORIGINAL_TS7_ACCEPTANCE');
 assert.equal(suite.upstreamCommit,pin.commit);
-assert.equal(suite.cases.length,16,'do not shrink or silently reclassify the frozen cohort');
+assert.equal(suite.cases.length,16,'do not shrink or silently reclassify either frozen cohort');
 const minimalProfile='fixtures/minimal.d.ts';
 const minimal=readFileSync(minimalProfile);
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
@@ -45,7 +48,7 @@ const diagnostics=(value:ReturnType<typeof run>)=>
 const seen=new Set<string>(),results:object[]=[],mismatches:object[]=[];
 for(let index=0;index<suite.cases.length;index++){
   const test=suite.cases[index];
-  assert.match(test.id,/^union-property-writes:(positive|negative)-\d{2}$/);
+  assert.match(test.id,calls?/^union-callable:(positive|negative)-\d{2}$/:/^union-property-writes:(positive|negative)-\d{2}$/);
   assert.ok(!seen.has(test.id),'duplicate stable case ID');seen.add(test.id);
   assert.equal(typeof test.source,'string');
   assert.ok(Array.isArray(test.expectedCodes));

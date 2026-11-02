@@ -574,6 +574,29 @@ internal static class CompilerTypes
                 if(member==null)return null;
                 found.Add(member);
             }
+            // A union of object methods is safely callable when every arm
+            // accepts *exactly* the same checked arguments. Their return may
+            // differ; the observable result is the union of their returns.
+            // Never merge merely assignable parameter types (in particular
+            // any versus number), optionality, rests or native intrinsics.
+            if(found.All(type=>type is FunctionTypeSymbol))
+            {
+                var candidates=found.Cast<FunctionTypeSymbol>().ToArray();
+                var first=candidates[0];
+                static bool Plain(FunctionTypeSymbol function)=>
+                    function.NativeArrayMapElementType is null &&
+                    function.NativeArrayReduceElementType is null &&
+                    function.NativeArrayToSplicedElementType is null;
+                if(Plain(first) && candidates.All(other=>Plain(other) &&
+                    other.Parameters.Count==first.Parameters.Count &&
+                    other.MinimumArguments==first.MinimumArguments &&
+                    Equals(other.RestElementType,first.RestElementType) &&
+                    other.Parameters.Zip(first.Parameters).All(pair=>
+                        Equals(pair.First,pair.Second))))
+                    return new FunctionTypeSymbol(first.Parameters,
+                        Union(candidates.Select(candidate=>candidate.ReturnType)),
+                        first.MinimumArguments,first.RestElementType);
+            }
             return Union(found);
         }
         return null;
