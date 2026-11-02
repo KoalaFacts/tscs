@@ -1413,10 +1413,17 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     Unsupported(Current,"Tuple holes and rest elements are not supported.");
                 // TS 5.2+ allows mixed labeled and unnamed tuple slots; labels
                 // are type-only metadata, so existing positional types suffice.
-                bool hasLabel=Current.Kind is (TokenKind.Identifier or
+                bool labelToken=Current.Kind is (TokenKind.Identifier or
                     TokenKind.Type or TokenKind.Interface or TokenKind.Function or
                     TokenKind.Import or TokenKind.Let or TokenKind.Void or
-                    TokenKind.Typeof or TokenKind.True or TokenKind.False or TokenKind.Null) &&
+                    TokenKind.Typeof or TokenKind.True or TokenKind.False or TokenKind.Null) ||
+                    // Scanner marks strict-reserved identifiers as Unsupported.
+                    // Recognize them only in tuple-label position to report
+                    // the concrete TS1212 instead of a generic unsupported error.
+                    Current.Kind==TokenKind.Unsupported && Current.Text is
+                        ("implements" or "package" or "private" or "protected" or
+                         "public" or "static" or "yield");
+                bool hasLabel=labelToken &&
                     position+1<tokens.Count && tokens[position+1].Kind==TokenKind.Colon;
                 if(hasLabel)
                 {
@@ -1424,9 +1431,9 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     // The pinned TS7 reference is strict: a subset of
                     // identifier-like words is forbidden as a binding label.
                     if(label.Kind is TokenKind.Interface or TokenKind.Let ||
-                       label.Kind==TokenKind.Identifier && label.Text is
-                           ("implements" or "package" or "private" or "protected" or
-                            "public" or "static" or "yield"))
+                       label.Kind is (TokenKind.Identifier or TokenKind.Unsupported) &&
+                       label.Text is ("implements" or "package" or "private" or
+                           "protected" or "public" or "static" or "yield"))
                         throw new CompilationFailure(Diagnostic.Error(file,label,"TS1212",
                             $"Identifier expected. '{label.Text}' is a reserved word in strict mode."));
                     if(label.Kind==TokenKind.Identifier && label.Text=="enum")
