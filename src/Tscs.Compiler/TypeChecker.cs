@@ -228,9 +228,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                            readonlyShape.ReadonlyMembers.Contains(assignment.Target.Name.Text))
                             throw new CompilationFailure(Diagnostic.Error(file,assignment.Target.Name,"TS2540",
                                 $"Cannot assign to '{assignment.Target.Name.Text}' because it is a read-only property."));
-                        if(propertyReceiver is UnionTypeSymbol)
-                            throw new CompilationFailure(Diagnostic.Error(file,assignment.Target.Name,"TSCS1001",
-                                "Writes through union-typed receivers are not supported yet."));
+                        if(propertyReceiver is UnionTypeSymbol writableUnion)
+                            RequireCommonWritableUnionProperty(writableUnion,assignment.Target.Name.Text,assignment.Target.Name);
                         // Mutating a property does not rebind a const or an import.
                         // TypeOf still enforces initialization of the receiver.
                         var propertyType=TypeOf(assignment.Target,scope);
@@ -277,9 +276,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                                    readonlyCompoundShape.ReadonlyMembers.Contains(propertyTarget.Name.Text))
                                     throw new CompilationFailure(Diagnostic.Error(file,propertyTarget.Name,"TS2540",
                                         $"Cannot assign to '{propertyTarget.Name.Text}' because it is a read-only property."));
-                                if(compoundReceiver is UnionTypeSymbol)
-                                    throw new CompilationFailure(Diagnostic.Error(file,propertyTarget.Name,"TSCS1001",
-                                        "Writes through union-typed receivers are not supported yet."));
+                                if(compoundReceiver is UnionTypeSymbol compoundUnion)
+                                    RequireCommonWritableUnionProperty(compoundUnion,propertyTarget.Name.Text,propertyTarget.Name);
                                 targetType=TypeOf(propertyTarget,scope);
                                 break;
                             case ValueElementAccess elementTarget:
@@ -558,6 +556,79 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         return false;
     }
 
+    // Writes to a union must be valid for every runtime alternative. The
+    // bounded implementation admits shared required, mutable properties only;
+    // unlike a union read, a write cannot use a union of property value types.
+    // Assignment compatibility is too permissive for writable alternatives:
+    // any must NOT match concrete types, even inside arrays/nested objects.
+    // Unknown callable/recursive relationships fail closed rather than
+    // accepting a write that is invalid for one union branch.
+    private static bool SameWritableType(TypeSymbol left,TypeSymbol right)
+    {
+        // Shared alias graphs can otherwise cause exponentially many repeated
+        // comparisons. Use reference identity rather than record equality,
+        // which itself can recursively traverse structural type children.
+        var comparisons=new Dictionary<TypeSymbol,Dictionary<TypeSymbol,bool>>(ReferenceEqualityComparer.Instance);
+        int budget=16384;
+        bool Check(TypeSymbol a,TypeSymbol b,int depth)
+        {
+            if(ReferenceEquals(a,b))return true;
+            if(depth>=64)return false;
+            if(comparisons.TryGetValue(a,out var row) &&
+               row.TryGetValue(b,out var previous))return previous;
+            if(--budget<0)return false;
+            row ??=new Dictionary<TypeSymbol,bool>(ReferenceEqualityComparer.Instance);
+            comparisons[a]=row;
+            row[b]=false; // Recursive structural graphs fail closed.
+            bool result=(a,b) switch
+            {
+                (PrimitiveTypeSymbol x,PrimitiveTypeSymbol y)=>x.Kind==y.Kind,
+                (LiteralTypeSymbol x,LiteralTypeSymbol y)=>x.Kind==y.Kind && x.Value==y.Value,
+                (ArrayTypeSymbol x,ArrayTypeSymbol y)=>x.Readonly==y.Readonly &&
+                    Check(x.ElementType,y.ElementType,depth+1),
+                (ObjectTypeSymbol x,ObjectTypeSymbol y)=>
+                    x.Members.Count==y.Members.Count &&
+                    x.ReadonlyMembers.SetEquals(y.ReadonlyMembers) &&
+                    x.OptionalMembers.SetEquals(y.OptionalMembers) &&
+                    x.NumericMembers.SetEquals(y.NumericMembers) &&
+                    x.Members.All(kv=>y.Members.TryGetValue(kv.Key,out var value) &&
+                        Check(kv.Value,value,depth+1)),
+                (UnionTypeSymbol x,UnionTypeSymbol y)=>
+                    x.Alternatives.Count==y.Alternatives.Count &&
+                    x.Alternatives.Select((value,i)=>Check(value,y.Alternatives[i],depth+1)).All(ok=>ok),
+                // Only identical canonical callable references are admitted.
+                _=>false
+            };
+            row[b]=result;
+            return result;
+        }
+        return Check(left,right,0);
+    }
+
+    private TypeSymbol RequireCommonWritableUnionProperty(UnionTypeSymbol union,string name,Token location)
+    {
+        TypeSymbol? common=null;
+        foreach(var alternative in union.Alternatives)
+        {
+            if(alternative is not ObjectTypeSymbol shape ||
+               !shape.Members.TryGetValue(name,out var member))
+                throw new CompilationFailure(Diagnostic.Error(file,location,"TS2339",
+                    $"Property '{name}' does not exist on type '{union.DisplayName}'."));
+            if(shape.ReadonlyMembers.Contains(name))
+                throw new CompilationFailure(Diagnostic.Error(file,location,"TS2540",
+                    $"Cannot assign to '{name}' because it is a read-only property."));
+            if(shape.OptionalMembers.Contains(name))
+                throw new CompilationFailure(Diagnostic.Error(file,location,"TSCS1001",
+                    "Writes to optional members of union receivers are not supported yet."));
+            if(common is not null && !SameWritableType(common,member))
+                throw new CompilationFailure(Diagnostic.Error(file,location,"TSCS1001",
+                    "Union writes require an equivalent property type in every alternative."));
+            common=member;
+        }
+        return common??throw new CompilationFailure(Diagnostic.Error(file,location,"TSCS1001",
+            "A union write requires at least one checked object alternative."));
+    }
+
     private void EnsureWritableIndex(ValueElementAccess target,TypeSymbol? receiver)
     {
         if(receiver is ArrayTypeSymbol {Readonly:true} readonlyArray)
@@ -570,9 +641,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         if(receiver is ObjectTypeSymbol shape && shape.ReadonlyMembers.Contains(key))
             throw new CompilationFailure(Diagnostic.Error(file,target.Open,"TS2540",
                 $"Cannot assign to '{key}' because it is a read-only property."));
-        if(receiver is UnionTypeSymbol)
-            throw new CompilationFailure(Diagnostic.Error(file,target.Open,"TSCS1001",
-                "Writes through union-typed receivers are not supported yet."));
+        if(receiver is UnionTypeSymbol union)
+            RequireCommonWritableUnionProperty(union,key,target.Open);
     }
 
     // Do not type-check a receiver/index twice: a computed index can itself mutate state.
@@ -606,9 +676,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 if(propertyReceiver is ObjectTypeSymbol shape && shape.ReadonlyMembers.Contains(property.Name.Text))
                     throw new CompilationFailure(Diagnostic.Error(file,property.Name,"TS2540",
                         $"Cannot assign to '{property.Name.Text}' because it is a read-only property."));
-                if(propertyReceiver is UnionTypeSymbol)
-                    throw new CompilationFailure(Diagnostic.Error(file,property.Name,"TSCS1001",
-                        "Writes through union-typed receivers are not supported yet."));
+                if(propertyReceiver is UnionTypeSymbol updateUnion)
+                    RequireCommonWritableUnionProperty(updateUnion,property.Name.Text,property.Name);
                 current=CompilerTypes.TryGetProperty(propertyReceiver,property.Name.Text);
                 if(current==null)
                     Error(property.Name,"TS2339",
@@ -618,7 +687,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 var elementReceiver=TypeOf(element.Receiver,scope);
                 var indexType=TypeOf(element.Index,scope);
                 bool namedObjectIndex=TryStaticNamedIndex(element.Index,elementReceiver,out var propertyName) &&
-                    elementReceiver is ObjectTypeSymbol;
+                    (elementReceiver is ObjectTypeSymbol || elementReceiver is UnionTypeSymbol union &&
+                     union.Alternatives.All(part=>part is ObjectTypeSymbol));
                 if(indexType!=null && !CompilerTypes.IsNumber(indexType) && !namedObjectIndex)
                     throw new CompilationFailure(Diagnostic.Error(file,element.Open,"TSCS1001",
                         "Indexed updates currently require a number expression."));
@@ -631,7 +701,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     return null;
                 }
                 EnsureWritableIndex(element,elementReceiver);
-                if(namedObjectIndex && elementReceiver is ObjectTypeSymbol namedObject)
+                if(namedObjectIndex && elementReceiver is { } namedObject)
                 {
                     current=CompilerTypes.TryGetProperty(namedObject,propertyName);
                     if(current==null)

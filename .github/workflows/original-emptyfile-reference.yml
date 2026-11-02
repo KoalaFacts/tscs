@@ -97,6 +97,7 @@ jobs:
           node tools/verify-switch-reference.ts "$reference" .artifacts/object-index-reference fixtures/object-index/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/in-operator-reference fixtures/in-operator/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/for-in-reference fixtures/for-in/semantic-cases.json
+          node tools/verify-union-writes-reference.ts "$reference" .artifacts/union-writes-reference
           node tools/verify-switch-reference.ts "$reference" .artifacts/numeric-object-keys-reference fixtures/numeric-object-keys/semantic-cases.json
           node tools/verify-switch-reference.ts "$reference" .artifacts/binding-pattern-reference fixtures/binding-pattern/semantic-cases.json
           node tools/verify-keyof-object-reference.ts "$reference" .artifacts/keyof-object-reference
@@ -353,6 +354,14 @@ jobs:
         with:
           name: pinned-numeric-object-keys-reference-${{ github.sha }}
           path: .artifacts/numeric-object-keys-reference/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Preserve bounded finite union-property write evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-union-property-writes-reference-${{ github.sha }}
+          path: .artifacts/union-writes-reference/
           if-no-files-found: warn
           retention-days: 30
       - name: Preserve bounded for-in reference inputs and raw results
