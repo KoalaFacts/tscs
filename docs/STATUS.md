@@ -1,3 +1,20 @@
+## 2026-11-02 — Finite deep-readonly const array tuples (candidate; NOT_RUN)
+
+The C# semantic array model now retains individual exact literal/readonly
+elements for bounded `as const` arrays, including arrays nested in objects or
+other tuples. `typeof value[0]`, `T[number]`, exact tuple length,
+direct indexed reads, cross-module value flow and native ES2015 output share
+the existing compiler pipeline. Out-of-bounds constant indices, readonly
+writes and assignments to mutable arrays must fail; dynamic indices use the
+safe joined element type. Spreads, nonliteral elements, tuple type-annotation
+syntax and unrestricted variadic/optional tuples remain unsupported.
+The frozen 53-case type-operator cohort is unchanged; 18 additive stable
+pinned-Go source/diagnostic IDs use an explicit separate readonly-array ambient,
+with source-backed xUnit and four linked runtime modules. Exact-head validation
+is NOT_RUN at candidate creation. This is not original TS7 acceptance:
+historically 0 PASS / 15,523 SKIP_UNIMPLEMENTED and dynamic UNEXPANDED.
+No pin, release gate, global minimum, branch protection or license change.
+
 ## 2026-11-02 — Finite deep-readonly object const assertions (candidate; NOT_RUN)
 
 The contextual `as const` operator now preserves exact primitive literal types

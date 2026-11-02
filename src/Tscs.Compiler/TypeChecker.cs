@@ -6,6 +6,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     private readonly List<Diagnostic> diagnostics=[];
     private readonly Dictionary<ValueConditional,(TypeSymbol? True,TypeSymbol? False)> conditionalResults = new(ReferenceEqualityComparer.Instance);
     private readonly Dictionary<ValueBinary,LogicalValueOutcome> logicalResults = new(ReferenceEqualityComparer.Instance);
+    // Array inference collects exact checked types before primitive widening.
+    // Contextual tuple checks must use each slot, not the joined array element.
+    private readonly Dictionary<ValueArray,TypeSymbol?[]> checkedArrayElements = new(ReferenceEqualityComparer.Instance);
     // Logical expressions use bounded recursion only to check the RHS in the
     // appropriate short-circuit flow scope; other expression chains remain iterative.
     private int logicalEvaluationDepth;
@@ -577,6 +580,29 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     // any must NOT match concrete types, even inside arrays/nested objects.
     // Unknown callable/recursive relationships fail closed rather than
     // accepting a write that is invalid for one union branch.
+    private static bool IsStaticTupleNumericIndex(ValueNode index)
+    {
+        while(index is ValueParenthesized grouped)index=grouped.Expression;
+        return index is ValueAtom {Token.Kind:TokenKind.Number} or
+            ValueUnary {Operator.Kind:TokenKind.Minus,Operand:ValueAtom {Token.Kind:TokenKind.Number}};
+    }
+
+    private static bool TryFiniteTupleIndex(ValueNode index,out long position)
+    {
+        while(index is ValueParenthesized grouped)index=grouped.Expression;
+        if(index is ValueAtom {Token.Kind:TokenKind.Number} numeric &&
+           double.TryParse(numeric.Token.Value??numeric.Token.Text,
+               System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,
+               out var value) && double.IsFinite(value) &&
+           value>=0 && value<=9007199254740991d && Math.Truncate(value)==value)
+        {
+            position=(long)value;
+            return true;
+        }
+        position=0;
+        return false;
+    }
+
     private static bool SameWritableType(TypeSymbol left,TypeSymbol right)
     {
         // Shared alias graphs can otherwise cause exponentially many repeated
@@ -599,6 +625,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 (PrimitiveTypeSymbol x,PrimitiveTypeSymbol y)=>x.Kind==y.Kind,
                 (LiteralTypeSymbol x,LiteralTypeSymbol y)=>x.Kind==y.Kind && x.Value==y.Value,
                 (ArrayTypeSymbol x,ArrayTypeSymbol y)=>x.Readonly==y.Readonly &&
+                    (x.TupleElements is null)==(y.TupleElements is null) &&
+                    (x.TupleElements is null || x.TupleElements.Count==y.TupleElements!.Count &&
+                       x.TupleElements.Select((t,i)=>Check(t,y.TupleElements[i],depth+1)).All(v=>v)) &&
                     Check(x.ElementType,y.ElementType,depth+1),
                 (ObjectTypeSymbol x,ObjectTypeSymbol y)=>
                     x.Members.Count==y.Members.Count &&
@@ -646,8 +675,13 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     private void EnsureWritableIndex(ValueElementAccess target,TypeSymbol? receiver)
     {
         if(receiver is ArrayTypeSymbol {Readonly:true} readonlyArray)
+        {
+            if(readonlyArray.TupleElements is not null && TryFiniteTupleIndex(target.Index,out var position))
+                throw new CompilationFailure(Diagnostic.Error(file,target.Open,"TS2540",
+                    $"Cannot assign to '{position}' because it is a read-only property."));
             throw new CompilationFailure(Diagnostic.Error(file,target.Open,"TS2542",
                 $"Index signature in type '{readonlyArray.DisplayName}' only permits reading."));
+        }
         if(CompilerTypes.IsStringFamily(receiver))
             throw new CompilationFailure(Diagnostic.Error(file,target.Open,"TS2542",
                 "Index signature in type 'String' only permits reading."));
@@ -657,6 +691,44 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 $"Cannot assign to '{key}' because it is a read-only property."));
         if(receiver is UnionTypeSymbol union)
             RequireCommonWritableUnionProperty(union,key,target.Open);
+    }
+
+    // Compile-time literal indices, including const variables and finite
+    // literal unions, must never fall back to a tuple's joined element type.
+    // Only an unknown runtime number may use the joined type.
+    private TypeSymbol ResolveFiniteTupleRead(
+        ArrayTypeSymbol receiver,ValueNode syntax,TypeSymbol selector,Token location)
+    {
+        var slots=receiver.TupleElements!;
+        TypeSymbol At(string value)
+        {
+            if(!long.TryParse(value,System.Globalization.NumberStyles.Integer,
+                   System.Globalization.CultureInfo.InvariantCulture,out var position) ||
+               position<0 || position>9007199254740991L)
+                throw new CompilationFailure(Diagnostic.Error(file,location,"TSCS1001",
+                    "Tuple index must be a non-negative safe integer."));
+            if(position>=slots.Count)
+                throw new CompilationFailure(Diagnostic.Error(file,location,"TS2493",
+                    $"Tuple type '{receiver.DisplayName}' of length '{slots.Count}' has no element at index '{position}'."));
+            return slots[(int)position];
+        }
+        if(TryFiniteTupleIndex(syntax,out var direct))
+            return At(direct.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        if(IsStaticTupleNumericIndex(syntax))
+            throw new CompilationFailure(Diagnostic.Error(file,location,"TSCS1001",
+                "Tuple literal indices must be non-negative safe integers."));
+        if(selector is LiteralTypeSymbol { Kind:PrimitiveKind.Number } literal)
+            return At(literal.Value);
+        if(selector is UnionTypeSymbol union &&
+           union.Alternatives.All(t=>t is LiteralTypeSymbol { Kind:PrimitiveKind.Number }))
+        {
+            try {return CompilerTypes.Union(union.Alternatives.Cast<LiteralTypeSymbol>().Select(t=>At(t.Value)));}
+            catch(InvalidOperationException failure)
+            {
+                throw new CompilationFailure(Diagnostic.Error(file,location,"TSCS1001",failure.Message));
+            }
+        }
+        return receiver.ElementType;
     }
 
     // Do not type-check a receiver/index twice: a computed index can itself mutate state.
@@ -2059,7 +2131,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         throw new CompilationFailure(Diagnostic.Error(file,typeOperator.Keyword,
                             unsupportedLiteral?"TSCS1001":"TS1355",
                             unsupportedLiteral
-                                ?"This const assertion needs tuple, spread or nonliteral-property inference beyond the finite object subset."
+                                ?"This const assertion exceeds the supported finite tuple/object subset or contains a spread/nonliteral member."
                                 :"A const assertion must be applied to a literal expression."));
                     }
                     types.Push(actual==null?null:narrowed);
@@ -2125,9 +2197,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 }
                 TypeSymbol element=CompilerTypes.Never;
                 bool known=true;
+                var checkedElements=new TypeSymbol?[arrayLiteral.Elements.Count];
                 for(int i=arrayLiteral.Elements.Count-1;i>=0;i--)
                 {
                     var next=types.Pop();
+                    checkedElements[i]=next;
                     if(next!=null)
                         next=WidenMutableLiteral(next,arrayLiteral.Elements[i],scope);
                     if(next==null)known=false;
@@ -2141,6 +2215,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         }
                     }
                 }
+                checkedArrayElements[arrayLiteral]=checkedElements;
                 types.Push(known?new ArrayTypeSymbol(element):null);
                 continue;
             }
@@ -2194,7 +2269,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
                         "Indexed reads currently require a number expression."));
                 if(presentReceiver is ArrayTypeSymbol array)
-                    PushOptionalResult(indexed,array.ElementType,isChain,mayBeUndefined);
+                {
+                    PushOptionalResult(indexed,array.TupleElements is not null && indexType is not null
+                        ?ResolveFiniteTupleRead(array,indexed.Index,indexType,indexed.Open)
+                        :array.ElementType,isChain,mayBeUndefined);
+                }
                 else if(CompilerTypes.IsStringFamily(presentReceiver))
                     PushOptionalResult(indexed,CompilerTypes.String,isChain,mayBeUndefined);
                 else if(presentReceiver==null || indexType==null)
@@ -2789,6 +2868,17 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         return null;
     }
 
+    // TypeOf has already evaluated these children, including identifiers,
+    // indexed reads and nested tuple values. Rechecking them could repeat
+    // side effects; synthesizing their types from a joined union loses slots.
+    private TypeSymbol? CheckedTupleElement(ValueArray array,int index)
+    {
+        if(checkedArrayElements.TryGetValue(array,out var checkedTypes) &&
+           index<checkedTypes.Length && checkedTypes[index] is { } checkedType)
+            return checkedType;
+        return CompilerTypes.FromInitializer(array.Elements[index]);
+    }
+
     private bool IsAssignableContextually(ValueNode expression,TypeSymbol actual,TypeSymbol expected,int depth=0)
     {
         if(depth>64)return false;
@@ -2846,6 +2936,22 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         if(expression is ValueArray elements && actual is ArrayTypeSymbol sourceArray &&
            expected is ArrayTypeSymbol targetArray)
         {
+            // Contextual tuple annotations require all positions; a raw
+            // never[] / T[] cannot fill a tuple just by sharing element type.
+            if(targetArray.TupleElements is { } tuple)
+            {
+                if(elements.Elements.Count!=tuple.Count ||
+                   elements.Elements.Any(item=>item is ValueArraySpread))return false;
+                for(int i=0;i<tuple.Count;i++)
+                {
+                    var element=elements.Elements[i];
+                    var checkedType=CheckedTupleElement(elements,i);
+                    if(checkedType is null ||
+                       !IsAssignableContextually(element,checkedType,tuple[i],depth+1))
+                        return false;
+                }
+                return true;
+            }
             // The fixed TS7 Go compiler also widens the primitive-tagged
             // members of freshly inferred heterogeneous object arrays.
             // A union of distinct object shapes is not an individual element's
@@ -2944,6 +3050,36 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         if(value is ValueArray literalArray && expected is ArrayTypeSymbol targetArray &&
            actual is ArrayTypeSymbol sourceArray)
         {
+            if(targetArray.TupleElements is { } slots)
+            {
+                if(literalArray.Elements.Count!=slots.Count ||
+                   literalArray.Elements.Any(item=>item is ValueArraySpread))
+                {
+                    Error(literalArray.Open,"TS2322",
+                        $"Array literal does not match the length of tuple type '{targetArray.DisplayName}'.");
+                    return false;
+                }
+                bool tupleValid=true;
+                for(int i=0;i<slots.Count;i++)
+                {
+                    var element=literalArray.Elements[i];
+                    var inferred=CheckedTupleElement(literalArray,i);
+                    if(inferred is null)
+                    {
+                        Error(literalArray.Open,"TSCS1001",
+                            "Contextual tuple element type could not be checked.");
+                        tupleValid=false;
+                        continue;
+                    }
+                    if(!CheckContextualLiteral(element,slots[i],inferred))tupleValid=false;
+                    else if(!IsAssignableContextually(element,inferred,slots[i]))
+                    {
+                        Mismatch(literalArray.Open,inferred,slots[i]);
+                        tupleValid=false;
+                    }
+                }
+                return tupleValid;
+            }
             // Do not apply contextual literal refinement when the expected
             // element is a union of distinct object alternatives. The pinned
             // Go source profile widens raw array member discriminants before

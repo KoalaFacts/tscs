@@ -67,6 +67,17 @@ internal static class TypeDisplay
                     Text("{");
                     break;
                 case ArrayTypeSymbol array:
+                    if(array.TupleElements is { } tuple)
+                    {
+                        Text("]");
+                        for(int i=tuple.Count-1;i>=0;i--)
+                        {
+                            Type(tuple[i]);
+                            if(i>0)Text(", ");
+                        }
+                        Text(array.Readonly?"readonly [":"[");
+                        break;
+                    }
                     if(array.ElementType is UnionTypeSymbol)
                     {
                         Text(")[]");
