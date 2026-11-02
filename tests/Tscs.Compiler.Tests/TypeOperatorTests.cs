@@ -46,13 +46,30 @@ public sealed class TypeOperatorTests
         Assert.Contains(diagnostics,d=>d.Code=="TS2322");
     }
 
-    [Fact]
-    public void UnsupportedDiscriminantUnionSatisfiesFailsClosed()
-    {
-        var source="type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; " +
-            "let p = { kind: \"a\", value: 1 } satisfies V;";
-        Assert.Contains(Compilation.Check("type-operators.ts",source),d=>d.Code=="TSCS1001");
-    }
+    [Theory]
+    [InlineData("type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; let p = { kind: \"a\", value: 21 } satisfies V; let tag: \"a\" = p.kind; let n: number = p.value;")]
+    [InlineData("type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; let p = { kind: \"b\", label: \"ok\" } satisfies V; let tag: \"b\" = p.kind; let s: string = p.label;")]
+    [InlineData("type V = { kind: \"a\" | \"aa\"; value: number } | { kind: \"b\"; label: string }; let p = { kind: \"aa\", value: 21 } satisfies V; let tag: \"aa\" = p.kind;")]
+    [InlineData("type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; let p = ({ kind: \"a\", value: 5 } satisfies V); p.value = 6;")]
+    [InlineData("type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; function make(n:number):{kind:\"a\";value:number}{return {kind:\"a\",value:n} satisfies V;} let x:number=make(21).value;")]
+    [InlineData("type V={kind:\"a\"; data:{score:number}}|{kind:\"b\"; label:string}; let p={kind:\"a\",data:{score:21}} satisfies V;let n:number=p.data.score;")]
+    public void FreshDiscriminatedSatisfiesChecksSelectedArm(string source) =>
+        Assert.Empty(Compilation.Check("discriminated-satisfies.ts",source));
+
+    [Theory]
+    [InlineData("type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; let p = { kind: \"a\", value: 21 } satisfies V; p.kind = \"b\";", "TS2322")]
+    [InlineData("type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; let p = { kind: \"a\", value: 21 } satisfies V; let bad: \"b\" = p.kind;", "TS2322")]
+    [InlineData("type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; let p = { kind: \"a\", value: \"bad\" } satisfies V;", "TS2322")]
+    [InlineData("type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; let p = { kind: \"a\", value: 21, label: \"wrong\" } satisfies V;", "TS2353")]
+    public void DiscriminatedSatisfiesRejectsUnsoundWritesAndShapes(string source,string code) =>
+        Assert.Contains(Compilation.Check("discriminated-satisfies.ts",source),d=>d.Code==code);
+
+    [Theory]
+    [InlineData("type V={kind:\"a\";value:number}|{kind:\"b\";label:string};let p={kind:\"c\",value:1} satisfies V;")]
+    [InlineData("type V={kind:\"a\";value:number}|{kind:\"a\";label:string};let p={kind:\"a\",value:1} satisfies V;")]
+    [InlineData("type V={kind:\"a\";value:number}|{kind:\"b\";label:string};let kind:string=\"a\";let p={kind:kind,value:1} satisfies V;")]
+    public void AmbiguousOrUnresolvedDiscriminantsFailClosed(string source) =>
+        Assert.Contains(Compilation.Check("discriminated-satisfies.ts",source),d=>d.Code=="TSCS1001");
 
     [Fact]
     public void TypeOperatorsDoNotReplaceRuntimeValidation()

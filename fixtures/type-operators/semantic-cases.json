@@ -146,6 +146,64 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "type-operators:positive-16",
+      "source": "type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; let p = { kind: \"a\", value: 21 } satisfies V; let tag: \"a\" = p.kind; let n: number = p.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-17",
+      "source": "type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; let p = { kind: \"b\", label: \"ok\" } satisfies V; let tag: \"b\" = p.kind; let s: string = p.label;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-18",
+      "source": "type V = { kind: \"a\" | \"aa\"; value: number } | { kind: \"b\"; label: string }; let p = { kind: \"aa\", value: 21 } satisfies V; let tag: \"aa\" = p.kind;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-19",
+      "source": "type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; let p = ({ kind: \"a\", value: 5 } satisfies V); p.value = 6;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-20",
+      "source": "type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; function make(n:number):{kind:\"a\";value:number}{return {kind:\"a\",value:n} satisfies V;} let x:number=make(21).value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-21",
+      "source": "type V={kind:\"a\"; data:{score:number}}|{kind:\"b\"; label:string}; let p={kind:\"a\",data:{score:21}} satisfies V;let n:number=p.data.score;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-11",
+      "source": "type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; let p = { kind: \"a\", value: 21 } satisfies V; p.kind = \"b\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-12",
+      "source": "type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; let p = { kind: \"a\", value: 21 } satisfies V; let bad: \"b\" = p.kind;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-13",
+      "source": "type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; let p = { kind: \"a\", value: \"bad\" } satisfies V;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-14",
+      "source": "type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; let p = { kind: \"a\", value: 21, label: \"wrong\" } satisfies V;",
+      "expectedCodes": [
+        "TS2353"
+      ]
     }
   ]
 }

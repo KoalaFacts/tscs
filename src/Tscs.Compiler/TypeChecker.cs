@@ -2048,21 +2048,20 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 }
                 else
                 {
-                    // Discriminated object-union contextual inference has not
-                    // been implemented. Do not widen the result and then allow
-                    // an unsafe subsequent write through a lost literal type.
+                    TypeSymbol contextual=expected;
                     if(expected is UnionTypeSymbol objectUnion &&
                        objectUnion.Alternatives.OfType<ObjectTypeSymbol>().Any(shape=>
                            shape.Members.Values.Any(member=>member is LiteralTypeSymbol ||
                                member is UnionTypeSymbol nested && nested.Alternatives.Any(
                                    variant=>variant is LiteralTypeSymbol))))
-                        throw new CompilationFailure(Diagnostic.Error(file,typeOperator.Keyword,"TSCS1001",
-                            "Satisfies with discriminated object unions requires contextual union inference."));
-                    if(CheckContextualLiteral(typeOperator.Expression,expected,actual) &&
-                       !IsAssignableContextually(typeOperator.Expression,actual,expected))
+                        contextual=SelectFreshDiscriminatedArm(typeOperator.Expression,objectUnion)
+                            ?? throw new CompilationFailure(Diagnostic.Error(file,typeOperator.Keyword,"TSCS1001",
+                                "Satisfies requires a fresh object with a unique string-literal discriminant arm."));
+                    if(CheckContextualLiteral(typeOperator.Expression,contextual,actual) &&
+                       !IsAssignableContextually(typeOperator.Expression,actual,contextual))
                         Error(typeOperator.Keyword,"TS1360",
                             $"Type '{actual.DisplayName}' does not satisfy expected type '{expected.DisplayName}'.");
-                    types.Push(CompilerTypes.PreserveSatisfiedLiteralTypes(typeOperator.Expression,actual,expected));
+                    types.Push(CompilerTypes.PreserveSatisfiedLiteralTypes(typeOperator.Expression,actual,contextual));
                 }
                 continue;
             }
@@ -2657,6 +2656,53 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     // Literal values are widened during general expression inference, but a
     // syntactic literal can inhabit an explicitly required literal type. Never
     // narrow an already-stored string/number/boolean variable by guessing.
+
+    // A fresh object satisfies one disjoint tagged arm without losing its exact
+    // discriminant. Stored values and ambiguous/overlapping tags stay outside
+    // this bounded contextual-inference path; neither may be guessed safe.
+    private static ObjectTypeSymbol? SelectFreshDiscriminatedArm(ValueNode value,UnionTypeSymbol union)
+    {
+        while(value is ValueParenthesized group)value=group.Expression;
+        if(value is not ValueObject fresh || fresh.Properties.Any(p=>p.Spread) ||
+           union.Alternatives.Count<2 || union.Alternatives.Any(t=>t is not ObjectTypeSymbol))
+            return null;
+        var shapes=union.Alternatives.Cast<ObjectTypeSymbol>().ToArray();
+        foreach(var property in fresh.Properties)
+        {
+            if(property.Value is not ValueAtom { Token.Kind:TokenKind.String } literal)
+                continue;
+            var name=Parser.PropertyName(property.Name);
+            if(shapes.Any(shape=>shape.OptionalMembers.Contains(name) ||
+                           !shape.Members.ContainsKey(name)))
+                continue;
+            var tag=CompilerTypes.FromLiteralExact(literal.Token).Value;
+            var seen=new HashSet<string>(StringComparer.Ordinal);
+            int chosen=-1;
+            bool ambiguous=false;
+            for(int i=0;i<shapes.Length;i++)
+            {
+                var member=shapes[i].Members[name];
+                IReadOnlyList<TypeSymbol> alternatives=member is UnionTypeSymbol tags
+                    ?tags.Alternatives:new[] { member };
+                if(alternatives.Count==0 ||
+                   alternatives.Any(t=>t is not LiteralTypeSymbol { Kind:PrimitiveKind.String }))
+                {
+                    ambiguous=true;
+                    break;
+                }
+                foreach(var candidate in alternatives)
+                {
+                    var label=((LiteralTypeSymbol)candidate).Value;
+                    if(!seen.Add(label)) { ambiguous=true; break; }
+                    if(label==tag)chosen=i;
+                }
+                if(ambiguous)break;
+            }
+            if(!ambiguous && chosen>=0)return shapes[chosen];
+        }
+        return null;
+    }
+
     private bool IsAssignableContextually(ValueNode expression,TypeSymbol actual,TypeSymbol expected,int depth=0)
     {
         if(depth>64)return false;
