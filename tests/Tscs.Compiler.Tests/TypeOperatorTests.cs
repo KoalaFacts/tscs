@@ -79,4 +79,27 @@ public sealed class TypeOperatorTests
         Assert.Contains(Compilation.Check("type-operators.ts","let bad = 21 as string;"),
             d=>d.Code=="TS2352");
     }
+
+    [Theory]
+    [InlineData("const state={tag:\"ready\", count:21} as const; let name:\"ready\"=state.tag; let n:21=state.count;")]
+    [InlineData("const state={nested:{flag:true, count:-3}} as const; let flag:true=state.nested.flag; let n:-3=state.nested.count;")]
+    [InlineData("let state={ok:false} as const; let f:false=state.ok;")]
+    [InlineData("const state={0:\"zero\"} as const; let zero:\"zero\"=state[0];")]
+    [InlineData("const state={} as const; type Shape=typeof state; let empty:Shape={};")]
+    [InlineData("type Shape={readonly tag:\"ready\"}; const state={tag:\"ready\"} as const; let shape:Shape=state;")]
+    public void FiniteConstAssertionsKeepReadonlyExactTypes(string source) =>
+        Assert.Empty(Compilation.Check("const-assertions.ts",source));
+
+    [Theory]
+    [InlineData("const state={tag:\"ready\"} as const;state.tag=\"later\";", "TS2540")]
+    [InlineData("const state={nested:{count:21}} as const;state.nested.count=22;", "TS2540")]
+    [InlineData("const state={count:21} as const;let wrong:22=state.count;", "TS2322")]
+    [InlineData("const state={flag:true} as const;let wrong:false=state.flag;", "TS2322")]
+    [InlineData("let value=21;const state=value as const;", "TS1355")]
+    [InlineData("const state=(21+1) as const;", "TS1355")]
+    [InlineData("const state=[21,22] as const;", "TSCS1001")]
+    [InlineData("let value:{a:1}={a:1,b:2} as const;", "TS2353")]
+    [InlineData("let value=({a:1,b:2} as const) satisfies {a:1};", "TS2353")]
+    public void FiniteConstAssertionsRejectWritesAndUnsupportedCases(string source,string code) =>
+        Assert.Contains(Compilation.Check("const-assertions.ts",source),d=>d.Code==code);
 }

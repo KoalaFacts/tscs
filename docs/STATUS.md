@@ -1,3 +1,20 @@
+## 2026-11-02 — Finite deep-readonly object const assertions (candidate; NOT_RUN)
+
+The contextual `as const` operator now preserves exact primitive literal types
+and deeply readonly finite object-literal members through the shared parser,
+binder, type checker, cross-module type queries and native ES2015 emitter.
+Arrays are rejected until actual tuple identity/index bounds are implemented;
+nonliteral object values and spreads fail explicitly rather than pretending
+to implement unrestricted const assertions. Eighteen new stable bounded
+pinned-Go source/code/exit cases extend the frozen 35-case type-operator cohort
+to 53, including review-driven excess-property negatives, without changing
+its old IDs, sources or expectations. Source-backed
+C# tests, four linked Node modules and negative/no-emission checks are
+registered; exact-head CI is NOT_RUN at source creation, not a claim of success.
+Original full TS7 scope remains historically 0 PASS / 15,523
+SKIP_UNIMPLEMENTED, dynamic UNEXPANDED. No pin, release/test gate,
+branch protection, license or other repository change.
+
 ## 2026-11-02 — Finite inferred typeof queries (candidate; NOT_RUN)
 
 Binder prebinding and TypeResolver now share finite initializer inference for

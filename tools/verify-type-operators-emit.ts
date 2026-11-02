@@ -34,11 +34,12 @@ try {
     '}',
     'export function makeB(label: string): { kind: "b"; label: string } {',
     '  return { kind: "b", label: label } satisfies Variant;',
-    '}'
+    '}',
+    'export const immutable = { kind: "ready", nested: { value: 21, valid: true } } as const;'
   ].join('\n'));
-  writeFileSync(join(folder,'bridge.ts'),'export { fromAny, make, makeA, makeB } from "./factory.js";\n');
+  writeFileSync(join(folder,'bridge.ts'),'export { fromAny, make, makeA, makeB, immutable } from "./factory.js";\n');
   writeFileSync(join(folder,'entry.ts'),[
-    'import { fromAny, make, makeA, makeB } from "./bridge.js";',
+    'import { fromAny, make, makeA, makeB, immutable } from "./bridge.js";',
     'const raw: any = { value: 21, label: "ready" };',
     'const item = fromAny(raw);',
     'export const result: number = make(item.value).value * 2;',
@@ -49,7 +50,10 @@ try {
     'export const advanced: number = ((21 as number) satisfies number) + 21;',
     'export const selected: number = makeA(23).value;',
     'export const selectedTag: "a" = makeA(23).kind;',
-    'export const otherLabel: string = makeB("tagged").label;'
+    'export const otherLabel: string = makeB("tagged").label;',
+    'export const readonlyTag: "ready" = immutable.kind;',
+    'export const readonlyValue: 21 = immutable.nested.value;',
+    'export const readonlyValid: true = immutable.nested.valid;'
   ].join('\n'));
   writeFileSync(join(folder,'project.json'),JSON.stringify({
     files:['entry.ts','minimal.d.ts'],
@@ -60,7 +64,7 @@ try {
   for(const name of ['model','factory','bridge','entry'])
     assert.ok(existsSync(join(folder,name+'.js')),'missing '+name+'.js');
   const executed=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,label,extra,exact,checked,advanced,selected,selectedTag,otherLabel} from "./entry.js"; if(result!==42||label!=="ready"||extra!==42||exact!==21||checked!=="ready"||advanced!==42||selected!==23||selectedTag!=="a"||otherLabel!=="tagged") throw Error("type-operator JS runtime mismatch");'],
+    'import {result,label,extra,exact,checked,advanced,selected,selectedTag,otherLabel,readonlyTag,readonlyValue,readonlyValid} from "./entry.js"; if(result!==42||label!=="ready"||extra!==42||exact!==21||checked!=="ready"||advanced!==42||selected!==23||selectedTag!=="a"||otherLabel!=="tagged"||readonlyTag!=="ready"||readonlyValue!==21||readonlyValid!==true) throw Error("type-operator JS runtime mismatch");'],
     {cwd:folder,encoding:'utf8',timeout:15000});
   assert.equal(executed.error,undefined,String(executed.error));
   assert.equal(executed.status,0,executed.stdout+executed.stderr);
@@ -70,11 +74,20 @@ try {
     ['invalid-fresh','const bad = {value: 21, excess: 2} satisfies {value: number};','TS2353'],
     ['invalid-tag-write',"type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; let p = { kind: \"a\", value: 21 } satisfies V; p.kind = \"b\";",'TS2322'],
     ['invalid-tag-branch',"type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; let p = { kind: \"a\", value: \"bad\" } satisfies V;",'TS2322'],
-    ['invalid-extra-branch',"type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; let p = { kind: \"a\", value: 21, label: \"wrong\" } satisfies V;",'TS2353']
+    ['invalid-extra-branch',"type V = { kind: \"a\"; value: number } | { kind: \"b\"; label: string }; let p = { kind: \"a\", value: 21, label: \"wrong\" } satisfies V;",'TS2353'],
+    ['readonly-write','const p={kind:"ready"} as const;p.kind="later";','TS2540'],
+    ['nested-readonly-write','const p={nested:{value:21}} as const;p.nested.value=22;','TS2540'],
+    ['not-literal','let n=21;const p=n as const;','TS1355'],
+    ['tuple-outside-scope','const p=[21,22] as const;','TSCS1001'],
+    ['fresh-extra-annotation','let x:{a:1}={a:1,b:2} as const;','TS2353'],
+    ['fresh-extra-satisfies','let x=({a:1,b:2} as const) satisfies {a:1};','TS2353']
   ]) {
     writeFileSync(join(folder,name+'.ts'),source);
     const result=run(['--emitJs','--noLib','--target','es2015',join(folder,name+'.ts'),join(folder,'minimal.d.ts')]);
-    assert.equal(result.status,2,result.stdout+result.stderr);
+    // The CLI deliberately distinguishes unsupported TSCS diagnostics (exit 1)
+    // from TypeScript semantic diagnostics (exit 2); neither may emit output.
+    // This asserts the *existing* CLI contract instead of treating UNSUPPORTED as PASS.
+    assert.equal(result.status,code.startsWith('TSCS')?1:2,result.stdout+result.stderr);
     assert.match(result.stdout+result.stderr,new RegExp(code));
     assert.equal(existsSync(join(folder,name+'.js')),false,'invalid TS must not emit JS');
   }

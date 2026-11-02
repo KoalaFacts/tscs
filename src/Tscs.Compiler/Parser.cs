@@ -1983,7 +1983,13 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
         {
             var keyword=Take();
             if(++count>64)Unsupported(keyword,"Type assertion nesting exceeds the compiler subset limit.");
-            value=new ValueTypeOperator(value,keyword,ReadTypeAnnotation());
+            // 'as const' is a special assertion, not a named type. Preserve
+            // its marker for semantic literal checking without reserving const
+            // in the general type grammar.
+            var target=keyword.Text=="as" && Current.Kind==TokenKind.Const
+                ?(TypeSyntax)new NamedTypeSyntax(Take())
+                :ReadTypeAnnotation();
+            value=new ValueTypeOperator(value,keyword,target);
         }
         return value;
     }

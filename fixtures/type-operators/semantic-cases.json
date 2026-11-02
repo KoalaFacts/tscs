@@ -204,6 +204,116 @@
       "expectedCodes": [
         "TS2353"
       ]
+    },
+    {
+      "id": "type-operators:positive-22",
+      "source": "const state={tag:\"ready\",count:21} as const;let tag:\"ready\"=state.tag;let count:21=state.count;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-23",
+      "source": "const state={nested:{tag:\"ready\",level:21}} as const;let tag:\"ready\"=state.nested.tag;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-24",
+      "source": "let state={ok:true} as const;let flag:true=state.ok;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-25",
+      "source": "const state={value:-21} as const;let n:-21=state.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-26",
+      "source": "type Shape={readonly kind:\"ok\"};const state={kind:\"ok\"} as const;let shape:Shape=state;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-27",
+      "source": "const state={0:\"zero\"} as const;let label:\"zero\"=state[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-28",
+      "source": "const state={} as const;type Empty=typeof state;let empty:Empty={};",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-29",
+      "source": "const state={inner:{enabled:false,amount:21}} as const;let f:false=state.inner.enabled;let n:21=state.inner.amount;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-15",
+      "source": "const state={tag:\"ready\"} as const;state.tag=\"later\";",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-16",
+      "source": "const state={nested:{count:21}} as const;state.nested.count=22;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-17",
+      "source": "const state={count:21} as const;let bad:22=state.count;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-18",
+      "source": "const state={flag:true} as const;let bad:false=state.flag;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-19",
+      "source": "const state={value:21} as const;state.value=21;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-20",
+      "source": "let value=21;const state=value as const;",
+      "expectedCodes": [
+        "TS1355"
+      ]
+    },
+    {
+      "id": "type-operators:negative-21",
+      "source": "const state=(21+1) as const;",
+      "expectedCodes": [
+        "TS1355"
+      ]
+    },
+    {
+      "id": "type-operators:negative-22",
+      "source": "const state={nested:{tag:\"ok\"}} as const;let bad:\"bad\"=state.nested.tag;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-23",
+      "source": "let value:{a:1}={a:1,b:2} as const;",
+      "expectedCodes": [
+        "TS2353"
+      ]
+    },
+    {
+      "id": "type-operators:negative-24",
+      "source": "let value=({a:1,b:2} as const) satisfies {a:1};",
+      "expectedCodes": [
+        "TS2353"
+      ]
     }
   ]
 }
