@@ -15,6 +15,12 @@ public sealed class UnionPropertyWriteTests
     [InlineData("type Both={tag:'a';n:number}|{tag:'b';n:number};function write(x:Both):number{x.n ||= 42;return x.n;}")]
     [InlineData("type Both={tag:'a';n:number}|{tag:'b';n:number};function write(x:Both):number{x['n']+=2;return x['n'];}")]
     [InlineData("type Both={tag:'a';n:number}|{tag:'b';n:number};function write(x:Both):number{x.n ??= 42;return x.n;}")]
+    [Theory]
+    [InlineData("type Both={tag:'a';n:number}|{tag:'b';n:number};function write(x:Both):number{x['n']++;return x['n'];}")]
+    [InlineData("type Both={tag:'a';n:number}|{tag:'b';n:number};function write(x:Both):number{++x['n'];return x['n'];}")]
+    public void LiteralKeyUnionNumericUpdatesUseCheckedCommonMembers(string source) =>
+        Assert.Empty(Compilation.Check("union-index-update.ts",source));
+
     public void CommonRequiredWritableMembersAcceptSafeAssignmentForms(string source) =>
         Assert.Empty(Compilation.Check("union-write.ts",source));
 
@@ -27,12 +33,16 @@ public sealed class UnionPropertyWriteTests
     [InlineData("type Both={tag:'a';n:number}|{tag:'b';n:number};function bad(x:Both):number{x['n']='bad';return 0;}","TS2322")]
     [InlineData("type Both={tag:'a';n:number}|{tag:'b';n:number};function bad(x:Both):number{x.n ||= 'bad';return 0;}","TS2322")]
     [InlineData("type Both={tag:'a';n:number}|{tag:'b';n:number};function bad(x:Both):number{x.n ??= 'bad';return 0;}","TS2322")]
+    [InlineData("function bad(x:{tag:'a';n:number}|{tag:'b';readonly n:number}):number{x['n']++;return 0;}","TS2540")]
     public void InvalidUnionWritesRetainCompilerDiagnostics(string source,string code) =>
         Assert.Contains(Compilation.Check("union-write-invalid.ts",source),d=>d.Code==code);
 
     [Theory]
     [InlineData("function bad(x:{tag:'a';n:number}|{tag:'b';n:string}):number{x.n=42;return 0;}")]
     [InlineData("function bad(x:{tag:'a';n?:number}|{tag:'b';n:number}):number{x.n=42;return 0;}")]
+    [InlineData("function bad(x:{tag:'a';n:any}|{tag:'b';n:number}):number{x.n='bad';return 0;}")]
+    [InlineData("function bad(x:{tag:'a';n:{value:any}}|{tag:'b';n:{value:number}}):number{x.n={value:'bad'};return 0;}")]
+    [InlineData("function bad(x:{tag:'a';n:any[]}|{tag:'b';n:number[]}):number{x.n=['bad'];return 0;}")]
     public void UnmodelledUnionWriteContractsFailClosed(string source) =>
         Assert.Contains(Compilation.Check("union-write-outside.ts",source),d=>d.Code=="TSCS1001");
 }
