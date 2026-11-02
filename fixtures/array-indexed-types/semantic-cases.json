@@ -1,0 +1,113 @@
+{
+  "kind": "BOUNDED_ARRAY_INDEXED_TYPES_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "upstream": "upstream.lock.json",
+  "profile": "fixtures/array-iteration/minimal.d.ts",
+  "cases": [
+    {
+      "id": "array-indexed-types:positive-01",
+      "source": "type A=number[];type V=A[number];let x:V=42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-indexed-types:positive-02",
+      "source": "type A=(readonly string[]);type V=A[number];let x:V=\"ok\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-indexed-types:positive-03",
+      "source": "type A=Array<boolean>;type V=A[0];let x:V=true;",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-indexed-types:positive-04",
+      "source": "type A=ReadonlyArray<number>;type V=A[1];let x:V=7;",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-indexed-types:positive-05",
+      "source": "type A=(number[]|string[]);type V=A[number];let x:V=42;let y:V=\"hi\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-indexed-types:positive-06",
+      "source": "type A=number[];type V=A[\"length\"];let x:V=3;",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-indexed-types:positive-07",
+      "source": "type A=string[];type V=A[number|\"length\"];let x:V=3;let y:V=\"hi\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-indexed-types:positive-08",
+      "source": "type A={items:{id:number}[]};type V=A[\"items\"][number];let x:V={id:7};",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-indexed-types:positive-09",
+      "source": "const values:number[]=[1,2];type V=typeof values[number];let x:V=42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-indexed-types:positive-10",
+      "source": "type A=Array<\"red\"|\"blue\">;type V=A[number];let x:V=\"red\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "array-indexed-types:negative-01",
+      "source": "type V=number[][number];let x:V=\"bad\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-indexed-types:negative-02",
+      "source": "type V=(readonly string[])[number];let x:V=42;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-indexed-types:negative-03",
+      "source": "type V=(number[]|string[])[number];let x:V=true;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-indexed-types:negative-04",
+      "source": "type V=number[][\"length\"];let x:V=\"bad\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-indexed-types:negative-05",
+      "source": "type V={id:number}[][number];let x:V=\"bad\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-indexed-types:negative-06",
+      "source": "type V=ReadonlyArray<boolean>[number];let x:V=42;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-indexed-types:negative-07",
+      "source": "type V=Array<\"red\"|\"blue\">[number];let x:V=\"green\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "array-indexed-types:negative-08",
+      "source": "type V=string[][0];let x:V=42;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    }
+  ]
+}
