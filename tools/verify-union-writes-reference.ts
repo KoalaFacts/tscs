@@ -41,11 +41,11 @@ assert.ok(version.stdout.includes(pin.version),'reference is not fixed TS7');
 save('reference-version.json',JSON.stringify(version,null,2));
 const sourceSha=run('git',['rev-parse','HEAD'],root).stdout.trim();
 const diagnostics=(value:ReturnType<typeof run>)=>
-  [...(value.stdout+'\\n'+value.stderr).matchAll(/error (TS\\d+):/g)].map(x=>x[1]).sort();
+  [...(value.stdout+'\n'+value.stderr).matchAll(/error (TS\d+):/g)].map(x=>x[1]).sort();
 const seen=new Set<string>(),results:object[]=[],mismatches:object[]=[];
 for(let index=0;index<suite.cases.length;index++){
   const test=suite.cases[index];
-  assert.match(test.id,/^union-property-writes:(positive|negative)-\\d{2}$/);
+  assert.match(test.id,/^union-property-writes:(positive|negative)-\d{2}$/);
   assert.ok(!seen.has(test.id),'duplicate stable case ID');seen.add(test.id);
   assert.equal(typeof test.source,'string');
   assert.ok(Array.isArray(test.expectedCodes));
