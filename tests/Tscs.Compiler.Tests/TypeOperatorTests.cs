@@ -145,6 +145,7 @@ public sealed class TypeOperatorTests
     [InlineData("const seed=21;const box={values:[seed]} as const;let v:21=box.values[0];")]
     [InlineData("const data={count:21};const box={data} as const;box.data.count=42;let v:number=box.data.count;")]
     [InlineData("const data:[number,string]=[21,\"go\"];const box={data} as const;data[0]=42;let v:number=box.data[0];")]
+    [InlineData("const box={read} as const;function read():number{return 21;}let value:number=box.read();")]
     public void NamedConstLiteralMembersPreserveExistingTypes(string source) =>
         Assert.Empty(Compilation.Check("named-const-members.ts",source));
 

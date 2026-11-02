@@ -180,8 +180,20 @@ public sealed class TypeQueryTests
         host.Files["/virtual/bridge.ts"]="export {boxed as state} from \"./factory.js\";";
         host.Files["/virtual/entry.ts"]=
             "import {state} from \"./bridge.js\";"+
+            "type Snapshot=typeof state;let copy:Snapshot={seed:21,nested:{inner:{count:23}}};"+
             "let exact:21=state.seed;state.nested.inner.count=42;"+
             "export const result:number=state.nested.inner.count+exact;";
+        Assert.Empty(CompilerProgram.Load(host,["entry.ts"]).Analyze().Diagnostics);
+    }
+
+    [Fact]
+    public void ForwardFunctionValueInExportedConstLiteralKeepsHoistedSignature()
+    {
+        var host=new Host();
+        host.Files["/virtual/model.ts"]=
+            "export const box={read} as const;export function read():number{return 21;}";
+        host.Files["/virtual/entry.ts"]=
+            "import {box} from \"./model.js\";export const result:number=box.read();";
         Assert.Empty(CompilerProgram.Load(host,["entry.ts"]).Analyze().Diagnostics);
     }
 }

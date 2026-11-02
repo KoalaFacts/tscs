@@ -221,7 +221,8 @@ internal static class Binder
         var symbol=scope.Find(token.Text);
         if(symbol is null)return token.Text=="undefined"?CompilerTypes.Undefined:null;
         if(!symbol.Initialized || symbol.PendingFunctionReturnInference ||
-           symbol.File==file && token.Start<=symbol.DeclarationStart ||
+           symbol.File==file && symbol.Declaration is not FunctionDeclaration &&
+               token.Start<=symbol.DeclarationStart ||
            symbol.File!=file && !symbol.CrossFileTypeReady)
             return null;
         return symbol.Type;
@@ -307,11 +308,22 @@ internal static class Binder
         // Validate all declarations even when nothing references their aliases.
         // The scope is complete before any named type is resolved.
         foreach(var binding in scope.Types.Values.Distinct())_ = TypeResolver.ResolveBinding(binding);
+        // A function declaration is hoisted, including within a later
+        // const-literal value. Its signature must be known before a preceding
+        // variable's initializer tries to inspect that function value.
         foreach(var symbol in scope.Symbols.Values)
         {
-            // Staged imports are materialized only after every module has
-            // resolved its own declarations and aliases.
-            if(symbol.Imported)continue;
+            if(symbol.Imported || symbol.Declaration is not FunctionDeclaration function)continue;
+            symbol.Type=ResolveFunctionSignature(function,scope,symbol.File);
+            symbol.Initialized=true;
+            symbol.CrossFileTypeReady=true;
+            symbol.DeclaredType=symbol.Type;
+        }
+        foreach(var symbol in scope.Symbols.Values)
+        {
+            // Value imports are materialized by ModuleLinker after their
+            // source declaration is actually ready.
+            if(symbol.Imported || symbol.Declaration is FunctionDeclaration)continue;
             switch(symbol.Declaration)
             {
                 case Variable declaration:
@@ -324,11 +336,6 @@ internal static class Binder
                         ? TypeResolver.Resolve(annotation,scope,symbol.File) : literalType;
                     symbol.Initialized=declaration.Initializer!=null;
                     symbol.CrossFileTypeReady=symbol.Type!=null;
-                    break;
-                case FunctionDeclaration function:
-                    symbol.Type=ResolveFunctionSignature(function,scope,symbol.File);
-                    symbol.Initialized=true;
-                    symbol.CrossFileTypeReady=true;
                     break;
             }
             symbol.DeclaredType=symbol.Type;
