@@ -357,13 +357,13 @@ internal static class CompilerTypes
                         // object, so right-to-left overrides keep their types.
                         var source=checkedObjectSpreadSource?.Invoke(property);
                         if(source is null)return null;
-                        foreach(var (key,type) in source.Members)
+                        foreach(var (spreadKey,type) in source.Members)
                         {
-                            members[key]=type;
-                            if(source.NumericMembers.Contains(key))numericMembers.Add(key);
-                            else numericMembers.Remove(key);
-                            if(source.OptionalMembers.Contains(key))optionalMembers.Add(key);
-                            else optionalMembers.Remove(key);
+                            members[spreadKey]=type;
+                            if(source.NumericMembers.Contains(spreadKey))numericMembers.Add(spreadKey);
+                            else numericMembers.Remove(spreadKey);
+                            if(source.OptionalMembers.Contains(spreadKey))optionalMembers.Add(spreadKey);
+                            else optionalMembers.Remove(spreadKey);
                         }
                         continue;
                     }
