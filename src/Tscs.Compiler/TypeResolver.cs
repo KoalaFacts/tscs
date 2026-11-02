@@ -116,6 +116,43 @@ internal static class TypeResolver
             {
                 var receiver=Resolve(indexed.Target,scope,file,depth+1);
                 var selector=Resolve(indexed.Index,scope,file,depth+1);
+                // Array indexed-access types expose their element for numeric keys
+                // and their length for the exact string key. A union of arrays
+                // is safe when every alternative is an array; never silently
+                // accept unknown keys or a mixed object/array union.
+                if(receiver is ArrayTypeSymbol ||
+                   receiver is UnionTypeSymbol arrayUnion &&
+                   arrayUnion.Alternatives.All(part=>part is ArrayTypeSymbol))
+                {
+                    TypeSymbol ArrayIndex(TypeSymbol target,TypeSymbol key)
+                    {
+                        if(target is UnionTypeSymbol alternatives)
+                            return CompilerTypes.Union(alternatives.Alternatives.Select(part=>ArrayIndex(part,key)));
+                        if(key is UnionTypeSymbol keys)
+                            return CompilerTypes.Union(keys.Alternatives.Select(part=>ArrayIndex(target,part)));
+                        if(key.Equals(CompilerTypes.Never))return CompilerTypes.Never;
+                        var arrayType=(ArrayTypeSymbol)target;
+                        if(key.Equals(CompilerTypes.Number))return arrayType.ElementType;
+                        if(key is LiteralTypeSymbol { Kind:PrimitiveKind.Number } numeric)
+                        {
+                            if(!long.TryParse(numeric.Value,System.Globalization.NumberStyles.None,
+                                   System.Globalization.CultureInfo.InvariantCulture,out var value) ||
+                               value>9007199254740991L)
+                                throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
+                                    "Array indexed-access numeric keys must be non-negative safe integers."));
+                            return arrayType.ElementType;
+                        }
+                        if(key is LiteralTypeSymbol { Kind:PrimitiveKind.String,Value:"length" })
+                            return CompilerTypes.Number;
+                        throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
+                            "Array indexed access requires a numeric key or the exact 'length' property."));
+                    }
+                    try {return ArrayIndex(receiver,selector);}
+                    catch(InvalidOperationException failure)
+                    {
+                        throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",failure.Message));
+                    }
+                }
                 if(receiver is not ObjectTypeSymbol &&
                     !(receiver is UnionTypeSymbol objectUnion &&
                       objectUnion.Alternatives.All(type=>type is ObjectTypeSymbol)))
