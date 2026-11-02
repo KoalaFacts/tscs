@@ -53,9 +53,49 @@ public sealed class TupleAnnotationTests
     [InlineData("type Bad=[number?];")]
     [InlineData("type Bad=[...number[]];")]
     [InlineData("type Bad=[number,,string];")]
-    [InlineData("type Bad=[item:number];")]
-    public void OptionalRestHolesAndNamedTuplePartsFailClosed(string source) =>
+    [InlineData("type Bad=[item?:number];")]
+    public void OptionalRestAndHolesFailClosed(string source) =>
         Assert.Contains(Compilation.Check("tuple-annotation-unsupported.ts",source),
+            d=>d.Code=="TSCS1001");
+
+    // Labels are metadata only; they cannot change slots, mutability or
+    // assignability to the equivalent unlabeled tuple.
+    [Theory]
+    [InlineData("type Pair=[first:number,second:string];let p:Pair=[21,\"go\"];let n:number=p[0];let s:string=p[1];")]
+    [InlineData("type Pair=readonly [first:number,second:string];let p:Pair=[21,\"go\"];let n:2=p.length;")]
+    [InlineData("type Pair=[item:{label:string},ready:boolean];let p:Pair=[{label:\"go\"},true];let s:string=p[0].label;")]
+    [InlineData("type Named=[first:number,second:string];type Plain=[number,string];let n:Named=[21,\"go\"];let p:Plain=n;let again:Named=p;")]
+    [InlineData("type Pair=[first:number,second:string];type Second=Pair[1];let s:Second=\"go\";")]
+    [InlineData("type Pair=[first:number,second:string];function second(p:Pair):string{return p[1];}let s:string=second([21,\"go\"]);")]
+    [InlineData("type Mixed=[first:number,string];let p:Mixed=[21,\"go\"];let n:number=p[0];")]
+    [InlineData("type Mixed=[number,second:string];let p:Mixed=[21,\"go\"];let s:string=p[1];")]
+    [InlineData("type Pair=[type:number,value:string];let p:Pair=[21,\"go\"];let n:number=p[0];")]
+    [InlineData("type Pair=[function:number,second:string];let p:Pair=[21,\"go\"];let s:string=p[1];")]
+    [InlineData("type Pair=[function:number,second:string];let p:Pair=[21,\"go\"];let n:number=p[0];")]
+    public void LabeledAndMixedTuplesShareCheckedPositionalSemantics(string source) =>
+        Assert.Empty(Compilation.Check("labeled-tuple.ts",source));
+
+    [Theory]
+    [InlineData("type Named=[first:number,second:string];let p:Named=[21,42];","TS2322")]
+    [InlineData("type Named=[first:number,second:string];let p:Named=[21];","TS2322")]
+    [InlineData("type Named=readonly [first:number,second:string];let p:Named=[21,\"go\"];p[0]=42;","TS2540")]
+    [InlineData("type Named=[first:number,second:string];let p:Named=[21,\"go\"];let bad=p[2];","TS2493")]
+    [InlineData("type Named=[first:number,second:string];let p:Named=[21,\"go\"];p[1]=21;","TS2322")]
+    [InlineData("type Bad=[interface:number,second:string];","TS1212")]
+    [InlineData("type Bad=[let:number,second:string];","TS1212")]
+    [InlineData("type Bad=[private:number,second:string];","TS1212")]
+    [InlineData("type Bad=[yield:number,second:string];","TS1212")]
+    [InlineData("type Bad=[enum:number,second:string];","TSCS1001")]
+    public void LabeledTuplesRejectInvalidValues(string source,string code) =>
+        Assert.Contains(Compilation.Check("labeled-tuple-invalid.ts",source),d=>d.Code==code);
+
+    [Theory]
+    [InlineData("let private=21;")]
+    [InlineData("let yield=21;")]
+    [InlineData("function f(a:number,private:number):number{return a;}")]
+    [InlineData("function f(a:number,yield:number):number{return a;}")]
+    public void StrictReservedWordsOutsideTupleLabelsRemainUnsupported(string source) =>
+        Assert.Contains(Compilation.Check("reserved-outside-tuple.ts",source),
             d=>d.Code=="TSCS1001");
 
     private sealed class Host : ICompilerHost
@@ -73,8 +113,8 @@ public sealed class TupleAnnotationTests
     {
         var host=new Host();
         host.Files["/virtual/model.ts"]=
-            "export type Pair=[number,string];"+
-            "export type Nested=[readonly [number,string],{valid:boolean}];";
+            "export type Pair=[first:number,second:string];"+
+            "export type Nested=[inner:readonly [count:number,string],{valid:boolean}];";
         host.Files["/virtual/factory.ts"]=
             "import type {Pair,Nested} from \"./model.js\";"+
             "export function make(n:number,s:string):Pair {"+

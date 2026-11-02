@@ -319,7 +319,23 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                text[position]=='.' && text[position+1]=='.')
             {position+=2;kind=TokenKind.Ellipsis;}
             var token = new Token(kind,text[begin..position],begin,position-begin,lineBreak,decodedValue,stringFlags);
-            if (kind == TokenKind.Unsupported) throw Error(token,"TSCS1001",$"Unsupported syntax '{token.Text}'.");
+            if (kind == TokenKind.Unsupported)
+            {
+                // Strict-reserved words normally fail at scanning. Only allow
+                // possible tuple-label tokens to reach the parser, where the
+                // matching TS1212 diagnostic can be emitted. Other contexts
+                // still reject these tokens instead of treating them as names.
+                int next=position;
+                while(next<text.Length && char.IsWhiteSpace(text[next]))next++;
+                bool potentialReservedTupleLabel=!jsonMode &&
+                    token.Text is ("implements" or "package" or "private" or
+                        "protected" or "public" or "static" or "yield") &&
+                    tokens.Count>0 &&
+                    tokens[^1].Kind is (TokenKind.OpenBracket or TokenKind.Comma) &&
+                    next<text.Length && text[next]==':';
+                if(!potentialReservedTupleLabel)
+                    throw Error(token,"TSCS1001",$"Unsupported syntax '{token.Text}'.");
+            }
             tokens.Add(token);DiagnosticCounts.Add(Diagnostics.Count);
         }
     }

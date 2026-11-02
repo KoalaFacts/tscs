@@ -203,8 +203,14 @@ mutable/readonly index rules, aliases, typed function parameters and returns,
 and named ES2015 module boundaries. Fresh array literals are checked
 positionally and emitted as ordinary JavaScript arrays. Nested fixed tuples,
 `T[0]`, `T[number]` and `T["length"]` reuse existing type resolution.
-Optional/rest/labeled tuple elements, tuple spreads and general variadic
-inference remain unsupported and fail explicitly. This is bounded local
+Fully named tuples such as `[first: number, second: string]` and
+`readonly [count: number, label: string]` share the same checked positional
+types and runtime erasure; their labels have no effect on assignability.
+Named and unnamed tuple slots may be mixed (TypeScript 5.2+), including
+contextual keyword labels such as `type` and `function`. Strict-mode
+reserved labels such as `interface`, `let` and `private` are rejected with
+TS1212. Optional/rest tuple elements,
+tuple spreads and general variadic inference remain unsupported and fail explicitly. This is bounded local
 semantics, not original TS7 suite acceptance.
 
 ## Array element types through indexed access (bounded)

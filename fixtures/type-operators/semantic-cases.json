@@ -499,6 +499,129 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "type-operators:positive-46",
+      "source": "type Named=[first:number,second:string];const p:Named=[21,\"go\"];let n:number=p[0];let s:string=p[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-47",
+      "source": "type Named=readonly [count:number,label:string];const p:Named=[21,\"go\"];let l:2=p.length;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-48",
+      "source": "type Named=[item:{tag:string},ready:boolean];const p:Named=[{tag:\"go\"},true];let s:string=p[0].tag;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-49",
+      "source": "type Named=[first:number,second:string];type Plain=[number,string];let named:Named=[21,\"go\"];let plain:Plain=named;let again:Named=plain;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-50",
+      "source": "type Outer=[inner:readonly [count:number,tag:string],ok:boolean];const p:Outer=[[21,\"go\"],true];let n:number=p[0][0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-51",
+      "source": "type Named=[first:number,second:string];type First=Named[0];type Both=Named[number];let n:First=21;let s:Both=\"go\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-52",
+      "source": "type Named=[first:number,second:string];function second(p:Named):string{return p[1];}let s:string=second([21,\"go\"]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-53",
+      "source": "type Named=[first:number,second:string];let p:Named=[21,\"go\"];p[0]++;let n:number=p[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-40",
+      "source": "type Named=[first:number,second:string];let p:Named=[21,42];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-41",
+      "source": "type Named=[first:number,second:string];let p:Named=[21];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-42",
+      "source": "type Named=readonly [first:number,second:string];let p:Named=[21,\"go\"];p[0]=42;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-43",
+      "source": "type Named=[first:number,second:string];let p:Named=[21,\"go\"];let bad=p[2];",
+      "expectedCodes": [
+        "TS2493"
+      ]
+    },
+    {
+      "id": "type-operators:negative-44",
+      "source": "type Named=[first:number,second:string];let p:Named=[21,\"go\"];p[1]=21;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:positive-54",
+      "source": "type Mixed=[first:number,string];const p:Mixed=[21,\"go\"];let n:number=p[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-55",
+      "source": "type Mixed=[number,second:string];const p:Mixed=[21,\"go\"];let s:string=p[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-56",
+      "source": "type Pair=[type:number,value:string];let p:Pair=[21,\"go\"];let n:number=p[0];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-57",
+      "source": "type Pair=[function:number,second:string];let p:Pair=[21,\"go\"];let s:string=p[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-47",
+      "source": "type Invalid=[interface:number,second:string];",
+      "expectedCodes": [
+        "TS1212"
+      ]
+    },
+    {
+      "id": "type-operators:negative-48",
+      "source": "type Invalid=[let:number,second:string];",
+      "expectedCodes": [
+        "TS1212"
+      ]
+    },
+    {
+      "id": "type-operators:negative-49",
+      "source": "type Invalid=[private:number,second:string];",
+      "expectedCodes": [
+        "TS1212"
+      ]
+    },
+    {
+      "id": "type-operators:negative-50",
+      "source": "type Invalid=[yield:number,second:string];",
+      "expectedCodes": [
+        "TS1212"
+      ]
     }
   ]
 }

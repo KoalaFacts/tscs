@@ -19,7 +19,7 @@ function run(args:string[]) {
 try {
   writeFileSync(join(folder,'package.json'),'{"type":"module"}\n');
   writeFileSync(join(folder,'minimal.d.ts'),readFileSync('fixtures/array-iteration/minimal.d.ts'));
-  writeFileSync(join(folder,'model.ts'),'export type Item = { value: number; label: string }; export type Variant = { kind: "a"; value: number } | { kind: "b"; label: string }; export type Pair = [number, string]; export type NestedPair = [readonly [number, string], { valid: boolean }];\n');
+  writeFileSync(join(folder,'model.ts'),'export type Item = { value: number; label: string }; export type Variant = { kind: "a"; value: number } | { kind: "b"; label: string }; export type Pair = [first: number, second: string]; export type NestedPair = [inner: readonly [count: number, string], { valid: boolean }];\n');
   writeFileSync(join(folder,'factory.ts'),[
     'import type { Item, Variant, Pair, NestedPair } from "./model.js";',
     'export function fromAny(value: any): Item {',
@@ -112,6 +112,13 @@ try {
     ['tuple-annotation-update-nonnumber','let p:[number,string]=[21,"go"];p[1]++;','TSCS1001'],
     ['tuple-annotation-update-out-of-bounds','let p:[number,string]=[21,"go"];p[2]++;','TS2493'],
     ['tuple-annotation-update-readonly','let p:readonly [number,string]=[21,"go"];p[0]++;','TS2540'],
+    ['tuple-labeled-wrong-slot','type Pair=[first:number,second:string];let p:Pair=[21,42];','TS2322'],
+    ['tuple-labeled-bad-write','type Mixed=[first:number,string];let p:Mixed=[21,"go"];p[1]=21;','TS2322'],
+    ['tuple-label-strict-interface','type Invalid=[interface:number,second:string];','TS1212'],
+    ['tuple-label-strict-let','type Invalid=[let:number,second:string];','TS1212'],
+    ['tuple-label-strict-private','type Invalid=[private:number,second:string];','TS1212'],
+    ['tuple-label-strict-yield','type Invalid=[yield:number,second:string];','TS1212'],
+    ['tuple-labeled-optional-unsupported','type Bad=[first?:number];','TSCS1001'],
     ['tuple-annotation-rest-unsupported','type Bad=[...number[]];','TSCS1001'],
     ['tuple-annotation-optional-unsupported','type Bad=[number?];','TSCS1001'],
     ['fresh-extra-annotation','let x:{a:1}={a:1,b:2} as const;','TS2353'],
