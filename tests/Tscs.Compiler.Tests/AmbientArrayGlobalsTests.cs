@@ -336,6 +336,50 @@ public sealed class AmbientArrayGlobalsTests : IDisposable
     }
 
     [Fact]
+    public void ExactReadonlyIterableProtocolAcceptsFiniteTupleSpreads()
+    {
+        const string ambient =
+            "interface SymbolConstructor { readonly iterator: unique symbol; }\\n" +
+            "declare const Symbol: SymbolConstructor;\\n" +
+            "interface IteratorResult<T> { done?: boolean; value: T; }\\n" +
+            "interface Iterator<T, TReturn = any, TNext = any> { next(): IteratorResult<T>; }\\n" +
+            "interface Array<T> { length:number; [index:number]:T; [Symbol.iterator](): Iterator<T>; }\\n" +
+            "interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; [Symbol.iterator](): Iterator<T>; }\\n" +
+            "interface Boolean {} interface Function {} interface IArguments {} interface Number {} interface Object {} interface RegExp {} interface String {} interface CallableFunction {} interface NewableFunction {}";
+        var globals=Path.Combine(directory,"readonly-iterable.d.ts");
+        var program=Path.Combine(directory,"readonly-iterable.ts");
+        File.WriteAllText(globals,ambient);
+        File.WriteAllText(program,"let tail:readonly [string,boolean]=[\\"go\\",true];let p:[number,string,boolean]=[21,...tail];");
+        using var stdout=new StringWriter();
+        using var stderr=new StringWriter();
+        var exit=CommandLine.Run(["--noEmit","--noLib","--target","es2015",program,globals],stdout,stderr);
+        Assert.Equal(0,exit);
+        Assert.Equal("",stdout.ToString()+stderr.ToString());
+    }
+
+    [Fact]
+    public void MalformedReadonlyIteratorRemainsUnsupported()
+    {
+        const string ambient =
+            "interface SymbolConstructor { readonly iterator: unique symbol; }\\n" +
+            "declare const Symbol: SymbolConstructor;\\n" +
+            "interface IteratorResult<T> { done?: boolean; value: T; }\\n" +
+            "interface Iterator<T, TReturn = any, TNext = any> { next(): IteratorResult<T>; }\\n" +
+            "interface Array<T> { length:number; [index:number]:T; [Symbol.iterator](): Iterator<T>; }\\n" +
+            "interface ReadonlyArray<T> { readonly length:number; readonly [index:number]:T; [Symbol.iterator](): Iterator<string>; }\\n" +
+            "interface Boolean {} interface Function {} interface IArguments {} interface Number {} interface Object {} interface RegExp {} interface String {} interface CallableFunction {} interface NewableFunction {}";
+        var globals=Path.Combine(directory,"bad-readonly-iterable.d.ts");
+        var program=Path.Combine(directory,"bad-readonly-iterable.ts");
+        File.WriteAllText(globals,ambient);
+        File.WriteAllText(program,"let tail:readonly string[]=[\\"a\\"];");
+        using var stdout=new StringWriter();
+        using var stderr=new StringWriter();
+        var exit=CommandLine.Run(["--noEmit","--noLib","--target","es2015",program,globals],stdout,stderr);
+        Assert.Equal(1,exit);
+        Assert.Contains("TSCS1002",stdout.ToString()+stderr.ToString());
+    }
+
+    [Fact]
     public void OriginalEmptyAmbientArrayContractRemainsAccepted()
     {
         var (code,output)=Compile("interface Array<T> {}","let n: number = 1;");
