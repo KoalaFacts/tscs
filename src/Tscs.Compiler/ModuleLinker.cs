@@ -221,13 +221,27 @@ internal static class ModuleLinker
             }
         }
 
-        // Every module has its complete type and imported-value name spaces.
-        // Imported aliases are not treated as local declarations during this pass.
-        foreach(var node in nodes.Values)Binder.InitializeDeclaredTypes(node.Scope);
-        // Now restore the normal runtime/checker invariant: every value import
-        // must have a known semantic type, without inventing an any fallback.
+        // An exported const literal may contain values imported from another
+        // source. Resolve staged value identities in bounded dependency rounds:
+        // each successful round must ready at least one previously unresolved
+        // import, so cyclic or untyped inference can never loop indefinitely.
+        for(int pass=0;pass<=pending.Count;pass++)
+        {
+            foreach(var node in nodes.Values)Binder.InitializeDeclaredTypes(node.Scope);
+            bool progressed=false;
+            foreach(var (file,specifier,imported,exported) in pending)
+            {
+                if(imported.CrossFileTypeReady || !exported.CrossFileTypeReady)continue;
+                Binder.CompleteImport(file,specifier,imported,exported);
+                progressed=true;
+            }
+            if(!progressed)break;
+        }
+        // Preserve the old strict contract for all remaining unready aliases:
+        // neither a cycle nor a missing inferred type can become implicit any.
         foreach(var (file,specifier,imported,exported) in pending)
-            Binder.CompleteImport(file,specifier,imported,exported);
+            if(!imported.CrossFileTypeReady)
+                Binder.CompleteImport(file,specifier,imported,exported);
 
         return nodes.ToDictionary(pair=>pair.Key,pair=>pair.Value.Scope,comparer);
     }
