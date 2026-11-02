@@ -220,6 +220,9 @@ internal static class Binder
     public static TypeSymbol? ResolveFiniteInitializerType(
         ValueNode? initial,Scope scope,string file,bool constant,int depth=0)
     {
+        // Recursive finite object/array assertions can contain nested type
+        // queries. Bound the inference just like named type resolution.
+        if(depth>64)return null;
         while(initial is ValueParenthesized group)initial=group.Expression;
         return initial switch
         {
@@ -236,8 +239,50 @@ internal static class Binder
             ValueUnary { Operator.Kind:TokenKind.Minus,Operand:ValueAtom number }
                 when constant && number.Token.Kind==TokenKind.Number =>
                 CompilerTypes.FromLiteralExact(number.Token,negative:true),
-            _=>CompilerTypes.FromInitializer(initial)
+            _=>CompilerTypes.FromInitializer(initial) ??
+                ResolveFiniteCompositeInitializerType(initial,scope,file,depth+1)
         };
+    }
+
+    // A closed initializer may contain a nested explicit literal assertion.
+    // The original structural fast path handles ordinary literals/spreads;
+    // only fall back here when that inference cannot resolve the initializer.
+    // Unknown references, arbitrary expressions and spreads remain fail-closed.
+    private static TypeSymbol? ResolveFiniteCompositeInitializerType(
+        ValueNode? initial,Scope scope,string file,int depth)
+    {
+        if(depth>64)return null;
+        if(initial is ValueArray array)
+        {
+            TypeSymbol element=CompilerTypes.Never;
+            foreach(var item in array.Elements)
+            {
+                if(item is ValueArraySpread)return null;
+                if(ResolveFiniteInitializerType(item,scope,file,false,depth+1) is not { } next)
+                    return null;
+                if(element.Equals(CompilerTypes.Never))element=next;
+                else if(!CompilerTypes.IsEquivalent(element,next))
+                {
+                    try {element=CompilerTypes.Union([element,next]);}
+                    catch(InvalidOperationException) {return null;}
+                }
+            }
+            return new ArrayTypeSymbol(element);
+        }
+        if(initial is not ValueObject obj || obj.Properties.Any(p=>p.Spread))
+            return null;
+        var members=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
+        var numericMembers=new HashSet<string>(StringComparer.Ordinal);
+        foreach(var property in obj.Properties)
+        {
+            if(ResolveFiniteInitializerType(property.Value,scope,file,false,depth+1) is not { } member)
+                return null;
+            var name=Parser.PropertyName(property.Name);
+            members[name]=member;
+            if(property.Name.Kind==TokenKind.Number)numericMembers.Add(name);
+            else numericMembers.Remove(name);
+        }
+        return new ObjectTypeSymbol(members,numericMembers:numericMembers);
     }
 
     public static void InitializeDeclaredTypes(Scope scope)
