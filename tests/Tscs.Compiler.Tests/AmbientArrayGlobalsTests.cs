@@ -258,9 +258,17 @@ public sealed class AmbientArrayGlobalsTests : IDisposable
         Assert.Equal(0,supported);
         Assert.Equal("",diagnostics);
 
-        // Unimplemented methods do not become available by virtue of push.
+        // Splice is now independently implemented on mutable Array<T>,
+        // regardless of whether an ambient profile happens to declare it.
+        var (spliced,spliceOutput)=Compile(ambient,
+            "const values: number[] = [21]; let removed:number[]=values.splice(0,1);");
+        Assert.Equal(0,spliced);
+        Assert.Equal("",spliceOutput);
+
+        // Genuinely unimplemented library methods remain rejected even
+        // when an unrelated supported ambient member is present.
         var (unsupported,missing)=Compile(ambient,
-            "const values: number[] = [21]; values.splice(0,1);");
+            "const values: number[] = [21]; values.flat();");
         Assert.NotEqual(0,unsupported);
         Assert.Contains("TS2339",missing);
     }
