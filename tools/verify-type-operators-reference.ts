@@ -53,7 +53,7 @@ for(let i=0;i<suite.cases.length;i++){
   const key='case-'+String(i).padStart(3,'0');
   const folder=join(out,key);mkdirSync(folder);
   save(key+'/input.ts',item.source);
-  const usesTupleProfile=/^type-operators:(positive-(3[0-9]|4[0-9]|5[0-3])|negative-(2[5-9]|3[0-9]|4[0-6]))$/.test(item.id);
+  const usesTupleProfile=/^type-operators:(positive-(3[0-9]|4[0-9]|5[0-5])|negative-(2[5-9]|3[0-9]|4[0-4]))$/.test(item.id);
   const profile=usesTupleProfile?tupleProfile:minimalProfile;
   save(key+'/minimal.d.ts',usesTupleProfile?tupleMinimal:minimal);
   const args=['--noEmit','--noLib','--target','es2015','--pretty','false','input.ts','minimal.d.ts'];

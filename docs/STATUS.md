@@ -1,15 +1,16 @@
-## 2026-11-03 — Fully labeled positional tuples (candidate; NOT_RUN)
+## 2026-11-03 — Labeled and mixed positional tuples (candidate; NOT_RUN)
 
 The existing Parser/TypeResolver/Binder/TypeChecker/ES2015 emitter now accepts
-finite all-labeled `[first: number, second: string]` and readonly/nested
-variants. Labels are compile-time documentation only; position, length,
-mutability, alias and cross-module function semantics reuse the already
-implemented tuple model. Mixed labeled/unlabeled positions diagnose TS5084.
-Optional/rest/labeled-optional and variadic tuples still fail closed.
-The previous 84 fixed-Go type-operator IDs and profiles are unchanged;
-15 additional stable cases (8 positive, 7 negative) bring the bounded
-cohort to 99, with source-backed xUnit and four-module Node runtime
-checks. Verification is NOT_RUN at candidate source creation; no original
+finite labeled and mixed-label `[first: number, string]` tuples as well as
+fully named, readonly and nested variants. Labels are compile-time documentation
+only; position, length, mutability, alias and cross-module function semantics
+reuse the already implemented tuple model. TypeScript 5.2 removed the former
+TS5084 all-or-none label restriction; this fixed-Go TS7 revision accepts mixed
+labels. Optional/rest/labeled-optional and variadic tuples still fail closed.
+The previous 84 fixed-Go type-operator IDs, bytes and profiles are unchanged;
+15 additive stable cases (10 positive, 5 negative) bring the bounded
+cohort to 99, with xUnit and four-module Node runtime checks. Exact-head
+verification remains NOT_RUN at this revision's creation; no original
 upstream TS7 PASS is claimed (historical 0 PASS / 15,523
 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED). No release/pin/gate change.
 

@@ -576,18 +576,14 @@
       ]
     },
     {
-      "id": "type-operators:negative-45",
-      "source": "type Mixed=[first:number,string];",
-      "expectedCodes": [
-        "TS5084"
-      ]
+      "id": "type-operators:positive-54",
+      "source": "type Mixed=[first:number,string];const p:Mixed=[21,\"go\"];let n:number=p[0];",
+      "expectedCodes": []
     },
     {
-      "id": "type-operators:negative-46",
-      "source": "type Mixed=[number,second:string];",
-      "expectedCodes": [
-        "TS5084"
-      ]
+      "id": "type-operators:positive-55",
+      "source": "type Mixed=[number,second:string];const p:Mixed=[21,\"go\"];let s:string=p[1];",
+      "expectedCodes": []
     }
   ]
 }

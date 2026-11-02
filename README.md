@@ -206,7 +206,7 @@ positionally and emitted as ordinary JavaScript arrays. Nested fixed tuples,
 Fully named tuples such as `[first: number, second: string]` and
 `readonly [count: number, label: string]` share the same checked positional
 types and runtime erasure; their labels have no effect on assignability.
-Mixing named and unnamed slots reports TS5084. Optional/rest tuple elements,
+Named and unnamed tuple slots may be mixed (TypeScript 5.2+). Optional/rest tuple elements,
 tuple spreads and general variadic inference remain unsupported and fail explicitly. This is bounded local
 semantics, not original TS7 suite acceptance.
 
