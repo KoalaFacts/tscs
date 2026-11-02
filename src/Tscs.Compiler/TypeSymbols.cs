@@ -413,6 +413,34 @@ internal static class CompilerTypes
         return true;
     }
 
+    // The property itself remains a union (including for indexed-access
+    // type queries and first-class function values). Only a *call* can safely
+    // use the shared signature below, joining the possible return types.
+    // Reject mismatched parameter identity rather than treating any and
+    // number as equivalent. Intrinsic array signatures are not coalesced.
+    public static FunctionTypeSymbol? TryCommonCallableSignature(TypeSymbol callee)
+    {
+        if(callee is not UnionTypeSymbol union || union.Alternatives.Count==0 ||
+           !union.Alternatives.All(type=>type is FunctionTypeSymbol))
+            return null;
+        var signatures=union.Alternatives.Cast<FunctionTypeSymbol>().ToArray();
+        var first=signatures[0];
+        static bool Plain(FunctionTypeSymbol signature)=>
+            signature.NativeArrayMapElementType is null &&
+            signature.NativeArrayReduceElementType is null &&
+            signature.NativeArrayToSplicedElementType is null;
+        if(!Plain(first) || !signatures.All(other=>Plain(other) &&
+            other.Parameters.Count==first.Parameters.Count &&
+            other.MinimumArguments==first.MinimumArguments &&
+            object.Equals(other.RestElementType,first.RestElementType) &&
+            other.Parameters.Zip(first.Parameters).All(pair=>
+                object.Equals(pair.First,pair.Second))))
+            return null;
+        return new FunctionTypeSymbol(first.Parameters,
+            Union(signatures.Select(signature=>signature.ReturnType)),
+            first.MinimumArguments,first.RestElementType);
+    }
+
     // A read through a union is safe only when every alternative has the
     // requested property. Its result type is the union of member types.
     public static TypeSymbol? TryGetProperty(TypeSymbol receiver,string name)

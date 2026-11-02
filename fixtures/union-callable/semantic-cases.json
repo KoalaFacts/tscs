@@ -1,0 +1,102 @@
+{
+  "kind": "BOUNDED_COMMON_UNION_CALLS_NOT_ORIGINAL_TS7_ACCEPTANCE",
+  "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
+  "cases": [
+    {
+      "id": "union-callable:positive-01",
+      "source": "type C={tag:'a';run(n:number):number}|{tag:'b';run(n:number):string};function f(x:C):number|string{return x.run(21);}",
+      "expectedCodes": []
+    },
+    {
+      "id": "union-callable:positive-02",
+      "source": "type C={tag:'a';run(n:number):number}|{tag:'b';run(n:number):string};function f(x:C):number|string{return x['run'](21);}",
+      "expectedCodes": []
+    },
+    {
+      "id": "union-callable:positive-03",
+      "source": "interface A{tag:'a';run(n:number):number}interface B{tag:'b';run(n:number):string}type C=A|B;function f(x:C):number|string{return x.run(21);}",
+      "expectedCodes": []
+    },
+    {
+      "id": "union-callable:positive-04",
+      "source": "type C={tag:'a';run:(n:number)=>number}|{tag:'b';run:(n:number)=>string};function f(x:C):number|string{return x.run(2);}",
+      "expectedCodes": []
+    },
+    {
+      "id": "union-callable:positive-05",
+      "source": "type C={tag:'a';run(n:number):number}|{tag:'b';run(n:number):number};function f(x:C):number{return x.run(21);}",
+      "expectedCodes": []
+    },
+    {
+      "id": "union-callable:positive-06",
+      "source": "type C={tag:'a';run(n:number):number}|{tag:'b';run(n:number):string}|{tag:'c';run(n:number):boolean};function f(x:C):number|string|boolean{return x.run(21);}",
+      "expectedCodes": []
+    },
+    {
+      "id": "union-callable:positive-07",
+      "source": "type C={tag:'a';inside:{run(n:number):number}}|{tag:'b';inside:{run(n:number):string}};function f(x:C):number|string{return x.inside.run(21);}",
+      "expectedCodes": []
+    },
+    {
+      "id": "union-callable:positive-08",
+      "source": "type C={tag:'a';run(n:number,extra?:number):number}|{tag:'b';run(n:number,extra?:number):string};function f(x:C):number|string{return x.run(21);}",
+      "expectedCodes": []
+    },
+    {
+      "id": "union-callable:negative-01",
+      "source": "type C={tag:'a';run(n:number):number}|{tag:'b';run(n:number):string};function f(x:C):number|string{return x.run('bad');}",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "union-callable:negative-02",
+      "source": "type C={tag:'a';run(n:number):number}|{tag:'b';run(n:number):string};function f(x:C):number|string{return x.run();}",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "union-callable:negative-03",
+      "source": "type C={tag:'a';run(n:number):number}|{tag:'b';run(n:number):string};function f(x:C):number|string{return x.run(1,2);}",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    },
+    {
+      "id": "union-callable:negative-04",
+      "source": "type C={tag:'a';run(n:number):number}|{tag:'b';other(n:number):string};function f(x:C):number|string{return x.run(1);}",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "union-callable:negative-05",
+      "source": "type C={tag:'a';run(n:number):number}|{tag:'b';run(n:number):string};function f(x:C):number{return x.run(1);}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "union-callable:negative-06",
+      "source": "type C={tag:'a';run(n:number):number}|{tag:'b';run(n:number):string};function f(x:C):string{return x.run(1);}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "union-callable:negative-07",
+      "source": "type C={tag:'a';run(n:number):number}|{tag:'b';run(n:number):string};function f(x:C):number|string{return x['run']('bad');}",
+      "expectedCodes": [
+        "TS2345"
+      ]
+    },
+    {
+      "id": "union-callable:negative-08",
+      "source": "type C={tag:'a';run(n:number):number}|{tag:'b';run(n:number):string};function f(x:C):number|string{return x['run']();}",
+      "expectedCodes": [
+        "TS2554"
+      ]
+    }
+  ]
+}
