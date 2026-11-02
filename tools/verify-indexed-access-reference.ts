@@ -21,7 +21,7 @@ assert.equal(suite.kind,arrayIndexed?'BOUNDED_ARRAY_INDEXED_TYPES_NOT_ORIGINAL_T
   'BOUNDED_INDEXED_ACCESS_NOT_ORIGINAL_TS7_ACCEPTANCE');
 assert.equal(suite.cases.length,arrayIndexed?18:intersection?12:20,'do not shrink registered source cases');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
-const profilePath=arrayIndexed?'fixtures/array-iteration/minimal.d.ts':'fixtures/minimal.d.ts';
+const profilePath=arrayIndexed?'fixtures/readonly-array/minimal.d.ts':'fixtures/minimal.d.ts';
 const profile=readFileSync(profilePath,'utf8');
 const hash=(v:string|Buffer)=>createHash('sha256').update(v).digest('hex');
 const manifest:{path:string;length:number;sha256:string}[]=[];
