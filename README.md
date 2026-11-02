@@ -195,6 +195,16 @@ inherited required members. Such unimplemented forms fail explicitly.
 Parser depth and diagnostic display are bounded. Runtime and validation details:
 [`structural-object-data`](docs/progress/structural-object-data.md).
 
+## Array element types through indexed access (bounded)
+
+Array and readonly-array type annotations can select their element type with
+`T[number]` or a non-negative safe integer literal index, and their length
+with `T["length"]`. A union of known arrays joins the selected element
+types; mixed object/array unions and unknown or unsupported index types
+fail explicitly. These types cross named ES2015 module boundaries, while
+ordinary JavaScript array indexing is emitted without a runtime helper.
+This is not general index-signature or standard-library compatibility.
+
 ## Named aliases, interfaces and unions (bounded)
 
 The compiler supports non-generic `type` aliases, required named-member
