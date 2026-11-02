@@ -994,6 +994,102 @@
       "expectedCodes": [
         "TS2493"
       ]
+    },
+    {
+      "id": "type-operators:positive-89",
+      "source": "let t:[string?]=[];let p:[number,string?]=[21,...t];let n:1|2=p.length;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-90",
+      "source": "let t:[string?]=[\"go\"];let p:readonly [number,string?]=[21,...t];let v:string|undefined=p[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-91",
+      "source": "type Tail=[string,boolean?];let t:Tail=[\"go\"];let p:[number,...Tail]=[21,...t];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-92",
+      "source": "let t:[string?,boolean?]=[];let p:[number,string?,boolean?]=[21,...t];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-93",
+      "source": "let t:readonly [string,boolean?]=[\"go\",true];let p:[number,string,boolean?]=[21,...t];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-94",
+      "source": "function make(t:[string?]):[number,string?]{return [21,...t];}let p=make([\"go\"]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-95",
+      "source": "let t:[string?]=[];let p:[number,...[string?]]=[21,...t];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-96",
+      "source": "let t:[string,boolean?]=[\"go\"];let p:[number,string,boolean?]=[21,...t];let s:string=p[1];",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-82",
+      "source": "let t:[string?]=[];let p:[number,string]=[21,...t];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-83",
+      "source": "let t:[string?,boolean?]=[];let p:[number,string?]=[21,...t];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-84",
+      "source": "let t:[string?,boolean?]=[];let p:[number,boolean?,boolean?]=[21,...t];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-85",
+      "source": "let t:[string,boolean?]=[\"go\"];let p:[number,string,boolean]=[21,...t];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-86",
+      "source": "let t:[string?]=[];let p:[number,string?]=[21,...t];p[1]=21;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-87",
+      "source": "let t:[string?]=[];let p:[number,string?]=[21,...t];let bad=p[2];",
+      "expectedCodes": [
+        "TS2493"
+      ]
+    },
+    {
+      "id": "type-operators:negative-88",
+      "source": "let t:[string?]=[];let p:[number,string?]=[\"bad\",...t];",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-89",
+      "source": "function make(t:[string?]):[number,string]{return [21,...t];}",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }
