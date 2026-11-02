@@ -131,8 +131,8 @@ internal static class TypeResolver
                         if(key is UnionTypeSymbol keys)
                             return CompilerTypes.Union(keys.Alternatives.Select(part=>ArrayIndex(target,part)));
                         if(key.Equals(CompilerTypes.Never))return CompilerTypes.Never;
-                        var array=(ArrayTypeSymbol)target;
-                        if(key.Equals(CompilerTypes.Number))return array.ElementType;
+                        var arrayType=(ArrayTypeSymbol)target;
+                        if(key.Equals(CompilerTypes.Number))return arrayType.ElementType;
                         if(key is LiteralTypeSymbol { Kind:PrimitiveKind.Number } numeric)
                         {
                             if(!long.TryParse(numeric.Value,System.Globalization.NumberStyles.None,
@@ -140,7 +140,7 @@ internal static class TypeResolver
                                value>9007199254740991L)
                                 throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
                                     "Array indexed-access numeric keys must be non-negative safe integers."));
-                            return array.ElementType;
+                            return arrayType.ElementType;
                         }
                         if(key is LiteralTypeSymbol { Kind:PrimitiveKind.String,Value:"length" })
                             return CompilerTypes.Number;
