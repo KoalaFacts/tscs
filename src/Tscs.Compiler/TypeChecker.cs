@@ -12,6 +12,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     // Preserve each spread receiver's checked tuple positions. The array's
     // aggregate element union is insufficient for contextual tuple assignment.
     private readonly Dictionary<ValueArraySpread,ArrayTypeSymbol> checkedArraySpreadOperands = new(ReferenceEqualityComparer.Instance);
+    // Preserve each spread's checked source identity. The final merged object
+    // cannot reconstruct overwritten or optional source members faithfully.
+    private readonly Dictionary<ObjectProperty,ObjectTypeSymbol> checkedObjectSpreadOperands = new(ReferenceEqualityComparer.Instance);
     // Logical expressions use bounded recursion only to check the RHS in the
     // appropriate short-circuit flow scope; other expression chains remain iterative.
     private int logicalEvaluationDepth;
@@ -2135,7 +2138,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         identifierType:token=>TypeOfAtom(token,scope),checkedType:actual,
                         checkedArraySlot:(tuple,index)=>
                             checkedArrayElements.TryGetValue(tuple,out var slots) && index<slots.Length
-                                ?slots[index]:null);
+                                ?slots[index]:null,
+                        checkedObjectSpreadSource:entry=>
+                            checkedObjectSpreadOperands.TryGetValue(entry,out var source)?source:null);
                     if(narrowed is null)
                     {
                         ValueNode operand=typeOperator.Expression;
@@ -2327,6 +2332,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         if(memberType is not ObjectTypeSymbol source)
                             throw new CompilationFailure(Diagnostic.Error(file,entry.Name,"TSCS1001",
                                 "Object spread requires a statically checked object operand."));
+                        checkedObjectSpreadOperands[entry]=source;
                         foreach(var member in source.Members)
                         {
                             if(source.OptionalMembers.Contains(member.Key) && members.ContainsKey(member.Key))

@@ -48,11 +48,14 @@ try {
     'export const namedSeed=21;',
     'export const mutableNamed={count:21};',
     'export const namedSnapshot={seed:namedSeed,nested:{value:mutableNamed}} as const;',
-    'export function makeComputed(n:number):{readonly total:number;readonly labels:readonly [number,string]} {return {total:n+1,labels:[n+2,"go"]} as const;}'
+    'export function makeComputed(n:number):{readonly total:number;readonly labels:readonly [number,string]} {return {total:n+1,labels:[n+2,"go"]} as const;}',
+    'export const incomingSpread={value:21,nested:{count:7}};',
+    'export const readonlySpread={...incomingSpread,tag:"ready"} as const;',
+    'export function makeConstSpread(n:number):{readonly value:number;readonly tag:"ready"}{return {...{value:n},tag:"ready"} as const;}'
   ].join('\n'));
-  writeFileSync(join(folder,'bridge.ts'),'export { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple, makePair, makeNestedPair, makeOptional, makeRest, makeMaybeRest, makeSpreadTuple, makeOptionalSpread, makeComputed, namedSnapshot, mutableNamed } from "./factory.js";\n');
+  writeFileSync(join(folder,'bridge.ts'),'export { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple, makePair, makeNestedPair, makeOptional, makeRest, makeMaybeRest, makeSpreadTuple, makeOptionalSpread, makeComputed, namedSnapshot, mutableNamed, readonlySpread, makeConstSpread } from "./factory.js";\n');
   writeFileSync(join(folder,'entry.ts'),[
-    'import { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple, makePair, makeNestedPair, makeOptional, makeRest, makeMaybeRest, makeSpreadTuple, makeOptionalSpread, makeComputed, namedSnapshot, mutableNamed } from "./bridge.js";',
+    'import { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple, makePair, makeNestedPair, makeOptional, makeRest, makeMaybeRest, makeSpreadTuple, makeOptionalSpread, makeComputed, namedSnapshot, mutableNamed, readonlySpread, makeConstSpread } from "./bridge.js";',
     'import type { Pair, NestedPair, OptionalPair, RestPair, MaybeRest } from "./model.js";',
     'const raw: any = { value: 21, label: "ready" };',
     'const item = fromAny(raw);',
@@ -101,7 +104,12 @@ try {
     'export const composedNamedMutable:number=mutableNamed.count;',
     'const computed=makeComputed(20);',
     'export const computedTotal:number=computed.total;',
-    'export const computedFirst:number=computed.labels[0];'
+    'export const computedFirst:number=computed.labels[0];',
+    'const constSpreadResult=makeConstSpread(40);',
+    'export const constSpreadValue:number=constSpreadResult.value;',
+    'export const constSpreadTag:"ready"=readonlySpread.tag;',
+    'readonlySpread.nested.count=8;',
+    'export const constSpreadNested:number=readonlySpread.nested.count;'
   ].join('\n'));
   writeFileSync(join(folder,'project.json'),JSON.stringify({
     files:['entry.ts','minimal.d.ts'],
@@ -112,11 +120,13 @@ try {
   for(const name of ['model','factory','bridge','entry'])
     assert.ok(existsSync(join(folder,name+'.js')),'missing '+name+'.js');
   const executed=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,label,extra,exact,checked,advanced,selected,selectedTag,otherLabel,readonlyTag,readonlyValue,readonlyValid,tupleFirst,tupleSecond,tupleLength,nestedTupleValue,namedTupleNumber,namedTupleText,namedNestedNumber,namedNestedValid,optionalShortLength,optionalLongLabel,restLabel,restLength,maybeRestLength,spreadText,spreadLength,inlineSpreadText,optionalSpreadShortLength,optionalSpreadLongText,composedNamedSeed,composedNamedMutable,computedTotal,computedFirst} from "./entry.js"; if(result!==42||label!=="ready"||extra!==42||exact!==21||checked!=="ready"||advanced!==42||selected!==23||selectedTag!=="a"||otherLabel!=="tagged"||readonlyTag!=="ready"||readonlyValue!==21||readonlyValid!==true||tupleFirst!==21||tupleSecond!=="go"||tupleLength!==2||nestedTupleValue!==42||namedTupleNumber!==21||namedTupleText!=="ready"||namedNestedNumber!==21||namedNestedValid!==true||optionalShortLength!==1||optionalLongLabel!=="ready"||restLabel!=="go"||restLength!==3||maybeRestLength!==1||spreadText!=="ready"||spreadLength!==3||inlineSpreadText!=="ok"||optionalSpreadShortLength!==1||optionalSpreadLongText!=="tail"||composedNamedSeed!==21||composedNamedMutable!==42||computedTotal!==21||computedFirst!==22) throw Error("type-operator JS runtime mismatch");'],
+    'import {result,label,extra,exact,checked,advanced,selected,selectedTag,otherLabel,readonlyTag,readonlyValue,readonlyValid,tupleFirst,tupleSecond,tupleLength,nestedTupleValue,namedTupleNumber,namedTupleText,namedNestedNumber,namedNestedValid,optionalShortLength,optionalLongLabel,restLabel,restLength,maybeRestLength,spreadText,spreadLength,inlineSpreadText,optionalSpreadShortLength,optionalSpreadLongText,composedNamedSeed,composedNamedMutable,computedTotal,computedFirst,constSpreadValue,constSpreadTag,constSpreadNested} from "./entry.js"; if(result!==42||label!=="ready"||extra!==42||exact!==21||checked!=="ready"||advanced!==42||selected!==23||selectedTag!=="a"||otherLabel!=="tagged"||readonlyTag!=="ready"||readonlyValue!==21||readonlyValid!==true||tupleFirst!==21||tupleSecond!=="go"||tupleLength!==2||nestedTupleValue!==42||namedTupleNumber!==21||namedTupleText!=="ready"||namedNestedNumber!==21||namedNestedValid!==true||optionalShortLength!==1||optionalLongLabel!=="ready"||restLabel!=="go"||restLength!==3||maybeRestLength!==1||spreadText!=="ready"||spreadLength!==3||inlineSpreadText!=="ok"||optionalSpreadShortLength!==1||optionalSpreadLongText!=="tail"||composedNamedSeed!==21||composedNamedMutable!==42||computedTotal!==21||computedFirst!==22||constSpreadValue!==40||constSpreadTag!=="ready"||constSpreadNested!==8) throw Error("type-operator JS runtime mismatch");'],
     {cwd:folder,encoding:'utf8',timeout:15000});
   assert.equal(executed.error,undefined,String(executed.error));
   assert.equal(executed.status,0,executed.stdout+executed.stderr);
   for(const [name,source,code] of [
+    ['const-object-spread-readonly','const base={n:21};const snap={...base} as const;snap.n=22;','TS2540'],
+    ['const-object-spread-wrong-literal','const base={n:21};const snap={...base} as const;let bad:21=snap.n;','TS2322'],
     ['invalid-assert','let value: number = 21; let s = value as string;','TS2352'],
     ['invalid-satisfies','const value = "wrong" satisfies number;','TS1360'],
     ['invalid-fresh','const bad = {value: 21, excess: 2} satisfies {value: number};','TS2353'],

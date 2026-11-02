@@ -1282,6 +1282,102 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "type-operators:positive-113",
+      "source": "const base={value:21};const snapshot={...base,tag:\"ready\"} as const;let n:number=snapshot.value;let tag:\"ready\"=snapshot.tag;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-114",
+      "source": "const left={a:21};const right={b:\"go\"};const snap={...left,...right} as const;let a:number=snap.a;let b:string=snap.b;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-115",
+      "source": "const source={value:21};const snap={...source,value:42} as const;let exact:42=snap.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-116",
+      "source": "const source={nested:{value:21}};const snap={...source} as const;snap.nested.value=42;let value:number=snap.nested.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-117",
+      "source": "const source={value:21} as const;const snap={...source} as const;let exact:21=snap.value;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-118",
+      "source": "const snap={...{value:21},tag:\"go\"} as const;let n:number=snap.value;let tag:\"go\"=snap.tag;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-119",
+      "source": "const source:{value?:number}={};const snap={...source,tag:\"ok\"} as const;let n:number|undefined=snap.value;let label:\"ok\"=snap.tag;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-120",
+      "source": "function take(x:{readonly value:number}):number{return x.value;}const source={value:21};let answer:number=take({...source} as const);",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-106",
+      "source": "const base={n:21};const out={...base} as const;out.n=22;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-107",
+      "source": "const base={n:21};const out={...base} as const;let bad:21=out.n;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-108",
+      "source": "const src={n:1};const out={...src,nested:{value:21}} as const;out.nested.value=22;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-109",
+      "source": "const obj={local:21,...{n:22}} as const;obj.n=24;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-110",
+      "source": "const src={nested:{n:21}};const out={...src} as const;out.nested={n:2};",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-111",
+      "source": "const source={tag:\"ok\"};const out={...source} as const;let wrong:\"ok\"=out.tag;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-112",
+      "source": "const src={n:21};const out={...src} as const;let wrong:{n:string}=out;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-113",
+      "source": "const source={n:21};const out={...source} as const;let bad=out.nope;",
+      "expectedCodes": [
+        "TS2339"
+      ]
     }
   ]
 }

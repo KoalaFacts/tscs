@@ -207,6 +207,16 @@ member/index expressions retain their inferred types; `21 + 1` is `number`,
 not a fabricated `22` literal. New object/tuple shells remain readonly;
 spread const assertions are not claimed.
 
+## Finite object-spread const assertions (bounded)
+
+A fresh object `{...existing, tag: "ready"} as const` preserves the
+already-checked types of spread members and makes the new outer properties
+readonly. Later explicit members override earlier spreads; nested objects
+*referenced* by a spread remain mutable unless already readonly. Optional
+spread members retain their optionality. Object spreads require statically
+checked object operands and do not imply general conditional-spread inference,
+deep freezing of references, or full TypeScript standard-library support.
+
 ## Fixed tuple type annotations (bounded)
 
 Explicit positional tuples such as `type Pair = [number, string]` and

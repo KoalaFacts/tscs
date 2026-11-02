@@ -228,6 +228,21 @@ internal static class Binder
         return symbol.Type;
     }
 
+    // Cross-module exports must have their finite spread member types ready
+    // before the module linker checks imports. Check only already initialized
+    // named sources or independently inferable literal object operands;
+    // unsupported expressions remain unresolved until normal checking.
+    private static ObjectTypeSymbol? ResolveConstSpreadSource(
+        ValueNode value,Scope scope,string file,int depth)
+    {
+        if(depth>64)return null;
+        while(value is ValueParenthesized grouped)value=grouped.Expression;
+        TypeSymbol? inferred=value is ValueAtom {Token.Kind:TokenKind.Identifier} atom
+            ?ResolveConstAssertionIdentifier(atom.Token,scope,file)
+            :ResolveFiniteInitializerType(value,scope,file,false,depth+1);
+        return inferred as ObjectTypeSymbol;
+    }
+
     // Prebinding and typeof queries must infer the same finite initializer.
     // const primitive literals stay exact; mutable values and object members widen.
     public static TypeSymbol? ResolveFiniteInitializerType(
@@ -241,7 +256,9 @@ internal static class Binder
         {
             ValueTypeOperator { Keyword.Text:"as",Target:NamedTypeSyntax {Name.Kind:TokenKind.Const} } asserted =>
                 CompilerTypes.FromFiniteConstAssertion(asserted.Expression,depth+1,
-                    token=>ResolveConstAssertionIdentifier(token,scope,file)),
+                    token=>ResolveConstAssertionIdentifier(token,scope,file),
+                    checkedObjectSpreadSource:entry=>
+                        ResolveConstSpreadSource(entry.Value,scope,file,depth+1)),
             ValueTypeOperator { Keyword.Text:"as" } asserted =>
                 TypeResolver.Resolve(asserted.Target,scope,file,depth+1),
             ValueTypeOperator { Keyword.Text:"satisfies" } satisfied =>

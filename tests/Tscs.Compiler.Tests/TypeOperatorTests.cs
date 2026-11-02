@@ -185,4 +185,28 @@ public sealed class TypeOperatorTests
     [InlineData("const value=[21+1,\"go\"] as const;let bad:21=value[0];", "TS2322")]
     public void ComputedConstMembersDoNotInventLiteralsOrAllowReadonlyWrites(string source,string code) =>
         Assert.Contains(Compilation.Check("computed-const-members-invalid.ts",source),d=>d.Code==code);
+    [Theory]
+    [InlineData("const base={value:21};const snapshot={...base,tag:\"ready\"} as const;let n:number=snapshot.value;let tag:\"ready\"=snapshot.tag;")]
+    [InlineData("const left={a:21};const right={b:\"go\"};const snap={...left,...right} as const;let a:number=snap.a;let b:string=snap.b;")]
+    [InlineData("const source={value:21};const snap={...source,value:42} as const;let exact:42=snap.value;")]
+    [InlineData("const source={nested:{value:21}};const snap={...source} as const;snap.nested.value=42;let value:number=snap.nested.value;")]
+    [InlineData("const source={value:21} as const;const snap={...source} as const;let exact:21=snap.value;")]
+    [InlineData("const snap={...{value:21},tag:\"go\"} as const;let n:number=snap.value;let tag:\"go\"=snap.tag;")]
+    [InlineData("const source:{value?:number}={};const snap={...source,tag:\"ok\"} as const;let n:number|undefined=snap.value;let label:\"ok\"=snap.tag;")]
+    [InlineData("function take(x:{readonly value:number}):number{return x.value;}const source={value:21};let answer:number=take({...source} as const);")]
+    public void FiniteConstObjectSpreadsPreserveReadonlyShellsAndCheckedMembers(string source) =>
+        Assert.Empty(Compilation.Check("const-object-spreads.ts",source));
+
+    [Theory]
+    [InlineData("const base={n:21};const out={...base} as const;out.n=22;", "TS2540")]
+    [InlineData("const base={n:21};const out={...base} as const;let bad:21=out.n;", "TS2322")]
+    [InlineData("const src={n:1};const out={...src,nested:{value:21}} as const;out.nested.value=22;", "TS2540")]
+    [InlineData("const obj={local:21,...{n:22}} as const;obj.n=24;", "TS2540")]
+    [InlineData("const src={nested:{n:21}};const out={...src} as const;out.nested={n:2};", "TS2540")]
+    [InlineData("const source={tag:\"ok\"};const out={...source} as const;let wrong:\"ok\"=out.tag;", "TS2322")]
+    [InlineData("const src={n:21};const out={...src} as const;let wrong:{n:string}=out;", "TS2322")]
+    [InlineData("const source={n:21};const out={...source} as const;let bad=out.nope;", "TS2339")]
+    public void FiniteConstObjectSpreadsRejectReadonlyWritesAndInvalidTypes(string source,string code) =>
+        Assert.Contains(Compilation.Check("const-object-spreads-invalid.ts",source),d=>d.Code==code);
+
 }
