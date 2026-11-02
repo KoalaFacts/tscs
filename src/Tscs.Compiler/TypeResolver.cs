@@ -62,10 +62,13 @@ internal static class TypeResolver
                 {
                     Variable { Annotation: { } annotation } =>
                         Resolve(annotation,declaringScope,symbol.File,depth+1),
+                    Variable declaration when Binder.ResolveFiniteInitializerType(
+                        declaration.Initializer,declaringScope,symbol.File,
+                        declaration.Constant,depth+1) is { } inferred => inferred,
                     FunctionDeclaration function =>
                         Binder.ResolveFunctionSignature(function,declaringScope,symbol.File,depth+1),
                     _=>throw new CompilationFailure(Diagnostic.Error(file,query.Root,"TSCS1001",
-                        "typeof currently requires an explicitly annotated value or typed function."))
+                        "typeof requires a finite inferred initializer, annotation or typed function."))
                 };
                 foreach(var member in query.Members)
                 {

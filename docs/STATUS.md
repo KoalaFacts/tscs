@@ -1,3 +1,15 @@
+## 2026-11-02 — Finite inferred typeof queries (candidate; NOT_RUN)
+
+Binder prebinding and TypeResolver now share finite initializer inference for
+local and imported/re-exported literal-initialized values. Plain const
+primitives preserve exact literals, while mutable and object/array members
+widen. Sixteen new stable bounded pinned-Go cases (8 positive,
+8 negative) extend the frozen 22-case type-query cohort to 38.
+Source-backed C# and four linked executable ES2015 modules are attached.
+Exact-head hosted verification is NOT_RUN at source creation; original TS7
+remains historically 0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED.
+No release/pin/protection changes.
+
 ## 2026-11-02 — String type-level indexed selection (candidate; NOT_RUN)
 
 The existing C# type resolver now accepts string, literal-string and string-only

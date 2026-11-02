@@ -215,6 +215,78 @@ internal static class Binder
                 : null);
     }
 
+    // Prebinding and typeof queries must infer the same finite initializer.
+    // const primitive literals stay exact; mutable values and object members widen.
+    public static TypeSymbol? ResolveFiniteInitializerType(
+        ValueNode? initial,Scope scope,string file,bool constant,int depth=0)
+    {
+        // Recursive finite object/array assertions can contain nested type
+        // queries. Bound the inference just like named type resolution.
+        if(depth>64)return null;
+        while(initial is ValueParenthesized group)initial=group.Expression;
+        return initial switch
+        {
+            ValueTypeOperator { Keyword.Text:"as" } asserted =>
+                TypeResolver.Resolve(asserted.Target,scope,file,depth+1),
+            ValueTypeOperator { Keyword.Text:"satisfies" } satisfied =>
+                ResolveFiniteInitializerType(satisfied.Expression,scope,file,false,depth+1) is { } source
+                    ?CompilerTypes.PreserveSatisfiedLiteralTypes(satisfied.Expression,source,
+                        TypeResolver.Resolve(satisfied.Target,scope,file,depth+1))
+                    :null,
+            ValueAtom atom when constant &&
+                (atom.Token.Kind is TokenKind.Number or TokenKind.String or TokenKind.True or TokenKind.False) =>
+                CompilerTypes.FromLiteralExact(atom.Token),
+            ValueUnary { Operator.Kind:TokenKind.Minus,Operand:ValueAtom number }
+                when constant && number.Token.Kind==TokenKind.Number =>
+                CompilerTypes.FromLiteralExact(number.Token,negative:true),
+            _=>initial is ValueArray or ValueObject
+                ?ResolveFiniteCompositeInitializerType(initial,scope,file,depth+1) ??
+                    CompilerTypes.FromInitializer(initial)
+                :CompilerTypes.FromInitializer(initial)
+        };
+    }
+
+    // A closed initializer may contain a nested explicit literal assertion.
+    // The original structural fast path handles ordinary literals/spreads;
+    // only fall back here when that inference cannot resolve the initializer.
+    // Unknown references, arbitrary expressions and spreads remain fail-closed.
+    private static TypeSymbol? ResolveFiniteCompositeInitializerType(
+        ValueNode? initial,Scope scope,string file,int depth)
+    {
+        if(depth>64)return null;
+        if(initial is ValueArray array)
+        {
+            TypeSymbol element=CompilerTypes.Never;
+            foreach(var item in array.Elements)
+            {
+                if(item is ValueArraySpread)return null;
+                if(ResolveFiniteInitializerType(item,scope,file,false,depth+1) is not { } next)
+                    return null;
+                if(element.Equals(CompilerTypes.Never))element=next;
+                else if(!CompilerTypes.IsEquivalent(element,next))
+                {
+                    try {element=CompilerTypes.Union([element,next]);}
+                    catch(InvalidOperationException) {return null;}
+                }
+            }
+            return new ArrayTypeSymbol(element);
+        }
+        if(initial is not ValueObject obj || obj.Properties.Any(p=>p.Spread))
+            return null;
+        var members=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
+        var numericMembers=new HashSet<string>(StringComparer.Ordinal);
+        foreach(var property in obj.Properties)
+        {
+            if(ResolveFiniteInitializerType(property.Value,scope,file,false,depth+1) is not { } member)
+                return null;
+            var name=Parser.PropertyName(property.Name);
+            members[name]=member;
+            if(property.Name.Kind==TokenKind.Number)numericMembers.Add(name);
+            else numericMembers.Remove(name);
+        }
+        return new ObjectTypeSymbol(members,numericMembers:numericMembers);
+    }
+
     public static void InitializeDeclaredTypes(Scope scope)
     {
         // Validate all declarations even when nothing references their aliases.
@@ -231,19 +303,8 @@ internal static class Binder
                     // Prebind cross-module assertion exports from their type,
                     // without changing the runtime initializer or skipping
                     // the later checked expression. Satisfies keeps inference.
-                    ValueNode? initial=declaration.Initializer;
-                    while(initial is ValueParenthesized group)initial=group.Expression;
-                    TypeSymbol? literalType=initial switch
-                    {
-                        ValueTypeOperator { Keyword.Text:"as" } asserted =>
-                            TypeResolver.Resolve(asserted.Target,scope,symbol.File),
-                        ValueTypeOperator { Keyword.Text:"satisfies" } satisfied =>
-                            CompilerTypes.FromInitializer(satisfied.Expression) is { } source
-                                ? CompilerTypes.PreserveSatisfiedLiteralTypes(satisfied.Expression,source,
-                                    TypeResolver.Resolve(satisfied.Target,scope,symbol.File))
-                                : null,
-                        _=>CompilerTypes.FromInitializer(initial)
-                    };
+                    TypeSymbol? literalType=ResolveFiniteInitializerType(
+                        declaration.Initializer,scope,symbol.File,declaration.Constant);
                     symbol.Type=declaration.Annotation is { } annotation
                         ? TypeResolver.Resolve(annotation,scope,symbol.File) : literalType;
                     symbol.Initialized=declaration.Initializer!=null;

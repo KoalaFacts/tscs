@@ -9,12 +9,17 @@ signatures rather than guessing an `any` type. Exported type aliases can be
 imported into other modules, and typed callbacks run through the ordinary
 cross-module function pipeline.
 
-This bounded package does **not** support inferred/unannotated variable queries,
-`typeof` on imported runtime values, namespaces, dynamic/computed type-query
-paths or general TypeScript type query semantics. They fail closed rather than
-fabricating a type. Circular alias queries retain the real TS2456 failure.
+Finite unannotated literal-initialized values now support type-level
+`typeof` locally and through imported/re-exported declarations. Plain
+`const` primitive bindings preserve literal types; `let` values and ordinary
+object/array members still widen. Known nested members, `keyof`, and indexed
+selectors share the existing resolver, with genuine negative diagnostics.
 
-The new stable 13-case bounded source/code/exit reference runner uses the fixed
+Complex expression-inferred variables, namespaces, computed type-query
+paths and full TypeScript query semantics remain unsupported instead of
+falling back to `any`. Circular aliases still report TS2456.
+
+The new stable 38-case bounded source/code/exit reference runner uses the fixed
 TypeScript 7 Go executable, records unchanged source text, hashes, per-case raw
 results and pin. Real four-module emitted ES2015 JavaScript must execute and
 invalid programs must emit no output. These are **not** original upstream runner

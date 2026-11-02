@@ -155,6 +155,108 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "type-query:positive-15",
+      "source": "type T=typeof later;const later=21;let n:T=21;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-query:positive-16",
+      "source": "let n=21;type T=typeof n;let result:T=42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-query:positive-17",
+      "source": "const item={value:21,label:\"ok\"};type Shape=typeof item;let x:Shape={value:42,label:\"new\"};",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-query:positive-18",
+      "source": "const item={nested:{count:21}};type Count=typeof item.nested.count;let n:Count=42;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-query:positive-19",
+      "source": "const item={value:21};type Keys=keyof typeof item;let key:Keys=\"value\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-query:positive-20",
+      "source": "const item=\"ready\";type S=typeof item;let copy:S=\"ready\";",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-query:positive-21",
+      "source": "const flag=true;type F=typeof flag;let other:F=true;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-query:positive-22",
+      "source": "import {item} from \"./data.js\";type Shape=typeof item;let copy:Shape={value:42};",
+      "expectedCodes": [],
+      "files": {
+        "data.ts": "export const item={value:21};"
+      }
+    },
+    {
+      "id": "type-query:negative-09",
+      "source": "const n=21;type N=typeof n;let bad:N=22;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-query:negative-10",
+      "source": "const item=\"ready\";type S=typeof item;let bad:S=\"later\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-query:negative-11",
+      "source": "let n=21;type N=typeof n;let bad:N=\"wrong\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-query:negative-12",
+      "source": "const item={value:21};type V=typeof item.value;let bad:V=\"wrong\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-query:negative-13",
+      "source": "const item={value:21};type K=keyof typeof item;let bad:K=\"missing\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-query:negative-14",
+      "source": "const item={nested:{value:21}};type V=typeof item.nested.missing;",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "type-query:negative-15",
+      "source": "import {item} from \"./data.js\";type V=typeof item.value;let bad:V=\"wrong\";",
+      "expectedCodes": [
+        "TS2322"
+      ],
+      "files": {
+        "data.ts": "export const item={value:21};"
+      }
+    },
+    {
+      "id": "type-query:negative-16",
+      "source": "type N=typeof later;const later=21;let bad:N=22;",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }
