@@ -546,6 +546,8 @@ public static class CommandLine
             @"|(?<upper>toUpperCase\s*\(\s*\)\s*:\s*string)" +
             @"|(?<lower>toLowerCase\s*\(\s*\)\s*:\s*string)" +
             @"|(?<trim>trim\s*\(\s*\)\s*:\s*string)" +
+            @"|(?<isWellFormed>isWellFormed\s*\(\s*\)\s*:\s*boolean)" +
+            @"|(?<toWellFormed>toWellFormed\s*\(\s*\)\s*:\s*string)" +
             @"|(?<slice>slice\s*\(\s*(?:"+id+@"\s*\?\s*:\s*number(?:\s*,\s*"+id+@"\s*\?\s*:\s*number)?)?\s*\)\s*:\s*string)" +
             @"|(?<includes>includes\s*\(\s*"+id+@"\s*:\s*string(?:\s*,\s*"+id+@"\s*\?\s*:\s*number)?\s*\)\s*:\s*boolean)" +
             @"|(?<startsWith>startsWith\s*\(\s*"+id+@"\s*:\s*string(?:\s*,\s*"+id+@"\s*\?\s*:\s*number)?\s*\)\s*:\s*boolean)" +
@@ -594,7 +596,7 @@ public static class CommandLine
             {
                 var method=new[]{"upper","lower","trim","slice","includes","startsWith","endsWith",
                     "charAt","charCodeAt","substring","indexOf","lastIndexOf",
-                    "replace","split","repeat","trimStart","trimEnd","padStart",
+                    "replace","split","repeat","trimStart","trimEnd","isWellFormed","toWellFormed","padStart",
                     "padEnd","normalize","atMethod","codePointAt","localeCompare"}
                     .FirstOrDefault(name=>member.Groups[name].Success);
                 if(method is null || !methods.Add(method))return false;

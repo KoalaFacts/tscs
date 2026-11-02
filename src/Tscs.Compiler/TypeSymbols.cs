@@ -563,8 +563,9 @@ internal static class CompilerTypes
             return name switch
             {
                 "length" => Number,
-                "toUpperCase" or "toLowerCase" or "trim" =>
+                "toUpperCase" or "toLowerCase" or "trim" or "toWellFormed" =>
                     new FunctionTypeSymbol([],String),
+                "isWellFormed" => new FunctionTypeSymbol([],Boolean),
                 "slice" => new FunctionTypeSymbol(
                     [Union([Number,Undefined]),Union([Number,Undefined])],String,0),
                 "includes" or "startsWith" or "endsWith" =>

@@ -27,6 +27,10 @@ public sealed class StringNativeMethodsTests
     [InlineData("let s:string=\"😀\";let result:string|undefined=s.at(-2);")]
     [InlineData("function last(s:string):string|undefined{return s.at(-1);}let t:string|undefined=last(\"hi\");")]
     [InlineData("let s:string=\"abc\";let result:string|undefined=s.at(999);")]
+    [InlineData("let s:string=\"ok\";let good:boolean=s.isWellFormed();")]
+    [InlineData("let s:string=\"ok\";let fixed:string=s.toWellFormed();")]
+    [InlineData("let s:string=\"ok\";let good:boolean=s.toWellFormed().isWellFormed();")]
+    [InlineData("function repair(s:string):string{return s.toWellFormed();}let value:string=repair(\"hi\");")]
     public void NativeStringCallsHaveCheckedTypes(string source) =>
         Assert.Empty(Compilation.Check("string-methods.ts",source));
 
@@ -51,6 +55,12 @@ public sealed class StringNativeMethodsTests
     [InlineData("let s:string=\"abc\";let b:boolean=s.at(-1);","TS2322")]
     [InlineData("let n:number=42;n.at(0);","TS2339")]
     [InlineData("let s:string=\"abc\";s.at([1]);","TS2345")]
+    [InlineData("let s:string=\"hi\";s.isWellFormed(1);","TS2554")]
+    [InlineData("let s:string=\"hi\";s.toWellFormed(1);","TS2554")]
+    [InlineData("let s:string=\"hi\";let wrong:string=s.isWellFormed();","TS2322")]
+    [InlineData("let s:string=\"hi\";let wrong:boolean=s.toWellFormed();","TS2322")]
+    [InlineData("let n:number=1;n.isWellFormed();","TS2339")]
+    [InlineData("let n:number=1;n.toWellFormed();","TS2339")]
     public void InvalidStringCallsAreRejected(string source,string code) =>
         Assert.Contains(Compilation.Check("bad-string-methods.ts",source),d=>d.Code==code);
 }

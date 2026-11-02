@@ -240,6 +240,118 @@
       "expectedCodes": [
         "TS2345"
       ]
+    },
+    {
+      "id": "string-methods:positive-21",
+      "source": "let s:string=\"hello\";let good:boolean=s.isWellFormed();",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-methods/well-formed-minimal.d.ts"
+    },
+    {
+      "id": "string-methods:positive-22",
+      "source": "let s:string=\"\\uD800\";let good:boolean=s.isWellFormed();",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-methods/well-formed-minimal.d.ts"
+    },
+    {
+      "id": "string-methods:positive-23",
+      "source": "let s:string=\"\\uD800\";let repaired:string=s.toWellFormed();",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-methods/well-formed-minimal.d.ts"
+    },
+    {
+      "id": "string-methods:positive-24",
+      "source": "let s:string=\"hello\";let same:string=s.toWellFormed();",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-methods/well-formed-minimal.d.ts"
+    },
+    {
+      "id": "string-methods:positive-25",
+      "source": "let s:\"abc\"=\"abc\";let good:boolean=s.isWellFormed();",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-methods/well-formed-minimal.d.ts"
+    },
+    {
+      "id": "string-methods:positive-26",
+      "source": "let s:string=\"\\uD800\\uDC00\";let good:boolean=s.isWellFormed();",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-methods/well-formed-minimal.d.ts"
+    },
+    {
+      "id": "string-methods:positive-27",
+      "source": "function repair(s:string):string{return s.toWellFormed();}let fixed:string=repair(\"\\uD800\");",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-methods/well-formed-minimal.d.ts"
+    },
+    {
+      "id": "string-methods:positive-28",
+      "source": "let good:boolean=\"\\uD800\".toWellFormed().isWellFormed();",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/string-methods/well-formed-minimal.d.ts"
+    },
+    {
+      "id": "string-methods:negative-21",
+      "source": "let s:string=\"hi\";s.isWellFormed(1);",
+      "expectedCodes": [
+        "TS2554"
+      ],
+      "minimalProfile": "fixtures/string-methods/well-formed-minimal.d.ts"
+    },
+    {
+      "id": "string-methods:negative-22",
+      "source": "let s:string=\"hi\";s.toWellFormed(1);",
+      "expectedCodes": [
+        "TS2554"
+      ],
+      "minimalProfile": "fixtures/string-methods/well-formed-minimal.d.ts"
+    },
+    {
+      "id": "string-methods:negative-23",
+      "source": "let s:string=\"hi\";let wrong:string=s.isWellFormed();",
+      "expectedCodes": [
+        "TS2322"
+      ],
+      "minimalProfile": "fixtures/string-methods/well-formed-minimal.d.ts"
+    },
+    {
+      "id": "string-methods:negative-24",
+      "source": "let s:string=\"hi\";let wrong:boolean=s.toWellFormed();",
+      "expectedCodes": [
+        "TS2322"
+      ],
+      "minimalProfile": "fixtures/string-methods/well-formed-minimal.d.ts"
+    },
+    {
+      "id": "string-methods:negative-25",
+      "source": "let n:number=1;n.isWellFormed();",
+      "expectedCodes": [
+        "TS2339"
+      ],
+      "minimalProfile": "fixtures/string-methods/well-formed-minimal.d.ts"
+    },
+    {
+      "id": "string-methods:negative-26",
+      "source": "let n:number=1;n.toWellFormed();",
+      "expectedCodes": [
+        "TS2339"
+      ],
+      "minimalProfile": "fixtures/string-methods/well-formed-minimal.d.ts"
+    },
+    {
+      "id": "string-methods:negative-27",
+      "source": "let wrong:number=\"hi\".toWellFormed();",
+      "expectedCodes": [
+        "TS2322"
+      ],
+      "minimalProfile": "fixtures/string-methods/well-formed-minimal.d.ts"
+    },
+    {
+      "id": "string-methods:negative-28",
+      "source": "let wrong:number=\"hi\".isWellFormed();",
+      "expectedCodes": [
+        "TS2322"
+      ],
+      "minimalProfile": "fixtures/string-methods/well-formed-minimal.d.ts"
     }
   ]
 }

@@ -1,3 +1,16 @@
+## 2026-11-02 — Native ES2024 string well-formed operations (candidate; NOT_RUN)
+
+The C# string member resolver now checks `isWellFormed(): boolean` and
+`toWellFormed(): string` on known string receivers, reusing existing checked
+calls, modules and native JavaScript output. A lone UTF-16 surrogate is
+detected/repaired to U+FFFD at runtime, without a polyfill. The original
+40 bounded string-method cases and ambient profile remain unchanged; 16
+new source-bound cases use a separate validated symmetric profile. C#,
+four-module Node runtime, invalid/no-output and fixed Go checks are
+registered, NOT_RUN until exact-head hosted validation. Original TS7
+acceptance remains historically 0 PASS / 15,523 SKIP_UNIMPLEMENTED,
+dynamic UNEXPANDED. Release/test gates and upstream pin are unchanged.
+
 ## 2026-11-02 — Common callable members across object unions (candidate; NOT_RUN)
 
 When every finite object-union branch exposes a callable with exactly
