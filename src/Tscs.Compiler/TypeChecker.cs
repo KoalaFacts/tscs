@@ -2881,27 +2881,38 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     // indexed reads and nested tuple values. Rechecking them could repeat
     // side effects; synthesizing their types from a joined union loses slots.
     // A finite tuple spread copies positional values without changing their
-    // types or mutability. Unknown-length arrays and optional-length tuple
-    // sources cannot establish a fixed contextual tuple's actual arity.
+    // types or mutability. A trailing finite optional tuple spread retains
+    // its possible length range; unknown-length arrays remain unsupported.
     // All operand expressions were already checked once by TypeOf.
     private bool TryExpandFiniteTupleValues(
-        ValueArray array,out List<(ValueNode? Literal,TypeSymbol Type)> expanded)
+        ValueArray array,out List<(ValueNode? Literal,TypeSymbol Type)> expanded,
+        out int minimumCount)
     {
         expanded=[];
+        minimumCount=0;
         if(!checkedArrayElements.TryGetValue(array,out var checkedTypes))return false;
         for(int i=0;i<array.Elements.Count;i++)
         {
             if(array.Elements[i] is ValueArraySpread spread)
             {
                 if(!checkedArraySpreadOperands.TryGetValue(spread,out var operand) ||
-                   operand.TupleElements is not { } slots || operand.TupleOptionalStart>=0)
-                    return false;
-                foreach(var slot in slots)expanded.Add((null,slot));
+                   operand.TupleElements is not { } slots)return false;
+                // A finite optional tail contributes a range of possible
+                // lengths. It is safe only as the final source element:
+                // later items would no longer have fixed target positions.
+                int optional=operand.TupleOptionalStart;
+                if(optional>=0 && i!=array.Elements.Count-1)return false;
+                for(int slot=0;slot<slots.Count;slot++)
+                {
+                    expanded.Add((null,CompilerTypes.TupleSlot(operand,slot)));
+                    if(optional<0 || slot<optional)minimumCount++;
+                }
             }
             else
             {
                 if(checkedTypes[i] is not { } type)return false;
                 expanded.Add((array.Elements[i],type));
+                minimumCount++;
             }
             if(expanded.Count>32)return false;
         }
@@ -2978,8 +2989,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             if(targetArray.TupleElements is { } tuple)
             {
                 int minimum=targetArray.TupleOptionalStart<0?tuple.Count:targetArray.TupleOptionalStart;
-                if(!TryExpandFiniteTupleValues(elements,out var positions) ||
-                   positions.Count<minimum || positions.Count>tuple.Count)return false;
+                if(!TryExpandFiniteTupleValues(elements,out var positions,out int sourceMinimum) ||
+                   sourceMinimum<minimum || positions.Count>tuple.Count)return false;
                 for(int i=0;i<positions.Count;i++)
                 {
                     var (element,checkedType)=positions[i];
@@ -3092,8 +3103,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             if(targetArray.TupleElements is { } slots)
             {
                 int minimum=targetArray.TupleOptionalStart<0?slots.Count:targetArray.TupleOptionalStart;
-                if(!TryExpandFiniteTupleValues(literalArray,out var positions) ||
-                   positions.Count<minimum || positions.Count>slots.Count)
+                if(!TryExpandFiniteTupleValues(literalArray,out var positions,out int sourceMinimum) ||
+                   sourceMinimum<minimum || positions.Count>slots.Count)
                 {
                     Error(literalArray.Open,"TS2322",
                         $"Array literal does not match the length of tuple type '{targetArray.DisplayName}'.");

@@ -1,3 +1,18 @@
+## 2026-11-03 — Trailing finite optional tuple value spreads (candidate; NOT_RUN)
+
+The C# contextual tuple checker now retains each slot and the minimum/maximum
+length of a trailing spread from a finite optional tuple source, including
+readonly, aliased and imported sources. Every possible source length must fit
+the target tuple's required and optional range; a wrongly typed optional
+slot is rejected rather than widened into the aggregate array element type.
+A nonterminal optional spread, unbounded array spread and variadic inference
+remain unimplemented and explicitly reject. This is an 8-positive/8-negative,
+183-case bounded pinned-Go cohort with source-backed xUnit and four-module
+native ES2015 execution, NOT_RUN at source creation. The prior 167 stable
+IDs, sources, expected codes and ambient profiles remain unchanged.
+Historical original TS7 acceptance: 0 PASS / 15,523 SKIP_UNIMPLEMENTED;
+dynamic UNEXPANDED. No pin, test minimum, release gate or protection change.
+
 ## 2026-11-03 — Fixed-length tuple value spreads (candidate; NOT_RUN)
 
 The checked C# array-spread path now preserves each verified fixed tuple operand's
