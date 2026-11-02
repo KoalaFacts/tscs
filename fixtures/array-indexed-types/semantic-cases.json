@@ -1,7 +1,7 @@
 {
   "kind": "BOUNDED_ARRAY_INDEXED_TYPES_NOT_ORIGINAL_TS7_ACCEPTANCE",
   "upstream": "upstream.lock.json",
-  "profile": "fixtures/array-iteration/minimal.d.ts",
+  "profile": "fixtures/readonly-array/minimal.d.ts",
   "cases": [
     {
       "id": "array-indexed-types:positive-01",
