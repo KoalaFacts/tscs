@@ -9,7 +9,7 @@ test('array indexed type selections compile through four ES2015 modules and reje
   const dir=mkdtempSync(join(tmpdir(),'tscs-array-index-type-'));
   try {
     writeFileSync(join(dir,'package.json'),'{"type":"module"}\n');
-    writeFileSync(join(dir,'minimal.d.ts'),readFileSync('fixtures/array-iteration/minimal.d.ts'));
+    writeFileSync(join(dir,'minimal.d.ts'),readFileSync('fixtures/readonly-array/minimal.d.ts'));
     writeFileSync(join(dir,'model.ts'),[
       'export type Item={value:number};',
       'export type Items=Item[];',
