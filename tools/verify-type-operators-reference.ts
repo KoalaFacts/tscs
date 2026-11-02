@@ -20,6 +20,8 @@ const minimalProfile='fixtures/array-iteration/minimal.d.ts';
 const minimal=readFileSync(minimalProfile,'utf8');
 const tupleProfile='fixtures/readonly-array/minimal.d.ts';
 const tupleMinimal=readFileSync(tupleProfile,'utf8');
+const spreadProfile='fixtures/tuple-value-spreads/minimal.d.ts';
+const spreadMinimal=readFileSync(spreadProfile,'utf8');
 const hash=(data:string|Buffer)=>createHash('sha256').update(data).digest('hex');
 const manifest:{path:string;length:number;sha256:string}[]=[];
 function save(name:string,contents:string) {
@@ -53,9 +55,12 @@ for(let i=0;i<suite.cases.length;i++){
   const key='case-'+String(i).padStart(3,'0');
   const folder=join(out,key);mkdirSync(folder);
   save(key+'/input.ts',item.source);
-  const usesTupleProfile=/^type-operators:(positive-(3[0-9]|4[0-9]|5[0-9]|6[0-9]|7[0-2])|negative-(2[5-9]|3[0-9]|4[0-4]|4[7-9]|5[0-9]|6[0-5]))$/.test(item.id) || /^type-operators:(positive-(7[3-9]|80)|negative-(6[6-9]|7[0-3]))$/.test(item.id) || /^type-operators:(positive-8[1-8]|negative-(7[4-9]|8[01]))$/.test(item.id);
-  const profile=usesTupleProfile?tupleProfile:minimalProfile;
-  save(key+'/minimal.d.ts',usesTupleProfile?tupleMinimal:minimal);
+  const usesTupleProfile=/^type-operators:(positive-(3[0-9]|4[0-9]|5[0-9]|6[0-9]|7[0-2])|negative-(2[5-9]|3[0-9]|4[0-4]|4[7-9]|5[0-9]|6[0-5]))$/.test(item.id) || /^type-operators:(positive-(7[3-9]|80)|negative-(6[6-9]|7[0-3]))$/.test(item.id);
+  // Value spreads need the real iterable ambient under --noLib; old tuple
+  // type-only cases retain their original byte-identical profile.
+  const usesSpreadProfile=/^type-operators:(positive-8[1-8]|negative-(7[4-9]|8[01]))$/.test(item.id);
+  const profile=usesSpreadProfile?spreadProfile:usesTupleProfile?tupleProfile:minimalProfile;
+  save(key+'/minimal.d.ts',usesSpreadProfile?spreadMinimal:usesTupleProfile?tupleMinimal:minimal);
   const args=['--noEmit','--noLib','--target','es2015','--pretty','false','input.ts','minimal.d.ts'];
   const expected=run(reference,args,folder);
   const actual=run(process.env.DOTNET??'dotnet',[product,...args],folder);
@@ -76,6 +81,7 @@ save('summary.json',JSON.stringify({sourceSha,upstreamCommit:pin.commit,referenc
   referenceSha256:hash(readFileSync(reference)),productCliSha256:hash(readFileSync(product)),
   suitePath,suiteSha256:hash(readFileSync(suitePath)),scriptSha256:hash(readFileSync(import.meta.filename)),
   minimalProfile,minimalProfileSha256:hash(minimal),tupleProfile,tupleProfileSha256:hash(tupleMinimal),
+  spreadProfile,spreadProfileSha256:hash(spreadMinimal),
   matches:results.length-mismatches.length,
   mismatches:mismatches.length,originalAcceptanceCredit:0,fullOriginalScope:'UNEXPANDED',
   comparison:'bounded code arrays and exits, not original harness',referenceExecutable:basename(reference)},null,2));
