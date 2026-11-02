@@ -1,10 +1,12 @@
 ## 2026-11-02 — Common callable members across object unions (candidate; NOT_RUN)
 
-When every finite object-union branch exposes a callable property with exactly
-matching checked input types, required arity and rest contract, the compiler now
-unifies those calls and joins their return types. Dot and literal-bracket member
-calls reuse the existing Parser, Binder, TypeChecker, module graph and native
-ES2015 emitter. Optional/missing properties, differing parameter contracts,
+When every finite object-union branch exposes a callable with exactly
+matching checked input types, required arity and rest contract, the call checker
+joins its possible return types. Original property/indexed-access union identities
+are preserved, including first-class function values. Dot, literal-bracket and
+direct union-function calls reuse the existing Parser, Binder, TypeChecker,
+module graph and native ES2015 emitter. Oversized result unions give bounded
+diagnostics rather than escaping as exceptions. Optional/missing properties, differing parameter contracts,
 mixed any/typed parameters and native intrinsic overloads are **not**
 silently merged. Sixteen stable bounded pinned-Go differential source/diagnostic
 IDs, source-backed C# tests and four linked Node modules have been registered,

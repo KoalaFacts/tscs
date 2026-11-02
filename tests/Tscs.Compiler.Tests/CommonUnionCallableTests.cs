@@ -65,4 +65,34 @@ public sealed class CommonUnionCallableTests
         Assert.Empty(program.Analyze().Diagnostics);
         Assert.Equal(4,program.EmitJavaScript().Count);
     }
+
+    [Fact]
+    public void IndexedAccessTypePreservesTheOriginalFunctionUnion()
+    {
+        const string source=
+            """type A=(n:number)=>number;type B=(n:number)=>string;type C={run:A}|{run:B};function f(g:C['run']):A|B{return g;}""";
+        Assert.Empty(Compilation.Check("union-callable-type-query.ts",source));
+    }
+
+    [Fact]
+    public void FirstClassFunctionUnionIsCallableWithoutWideningItsType()
+    {
+        const string source=
+            """type A=(n:number)=>number;type B=(n:number)=>string;function invoke(f:A|B):number|string{return f(21);}""";
+        Assert.Empty(Compilation.Check("union-function-value.ts",source));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void OversizedReturnJoinsDiagnoseInsteadOfCrashing(bool bracket)
+    {
+        var a=string.Join("|",Enumerable.Range(0,33).Select(i=>$"'a{i}'"));
+        var b=string.Join("|",Enumerable.Range(0,33).Select(i=>$"'b{i}'"));
+        var access=bracket?"x['run'](1)":"x.run(1)";
+        var source=$"type A={a};type B={b};type C={{run:(n:number)=>A}}|{{run:(n:number)=>B}};function invoke(x:C):any{{return {access};}}";
+        Assert.Contains(Compilation.Check("union-call-overflow.ts",source),
+            diagnostic=>diagnostic.Code=="TSCS1001");
+    }
+
 }

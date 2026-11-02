@@ -2362,6 +2362,23 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             "Unvalidated optional call continuation."));
                 }
                 else callableType=call.Optional?CompilerTypes.NonNullAssertionResult(calleeType):calleeType;
+                // Preserve the actual union type of callable values and
+                // indexed-access properties; a call may use a shared explicit
+                // input signature even when each alternative returns a
+                // different type. Guard the bounded return-union limit here
+                // for both dot and bracket calls, never let it crash Analyze.
+                if(callableType is UnionTypeSymbol)
+                {
+                    try
+                    {
+                        callableType=CompilerTypes.TryCommonCallableSignature(callableType)??callableType;
+                    }
+                    catch(InvalidOperationException failure)
+                    {
+                        throw new CompilationFailure(Diagnostic.Error(file,call.Open,
+                            "TSCS1001",failure.Message));
+                    }
+                }
                 if(callableType is not FunctionTypeSymbol signature)
                     throw new CompilationFailure(Diagnostic.Error(file,call.Open,"TSCS1001",
                         "Calls currently require a declared function with an explicit signature."));
