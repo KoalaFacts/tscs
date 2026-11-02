@@ -33,6 +33,23 @@ public sealed class TupleAnnotationTests
         Assert.Contains(Compilation.Check("tuple-annotation-invalid.ts",source),d=>d.Code==code);
 
     [Theory]
+    [InlineData("let p:[number,string]=[21,\"go\"];p[0]++;let n:number=p[0];")]
+    [InlineData("let p:[number,string]=[21,\"go\"];++p[0];let n:number=p[0];")]
+    [InlineData("let p:[number,string]=[21,\"go\"];const i=0;p[i]++;")]
+    public void FiniteTupleNumericUpdatesRespectTheSelectedNumericSlot(string source) =>
+        Assert.Empty(Compilation.Check("tuple-update.ts",source));
+
+    [Theory]
+    [InlineData("let p:[number,string]=[21,\"go\"];p[1]++;","TSCS1001")]
+    [InlineData("let p:[number,string]=[21,\"go\"];++p[1];","TSCS1001")]
+    [InlineData("let p:[number]=[21];p[1]++;","TS2493")]
+    [InlineData("let p:[number]=[21];++p[1];","TS2493")]
+    [InlineData("let p:[number]=[21];const i=2;p[i]++;","TS2493")]
+    [InlineData("let p:readonly [number,string]=[21,\"go\"];p[0]++;","TS2540")]
+    public void FiniteTupleNumericUpdatesRejectOutOfBoundsReadonlyAndNonNumericSlots(string source,string code) =>
+        Assert.Contains(Compilation.Check("tuple-update-invalid.ts",source),d=>d.Code==code);
+
+    [Theory]
     [InlineData("type Bad=[number?];")]
     [InlineData("type Bad=[...number[]];")]
     [InlineData("type Bad=[number,,string];")]
