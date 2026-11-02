@@ -236,6 +236,14 @@ public sealed class TypeOperatorTests
         Assert.Contains(Compilation.Check("const-tuple-spreads-invalid.ts",source),d=>d.Code==code);
 
     [Fact]
+    public void ConstTupleSpreadTypeQueriesRejectCircularAnnotations()
+    {
+        const string source="let tail:typeof x=[0];const x=[...tail] as const;";
+        Assert.Contains(Compilation.Check("const-tuple-type-cycle.ts",source),
+            diagnostic=>diagnostic.Code=="TSCS1001");
+    }
+
+    [Fact]
     public void ConstTupleSpreadBoundIsIndependentOfElementOrder()
     {
         string tail=string.Join(",",Enumerable.Repeat("0",32));

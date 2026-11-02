@@ -216,8 +216,9 @@ internal static class Binder
     }
 
     // Named members of a fresh const literal retain their original types.
-    private static TypeSymbol? ResolveConstAssertionIdentifier(Token token,Scope scope,string file)
+    private static TypeSymbol? ResolveConstAssertionIdentifier(Token token,Scope scope,string file,int depth)
     {
+        if(depth>64)return null;
         var symbol=scope.Find(token.Text);
         if(symbol is null)return token.Text=="undefined"?CompilerTypes.Undefined:null;
         if(symbol.PendingFunctionReturnInference ||
@@ -232,7 +233,7 @@ internal static class Binder
         // Do not infer an unannotated, uninitialized or forward reference.
         if(symbol.File==file && symbol.Declaration is Variable
             {Annotation:{ } annotation,Initializer:not null})
-            return TypeResolver.Resolve(annotation,symbol.DeclaringScope??scope,file);
+            return TypeResolver.Resolve(annotation,symbol.DeclaringScope??scope,file,depth+1);
         return null;
     }
 
@@ -246,7 +247,7 @@ internal static class Binder
         if(depth>64)return null;
         while(value is ValueParenthesized grouped)value=grouped.Expression;
         TypeSymbol? inferred=value is ValueAtom {Token.Kind:TokenKind.Identifier} atom
-            ?ResolveConstAssertionIdentifier(atom.Token,scope,file)
+            ?ResolveConstAssertionIdentifier(atom.Token,scope,file,depth+1)
             :ResolveFiniteInitializerType(value,scope,file,false,depth+1);
         return inferred as ObjectTypeSymbol;
     }
@@ -260,7 +261,7 @@ internal static class Binder
         if(depth>64)return null;
         while(value is ValueParenthesized grouped)value=grouped.Expression;
         TypeSymbol? inferred=value is ValueAtom {Token.Kind:TokenKind.Identifier} atom
-            ?ResolveConstAssertionIdentifier(atom.Token,scope,file)
+            ?ResolveConstAssertionIdentifier(atom.Token,scope,file,depth+1)
             :ResolveFiniteInitializerType(value,scope,file,false,depth+1);
         return inferred as ArrayTypeSymbol;
     }
@@ -278,7 +279,7 @@ internal static class Binder
         {
             ValueTypeOperator { Keyword.Text:"as",Target:NamedTypeSyntax {Name.Kind:TokenKind.Const} } asserted =>
                 CompilerTypes.FromFiniteConstAssertion(asserted.Expression,depth+1,
-                    token=>ResolveConstAssertionIdentifier(token,scope,file),
+                    token=>ResolveConstAssertionIdentifier(token,scope,file,depth+1),
                     checkedObjectSpreadSource:entry=>
                         ResolveConstSpreadSource(entry.Value,scope,file,depth+1),
                     checkedTupleSpreadSource:entry=>
