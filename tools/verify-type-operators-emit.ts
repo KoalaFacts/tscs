@@ -19,9 +19,9 @@ function run(args:string[]) {
 try {
   writeFileSync(join(folder,'package.json'),'{"type":"module"}\n');
   writeFileSync(join(folder,'minimal.d.ts'),readFileSync('fixtures/array-iteration/minimal.d.ts'));
-  writeFileSync(join(folder,'model.ts'),'export type Item = { value: number; label: string }; export type Variant = { kind: "a"; value: number } | { kind: "b"; label: string };\n');
+  writeFileSync(join(folder,'model.ts'),'export type Item = { value: number; label: string }; export type Variant = { kind: "a"; value: number } | { kind: "b"; label: string }; export type Pair = [number, string]; export type NestedPair = [readonly [number, string], { valid: boolean }];\n');
   writeFileSync(join(folder,'factory.ts'),[
-    'import type { Item, Variant } from "./model.js";',
+    'import type { Item, Variant, Pair, NestedPair } from "./model.js";',
     'export function fromAny(value: any): Item {',
     '  return (value as Item) satisfies Item;',
     '}',
@@ -37,11 +37,13 @@ try {
     '}',
     'export const immutable = { kind: "ready", nested: { value: 21, valid: true } } as const;',
     'export const immutableTuple = [21, "go"] as const;',
-    'export const nestedTuple = { items: [true, [42]] } as const;'
+    'export const nestedTuple = { items: [true, [42]] } as const;',
+    'export function makePair(n: number, s: string): Pair { const p: Pair = [n, s]; p[0] = p[0] + 1; return p; }',
+    'export function makeNestedPair(n: number): NestedPair { return [[n, "go"], { valid: true }]; }'
   ].join('\n'));
-  writeFileSync(join(folder,'bridge.ts'),'export { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple } from "./factory.js";\n');
+  writeFileSync(join(folder,'bridge.ts'),'export { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple, makePair, makeNestedPair } from "./factory.js";\n');
   writeFileSync(join(folder,'entry.ts'),[
-    'import { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple } from "./bridge.js";',
+    'import { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple, makePair, makeNestedPair } from "./bridge.js";',
     'const raw: any = { value: 21, label: "ready" };',
     'const item = fromAny(raw);',
     'export const result: number = make(item.value).value * 2;',
@@ -59,7 +61,13 @@ try {
     'export const tupleFirst: 21 = immutableTuple[0];',
     'export const tupleSecond: "go" = immutableTuple[1];',
     'export const tupleLength: 2 = immutableTuple.length;',
-    'export const nestedTupleValue: 42 = nestedTuple.items[1][0];'
+    'export const nestedTupleValue: 42 = nestedTuple.items[1][0];',
+    'const namedPair: Pair = makePair(20, "ready");',
+    'const namedNested: NestedPair = makeNestedPair(21);',
+    'export const namedTupleNumber: number = namedPair[0];',
+    'export const namedTupleText: string = namedPair[1];',
+    'export const namedNestedNumber: number = namedNested[0][0];',
+    'export const namedNestedValid: boolean = namedNested[1].valid;'
   ].join('\n'));
   writeFileSync(join(folder,'project.json'),JSON.stringify({
     files:['entry.ts','minimal.d.ts'],
@@ -70,7 +78,7 @@ try {
   for(const name of ['model','factory','bridge','entry'])
     assert.ok(existsSync(join(folder,name+'.js')),'missing '+name+'.js');
   const executed=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,label,extra,exact,checked,advanced,selected,selectedTag,otherLabel,readonlyTag,readonlyValue,readonlyValid,tupleFirst,tupleSecond,tupleLength,nestedTupleValue} from "./entry.js"; if(result!==42||label!=="ready"||extra!==42||exact!==21||checked!=="ready"||advanced!==42||selected!==23||selectedTag!=="a"||otherLabel!=="tagged"||readonlyTag!=="ready"||readonlyValue!==21||readonlyValid!==true||tupleFirst!==21||tupleSecond!=="go"||tupleLength!==2||nestedTupleValue!==42) throw Error("type-operator JS runtime mismatch");'],
+    'import {result,label,extra,exact,checked,advanced,selected,selectedTag,otherLabel,readonlyTag,readonlyValue,readonlyValid,tupleFirst,tupleSecond,tupleLength,nestedTupleValue,namedTupleNumber,namedTupleText,namedNestedNumber,namedNestedValid} from "./entry.js"; if(result!==42||label!=="ready"||extra!==42||exact!==21||checked!=="ready"||advanced!==42||selected!==23||selectedTag!=="a"||otherLabel!=="tagged"||readonlyTag!=="ready"||readonlyValue!==21||readonlyValid!==true||tupleFirst!==21||tupleSecond!=="go"||tupleLength!==2||nestedTupleValue!==42||namedTupleNumber!==21||namedTupleText!=="ready"||namedNestedNumber!==21||namedNestedValid!==true) throw Error("type-operator JS runtime mismatch");'],
     {cwd:folder,encoding:'utf8',timeout:15000});
   assert.equal(executed.error,undefined,String(executed.error));
   assert.equal(executed.status,0,executed.stdout+executed.stderr);
@@ -93,6 +101,15 @@ try {
     ['tuple-wrong-element','const p=[21,"go"] as const;let x:22=p[0];','TS2322'],
     ['tuple-to-mutable','const p=[21,22] as const;let copy:number[]=p;','TS4104'],
     ['tuple-spread-outside-scope','const p=[21,...[22]] as const;','TSCS1001'],
+    ['tuple-annotation-wrong-slot','type Pair=[number,string];let p:Pair=[21,22];','TS2322'],
+    ['tuple-annotation-short','type Pair=[number,string];let p:Pair=[21];','TS2322'],
+    ['tuple-annotation-long','type Pair=[number,string];let p:Pair=[21,"go",true];','TS2322'],
+    ['tuple-annotation-bad-write','let p:[number,string]=[21,"go"];p[0]="bad";','TS2322'],
+    ['tuple-annotation-out-of-bounds','let p:[number,string]=[21,"go"];let n=p[2];','TS2493'],
+    ['tuple-annotation-readonly-write','let p:readonly [number,string]=[21,"go"];p[0]=42;','TS2540'],
+    ['tuple-annotation-readonly-copy','let p:readonly [number,string]=[21,"go"];let editable:[number,string]=p;','TS4104'],
+    ['tuple-annotation-rest-unsupported','type Bad=[...number[]];','TSCS1001'],
+    ['tuple-annotation-optional-unsupported','type Bad=[number?];','TSCS1001'],
     ['fresh-extra-annotation','let x:{a:1}={a:1,b:2} as const;','TS2353'],
     ['fresh-extra-satisfies','let x=({a:1,b:2} as const) satisfies {a:1};','TS2353']
   ]) {
