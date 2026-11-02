@@ -44,6 +44,7 @@ try {
   writeFileSync(join(folder,'bridge.ts'),'export { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple, makePair, makeNestedPair } from "./factory.js";\n');
   writeFileSync(join(folder,'entry.ts'),[
     'import { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple, makePair, makeNestedPair } from "./bridge.js";',
+    'import type { Pair, NestedPair } from "./model.js";',
     'const raw: any = { value: 21, label: "ready" };',
     'const item = fromAny(raw);',
     'export const result: number = make(item.value).value * 2;',
