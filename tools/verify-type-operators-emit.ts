@@ -21,7 +21,7 @@ try {
   writeFileSync(join(folder,'minimal.d.ts'),readFileSync('fixtures/array-iteration/minimal.d.ts'));
   writeFileSync(join(folder,'model.ts'),'export type Item = { value: number; label: string }; export type Variant = { kind: "a"; value: number } | { kind: "b"; label: string }; export type Pair = [first: number, second: string]; export type NestedPair = [inner: readonly [count: number, string], { valid: boolean }]; export type OptionalPair = [value: number, label?: string];\n');
   writeFileSync(join(folder,'factory.ts'),[
-    'import type { Item, Variant, Pair, NestedPair } from "./model.js";',
+    'import type { Item, Variant, Pair, NestedPair, OptionalPair } from "./model.js";',
     'export function fromAny(value: any): Item {',
     '  return (value as Item) satisfies Item;',
     '}',
