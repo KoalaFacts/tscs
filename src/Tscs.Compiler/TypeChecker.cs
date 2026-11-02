@@ -169,8 +169,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         // A mutable binding widens an inferred literal read, but an
                         // explicit annotation or assertion still keeps its constraint.
                         var inferredSource=source is { } inferred && !v.Constant &&
-                            v.Annotation==null && v.Initializer is { } initializer
-                            ?WidenMutableLiteral(inferred,initializer):source;
+                            v.Annotation==null && v.Initializer is { } mutableValueInitializer
+                            ?WidenMutableLiteral(inferred,mutableValueInitializer):source;
                         symbol.Type=annotatedType??constantLiteral??inferredSource;
                         symbol.DeclaredType=symbol.Type;
                         symbol.Initialized=v.Initializer!=null;
