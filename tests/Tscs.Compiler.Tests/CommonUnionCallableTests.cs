@@ -95,4 +95,20 @@ public sealed class CommonUnionCallableTests
             diagnostic=>diagnostic.Code=="TSCS1001");
     }
 
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void OptionalCallReturnOverflowIsDiagnosedInsteadOfCrashing(bool chainedMember)
+    {
+        var a=string.Join("|",Enumerable.Range(0,32).Select(i=>$"'a{i}'"));
+        var b=string.Join("|",Enumerable.Range(0,32).Select(i=>$"'b{i}'"));
+        var source=chainedMember
+            ?$"type A={a};type B={b};type C={{run:(n:number)=>A}}|{{run:(n:number)=>B}};function f(g:C|undefined):any{{return g?.run(1);}}"
+            :$"type A={a};type B={b};type F=((n:number)=>A)|((n:number)=>B)|undefined;function f(g:F):any{{return g?.(1);}}";
+        Assert.Contains(Compilation.Check("union-optional-overflow.ts",source),
+            diagnostic=>diagnostic.Code=="TSCS1001" &&
+                diagnostic.Message.Contains("Too many union variants",StringComparison.Ordinal));
+    }
+
 }

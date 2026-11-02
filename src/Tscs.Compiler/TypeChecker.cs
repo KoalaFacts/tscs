@@ -2408,9 +2408,21 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                    arguments.Length>=3)
                     signature=signature with {Parameters=[CompilerTypes.Number,
                         CompilerTypes.Number,splicedElement]};
-                var resultType=optionalMissing
-                    ?CompilerTypes.Union([signature.ReturnType,CompilerTypes.Undefined])
-                    :signature.ReturnType;
+                // Even if the shared callable signature fits the bounded
+                // return union, an optional call adds undefined. Guard that
+                // final join too: the public compilation API must diagnose a
+                // 65th variant, never leak InvalidOperationException.
+                TypeSymbol CheckedOptionalCallReturn(TypeSymbol present)
+                {
+                    if(!optionalMissing)return present;
+                    try {return CompilerTypes.Union([present,CompilerTypes.Undefined]);}
+                    catch(InvalidOperationException failure)
+                    {
+                        throw new CompilationFailure(Diagnostic.Error(file,call.Open,
+                            "TSCS1001",failure.Message));
+                    }
+                }
+                var resultType=CheckedOptionalCallReturn(signature.ReturnType);
                 // Native Array<T>.map<U> is a bounded intrinsic: callback input
                 // checking still follows the ordinary function relation below.
                 // Only the result element is inferred from the explicit callable
@@ -2422,9 +2434,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 {
                     var mapped=new ArrayTypeSymbol(mapper.ReturnType);
                     presentResult=mapped;
-                    resultType=optionalMissing
-                        ?CompilerTypes.Union([mapped,CompilerTypes.Undefined])
-                        :mapped;
+                    resultType=CheckedOptionalCallReturn(mapped);
                 }
                 if(call.Optional || call.ChainContinuation)
                 {
