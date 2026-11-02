@@ -559,6 +559,36 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     // Writes to a union must be valid for every runtime alternative. The
     // bounded implementation admits shared required, mutable properties only;
     // unlike a union read, a write cannot use a union of property value types.
+    // Assignment compatibility is too permissive for writable alternatives:
+    // any must NOT match concrete types, even inside arrays/nested objects.
+    // Unknown callable/recursive relationships fail closed rather than
+    // accepting a write that is invalid for one union branch.
+    private static bool SameWritableType(TypeSymbol left,TypeSymbol right,int depth=0)
+    {
+        if(ReferenceEquals(left,right))return true;
+        if(depth>=64)return false;
+        return (left,right) switch
+        {
+            (PrimitiveTypeSymbol a,PrimitiveTypeSymbol b)=>a.Kind==b.Kind,
+            (LiteralTypeSymbol a,LiteralTypeSymbol b)=>a.Kind==b.Kind && a.Value==b.Value,
+            (ArrayTypeSymbol a,ArrayTypeSymbol b)=>a.Readonly==b.Readonly &&
+                SameWritableType(a.ElementType,b.ElementType,depth+1),
+            (ObjectTypeSymbol a,ObjectTypeSymbol b)=>
+                a.Members.Count==b.Members.Count &&
+                a.ReadonlyMembers.SetEquals(b.ReadonlyMembers) &&
+                a.OptionalMembers.SetEquals(b.OptionalMembers) &&
+                a.NumericMembers.SetEquals(b.NumericMembers) &&
+                a.Members.All(kv=>b.Members.TryGetValue(kv.Key,out var value) &&
+                    SameWritableType(kv.Value,value,depth+1)),
+            (UnionTypeSymbol a,UnionTypeSymbol b)=>
+                a.Alternatives.Count==b.Alternatives.Count &&
+                a.Alternatives.Select((value,i)=>SameWritableType(value,b.Alternatives[i],depth+1)).All(ok=>ok),
+            // Only a canonical identical callable identity is admitted.
+            // Full function-property variance remains outside this subset.
+            _=>false
+        };
+    }
+
     private TypeSymbol RequireCommonWritableUnionProperty(UnionTypeSymbol union,string name,Token location)
     {
         TypeSymbol? common=null;
@@ -574,7 +604,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             if(shape.OptionalMembers.Contains(name))
                 throw new CompilationFailure(Diagnostic.Error(file,location,"TSCS1001",
                     "Writes to optional members of union receivers are not supported yet."));
-            if(common is not null && !CompilerTypes.IsEquivalent(common,member))
+            if(common is not null && !SameWritableType(common,member))
                 throw new CompilationFailure(Diagnostic.Error(file,location,"TSCS1001",
                     "Union writes require an equivalent property type in every alternative."));
             common=member;
@@ -641,7 +671,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 var elementReceiver=TypeOf(element.Receiver,scope);
                 var indexType=TypeOf(element.Index,scope);
                 bool namedObjectIndex=TryStaticNamedIndex(element.Index,elementReceiver,out var propertyName) &&
-                    elementReceiver is ObjectTypeSymbol;
+                    (elementReceiver is ObjectTypeSymbol || elementReceiver is UnionTypeSymbol union &&
+                     union.Alternatives.All(part=>part is ObjectTypeSymbol));
                 if(indexType!=null && !CompilerTypes.IsNumber(indexType) && !namedObjectIndex)
                     throw new CompilationFailure(Diagnostic.Error(file,element.Open,"TSCS1001",
                         "Indexed updates currently require a number expression."));
@@ -654,7 +685,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     return null;
                 }
                 EnsureWritableIndex(element,elementReceiver);
-                if(namedObjectIndex && elementReceiver is ObjectTypeSymbol namedObject)
+                if(namedObjectIndex && elementReceiver is { } namedObject)
                 {
                     current=CompilerTypes.TryGetProperty(namedObject,propertyName);
                     if(current==null)
