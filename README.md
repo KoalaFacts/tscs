@@ -209,8 +209,10 @@ types and runtime erasure; their labels have no effect on assignability.
 Named and unnamed tuple slots may be mixed (TypeScript 5.2+), including
 contextual keyword labels such as `type` and `function`. Strict-mode
 reserved labels such as `interface`, `let` and `private` are rejected with
-TS1212. Optional/rest tuple elements,
-tuple spreads and general variadic inference remain unsupported and fail explicitly. This is bounded local
+TS1212. Trailing optional tuple elements such as [number, string?] and [id: number, label?: string]
+retain their optional read types and finite length unions; required elements may
+not follow optional elements. Rest elements, tuple spreads and general variadic
+inference remain unsupported and fail explicitly. This is bounded local
 semantics, not original TS7 suite acceptance.
 
 ## Array element types through indexed access (bounded)
