@@ -284,8 +284,8 @@ internal static class CompilerTypes
                     throw new InvalidOperationException("An unbounded rest is not a finite tuple.");
                 if(optionalStart>=0 && tail.Count>0)
                     throw new InvalidOperationException("Required tuple slots cannot follow optional slots.");
-                if(resolved.TupleOptionalStart>=0)
-                    optionalStart=slots.Count+resolved.TupleOptionalStart;
+                if(((ArrayTypeSymbol)resolved).TupleOptionalStart>=0)
+                    optionalStart=slots.Count+((ArrayTypeSymbol)resolved).TupleOptionalStart;
                 slots.AddRange(tail);
             }
             else

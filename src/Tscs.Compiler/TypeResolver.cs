@@ -256,8 +256,8 @@ internal static class TypeResolver
                         if(optionalStart>=0 && tail.Count>0)
                             throw new CompilationFailure(Diagnostic.Error(file,spread.Ellipsis,"TSCS1001",
                                 "A finite rest cannot follow an optional tuple element."));
-                        if(resolved.TupleOptionalStart>=0)
-                            optionalStart=slots.Count+resolved.TupleOptionalStart;
+                        if(((ArrayTypeSymbol)resolved).TupleOptionalStart>=0)
+                            optionalStart=slots.Count+((ArrayTypeSymbol)resolved).TupleOptionalStart;
                         slots.AddRange(tail);
                     }
                     else
