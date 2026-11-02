@@ -156,6 +156,118 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "array-in-place:positive-14",
+      "source": "let xs:number[]=[1,2,3];let removed:number[]=xs.splice(1,1);",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/array-in-place/splice-minimal.d.ts"
+    },
+    {
+      "id": "array-in-place:positive-15",
+      "source": "let xs:number[]=[1,2,3];let removed:number[]=xs.splice(1);",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/array-in-place/splice-minimal.d.ts"
+    },
+    {
+      "id": "array-in-place:positive-16",
+      "source": "let xs:string[]=[\"a\",\"b\"];let removed:string[]=xs.splice(1,0,\"x\");",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/array-in-place/splice-minimal.d.ts"
+    },
+    {
+      "id": "array-in-place:positive-17",
+      "source": "let xs:Array<number>=[1,2];let removed:number[]=xs.splice(1,0,3,4);",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/array-in-place/splice-minimal.d.ts"
+    },
+    {
+      "id": "array-in-place:positive-18",
+      "source": "type Samples=number[];let xs:Samples=[2,4];let removed:number[]=xs.splice(-1,1);",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/array-in-place/splice-minimal.d.ts"
+    },
+    {
+      "id": "array-in-place:positive-19",
+      "source": "function take(xs:number[]):number[]{return xs.splice(0,1);}let removed:number[]=take([9,8]);",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/array-in-place/splice-minimal.d.ts"
+    },
+    {
+      "id": "array-in-place:positive-20",
+      "source": "let xs:number[]=[1,2];let removed:number[]=xs.splice(0,undefined);",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/array-in-place/splice-minimal.d.ts"
+    },
+    {
+      "id": "array-in-place:positive-21",
+      "source": "let xs:number[]=[1,2];let items:number[]=[3,4];let removed:number[]=xs.splice(1,0,...items);",
+      "expectedCodes": [],
+      "minimalProfile": "fixtures/array-in-place/splice-minimal.d.ts"
+    },
+    {
+      "id": "array-in-place:negative-14",
+      "source": "let xs:readonly number[]=[2,1];xs.splice(0,1);",
+      "expectedCodes": [
+        "TS2339"
+      ],
+      "minimalProfile": "fixtures/array-in-place/splice-minimal.d.ts"
+    },
+    {
+      "id": "array-in-place:negative-15",
+      "source": "let xs:ReadonlyArray<number>=[2,1];xs.splice(0,1);",
+      "expectedCodes": [
+        "TS2339"
+      ],
+      "minimalProfile": "fixtures/array-in-place/splice-minimal.d.ts"
+    },
+    {
+      "id": "array-in-place:negative-16",
+      "source": "let xs:number[]=[2,1];xs.splice(\"bad\",1);",
+      "expectedCodes": [
+        "TS2345"
+      ],
+      "minimalProfile": "fixtures/array-in-place/splice-minimal.d.ts"
+    },
+    {
+      "id": "array-in-place:negative-17",
+      "source": "let xs:number[]=[2,1];xs.splice(0,\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ],
+      "minimalProfile": "fixtures/array-in-place/splice-minimal.d.ts"
+    },
+    {
+      "id": "array-in-place:negative-18",
+      "source": "let xs:number[]=[2,1];xs.splice(0,1,\"bad\");",
+      "expectedCodes": [
+        "TS2345"
+      ],
+      "minimalProfile": "fixtures/array-in-place/splice-minimal.d.ts"
+    },
+    {
+      "id": "array-in-place:negative-19",
+      "source": "let xs:number[]=[2,1];xs.splice(0,undefined,3);",
+      "expectedCodes": [
+        "TS2345"
+      ],
+      "minimalProfile": "fixtures/array-in-place/splice-minimal.d.ts"
+    },
+    {
+      "id": "array-in-place:negative-20",
+      "source": "let xs:number[]=[2,1];let wrong:string[]=xs.splice(0,1);",
+      "expectedCodes": [
+        "TS2322"
+      ],
+      "minimalProfile": "fixtures/array-in-place/splice-minimal.d.ts"
+    },
+    {
+      "id": "array-in-place:negative-21",
+      "source": "let xs:string[]=[\"a\"];xs.splice(0,0,42);",
+      "expectedCodes": [
+        "TS2345"
+      ],
+      "minimalProfile": "fixtures/array-in-place/splice-minimal.d.ts"
     }
   ]
 }

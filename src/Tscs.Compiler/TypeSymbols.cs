@@ -48,7 +48,7 @@ internal sealed record UnionTypeSymbol(IReadOnlyList<TypeSymbol> Alternatives) :
 // can inspect fresh operand literals rather than only the joined type.
 internal sealed record LogicalValueOutcome(TypeSymbol Result,TypeSymbol? LeftResult,TypeSymbol Right,bool RightReachable);
 
-internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null,TypeSymbol? NativeArrayMapElementType=null,TypeSymbol? NativeArrayReduceElementType=null,TypeSymbol? NativeArrayToSplicedElementType=null) : TypeSymbol
+internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null,TypeSymbol? NativeArrayMapElementType=null,TypeSymbol? NativeArrayReduceElementType=null,TypeSymbol? NativeArraySpliceOverloadElementType=null) : TypeSymbol
 {
     public int MinimumArguments=>RequiredParameterCount<0?Parameters.Count:RequiredParameterCount;
     public override string DisplayName=>TypeDisplay.Format(this);
@@ -428,7 +428,7 @@ internal static class CompilerTypes
         static bool Plain(FunctionTypeSymbol signature)=>
             signature.NativeArrayMapElementType is null &&
             signature.NativeArrayReduceElementType is null &&
-            signature.NativeArrayToSplicedElementType is null;
+            signature.NativeArraySpliceOverloadElementType is null;
         if(!Plain(first) || !signatures.All(other=>Plain(other) &&
             other.Parameters.Count==first.Parameters.Count &&
             other.MinimumArguments==first.MinimumArguments &&
@@ -482,7 +482,7 @@ internal static class CompilerTypes
                 return new FunctionTypeSymbol(
                     [Number,Union([Number,Undefined]),array.ElementType],
                     new ArrayTypeSymbol(array.ElementType),1,array.ElementType,
-                    NativeArrayToSplicedElementType:array.ElementType);
+                    NativeArraySpliceOverloadElementType:array.ElementType);
             // Native concat returns a new writable array even for readonly views.
             // This finite signature accepts values and (readonly) arrays of T;
             // it does not claim Symbol.isConcatSpreadable or general overloads.
@@ -536,6 +536,12 @@ internal static class CompilerTypes
                 "pop" or "shift" => new FunctionTypeSymbol([],Union([array.ElementType,Undefined])),
                 // The native ES2015 emitter preserves the receiver identity;
                 // these four methods mutate the original mutable array.
+                // Native splice mutates the receiver but returns an array of
+                // removed elements; it shares toSpliced's checked overload shape.
+                "splice" => new FunctionTypeSymbol(
+                    [Number,Union([Number,Undefined]),array.ElementType],
+                    new ArrayTypeSymbol(array.ElementType),1,array.ElementType,
+                    NativeArraySpliceOverloadElementType:array.ElementType),
                 "reverse" => new FunctionTypeSymbol([],new ArrayTypeSymbol(array.ElementType)),
                 "sort" => new FunctionTypeSymbol(
                     [Union([new FunctionTypeSymbol([array.ElementType,array.ElementType],Number),Undefined])],

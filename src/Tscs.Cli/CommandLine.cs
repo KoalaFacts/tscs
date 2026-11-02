@@ -274,7 +274,9 @@ public static class CommandLine
         @"(?<reverse>reverse\s*\(\s*\)\s*:\s*T\s*\[\s*\])" +
         @"|(?<sort>sort\s*\(\s*(?:[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\)\s*=>\s*number\s*)?\)\s*:\s*T\s*\[\s*\])" +
         @"|(?<fill>fill\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T(?:\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number(?:\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number)?)?\s*\)\s*:\s*T\s*\[\s*\])" +
-        @"|(?<copyWithin>copyWithin\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number(?:\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number)?\s*\)\s*:\s*T\s*\[\s*\])";
+        @"|(?<copyWithin>copyWithin\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number(?:\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number)?\s*\)\s*:\s*T\s*\[\s*\])" +
+        @"|(?<spliceRest>splice\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*,\s*\.\.\.\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*T\s*\[\s*\]\s*\)\s*:\s*T\s*\[\s*\])" +
+        @"|(?<spliceShort>splice\s*\(\s*[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*number\s*,\s*[A-Za-z_$][A-Za-z0-9_$]*\s*\?\s*:\s*number\s*\)\s*:\s*T\s*\[\s*\])";
 
     // Member order and numeric-index parameter spelling are irrelevant.
     // Length/index must be present exactly once; the optional standard
@@ -289,7 +291,7 @@ public static class CommandLine
         int position=0;
         bool length=false,index=false,push=false,unshift=false,pop=false,shift=false;
         bool includes=false,indexOf=false,lastIndexOf=false,join=false,slice=false,concat=false,atMethod=false,toReversed=false,toSorted=false,toSplicedRest=false,toSplicedShort=false,withMethod=false;
-        bool reverse=false,sort=false,fill=false,copyWithin=false;
+        bool reverse=false,sort=false,fill=false,copyWithin=false,spliceRest=false,spliceShort=false;
         var callbacks=new HashSet<string>(StringComparer.Ordinal);
         iterator=false;
         while(position<body.Length)
@@ -406,6 +408,16 @@ public static class CommandLine
             {
                 if(copyWithin)return false;
                 copyWithin=true;
+            }
+            else if(member.Groups["spliceRest"].Success)
+            {
+                if(spliceRest)return false;
+                spliceRest=true;
+            }
+            else if(member.Groups["spliceShort"].Success)
+            {
+                if(spliceShort)return false;
+                spliceShort=true;
             }
             else if(new[]{"some","every","find","findIndex","findLast","findLastIndex","forEach","filter","reduce","reduceRight","reduceGeneric","reduceRightGeneric","map"}
                 .FirstOrDefault(name=>member.Groups[name].Success) is { } callback)
