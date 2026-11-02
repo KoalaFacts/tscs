@@ -48,7 +48,7 @@ internal sealed record UnionTypeSymbol(IReadOnlyList<TypeSymbol> Alternatives) :
 // can inspect fresh operand literals rather than only the joined type.
 internal sealed record LogicalValueOutcome(TypeSymbol Result,TypeSymbol? LeftResult,TypeSymbol Right,bool RightReachable);
 
-internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null,TypeSymbol? NativeArrayMapElementType=null,TypeSymbol? NativeArrayReduceElementType=null,TypeSymbol? NativeArraySpliceOverloadElementType=null) : TypeSymbol
+internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null,TypeSymbol? NativeArrayMapElementType=null,TypeSymbol? NativeArrayReduceElementType=null,TypeSymbol? NativeArraySpliceOverloadElementType=null,bool NativeMutableArraySplice=false) : TypeSymbol
 {
     public int MinimumArguments=>RequiredParameterCount<0?Parameters.Count:RequiredParameterCount;
     public override string DisplayName=>TypeDisplay.Format(this);
@@ -541,7 +541,8 @@ internal static class CompilerTypes
                 "splice" => new FunctionTypeSymbol(
                     [Number,Union([Number,Undefined]),array.ElementType],
                     new ArrayTypeSymbol(array.ElementType),1,array.ElementType,
-                    NativeArraySpliceOverloadElementType:array.ElementType),
+                    NativeArraySpliceOverloadElementType:array.ElementType,
+                    NativeMutableArraySplice:true),
                 "reverse" => new FunctionTypeSymbol([],new ArrayTypeSymbol(array.ElementType)),
                 "sort" => new FunctionTypeSymbol(
                     [Union([new FunctionTypeSymbol([array.ElementType,array.ElementType],Number),Undefined])],

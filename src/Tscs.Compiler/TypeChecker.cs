@@ -2502,7 +2502,13 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     if(required is { } type && arguments[i] is { } actual &&
                        CheckContextualLiteral(call.Arguments[i],type,actual) &&
                        !IsAssignableContextually(call.Arguments[i],actual,type))
-                        Error(call.Open,"TS2345",
+                        // The pinned Go TS7 overload resolver reports TS2769
+                        // for a bad first/second argument in the two candidate
+                        // mutable splice overloads. With insertion (>=3
+                        // arguments), only the long overload participates and
+                        // the regular TS2345 parameter error is correct.
+                        Error(call.Open,signature.NativeMutableArraySplice &&
+                            arguments.Length<=2 && i<2?"TS2769":"TS2345",
                             $"Argument of type '{actual.DisplayName}' is not assignable to parameter of type '{type.DisplayName}'.");
                 }
                 types.Push(resultType);

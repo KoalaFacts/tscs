@@ -225,7 +225,7 @@
       "id": "array-in-place:negative-16",
       "source": "let xs:number[]=[2,1];xs.splice(\"bad\",1);",
       "expectedCodes": [
-        "TS2345"
+        "TS2769"
       ],
       "minimalProfile": "fixtures/array-in-place/splice-minimal.d.ts"
     },
@@ -233,7 +233,7 @@
       "id": "array-in-place:negative-17",
       "source": "let xs:number[]=[2,1];xs.splice(0,\"bad\");",
       "expectedCodes": [
-        "TS2345"
+        "TS2769"
       ],
       "minimalProfile": "fixtures/array-in-place/splice-minimal.d.ts"
     },
