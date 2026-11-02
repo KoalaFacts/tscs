@@ -226,6 +226,8 @@ internal static class Binder
         while(initial is ValueParenthesized group)initial=group.Expression;
         return initial switch
         {
+            ValueTypeOperator { Keyword.Text:"as",Target:NamedTypeSyntax {Name.Kind:TokenKind.Const} } asserted =>
+                CompilerTypes.FromFiniteConstAssertion(asserted.Expression,depth+1),
             ValueTypeOperator { Keyword.Text:"as" } asserted =>
                 TypeResolver.Resolve(asserted.Target,scope,file,depth+1),
             ValueTypeOperator { Keyword.Text:"satisfies" } satisfied =>

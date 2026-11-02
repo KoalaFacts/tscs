@@ -2047,6 +2047,24 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     continue;
                 }
                 var actual=types.Pop();
+                if(typeOperator.Keyword.Text=="as" &&
+                   typeOperator.Target is NamedTypeSyntax {Name.Kind:TokenKind.Const})
+                {
+                    var narrowed=CompilerTypes.FromFiniteConstAssertion(typeOperator.Expression);
+                    if(narrowed is null)
+                    {
+                        ValueNode operand=typeOperator.Expression;
+                        while(operand is ValueParenthesized grouped)operand=grouped.Expression;
+                        bool unsupportedLiteral=operand is ValueObject or ValueArray;
+                        throw new CompilationFailure(Diagnostic.Error(file,typeOperator.Keyword,
+                            unsupportedLiteral?"TSCS1001":"TS1355",
+                            unsupportedLiteral
+                                ?"This const assertion needs tuple, spread or nonliteral-property inference beyond the finite object subset."
+                                :"A const assertion must be applied to a literal expression."));
+                    }
+                    types.Push(actual==null?null:narrowed);
+                    continue;
+                }
                 var expected=TypeResolver.Resolve(typeOperator.Target,scope,file);
                 if(actual==null) { types.Push(null);continue; }
                 if(typeOperator.Keyword.Text=="as")

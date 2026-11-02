@@ -244,6 +244,44 @@ internal static class CompilerTypes
         _=>throw new ArgumentOutOfRangeException(nameof(syntax))
     };
 
+    // A finite 'as const' creates deeply readonly object fields and exact
+    // primitive literal types. Array literals require tuple semantics, which
+    // this semantic model does not yet represent; reject instead of inventing
+    // a broad readonly array that permits out-of-range tuple indices.
+    public static TypeSymbol? FromFiniteConstAssertion(ValueNode? value,int depth=0)
+    {
+        if(depth>64)return null;
+        while(value is ValueParenthesized grouped)value=grouped.Expression;
+        switch(value)
+        {
+            case ValueAtom atom when atom.Token.Kind is
+                TokenKind.Number or TokenKind.String or TokenKind.True or TokenKind.False:
+                return FromLiteralExact(atom.Token);
+            case ValueUnary {Operator.Kind:TokenKind.Minus,Operand:ValueAtom number}
+                when number.Token.Kind==TokenKind.Number:
+                return FromLiteralExact(number.Token,negative:true);
+            case ValueObject literal:
+            {
+                if(literal.Properties.Count>128 || literal.Properties.Any(p=>p.Spread))
+                    return null;
+                var members=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
+                var numericMembers=new HashSet<string>(StringComparer.Ordinal);
+                foreach(var property in literal.Properties)
+                {
+                    var nested=FromFiniteConstAssertion(property.Value,depth+1);
+                    if(nested is null)return null;
+                    var key=Parser.PropertyName(property.Name);
+                    members[key]=nested;
+                    if(property.Name.Kind==TokenKind.Number)numericMembers.Add(key);
+                    else numericMembers.Remove(key);
+                }
+                return new ObjectTypeSymbol(members,
+                    readonlyMembers:members.Keys,numericMembers:numericMembers);
+            }
+            default:return null;
+        }
+    }
+
     // Prebinding may infer closed literal shapes without consulting another
     // symbol. Other cross-file initializers still need an explicit annotation.
     public static TypeSymbol? FromInitializer(ValueNode? value)
