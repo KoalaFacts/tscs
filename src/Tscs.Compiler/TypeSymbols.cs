@@ -48,7 +48,7 @@ internal sealed record UnionTypeSymbol(IReadOnlyList<TypeSymbol> Alternatives) :
 // can inspect fresh operand literals rather than only the joined type.
 internal sealed record LogicalValueOutcome(TypeSymbol Result,TypeSymbol? LeftResult,TypeSymbol Right,bool RightReachable);
 
-internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null,TypeSymbol? NativeArrayMapElementType=null,TypeSymbol? NativeArrayReduceElementType=null,TypeSymbol? NativeArraySpliceOverloadElementType=null,bool NativeMutableArraySplice=false,bool NativeArrayFlatMap=false) : TypeSymbol
+internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null,TypeSymbol? NativeArrayMapElementType=null,TypeSymbol? NativeArrayReduceElementType=null,TypeSymbol? NativeArraySpliceOverloadElementType=null,bool NativeMutableArraySplice=false,bool NativeArrayFlatMap=false,ArrayTypeSymbol? NativeArrayFlatReceiver=null) : TypeSymbol
 {
     public int MinimumArguments=>RequiredParameterCount<0?Parameters.Count:RequiredParameterCount;
     public override string DisplayName=>TypeDisplay.Format(this);
@@ -958,16 +958,16 @@ internal static class CompilerTypes
                 };
                 return new FunctionTypeSymbol([callback],result);
             }
-            // A parameterless native flat() copies and flattens exactly one
-            // level of an ordinary array whose elements are statically arrays.
-            // The inner array may itself be readonly; the result is writable.
-            // General FlatArray<T, D>, explicit depths, optional/union leaves
-            // and finite outer tuples need further checked type inference.
-            // Emit the native call: an ES2019-capable runtime is required.
+            // flat() makes a writable copy and flattens one level by default.
+            // A native intrinsic marker lets the call checker infer safe literal
+            // depths 0..3. Dynamic depths, any and outer tuples stay unsupported.
+            // Native ES2019 runtime required; there is no polyfill.
             if(name=="flat" && array.TupleElements is null &&
-               array.ElementType is ArrayTypeSymbol inner)
-                return new FunctionTypeSymbol([],
-                    new ArrayTypeSymbol(inner.ElementType));
+               !array.ElementType.Equals(Any))
+                return new FunctionTypeSymbol([Number],
+                    new ArrayTypeSymbol(array.ElementType is ArrayTypeSymbol inner
+                        ?inner.ElementType:array.ElementType),0,
+                    NativeArrayFlatReceiver:array);
             // Native map and one-level flatMap share checked callback input
             // validation, but differ in their inferred output array element.
             // Their intrinsic identities cannot be erased into ordinary callables.

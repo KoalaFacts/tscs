@@ -2608,6 +2608,42 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                    arguments.Length>=3)
                     signature=signature with {Parameters=[CompilerTypes.Number,
                         CompilerTypes.Number,splicedElement]};
+                // Native flat's output varies with depth; no implicit any[].
+                // Only bounded nonnegative literal depths have checked types.
+                if(signature.NativeArrayFlatReceiver is { } flatReceiver)
+                {
+                    if(call.SpreadIndex>=0)
+                        throw new CompilationFailure(Diagnostic.Error(file,call.Open,"TSCS1001",
+                            "Array.flat does not support spread depth arguments."));
+                    int depth=1;
+                    if(call.Arguments.Count==1)
+                    {
+                        ValueNode depthValue=call.Arguments[0];
+                        while(depthValue is ValueParenthesized group)
+                            depthValue=group.Expression;
+                        if(depthValue is not ValueAtom { Token.Kind:TokenKind.Number } literal ||
+                           !int.TryParse(literal.Token.Text,
+                               System.Globalization.NumberStyles.None,
+                               System.Globalization.CultureInfo.InvariantCulture,out depth) ||
+                           depth>3)
+                            throw new CompilationFailure(Diagnostic.Error(file,call.Open,
+                                "TSCS1001","Array.flat depth must be a literal integer from 0 to 3."));
+                    }
+                    if(call.Arguments.Count<=1)
+                    {
+                        TypeSymbol elementType=flatReceiver.ElementType;
+                        for(int i=0;i<depth;i++)
+                        {
+                            if(elementType is UnionTypeSymbol union &&
+                               union.Alternatives.Any(arm=>arm is ArrayTypeSymbol))
+                                throw new CompilationFailure(Diagnostic.Error(file,call.Open,
+                                    "TSCS1001","Array.flat cannot yet flatten mixed array union elements."));
+                            if(elementType is not ArrayTypeSymbol nested)break;
+                            elementType=nested.ElementType;
+                        }
+                        signature=signature with {ReturnType=new ArrayTypeSymbol(elementType)};
+                    }
+                }
                 // Even if the shared callable signature fits the bounded
                 // return union, an optional call adds undefined. Guard that
                 // final join too: the public compilation API must diagnose a
