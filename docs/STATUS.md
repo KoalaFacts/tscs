@@ -1,3 +1,24 @@
+## 2026-11-03 — Numeric/string key identity after optional object spread overlap (candidate; NOT_RUN at creation)
+
+Checked C# finite object spreads now reproduce the pinned TypeScript key identity
+for a conditional overlap: numeric `0` and quoted `"0"` address the same
+runtime property; after an optional override the inferred `keyof` key is
+`"0"`, even if the original/source key was numeric. Reads and assignments
+retain the joined previous/present value type, with earlier requiredness kept.
+An unoverlapped numeric property retains its numeric key identity; later
+required spreads or literal entries still replace previous key identity.
+
+Eight positive and eight negative source-backed cases extend the unchanged
+317 bounded pinned-Go type-operator cohort to 333. The 16 initial code/exit
+expectations were checked with local TypeScript 5.8.3 `--strict` as an
+auxiliary oracle, not the fixed TS7 Go reference. xUnit semantic checks and a
+four-module executable ES2015 runtime/no-emission check are included. Exact
+head compiler, pinned Go and security checks are NOT_RUN at source creation,
+and must be inspected before normal merge. The original TS7 acceptance is
+historically 0 PASS / 15,523 SKIP_UNIMPLEMENTED with dynamic UNEXPANDED;
+no original upstream PASS credit, release gate, pin, minimum, or protection
+change is claimed.
+
 ## 2026-11-03 — Nested readonly alternatives in optional object spreads (candidate; NOT_RUN)
 
 The C# semantic union now keeps object readonly-member identity at every nested
