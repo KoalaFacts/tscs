@@ -2323,6 +2323,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 }
                 var members=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
                 var numericMembers=new HashSet<string>(StringComparer.Ordinal);
+                var computedNumericMembers=new HashSet<string>(StringComparer.Ordinal);
                 var optionalMembers=new HashSet<string>(StringComparer.Ordinal);
                 for(int i=0;i<inferred.Length;i++)
                 {
@@ -2342,7 +2343,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                                 if(!CompilerTypes.MergeFiniteSpreadMember(members,numericMembers,
                                     optionalMembers,member.Key,member.Value,
                                     source.NumericMembers.Contains(member.Key),
-                                    source.OptionalMembers.Contains(member.Key)))
+                                    source.OptionalMembers.Contains(member.Key),
+                                    computedNumericMembers,source.ComputedNumericMembers.Contains(member.Key)))
                                     throw new CompilationFailure(Diagnostic.Error(file,entry.Name,"TSCS1001",
                                         "Conditional numeric/string key identity in optional object spreads is not supported."));
                             }
@@ -2362,10 +2364,13 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         optionalMembers.Remove(name);
                         if(entry.Name.Kind==TokenKind.Number)numericMembers.Add(name);
                         else numericMembers.Remove(name);
+                        if(entry.Computed && entry.Name.Kind==TokenKind.Number)computedNumericMembers.Add(name);
+                        else computedNumericMembers.Remove(name);
                     }
                 }
                 // Do not turn an unresolved property into an implicit any.
-                types.Push(known?new ObjectTypeSymbol(members,numericMembers:numericMembers,optionalMembers:optionalMembers):null);
+                types.Push(known?new ObjectTypeSymbol(members,numericMembers:numericMembers,
+                    optionalMembers:optionalMembers,computedNumericMembers:computedNumericMembers):null);
                 continue;
             }
             if(node is ValuePropertyAccess property)
