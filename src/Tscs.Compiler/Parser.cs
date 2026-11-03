@@ -69,7 +69,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     private sealed record BoundName(Token Name) : BindingPattern;
     private sealed record BoundDefault(BindingPattern Target,ValueNode Fallback,Token Location) : BindingPattern;
     private sealed record BoundObject(IReadOnlyList<(Token Key,BindingPattern Target)> Members) : BindingPattern;
-    private sealed record BoundArray(Token Open,IReadOnlyList<BindingPattern?> Elements) : BindingPattern;
+    private sealed record BoundArray(Token Open,IReadOnlyList<BindingPattern?> Elements,Token? RestName=null) : BindingPattern;
     private int bindingTemporaryOrdinal;
 
     private static void CollectParameterBindingNames(BindingPattern pattern,List<Token> names)
@@ -86,6 +86,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             case BoundArray array:
                 foreach(var element in array.Elements)
                     if(element is not null)CollectParameterBindingNames(element,names);
+                if(array.RestName is { } restName)names.Add(restName);
                 break;
         }
     }
@@ -420,18 +421,31 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
         {
             var open=Take();
             var elements=new List<BindingPattern?>();
+            Token? restName=null;
             while(Current.Kind!=TokenKind.CloseBracket)
             {
                 if(elements.Count>=64)Unsupported(Current,"Array binding pattern has too many elements.");
+                if(Eat(TokenKind.Ellipsis))
+                {
+                    // Only a final named array rest is supported. A checked
+                    // native array is required by the generated slice access;
+                    // arbitrary iterators and object/string operands fail closed.
+                    if(Current.Kind!=TokenKind.Identifier)
+                        Unsupported(Current,"Array binding rest requires a named variable.");
+                    restName=Take();
+                    if(Current.Kind!=TokenKind.CloseBracket)
+                        Unsupported(Current,"Array binding rest must be the final element without a default or trailing comma.");
+                    break;
+                }
                 if(Eat(TokenKind.Comma)) { elements.Add(null);continue; }
                 elements.Add(ReadBindingPattern(depth+1,allowDefault:true));
                 if(!Eat(TokenKind.Comma))break;
             }
-            if(elements.All(item=>item is null))
+            if(restName is null && elements.All(item=>item is null))
                 Unsupported(Current,"Empty array binding patterns are not supported.");
             if(!Eat(TokenKind.CloseBracket))
                 Unsupported(Current,"Expected ']' after array binding pattern.");
-            return new BoundArray(open,elements);
+            return new BoundArray(open,elements,restName);
         }
         if(Current.Kind!=TokenKind.Identifier)
             Unsupported(Current,"Only finite identifier, object and array bindings are supported.");
@@ -523,6 +537,20 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                         new ValueElementAccess(source,arrayPattern.Open,new ValueAtom(numberToken),closing,BindingArrayElement:true),
                         arrayPattern.Open,constant,exported,target,depth+1,annotatedBinding,
                         reliableArray && index<directArray!.Elements.Count?directArray.Elements[index]:null);
+                }
+                if(arrayPattern.RestName is { } rest)
+                {
+                    // The array is already evaluated once into a checked
+                    // temporary. Native slice makes an independent writable
+                    // tail, including when the receiver was readonly.
+                    var start=arrayPattern.Elements.Count.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    var number=new Token(TokenKind.Number,start,rest.Start,start.Length);
+                    var slice=new Token(TokenKind.Identifier,"slice",rest.Start,rest.Length);
+                    var openParen=new Token(TokenKind.OpenParen,"(",rest.Start,1);
+                    var tail=new ValueCall(
+                        new ValuePropertyAccess(source,slice,BindingArrayRest:true),
+                        openParen,[new ValueAtom(number)]);
+                    target.Add(new Variable(rest,constant,null,tail,exported));
                 }
                 return;
             default:

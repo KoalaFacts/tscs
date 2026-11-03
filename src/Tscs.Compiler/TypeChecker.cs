@@ -2407,6 +2407,13 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     continue;
                 }
                 var receiver=types.Pop();
+                // This parser-generated slice is a binding operation, not an
+                // arbitrary user member call. A string also has .slice but
+                // string destructuring rest yields characters, not a string;
+                // objects with a slice method are likewise not arrays.
+                if(property.BindingArrayRest && receiver is not ArrayTypeSymbol)
+                    throw new CompilationFailure(Diagnostic.Error(file,property.Name,"TSCS1001",
+                        "Array rest bindings require a statically checked array receiver."));
                 var inheritedSkip=property.ChainContinuation &&
                     optionalSkipped.TryGetValue(property.Receiver,out var propertySkip) && propertySkip;
                 var mayBeUndefined=(property.Optional && receiver!=null &&
