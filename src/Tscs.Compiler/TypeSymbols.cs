@@ -301,6 +301,7 @@ internal static class CompilerTypes
 
     // Optional spread keys may be absent. A prior key's value and requiredness
     // survive absence; reject ambiguous numeric/string identity for keyof.
+    // Nested readonly alternatives remain distinct through union normalization.
     public static bool MergeFiniteSpreadMember(
         Dictionary<string,TypeSymbol> members,HashSet<string> numericMembers,
         HashSet<string> optionalMembers,string name,TypeSymbol incoming,
@@ -309,10 +310,6 @@ internal static class CompilerTypes
         if(incomingOptional && members.TryGetValue(name,out var previous))
         {
             if(numericMembers.Contains(name)!=incomingNumeric)return false;
-            // Structural readonly identity is not represented by the current
-            // union equivalence relation. Never collapse a possibly readonly
-            // later value into a writable one; fail closed until it is.
-            if(HasReadonlyIdentity(previous)||HasReadonlyIdentity(incoming))return false;
             // A typed optional override's undefined constituent represents
             // absence for TS spread inference. The prior value still survives
             // when the override is omitted; preserve its own undefined, if any.
@@ -328,45 +325,6 @@ internal static class CompilerTypes
         if(incomingOptional)optionalMembers.Add(name);
         else optionalMembers.Remove(name);
         return true;
-    }
-
-    // Conservative boundary for conditional spreads of readonly shapes.
-    // Avoid collapsing structurally equivalent mutable and readonly branches
-    // through the existing IsEquivalent/Union relation.
-    private static bool HasReadonlyIdentity(TypeSymbol root)
-    {
-        var pending=new Stack<TypeSymbol>();
-        var visited=new HashSet<TypeSymbol>(ReferenceEqualityComparer.Instance);
-        pending.Push(root);
-        int budget=16384;
-        while(pending.Count>0)
-        {
-            if(--budget<0)return true;
-            var current=pending.Pop();
-            if(!visited.Add(current))continue;
-            switch(current)
-            {
-                case ObjectTypeSymbol shape:
-                    if(shape.ReadonlyMembers.Count>0)return true;
-                    foreach(var part in shape.Members.Values)pending.Push(part);
-                    break;
-                case ArrayTypeSymbol array:
-                    if(array.Readonly)return true;
-                    if(array.TupleElements is { } slots)
-                        foreach(var part in slots)pending.Push(part);
-                    else pending.Push(array.ElementType);
-                    break;
-                case UnionTypeSymbol union:
-                    foreach(var part in union.Alternatives)pending.Push(part);
-                    break;
-                case FunctionTypeSymbol signature:
-                    pending.Push(signature.ReturnType);
-                    foreach(var part in signature.Parameters)pending.Push(part);
-                    if(signature.RestElementType is { } rest)pending.Push(rest);
-                    break;
-            }
-        }
-        return false;
     }
 
     // Finite 'as const' preserves deeply readonly objects and tuples with
@@ -639,7 +597,8 @@ internal static class CompilerTypes
             {
                 case (ObjectTypeSymbol a,ObjectTypeSymbol b):
                     if(!a.NumericMembers.SetEquals(b.NumericMembers) ||
-                       !a.OptionalMembers.SetEquals(b.OptionalMembers))return false;
+                       !a.OptionalMembers.SetEquals(b.OptionalMembers) ||
+                       !a.ReadonlyMembers.SetEquals(b.ReadonlyMembers))return false;
                     foreach(var (name,member) in a.Members)
                         if(b.Members.TryGetValue(name,out var other))
                             pending.Push((member,other));
