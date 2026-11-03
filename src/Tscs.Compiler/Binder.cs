@@ -334,6 +334,7 @@ internal static class Binder
             return null;
         var members=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
         var numericMembers=new HashSet<string>(StringComparer.Ordinal);
+        var computedNumericMembers=new HashSet<string>(StringComparer.Ordinal);
         foreach(var property in obj.Properties)
         {
             if(ResolveFiniteInitializerType(property.Value,scope,file,false,depth+1) is not { } member)
@@ -342,8 +343,11 @@ internal static class Binder
             members[name]=member;
             if(property.Name.Kind==TokenKind.Number)numericMembers.Add(name);
             else numericMembers.Remove(name);
+            if(property.Computed && property.Name.Kind==TokenKind.Number)computedNumericMembers.Add(name);
+            else computedNumericMembers.Remove(name);
         }
-        return new ObjectTypeSymbol(members,numericMembers:numericMembers);
+        return new ObjectTypeSymbol(members,numericMembers:numericMembers,
+            computedNumericMembers:computedNumericMembers);
     }
 
     public static void InitializeDeclaredTypes(Scope scope)
