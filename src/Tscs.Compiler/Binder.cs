@@ -344,14 +344,14 @@ internal static class Binder
                 // scope. This does not execute the spread or guess unknown types.
                 var source=ResolveConstSpreadSource(property.Value,scope,file,depth+1);
                 if(source is null)return null;
-                foreach(var (name,type) in source.Members)
+                foreach(var (spreadName,type) in source.Members)
                 {
                     try
                     {
                         if(!CompilerTypes.MergeFiniteSpreadMember(members,numericMembers,
-                            optionalMembers,name,type,source.NumericMembers.Contains(name),
-                            source.OptionalMembers.Contains(name),computedNumericMembers,
-                            source.ComputedNumericMembers.Contains(name)))return null;
+                            optionalMembers,spreadName,type,source.NumericMembers.Contains(spreadName),
+                            source.OptionalMembers.Contains(spreadName),computedNumericMembers,
+                            source.ComputedNumericMembers.Contains(spreadName)))return null;
                     }
                     catch(InvalidOperationException) {return null;}
                 }
