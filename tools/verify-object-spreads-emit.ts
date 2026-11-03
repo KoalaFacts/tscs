@@ -35,7 +35,7 @@ try {
     'export function mergeConst(patch:Patch):{value:21|string}{const v={value:21,...patch} as const;return v;}',
     'export function writeConst(patch:Patch):{value:21|string}{const v={value:21,...patch} as const;v.value="updated";return v;}',
     'export function nestedReadonly(patch:ReadonlyPatch):number{const v={item:{n:21},...patch};return v.item.n;}',
-    'export function numericOptional(patch:NumericPatch):number|string{const v={0:21,...patch};let k:keyof typeof v="0";return v[k];}'
+    'export function numericOptional(patch:NumericPatch):number|string{const v={0:21,...patch};let k:keyof typeof v="0";return v[0];}'
   ].join('\n'));
   writeFileSync(join(folder,'bridge.ts'),'export {build,read,mergeOptional,preferRequired,readOptional,mergeConst,writeConst,nestedReadonly,numericOptional} from "./logic.js";\n');
   writeFileSync(join(folder,'entry.ts'),[
