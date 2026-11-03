@@ -626,9 +626,9 @@ internal static class CompilerTypes
                 return null;
             // Ordinary numeric keys become quoted keys after a conditional
             // nullable spread; computed [0] retains numeric keyof provenance.
-            var computed=new HashSet<string>(nullableSource.ComputedNumericMembers,StringComparer.Ordinal);
+            var nullableComputed=new HashSet<string>(nullableSource.ComputedNumericMembers,StringComparer.Ordinal);
             return new ObjectTypeSymbol(nullableSource.Members,nullableSource.ReadonlyMembers,
-                computed,nullableSource.Members.Keys,computed);
+                nullableComputed,nullableSource.Members.Keys,nullableComputed);
         }
         if(union.Alternatives[0] is not ObjectTypeSymbol first)return null;
         var merged=new Dictionary<string,TypeSymbol>(first.Members,StringComparer.Ordinal);
