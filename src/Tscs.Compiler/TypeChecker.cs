@@ -2642,7 +2642,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     {
                         try
                         {
-                            mapperReturn=CompilerTypes.TryCommonCallableSignature(callbackUnion)?.ReturnType;
+                            mapperReturn=CompilerTypes.TryCommonCallableSignature(callbackUnion,
+                                structuralInputs:true)?.ReturnType;
                         }
                         catch(InvalidOperationException failure)
                         {
