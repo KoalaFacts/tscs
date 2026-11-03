@@ -2653,15 +2653,30 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     }
                     if(call.Arguments.Count<=1)
                     {
-                        TypeSymbol elementType=flatReceiver.ElementType;
-                        for(int i=0;i<depth;i++)
+                        // The fixed TS7 FlatArray type is distributive over
+                        // mixed scalar/array unions at each depth. For example,
+                        // (number[] | string[][])[] gives (number | string[])[]
+                        // at depth 1 and (number | string)[] at depth 2.
+                        // Preserve the ordinary readonly element shape when
+                        // the requested depth does not reach that array.
+                        static TypeSymbol FlattenOneLevel(TypeSymbol element)
                         {
-                            if(elementType is UnionTypeSymbol union &&
-                               union.Alternatives.Any(arm=>arm is ArrayTypeSymbol))
-                                throw new CompilationFailure(Diagnostic.Error(file,call.Open,
-                                    "TSCS1001","Array.flat cannot yet flatten mixed array union elements."));
-                            if(elementType is not ArrayTypeSymbol nested)break;
-                            elementType=nested.ElementType;
+                            if(element is ArrayTypeSymbol nested)return nested.ElementType;
+                            if(element is UnionTypeSymbol union)
+                                return CompilerTypes.Union(
+                                    union.Alternatives.Select(FlattenOneLevel));
+                            return element;
+                        }
+                        TypeSymbol elementType=flatReceiver.ElementType;
+                        try
+                        {
+                            for(int i=0;i<depth;i++)
+                                elementType=FlattenOneLevel(elementType);
+                        }
+                        catch(InvalidOperationException failure)
+                        {
+                            throw new CompilationFailure(Diagnostic.Error(file,call.Open,
+                                "TSCS1001",failure.Message));
                         }
                         signature=signature with {ReturnType=new ArrayTypeSymbol(elementType)};
                     }
