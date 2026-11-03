@@ -32,7 +32,7 @@ public sealed class ArrayRestBindingTests
     [InlineData("function label([head,...tail]:readonly [number,string?]):string|undefined{return tail[0];}let text:string|undefined=label([21]);")]
     [InlineData("const label=([head,...tail]:[number,string?]):string|undefined=>tail[0];let text:string|undefined=label([21,\"ready\"]);")]
     [InlineData("function take(xs:number[]|string[]):number|string{const [head,...tail]=xs;return tail[0];}let s:number|string=take([1,2]);")]
-    [InlineData("function take(xs:readonly number[]|readonly string[]):number|string{const [...copy]=xs;return copy[0];}let s:number|string=take([\\"a\\",\\"b\\"]);")]
+    [InlineData("function take(xs:readonly number[]|readonly string[]):number|string{const [...copy]=xs;return copy[0];}let s:number|string=take([\"a\",\"b\"]);")]
     [InlineData("type Blend=number[]|string[];function copy(v:Blend):(number|string)[]{const [head,...tail]=v;return tail;}const out:(number|string)[]=copy([1,2]);")]
     [InlineData("function accept(x:readonly number[]|string[]):void{const [first,...rest]=x;let n:number|string=first;let second:number|string=rest[0];}")]
     [InlineData("function choose(x:number[]|readonly string[]):number|string{const [,,...tail]=x;return tail[0];}let value:number|string=choose([1,2,3]);")]
