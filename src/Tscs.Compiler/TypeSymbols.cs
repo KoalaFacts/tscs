@@ -440,8 +440,13 @@ internal static class CompilerTypes
                 var members=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
                 var numericMembers=new HashSet<string>(StringComparer.Ordinal);
                 var optionalMembers=new HashSet<string>(StringComparer.Ordinal);
+                var readonlyMembers=new HashSet<string>(StringComparer.Ordinal);
                 foreach(var property in literal.Properties)
                 {
+                    // Each later entry re-applies readonly to surviving const
+                    // members. A final optional overlap can instead create a
+                    // writable joined property, matching TypeScript's spread.
+                    readonlyMembers.UnionWith(members.Keys);
                     if(property.Spread)
                     {
                         // An object spread does not recursively freeze the
@@ -452,15 +457,17 @@ internal static class CompilerTypes
                         if(source is null)return null;
                         foreach(var (spreadKey,type) in source.Members)
                         {
-                            // Conditional readonly of an overlapping optional
-                            // override is not modeled by finite const shells.
-                            if(source.OptionalMembers.Contains(spreadKey) &&
-                               members.ContainsKey(spreadKey))return null;
-                            members[spreadKey]=type;
-                            if(source.NumericMembers.Contains(spreadKey))numericMembers.Add(spreadKey);
-                            else numericMembers.Remove(spreadKey);
-                            if(source.OptionalMembers.Contains(spreadKey))optionalMembers.Add(spreadKey);
-                            else optionalMembers.Remove(spreadKey);
+                            bool conditional=source.OptionalMembers.Contains(spreadKey) &&
+                                members.ContainsKey(spreadKey);
+                            try
+                            {
+                                if(!MergeFiniteSpreadMember(members,numericMembers,optionalMembers,
+                                    spreadKey,type,source.NumericMembers.Contains(spreadKey),
+                                    source.OptionalMembers.Contains(spreadKey)))return null;
+                            }
+                            catch(InvalidOperationException) {return null;}
+                            if(conditional)readonlyMembers.Remove(spreadKey);
+                            else readonlyMembers.Add(spreadKey);
                         }
                         continue;
                     }
@@ -475,12 +482,13 @@ internal static class CompilerTypes
                         checkedTupleSpreadSource:checkedTupleSpreadSource);
                     if(nested is null)return null;
                     members[key]=nested;
+                    readonlyMembers.Add(key);
                     optionalMembers.Remove(key);
                     if(property.Name.Kind==TokenKind.Number)numericMembers.Add(key);
                     else numericMembers.Remove(key);
                 }
                 return new ObjectTypeSymbol(members,
-                    readonlyMembers:members.Keys,numericMembers:numericMembers,
+                    readonlyMembers:readonlyMembers,numericMembers:numericMembers,
                     optionalMembers:optionalMembers);
             }
             // Checked nested computations may keep their normal semantic type;

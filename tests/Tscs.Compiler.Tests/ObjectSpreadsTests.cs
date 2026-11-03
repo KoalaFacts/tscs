@@ -58,9 +58,35 @@ public sealed class ObjectSpreadsTests
         Assert.Equal(new[] { expected },Compilation.Check("optional-spread-overlap-invalid.ts",source)
             .Select(d=>d.Code).ToArray());
 
-    // Unsupported conditional readonly/keyof identity must not silently pass.
     [Theory]
-    [InlineData("let patch:{n?:string}={};let v={n:21,...patch} as const;")]
+    [InlineData("let patch:{n?:string}={};const v={n:21,...patch} as const;let x:21|string=v.n;")]
+    [InlineData("let patch:{n?:string}={};const v={n:21,...patch} as const;v.n=\"updated\";")]
+    [InlineData("let patch:{n?:string}={};const v={n:21,...patch} as const;v.n=21;")]
+    [InlineData("let p:{n?:string}={};let q:{n?:boolean}={};const v={n:21,...p,...q} as const;let x:21|string|boolean=v.n;")]
+    [InlineData("let patch:{n?:string}={};const v={n:21,...patch,other:true} as const;let x:21|string=v.n;")]
+    [InlineData("let patch:{n?:string|undefined}={};const v={n:21,...patch} as const;let x:21|string=v.n;")]
+    [InlineData("function merge(p:{n?:string}):{n:21|string}{return {n:21,...p} as const;}let x:21|string=merge({n:\"x\"}).n;")]
+    [InlineData("let patch:{n?:string}={};const v={...patch,n:21} as const;let x:21=v.n;")]
+    [InlineData("let patch:{n?:string}={};const v={n:21,...patch,tag:true} as const;let good:21|string=v.n;")]
+    public void ConstOptionalSpreadTracksValuesAndConditionalWrites(string source) =>
+        Assert.Empty(Compilation.Check("const-optional-overlap.ts",source));
+
+    [Theory]
+    [InlineData("let p:{n?:string}={};const v={n:21,...p} as const;let bad:number=v.n;", "TS2322")]
+    [InlineData("let p:{n?:string}={};const v={n:21,...p} as const;v.n=22;", "TS2322")]
+    [InlineData("let p:{n?:string}={};const v={n:21,...p} as const;v.n=true;", "TS2322")]
+    [InlineData("let p:{n?:string}={};const v={n:21,...p} as const;let bad:21=v.n;", "TS2322")]
+    [InlineData("let p:{n?:string}={};const v={n:21,...p} as const;let bad:\"x\"=v.n;", "TS2322")]
+    [InlineData("let p:{n?:string}={};const v={...p,n:21} as const;v.n=21;", "TS2540")]
+    [InlineData("let p:{n?:string}={};const v={n:21,...p} as const;let bad:boolean=v.n;", "TS2322")]
+    [InlineData("let p:{n?:string}={};const v={n:21,...p} as const;let bad:{readonly n:21}=v;", "TS2322")]
+    [InlineData("let p:{n?:string}={};const v={n:21,...p,tag:true} as const;v.n=21;", "TS2540")]
+    public void ConstOptionalSpreadRejectsIncompatibleValuesAndReadonlyWrites(string source,string expected) =>
+        Assert.Equal(new[] { expected },Compilation.Check("const-optional-invalid.ts",source)
+            .Select(d=>d.Code).ToArray());
+
+    // Numeric/string identity and nested readonly alternatives still fail closed.
+    [Theory]
     [InlineData("let patch:{0?:string}={};let v={\"0\":21,...patch};")]
     [InlineData("let patch:{a?:{readonly n:number}}={};let v={a:{n:1},...patch};v.a.n=2;")]
     public void UnmodeledOptionalSpreadIdentitiesFailClosed(string source) =>
