@@ -114,6 +114,23 @@ public sealed class ObjectSpreadsTests
         Assert.Equal(new[] {code},Compilation.Check("optional-nested-readonly-invalid.ts",source)
             .Select(d=>d.Code).ToArray());
 
+    // Regression for mixed union/non-union members: the later optional
+    // shape may contain a readonly nested alternative that must survive.
+    [Fact]
+    public void NestedUnionReadonlyAlternativeCannotBeLost() =>
+        Assert.Equal(new[] {"TS2540"},Compilation.Check("readonly-union-invalid.ts",
+            "let patch:{item?:{child:{n:number}|{readonly n:number}}}={};"+
+            "let v={item:{child:{n:21}},...patch};v.item.child.n=22;")
+            .Select(d=>d.Code).ToArray());
+
+    // Readonly identities are important when deduplicating unions, but
+    // mutually assignable intersection members must remain compatible.
+    [Fact]
+    public void NestedReadonlyIntersectionRemainsCompatible() =>
+        Assert.Empty(Compilation.Check("readonly-intersection.ts",
+            "type Both={item:{n:number}}&{item:{readonly n:number}};"+
+            "let v:Both={item:{n:1}};let n:number=v.item.n;"));
+
     // Conditional numeric/string source-key identity remains explicitly unsupported.
     [Fact]
     public void UnmodeledOptionalNumericSourceIdentityFailsClosed() =>
