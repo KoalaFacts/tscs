@@ -790,7 +790,8 @@ internal static class CompilerTypes
         static bool Plain(FunctionTypeSymbol signature)=>
             signature.NativeArrayMapElementType is null &&
             signature.NativeArrayReduceElementType is null &&
-            signature.NativeArraySpliceOverloadElementType is null;
+            signature.NativeArraySpliceOverloadElementType is null &&
+            signature.NativeArrayFlatReceiver is null;
         if(!Plain(first) || !signatures.All(other=>Plain(other) &&
             other.Parameters.Count==first.Parameters.Count &&
             other.MinimumArguments==first.MinimumArguments &&
@@ -861,6 +862,7 @@ internal static class CompilerTypes
                         SameOptional(af.NativeArrayReduceElementType,bf.NativeArrayReduceElementType,depth) &&
                         SameOptional(af.NativeArraySpliceOverloadElementType,
                             bf.NativeArraySpliceOverloadElementType,depth) &&
+                        SameOptional(af.NativeArrayFlatReceiver,bf.NativeArrayFlatReceiver,depth) &&
                         Same(af.ReturnType,bf.ReturnType,depth+1) &&
                         af.Parameters.Zip(bf.Parameters).All(pair=>
                             Same(pair.First,pair.Second,depth+1));
@@ -1241,6 +1243,14 @@ internal static class CompilerTypes
                     if(actualFunction.NativeArrayReduceElementType is { } foldActual &&
                        requiredFunction.NativeArrayReduceElementType is { } foldRequired &&
                        !Check(foldActual,foldRequired))return false;
+                    // A flat method is depth-dependent, not an ordinary
+                    // monomorphic callable. Never erase that intrinsic marker
+                    // through an explicit function annotation or interface.
+                    if((actualFunction.NativeArrayFlatReceiver is null)!=
+                       (requiredFunction.NativeArrayFlatReceiver is null))return false;
+                    if(actualFunction.NativeArrayFlatReceiver is { } flatActual &&
+                       requiredFunction.NativeArrayFlatReceiver is { } flatRequired &&
+                       !SameStructuralInput(flatActual,flatRequired))return false;
                     // This bounded function relation admits only identical arity
                     // families. Do not guess at optional/rest compatibility.
                     // Parameter inputs are contravariant; return values covariant.

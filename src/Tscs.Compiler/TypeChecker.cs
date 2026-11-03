@@ -2612,6 +2612,12 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 // Only bounded nonnegative literal depths have checked types.
                 if(signature.NativeArrayFlatReceiver is { } flatReceiver)
                 {
+                    // Extracting an array method loses its native this receiver
+                    // at runtime. Keep native property/index calls bound.
+                    if(call.Callee is not ValuePropertyAccess &&
+                       call.Callee is not ValueElementAccess)
+                        throw new CompilationFailure(Diagnostic.Error(file,call.Open,"TSCS1001",
+                            "Array.flat must be called on its native array receiver."));
                     if(call.SpreadIndex>=0)
                         throw new CompilationFailure(Diagnostic.Error(file,call.Open,"TSCS1001",
                             "Array.flat does not support spread depth arguments."));

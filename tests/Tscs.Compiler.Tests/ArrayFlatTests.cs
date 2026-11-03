@@ -39,6 +39,8 @@ public sealed class ArrayFlatTests
     [InlineData("let rows:number[][]=[[1]];let wrong:number[]=rows.flat(1.5);","TSCS1001")]
     [InlineData("let rows:number[][]=[[1]];let depth:number=1;let wrong:number[]=rows.flat(depth);","TSCS1001")]
     [InlineData("let rows:number[][]=[[1]];let wrong:number[]=rows.flat(1,2);","TS2554")]
+    [InlineData("function f(rows:number[][]|string[][]):void{rows.flat(0);}","TSCS1001")]
+    [InlineData("function f(rows:number[][]):void{let extracted=rows.flat;extracted(0);}","TSCS1001")]
     public void RejectsIncorrectFlatOutputTypes(string source,string code) =>
         Assert.Contains(Compilation.Check("invalid-native-flat.ts",source),d=>d.Code==code);
 
