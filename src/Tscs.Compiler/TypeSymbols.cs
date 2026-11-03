@@ -962,10 +962,10 @@ internal static class CompilerTypes
             }
             // flat() makes a writable copy and flattens one level by default.
             // A native intrinsic marker lets the call checker infer safe literal
-            // depths 0..3. Dynamic depths, any and outer tuples stay unsupported.
+            // depths 0..3, including finite readonly and optional tuples.
+            // Dynamic depths and any remain unsupported.
             // Native ES2019 runtime required; there is no polyfill.
-            if(name=="flat" && array.TupleElements is null &&
-               !array.ElementType.Equals(Any))
+            if(name=="flat" && !array.ElementType.Equals(Any))
                 return new FunctionTypeSymbol([Number],
                     new ArrayTypeSymbol(array.ElementType is ArrayTypeSymbol inner
                         ?inner.ElementType:array.ElementType),0,
