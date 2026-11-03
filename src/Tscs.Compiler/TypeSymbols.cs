@@ -48,7 +48,7 @@ internal sealed record UnionTypeSymbol(IReadOnlyList<TypeSymbol> Alternatives) :
 // can inspect fresh operand literals rather than only the joined type.
 internal sealed record LogicalValueOutcome(TypeSymbol Result,TypeSymbol? LeftResult,TypeSymbol Right,bool RightReachable);
 
-internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null,TypeSymbol? NativeArrayMapElementType=null,TypeSymbol? NativeArrayReduceElementType=null,TypeSymbol? NativeArraySpliceOverloadElementType=null,bool NativeMutableArraySplice=false) : TypeSymbol
+internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null,TypeSymbol? NativeArrayMapElementType=null,TypeSymbol? NativeArrayReduceElementType=null,TypeSymbol? NativeArraySpliceOverloadElementType=null,bool NativeMutableArraySplice=false,bool NativeArrayFlatMap=false) : TypeSymbol
 {
     public int MinimumArguments=>RequiredParameterCount<0?Parameters.Count:RequiredParameterCount;
     public override string DisplayName=>TypeDisplay.Format(this);
@@ -779,7 +779,8 @@ internal static class CompilerTypes
     // use the shared signature below, joining the possible return types.
     // Reject mismatched parameter identity rather than treating any and
     // number as equivalent. Intrinsic array signatures are not coalesced.
-    public static FunctionTypeSymbol? TryCommonCallableSignature(TypeSymbol callee)
+    public static FunctionTypeSymbol? TryCommonCallableSignature(TypeSymbol callee,
+        bool structuralInputs=false)
     {
         if(callee is not UnionTypeSymbol union || union.Alternatives.Count==0 ||
            !union.Alternatives.All(type=>type is FunctionTypeSymbol))
@@ -793,13 +794,97 @@ internal static class CompilerTypes
         if(!Plain(first) || !signatures.All(other=>Plain(other) &&
             other.Parameters.Count==first.Parameters.Count &&
             other.MinimumArguments==first.MinimumArguments &&
-            object.Equals(other.RestElementType,first.RestElementType) &&
+            (structuralInputs
+                ?SameOptionalInput(other.RestElementType,first.RestElementType)
+                :object.Equals(other.RestElementType,first.RestElementType)) &&
             other.Parameters.Zip(first.Parameters).All(pair=>
-                object.Equals(pair.First,pair.Second))))
+                structuralInputs
+                    ?SameStructuralInput(pair.First,pair.Second)
+                    :object.Equals(pair.First,pair.Second))))
             return null;
         return new FunctionTypeSymbol(first.Parameters,
             Union(signatures.Select(signature=>signature.ReturnType)),
             first.MinimumArguments,first.RestElementType);
+    }
+
+
+    // A callback union may use separately constructed but structurally
+    // identical input annotations. Compare those without treating 'any'
+    // as the same as 'number' (mutual assignability would do so), and without
+    // erasing readonly/numeric/optional provenance. Keep the prior narrow
+    // equality rule for ordinary union function calls.
+    private static bool SameOptionalInput(TypeSymbol? left,TypeSymbol? right)=>
+        left is null ? right is null :
+        right is not null && SameStructuralInput(left,right);
+
+    internal static bool SameStructuralInput(TypeSymbol left,TypeSymbol right)
+    {
+        int budget=16384;
+        bool SameOptional(TypeSymbol? a,TypeSymbol? b,int depth)=>
+            a is null ? b is null : b is not null && Same(a,b,depth+1);
+        bool Same(TypeSymbol a,TypeSymbol b,int depth)
+        {
+            if(--budget<0 || depth>64)return false;
+            if(ReferenceEquals(a,b))return true;
+            switch(a)
+            {
+                case PrimitiveTypeSymbol ap when b is PrimitiveTypeSymbol bp:
+                    return ap.Kind==bp.Kind;
+                case LiteralTypeSymbol al when b is LiteralTypeSymbol bl:
+                    return al.Kind==bl.Kind && al.Value==bl.Value;
+                case ArrayTypeSymbol aa when b is ArrayTypeSymbol ba:
+                    if(aa.Readonly!=ba.Readonly ||
+                       aa.TupleOptionalStart!=ba.TupleOptionalStart ||
+                       (aa.TupleElements is null)!=(ba.TupleElements is null) ||
+                       !Same(aa.ElementType,ba.ElementType,depth+1))return false;
+                    if(aa.TupleElements is not { } slots)return true;
+                    var otherSlots=ba.TupleElements!;
+                    return slots.Count==otherSlots.Count &&
+                        slots.Zip(otherSlots).All(pair=>
+                            Same(pair.First,pair.Second,depth+1));
+                case ObjectTypeSymbol ao when b is ObjectTypeSymbol bo:
+                    return ao.Members.Count==bo.Members.Count &&
+                        ao.ReadonlyMembers.SetEquals(bo.ReadonlyMembers) &&
+                        ao.OptionalMembers.SetEquals(bo.OptionalMembers) &&
+                        ao.NumericMembers.SetEquals(bo.NumericMembers) &&
+                        ao.ComputedNumericMembers.SetEquals(bo.ComputedNumericMembers) &&
+                        ao.MixedRequiredOptionalMembers.SetEquals(bo.MixedRequiredOptionalMembers) &&
+                        ao.Members.All(item=>bo.Members.TryGetValue(item.Key,out var type) &&
+                            Same(item.Value,type,depth+1));
+                case FunctionTypeSymbol af when b is FunctionTypeSymbol bf:
+                    return af.Parameters.Count==bf.Parameters.Count &&
+                        af.MinimumArguments==bf.MinimumArguments &&
+                        af.NativeArrayFlatMap==bf.NativeArrayFlatMap &&
+                        af.NativeMutableArraySplice==bf.NativeMutableArraySplice &&
+                        SameOptional(af.RestElementType,bf.RestElementType,depth) &&
+                        SameOptional(af.NativeArrayMapElementType,bf.NativeArrayMapElementType,depth) &&
+                        SameOptional(af.NativeArrayReduceElementType,bf.NativeArrayReduceElementType,depth) &&
+                        SameOptional(af.NativeArraySpliceOverloadElementType,
+                            bf.NativeArraySpliceOverloadElementType,depth) &&
+                        Same(af.ReturnType,bf.ReturnType,depth+1) &&
+                        af.Parameters.Zip(bf.Parameters).All(pair=>
+                            Same(pair.First,pair.Second,depth+1));
+                case UnionTypeSymbol au when b is UnionTypeSymbol bu:
+                    if(au.Alternatives.Count!=bu.Alternatives.Count)return false;
+                    var used=new bool[bu.Alternatives.Count];
+                    foreach(var option in au.Alternatives)
+                    {
+                        bool found=false;
+                        for(int i=0;i<bu.Alternatives.Count;i++)
+                        {
+                            if(used[i] || !Same(option,bu.Alternatives[i],depth+1))continue;
+                            used[i]=true;
+                            found=true;
+                            break;
+                        }
+                        if(!found)return false;
+                    }
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        return Same(left,right,0);
     }
 
     // A read through a union is safe only when every alternative has the
@@ -873,13 +958,14 @@ internal static class CompilerTypes
                 };
                 return new FunctionTypeSymbol([callback],result);
             }
-            // A native map callback may return a type different from the element.
-            // The checker derives that result from the checked callback signature;
-            // this intrinsic marker cannot be supplied by user declarations.
-            if(name=="map")
+            // Native map and one-level flatMap share checked callback input
+            // validation, but differ in their inferred output array element.
+            // Their intrinsic identities cannot be erased into ordinary callables.
+            if(name is "map" or "flatMap")
                 return new FunctionTypeSymbol(
                     [new FunctionTypeSymbol([array.ElementType],Any)],
-                    new ArrayTypeSymbol(Any),NativeArrayMapElementType:array.ElementType);
+                    new ArrayTypeSymbol(Any),NativeArrayMapElementType:array.ElementType,
+                    NativeArrayFlatMap:name=="flatMap");
             // Checked native array transformations: filter always creates a
             // writable copy; same-element folds use an optional initial T.
             if(name=="filter")
@@ -1135,7 +1221,9 @@ internal static class CompilerTypes
                     if((actualFunction.NativeArrayMapElementType is not null &&
                         requiredFunction.NativeArrayMapElementType is null) ||
                        (actualFunction.NativeArrayMapElementType is null &&
-                        requiredFunction.NativeArrayMapElementType is not null))return false;
+                        requiredFunction.NativeArrayMapElementType is not null) ||
+                        (actualFunction.NativeArrayMapElementType is not null &&
+                         actualFunction.NativeArrayFlatMap!=requiredFunction.NativeArrayFlatMap))return false;
                     // Reducing calls derive U from their explicitly typed callback.
                     // Do not erase that dependency into an ordinary callable.
                     if((actualFunction.NativeArrayReduceElementType is null) !=
