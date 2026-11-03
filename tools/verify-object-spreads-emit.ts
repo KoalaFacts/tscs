@@ -27,10 +27,16 @@ try {
     'export const computedNumeric={[0]:21};',
     'export type SpreadVariant={value:number;tag:boolean}|{value:string;tag:boolean};',
     'export const numberChoice:SpreadVariant={value:21,tag:true};',
-    'export const textChoice:SpreadVariant={value:"choice",tag:true};'
+    'export const textChoice:SpreadVariant={value:"choice",tag:true};',
+    'export type MaybeNumber={value:number}|null|undefined;',
+    'export const nullValue:MaybeNumber=null;',
+    'export const someValue:MaybeNumber={value:33};',
+    'export type MaybeText={value?:string}|null;',
+    'export const nullText:MaybeText=null;',
+    'export const someText:MaybeText={value:"nullable"};'
   ].join('\n'));
   writeFileSync(join(folder,'logic.ts'),[
-    'import type {Data,Patch,ReadonlyPatch,NumericPatch,SpreadVariant} from "./model.js";',
+    'import type {Data,Patch,ReadonlyPatch,NumericPatch,SpreadVariant,MaybeNumber,MaybeText} from "./model.js";',
     'import {computedNumeric} from "./model.js";',
     'export function build(data:Data):Data{return {...data,value:data.value+22};}',
     'export function read(data:Data):number{return data.value;}',
@@ -43,12 +49,17 @@ try {
     'export function numericOptional(patch:NumericPatch):number|string{const v={0:21,...patch};let k:keyof typeof v="0";return v[0];}',
     'export function computedOptional(patch:NumericPatch):number|string{const v={...computedNumeric,...patch};let k:keyof typeof v=0;return v[0];}',
     'export function unionValue(value:SpreadVariant):number|string{const v={...value};return v.value;}',
-    'export function unionConstValue(value:SpreadVariant):number|string{const v={...value,tail:true} as const;return v.value;}'
+    'export function unionConstValue(value:SpreadVariant):number|string{const v={...value,tail:true} as const;return v.value;}',
+    'export function nullableValue(value:MaybeNumber):number|undefined{return {...value}.value;}',
+    'export function nullablePrior(value:MaybeNumber):number{return {value:21,...value}.value;}',
+    'export function nullableLast(value:MaybeNumber):number{return {...value,value:42}.value;}',
+    'export function nullableConst(value:MaybeNumber):number|undefined{const snapshot={...value} as const;return snapshot.value;}',
+    'export function nullableText(value:MaybeText):string|undefined{return {...value}.value;}'
   ].join('\n'));
-  writeFileSync(join(folder,'bridge.ts'),'export {build,read,mergeOptional,preferRequired,readOptional,mergeConst,writeConst,nestedReadonly,numericOptional,computedOptional,unionValue,unionConstValue} from "./logic.js";\n');
+  writeFileSync(join(folder,'bridge.ts'),'export {build,read,mergeOptional,preferRequired,readOptional,mergeConst,writeConst,nestedReadonly,numericOptional,computedOptional,unionValue,unionConstValue,nullableValue,nullablePrior,nullableLast,nullableConst,nullableText} from "./logic.js";\n');
   writeFileSync(join(folder,'entry.ts'),[
-    'import {source,other,empty,omitted,present,absentReadonly,presentReadonly,omittedNumeric,presentNumeric,numberChoice,textChoice} from "./model.js";',
-    'import {build,read,preferRequired,readOptional,mergeConst,writeConst,nestedReadonly,numericOptional,computedOptional,unionValue,unionConstValue} from "./bridge.js";',
+    'import {source,other,empty,omitted,present,absentReadonly,presentReadonly,omittedNumeric,presentNumeric,numberChoice,textChoice,nullValue,someValue,nullText,someText} from "./model.js";',
+    'import {build,read,preferRequired,readOptional,mergeConst,writeConst,nestedReadonly,numericOptional,computedOptional,unionValue,unionConstValue,nullableValue,nullablePrior,nullableLast,nullableConst,nullableText} from "./bridge.js";',
     'export const result:number=read(build(source));',
     'export const overridden:number=({...source,value:42}).value;',
     'export const ordered:number=({...source,...other,value:42}).value;',
@@ -70,7 +81,15 @@ try {
     'export const unionNumber:number|string=unionValue(numberChoice);',
     'export const unionText:number|string=unionValue(textChoice);',
     'export const unionConstNumber:number|string=unionConstValue(numberChoice);',
-    'export const unionConstText:number|string=unionConstValue(textChoice);'
+    'export const unionConstText:number|string=unionConstValue(textChoice);',
+    'export const nullAbsent:number|undefined=nullableValue(nullValue);',
+    'export const nullPresent:number|undefined=nullableValue(someValue);',
+    'export const nullPrior:number=nullablePrior(nullValue);',
+    'export const nullOverlay:number=nullablePrior(someValue);',
+    'export const nullLast:number=nullableLast(someValue);',
+    'export const nullConst:number|undefined=nullableConst(someValue);',
+    'export const nullableStringAbsent:string|undefined=nullableText(nullText);',
+    'export const nullableStringPresent:string|undefined=nullableText(someText);'
   ].join('\n'));
   function compile(source:string){
     const r=spawnSync(process.env.DOTNET??'dotnet',
@@ -89,8 +108,8 @@ try {
     assert.ok(!readFileSync(emitted,'utf8').includes('...'),'ES2018 spread leaked into emitted ES2015');
   }
   const runtime=spawnSync(process.execPath,['--input-type=module','--eval',[
-    'import {result,overridden,ordered,nested,copied,unchanged,absent,overlaid,required,constAbsent,constPresent,constUpdated,nestedMissing,nestedPresent,numericAbsent,numericPresent,computedAbsent,computedPresent,unionNumber,unionText,unionConstNumber,unionConstText} from "./entry.js";',
-    'if(result!==42||overridden!==42||ordered!==42||nested!==42||copied!==42||unchanged!==20||absent!==21||overlaid!=="overlay"||required!==42||constAbsent!==21||constPresent!=="overlay"||constUpdated!=="updated"||nestedMissing!==21||nestedPresent!==42||numericAbsent!==21||numericPresent!=="overlay"||computedAbsent!==21||computedPresent!=="overlay"||unionNumber!==21||unionText!=="choice"||unionConstNumber!==21||unionConstText!=="choice")',
+    'import {result,overridden,ordered,nested,copied,unchanged,absent,overlaid,required,constAbsent,constPresent,constUpdated,nestedMissing,nestedPresent,numericAbsent,numericPresent,computedAbsent,computedPresent,unionNumber,unionText,unionConstNumber,unionConstText,nullAbsent,nullPresent,nullPrior,nullOverlay,nullLast,nullConst,nullableStringAbsent,nullableStringPresent} from "./entry.js";',
+    'if(result!==42||overridden!==42||ordered!==42||nested!==42||copied!==42||unchanged!==20||absent!==21||overlaid!=="overlay"||required!==42||constAbsent!==21||constPresent!=="overlay"||constUpdated!=="updated"||nestedMissing!==21||nestedPresent!==42||numericAbsent!==21||numericPresent!=="overlay"||computedAbsent!==21||computedPresent!=="overlay"||unionNumber!==21||unionText!=="choice"||unionConstNumber!==21||unionConstText!=="choice"||nullAbsent!==undefined||nullPresent!==33||nullPrior!==21||nullOverlay!==33||nullLast!==42||nullConst!==33||nullableStringAbsent!==undefined||nullableStringPresent!=="nullable")',
     '  throw Error("object spread runtime mismatch");'
   ].join('\n')],{cwd:folder,encoding:'utf8',timeout:15000});
   assert.equal(runtime.error,undefined,String(runtime.error));
@@ -114,7 +133,10 @@ try {
     ['numeric-optional-value','let p:{"0"?:string}={};let v={0:21,...p};let n:number=v[0];','TS2322'],
     ['computed-numeric-keyof','let p:{0?:string}={};let v={[0]:21,...p};let k:keyof typeof v="0";','TS2322'],
     ['union-spread-wrong-value','function f(x:{value:number;tag:boolean}|{value:string;tag:boolean}):void{let y={...x};let bad:boolean=y.value;}','TS2322'],
-    ['union-spread-correlated-unsupported','function f(x:{value:number;tag:boolean}|{value:string;tag:string}):void{let y={...x};}','TSCS1001']
+    ['union-spread-correlated-unsupported','function f(x:{value:number;tag:boolean}|{value:string;tag:string}):void{let y={...x};}','TSCS1001'],
+    ['nullable-spread-invalid-direct-read','function f(x:{value:number}|null):void{let y={...x};let bad:number=y.value;}','TS2322'],
+    ['nullable-spread-const-write','function f(x:{value:number}|null):void{const y={...x} as const;y.value=42;}','TS2540'],
+    ['nullable-spread-mixed-nonobject','function f(x:{value:number}|string):void{let y={...x};}','TSCS1001']
   ] as const;
   for(const [name,source,code] of invalid){
     writeFileSync(join(folder,name+'.ts'),source);
@@ -123,5 +145,5 @@ try {
     assert.match(checked.stdout+checked.stderr,new RegExp(code));
     assert.equal(existsSync(join(folder,name+'.js')),false,'invalid spread emitted');
   }
-  console.log('Object spreads: four-module runtime, conditional const override values/writes, and nineteen invalid no-emit programs.');
+  console.log('Object spreads: four-module runtime, conditional const override values/writes, and twenty-two invalid no-emit programs.');
 } finally {rmSync(folder,{recursive:true,force:true});}

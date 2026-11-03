@@ -2110,6 +2110,102 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "type-operators:positive-182",
+      "source": "function f(x:{value:number}|null):void{let y={...x};let n:number|undefined=y.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-183",
+      "source": "function f(x:{value:number}|undefined):void{let y={...x};let n:number|undefined=y.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-184",
+      "source": "function f(x:{value:number}|null|undefined):void{let y={...x};let n:number|undefined=y.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-185",
+      "source": "function f(x:{value:number}|null):void{let y={value:21,...x};let n:number=y.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-186",
+      "source": "function f(x:{value:number}|null):void{let y={...x,value:42};let n:number=y.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-187",
+      "source": "function f(x:{value:number;tag:boolean}|null):void{let y={...x};let n:number|undefined=y.value;let b:boolean|undefined=y.tag;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-188",
+      "source": "function f(x:{value:number}|null):void{const y={...x} as const;let n:number|undefined=y.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-189",
+      "source": "function f(x:{value?:string}|null):void{let y={...x};let n:string|undefined=y.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-175",
+      "source": "function f(x:{value:number}|null):void{let y={...x};let bad:number=y.value;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-176",
+      "source": "function f(x:{value:number}|undefined):void{let y={...x};let bad:string=y.value;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-177",
+      "source": "function f(x:{value:number}|null|undefined):void{let y={...x};let bad:boolean=y.value;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-178",
+      "source": "function f(x:{value:number}|null):void{const y={...x} as const;y.value=42;}",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-179",
+      "source": "function f(x:{value:number}|null):void{let y={...x};let bad:{value:string}=y;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-180",
+      "source": "function f(x:{value:number}|null):void{let y:{value:number}={...x};}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-181",
+      "source": "function f(x:{value:number;tag:boolean}|null):void{let y={...x};let bad:boolean=y.tag;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-182",
+      "source": "function f(x:{0:number}|null):void{let y={...x};let k:keyof typeof y=0;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }

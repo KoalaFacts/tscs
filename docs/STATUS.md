@@ -1,3 +1,25 @@
+## 2026-11-03 — Bounded nullable finite object spreads (candidate; NOT_RUN)
+
+An object-or-null/undefined union now contributes optional members when spread
+into a fresh object. Ordinary numeric keys become string identities on the
+nullable branch; computed numeric provenance stays numeric. Required preceding
+properties survive absent sources; later concrete values win. Const assertions
+preserve outer readonly and referenced nested values retain their checked types.
+Union sources with multiple object alternatives and a nullable arm remain
+explicitly unsupported, as do nonobject spread operands and unrestricted
+distributed union semantics.
+
+Eight positive and eight negative fixed-source cases extend the bounded
+pinned-Go cohort from 353 to 369 without replacing prior IDs or expected codes.
+C# source-backed checks and four linked ES2015 executed modules check null,
+undefined, present and optional-valued alternatives, with unsafe reads/writes
+blocked before output. TypeScript 5.8.3 strict was used only as an auxiliary
+diagnostic probe for the new 16 cases. Hosted exact-head .NET, fixed TS7 Go
+reference and security checks are NOT_RUN at source creation; they are required
+for normal merge. Original complete TS7 acceptance remains historically 0 PASS /
+15,523 SKIP_UNIMPLEMENTED with dynamic UNEXPANDED; these bounded checks claim
+zero original upstream acceptance credit. No pin or release gate changes.
+
 ## 2026-11-03 — Single-varying-member finite union object spreads (candidate; NOT_RUN)
 
 Checked object spread now joins the member types from a finite union when every
