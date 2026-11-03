@@ -357,6 +357,7 @@ internal static class TypeResolver
                 // signatures stay explicitly unsupported rather than guessed.
                 var properties=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
                 var numeric=new HashSet<string>(StringComparer.Ordinal);
+                var computedNumeric=new HashSet<string>(StringComparer.Ordinal);
                 var readonlyKeys=new HashSet<string>(StringComparer.Ordinal);
                 var optionalKeys=new HashSet<string>(StringComparer.Ordinal);
                 foreach(var part in intersection.Members)
@@ -399,11 +400,14 @@ internal static class TypeResolver
                             // otherwise readonly overlapping required member.
                             if(!isReadonly)readonlyKeys.Remove(name);
                             if(!isOptional)optionalKeys.Remove(name);
+                            if(!shape.ComputedNumericMembers.Contains(name))
+                                computedNumeric.Remove(name);
                         }
                         else
                         {
                             properties.Add(name,member.Value);
                             if(isNumeric)numeric.Add(name);
+                            if(shape.ComputedNumericMembers.Contains(name))computedNumeric.Add(name);
                             if(isReadonly)readonlyKeys.Add(name);
                             if(isOptional)optionalKeys.Add(name);
                             if(properties.Count>128)
@@ -412,7 +416,7 @@ internal static class TypeResolver
                         }
                     }
                 }
-                return new ObjectTypeSymbol(properties,readonlyKeys,numeric,optionalKeys);
+                return new ObjectTypeSymbol(properties,readonlyKeys,numeric,optionalKeys,computedNumeric);
             }
             case UnionTypeSyntax union:
                 try {return CompilerTypes.Union(union.Members.Select(member=>Resolve(member,scope,file,depth+1)));}

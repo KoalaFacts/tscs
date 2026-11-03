@@ -300,16 +300,22 @@ internal static class CompilerTypes
     }
 
     // Optional spread keys may be absent. A prior key's value and requiredness
-    // survive absence; reject ambiguous numeric/string identity for keyof.
+    // survive absence. Ordinary numeric/string source keys synthesize a string
+    // key for conditional overlap; a computed numeric [0] source retains its
+    // numeric identity, including through later object spreads.
     // Nested readonly alternatives remain distinct through union normalization.
     public static bool MergeFiniteSpreadMember(
         Dictionary<string,TypeSymbol> members,HashSet<string> numericMembers,
         HashSet<string> optionalMembers,string name,TypeSymbol incoming,
-        bool incomingNumeric,bool incomingOptional)
+        bool incomingNumeric,bool incomingOptional,
+        HashSet<string>? computedNumericMembers=null,bool incomingComputedNumeric=false)
     {
         if(incomingOptional && members.TryGetValue(name,out var previous))
         {
-            if(numericMembers.Contains(name)!=incomingNumeric)return false;
+            // Computed numeric names such as [0] stay numeric across optional
+            // overlays. Plain 0 and "0" are synthesized as quoted string names.
+            if(computedNumericMembers is null || !computedNumericMembers.Contains(name))
+                numericMembers.Remove(name);
             // A typed optional override's undefined constituent represents
             // absence for TS spread inference. The prior value still survives
             // when the override is omitted; preserve its own undefined, if any.
@@ -322,6 +328,11 @@ internal static class CompilerTypes
         members[name]=incoming;
         if(incomingNumeric)numericMembers.Add(name);
         else numericMembers.Remove(name);
+        if(computedNumericMembers!=null)
+        {
+            if(incomingComputedNumeric)computedNumericMembers.Add(name);
+            else computedNumericMembers.Remove(name);
+        }
         if(incomingOptional)optionalMembers.Add(name);
         else optionalMembers.Remove(name);
         return true;
@@ -398,6 +409,7 @@ internal static class CompilerTypes
                 var members=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
                 var numericMembers=new HashSet<string>(StringComparer.Ordinal);
                 var optionalMembers=new HashSet<string>(StringComparer.Ordinal);
+                var computedNumericMembers=new HashSet<string>(StringComparer.Ordinal);
                 var readonlyMembers=new HashSet<string>(StringComparer.Ordinal);
                 foreach(var property in literal.Properties)
                 {
@@ -421,7 +433,8 @@ internal static class CompilerTypes
                             {
                                 if(!MergeFiniteSpreadMember(members,numericMembers,optionalMembers,
                                     spreadKey,type,source.NumericMembers.Contains(spreadKey),
-                                    source.OptionalMembers.Contains(spreadKey)))return null;
+                                    source.OptionalMembers.Contains(spreadKey),
+                                    computedNumericMembers,source.ComputedNumericMembers.Contains(spreadKey)))return null;
                             }
                             catch(InvalidOperationException) {return null;}
                             if(conditional)readonlyMembers.Remove(spreadKey);
@@ -444,10 +457,12 @@ internal static class CompilerTypes
                     optionalMembers.Remove(key);
                     if(property.Name.Kind==TokenKind.Number)numericMembers.Add(key);
                     else numericMembers.Remove(key);
+                    if(property.Computed && property.Name.Kind==TokenKind.Number)computedNumericMembers.Add(key);
+                    else computedNumericMembers.Remove(key);
                 }
                 return new ObjectTypeSymbol(members,
                     readonlyMembers:readonlyMembers,numericMembers:numericMembers,
-                    optionalMembers:optionalMembers);
+                    optionalMembers:optionalMembers,computedNumericMembers:computedNumericMembers);
             }
             // Checked nested computations may keep their normal semantic type;
             // the root remains restricted to actual literal expressions.
@@ -489,6 +504,7 @@ internal static class CompilerTypes
         if(value is not ValueObject literal)return null;
         var members=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
         var numericMembers=new HashSet<string>(StringComparer.Ordinal);
+        var computedNumericMembers=new HashSet<string>(StringComparer.Ordinal);
         var optionalMembers=new HashSet<string>(StringComparer.Ordinal);
         foreach(var property in literal.Properties)
         {
@@ -502,7 +518,8 @@ internal static class CompilerTypes
                     {
                         if(!MergeFiniteSpreadMember(members,numericMembers,optionalMembers,
                             member.Key,member.Value,source.NumericMembers.Contains(member.Key),
-                            source.OptionalMembers.Contains(member.Key)))return null;
+                            source.OptionalMembers.Contains(member.Key),
+                            computedNumericMembers,source.ComputedNumericMembers.Contains(member.Key)))return null;
                     }
                     catch(InvalidOperationException) {return null;}
                 }
@@ -514,9 +531,12 @@ internal static class CompilerTypes
                 optionalMembers.Remove(name);
                 if(property.Name.Kind==TokenKind.Number)numericMembers.Add(name);
                 else numericMembers.Remove(name);
+                if(property.Computed && property.Name.Kind==TokenKind.Number)computedNumericMembers.Add(name);
+                else computedNumericMembers.Remove(name);
             }
         }
-        return new ObjectTypeSymbol(members,numericMembers:numericMembers,optionalMembers:optionalMembers);
+        return new ObjectTypeSymbol(members,numericMembers:numericMembers,
+            optionalMembers:optionalMembers,computedNumericMembers:computedNumericMembers);
     }
 
     // A successful satisfies expression preserves the source's inferred shape,
@@ -562,7 +582,8 @@ internal static class CompilerTypes
                 }
                 members.Add(new(name,selected));
             }
-            return new ObjectTypeSymbol(members,data.ReadonlyMembers,data.NumericMembers,data.OptionalMembers);
+            return new ObjectTypeSymbol(members,data.ReadonlyMembers,data.NumericMembers,
+                data.OptionalMembers,data.ComputedNumericMembers);
         }
         return actual;
     }
@@ -580,8 +601,37 @@ internal static class CompilerTypes
     // Only union normalization needs to preserve readonly identity: otherwise
     // a possibly readonly nested branch disappears before write checking.
     private static bool IsUnionEquivalent(TypeSymbol a,TypeSymbol b)=>
-        PreservesNumericKeyIdentity(a,b,includeReadonly:true) &&
+        PreservesNumericKeyIdentity(a,b,includeReadonly:true,includeComputed:true) &&
         IsAssignable(a,b) && IsAssignable(b,a);
+
+    // A conditional expression may preserve two otherwise identical object
+    // types only because one numeric key came from a computed [0] source.
+    // A finite spread may consume that union: intersect provenance so an
+    // uncertain origin is never incorrectly advertised as definitely computed.
+    // Other unions (different values, readonly rules or nested metadata) are
+    // deliberately left for a future distributed spread implementation.
+    public static ObjectTypeSymbol? TryFiniteObjectSpreadSource(TypeSymbol? value)
+    {
+        if(value is ObjectTypeSymbol shape)return shape;
+        if(value is not UnionTypeSymbol union || union.Alternatives.Count>64 ||
+           union.Alternatives[0] is not ObjectTypeSymbol first)return null;
+        var computed=new HashSet<string>(first.ComputedNumericMembers,StringComparer.Ordinal);
+        foreach(var alternative in union.Alternatives.Skip(1))
+        {
+            if(alternative is not ObjectTypeSymbol other ||
+               first.Members.Count!=other.Members.Count ||
+               !first.ReadonlyMembers.SetEquals(other.ReadonlyMembers) ||
+               !first.NumericMembers.SetEquals(other.NumericMembers) ||
+               !first.OptionalMembers.SetEquals(other.OptionalMembers) ||
+               first.Members.Any(member=>
+                   !other.Members.TryGetValue(member.Key,out var type) ||
+                   !IsUnionEquivalent(member.Value,type)))
+                return null;
+            computed.IntersectWith(other.ComputedNumericMembers);
+        }
+        return new ObjectTypeSymbol(first.Members,first.ReadonlyMembers,
+            first.NumericMembers,first.OptionalMembers,computed);
+    }
 
     public static bool IsEquivalent(TypeSymbol a,TypeSymbol b)=>
         // Assignment may treat runtime property 0 and "0" alike, whereas
@@ -589,7 +639,7 @@ internal static class CompilerTypes
         PreservesNumericKeyIdentity(a,b) && IsAssignable(a,b) && IsAssignable(b,a);
 
     private static bool PreservesNumericKeyIdentity(TypeSymbol left,TypeSymbol right,
-        bool includeReadonly=false)
+        bool includeReadonly=false,bool includeComputed=false)
     {
         var pending=new Stack<(TypeSymbol Left,TypeSymbol Right)>();
         var visited=new HashSet<(TypeSymbol Source,TypeSymbol Target)>(TypePairComparer.Instance);
@@ -605,7 +655,8 @@ internal static class CompilerTypes
                 case (ObjectTypeSymbol a,ObjectTypeSymbol b):
                     if(!a.NumericMembers.SetEquals(b.NumericMembers) ||
                        !a.OptionalMembers.SetEquals(b.OptionalMembers) ||
-                       (includeReadonly && !a.ReadonlyMembers.SetEquals(b.ReadonlyMembers)))return false;
+                       (includeReadonly && !a.ReadonlyMembers.SetEquals(b.ReadonlyMembers)) ||
+                       (includeComputed && !a.ComputedNumericMembers.SetEquals(b.ComputedNumericMembers)))return false;
                     foreach(var (name,member) in a.Members)
                         if(b.Members.TryGetValue(name,out var other))
                             pending.Push((member,other));

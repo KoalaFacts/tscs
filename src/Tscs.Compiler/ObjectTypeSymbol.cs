@@ -10,21 +10,28 @@ internal sealed record ObjectTypeSymbol : TypeSymbol
     public IReadOnlyDictionary<string,TypeSymbol> Members { get; }
     public IReadOnlySet<string> ReadonlyMembers { get; }
     public IReadOnlySet<string> NumericMembers { get; }
+    // A literal computed [0] retains numeric keyof identity through optional
+    // spread overlaps, unlike ordinary 0 or "0" declarations.
+    public IReadOnlySet<string> ComputedNumericMembers { get; }
     public IReadOnlySet<string> OptionalMembers { get; }
 
     public ObjectTypeSymbol(IEnumerable<KeyValuePair<string,TypeSymbol>> members,
         IEnumerable<string>? readonlyMembers=null,IEnumerable<string>? numericMembers=null,
-        IEnumerable<string>? optionalMembers=null)
+        IEnumerable<string>? optionalMembers=null,
+        IEnumerable<string>? computedNumericMembers=null)
     {
         Members=new ReadOnlyDictionary<string,TypeSymbol>(
             new Dictionary<string,TypeSymbol>(members,StringComparer.Ordinal));
         ReadonlyMembers=new HashSet<string>(readonlyMembers??Array.Empty<string>(),StringComparer.Ordinal);
         NumericMembers=new HashSet<string>(numericMembers??Array.Empty<string>(),StringComparer.Ordinal);
+        ComputedNumericMembers=new HashSet<string>(computedNumericMembers??Array.Empty<string>(),StringComparer.Ordinal);
         OptionalMembers=new HashSet<string>(optionalMembers??Array.Empty<string>(),StringComparer.Ordinal);
         if(OptionalMembers.Any(name=>!Members.ContainsKey(name)))
             throw new ArgumentException("Optional member identities must belong to the object.",nameof(optionalMembers));
         if(NumericMembers.Any(name=>!Members.ContainsKey(name)))
             throw new ArgumentException("Numeric member identities must belong to the object.",nameof(numericMembers));
+        if(ComputedNumericMembers.Any(name=>!NumericMembers.Contains(name)))
+            throw new ArgumentException("Computed numeric members must have numeric key identity.",nameof(computedNumericMembers));
     }
 
     public override string DisplayName=>TypeDisplay.Format(this);
