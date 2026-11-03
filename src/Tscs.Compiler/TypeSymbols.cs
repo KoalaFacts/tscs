@@ -605,8 +605,9 @@ internal static class CompilerTypes
         IsAssignable(a,b) && IsAssignable(b,a);
 
     // Union object spreads may safely join a single varying member when all
-    // alternatives have the same finite keys, optional/readonly and numeric
-    // identities. One varying member cannot encode cross-property correlation;
+    // alternatives share finite keys, readonly and numeric identities.
+    // One varying member can differ in type or optionality; independent
+    // differing members still lose correlation and remain unsupported.
     // two or more varying members still fail closed rather than manufacturing
     // independent unions that would accept impossible value combinations.
     // Computed numeric provenance remains true only when every arm has it.
@@ -632,6 +633,7 @@ internal static class CompilerTypes
         }
         if(union.Alternatives[0] is not ObjectTypeSymbol first)return null;
         var merged=new Dictionary<string,TypeSymbol>(first.Members,StringComparer.Ordinal);
+        var mergedOptional=new HashSet<string>(first.OptionalMembers,StringComparer.Ordinal);
         var computed=new HashSet<string>(first.ComputedNumericMembers,StringComparer.Ordinal);
         string? varyingMember=null;
         foreach(var alternative in union.Alternatives.Skip(1))
@@ -639,22 +641,24 @@ internal static class CompilerTypes
             if(alternative is not ObjectTypeSymbol other ||
                first.Members.Count!=other.Members.Count ||
                !first.ReadonlyMembers.SetEquals(other.ReadonlyMembers) ||
-               !first.NumericMembers.SetEquals(other.NumericMembers) ||
-               !first.OptionalMembers.SetEquals(other.OptionalMembers))
+               !first.NumericMembers.SetEquals(other.NumericMembers))
                 return null;
             foreach(var member in first.Members)
             {
                 if(!other.Members.TryGetValue(member.Key,out var type))return null;
-                if(IsUnionEquivalent(member.Value,type))continue;
+                bool differentOptionality=first.OptionalMembers.Contains(member.Key)!=
+                    other.OptionalMembers.Contains(member.Key);
+                if(!differentOptionality && IsUnionEquivalent(member.Value,type))continue;
                 if(varyingMember is not null && varyingMember!=member.Key)return null;
                 varyingMember=member.Key;
+                if(differentOptionality)mergedOptional.Add(member.Key);
                 try {merged[member.Key]=Union([merged[member.Key],type]);}
                 catch(InvalidOperationException) {return null;}
             }
             computed.IntersectWith(other.ComputedNumericMembers);
         }
         return new ObjectTypeSymbol(merged,first.ReadonlyMembers,
-            first.NumericMembers,first.OptionalMembers,computed);
+            first.NumericMembers,mergedOptional,computed);
     }
 
     public static bool IsEquivalent(TypeSymbol a,TypeSymbol b)=>

@@ -251,4 +251,37 @@ public sealed class ObjectSpreadsTests
             d=>d.Code=="TSCS1001" && d.Message.Contains("Object spread requires"));
 
 
+    // One member can vary in both type and optionality; all other keys
+    // retain their requiredness. Correlated changes still reject.
+    [Theory]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:number;tag:boolean}):void{let y={...x};let n:number|undefined=y.value;let b:boolean=y.tag;}")]
+    [InlineData("function f(x:{value?:number;tag:boolean}|{value:number;tag:boolean}):void{let y={...x};let n:number|undefined=y.value;}")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:string;tag:boolean}):void{let y={...x};let n:number|string|undefined=y.value;}")]
+    [InlineData("function f(x:{value?:number;tag:boolean}|{value:string;tag:boolean}):void{let y={...x};let n:number|string|undefined=y.value;}")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:number;tag:boolean}):void{let y={...x,value:42};let n:number=y.value;}")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:string;tag:boolean}):void{let y={value:21,...x};let n:number|string=y.value;}")]
+    [InlineData("function f(x:{0:number;tag:boolean}|{0?:string;tag:boolean}):void{let y={...x};let n:number|string|undefined=y[0];}")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:number;tag:boolean}):void{const y={...x} as const;let n:number|undefined=y.value;}")]
+    public void FiniteUnionSpreadJoinsOneOptionalMember(string source) =>
+        Assert.Empty(Compilation.Check("optional-member-union-spread.ts",source));
+
+    [Theory]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:number;tag:boolean}):void{let y={...x};let bad:number=y.value;}", "TS2322")]
+    [InlineData("function f(x:{value?:number;tag:boolean}|{value:number;tag:boolean}):void{let y={...x};let bad:boolean=y.value;}", "TS2322")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:string;tag:boolean}):void{let y={...x};let bad:number=y.value;}", "TS2322")]
+    [InlineData("function f(x:{value?:number;tag:boolean}|{value:string;tag:boolean}):void{let y={...x};let bad:string=y.value;}", "TS2322")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:number;tag:boolean}):void{let y={...x};y.value=true;}", "TS2322")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:number;tag:boolean}):void{const y={...x} as const;y.value=42;}", "TS2540")]
+    [InlineData("function f(x:{0:number;tag:boolean}|{0?:string;tag:boolean}):void{let y={...x};let bad:boolean=y[0];}", "TS2322")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:number;tag:boolean}):void{let y={...x};let bad:string=y.tag;}", "TS2322")]
+    public void FiniteUnionSpreadOptionalMemberRejectsUnsafeUse(string source,string code) =>
+        Assert.Equal(new[] {code},Compilation.Check("optional-member-union-spread-invalid.ts",source)
+            .Select(d=>d.Code).ToArray());
+
+    [Fact]
+    public void FiniteUnionSpreadDoesNotEraseTwoIndependentOptionalDifferences() =>
+        Assert.Contains(Compilation.Check("correlated-optional-union.ts",
+            "function f(x:{value:number;tag?:string}|{value?:number;tag:string}):void{let y={...x};}"),
+            d=>d.Code=="TSCS1001" && d.Message.Contains("Object spread requires"));
+
 }

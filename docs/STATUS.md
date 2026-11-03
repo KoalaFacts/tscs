@@ -1,3 +1,24 @@
+## 2026-11-03 — Finite union spreads with one optional member (candidate; NOT_RUN)
+
+C# object spread normalization joins a single shared member whose required or
+optional status varies across finite checked union arms, including different
+member value types. The result remains optional if any source can omit the
+member; unrelated required keys stay required, earlier required values survive
+optional absence, and subsequent explicit values override. It preserves numeric
+key identity and nested readonly alternatives through existing type relations,
+Binder, TypeChecker, module linking and ES2015 output. Multiple independently
+varying members or different key sets still fail closed.
+
+Eight genuine positive and eight negative source-backed diagnostic cases extend
+all 369 unchanged pinned TS7 Go bounded IDs to 385. xUnit and four-module
+actual JS execution/invalid no-output checks accompany the product change.
+Auxiliary TypeScript 5.8.3 --strict matched all new expected diagnostics, but
+this is not the frozen Go oracle. Exact-head .NET, Go and security CI remain
+NOT_RUN at candidate creation. Original complete TS7 acceptance remains
+historically 0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED; no
+original upstream PASS credit. No pin, test floor, release gate, protection,
+license or deployment changes.
+
 ## 2026-11-03 — Bounded nullable finite object spreads (candidate; NOT_RUN)
 
 An object-or-null/undefined union now contributes optional members when spread
