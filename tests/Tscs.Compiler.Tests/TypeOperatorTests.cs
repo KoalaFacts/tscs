@@ -264,5 +264,36 @@ public sealed class TypeOperatorTests
         const string source="let tail:number[]=[21,42];const snapshot=[true,...tail] as const;";
         Assert.Contains(Compilation.Check("const-tuple-unbounded.ts",source),d=>d.Code=="TSCS1001");
     }
-}
+    // A trailing optional spread gives finite readonly slot and length types.
+    [Theory]
+    [InlineData("let tail:[number,string?]=[21];const x=[true,...tail] as const;let a:true=x[0];let b:number=x[1];let v:string|undefined=x[2];let n:2|3=x.length;")]
+    [InlineData("let tail:[number,string?]=[21,\"go\"];const x=[\"start\",...tail] as const;let a:\"start\"=x[0];let b:number=x[1];let c:string|undefined=x[2];")]
+    [InlineData("let tail:[string?]=[];const x=[21,...tail] as const;let n:1|2=x.length;")]
+    [InlineData("let tail:readonly [string,boolean?]=[\"go\"];const x=[0,...tail] as const;let b:boolean|undefined=x[2];")]
+    [InlineData("type Tail=[string?,boolean?];let tail:Tail=[];const x=[21,...tail] as const;let n:1|2|3=x.length;")]
+    [InlineData("let tail:[string?]=[\"go\"];const x=[...tail] as const;let n:0|1=x.length;")]
+    [InlineData("let fixed:[number]=[21];let tail:[string?]=[];const x=[...fixed,...tail] as const;let n:1|2=x.length;")]
+    [InlineData("function f(t:[string?]):readonly [number,string?]{return [21,...t] as const;}let x=f([\"go\"]);let n:1|2=x.length;")]
+    public void TrailingOptionalConstTupleSpreadsRetainPositions(string source) =>
+        Assert.Empty(Compilation.Check("const-optional-spreads.ts",source));
 
+    [Theory]
+    [InlineData("let tail:[string?]=[];const x=[21,...tail] as const;let bad:number=x[1];", "TS2322")]
+    [InlineData("let tail:[string?]=[];const x=[21,...tail] as const;x[1]=\"no\";", "TS2540")]
+    [InlineData("let tail:[string?]=[];const x=[21,...tail] as const;let bad=x[2];", "TS2493")]
+    [InlineData("let tail:[string,boolean?]=[\"go\"];const x=[0,...tail] as const;let bad:number=x[1];", "TS2322")]
+    [InlineData("let tail:[string?]=[];const x=[21,...tail] as const;let bad:readonly [number,string]=x;", "TS2322")]
+    [InlineData("let tail:[string?]=[];const x=[21,...tail] as const;let bad:[number,string?]=x;", "TS4104")]
+    [InlineData("let tail:[string?]=[];const x=[21,...tail] as const;let bad:0=x.length;", "TS2322")]
+    [InlineData("let tail:[string?,boolean?]=[];const x=[21,...tail] as const;let bad:readonly [21,boolean?,boolean?]=x;", "TS2322")]
+    public void OptionalConstTupleSpreadsRejectInvalidPrograms(string source,string code) =>
+        Assert.Contains(Compilation.Check("const-optional-spreads-invalid.ts",source),d=>d.Code==code);
+
+    [Fact]
+    public void NonterminalOptionalConstTupleSpreadsFailClosed()
+    {
+        const string source="let t:[string?]=[];const x=[...t,true] as const;";
+        Assert.Contains(Compilation.Check("const-optional-spread-nonterminal.ts",source),
+            d=>d.Code=="TSCS1001");
+    }
+}
