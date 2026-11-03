@@ -102,7 +102,7 @@ internal static class CompilerTypes
             {
                 if(type.Equals(Any))return Any;
                 if(type.Equals(Never))continue;
-                if(options.All(existing=>!IsEquivalent(existing,type)))options.Add(type);
+                if(options.All(existing=>!IsUnionEquivalent(existing,type)))options.Add(type);
                 if(options.Count>64)throw new InvalidOperationException("Too many union variants for the bounded compiler.");
             }
         }
@@ -576,13 +576,20 @@ internal static class CompilerTypes
         _ => null
     };
 
+    // Intersections use the existing mutually-assignable member relation.
+    // Only union normalization needs to preserve readonly identity: otherwise
+    // a possibly readonly nested branch disappears before write checking.
+    private static bool IsUnionEquivalent(TypeSymbol a,TypeSymbol b)=>
+        PreservesNumericKeyIdentity(a,b,includeReadonly:true) &&
+        IsAssignable(a,b) && IsAssignable(b,a);
+
     public static bool IsEquivalent(TypeSymbol a,TypeSymbol b)=>
         // Assignment may treat runtime property 0 and "0" alike, whereas
         // keyof distinguishes their *source* identity at every nested level.
-        // Never collapse union alternatives with different nested key types.
         PreservesNumericKeyIdentity(a,b) && IsAssignable(a,b) && IsAssignable(b,a);
 
-    private static bool PreservesNumericKeyIdentity(TypeSymbol left,TypeSymbol right)
+    private static bool PreservesNumericKeyIdentity(TypeSymbol left,TypeSymbol right,
+        bool includeReadonly=false)
     {
         var pending=new Stack<(TypeSymbol Left,TypeSymbol Right)>();
         var visited=new HashSet<(TypeSymbol Source,TypeSymbol Target)>(TypePairComparer.Instance);
@@ -598,7 +605,7 @@ internal static class CompilerTypes
                 case (ObjectTypeSymbol a,ObjectTypeSymbol b):
                     if(!a.NumericMembers.SetEquals(b.NumericMembers) ||
                        !a.OptionalMembers.SetEquals(b.OptionalMembers) ||
-                       !a.ReadonlyMembers.SetEquals(b.ReadonlyMembers))return false;
+                       (includeReadonly && !a.ReadonlyMembers.SetEquals(b.ReadonlyMembers)))return false;
                     foreach(var (name,member) in a.Members)
                         if(b.Members.TryGetValue(name,out var other))
                             pending.Push((member,other));
@@ -630,6 +637,15 @@ internal static class CompilerTypes
                     // when different ordering prevents a simple safe pairing.
                     for(int i=0;i<a.Alternatives.Count;i++)
                         pending.Push((a.Alternatives[i],b.Alternatives[i]));
+                    break;
+                // A nested union and a single structural member can still be
+                // mutually assignable. Every alternative must have compatible
+                // readonly identity before union normalization may coalesce.
+                case (UnionTypeSymbol a, _) when includeReadonly:
+                    foreach(var option in a.Alternatives)pending.Push((option,required));
+                    break;
+                case (_,UnionTypeSymbol b) when includeReadonly:
+                    foreach(var option in b.Alternatives)pending.Push((actual,option));
                     break;
             }
         }
