@@ -1,3 +1,17 @@
+## 2026-11-03 — Conditional optional spread in finite const object literals (candidate; NOT_RUN)
+
+A final optional spread overlapping a prior finite const property now preserves
+its exact literal value alongside any present override and models the conditional
+writable member. A later property or spread restores readonly to surviving
+members, as observed in TypeScript 5.8.3 auxiliary diagnostics. Nested readonly
+alternatives and ambiguous numeric/string keys still explicitly fail closed.
+Nine positive and nine negative source-backed pinned-Go cases extend the frozen
+281-case bounded cohort to 299 without changing existing IDs, sources or
+expected codes. xUnit, four-module native ES2015 execution and negative
+no-emission checks are included. Exact-head hosted gates are NOT_RUN at creation.
+Original full TS7 acceptance remains historically 0 PASS / 15,523
+SKIP_UNIMPLEMENTED, dynamic UNEXPANDED; no pin or release gate changes.
+
 ## 2026-11-03 — Conditional optional object-spread overlap (candidate; NOT_RUN)
 
 The C# object-spread checker now joins earlier member types with later optional overrides

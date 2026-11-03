@@ -25,12 +25,14 @@ try {
     'export function read(data:Data):number{return data.value;}',
     'export function mergeOptional(patch:Patch):{value:number|string}{return {value:21,...patch};}',
     'export function preferRequired(patch:Patch):number{return {...patch,value:42}.value;}',
-    'export function readOptional(patch:Patch):number|string{return mergeOptional(patch).value;}'
+    'export function readOptional(patch:Patch):number|string{return mergeOptional(patch).value;}',
+    'export function mergeConst(patch:Patch):{value:21|string}{const v={value:21,...patch} as const;return v;}',
+    'export function writeConst(patch:Patch):{value:21|string}{const v={value:21,...patch} as const;v.value="updated";return v;}'
   ].join('\n'));
-  writeFileSync(join(folder,'bridge.ts'),'export {build,read,mergeOptional,preferRequired,readOptional} from "./logic.js";\n');
+  writeFileSync(join(folder,'bridge.ts'),'export {build,read,mergeOptional,preferRequired,readOptional,mergeConst,writeConst} from "./logic.js";\n');
   writeFileSync(join(folder,'entry.ts'),[
     'import {source,other,empty,omitted,present} from "./model.js";',
-    'import {build,read,preferRequired,readOptional} from "./bridge.js";',
+    'import {build,read,preferRequired,readOptional,mergeConst,writeConst} from "./bridge.js";',
     'export const result:number=read(build(source));',
     'export const overridden:number=({...source,value:42}).value;',
     'export const ordered:number=({...source,...other,value:42}).value;',
@@ -39,7 +41,10 @@ try {
     'export const unchanged:number=source.value;',
     'export const absent:number|string=readOptional(omitted);',
     'export const overlaid:number|string=readOptional(present);',
-    'export const required:number=preferRequired(present);'
+    'export const required:number=preferRequired(present);',
+    'export const constAbsent:21|string=mergeConst(omitted).value;',
+    'export const constPresent:21|string=mergeConst(present).value;',
+    'export const constUpdated:21|string=writeConst(present).value;'
   ].join('\n'));
   function compile(source:string){
     const r=spawnSync(process.env.DOTNET??'dotnet',
@@ -58,8 +63,8 @@ try {
     assert.ok(!readFileSync(emitted,'utf8').includes('...'),'ES2018 spread leaked into emitted ES2015');
   }
   const runtime=spawnSync(process.execPath,['--input-type=module','--eval',[
-    'import {result,overridden,ordered,nested,copied,unchanged,absent,overlaid,required} from "./entry.js";',
-    'if(result!==42||overridden!==42||ordered!==42||nested!==42||copied!==42||unchanged!==20||absent!==21||overlaid!=="overlay"||required!==42)',
+    'import {result,overridden,ordered,nested,copied,unchanged,absent,overlaid,required,constAbsent,constPresent,constUpdated} from "./entry.js";',
+    'if(result!==42||overridden!==42||ordered!==42||nested!==42||copied!==42||unchanged!==20||absent!==21||overlaid!=="overlay"||required!==42||constAbsent!==21||constPresent!=="overlay"||constUpdated!=="updated")',
     '  throw Error("object spread runtime mismatch");'
   ].join('\n')],{cwd:folder,encoding:'utf8',timeout:15000});
   assert.equal(runtime.error,undefined,String(runtime.error));
@@ -75,7 +80,8 @@ try {
     ['extra-explicit','let x:{value:number}={...{value:21},extra:true};','TS2353'],
     ['optional-bad-number','let p:{value?:string}={};let x={value:21,...p};let n:number=x.value;','TS2322'],
     ['optional-bad-boolean','let p:{value?:string}={};let x={value:21,...p};x.value=true;','TS2322'],
-    ['optional-const-unsupported','let p:{value?:string}={};let x={value:21,...p} as const;','TSCS1001']
+    ['optional-const-bad-write','let p:{value?:string}={};const x={value:21,...p} as const;x.value=22;','TS2322'],
+    ['optional-const-late-readonly','let p:{value?:string}={};const x={value:21,...p,tag:true} as const;x.value=21;','TS2540']
   ] as const;
   for(const [name,source,code] of invalid){
     writeFileSync(join(folder,name+'.ts'),source);
@@ -84,5 +90,5 @@ try {
     assert.match(checked.stdout+checked.stderr,new RegExp(code));
     assert.equal(existsSync(join(folder,name+'.js')),false,'invalid spread emitted');
   }
-  console.log('Object spreads: four-module runtime, optional override present/absent, and eleven invalid no-emit programs.');
+  console.log('Object spreads: four-module runtime, conditional const override values/writes, and twelve invalid no-emit programs.');
 } finally {rmSync(folder,{recursive:true,force:true});}
