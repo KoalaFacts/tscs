@@ -1666,6 +1666,18 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "type-operators:positive-145",
+      "source": "let patch:{n?:string|undefined}={};let v={n:21,...patch};let x:number|string=v.n;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-138",
+      "source": "let patch:{n?:string}={n:\"bad\"};let v:{n:21}={n:21,...patch};",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }

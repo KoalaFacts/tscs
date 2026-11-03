@@ -40,6 +40,7 @@ public sealed class ObjectSpreadsTests
     [InlineData("let patch:{n?:string}={};let v={inner:{n:21,...patch}};let x:number|string=v.inner.n;")]
     [InlineData("let a:{n?:number}={};let b:{n?:number}={};let v={n:21,...a,...b};let x:number=v.n;")]
     [InlineData("type Item={score:number};let patch:{item?:Item}={};let v={item:{score:21},...patch};let x:number=v.item.score;")]
+    [InlineData("let patch:{n?:string|undefined}={};let v={n:21,...patch};let x:number|string=v.n;")]
     public void OptionalObjectSpreadOverlapPreservesPreviousValues(string source) =>
         Assert.Empty(Compilation.Check("optional-spread-overlap.ts",source));
 
@@ -52,6 +53,7 @@ public sealed class ObjectSpreadsTests
     [InlineData("let patch:{n?:string}={};let v={...patch,n:21};let bad:string=v.n;", "TS2322")]
     [InlineData("let patch:{n?:string}={};let v={outer:{n:21,...patch}};let bad:number=v.outer.n;", "TS2322")]
     [InlineData("let a:{n?:number}={};let b:{n?:string}={};let v={...a,...b};let bad:{n?:boolean}=v;", "TS2322")]
+    [InlineData("let patch:{n?:string}={n:\"bad\"};let v:{n:21}={n:21,...patch};", "TS2322")]
     public void OptionalObjectSpreadOverlapRejectsIncompatibleTypes(string source,string expected) =>
         Assert.Equal(new[] { expected },Compilation.Check("optional-spread-overlap-invalid.ts",source)
             .Select(d=>d.Code).ToArray());
@@ -60,6 +62,7 @@ public sealed class ObjectSpreadsTests
     [Theory]
     [InlineData("let patch:{n?:string}={};let v={n:21,...patch} as const;")]
     [InlineData("let patch:{0?:string}={};let v={\"0\":21,...patch};")]
+    [InlineData("let patch:{a?:{readonly n:number}}={};let v={a:{n:1},...patch};v.a.n=2;")]
     public void UnmodeledOptionalSpreadIdentitiesFailClosed(string source) =>
         Assert.Contains(Compilation.Check("optional-spread-unmodeled.ts",source),
             d=>d.Code=="TSCS1001");

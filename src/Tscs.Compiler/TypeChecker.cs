@@ -2948,6 +2948,21 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         return CompilerTypes.FromInitializer(array.Elements[index]);
     }
 
+    // An earlier explicit property cannot contextually narrow a final merged
+    // member after a later spread may overwrite it at runtime.
+    private bool LaterSpreadOverridesProperty(ValueObject literal,ObjectProperty property,string name)
+    {
+        bool after=false;
+        foreach(var entry in literal.Properties)
+        {
+            if(ReferenceEquals(entry,property)){after=true;continue;}
+            if(after && entry.Spread &&
+               checkedObjectSpreadOperands.TryGetValue(entry,out var source) &&
+               source.Members.ContainsKey(name))return true;
+        }
+        return false;
+    }
+
     private bool IsAssignableContextually(ValueNode expression,TypeSymbol actual,TypeSymbol expected,int depth=0)
     {
         if(depth>64)return false;
@@ -2995,6 +3010,12 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 var property=fresh.Properties.LastOrDefault(p=>!p.Spread && Parser.PropertyName(p.Name)==name);
                 if(property is null)
                 {
+                    if(!CompilerTypes.IsAssignable(member,requiredValue))return false;
+                }
+                else if(LaterSpreadOverridesProperty(fresh,property,name))
+                {
+                    // Use the final joined type, not the earlier literal's
+                    // exact value: an optional override could be present.
                     if(!CompilerTypes.IsAssignable(member,requiredValue))return false;
                 }
                 else if(!IsAssignableContextually(property.Value,member,requiredValue,depth+1))
@@ -3189,6 +3210,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             }
             else if(data.Members.TryGetValue(name,out var member))
             {
+                // This earlier value may be overwritten. Final assignability
+                // is checked using the merged type by IsAssignableContextually.
+                if(LaterSpreadOverridesProperty(literal,property,name))continue;
                 if(shape.OptionalMembers.Contains(name))
                     required=CompilerTypes.Union([required,CompilerTypes.Undefined]);
                 // Contextual checking diagnoses a fresh literal's property,
