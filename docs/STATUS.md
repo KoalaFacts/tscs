@@ -1,3 +1,25 @@
+## 2026-11-03 — Single-varying-member finite union object spreads (candidate; NOT_RUN)
+
+Checked object spread now joins the member types from a finite union when every
+object alternative shares the same keys, numeric-key identity, optionality and
+readonly metadata, and **only one member varies**. This preserves reads, type
+rejection, an enclosing `as const` shell, later required overrides and actual
+ES2015 spread execution across four linked modules. A nested readonly
+alternative is retained for unsafe-write rejection. Two independently varying
+members (correlated shapes), distinct key sets, nullable arms and unrestricted
+distributed union spreading still reject as TSCS1001 rather than lose
+correlations or claim TypeScript's full union-spread semantics.
+
+Eight positive and eight negative source-backed cases append to the unchanged
+337-case bounded pinned-Go cohort (353 total); TypeScript 5.8.3 strict
+diagnostics have been probed for the added cases as an auxiliary oracle only.
+C# xUnit and executable four-module positive and negative/no-output checks
+are included. Exact-head hosted C# verification, frozen TS7-Go and security
+checks remain NOT_RUN at initial commit. Full original TS7 acceptance remains
+historically 0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED; these
+bounded cases earn zero original acceptance credit. No frozen pin, global test
+floor, release gate, license, or protection changes.
+
 ## 2026-11-03 — Numeric/string key identity after optional object spread overlap (candidate; NOT_RUN at creation)
 
 Checked C# finite object spreads now reproduce the pinned TypeScript key identity

@@ -2014,6 +2014,102 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "type-operators:positive-174",
+      "source": "type V={value:number;tag:boolean}|{value:string;tag:boolean};function f(x:V):void{let y={...x};let n:number|string=y.value;let b:boolean=y.tag;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-175",
+      "source": "function f(x:{value:number;tag:string}|{value:string;tag:string}):{value:number|string;tag:string}{return {...x};}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-176",
+      "source": "type V={inner:{readonly n:number};tag:boolean}|{inner:{n:number};tag:boolean};function f(x:V):void{let y={...x};let n:number=y.inner.n;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-177",
+      "source": "function f(x:{value:number;tag:boolean}|{value:string;tag:boolean}):void{const y={...x} as const;let v:number|string=y.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-178",
+      "source": "function f(x:{value:number;tag:boolean}|{value:string;tag:boolean}):void{const y={...x,value:42};let v:number=y.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-179",
+      "source": "function f(x:{value:number;tag:boolean}|{value:string;tag:boolean}):void{const y={...x,tail:true};let v:number|string=y.value;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-180",
+      "source": "function f(x:{0:number;tag:boolean}|{0:string;tag:boolean}):void{let y={...x};let v:number|string=y[0];let k:keyof typeof y=0;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-181",
+      "source": "function f(x:{value:number;optional?:string}|{value:string;optional?:string}):void{let y={...x};let v:number|string=y.value;let opt:string|undefined=y.optional;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-167",
+      "source": "function f(x:{value:number;tag:boolean}|{value:string;tag:boolean}):void{let y={...x};let bad:boolean=y.value;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-168",
+      "source": "function f(x:{value:number;tag:boolean}|{value:string;tag:boolean}):void{let y={...x};let bad:number=y.value;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-169",
+      "source": "function f(x:{value:number;tag:boolean}|{value:string;tag:boolean}):void{let y={...x};let bad:string=y.value;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-170",
+      "source": "function f(x:{value:number;tag:boolean}|{value:string;tag:boolean}):void{let y={...x};y.value=true;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-171",
+      "source": "function f(x:{value:number;tag:boolean}|{value:string;tag:boolean}):void{let y={...x} as const;y.value=42;}",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-172",
+      "source": "function f(x:{inner:{readonly n:number};tag:boolean}|{inner:{n:number};tag:boolean}):void{let y={...x};y.inner.n=42;}",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-173",
+      "source": "function f(x:{0:number;tag:boolean}|{0:string;tag:boolean}):void{let y={...x};let bad:boolean=y[0];}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-174",
+      "source": "function f(x:{value:number;optional?:string}|{value:string;optional?:string}):void{let y={...x};let bad:string=y.optional;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }
