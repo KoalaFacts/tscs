@@ -1,3 +1,23 @@
+## 2026-11-03 — Nested readonly alternatives in optional object spreads (candidate; NOT_RUN)
+
+The C# semantic union now keeps object readonly-member identity at every nested
+level when coalescing structural alternatives. A finite optional spread can
+therefore join prior mutable data with an overlapping nested readonly shape,
+without losing either alternative or silently allowing a write to a possibly
+readonly property. The existing union-write checker rejects unsafe writes;
+required source members still override. Mixed numeric/string optional-key
+identity remains unsupported and fails closed.
+
+Nine positive and nine negative source-backed cases extend the unchanged
+299-case bounded pinned-Go cohort to 317, with xUnit diagnostics, four-module
+native ES2015 execution (optional override present/absent) and rejected
+invalid/no-output coverage. Auxiliary TypeScript 5.8.3 --strict diagnostics
+matched all 18 new cases; exact-head C# and pinned TS7 Go checks remain NOT_RUN
+at source creation. No prior source ID, expected code, upstream pin, release
+gate or test floor changed. Complete original TS7 acceptance remains historically
+0 PASS / 15,523 SKIP_UNIMPLEMENTED; dynamic scope UNEXPANDED. This bounded
+cohort does not earn original upstream acceptance credit.
+
 ## 2026-11-03 — Conditional optional spread in finite const object literals (candidate; NOT_RUN)
 
 A final optional spread overlapping a prior finite const property now preserves

@@ -85,11 +85,56 @@ public sealed class ObjectSpreadsTests
         Assert.Equal(new[] { expected },Compilation.Check("const-optional-invalid.ts",source)
             .Select(d=>d.Code).ToArray());
 
-    // Numeric/string identity and nested readonly alternatives still fail closed.
+    // Optional spreads may join nested mutable and readonly shapes.
+    // Reads retain all alternatives; writes must respect any readonly branch.
     [Theory]
-    [InlineData("let patch:{0?:string}={};let v={\"0\":21,...patch};")]
-    [InlineData("let patch:{a?:{readonly n:number}}={};let v={a:{n:1},...patch};v.a.n=2;")]
-    public void UnmodeledOptionalSpreadIdentitiesFailClosed(string source) =>
-        Assert.Contains(Compilation.Check("optional-spread-unmodeled.ts",source),
+    [InlineData("let patch:{item?:{readonly n:number}}={};let v={item:{n:21},...patch};let n:number=v.item.n;")]
+    [InlineData("let patch:{item?:{readonly n:string}}={};let v={item:{n:\"ok\"},...patch};let s:string=v.item.n;")]
+    [InlineData("type Item={readonly n:number};let patch:{item?:Item}={};let v={item:{n:21},...patch};let n:number=v.item.n;")]
+    [InlineData("function build(p:{item?:{readonly n:number}}):{item:{readonly n:number}}{return {item:{n:21},...p};}let n:number=build({}).item.n;")]
+    [InlineData("let patch:{item?:{readonly n:number}}={};let v={item:{n:21},...patch};let copy:{item:{readonly n:number}}=v;")]
+    [InlineData("let patch:{item?:{readonly n:number}}={};let v={item:{n:21},...patch} as const;let n:number=v.item.n;")]
+    [InlineData("let patch:{item?:{readonly n:number}}={};let v={item:{n:21},...patch,tag:true};let n:number=v.item.n;")]
+    [InlineData("let a:{item?:{readonly n:number}}={};let b:{item?:{n:number}}={};let v={item:{n:21},...a,...b};let n:number=v.item.n;")]
+    [InlineData("let patch:{item?:{readonly n:number}}={};let v={item:{n:21},...patch};let x={...v};let n:number=x.item.n;")]
+    public void OptionalObjectSpreadsRetainNestedReadonlyTypes(string source) =>
+        Assert.Empty(Compilation.Check("optional-nested-readonly.ts",source));
+
+    [Theory]
+    [InlineData("let patch:{item?:{readonly n:number}}={};let v={item:{n:21},...patch};v.item.n=22;", "TS2540")]
+    [InlineData("let patch:{item?:{readonly n:string}}={};let v={item:{n:21},...patch};let x:number=v.item.n;", "TS2322")]
+    [InlineData("let patch:{item?:{readonly n:number}}={};let v={item:{n:21},...patch};let x:string=v.item.n;", "TS2322")]
+    [InlineData("let a:{item?:{readonly n:number}}={};let b:{item?:{n:number}}={};let v={item:{n:21},...a,...b};v.item.n=2;", "TS2540")]
+    [InlineData("let patch:{item?:{readonly n:number;m:string}}={};let v={item:{n:21,m:\"ok\"},...patch};v.item.n=2;", "TS2540")]
+    [InlineData("let patch:{item?:{readonly n:number}}={};let v={item:{n:21},...patch} as const;v.item.n=22;", "TS2540")]
+    [InlineData("let patch:{item?:{readonly n:number}}={};let v={...patch,item:{n:21}} as const;v.item.n=22;", "TS2540")]
+    [InlineData("let patch:{item?:{readonly n:number}}={};let v={item:{n:21},...patch};let bad:{item:{n:string}}=v;", "TS2322")]
+    [InlineData("let patch:{item?:{readonly n:number}}={};let v={item:{n:21},...patch};v.item.n=\"bad\";", "TS2540")]
+    public void OptionalNestedReadonlySpreadsRejectUnsafeWritesAndTypes(string source,string code) =>
+        Assert.Equal(new[] {code},Compilation.Check("optional-nested-readonly-invalid.ts",source)
+            .Select(d=>d.Code).ToArray());
+
+    // Regression for mixed union/non-union members: the later optional
+    // shape may contain a readonly nested alternative that must survive.
+    [Fact]
+    public void NestedUnionReadonlyAlternativeCannotBeLost() =>
+        Assert.Equal(new[] {"TS2540"},Compilation.Check("readonly-union-invalid.ts",
+            "let patch:{item?:{child:{n:number}|{readonly n:number}}}={};"+
+            "let v={item:{child:{n:21}},...patch};v.item.child.n=22;")
+            .Select(d=>d.Code).ToArray());
+
+    // Readonly identities are important when deduplicating unions, but
+    // mutually assignable intersection members must remain compatible.
+    [Fact]
+    public void NestedReadonlyIntersectionRemainsCompatible() =>
+        Assert.Empty(Compilation.Check("readonly-intersection.ts",
+            "type Both={item:{n:number}}&{item:{readonly n:number}};"+
+            "let v:Both={item:{n:1}};let n:number=v.item.n;"));
+
+    // Conditional numeric/string source-key identity remains explicitly unsupported.
+    [Fact]
+    public void UnmodeledOptionalNumericSourceIdentityFailsClosed() =>
+        Assert.Contains(Compilation.Check("optional-spread-unmodeled.ts",
+            "let patch:{0?:string}={};let v={\"0\":21,...patch};"),
             d=>d.Code=="TSCS1001");
 }

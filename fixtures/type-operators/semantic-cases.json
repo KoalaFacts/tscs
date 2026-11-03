@@ -1786,6 +1786,114 @@
       "expectedCodes": [
         "TS2540"
       ]
+    },
+    {
+      "id": "type-operators:positive-155",
+      "source": "let patch:{item?:{readonly n:number}}={};let v={item:{n:21},...patch};let n:number=v.item.n;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-156",
+      "source": "let patch:{item?:{readonly n:string}}={};let v={item:{n:\"ok\"},...patch};let s:string=v.item.n;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-157",
+      "source": "type Item={readonly n:number};let patch:{item?:Item}={};let v={item:{n:21},...patch};let n:number=v.item.n;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-158",
+      "source": "function build(p:{item?:{readonly n:number}}):{item:{readonly n:number}}{return {item:{n:21},...p};}let n:number=build({}).item.n;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-159",
+      "source": "let patch:{item?:{readonly n:number}}={};let v={item:{n:21},...patch};let copy:{item:{readonly n:number}}=v;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-160",
+      "source": "let patch:{item?:{readonly n:number}}={};let v={item:{n:21},...patch} as const;let n:number=v.item.n;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-161",
+      "source": "let patch:{item?:{readonly n:number}}={};let v={item:{n:21},...patch,tag:true};let n:number=v.item.n;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-162",
+      "source": "let a:{item?:{readonly n:number}}={};let b:{item?:{n:number}}={};let v={item:{n:21},...a,...b};let n:number=v.item.n;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-163",
+      "source": "let patch:{item?:{readonly n:number}}={};let v={item:{n:21},...patch};let x={...v};let n:number=x.item.n;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-148",
+      "source": "let patch:{item?:{readonly n:number}}={};let v={item:{n:21},...patch};v.item.n=22;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-149",
+      "source": "let patch:{item?:{readonly n:string}}={};let v={item:{n:21},...patch};let x:number=v.item.n;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-150",
+      "source": "let patch:{item?:{readonly n:number}}={};let v={item:{n:21},...patch};let x:string=v.item.n;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-151",
+      "source": "let a:{item?:{readonly n:number}}={};let b:{item?:{n:number}}={};let v={item:{n:21},...a,...b};v.item.n=2;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-152",
+      "source": "let patch:{item?:{readonly n:number;m:string}}={};let v={item:{n:21,m:\"ok\"},...patch};v.item.n=2;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-153",
+      "source": "let patch:{item?:{readonly n:number}}={};let v={item:{n:21},...patch} as const;v.item.n=22;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-154",
+      "source": "let patch:{item?:{readonly n:number}}={};let v={...patch,item:{n:21}} as const;v.item.n=22;",
+      "expectedCodes": [
+        "TS2540"
+      ]
+    },
+    {
+      "id": "type-operators:negative-155",
+      "source": "let patch:{item?:{readonly n:number}}={};let v={item:{n:21},...patch};let bad:{item:{n:string}}=v;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-156",
+      "source": "let patch:{item?:{readonly n:number}}={};let v={item:{n:21},...patch};v.item.n=\"bad\";",
+      "expectedCodes": [
+        "TS2540"
+      ]
     }
   ]
 }
