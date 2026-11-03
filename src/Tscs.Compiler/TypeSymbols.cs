@@ -300,7 +300,8 @@ internal static class CompilerTypes
     }
 
     // Optional spread keys may be absent. A prior key's value and requiredness
-    // survive absence; reject ambiguous numeric/string identity for keyof.
+    // survive absence. A conditional overlap synthesizes a string-named property
+    // even if the original/source key was written numerically (pinned TS behavior).
     // Nested readonly alternatives remain distinct through union normalization.
     public static bool MergeFiniteSpreadMember(
         Dictionary<string,TypeSymbol> members,HashSet<string> numericMembers,
@@ -309,7 +310,9 @@ internal static class CompilerTypes
     {
         if(incomingOptional && members.TryGetValue(name,out var previous))
         {
-            if(numericMembers.Contains(name)!=incomingNumeric)return false;
+            // A conditional spread overlap produces a synthesized string key
+            // (including 0 and "0"); keep runtime lookup and keyof in sync.
+            numericMembers.Remove(name);
             // A typed optional override's undefined constituent represents
             // absence for TS spread inference. The prior value still survives
             // when the override is omitted; preserve its own undefined, if any.
