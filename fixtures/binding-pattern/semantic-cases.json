@@ -336,6 +336,78 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "binding-pattern:positive-29",
+      "source": "function take(xs:number[]|string[]):number|string{const [head,...tail]=xs;return tail[0];}let s:number|string=take([1,2]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-30",
+      "source": "function take(xs:readonly number[]|readonly string[]):number|string{const [...copy]=xs;return copy[0];}let s:number|string=take([\"a\",\"b\"]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-31",
+      "source": "type Blend=number[]|string[];function copy(v:Blend):(number|string)[]{const [head,...tail]=v;return tail;}const out:(number|string)[]=copy([1,2]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-32",
+      "source": "function accept(x:readonly number[]|string[]):void{const [first,...rest]=x;let n:number|string=first;let second:number|string=rest[0];}",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-33",
+      "source": "function choose(x:number[]|readonly string[]):number|string{const [,,...tail]=x;return tail[0];}let value:number|string=choose([1,2,3]);",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:positive-34",
+      "source": "function combine(x:number[]|string[]):number|string{let [...tail]=x;let first:number|string=tail[0];return first;}",
+      "expectedCodes": []
+    },
+    {
+      "id": "binding-pattern:negative-29",
+      "source": "function bad(xs:number[]|string[]):void{const [head,...tail]=xs;let n:number=tail[0];}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-30",
+      "source": "function bad(xs:readonly number[]|readonly string[]):void{const [...copy]=xs;let s:string=copy[0];}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-31",
+      "source": "function bad(xs:number[]|string[]):void{const [head,...tail]=xs;let flag:boolean=head;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-32",
+      "source": "function bad(xs:number[]|string[]):void{const [head,...tail]=xs;tail[0]=true;}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-33",
+      "source": "function bad(xs:number[]|string[]):void{const [, ...tail]=xs;let n:number=tail[0];}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "binding-pattern:negative-34",
+      "source": "function bad(xs:number[]|string[]):void{const [head,...tail]=xs;let n:undefined=tail[0];}",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }

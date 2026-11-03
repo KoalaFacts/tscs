@@ -31,6 +31,13 @@ public sealed class ArrayRestBindingTests
     [InlineData("const triple:readonly [number,string?,boolean?]=[21,\"ready\"];const [head,label,...tail]=triple;let size:0|1=tail.length;let flag:boolean|undefined=tail[0];")]
     [InlineData("function label([head,...tail]:readonly [number,string?]):string|undefined{return tail[0];}let text:string|undefined=label([21]);")]
     [InlineData("const label=([head,...tail]:[number,string?]):string|undefined=>tail[0];let text:string|undefined=label([21,\"ready\"]);")]
+    [InlineData("function take(xs:number[]|string[]):number|string{const [head,...tail]=xs;return tail[0];}let s:number|string=take([1,2]);")]
+    [InlineData("function take(xs:readonly number[]|readonly string[]):number|string{const [...copy]=xs;return copy[0];}let s:number|string=take([\"a\",\"b\"]);")]
+    [InlineData("type Blend=number[]|string[];function copy(v:Blend):(number|string)[]{const [head,...tail]=v;return tail;}const out:(number|string)[]=copy([1,2]);")]
+    [InlineData("function accept(x:readonly number[]|string[]):void{const [first,...rest]=x;let n:number|string=first;let second:number|string=rest[0];}")]
+    [InlineData("function choose(x:number[]|readonly string[]):number|string{const [,,...tail]=x;return tail[0];}let value:number|string=choose([1,2,3]);")]
+    [InlineData("function combine(x:number[]|string[]):number|string{let [...tail]=x;let first:number|string=tail[0];return first;}")]
+    [InlineData("function check(xs:readonly number[]|readonly string[]):void{let [...copy]=xs;copy[0]=42;}")]
     public void NativeArrayRestBindingsUseExistingCheckedTypePaths(string source) =>
         Assert.Empty(Compilation.Check("array-rest.ts",source));
 
@@ -52,9 +59,28 @@ public sealed class ArrayRestBindingTests
     [InlineData("const pair:[number,string?]=[21];const [head,...tail]=pair;let wrong:2=tail.length;","TS2322")]
     [InlineData("const pair:[number,string?]=[21];const [head,...tail]=pair;tail[1];","TS2493")]
     [InlineData("const triple:readonly [number,string?,boolean?]=[21];const [head,...tail]=triple;let wrong:boolean=tail[1];","TS2322")]
+    [InlineData("function bad(xs:number[]|string[]):void{const [head,...tail]=xs;let n:number=tail[0];}","TS2322")]
+    [InlineData("function bad(xs:readonly number[]|readonly string[]):void{const [...copy]=xs;let s:string=copy[0];}","TS2322")]
+    [InlineData("function bad(xs:number[]|string[]):void{const [head,...tail]=xs;let flag:boolean=head;}","TS2322")]
+    [InlineData("function bad(xs:number[]|string[]):void{const [head,...tail]=xs;tail[0]=true;}","TS2322")]
+    [InlineData("function bad(xs:number[]|string[]):void{const [, ...tail]=xs;let n:number=tail[0];}","TS2322")]
+    [InlineData("function bad(xs:number[]|string[]):void{const [head,...tail]=xs;let n:undefined=tail[0];}","TS2322")]
+    [InlineData("function check(xs:readonly number[]|readonly string[]):void{xs[0]=42;}","TS2542")]
+    [InlineData("function check(xs:readonly number[]|string[]):void{xs[0]=42;}","TS2542")]
     public void UnsafeOrInvalidArrayRestBindingsFailClosed(string source,string code) =>
         Assert.Contains(Compilation.Check("array-rest-invalid.ts",source),
             diagnostic=>diagnostic.Code==code);
+
+    [Fact]
+    public void OversizedArrayUnionElementJoinProducesDiagnosticInsteadOfCrash()
+    {
+        // Each alias has 33 variants; joining 66 would breach the 64 limit.
+        var a=string.Join("|",Enumerable.Range(1,33).Select(i=>$"\"a{i}\""));
+        var b=string.Join("|",Enumerable.Range(1,33).Select(i=>$"\"b{i}\""));
+        var source=$"type A={a};type B={b};function f(xs:A[]|B[]):void{{const copy=[...xs];}}";
+        Assert.Contains(Compilation.Check("overflow-union-rest.ts",source),
+            diagnostic=>diagnostic.Code=="TSCS1001");
+    }
 
     [Fact]
     public void LinkedArrayRestBindingsEmitAndExecuteRealEs2015()
@@ -64,18 +90,20 @@ public sealed class ArrayRestBindingTests
         {
             var sources=new Dictionary<string,string>(StringComparer.Ordinal)
             {
-                [Path.Combine(root,"values.ts")]="export const nums:number[]=[20,21,22];export const sparse:number[]=[7];sparse.length=2;export const pair:readonly [number,string,boolean]=[20,\"pair\",true];export const optEmpty:readonly [number,string?]=[13];export const optFull:readonly [number,string?]=[13,'ready'];export const optTriple:readonly [number,string?,boolean?]=[13,'ready',true];",
+                [Path.Combine(root,"values.ts")]="export const nums:number[]=[20,21,22];export const sparse:number[]=[7];sparse.length=2;export const pair:readonly [number,string,boolean]=[20,\"pair\",true];export const optEmpty:readonly [number,string?]=[13];export const optFull:readonly [number,string?]=[13,'ready'];export const optTriple:readonly [number,string?,boolean?]=[13,'ready',true];export const mixed:number[]|string[]=[20,22];export const words:readonly number[]|readonly string[]=['a','b'];",
                 [Path.Combine(root,"sum.ts")]="export function sum(a:number,b:number):number{return a+b;}export function optionalCount(pair:readonly [number,string?]):0|1{const [head,...tail]=pair;return tail.length;}",
                 [Path.Combine(root,"bridge.ts")]="export {sum,optionalCount} from \"./sum.js\";",
                 [Path.Combine(root,"entry.ts")]=
-                    "import {nums,sparse,pair,optEmpty,optFull,optTriple} from \"./values.js\";import {sum,optionalCount} from \"./bridge.js\";"+
+                    "import {nums,sparse,pair,optEmpty,optFull,optTriple,mixed,words} from \"./values.js\";import {sum,optionalCount} from \"./bridge.js\";"+
                     "const [first,...tail]=nums;const [...holeTail]=sparse;"+
                     "export const result:number=sum(first,tail[1]);export const materialized:number[]=holeTail;"+
                     "const [tupleFirst,...tupleTail]=pair;export const tupleLabel:string=tupleTail[0];"+
                     "export const tupleFlag:boolean=tupleTail[1];export const tupleCount:2=tupleTail.length;"+
                     "const [emptyFirst,...emptyTail]=optEmpty;const [fullFirst,...fullTail]=optFull;const [tripleFirst,...tripleTail]=optTriple;"+
                     "export const emptyCount:0|1=optionalCount(optEmpty);export const fullValue:string|undefined=fullTail[0];"+
-                    "export const fullCount:0|1=fullTail.length;export const tripleFlag:boolean|undefined=tripleTail[1];export const tripleSize:0|1|2=tripleTail.length;"
+                    "export const fullCount:0|1=fullTail.length;export const tripleFlag:boolean|undefined=tripleTail[1];export const tripleSize:0|1|2=tripleTail.length;"+
+                    "const [eitherHead,...eitherTail]=mixed;const [...wordsCopy]=words;"+
+                    "export const unionTail:number|string=eitherTail[0];export const unionWord:number|string=wordsCopy[0];"
             };
             var program=CompilerProgram.Load(new SourceHost(sources),
                 [Path.Combine(root,"entry.ts")],
@@ -95,7 +123,7 @@ public sealed class ArrayRestBindingTests
             info.ArgumentList.Add("-e");
             // Dynamic import after overriding the source array's own slice
             // guards against accidentally lowering rest to nums.slice(...).
-            info.ArgumentList.Add("import {nums} from './values.js';nums.slice=()=>{throw new Error('own slice invoked')};const {result,materialized,tupleLabel,tupleFlag,tupleCount,emptyCount,fullValue,fullCount,tripleFlag,tripleSize}=await import('./entry.js');console.log(result+':'+(0 in materialized)+':'+(1 in materialized)+':'+materialized.length+':'+tupleLabel+':'+tupleFlag+':'+tupleCount+':'+emptyCount+':'+fullValue+':'+fullCount+':'+tripleFlag+':'+tripleSize)");
+            info.ArgumentList.Add("import {nums,mixed} from './values.js';nums.slice=()=>{throw new Error('own slice invoked')};mixed.slice=()=>{throw new Error('union own slice invoked')};const {result,materialized,tupleLabel,tupleFlag,tupleCount,emptyCount,fullValue,fullCount,tripleFlag,tripleSize,unionTail,unionWord}=await import('./entry.js');console.log(result+':'+(0 in materialized)+':'+(1 in materialized)+':'+materialized.length+':'+tupleLabel+':'+tupleFlag+':'+tupleCount+':'+emptyCount+':'+fullValue+':'+fullCount+':'+tripleFlag+':'+tripleSize+':'+unionTail+':'+unionWord)");
             using var process=Process.Start(info)!;
             if(!process.WaitForExit(10000))
             {
@@ -106,7 +134,7 @@ public sealed class ArrayRestBindingTests
             var stderr=process.StandardError.ReadToEnd();
             Assert.Equal(0,process.ExitCode);
             Assert.Equal("",stderr);
-            Assert.Equal("42:true:true:2:pair:true:2:0:ready:1:true:2",stdout.Trim());
+            Assert.Equal("42:true:true:2:pair:true:2:0:ready:1:true:2:22:a",stdout.Trim());
         }
         finally { Directory.Delete(root,true); }
     }
@@ -154,6 +182,23 @@ public sealed class ArrayRestBindingTests
             [Path.Combine(root,"values.ts")]="export const pair:readonly [number,string?]=[21];",
             [Path.Combine(root,"entry.ts")]=
                 "import {pair} from \"./values.js\";const [head,...tail]=pair;let unsafe:string=tail[0];"
+        };
+        var program=CompilerProgram.Load(new SourceHost(sources),
+            [Path.Combine(root,"entry.ts")],
+            new CompilerOptions {NoLib=true,Target=CompilerTarget.Es2015,Module=CompilerModule.Es2015});
+        Assert.Contains(program.Analyze().Diagnostics,d=>d.Code=="TS2322");
+        Assert.Throws<InvalidOperationException>(()=>program.EmitJavaScript());
+    }
+
+    [Fact]
+    public void InvalidImportedNativeArrayUnionRestPreventsAllModuleEmissions()
+    {
+        var root=Path.Combine(Path.GetTempPath(),"tscs-native-array-union-rest-rejected");
+        var sources=new Dictionary<string,string>(StringComparer.Ordinal)
+        {
+            [Path.Combine(root,"values.ts")]="export const mixed:number[]|string[]=[21,22];",
+            [Path.Combine(root,"entry.ts")]=
+                "import {mixed} from \"./values.js\";const [first,...tail]=mixed;let wrong:boolean=tail[0];"
         };
         var program=CompilerProgram.Load(new SourceHost(sources),
             [Path.Combine(root,"entry.ts")],
