@@ -2624,8 +2624,16 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     // object carrying a transplanted intrinsic is unsound.
                     // Parentheses preserve a JS reference and its this binding.
                     ValueNode boundCallee=call.Callee;
-                    while(boundCallee is ValueParenthesized wrapped)
-                        boundCallee=wrapped.Expression;
+                    while(true)
+                    {
+                        if(boundCallee is ValueParenthesized wrapped)
+                            boundCallee=wrapped.Expression;
+                        else if(boundCallee is ValueNonNull asserted)
+                            boundCallee=asserted.Expression;
+                        else if(boundCallee is ValueTypeOperator annotated)
+                            boundCallee=annotated.Expression;
+                        else break;
+                    }
                     if(!boundNativeFlatMembers.Contains(boundCallee))
                         throw new CompilationFailure(Diagnostic.Error(file,call.Open,"TSCS1001",
                             "Array.flat must be called on its checked native array receiver."));
