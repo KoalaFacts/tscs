@@ -36,7 +36,7 @@ try {
   assert.equal(runtime.status,0,runtime.stdout+runtime.stderr);
   const invalid:[string,string,string,number][]=[
     ['bad-value','let o:{value?:number}={value:"bad"};','TS2322',2],
-    ['missing-required','let o:{value?:number}={};let x:{value:number}=o;','TS2741',2],
+    ['missing-required','let o:{value?:number}={};let x:{value:number}=o;','TS2322',2],
     ['unsafe-read','let o:{value?:number}={};let n:number=o.value;','TS2322',2],
     ['wrong-write','let o:{value?:number}={};o.value="bad";','TS2322',2],
     ['readonly','let o:{readonly value?:number}={};o.value=42;','TS2540',2],
