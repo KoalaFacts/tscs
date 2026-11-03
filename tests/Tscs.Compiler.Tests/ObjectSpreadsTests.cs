@@ -175,4 +175,16 @@ public sealed class ObjectSpreadsTests
         Assert.Equal(new[] {"TS2322"},Compilation.Check("computed-numeric-overlap-invalid.ts",source)
             .Select(d=>d.Code).ToArray());
 
+    [Theory]
+    [InlineData("let flag=true;let base=flag?{[0]:21}:{0:21};let v={...base};let n:number=v[0];")]
+    [InlineData("let flag=true;let base=flag?{[0]:21}:{0:21};let p:{0?:string}={};let v={...base,...p};let n:number|string=v[0];")]
+    public void ComputedNumericProvenanceUnionCanStillSpread(string source) =>
+        Assert.Empty(Compilation.Check("computed-union-spread.ts",source));
+
+    [Fact]
+    public void ComputedNumericProvenanceSurvivesIntersectionFlattening() =>
+        Assert.Empty(Compilation.Check("computed-intersection-spread.ts",
+            "const first={[0]:21};type Both=typeof first & {};let a:Both=first;"+
+            "let p:{0?:string}={};const v={...a,...p} as const;let k:keyof typeof v=0;"));
+
 }

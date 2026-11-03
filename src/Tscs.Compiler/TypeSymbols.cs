@@ -604,6 +604,35 @@ internal static class CompilerTypes
         PreservesNumericKeyIdentity(a,b,includeReadonly:true,includeComputed:true) &&
         IsAssignable(a,b) && IsAssignable(b,a);
 
+    // A conditional expression may preserve two otherwise identical object
+    // types only because one numeric key came from a computed [0] source.
+    // A finite spread may consume that union: intersect provenance so an
+    // uncertain origin is never incorrectly advertised as definitely computed.
+    // Other unions (different values, readonly rules or nested metadata) are
+    // deliberately left for a future distributed spread implementation.
+    public static ObjectTypeSymbol? TryFiniteObjectSpreadSource(TypeSymbol? value)
+    {
+        if(value is ObjectTypeSymbol shape)return shape;
+        if(value is not UnionTypeSymbol union || union.Alternatives.Count>64 ||
+           union.Alternatives[0] is not ObjectTypeSymbol first)return null;
+        var computed=new HashSet<string>(first.ComputedNumericMembers,StringComparer.Ordinal);
+        foreach(var alternative in union.Alternatives.Skip(1))
+        {
+            if(alternative is not ObjectTypeSymbol other ||
+               first.Members.Count!=other.Members.Count ||
+               !first.ReadonlyMembers.SetEquals(other.ReadonlyMembers) ||
+               !first.NumericMembers.SetEquals(other.NumericMembers) ||
+               !first.OptionalMembers.SetEquals(other.OptionalMembers) ||
+               first.Members.Any(member=>
+                   !other.Members.TryGetValue(member.Key,out var type) ||
+                   !IsUnionEquivalent(member.Value,type)))
+                return null;
+            computed.IntersectWith(other.ComputedNumericMembers);
+        }
+        return new ObjectTypeSymbol(first.Members,first.ReadonlyMembers,
+            first.NumericMembers,first.OptionalMembers,computed);
+    }
+
     public static bool IsEquivalent(TypeSymbol a,TypeSymbol b)=>
         // Assignment may treat runtime property 0 and "0" alike, whereas
         // keyof distinguishes their *source* identity at every nested level.

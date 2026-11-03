@@ -2332,7 +2332,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     if(memberType==null)continue;
                     if(entry.Spread)
                     {
-                        if(memberType is not ObjectTypeSymbol source)
+                        var source=CompilerTypes.TryFiniteObjectSpreadSource(memberType);
+                        if(source is null)
                             throw new CompilationFailure(Diagnostic.Error(file,entry.Name,"TSCS1001",
                                 "Object spread requires a statically checked object operand."));
                         checkedObjectSpreadOperands[entry]=source;

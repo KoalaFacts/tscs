@@ -249,7 +249,7 @@ internal static class Binder
         TypeSymbol? inferred=value is ValueAtom {Token.Kind:TokenKind.Identifier} atom
             ?ResolveConstAssertionIdentifier(atom.Token,scope,file,depth+1)
             :ResolveFiniteInitializerType(value,scope,file,false,depth+1);
-        return inferred as ObjectTypeSymbol;
+        return CompilerTypes.TryFiniteObjectSpreadSource(inferred);
     }
 
     // A finite array spread has the same already-checked tuple identity in
@@ -330,24 +330,47 @@ internal static class Binder
             }
             return new ArrayTypeSymbol(element);
         }
-        if(initial is not ValueObject obj || obj.Properties.Any(p=>p.Spread))
+        if(initial is not ValueObject obj || obj.Properties.Count>128)
             return null;
         var members=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
         var numericMembers=new HashSet<string>(StringComparer.Ordinal);
         var computedNumericMembers=new HashSet<string>(StringComparer.Ordinal);
+        var optionalMembers=new HashSet<string>(StringComparer.Ordinal);
         foreach(var property in obj.Properties)
         {
-            if(ResolveFiniteInitializerType(property.Value,scope,file,false,depth+1) is not { } member)
-                return null;
+            if(property.Spread)
+            {
+                // Resolve an already checked/annotated identifier in its own
+                // scope. This does not execute the spread or guess unknown types.
+                var source=ResolveConstSpreadSource(property.Value,scope,file,depth+1);
+                if(source is null)return null;
+                foreach(var (name,type) in source.Members)
+                {
+                    try
+                    {
+                        if(!CompilerTypes.MergeFiniteSpreadMember(members,numericMembers,
+                            optionalMembers,name,type,source.NumericMembers.Contains(name),
+                            source.OptionalMembers.Contains(name),computedNumericMembers,
+                            source.ComputedNumericMembers.Contains(name)))return null;
+                    }
+                    catch(InvalidOperationException) {return null;}
+                }
+                continue;
+            }
+            var member=ResolveFiniteInitializerType(property.Value,scope,file,false,depth+1)
+                ?? (property.Value is ValueAtom {Token.Kind:TokenKind.Identifier} atom
+                    ?ResolveConstAssertionIdentifier(atom.Token,scope,file,depth+1):null);
+            if(member is null)return null;
             var name=Parser.PropertyName(property.Name);
             members[name]=member;
+            optionalMembers.Remove(name);
             if(property.Name.Kind==TokenKind.Number)numericMembers.Add(name);
             else numericMembers.Remove(name);
             if(property.Computed && property.Name.Kind==TokenKind.Number)computedNumericMembers.Add(name);
             else computedNumericMembers.Remove(name);
         }
         return new ObjectTypeSymbol(members,numericMembers:numericMembers,
-            computedNumericMembers:computedNumericMembers);
+            optionalMembers:optionalMembers,computedNumericMembers:computedNumericMembers);
     }
 
     public static void InitializeDeclaredTypes(Scope scope)
