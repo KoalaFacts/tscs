@@ -2204,6 +2204,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 var operandType=types.Pop();
                 if(operandType is ArrayTypeSymbol expanded)
                 {
+                    if(spread.BindingArrayRest && expanded.TupleElements is not null)
+                        throw new CompilationFailure(Diagnostic.Error(file,spread.Keyword,"TSCS1001",
+                            "Tuple rest bindings require position-preserving inference and are not supported yet."));
                     checkedArraySpreadOperands[spread]=expanded;
                     types.Push(expanded.ElementType);
                 }
