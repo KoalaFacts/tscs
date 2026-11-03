@@ -2627,8 +2627,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         ValueNode depthValue=call.Arguments[0];
                         while(depthValue is ValueParenthesized group)
                             depthValue=group.Expression;
-                        if(depthValue is not ValueAtom { Token.Kind:TokenKind.Number } literal ||
-                           !int.TryParse(literal.Token.Text,
+                        if(depthValue is not ValueAtom { Token.Kind:TokenKind.Number } flatDepthToken ||
+                           !int.TryParse(flatDepthToken.Token.Text,
                                System.Globalization.NumberStyles.None,
                                System.Globalization.CultureInfo.InvariantCulture,out depth) ||
                            depth>3)
