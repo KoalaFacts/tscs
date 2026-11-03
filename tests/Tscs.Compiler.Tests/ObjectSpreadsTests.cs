@@ -251,4 +251,78 @@ public sealed class ObjectSpreadsTests
             d=>d.Code=="TSCS1001" && d.Message.Contains("Object spread requires"));
 
 
+    // One member can vary in both type and optionality; all other keys
+    // retain their requiredness. Correlated changes still reject.
+    [Theory]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:number;tag:boolean}):void{let y={...x};let n:number|undefined=y.value;let b:boolean=y.tag;}")]
+    [InlineData("function f(x:{value?:number;tag:boolean}|{value:number;tag:boolean}):void{let y={...x};let n:number|undefined=y.value;}")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:string;tag:boolean}):void{let y={...x};let n:number|string|undefined=y.value;}")]
+    [InlineData("function f(x:{value?:number;tag:boolean}|{value:string;tag:boolean}):void{let y={...x};let n:number|string|undefined=y.value;}")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:number;tag:boolean}):void{let y={...x,value:42};let n:number=y.value;}")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:string;tag:boolean}):void{let y={value:21,...x};let n:number|string=y.value;}")]
+    [InlineData("function f(x:{0:number;tag:boolean}|{0?:string;tag:boolean}):void{let y={...x};let n:number|string|undefined=y[0];}")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:number;tag:boolean}):void{const y={...x} as const;let n:number|undefined=y.value;}")]
+    public void FiniteUnionSpreadJoinsOneOptionalMember(string source) =>
+        Assert.Empty(Compilation.Check("optional-member-union-spread.ts",source));
+
+    [Theory]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:number;tag:boolean}):void{let y={...x};let bad:number=y.value;}", "TS2322")]
+    [InlineData("function f(x:{value?:number;tag:boolean}|{value:number;tag:boolean}):void{let y={...x};let bad:boolean=y.value;}", "TS2322")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:string;tag:boolean}):void{let y={...x};let bad:number=y.value;}", "TS2322")]
+    [InlineData("function f(x:{value?:number;tag:boolean}|{value:string;tag:boolean}):void{let y={...x};let bad:string=y.value;}", "TS2322")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:number;tag:boolean}):void{let y={...x};y.value=true;}", "TS2322")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:number;tag:boolean}):void{const y={...x} as const;y.value=42;}", "TS2540")]
+    [InlineData("function f(x:{0:number;tag:boolean}|{0?:string;tag:boolean}):void{let y={...x};let bad:boolean=y[0];}", "TS2322")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:number;tag:boolean}):void{let y={...x};let bad:string=y.tag;}", "TS2322")]
+    public void FiniteUnionSpreadOptionalMemberRejectsUnsafeUse(string source,string code) =>
+        Assert.Equal(new[] {code},Compilation.Check("optional-member-union-spread-invalid.ts",source)
+            .Select(d=>d.Code).ToArray());
+
+    [Fact]
+    public void FiniteUnionSpreadDoesNotEraseTwoIndependentOptionalDifferences() =>
+        Assert.Contains(Compilation.Check("correlated-optional-union.ts",
+            "function f(x:{value:number;tag?:string}|{value?:number;tag:string}):void{let y={...x};}"),
+            d=>d.Code=="TSCS1001" && d.Message.Contains("Object spread requires"));
+
+    // A present undefined in a required arm must not be erased as absence.
+    [Theory]
+    [InlineData("function f(x:{value:undefined;tag:boolean}|{value?:number;tag:boolean}):void{let y={value:21,...x};let bad:number=y.value;}")]
+    [InlineData("function f(x:{value?:number;tag:boolean}|{value:undefined;tag:boolean}):void{let y={value:21,...x};let bad:number=y.value;}")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value:undefined;tag:boolean}|{value?:string;tag:boolean}):void{let y={value:21,...x};let bad:number|string=y.value;}")]
+    public void MixedOptionalSpreadRejectsAmbiguousPresentUndefined(string source) =>
+        Assert.Contains(Compilation.Check("mixed-undefined.ts",source),
+            d=>d.Code=="TSCS1001" && d.Message.Contains("Object spread requires"));
+
+    // The required source arm leaves the const property readonly, even when
+    // the other arm may omit it. Preserve through intermediate spread values.
+    [Theory]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:string;tag:boolean}):void{const y={value:21,...x} as const;y.value=42;}")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:string;tag:boolean}):void{let first={...x};const y={value:21,...first} as const;y.value=42;}")]
+    public void MixedOptionalConstSpreadRetainsReadonlyArm(string source) =>
+        Assert.Equal(new[] {"TS2540"},Compilation.Check("mixed-readonly.ts",source)
+            .Select(d=>d.Code).ToArray());
+
+    // Numeric keyof differs between required and optional overlap branches;
+    // fail closed rather than inventing an accepted string key identity.
+    [Theory]
+    [InlineData("function f(x:{0:number;tag:boolean}|{0?:string;tag:boolean}):void{let y={0:21,...x};let k:keyof typeof y=\"0\";}")]
+    [InlineData("function f(x:{0:number;tag:boolean}|{0?:string;tag:boolean}):void{let first={...x};let y={0:21,...first};let k:keyof typeof y=\"0\";}")]
+    public void MixedOptionalNumericOverlapsFailClosed(string source) =>
+        Assert.Contains(Compilation.Check("mixed-numeric.ts",source),d=>d.Code=="TSCS1001");
+
+    // Binder prebinding for typeof must not erase source-arm presence metadata.
+    [Theory]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:string;tag:boolean}):void{let first={...x};let alias:typeof first=first;const y={value:21,...alias} as const;y.value=42;}", "TS2540")]
+    [InlineData("function f(x:{0:number;tag:boolean}|{0?:string;tag:boolean}):void{let first={...x};let alias:typeof first=first;let y={0:21,...alias};let k:keyof typeof y=\"0\";}", "TSCS1001")]
+    public void MixedOptionalSpreadThroughTypeofPreservesPresence(string source,string expected) =>
+        Assert.Contains(Compilation.Check("mixed-typeof.ts",source),d=>d.Code==expected);
+
+    // Re-normalizing a union of an already mixed source with a second
+    // optional source must retain its required-arm readonly alternative.
+    [Fact]
+    public void MixedOptionalSpreadThroughNestedUnionKeepsConstReadonly() =>
+        Assert.Equal(new[] {"TS2540"},Compilation.Check("mixed-nested-union.ts",
+            "function f(x:{value:number;tag:boolean}|{value?:string;tag:boolean},b:boolean):void{let first={...x};let other:{value?:boolean;tag:boolean}={tag:true};let combined=b?first:other;const y={value:21,...combined} as const;y.value=42;}")
+            .Select(d=>d.Code).ToArray());
+
 }
