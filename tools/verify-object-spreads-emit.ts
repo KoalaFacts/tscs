@@ -113,8 +113,8 @@ try {
     ['numeric-optional-keyof','let p:{0?:string}={};let v={0:21,...p};let k:keyof typeof v=0;','TS2322'],
     ['numeric-optional-value','let p:{"0"?:string}={};let v={0:21,...p};let n:number=v[0];','TS2322'],
     ['computed-numeric-keyof','let p:{0?:string}={};let v={[0]:21,...p};let k:keyof typeof v="0";','TS2322'],
-    ['union-spread-wrong-value','function f(x:{value:number;tag:boolean}|{value:string;tag:boolean}){let y={...x};let bad:boolean=y.value;}','TS2322'],
-    ['union-spread-correlated-unsupported','function f(x:{value:number;tag:boolean}|{value:string;tag:string}){let y={...x};}','TSCS1001']
+    ['union-spread-wrong-value','function f(x:{value:number;tag:boolean}|{value:string;tag:boolean}):void{let y={...x};let bad:boolean=y.value;}','TS2322'],
+    ['union-spread-correlated-unsupported','function f(x:{value:number;tag:boolean}|{value:string;tag:string}):void{let y={...x};}','TSCS1001']
   ] as const;
   for(const [name,source,code] of invalid){
     writeFileSync(join(folder,name+'.ts'),source);
