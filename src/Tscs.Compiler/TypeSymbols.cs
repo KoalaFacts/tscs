@@ -647,7 +647,9 @@ internal static class CompilerTypes
         if(union.Alternatives[0] is not ObjectTypeSymbol first)return null;
         var merged=new Dictionary<string,TypeSymbol>(first.Members,StringComparer.Ordinal);
         var mergedOptional=new HashSet<string>(first.OptionalMembers,StringComparer.Ordinal);
-        var mixedMembers=new HashSet<string>(StringComparer.Ordinal);
+        // An already-normalized arm can carry mixed presence provenance even
+        // when the outer arms themselves have identical optionality.
+        var mixedMembers=new HashSet<string>(first.MixedRequiredOptionalMembers,StringComparer.Ordinal);
         // Before coalescing, reject a required *present* undefined from ANY
         // arm when another arm makes the same key optional. It may otherwise
         // vanish when an optional override strips absent undefined.
@@ -676,6 +678,7 @@ internal static class CompilerTypes
                !first.ReadonlyMembers.SetEquals(other.ReadonlyMembers) ||
                !first.NumericMembers.SetEquals(other.NumericMembers))
                 return null;
+            mixedMembers.UnionWith(other.MixedRequiredOptionalMembers);
             foreach(var member in first.Members)
             {
                 if(!other.Members.TryGetValue(member.Key,out var type))return null;
@@ -723,6 +726,7 @@ internal static class CompilerTypes
                     if(!a.NumericMembers.SetEquals(b.NumericMembers) ||
                        !a.OptionalMembers.SetEquals(b.OptionalMembers) ||
                        (includeReadonly && !a.ReadonlyMembers.SetEquals(b.ReadonlyMembers)) ||
+                       (includeReadonly && !a.MixedRequiredOptionalMembers.SetEquals(b.MixedRequiredOptionalMembers)) ||
                        (includeComputed && !a.ComputedNumericMembers.SetEquals(b.ComputedNumericMembers)))return false;
                     foreach(var (name,member) in a.Members)
                         if(b.Members.TryGetValue(name,out var other))
