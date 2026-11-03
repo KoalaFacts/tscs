@@ -1,3 +1,19 @@
+## 2026-11-04 — Checked native-array unions for destructuring and spreads (candidate; NOT_RUN)
+
+The C# checker joins member types of ordinary native-array union arms for
+index reads and iterator array spreads, including lowered `[head,...tail]`
+and `[...copy]` bindings. All branches must be checked native arrays;
+tuple-union correlations, strings and unknown iterables remain unsupported.
+The copy uses native iteration, never a possibly overwritten source `slice`.
+Existing Binder, normal TypeChecker, module graph and ES2015 emitter drive
+four-module runtime and negative no-output tests. Six positive and six
+negative source-backed pinned-Go differential IDs extend the unchanged
+56-case binding-pattern cohort to 68, with local TypeScript 5.8.3 auxiliary
+diagnostic checks. Exact-head hosted validation is NOT_RUN at candidate
+creation; no full original TS7 acceptance credit. Historical acceptance:
+0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED.
+No release/pin/global test gate changes.
+
 ## 2026-11-03 — Finite arrays/tuples in runtime typeof object guards (candidate; NOT_RUN)
 
 Checked `typeof value === "object"` and `!== "object"` now refine a known

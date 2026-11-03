@@ -988,6 +988,21 @@ internal static class CompilerTypes
         IsString(type) || type is UnionTypeSymbol union &&
         union.Alternatives.Count>0 && union.Alternatives.All(IsStringFamily);
 
+    // Finite unions of native arrays have a joined element type when copied
+    // or read numerically. Tuple unions are excluded: their positions may
+    // differ, and treating them as plain arrays would erase that contract.
+    public static ArrayTypeSymbol? TryGetCheckedNativeArray(TypeSymbol? source)
+    {
+        if(source is ArrayTypeSymbol single)return single;
+        if(source is not UnionTypeSymbol union || union.Alternatives.Count==0 ||
+           union.Alternatives.Any(arm=>arm is not ArrayTypeSymbol { TupleElements:null }))
+            return null;
+        // Native iteration produces a fresh mutable array even if every
+        // source branch is readonly. Do not change the source's write rules.
+        return new ArrayTypeSymbol(Union(union.Alternatives.Cast<ArrayTypeSymbol>()
+            .Select(array=>array.ElementType)));
+    }
+
     // A known union is iterable only when every branch is a checked array
     // or string. Join the element types instead of selecting an arbitrary
     // first branch; a nullish, any or unknown branch fails closed.
