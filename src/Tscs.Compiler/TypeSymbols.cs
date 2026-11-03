@@ -613,8 +613,24 @@ internal static class CompilerTypes
     public static ObjectTypeSymbol? TryFiniteObjectSpreadSource(TypeSymbol? value)
     {
         if(value is ObjectTypeSymbol shape)return shape;
-        if(value is not UnionTypeSymbol union || union.Alternatives.Count>64 ||
-           union.Alternatives[0] is not ObjectTypeSymbol first)return null;
+        if(value is not UnionTypeSymbol union || union.Alternatives.Count>64)return null;
+        // A null/undefined union arm contributes no own properties at runtime.
+        // Its non-null object member's keys therefore become optional rather
+        // than being treated as a required spread. Do not flatten multiple
+        // differing object arms here: TS can infer {} for those combinations,
+        // and independent member unions would lose their correlations.
+        var objects=union.Alternatives.Where(t=>!t.Equals(Null) && !t.Equals(Undefined)).ToArray();
+        if(objects.Length!=union.Alternatives.Count)
+        {
+            if(objects.Length!=1 || objects[0] is not ObjectTypeSymbol nullableSource)
+                return null;
+            // Ordinary numeric keys become quoted keys after a conditional
+            // nullable spread; computed [0] retains numeric keyof provenance.
+            var nullableComputed=new HashSet<string>(nullableSource.ComputedNumericMembers,StringComparer.Ordinal);
+            return new ObjectTypeSymbol(nullableSource.Members,nullableSource.ReadonlyMembers,
+                nullableComputed,nullableSource.Members.Keys,nullableComputed);
+        }
+        if(union.Alternatives[0] is not ObjectTypeSymbol first)return null;
         var merged=new Dictionary<string,TypeSymbol>(first.Members,StringComparer.Ordinal);
         var computed=new HashSet<string>(first.ComputedNumericMembers,StringComparer.Ordinal);
         string? varyingMember=null;

@@ -214,10 +214,38 @@ public sealed class ObjectSpreadsTests
         Assert.Equal(new[] {expected},Compilation.Check("finite-union-spread-invalid.ts",source)
             .Select(d=>d.Code).ToArray());
 
+
+    // Nullable/undefined object-spread operands are absent at runtime,
+    // making every supplied key optional. The existing optional-overlap
+    // algorithm must keep a required preceding key, and a later key wins.
+    [Theory]
+    [InlineData("function f(x:{value:number}|null):void{let y={...x};let n:number|undefined=y.value;}")]
+    [InlineData("function f(x:{value:number}|undefined):void{let y={...x};let n:number|undefined=y.value;}")]
+    [InlineData("function f(x:{value:number}|null|undefined):void{let y={...x};let n:number|undefined=y.value;}")]
+    [InlineData("function f(x:{value:number}|null):void{let y={value:21,...x};let n:number=y.value;}")]
+    [InlineData("function f(x:{value:number}|null):void{let y={...x,value:42};let n:number=y.value;}")]
+    [InlineData("function f(x:{value:number;tag:boolean}|null):void{let y={...x};let n:number|undefined=y.value;let b:boolean|undefined=y.tag;}")]
+    [InlineData("function f(x:{value:number}|null):void{const y={...x} as const;let n:number|undefined=y.value;}")]
+    [InlineData("function f(x:{value?:string}|null):void{let y={...x};let n:string|undefined=y.value;}")]
+    public void NullableFiniteObjectSpreadsInferOptionalMembers(string source) =>
+        Assert.Empty(Compilation.Check("nullable-object-spread.ts",source));
+
+    [Theory]
+    [InlineData("function f(x:{value:number}|null):void{let y={...x};let bad:number=y.value;}", "TS2322")]
+    [InlineData("function f(x:{value:number}|undefined):void{let y={...x};let bad:string=y.value;}", "TS2322")]
+    [InlineData("function f(x:{value:number}|null|undefined):void{let y={...x};let bad:boolean=y.value;}", "TS2322")]
+    [InlineData("function f(x:{value:number}|null):void{const y={...x} as const;y.value=42;}", "TS2540")]
+    [InlineData("function f(x:{value:number}|null):void{let y={...x};let bad:{value:string}=y;}", "TS2322")]
+    [InlineData("function f(x:{value:number}|null):void{let y:{value:number}={...x};}", "TS2322")]
+    [InlineData("function f(x:{value:number;tag:boolean}|null):void{let y={...x};let bad:boolean=y.tag;}", "TS2322")]
+    [InlineData("function f(x:{0:number}|null):void{let y={...x};let k:keyof typeof y=0;}", "TS2322")]
+    public void NullableFiniteObjectSpreadsRejectUnsafeReadsAndWrites(string source,string code) =>
+        Assert.Equal(new[] {code},Compilation.Check("nullable-object-spread-invalid.ts",source)
+            .Select(d=>d.Code).ToArray());
+
     [Theory]
     [InlineData("function f(x:{value:number;tag:boolean}|{value:string;tag:string}):void{let y={...x};}")]
     [InlineData("function f(x:{a:number}|{b:string}):void{let y={...x};}")]
-    [InlineData("function f(x:{value:number}|null):void{let y={...x};}")]
     public void CorrelatedOrIncompleteUnionSpreadsRemainExplicitlyUnsupported(string source) =>
         Assert.Contains(Compilation.Check("union-spread-unimplemented.ts",source),
             d=>d.Code=="TSCS1001" && d.Message.Contains("Object spread requires"));
