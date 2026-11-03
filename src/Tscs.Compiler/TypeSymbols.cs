@@ -327,6 +327,7 @@ internal static class CompilerTypes
                 // out-of-bounds-permissive readonly array of a joined T.
                 if(tuple.Elements.Count>32)return null;
                 var elements=new List<TypeSymbol>(tuple.Elements.Count);
+                int optionalStart=-1;
                 for(int i=0;i<tuple.Elements.Count;i++)
                 {
                     var item=tuple.Elements[i];
@@ -336,8 +337,15 @@ internal static class CompilerTypes
                         // slots. The new outer tuple is readonly, but referenced
                         // nested objects retain their existing mutability.
                         var source=checkedTupleSpreadSource?.Invoke(spread);
-                        if(source is not {TupleElements:{ } slots,TupleOptionalStart:-1} ||
+                        if(source is not {TupleElements:{ } slots} ||
                            elements.Count+slots.Count>32)return null;
+                        // Optional source slots can change the runtime length;
+                        // keep them only at the end to preserve fixed indices.
+                        if(source.TupleOptionalStart>=0)
+                        {
+                            if(i!=tuple.Elements.Count-1)return null;
+                            optionalStart=elements.Count+source.TupleOptionalStart;
+                        }
                         elements.AddRange(slots);
                         continue;
                     }
@@ -353,7 +361,7 @@ internal static class CompilerTypes
                     // following a full 32-slot spread must be bounded too.
                     if(elements.Count>32)return null;
                 }
-                try {return FiniteTuple(elements,readonlyTuple:true);}
+                try {return FiniteTuple(elements,readonlyTuple:true,optionalStart:optionalStart);}
                 catch(InvalidOperationException) {return null;}
             }
             case ValueObject literal:
