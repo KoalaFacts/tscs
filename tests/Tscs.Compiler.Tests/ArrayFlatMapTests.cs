@@ -19,6 +19,9 @@ public sealed class ArrayFlatMapTests
     [InlineData("function twice(n:number):number[]{return [n,n];}let xs:readonly number[]=[2,3];let out:number[]=xs.flatMap(twice);")]
     [InlineData("type F=((n:number)=>number)|((n:number)=>number[]);function use(xs:number[],cb:F):number[]{return xs.flatMap(cb);}")]
     [InlineData("type F=((n:number)=>string)|((n:number)=>string[]);function use(xs:number[],cb:F):string[]{return xs.flatMap(cb);}")]
+    [InlineData("type F=((v:{n:number})=>number)|((v:{n:number})=>number[]);function f(xs:{n:number}[],cb:F):number[]{return xs.flatMap(cb);}")]
+    [InlineData("type F=((v:{n:number})=>number)|((v:{n:number})=>string);function f(xs:{n:number}[],cb:F):(number|string)[]{return xs.map(cb);}")]
+    [InlineData("type F=((v:{n:number,m:string})=>number)|((v:{m:string,n:number})=>number[]);function f(xs:{n:number,m:string}[],cb:F):number[]{return xs.flatMap(cb);}")]
     public void ExplicitCallbackResultsFlattenOneArrayLevel(string source) =>
         Assert.Empty(Compilation.Check("flat-map.ts",source));
 
@@ -33,6 +36,8 @@ public sealed class ArrayFlatMapTests
     [InlineData("let xs:number[]=[1];let wrong:string[]=xs.map((n:number):number[]=>[n]);","TS2322")]
     [InlineData("type F=((n:number)=>number)|((n:number)=>number[]);function bad(xs:number[],cb:F):string[]{return xs.flatMap(cb);}","TS2322")]
     [InlineData("type F=((n:number)=>number)|((s:string)=>string);function bad(xs:number[],cb:F):number[]{return xs.flatMap(cb);}","TSCS1001")]
+    [InlineData("type F=((v:{n:number})=>number)|((v:{n:any})=>number[]);function f(xs:{n:number}[],cb:F):number[]{return xs.flatMap(cb);}","TSCS1001")]
+    [InlineData("type F=((v:{n:number})=>number)|((v:{n:string})=>number[]);function f(xs:{n:number}[],cb:F):number[]{return xs.flatMap(cb);}","TSCS1001")]
     public void InvalidFlatMapCallbacksAndResultTypesFailClosed(string source,string code) =>
         Assert.Contains(Compilation.Check("flat-map-invalid.ts",source),d=>d.Code==code);
 
