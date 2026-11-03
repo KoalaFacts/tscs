@@ -88,7 +88,8 @@ try {
     ['optional-bad-boolean','let p:{value?:string}={};let x={value:21,...p};x.value=true;','TS2322'],
     ['optional-const-bad-write','let p:{value?:string}={};const x={value:21,...p} as const;x.value=22;','TS2322'],
     ['optional-const-late-readonly','let p:{value?:string}={};const x={value:21,...p,tag:true} as const;x.value=21;','TS2540'],
-    ['nested-readonly-unsafe-write','let p:{item?:{readonly n:number}}={};let x={item:{n:21},...p};x.item.n=22;','TS2540']
+    ['nested-readonly-unsafe-write','let p:{item?:{readonly n:number}}={};let x={item:{n:21},...p};x.item.n=22;','TS2540'],
+    ['nested-union-readonly-unsafe-write','let p:{item?:{child:{n:number}|{readonly n:number}}}={};let x={item:{child:{n:21}},...p};x.item.child.n=22;','TS2540']
   ] as const;
   for(const [name,source,code] of invalid){
     writeFileSync(join(folder,name+'.ts'),source);
@@ -97,5 +98,5 @@ try {
     assert.match(checked.stdout+checked.stderr,new RegExp(code));
     assert.equal(existsSync(join(folder,name+'.js')),false,'invalid spread emitted');
   }
-  console.log('Object spreads: four-module runtime, conditional const override values/writes, and thirteen invalid no-emit programs.');
+  console.log('Object spreads: four-module runtime, conditional const override values/writes, and fourteen invalid no-emit programs.');
 } finally {rmSync(folder,{recursive:true,force:true});}
