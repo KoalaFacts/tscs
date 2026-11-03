@@ -1570,6 +1570,114 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "type-operators:positive-137",
+      "source": "let overlay:{n?:string}={};let v={n:21,...overlay};let x:number|string=v.n;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-138",
+      "source": "let a:{n?:number}={};let b:{n?:string}={};let v={...a,...b};let x:number|string|undefined=v.n;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-139",
+      "source": "let a:{n?:number}={};let b:{n?:string}={};let v={n:true,...a,...b};let v2={...v,n:false};let x:boolean=v2.n;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-140",
+      "source": "let first:{n?:number}={};let last:{n?:string;tag?:boolean}={};let v={n:true,...first,...last};let x:boolean|number|string=v.n;let t:boolean|undefined=v.tag;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-141",
+      "source": "type Patch={n?:string};function merge(v:Patch):{n:number|string}{return {n:21,...v};}let x:number|string=merge({n:\"a\"}).n;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-142",
+      "source": "let patch:{n?:string}={};let v={inner:{n:21,...patch}};let x:number|string=v.inner.n;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-143",
+      "source": "let a:{n?:number}={};let b:{n?:number}={};let v={n:21,...a,...b};let x:number=v.n;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-144",
+      "source": "type Item={score:number};let patch:{item?:Item}={};let v={item:{score:21},...patch};let x:number=v.item.score;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-130",
+      "source": "let overlay:{n?:string}={};let v={n:21,...overlay};let bad:number=v.n;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-131",
+      "source": "let a:{n?:number}={};let b:{n?:string}={};let v={...a,...b};let bad:boolean=v.n;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-132",
+      "source": "let patch:{n?:number}={};let v={n:\"ok\",...patch};let bad:string=v.n;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-133",
+      "source": "let overlay:{n?:string}={};let v={n:21,...overlay};v.n=true;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-134",
+      "source": "let a:{n?:number}={};let b:{n?:string}={};let v={...a,...b};let bad:{n:number|string}=v;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-135",
+      "source": "let patch:{n?:string}={};let v={...patch,n:21};let bad:string=v.n;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-136",
+      "source": "let patch:{n?:string}={};let v={outer:{n:21,...patch}};let bad:number=v.outer.n;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-137",
+      "source": "let a:{n?:number}={};let b:{n?:string}={};let v={...a,...b};let bad:{n?:boolean}=v;",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:positive-145",
+      "source": "let patch:{n?:string|undefined}={};let v={n:21,...patch};let x:number|string=v.n;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-138",
+      "source": "let patch:{n?:string}={n:\"bad\"};let v:{n:21}={n:21,...patch};",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }

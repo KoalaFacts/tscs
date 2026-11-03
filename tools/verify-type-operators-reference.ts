@@ -14,7 +14,7 @@ const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
 const suitePath='fixtures/type-operators/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
 assert.equal(suite.kind,'BOUNDED_TYPE_ASSERTIONS_SATISFIES_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,263,'do not shrink the frozen type-operator cohort');
+assert.equal(suite.cases.length,281,'do not shrink the frozen type-operator cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const minimalProfile='fixtures/array-iteration/minimal.d.ts';
 const minimal=readFileSync(minimalProfile,'utf8');

@@ -299,6 +299,76 @@ internal static class CompilerTypes
         return FiniteTuple(slots,tuple.Readonly,optionalStart);
     }
 
+    // Optional spread keys may be absent. A prior key's value and requiredness
+    // survive absence; reject ambiguous numeric/string identity for keyof.
+    public static bool MergeFiniteSpreadMember(
+        Dictionary<string,TypeSymbol> members,HashSet<string> numericMembers,
+        HashSet<string> optionalMembers,string name,TypeSymbol incoming,
+        bool incomingNumeric,bool incomingOptional)
+    {
+        if(incomingOptional && members.TryGetValue(name,out var previous))
+        {
+            if(numericMembers.Contains(name)!=incomingNumeric)return false;
+            // Structural readonly identity is not represented by the current
+            // union equivalence relation. Never collapse a possibly readonly
+            // later value into a writable one; fail closed until it is.
+            if(HasReadonlyIdentity(previous)||HasReadonlyIdentity(incoming))return false;
+            // A typed optional override's undefined constituent represents
+            // absence for TS spread inference. The prior value still survives
+            // when the override is omitted; preserve its own undefined, if any.
+            TypeSymbol present=incoming is UnionTypeSymbol alternatives
+                ?Union(alternatives.Alternatives.Where(t=>!t.Equals(Undefined)))
+                :incoming.Equals(Undefined)?Never:incoming;
+            members[name]=Union([previous,present]);
+            return true;
+        }
+        members[name]=incoming;
+        if(incomingNumeric)numericMembers.Add(name);
+        else numericMembers.Remove(name);
+        if(incomingOptional)optionalMembers.Add(name);
+        else optionalMembers.Remove(name);
+        return true;
+    }
+
+    // Conservative boundary for conditional spreads of readonly shapes.
+    // Avoid collapsing structurally equivalent mutable and readonly branches
+    // through the existing IsEquivalent/Union relation.
+    private static bool HasReadonlyIdentity(TypeSymbol root)
+    {
+        var pending=new Stack<TypeSymbol>();
+        var visited=new HashSet<TypeSymbol>(ReferenceEqualityComparer.Instance);
+        pending.Push(root);
+        int budget=16384;
+        while(pending.Count>0)
+        {
+            if(--budget<0)return true;
+            var current=pending.Pop();
+            if(!visited.Add(current))continue;
+            switch(current)
+            {
+                case ObjectTypeSymbol shape:
+                    if(shape.ReadonlyMembers.Count>0)return true;
+                    foreach(var part in shape.Members.Values)pending.Push(part);
+                    break;
+                case ArrayTypeSymbol array:
+                    if(array.Readonly)return true;
+                    if(array.TupleElements is { } slots)
+                        foreach(var part in slots)pending.Push(part);
+                    else pending.Push(array.ElementType);
+                    break;
+                case UnionTypeSymbol union:
+                    foreach(var part in union.Alternatives)pending.Push(part);
+                    break;
+                case FunctionTypeSymbol signature:
+                    pending.Push(signature.ReturnType);
+                    foreach(var part in signature.Parameters)pending.Push(part);
+                    if(signature.RestElementType is { } rest)pending.Push(rest);
+                    break;
+            }
+        }
+        return false;
+    }
+
     // Finite 'as const' preserves deeply readonly objects and tuples with
     // exact primitive literal types. Non-finite spreads fail closed.
     public static TypeSymbol? FromFiniteConstAssertion(ValueNode? value,int depth=0,
@@ -382,6 +452,10 @@ internal static class CompilerTypes
                         if(source is null)return null;
                         foreach(var (spreadKey,type) in source.Members)
                         {
+                            // Conditional readonly of an overlapping optional
+                            // override is not modeled by finite const shells.
+                            if(source.OptionalMembers.Contains(spreadKey) &&
+                               members.ContainsKey(spreadKey))return null;
                             members[spreadKey]=type;
                             if(source.NumericMembers.Contains(spreadKey))numericMembers.Add(spreadKey);
                             else numericMembers.Remove(spreadKey);
@@ -458,13 +532,13 @@ internal static class CompilerTypes
                 if(type is not ObjectTypeSymbol source)return null;
                 foreach(var member in source.Members)
                 {
-                    if(source.OptionalMembers.Contains(member.Key) && members.ContainsKey(member.Key))
-                        return null; // Conditional overlap of an optional spread is not modeled.
-                    members[member.Key]=member.Value;
-                    if(source.NumericMembers.Contains(member.Key))numericMembers.Add(member.Key);
-                    else numericMembers.Remove(member.Key);
-                    if(source.OptionalMembers.Contains(member.Key))optionalMembers.Add(member.Key);
-                    else optionalMembers.Remove(member.Key);
+                    try
+                    {
+                        if(!MergeFiniteSpreadMember(members,numericMembers,optionalMembers,
+                            member.Key,member.Value,source.NumericMembers.Contains(member.Key),
+                            source.OptionalMembers.Contains(member.Key)))return null;
+                    }
+                    catch(InvalidOperationException) {return null;}
                 }
             }
             else
