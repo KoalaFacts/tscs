@@ -2381,6 +2381,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     }
                 }
                 // Do not turn an unresolved property into an implicit any.
+                // Mixed source provenance is only meaningful when this
+                // resulting property can actually be absent.
+                mixedMembers.IntersectWith(optionalMembers);
                 types.Push(known?new ObjectTypeSymbol(members,numericMembers:numericMembers,
                     optionalMembers:optionalMembers,computedNumericMembers:computedNumericMembers,
                     mixedRequiredOptionalMembers:mixedMembers):null);

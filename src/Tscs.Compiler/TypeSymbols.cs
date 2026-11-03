@@ -469,6 +469,9 @@ internal static class CompilerTypes
                     if(property.Computed && property.Name.Kind==TokenKind.Number)computedNumericMembers.Add(key);
                     else computedNumericMembers.Remove(key);
                 }
+                // Earlier required values survive optional absence; only
+                // still-optional members retain mixed source provenance.
+                mixedMembers.IntersectWith(optionalMembers);
                 return new ObjectTypeSymbol(members,
                     readonlyMembers:readonlyMembers,numericMembers:numericMembers,
                     optionalMembers:optionalMembers,computedNumericMembers:computedNumericMembers,
