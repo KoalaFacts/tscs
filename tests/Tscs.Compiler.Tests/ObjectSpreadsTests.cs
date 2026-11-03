@@ -288,6 +288,7 @@ public sealed class ObjectSpreadsTests
     [Theory]
     [InlineData("function f(x:{value:undefined;tag:boolean}|{value?:number;tag:boolean}):void{let y={value:21,...x};let bad:number=y.value;}")]
     [InlineData("function f(x:{value?:number;tag:boolean}|{value:undefined;tag:boolean}):void{let y={value:21,...x};let bad:number=y.value;}")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value:undefined;tag:boolean}|{value?:string;tag:boolean}):void{let y={value:21,...x};let bad:number|string=y.value;}")]
     public void MixedOptionalSpreadRejectsAmbiguousPresentUndefined(string source) =>
         Assert.Contains(Compilation.Check("mixed-undefined.ts",source),
             d=>d.Code=="TSCS1001" && d.Message.Contains("Object spread requires"));

@@ -11,6 +11,7 @@ varying members or different key sets still fail closed.
 
 Review corrections on the original #167 PR: required *present* undefined with
 mixed optionality fails closed until presence semantics are represented;
+all required union arms (not just the first two) are checked before normalizing;
 object spreads preserve mixed required/optional provenance for readonly const
 checks. Numeric-key overlaps with such a union fail closed instead of inventing
 an incorrect `keyof`. These safeguards are not TS7 compatibility PASS or SKIP.

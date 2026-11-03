@@ -648,6 +648,25 @@ internal static class CompilerTypes
         var merged=new Dictionary<string,TypeSymbol>(first.Members,StringComparer.Ordinal);
         var mergedOptional=new HashSet<string>(first.OptionalMembers,StringComparer.Ordinal);
         var mixedMembers=new HashSet<string>(StringComparer.Ordinal);
+        // Before coalescing, reject a required *present* undefined from ANY
+        // arm when another arm makes the same key optional. It may otherwise
+        // vanish when an optional override strips absent undefined.
+        foreach(var key in first.Members.Keys)
+        {
+            bool optional=false,required=false,presentUndefined=false;
+            foreach(var arm in union.Alternatives)
+            {
+                if(arm is not ObjectTypeSymbol candidate ||
+                   !candidate.Members.TryGetValue(key,out var memberType))return null;
+                if(candidate.OptionalMembers.Contains(key))optional=true;
+                else
+                {
+                    required=true;
+                    if(ContainsUndefined(memberType))presentUndefined=true;
+                }
+            }
+            if(optional && required && presentUndefined)return null;
+        }
         var computed=new HashSet<string>(first.ComputedNumericMembers,StringComparer.Ordinal);
         string? varyingMember=null;
         foreach(var alternative in union.Alternatives.Skip(1))
@@ -667,11 +686,8 @@ internal static class CompilerTypes
                 varyingMember=member.Key;
                 if(differentOptionality)
                 {
-                    // Required undefined can overwrite a preceding value,
-                    // unlike optional undefined (which indicates absence).
-                    // Fail closed until present-vs-absent is modelled separately.
-                    if((!first.OptionalMembers.Contains(member.Key) && ContainsUndefined(member.Value)) ||
-                       (!other.OptionalMembers.Contains(member.Key) && ContainsUndefined(type)))return null;
+                    // Required present-undefined across ALL arms was checked
+                    // before any coalescing, so this optional join is safe.
                     mergedOptional.Add(member.Key);
                     mixedMembers.Add(member.Key);
                 }
