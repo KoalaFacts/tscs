@@ -2204,10 +2204,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 var operandType=types.Pop();
                 if(operandType is ArrayTypeSymbol expanded)
                 {
-                    if(spread.BindingArrayRest && expanded.TupleElements is not null &&
-                       expanded.TupleOptionalStart>=0)
-                        throw new CompilationFailure(Diagnostic.Error(file,spread.Keyword,"TSCS1001",
-                            "Optional-length tuple rest bindings require variable-length positional inference."));
+                    // A trailing array rest uses the checked source's original
+                    // tuple optional boundary when constructing its tail type.
+                    // The runtime spread still copies through native iteration.
                     checkedArraySpreadOperands[spread]=expanded;
                     types.Push(expanded.ElementType);
                 }
@@ -2710,7 +2709,13 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                                System.Globalization.NumberStyles.None,
                                System.Globalization.CultureInfo.InvariantCulture,out var start))
                             throw new InvalidOperationException("Invalid generated finite tuple-rest offset.");
-                        resultType=CompilerTypes.FiniteTuple(positions.Skip(start).ToArray(),false);
+                        var tailSlots=positions.Skip(start).ToArray();
+                        // An optional tuple suffix remains optional after
+                        // removing leading positions. If the rest starts inside
+                        // that suffix, every surviving position is optional.
+                        var tailOptionalStart=source.TupleOptionalStart<0 || tailSlots.Length==0
+                            ?-1:Math.Max(0,source.TupleOptionalStart-start);
+                        resultType=CompilerTypes.FiniteTuple(tailSlots,false,tailOptionalStart);
                     }
                 }
                 types.Push(resultType);
