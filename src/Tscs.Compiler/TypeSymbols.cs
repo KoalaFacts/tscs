@@ -48,7 +48,7 @@ internal sealed record UnionTypeSymbol(IReadOnlyList<TypeSymbol> Alternatives) :
 // can inspect fresh operand literals rather than only the joined type.
 internal sealed record LogicalValueOutcome(TypeSymbol Result,TypeSymbol? LeftResult,TypeSymbol Right,bool RightReachable);
 
-internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null,TypeSymbol? NativeArrayMapElementType=null,TypeSymbol? NativeArrayReduceElementType=null,TypeSymbol? NativeArraySpliceOverloadElementType=null,bool NativeMutableArraySplice=false) : TypeSymbol
+internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null,TypeSymbol? NativeArrayMapElementType=null,TypeSymbol? NativeArrayReduceElementType=null,TypeSymbol? NativeArraySpliceOverloadElementType=null,bool NativeMutableArraySplice=false,bool NativeArrayFlatMap=false) : TypeSymbol
 {
     public int MinimumArguments=>RequiredParameterCount<0?Parameters.Count:RequiredParameterCount;
     public override string DisplayName=>TypeDisplay.Format(this);
@@ -873,13 +873,14 @@ internal static class CompilerTypes
                 };
                 return new FunctionTypeSymbol([callback],result);
             }
-            // A native map callback may return a type different from the element.
-            // The checker derives that result from the checked callback signature;
-            // this intrinsic marker cannot be supplied by user declarations.
-            if(name=="map")
+            // Native map and one-level flatMap share checked callback input
+            // validation, but differ in their inferred output array element.
+            // Their intrinsic identities cannot be erased into ordinary callables.
+            if(name is "map" or "flatMap")
                 return new FunctionTypeSymbol(
                     [new FunctionTypeSymbol([array.ElementType],Any)],
-                    new ArrayTypeSymbol(Any),NativeArrayMapElementType:array.ElementType);
+                    new ArrayTypeSymbol(Any),NativeArrayMapElementType:array.ElementType,
+                    NativeArrayFlatMap:name=="flatMap");
             // Checked native array transformations: filter always creates a
             // writable copy; same-element folds use an optional initial T.
             if(name=="filter")
@@ -1135,7 +1136,9 @@ internal static class CompilerTypes
                     if((actualFunction.NativeArrayMapElementType is not null &&
                         requiredFunction.NativeArrayMapElementType is null) ||
                        (actualFunction.NativeArrayMapElementType is null &&
-                        requiredFunction.NativeArrayMapElementType is not null))return false;
+                        requiredFunction.NativeArrayMapElementType is not null) ||
+                        (actualFunction.NativeArrayMapElementType is not null &&
+                         actualFunction.NativeArrayFlatMap!=requiredFunction.NativeArrayFlatMap))return false;
                     // Reducing calls derive U from their explicitly typed callback.
                     // Do not erase that dependency into an ordinary callable.
                     if((actualFunction.NativeArrayReduceElementType is null) !=

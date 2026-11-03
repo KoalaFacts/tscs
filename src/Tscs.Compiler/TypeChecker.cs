@@ -2623,16 +2623,41 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     }
                 }
                 var resultType=CheckedOptionalCallReturn(signature.ReturnType);
-                // Native Array<T>.map<U> is a bounded intrinsic: callback input
-                // checking still follows the ordinary function relation below.
-                // Only the result element is inferred from the explicit callable
-                // return type; no untyped-parameter or arbitrary generic inference.
+                // Native Array<T>.map/flatMap are bounded intrinsics: callback
+                // inputs use normal function checking; only the explicit
+                // callback result determines the output element type.
                 TypeSymbol presentResult=signature.ReturnType;
                 if(signature.NativeArrayMapElementType is not null &&
                    call.SpreadIndex<0 && arguments.Length==1 &&
                    arguments[0] is FunctionTypeSymbol mapper)
                 {
-                    var mapped=new ArrayTypeSymbol(mapper.ReturnType);
+                    TypeSymbol mappedElement=mapper.ReturnType;
+                    if(signature.NativeArrayFlatMap)
+                    {
+                        // JavaScript flatMap flattens arrays one level only.
+                        // A callback may return an element, an array, or a
+                        // checked union of both; strings remain scalar values.
+                        // Keep the compiler's finite union cap as a diagnostic.
+                        try
+                        {
+                            var members=new List<TypeSymbol>();
+                            if(mapper.ReturnType is UnionTypeSymbol alternatives)
+                            {
+                                foreach(var item in alternatives.Alternatives)
+                                    members.Add(item is ArrayTypeSymbol a ? a.ElementType : item);
+                            }
+                            else
+                                members.Add(mapper.ReturnType is ArrayTypeSymbol a
+                                    ? a.ElementType : mapper.ReturnType);
+                            mappedElement=CompilerTypes.Union(members);
+                        }
+                        catch(InvalidOperationException failure)
+                        {
+                            throw new CompilationFailure(Diagnostic.Error(file,call.Open,
+                                "TSCS1001",failure.Message));
+                        }
+                    }
+                    var mapped=new ArrayTypeSymbol(mappedElement);
                     presentResult=mapped;
                     resultType=CheckedOptionalCallReturn(mapped);
                 }
