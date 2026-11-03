@@ -155,7 +155,10 @@ try {
     ['choice-unsafe-read','function f(x:{value:number;tag:boolean}|{value?:string;tag:boolean}):void{let y={...x};let n:number=y.value;}','TS2322'],
     ['choice-unsafe-write','function f(x:{value:number;tag:boolean}|{value?:string;tag:boolean}):void{let y={...x};y.value=true;}','TS2322'],
     ['choice-const-write','function f(x:{value:number;tag:boolean}|{value?:string;tag:boolean}):void{const y={...x} as const;y.value=42;}','TS2540'],
-    ['choice-correlated-unsupported','function f(x:{value:number;tag?:string}|{value?:number;tag:string}):void{let y={...x};}','TSCS1001']
+    ['choice-correlated-unsupported','function f(x:{value:number;tag?:string}|{value?:number;tag:string}):void{let y={...x};}','TSCS1001'],
+    ['choice-required-undefined-unsupported','function f(x:{value:undefined;tag:boolean}|{value?:number;tag:boolean}):void{let y={value:21,...x};let bad:number=y.value;}','TSCS1001'],
+    ['choice-numeric-overlap-unsupported','function f(x:{0:number;tag:boolean}|{0?:string;tag:boolean}):void{let y={0:21,...x};let k:keyof typeof y="0";}','TSCS1001'],
+    ['choice-const-required-readonly','function f(x:{value:number;tag:boolean}|{value?:string;tag:boolean}):void{const y={value:21,...x} as const;y.value=42;}','TS2540']
   ] as const;
   for(const [name,source,code] of invalid){
     writeFileSync(join(folder,name+'.ts'),source);
@@ -164,5 +167,5 @@ try {
     assert.match(checked.stdout+checked.stderr,new RegExp(code));
     assert.equal(existsSync(join(folder,name+'.js')),false,'invalid spread emitted');
   }
-  console.log('Object spreads: four-module runtime, conditional const override values/writes, and twenty-six invalid no-emit programs.');
+  console.log('Object spreads: four-module runtime, conditional const override values/writes, and twenty-nine invalid no-emit programs.');
 } finally {rmSync(folder,{recursive:true,force:true});}

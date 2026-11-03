@@ -411,6 +411,7 @@ internal static class CompilerTypes
                 var optionalMembers=new HashSet<string>(StringComparer.Ordinal);
                 var computedNumericMembers=new HashSet<string>(StringComparer.Ordinal);
                 var readonlyMembers=new HashSet<string>(StringComparer.Ordinal);
+                var mixedMembers=new HashSet<string>(StringComparer.Ordinal);
                 foreach(var property in literal.Properties)
                 {
                     // Each later entry re-applies readonly to surviving const
@@ -429,6 +430,12 @@ internal static class CompilerTypes
                         {
                             bool conditional=source.OptionalMembers.Contains(spreadKey) &&
                                 members.ContainsKey(spreadKey);
+                            if(source.MixedRequiredOptionalMembers.Contains(spreadKey) &&
+                               conditional && source.NumericMembers.Contains(spreadKey))return null;
+                            if(source.MixedRequiredOptionalMembers.Contains(spreadKey))
+                                mixedMembers.Add(spreadKey);
+                            else if(!source.OptionalMembers.Contains(spreadKey))
+                                mixedMembers.Remove(spreadKey);
                             try
                             {
                                 if(!MergeFiniteSpreadMember(members,numericMembers,optionalMembers,
@@ -437,7 +444,8 @@ internal static class CompilerTypes
                                     computedNumericMembers,source.ComputedNumericMembers.Contains(spreadKey)))return null;
                             }
                             catch(InvalidOperationException) {return null;}
-                            if(conditional)readonlyMembers.Remove(spreadKey);
+                            if(conditional && !source.MixedRequiredOptionalMembers.Contains(spreadKey))
+                                readonlyMembers.Remove(spreadKey);
                             else readonlyMembers.Add(spreadKey);
                         }
                         continue;
@@ -455,6 +463,7 @@ internal static class CompilerTypes
                     members[key]=nested;
                     readonlyMembers.Add(key);
                     optionalMembers.Remove(key);
+                    mixedMembers.Remove(key);
                     if(property.Name.Kind==TokenKind.Number)numericMembers.Add(key);
                     else numericMembers.Remove(key);
                     if(property.Computed && property.Name.Kind==TokenKind.Number)computedNumericMembers.Add(key);
@@ -462,7 +471,8 @@ internal static class CompilerTypes
                 }
                 return new ObjectTypeSymbol(members,
                     readonlyMembers:readonlyMembers,numericMembers:numericMembers,
-                    optionalMembers:optionalMembers,computedNumericMembers:computedNumericMembers);
+                    optionalMembers:optionalMembers,computedNumericMembers:computedNumericMembers,
+                    mixedRequiredOptionalMembers:mixedMembers);
             }
             // Checked nested computations may keep their normal semantic type;
             // the root remains restricted to actual literal expressions.
@@ -583,7 +593,7 @@ internal static class CompilerTypes
                 members.Add(new(name,selected));
             }
             return new ObjectTypeSymbol(members,data.ReadonlyMembers,data.NumericMembers,
-                data.OptionalMembers,data.ComputedNumericMembers);
+                data.OptionalMembers,data.ComputedNumericMembers,data.MixedRequiredOptionalMembers);
         }
         return actual;
     }
@@ -634,6 +644,7 @@ internal static class CompilerTypes
         if(union.Alternatives[0] is not ObjectTypeSymbol first)return null;
         var merged=new Dictionary<string,TypeSymbol>(first.Members,StringComparer.Ordinal);
         var mergedOptional=new HashSet<string>(first.OptionalMembers,StringComparer.Ordinal);
+        var mixedMembers=new HashSet<string>(StringComparer.Ordinal);
         var computed=new HashSet<string>(first.ComputedNumericMembers,StringComparer.Ordinal);
         string? varyingMember=null;
         foreach(var alternative in union.Alternatives.Skip(1))
@@ -651,14 +662,23 @@ internal static class CompilerTypes
                 if(!differentOptionality && IsUnionEquivalent(member.Value,type))continue;
                 if(varyingMember is not null && varyingMember!=member.Key)return null;
                 varyingMember=member.Key;
-                if(differentOptionality)mergedOptional.Add(member.Key);
+                if(differentOptionality)
+                {
+                    // Required undefined can overwrite a preceding value,
+                    // unlike optional undefined (which indicates absence).
+                    // Fail closed until present-vs-absent is modelled separately.
+                    if((!first.OptionalMembers.Contains(member.Key) && ContainsUndefined(member.Value)) ||
+                       (!other.OptionalMembers.Contains(member.Key) && ContainsUndefined(type)))return null;
+                    mergedOptional.Add(member.Key);
+                    mixedMembers.Add(member.Key);
+                }
                 try {merged[member.Key]=Union([merged[member.Key],type]);}
                 catch(InvalidOperationException) {return null;}
             }
             computed.IntersectWith(other.ComputedNumericMembers);
         }
         return new ObjectTypeSymbol(merged,first.ReadonlyMembers,
-            first.NumericMembers,mergedOptional,computed);
+            first.NumericMembers,mergedOptional,computed,mixedMembers);
     }
 
     public static bool IsEquivalent(TypeSymbol a,TypeSymbol b)=>

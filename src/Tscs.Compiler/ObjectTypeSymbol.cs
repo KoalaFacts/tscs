@@ -14,11 +14,15 @@ internal sealed record ObjectTypeSymbol : TypeSymbol
     // spread overlaps, unlike ordinary 0 or "0" declarations.
     public IReadOnlySet<string> ComputedNumericMembers { get; }
     public IReadOnlySet<string> OptionalMembers { get; }
+    // A normalized finite union may mix required and optional source arms.
+    // Preserve provenance for later readonly and numeric-overlap checks.
+    public IReadOnlySet<string> MixedRequiredOptionalMembers { get; }
 
     public ObjectTypeSymbol(IEnumerable<KeyValuePair<string,TypeSymbol>> members,
         IEnumerable<string>? readonlyMembers=null,IEnumerable<string>? numericMembers=null,
         IEnumerable<string>? optionalMembers=null,
-        IEnumerable<string>? computedNumericMembers=null)
+        IEnumerable<string>? computedNumericMembers=null,
+        IEnumerable<string>? mixedRequiredOptionalMembers=null)
     {
         Members=new ReadOnlyDictionary<string,TypeSymbol>(
             new Dictionary<string,TypeSymbol>(members,StringComparer.Ordinal));
@@ -26,6 +30,9 @@ internal sealed record ObjectTypeSymbol : TypeSymbol
         NumericMembers=new HashSet<string>(numericMembers??Array.Empty<string>(),StringComparer.Ordinal);
         ComputedNumericMembers=new HashSet<string>(computedNumericMembers??Array.Empty<string>(),StringComparer.Ordinal);
         OptionalMembers=new HashSet<string>(optionalMembers??Array.Empty<string>(),StringComparer.Ordinal);
+        MixedRequiredOptionalMembers=new HashSet<string>(mixedRequiredOptionalMembers??Array.Empty<string>(),StringComparer.Ordinal);
+        if(MixedRequiredOptionalMembers.Any(name=>!OptionalMembers.Contains(name)))
+            throw new ArgumentException("Mixed optionality must remain optional in its result.",nameof(mixedRequiredOptionalMembers));
         if(OptionalMembers.Any(name=>!Members.ContainsKey(name)))
             throw new ArgumentException("Optional member identities must belong to the object.",nameof(optionalMembers));
         if(NumericMembers.Any(name=>!Members.ContainsKey(name)))

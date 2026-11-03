@@ -9,6 +9,12 @@ key identity and nested readonly alternatives through existing type relations,
 Binder, TypeChecker, module linking and ES2015 output. Multiple independently
 varying members or different key sets still fail closed.
 
+Review corrections on the original #167 PR: required *present* undefined with
+mixed optionality fails closed until presence semantics are represented;
+object spreads preserve mixed required/optional provenance for readonly const
+checks. Numeric-key overlaps with such a union fail closed instead of inventing
+an incorrect `keyof`. These safeguards are not TS7 compatibility PASS or SKIP.
+
 Eight genuine positive and eight negative source-backed diagnostic cases extend
 all 369 unchanged pinned TS7 Go bounded IDs to 385. xUnit and four-module
 actual JS execution/invalid no-output checks accompany the product change.

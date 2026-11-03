@@ -2325,6 +2325,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 var numericMembers=new HashSet<string>(StringComparer.Ordinal);
                 var computedNumericMembers=new HashSet<string>(StringComparer.Ordinal);
                 var optionalMembers=new HashSet<string>(StringComparer.Ordinal);
+                var mixedMembers=new HashSet<string>(StringComparer.Ordinal);
                 for(int i=0;i<inferred.Length;i++)
                 {
                     var entry=literal.Properties[i];
@@ -2339,6 +2340,15 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         checkedObjectSpreadOperands[entry]=source;
                         foreach(var member in source.Members)
                         {
+                            if(members.ContainsKey(member.Key) &&
+                               source.MixedRequiredOptionalMembers.Contains(member.Key) &&
+                               source.NumericMembers.Contains(member.Key))
+                                throw new CompilationFailure(Diagnostic.Error(file,entry.Name,"TSCS1001",
+                                    "Mixed optional numeric keys cannot be safely spread over a prior key."));
+                            if(source.MixedRequiredOptionalMembers.Contains(member.Key))
+                                mixedMembers.Add(member.Key);
+                            else if(!source.OptionalMembers.Contains(member.Key))
+                                mixedMembers.Remove(member.Key);
                             try
                             {
                                 if(!CompilerTypes.MergeFiniteSpreadMember(members,numericMembers,
@@ -2363,6 +2373,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         // literal read widens unless an explicit assertion supplied it.
                         members[name]=WidenMutableLiteral(memberType,entry.Value,scope);
                         optionalMembers.Remove(name);
+                        mixedMembers.Remove(name);
                         if(entry.Name.Kind==TokenKind.Number)numericMembers.Add(name);
                         else numericMembers.Remove(name);
                         if(entry.Computed && entry.Name.Kind==TokenKind.Number)computedNumericMembers.Add(name);
@@ -2371,7 +2382,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 }
                 // Do not turn an unresolved property into an implicit any.
                 types.Push(known?new ObjectTypeSymbol(members,numericMembers:numericMembers,
-                    optionalMembers:optionalMembers,computedNumericMembers:computedNumericMembers):null);
+                    optionalMembers:optionalMembers,computedNumericMembers:computedNumericMembers,
+                    mixedRequiredOptionalMembers:mixedMembers):null);
                 continue;
             }
             if(node is ValuePropertyAccess property)

@@ -284,4 +284,29 @@ public sealed class ObjectSpreadsTests
             "function f(x:{value:number;tag?:string}|{value?:number;tag:string}):void{let y={...x};}"),
             d=>d.Code=="TSCS1001" && d.Message.Contains("Object spread requires"));
 
+    // A present undefined in a required arm must not be erased as absence.
+    [Theory]
+    [InlineData("function f(x:{value:undefined;tag:boolean}|{value?:number;tag:boolean}):void{let y={value:21,...x};let bad:number=y.value;}")]
+    [InlineData("function f(x:{value?:number;tag:boolean}|{value:undefined;tag:boolean}):void{let y={value:21,...x};let bad:number=y.value;}")]
+    public void MixedOptionalSpreadRejectsAmbiguousPresentUndefined(string source) =>
+        Assert.Contains(Compilation.Check("mixed-undefined.ts",source),
+            d=>d.Code=="TSCS1001" && d.Message.Contains("Object spread requires"));
+
+    // The required source arm leaves the const property readonly, even when
+    // the other arm may omit it. Preserve through intermediate spread values.
+    [Theory]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:string;tag:boolean}):void{const y={value:21,...x} as const;y.value=42;}")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:string;tag:boolean}):void{let first={...x};const y={value:21,...first} as const;y.value=42;}")]
+    public void MixedOptionalConstSpreadRetainsReadonlyArm(string source) =>
+        Assert.Equal(new[] {"TS2540"},Compilation.Check("mixed-readonly.ts",source)
+            .Select(d=>d.Code).ToArray());
+
+    // Numeric keyof differs between required and optional overlap branches;
+    // fail closed rather than inventing an accepted string key identity.
+    [Theory]
+    [InlineData("function f(x:{0:number;tag:boolean}|{0?:string;tag:boolean}):void{let y={0:21,...x};let k:keyof typeof y=\"0\";}")]
+    [InlineData("function f(x:{0:number;tag:boolean}|{0?:string;tag:boolean}):void{let first={...x};let y={0:21,...first};let k:keyof typeof y=\"0\";}")]
+    public void MixedOptionalNumericOverlapsFailClosed(string source) =>
+        Assert.Contains(Compilation.Check("mixed-numeric.ts",source),d=>d.Code=="TSCS1001");
+
 }
