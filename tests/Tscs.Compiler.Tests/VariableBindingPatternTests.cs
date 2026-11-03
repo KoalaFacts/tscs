@@ -254,7 +254,7 @@ public sealed class VariableBindingPatternTests
     [InlineData("""const {["data-key"]:label}={"data-key":"ready"};let s:string=label;""")]
     [InlineData("""const {[0]:first}={0:21};let n:number=first;""")]
     [InlineData("""const {["0"]:first}={0:21};let n:number=first;""")]
-    [InlineData("""const {["\\u0064ata-key"]:label}={"data-key":"ready"};let s:string=label;""")]
+    [InlineData("""const {["\u0064ata-key"]:label}={"data-key":"ready"};let s:string=label;""")]
     [InlineData("""let {["data-key"]:value}:{"data-key":number}={"data-key":21};value=22;""")]
     [InlineData("""const {["outer-key"]:{[0]:value}}={"outer-key":{0:42}};let n:number=value;""")]
     [InlineData("""const {["missing"]:value=42}={};let n:number=value;""")]
