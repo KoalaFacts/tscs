@@ -817,7 +817,7 @@ internal static class CompilerTypes
         left is null ? right is null :
         right is not null && SameStructuralInput(left,right);
 
-    private static bool SameStructuralInput(TypeSymbol left,TypeSymbol right)
+    internal static bool SameStructuralInput(TypeSymbol left,TypeSymbol right)
     {
         int budget=16384;
         bool SameOptional(TypeSymbol? a,TypeSymbol? b,int depth)=>

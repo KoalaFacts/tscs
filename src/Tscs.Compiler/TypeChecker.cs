@@ -2653,6 +2653,22 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         if(mapperReturn is null)
                             throw new CompilationFailure(Diagnostic.Error(file,call.Open,
                                 "TSCS1001","Array callback union requires identical checked input signatures."));
+                        // TS generic inference selects one callback output U,
+                        // not an arbitrary union assembled from function arms.
+                        // In flatMap an arm returning U[] contributes U;
+                        // an arm returning U contributes U itself. If those
+                        // independently inferred results disagree, fail closed
+                        // rather than accepting a program the reference rejects.
+                        var callbackReturns=callbackUnion.Alternatives.Cast<FunctionTypeSymbol>()
+                            .Select(item=>item.ReturnType).ToArray();
+                        TypeSymbol MappedArm(TypeSymbol value)=>
+                            signature.NativeArrayFlatMap && value is ArrayTypeSymbol array
+                                ?array.ElementType:value;
+                        var firstMapped=MappedArm(callbackReturns[0]);
+                        if(callbackReturns.Skip(1).Any(type=>
+                            !CompilerTypes.SameStructuralInput(firstMapped,MappedArm(type))))
+                            throw new CompilationFailure(Diagnostic.Error(file,call.Open,
+                                "TSCS1001","Array callback union cannot infer one common result element type."));
                     }
                     if(mapperReturn is not null)
                     {
