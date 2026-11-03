@@ -62,7 +62,7 @@ internal sealed record ValueArrow(Token Open,IReadOnlyList<ParameterDeclaration>
 // A single trailing array spread is tracked at its call site; all operands remain normal checked values.
 // A callee can be a function binding, checked member/index access or a returned callable.
 // Optional calls short-circuit nullish functions without evaluating arguments.
-internal sealed record ValueCall(ValueNode Callee,Token Open,IReadOnlyList<ValueNode> Arguments,int SpreadIndex=-1,bool Optional=false,bool ChainContinuation=false) : ValueNode;
+internal sealed record ValueCall(ValueNode Callee,Token Open,IReadOnlyList<ValueNode> Arguments,int SpreadIndex=-1,bool Optional=false,bool ChainContinuation=false,bool BindingArrayTail=false) : ValueNode;
 // Ordered object spread entries carry their ellipsis as Name.
 // Static computed names retain ES2015 bracket spelling while their decoded identities are checked.
 internal sealed record ObjectProperty(Token Name,ValueNode Value,bool Spread=false,bool Method=false,bool Computed=false);
