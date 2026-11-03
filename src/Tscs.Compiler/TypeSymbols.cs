@@ -958,6 +958,16 @@ internal static class CompilerTypes
                 };
                 return new FunctionTypeSymbol([callback],result);
             }
+            // A parameterless native flat() copies and flattens exactly one
+            // level of an ordinary array whose elements are statically arrays.
+            // The inner array may itself be readonly; the result is writable.
+            // General FlatArray<T, D>, explicit depths, optional/union leaves
+            // and finite outer tuples need further checked type inference.
+            // Emit the native call: an ES2019-capable runtime is required.
+            if(name=="flat" && array.TupleElements is null &&
+               array.ElementType is ArrayTypeSymbol inner)
+                return new FunctionTypeSymbol([],
+                    new ArrayTypeSymbol(inner.ElementType));
             // Native map and one-level flatMap share checked callback input
             // validation, but differ in their inferred output array element.
             // Their intrinsic identities cannot be erased into ordinary callables.
