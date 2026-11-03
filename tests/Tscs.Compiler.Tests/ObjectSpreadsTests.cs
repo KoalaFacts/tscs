@@ -131,10 +131,32 @@ public sealed class ObjectSpreadsTests
             "type Both={item:{n:number}}&{item:{readonly n:number}};"+
             "let v:Both={item:{n:1}};let n:number=v.item.n;"));
 
-    // Conditional numeric/string source-key identity remains explicitly unsupported.
-    [Fact]
-    public void UnmodeledOptionalNumericSourceIdentityFailsClosed() =>
-        Assert.Contains(Compilation.Check("optional-spread-unmodeled.ts",
-            "let patch:{0?:string}={};let v={\"0\":21,...patch};"),
-            d=>d.Code=="TSCS1001");
+    // Optional overlapping numeric/string keys describe one JS property.
+    // TypeScript synthesizes a string-literal keyof key for a conditional
+    // override; later required properties still replace the merged key.
+    [Theory]
+    [InlineData("let p:{0?:string}={};let v={\"0\":21,...p};let x:number|string=v[0];let k:keyof typeof v=\"0\";")]
+    [InlineData("let p:{\"0\"?:string}={};let v={0:21,...p};let x:number|string=v[0];let k:keyof typeof v=\"0\";")]
+    [InlineData("let p:{0?:string}={};let v={0:21,...p};let k:keyof typeof v=\"0\";")]
+    [InlineData("let p:{\"0\"?:string}={};let v={\"0\":21,...p};let k:keyof typeof v=\"0\";")]
+    [InlineData("let p:{0?:number}={};let v={0:21,...p};let k:keyof typeof v=\"0\";v[0]=22;")]
+    [InlineData("let p:{0?:string}={};let v={0:21,...p,tag:true};let k:keyof typeof v=\"0\";let n:number|string=v[0];")]
+    [InlineData("let p:{0?:string}={};let v={0:21,...p,...{tail:true}};let k:keyof typeof v=\"0\";")]
+    [InlineData("type Patch={0?:string};function combine(p:Patch):{0:number|string}{return {0:21,...p};}let n:number|string=combine({0:\"x\"})[0];")]
+    public void OptionalNumericStringSpreadKeysRetainReadsAndKeyof(string source) =>
+        Assert.Empty(Compilation.Check("optional-numeric-keys.ts",source));
+
+    [Theory]
+    [InlineData("let p:{0?:string}={};let v={\"0\":21,...p};let k:keyof typeof v=0;")]
+    [InlineData("let p:{\"0\"?:string}={};let v={0:21,...p};let k:keyof typeof v=0;")]
+    [InlineData("let p:{0?:string}={};let v={0:21,...p};let k:keyof typeof v=0;")]
+    [InlineData("let p:{0?:string}={};let v={0:21,...p};v[0]=true;")]
+    [InlineData("let p:{\"0\"?:string}={};let v={0:21,...p};let n:number=v[0];")]
+    [InlineData("let p:{0?:string}={};let v={\"0\":21,...p};let n:string=v[0];")]
+    [InlineData("let p:{0?:string}={};let v={0:21,...p};let k:0=\"0\" as keyof typeof v;")]
+    [InlineData("let p:{0?:string}={};let v={0:21,...p};let x:{0:boolean}=v;")]
+    public void OptionalNumericStringSpreadKeysRejectWrongTypesAndKeys(string source) =>
+        Assert.Equal(new[] {"TS2322"},Compilation.Check("optional-numeric-keys-invalid.ts",source)
+            .Select(d=>d.Code).ToArray());
+
 }
