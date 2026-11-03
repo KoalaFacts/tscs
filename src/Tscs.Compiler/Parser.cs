@@ -377,10 +377,13 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             {
                 if(members.Count>=64)Unsupported(Current,"Binding pattern has too many members.");
                 var key=Current;
-                if(key.Kind!=TokenKind.Identifier)
-                    Unsupported(key,"Only static identifier object binding keys are supported.");
-                Take();
+                if(key.Kind==TokenKind.Identifier)Take();
+                else if(key.Kind is TokenKind.String or TokenKind.Number)
+                    key=ReadPropertyName(allowString:true,allowNumber:true);
+                else Unsupported(key,"Only finite identifier, string and integer object binding keys are supported.");
                 bool renamed=Eat(TokenKind.Colon);
+                if(!renamed && key.Kind!=TokenKind.Identifier)
+                    Unsupported(key,"String and numeric object binding keys require a named alias.");
                 if(!renamed && depth>=32)
                     Unsupported(key,"Binding pattern nesting exceeds the supported limit.");
                 BindingPattern binding;
@@ -474,13 +477,21 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     freshObject.Properties.All(member=>!member.Spread && !member.Computed);
                 foreach(var (key,binding) in objectPattern.Members)
                 {
+                    var name=PropertyName(key);
                     var written=reliableFresh
-                        ?freshObject!.Properties.LastOrDefault(member=>PropertyName(member.Name)==key.Text)
+                        ?freshObject!.Properties.LastOrDefault(member=>PropertyName(member.Name)==name)
                         :null;
                     bool omitted=reliableFresh && !annotatedBinding &&
                         written is null && binding is BoundDefault;
-                    LowerBindingChild(binding,
-                        new ValuePropertyAccess(source,key,BindingFreshOmittedDefault:omitted),
+                    // Quoted/integer keys need bracket syntax, never dotted JS.
+                    ValueNode keyedRead=key.Kind==TokenKind.Identifier
+                        ?new ValuePropertyAccess(source,key,BindingFreshOmittedDefault:omitted)
+                        :new ValueElementAccess(source,
+                            new Token(TokenKind.OpenBracket,"[",key.Start,1),
+                            new ValueAtom(key),
+                            new Token(TokenKind.CloseBracket,"]",key.Start,1),
+                            BindingFreshOmittedDefault:omitted);
+                    LowerBindingChild(binding,keyedRead,
                         key,constant,exported,target,depth+1,annotatedBinding,written?.Value);
                 }
                 return;
