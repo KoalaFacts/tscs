@@ -36,7 +36,7 @@ public sealed class ObjectSpreadsTests
     [InlineData("let a:{n?:number}={};let b:{n?:string}={};let v={...a,...b};let x:number|string|undefined=v.n;")]
     [InlineData("let a:{n?:number}={};let b:{n?:string}={};let v={n:true,...a,...b};let v2={...v,n:false};let x:boolean=v2.n;")]
     [InlineData("let first:{n?:number}={};let last:{n?:string;tag?:boolean}={};let v={n:true,...first,...last};let x:boolean|number|string=v.n;let t:boolean|undefined=v.tag;")]
-    [InlineData("type Patch={n?:string};function merge(v:Patch){return {n:21,...v};}let x:number|string=merge({n:\"a\"}).n;")]
+    [InlineData("type Patch={n?:string};function merge(v:Patch):{n:number|string}{return {n:21,...v};}let x:number|string=merge({n:\"a\"}).n;")]
     [InlineData("let patch:{n?:string}={};let v={inner:{n:21,...patch}};let x:number|string=v.inner.n;")]
     [InlineData("let a:{n?:number}={};let b:{n?:number}={};let v={n:21,...a,...b};let x:number=v.n;")]
     [InlineData("type Item={score:number};let patch:{item?:Item}={};let v={item:{score:21},...patch};let x:number=v.item.score;")]

@@ -3216,8 +3216,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         }
         if(source is ObjectTypeSymbol data && target is ObjectTypeSymbol shape)
         {
+            // An optional member exists, but is not assignable to a required
+            // member. That is TS2322, not the genuinely missing-key TS2741.
             var missing=shape.Members.Keys.Where(name=>!shape.OptionalMembers.Contains(name) &&
-                (!data.Members.ContainsKey(name) || data.OptionalMembers.Contains(name))).ToArray();
+                !data.Members.ContainsKey(name)).ToArray();
             if(missing.Length==1)
             {
                 Error(token,"TS2741",$"Property '{missing[0]}' is missing in type '{source.DisplayName}' but required in type '{target.DisplayName}'.");

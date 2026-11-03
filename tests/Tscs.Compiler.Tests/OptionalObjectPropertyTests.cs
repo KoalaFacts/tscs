@@ -42,7 +42,7 @@ public sealed class OptionalObjectPropertyTests
     [InlineData("let item: { value?: number } = { extra: 42 };","TS2353")]
     [InlineData("let item: { value?: number } = {}; let result: number = item.value;","TS2322")]
     [InlineData("let item: { value?: number } = {}; item.value = \"wrong\";","TS2322")]
-    [InlineData("let item: { value?: number } = {}; let required: { value: number } = item;","TS2741")]
+    [InlineData("let item: { value?: number } = {}; let required: { value: number } = item;","TS2322")]
     [InlineData("interface Parent { value: number } interface Child extends Parent { value?: number }","TS2430")]
     [InlineData("let item: { readonly value?: number } = {}; item.value = 42;","TS2540")]
     [InlineData("interface Op{run?(n:number):number}const op:Op={run:42};","TS2322")]

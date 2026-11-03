@@ -1593,7 +1593,7 @@
     },
     {
       "id": "type-operators:positive-141",
-      "source": "type Patch={n?:string};function merge(v:Patch){return {n:21,...v};}let x:number|string=merge({n:\"a\"}).n;",
+      "source": "type Patch={n?:string};function merge(v:Patch):{n:number|string}{return {n:21,...v};}let x:number|string=merge({n:\"a\"}).n;",
       "expectedCodes": []
     },
     {
