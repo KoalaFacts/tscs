@@ -1990,6 +1990,30 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "type-operators:positive-172",
+      "source": "let p:{0?:string}={};let v={[0]:21,...p};let k:keyof typeof v=0;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-173",
+      "source": "let p:{0?:string}={};let first={[0]:21};let v={...first,...p};let k:keyof typeof v=0;",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-165",
+      "source": "let p:{0?:string}={};let v={[0]:21,...p};let k:keyof typeof v=\"0\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-166",
+      "source": "let p:{0?:string}={};let first={[0]:21};let v={...first,...p};let k:keyof typeof v=\"0\";",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }
