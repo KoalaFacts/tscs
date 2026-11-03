@@ -2646,21 +2646,38 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         if(value is not UnionTypeSymbol unionReturn)return value;
                         if(!unionReturn.Alternatives.Any(item=>item is ArrayTypeSymbol))
                             return value;
-                        TypeSymbol? common=null;
+                        // An array member fixes U, including when U itself
+                        // is a union. Each other array arm must have the same U;
+                        // each scalar arm must be one of U's alternatives.
+                        // This accepts U | U[] without accepting number | string[].
+                        TypeSymbol? arrayElement=null;
                         foreach(var item in unionReturn.Alternatives)
                         {
-                            TypeSymbol candidate=item is ArrayTypeSymbol array
-                                ?array.ElementType:item;
-                            if(common is not null &&
-                               !CompilerTypes.SameStructuralInput(common,candidate))
+                            if(item is not ArrayTypeSymbol array)continue;
+                            if(arrayElement is not null &&
+                               !CompilerTypes.SameStructuralInput(arrayElement,array.ElementType))
                                 throw new CompilationFailure(Diagnostic.Error(file,call.Open,
                                     "TSCS1001",
                                     "Array.flatMap callback return union cannot infer one common element type."));
-                            common=candidate;
+                            arrayElement=array.ElementType;
                         }
-                        return common!;
+                        if(arrayElement is null)return value;
+                        foreach(var item in unionReturn.Alternatives)
+                        {
+                            if(item is ArrayTypeSymbol)continue;
+                            if(CompilerTypes.SameStructuralInput(arrayElement,item) ||
+                               (arrayElement is UnionTypeSymbol elementUnion &&
+                                elementUnion.Alternatives.Any(option=>
+                                    CompilerTypes.SameStructuralInput(option,item))))
+                                continue;
+                            throw new CompilationFailure(Diagnostic.Error(file,call.Open,
+                                "TSCS1001",
+                                "Array.flatMap callback return union cannot infer one common element type."));
+                        }
+                        return arrayElement;
                     }
                     TypeSymbol? mapperReturn=null;
+                    TypeSymbol? validatedUnionElement=null;
                     if(arguments[0] is FunctionTypeSymbol mapper)
                         mapperReturn=mapper.ReturnType;
                     else if(arguments[0] is UnionTypeSymbol callbackUnion &&
@@ -2692,13 +2709,17 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             !CompilerTypes.SameStructuralInput(firstMapped,CheckedMappedElement(type))))
                             throw new CompilationFailure(Diagnostic.Error(file,call.Open,
                                 "TSCS1001","Array callback union cannot infer one common result element type."));
+                        // Reuse the validated U. Re-flattening the joined
+                        // return types would split scalar-union U into its
+                        // primitive members and falsely reject U | U[].
+                        validatedUnionElement=firstMapped;
                     }
                     if(mapperReturn is not null)
                     {
                         // Also validate a single callback whose explicitly
                         // declared return is itself a scalar-or-array union.
                         // The same one-level normalizer validates union arms.
-                        var mappedElement=CheckedMappedElement(mapperReturn);
+                        var mappedElement=validatedUnionElement??CheckedMappedElement(mapperReturn);
                         var mapped=new ArrayTypeSymbol(mappedElement);
                         presentResult=mapped;
                         resultType=CheckedOptionalCallReturn(mapped);

@@ -25,6 +25,9 @@ public sealed class ArrayFlatMapTests
     [InlineData("type F=((n:number)=>number|number[])|((n:number)=>number[]);function f(xs:number[],cb:F):number[]{return xs.flatMap(cb);}")]
     [InlineData("function f(xs:number[],cb:(n:number)=>number|number[]):number[]{return xs.flatMap(cb);}")]
     [InlineData("function f(xs:number[],cb:(n:number)=>number|string):(number|string)[]{return xs.flatMap(cb);}")]
+    [InlineData("type F=((n:number)=>number|string)|((n:number)=>(number|string)[]);function f(xs:number[],cb:F):(number|string)[]{return xs.flatMap(cb);}")]
+    [InlineData("function f(xs:number[],cb:(n:number)=>(number|string)|(number|string)[]):(number|string)[]{return xs.flatMap(cb);}")]
+    [InlineData("function f(xs:number[],cb:(n:number)=>number|(number|string)[]):(number|string)[]{return xs.flatMap(cb);}")]
     public void ExplicitCallbackResultsFlattenOneArrayLevel(string source) =>
         Assert.Empty(Compilation.Check("flat-map.ts",source));
 
