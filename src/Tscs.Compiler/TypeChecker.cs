@@ -1853,6 +1853,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         // This must not erase undefined from an actually optional property.
         var optionalPresent=new Dictionary<ValueNode,TypeSymbol?>();
         var optionalSkipped=new Dictionary<ValueNode,bool>();
+        // Native flat signatures depend on the call's actual JavaScript this
+        // receiver. A function-valued object property can carry a copied
+        // intrinsic signature without being an array at runtime.
+        var boundNativeFlatMembers=new HashSet<ValueNode>(ReferenceEqualityComparer.Instance);
         void PushOptionalResult(ValueNode node,TypeSymbol? present,bool isChain,bool maySkip)
         {
             types.Push(present!=null && maySkip
@@ -2488,6 +2492,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             $"Property '{property.Name.Text}' does not exist on type '{presentReceiver.DisplayName}'.");
                     presentMember=null;
                 }
+                if(presentReceiver is ArrayTypeSymbol &&
+                   presentMember is FunctionTypeSymbol { NativeArrayFlatReceiver: not null })
+                    boundNativeFlatMembers.Add(property);
                 PushOptionalResult(property,presentMember,property.Optional||property.ChainContinuation,mayBeUndefined);
                 continue;
             }
@@ -2612,28 +2619,29 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 // Only bounded nonnegative literal depths have checked types.
                 if(signature.NativeArrayFlatReceiver is { } flatReceiver)
                 {
-                    // Extracting an array method loses its native this receiver
-                    // at runtime. Keep native property/index calls bound.
-                    if(call.Callee is not ValuePropertyAccess &&
-                       call.Callee is not ValueElementAccess)
+                    // Only a property checked *on a real array* is a native
+                    // flat call. Merely seeing .flat syntax on a structural
+                    // object carrying a transplanted intrinsic is unsound.
+                    // Parentheses preserve a JS reference and its this binding.
+                    ValueNode boundCallee=call.Callee;
+                    while(boundCallee is ValueParenthesized wrapped)
+                        boundCallee=wrapped.Expression;
+                    if(!boundNativeFlatMembers.Contains(boundCallee))
                         throw new CompilationFailure(Diagnostic.Error(file,call.Open,"TSCS1001",
-                            "Array.flat must be called on its native array receiver."));
+                            "Array.flat must be called on its checked native array receiver."));
                     if(call.SpreadIndex>=0)
                         throw new CompilationFailure(Diagnostic.Error(file,call.Open,"TSCS1001",
                             "Array.flat does not support spread depth arguments."));
                     int depth=1;
                     if(call.Arguments.Count==1)
                     {
-                        ValueNode depthValue=call.Arguments[0];
-                        while(depthValue is ValueParenthesized group)
-                            depthValue=group.Expression;
-                        if(depthValue is not ValueAtom { Token.Kind:TokenKind.Number } flatDepthToken ||
-                           !int.TryParse(flatDepthToken.Token.Text,
-                               System.Globalization.NumberStyles.None,
-                               System.Globalization.CultureInfo.InvariantCulture,out depth) ||
-                           depth>3)
+                        // Numeric literals are compared by decoded ECMAScript
+                        // value, not token spelling: 0x2, 2.0 and 2e0 are 2.
+                        if(!TryFiniteTupleIndex(call.Arguments[0],out var literalDepth) ||
+                           literalDepth>3)
                             throw new CompilationFailure(Diagnostic.Error(file,call.Open,
                                 "TSCS1001","Array.flat depth must be a literal integer from 0 to 3."));
+                        depth=(int)literalDepth;
                     }
                     if(call.Arguments.Count<=1)
                     {

@@ -21,6 +21,11 @@ public sealed class ArrayFlatTests
     [InlineData("let rows:number[][][]=[[[1]]];let one:number[][]=rows.flat(1);")]
     [InlineData("let rows:number[][][]=[[[1]]];let two:number[]=rows.flat(2);")]
     [InlineData("let rows:number[][][][]=[[[[1]]]];let three:number[]=rows.flat(3);")]
+    [InlineData("let rows:number[][][]=[[[1]]];let hex:number[]=rows.flat(0x2);")]
+    [InlineData("let rows:number[][][]=[[[1]]];let exponential:number[]=rows.flat(2e0);")]
+    [InlineData("let rows:number[][][]=[[[1]]];let decimal:number[]=rows.flat(2.0);")]
+    [InlineData("let rows:number[][]=[[1]];let grouped:number[]=(rows.flat)();")]
+    [InlineData("let rows:number[][][]=[[[1]]];let grouped:number[]=((rows.flat))(2);")]
     [InlineData("let rows:readonly number[]=[1,2];let copy:number[]=rows.flat(3);copy[0]=9;")]
     [InlineData("let rows:number[]=[1,2];let copy:number[]=rows.flat();")]
     public void FlattensExactlyOneKnownNestedArrayLevel(string source) =>
@@ -41,6 +46,7 @@ public sealed class ArrayFlatTests
     [InlineData("let rows:number[][]=[[1]];let wrong:number[]=rows.flat(1,2);","TS2554")]
     [InlineData("function f(rows:number[][]|string[][]):void{rows.flat(0);}","TSCS1001")]
     [InlineData("function f(rows:number[][]):void{let extracted=rows.flat;extracted(0);}","TSCS1001")]
+    [InlineData("let rows:number[][]=[[1]];let holder={flat:rows.flat,length:1,0:\"bad\"};let result:number[][]=holder.flat(0);","TSCS1001")]
     public void RejectsIncorrectFlatOutputTypes(string source,string code) =>
         Assert.Contains(Compilation.Check("invalid-native-flat.ts",source),d=>d.Code==code);
 
