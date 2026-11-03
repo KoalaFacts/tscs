@@ -484,14 +484,14 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     bool omitted=reliableFresh && !annotatedBinding &&
                         written is null && binding is BoundDefault;
                     // Quoted/integer keys need bracket syntax, never dotted JS.
-                    ValueNode read=key.Kind==TokenKind.Identifier
+                    ValueNode keyedRead=key.Kind==TokenKind.Identifier
                         ?new ValuePropertyAccess(source,key,BindingFreshOmittedDefault:omitted)
                         :new ValueElementAccess(source,
                             new Token(TokenKind.OpenBracket,"[",key.Start,1),
                             new ValueAtom(key),
                             new Token(TokenKind.CloseBracket,"]",key.Start,1),
                             BindingFreshOmittedDefault:omitted);
-                    LowerBindingChild(binding,read,
+                    LowerBindingChild(binding,keyedRead,
                         key,constant,exported,target,depth+1,annotatedBinding,written?.Value);
                 }
                 return;
