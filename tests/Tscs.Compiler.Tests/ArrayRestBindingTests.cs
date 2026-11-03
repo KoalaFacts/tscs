@@ -41,13 +41,13 @@ public sealed class ArrayRestBindingTests
         {
             var sources=new Dictionary<string,string>(StringComparer.Ordinal)
             {
-                [Path.Combine(root,"values.ts")]="export const nums:number[]=[20,21,22];",
+                [Path.Combine(root,"values.ts")]="export const nums:number[]=[20,21,22];export const sparse:number[]=[7];sparse.length=2;",
                 [Path.Combine(root,"sum.ts")]="export function sum(a:number,b:number):number{return a+b;}",
                 [Path.Combine(root,"bridge.ts")]="export {sum} from \"./sum.js\";",
                 [Path.Combine(root,"entry.ts")]=
-                    "import {nums} from \"./values.js\";import {sum} from \"./bridge.js\";"+
-                    "const [first,...tail]=nums;"+
-                    "export const result:number=sum(first,tail[1]);"
+                    "import {nums,sparse} from \"./values.js\";import {sum} from \"./bridge.js\";"+
+                    "const [first,...tail]=nums;const [...holeTail]=sparse;"+
+                    "export const result:number=sum(first,tail[1]);export const materialized:number[]=holeTail;"
             };
             var program=CompilerProgram.Load(new SourceHost(sources),
                 [Path.Combine(root,"entry.ts")],
@@ -67,7 +67,7 @@ public sealed class ArrayRestBindingTests
             info.ArgumentList.Add("-e");
             // Dynamic import after overriding the source array's own slice
             // guards against accidentally lowering rest to nums.slice(...).
-            info.ArgumentList.Add("import {nums} from './values.js';nums.slice=()=>{throw new Error('own slice invoked')};const {result}=await import('./entry.js');console.log(result)");
+            info.ArgumentList.Add("import {nums} from './values.js';nums.slice=()=>{throw new Error('own slice invoked')};const {result,materialized}=await import('./entry.js');console.log(result+':'+(0 in materialized)+':'+(1 in materialized)+':'+materialized.length)");
             using var process=Process.Start(info)!;
             if(!process.WaitForExit(10000))
             {
@@ -78,7 +78,7 @@ public sealed class ArrayRestBindingTests
             var stderr=process.StandardError.ReadToEnd();
             Assert.Equal(0,process.ExitCode);
             Assert.Equal("",stderr);
-            Assert.Equal("42",stdout.Trim());
+            Assert.Equal("42:true:true:2",stdout.Trim());
         }
         finally { Directory.Delete(root,true); }
     }
