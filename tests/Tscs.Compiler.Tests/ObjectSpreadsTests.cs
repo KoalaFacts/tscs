@@ -159,4 +159,20 @@ public sealed class ObjectSpreadsTests
         Assert.Equal(new[] {"TS2322"},Compilation.Check("optional-numeric-keys-invalid.ts",source)
             .Select(d=>d.Code).ToArray());
 
+
+    // Computed numeric key origin is different from plain numeric spelling.
+    // Propagate it through an intermediate spread instead of regressing keyof.
+    [Theory]
+    [InlineData("let p:{0?:string}={};let v={[0]:21,...p};let k:keyof typeof v=0;")]
+    [InlineData("let p:{0?:string}={};let first={[0]:21};let v={...first,...p};let k:keyof typeof v=0;")]
+    public void ComputedNumericKeysKeepKeyofAfterOptionalSpread(string source) =>
+        Assert.Empty(Compilation.Check("computed-numeric-overlap.ts",source));
+
+    [Theory]
+    [InlineData("let p:{0?:string}={};let v={[0]:21,...p};let k:keyof typeof v=\"0\";")]
+    [InlineData("let p:{0?:string}={};let first={[0]:21};let v={...first,...p};let k:keyof typeof v=\"0\";")]
+    public void ComputedNumericKeysRejectStringKeyofAfterOptionalSpread(string source) =>
+        Assert.Equal(new[] {"TS2322"},Compilation.Check("computed-numeric-overlap-invalid.ts",source)
+            .Select(d=>d.Code).ToArray());
+
 }
