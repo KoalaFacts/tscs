@@ -1441,6 +1441,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 LiteralTypeSymbol { Kind:PrimitiveKind.String } => "string",
                 LiteralTypeSymbol { Kind:PrimitiveKind.Boolean } => "boolean",
                 FunctionTypeSymbol => "function",
+                // Native arrays and finite tuples are runtime objects; unlike
+                // broad structural object types they cannot be primitive values.
+                ArrayTypeSymbol => "object",
                 _=>null
             };
             if(family==null)return null;

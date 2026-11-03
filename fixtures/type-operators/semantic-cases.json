@@ -2302,6 +2302,102 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "type-operators:positive-198",
+      "source": "function f(v:number[]|string):void{if(typeof v===\"object\"){let a:number[]=v;}}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-199",
+      "source": "function f(v:number[]|string):void{if(typeof v===\"object\"){}else{let a:string=v;}}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-200",
+      "source": "function f(v:number[]|string):void{if(typeof v!==\"object\"){let a:string=v;}else{v.push(21);}}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-201",
+      "source": "function f(v:[number,string]|string):void{if(typeof v===\"object\"){let a:[number,string]=v;}}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-202",
+      "source": "function f(v:readonly number[]|string):void{if(typeof v===\"object\"){let a:readonly number[]=v;}}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-203",
+      "source": "function f(v:number[]|string|undefined):void{if(typeof v===\"object\"){let a:number[]=v;}else{let b:string|undefined=v;}}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-204",
+      "source": "function f(v:number[]|null|string):void{if(typeof v===\"object\"){if(v!==null){let a:number[]=v;}}}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:positive-205",
+      "source": "function f(v:number[]|number):void{if(typeof v===\"object\"){let a:number[]=v;}else{let n:number=v;}}",
+      "expectedCodes": []
+    },
+    {
+      "id": "type-operators:negative-191",
+      "source": "function f(v:number[]|string):void{if(typeof v===\"object\"){let bad:string=v;}}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-192",
+      "source": "function f(v:number[]|string):void{if(typeof v===\"object\"){}else{let bad:number[]=v;}}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-193",
+      "source": "function f(v:[number,string]|string):void{if(typeof v===\"object\"){let bad:string=v;}}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-194",
+      "source": "function f(v:readonly number[]|string):void{if(typeof v===\"object\"){v.push(21);}}",
+      "expectedCodes": [
+        "TS2339"
+      ]
+    },
+    {
+      "id": "type-operators:negative-195",
+      "source": "function f(v:number[]|null|string):void{if(typeof v===\"object\"){let bad:number[]=v;}}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-196",
+      "source": "function f(v:number[]|number):void{if(typeof v!==\"object\"){let bad:string=v;}}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-197",
+      "source": "function f(v:[number,string]|string):void{if(typeof v===\"object\"){let bad:[number,number]=v;}}",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "type-operators:negative-198",
+      "source": "function f(v:number[]|string):void{if(typeof v!==\"object\"){let bad:number[]=v;}}",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }
