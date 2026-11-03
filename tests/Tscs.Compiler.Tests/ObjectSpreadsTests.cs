@@ -310,4 +310,19 @@ public sealed class ObjectSpreadsTests
     public void MixedOptionalNumericOverlapsFailClosed(string source) =>
         Assert.Contains(Compilation.Check("mixed-numeric.ts",source),d=>d.Code=="TSCS1001");
 
+    // Binder prebinding for typeof must not erase source-arm presence metadata.
+    [Theory]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value?:string;tag:boolean}):void{let first={...x};let alias:typeof first=first;const y={value:21,...alias} as const;y.value=42;}", "TS2540")]
+    [InlineData("function f(x:{0:number;tag:boolean}|{0?:string;tag:boolean}):void{let first={...x};let alias:typeof first=first;let y={0:21,...alias};let k:keyof typeof y=\"0\";}", "TSCS1001")]
+    public void MixedOptionalSpreadThroughTypeofPreservesPresence(string source,string expected) =>
+        Assert.Contains(Compilation.Check("mixed-typeof.ts",source),d=>d.Code==expected);
+
+    // Re-normalizing a union of an already mixed source with a second
+    // optional source must retain its required-arm readonly alternative.
+    [Fact]
+    public void MixedOptionalSpreadThroughNestedUnionKeepsConstReadonly() =>
+        Assert.Equal(new[] {"TS2540"},Compilation.Check("mixed-nested-union.ts",
+            "function f(x:{value:number;tag:boolean}|{value?:string;tag:boolean},b:boolean):void{let first={...x};let other:{value?:boolean;tag:boolean}={tag:true};let combined=b?first:other;const y={value:21,...combined} as const;y.value=42;}")
+            .Select(d=>d.Code).ToArray());
+
 }
