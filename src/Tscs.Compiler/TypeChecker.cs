@@ -2337,14 +2337,20 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         checkedObjectSpreadOperands[entry]=source;
                         foreach(var member in source.Members)
                         {
-                            if(source.OptionalMembers.Contains(member.Key) && members.ContainsKey(member.Key))
+                            try
+                            {
+                                if(!CompilerTypes.MergeFiniteSpreadMember(members,numericMembers,
+                                    optionalMembers,member.Key,member.Value,
+                                    source.NumericMembers.Contains(member.Key),
+                                    source.OptionalMembers.Contains(member.Key)))
+                                    throw new CompilationFailure(Diagnostic.Error(file,entry.Name,"TSCS1001",
+                                        "Conditional numeric/string key identity in optional object spreads is not supported."));
+                            }
+                            catch(InvalidOperationException failure)
+                            {
                                 throw new CompilationFailure(Diagnostic.Error(file,entry.Name,"TSCS1001",
-                                    "Overlapping optional object spread keys require conditional type inference."));
-                            members[member.Key]=member.Value;
-                            if(source.NumericMembers.Contains(member.Key))numericMembers.Add(member.Key);
-                            else numericMembers.Remove(member.Key);
-                            if(source.OptionalMembers.Contains(member.Key))optionalMembers.Add(member.Key);
-                            else optionalMembers.Remove(member.Key);
+                                    failure.Message));
+                            }
                         }
                     }
                     else

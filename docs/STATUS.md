@@ -1,3 +1,16 @@
+## 2026-11-03 — Conditional optional object-spread overlap (candidate; NOT_RUN)
+
+The C# object-spread checker now joins earlier member types with later optional overrides
+without losing an earlier required key. Later required overrides still win. Shared
+prebinding reuses the rule. Ambiguous numeric-vs-string key identity and conditional
+readonly inference inside `as const` remain unsupported and fail closed.
+Eight positive/eight negative pinned-Go source cases extend the unchanged 263-case
+bounded reference cohort to 279. Source-backed xUnit and four-module native ES2015
+runtime/no-emission checks are included; exact-head hosted checks are NOT_RUN at
+creation. Original TS7 acceptance remains historically 0 PASS / 15,523
+SKIP_UNIMPLEMENTED, dynamic UNEXPANDED. No pin, release gate, test minimum,
+license or protection changes.
+
 ## 2026-11-03 — Named values inside finite const assertions (candidate; NOT_RUN)
 
 C# Binder and TypeChecker now infer already-checked identifier values nested
