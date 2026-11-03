@@ -20,7 +20,7 @@ try {
   writeFileSync(join(dir,'package.json'),'{"type":"module"}\n');
   writeFileSync(join(dir,'minimal.d.ts'),readFileSync('fixtures/spread-arguments/minimal.d.ts','utf8'));
   const modules={
-    'model.ts':'export const box={value:21,nested:{tag:"ok"}};export const readings:number[]=[10,20,30,40];',
+    'model.ts':'export const box={value:21,nested:{tag:"ok"}};export const readings:number[]=[10,20,30,40];export const packet={"data-key":21,0:"ready",nested:{"score-total":42}};',
     'logic.ts':[
       'export function add(a:number,b:number):number{return a+b;}',
       'export function unpack({value}:{value:number}):number{return value*2;}',
@@ -31,11 +31,13 @@ try {
       'export const arrowArray:(input:number[])=>number=([first,,third]:number[]):number=>first+third;',
       'export const expressionPick:(input:{value:number})=>number=function({value}:{value:number}):number{return value+1;};',
       'export const arrowDefault:(input:{value?:number})=>number=({value=42}:{value?:number}):number=>value;',
-      'export const methodPick:{read(input:{value:number}):number}={read({value}:{value:number}):number{return value;}};'
+      'export const methodPick:{read(input:{value:number}):number}={read({value}:{value:number}):number{return value;}};',
+      'export function literalPick({"data-key":value}:{"data-key":number}):number{return value*2;}',
+      'export function integerPick({0:value}:{0:number}):number{return value+1;}'
     ].join('\n'),
-    'bridge.ts':'export {add,unpack,pickArray,pickNested,modify,arrowPick,arrowArray,expressionPick,arrowDefault,methodPick} from "./logic.js";',
+    'bridge.ts':'export {add,unpack,pickArray,pickNested,modify,arrowPick,arrowArray,expressionPick,arrowDefault,methodPick,literalPick,integerPick} from "./logic.js";',
     'entry.ts':[
-      'import {box,readings} from "./model.js";import {add,unpack,pickArray,pickNested,modify,arrowPick,arrowArray,expressionPick,arrowDefault,methodPick} from "./bridge.js";',
+      'import {box,readings,packet} from "./model.js";import {add,unpack,pickArray,pickNested,modify,arrowPick,arrowArray,expressionPick,arrowDefault,methodPick,literalPick,integerPick} from "./bridge.js";',
       'const {value,nested:{tag}}=box;',
       'const [first,,third]=readings;',
       'let {value:mutable}:{value:number}=box;',
@@ -58,7 +60,13 @@ try {
       'export const undefinedOnly:number=onlyUndefined;',
       'export const optionalUndefinedValue:number|undefined=optionalUndefined;',
       'export const parameterResult:number=unpack(box)+pickArray(readings)+pickNested({inner:{}})+modify(box);',
-      'export const expressionBindings:number=arrowPick(box)+arrowArray(readings)+expressionPick(box)+arrowDefault({})+methodPick.read(box);'
+      'export const expressionBindings:number=arrowPick(box)+arrowArray(readings)+expressionPick(box)+arrowDefault({})+methodPick.read(box);',
+      'const {"data-key":dataKey,0:caption,nested:{"score-total":scoreTotal}}=packet;',
+      'const {"not-here":missingLiteral=7}={};',
+      'const {0:missingNumeric=8}={};',
+      'export const staticKeyResult:number=literalPick(packet)+integerPick({0:21})+scoreTotal+dataKey;',
+      'export const staticKeyLabel:string=caption;',
+      'export const staticKeyDefaults:number=missingLiteral+missingNumeric;'
     ].join('\n')
   };
   for(const [name,source] of Object.entries(modules))writeFileSync(join(dir,name),source);
@@ -70,8 +78,8 @@ try {
   assert.match(emitted,/__tscs_binding_/,'binding temporaries must be emitted');
   assert.doesNotMatch(emitted,/\{\s*value\s*,\s*nested\s*:/,'TypeScript binding syntax was not lowered');
   const run=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,label,doubled,defaults,defaultCalls,undefinedOnly,optionalUndefinedValue,parameterResult,expressionBindings} from "./entry.js";'+
-    'if(result!==83||label!=="ok"||doubled!==42||defaults!==135||defaultCalls!==3||undefinedOnly!==42||optionalUndefinedValue!==undefined||parameterResult!==146||expressionBindings!==188)throw Error(JSON.stringify({result,label,doubled,defaults,defaultCalls,parameterResult,expressionBindings}));'],
+    'import {result,label,doubled,defaults,defaultCalls,undefinedOnly,optionalUndefinedValue,parameterResult,expressionBindings,staticKeyResult,staticKeyLabel,staticKeyDefaults} from "./entry.js";'+
+    'if(result!==83||label!=="ok"||doubled!==42||defaults!==135||defaultCalls!==3||undefinedOnly!==42||optionalUndefinedValue!==undefined||parameterResult!==146||expressionBindings!==188||staticKeyResult!==127||staticKeyLabel!=="ready"||staticKeyDefaults!==15)throw Error(JSON.stringify({result,label,doubled,defaults,defaultCalls,parameterResult,expressionBindings,staticKeyResult,staticKeyLabel,staticKeyDefaults}));'],
     {cwd:dir,encoding:'utf8',timeout:15000,env});
   assert.equal(run.error,undefined,String(run.error));
   assert.equal(run.status,0,run.stdout+run.stderr);
@@ -101,7 +109,11 @@ try {
     ['expression-missing','const f=({missing}:{value:number}):number=>missing;','TS2339',2],
     ['expression-return','const f=([value]:number[]):string=>value;','TS2322',2],
     ['expression-function','const f=function({value}:{value:number}):string{return value;};','TS2322',2],
-    ['expression-duplicate','const f=({value}:{value:number},value:number):number=>value;','TS2300',2]
+    ['expression-duplicate','const f=({value}:{value:number},value:number):number=>value;','TS2300',2],
+    ['literal-key-missing','const {"data-key":label}={other:21};','TS2339',2],
+    ['literal-key-type','const {0:zero}={0:21};let wrong:string=zero;','TS2322',2],
+    ['literal-key-noalias','const {"data-key"}={"data-key":21};','TSCS1001',1],
+    ['literal-key-dynamic','const key="data-key";const {[key]:v}={"data-key":21};','TSCS1001',1]
   ] as const;
   for(const [name,source,code,status] of negative) {
     writeFileSync(join(dir,'invalid-'+name+'.ts'),source);
@@ -110,5 +122,5 @@ try {
     assert.match(bad.stdout+bad.stderr,new RegExp(code));
     assert.equal(existsSync(join(dir,'invalid-'+name+'.js')),false,'invalid program emitted JS: '+name);
   }
-  console.log('Finite object/array binding patterns: four linked ES2015 modules executed; twenty-five invalid programs emitted no JavaScript.');
+  console.log('Finite object/array binding patterns: four linked ES2015 modules executed; twenty-nine invalid programs emitted no JavaScript.');
 } finally {rmSync(dir,{recursive:true,force:true});}

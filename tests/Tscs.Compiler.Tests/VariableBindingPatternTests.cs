@@ -243,7 +243,7 @@ public sealed class VariableBindingPatternTests
         Assert.Empty(program.Analyze().Diagnostics);
         var outputs=program.EmitJavaScript();
         Assert.Equal(3,outputs.Count);
-        var entry=Assert.Single(outputs.Where(o=>Path.GetFileName(o.SourceFile)=="entry.ts"));
+        var entry=Assert.Single(outputs,o=>Path.GetFileName(o.SourceFile)=="entry.ts");
         Assert.Contains("[\"data-key\"]",entry.Text,StringComparison.Ordinal);
         Assert.Contains("[0]",entry.Text,StringComparison.Ordinal);
         Assert.Contains("[\"score-total\"]",entry.Text,StringComparison.Ordinal);
