@@ -193,6 +193,63 @@ public sealed class VariableBindingPatternTests
         Assert.Throws<InvalidOperationException>(()=>program.EmitJavaScript());
     }
 
+    [Theory]
+    [InlineData("""const {"data-key": label}={"data-key":"ready"};let s:string=label;""")]
+    [InlineData("""const {0: first}={0:21};let n:number=first;""")]
+    [InlineData("""const {"0": first}={0:21};let n:number=first;""")]
+    [InlineData("""let {"data-key":value}:{"data-key":number}={"data-key":21};value=22;""")]
+    [InlineData("""const {"outer-key":{"data-key":label}}={"outer-key":{"data-key":"ready"}};let s:string=label;""")]
+    [InlineData("""const {"data-key": label=42}={};let n:number=label;""")]
+    [InlineData("""const {0: first=42}={};let n:number=first;""")]
+    [InlineData("""const {"data-key": label=42}:{"data-key"?:number}={};let n:number=label;""")]
+    [InlineData("""function pick({"data-key":value}:{"data-key":number}):number{return value;}const n:number=pick({"data-key":42});""")]
+    [InlineData("""const f=({0: value}:{0:number}):number=>value;const n:number=f({0:42});""")]
+    public void StaticStringAndIntegerBindingKeysUseCheckedTypes(string source) =>
+        Assert.Empty(Compilation.Check("static-binding-keys.ts",source));
+
+    [Theory]
+    [InlineData("""const {"data-key":label}={other:21};""","TS2339")]
+    [InlineData("""const {"data-key":label}={"data-key":21};let bad:string=label;""","TS2322")]
+    [InlineData("""const {"data-key":label}={"data-key":21};label=22;""","TS2588")]
+    public void StaticBindingKeysRejectMissingMembersBadTypesAndConstantWrites(string source,string code) =>
+        Assert.Contains(Compilation.Check("static-binding-keys-negative.ts",source),
+            diagnostic=>diagnostic.Code==code);
+
+    [Theory]
+    [InlineData("""const {"data-key"}={"data-key":21};""")]
+    [InlineData("""const {1.5: value}={1:21};""")]
+    [InlineData("""const {[name]: value}={value:21};""")]
+    [InlineData("""const {0: first}={1:21};""")]
+    public void UnsupportedOrMissingNumericBindingsDoNotBecomeSuccess(string source) =>
+        Assert.NotEmpty(Compilation.Check("static-binding-keys-rejected.ts",source));
+
+    [Fact]
+    public void StaticBindingKeysCrossImportedModulesAndEmitValidEs2015()
+    {
+        var root=Path.Combine(Path.GetTempPath(),"tscs-static-binding-keys");
+        var inputs=new Dictionary<string,string>(StringComparer.Ordinal)
+        {
+            [Path.Combine(root,"model.ts")]=
+                """export const packet={"data-key":21,0:"ready",nested:{"score-total":42}};""",
+            [Path.Combine(root,"logic.ts")]=
+                "export function add(a:number,b:number):number{return a+b;}",
+            [Path.Combine(root,"entry.ts")]=
+                "import {packet} from \"./model.js\";import {add} from \"./logic.js\";"+
+                """const {"data-key":value,0:label,nested:{"score-total":score}}=packet;"""+
+                "export const result:number=add(value,score);export const tag:string=label;"
+        };
+        var program=CompilerProgram.Load(new Host(inputs),[Path.Combine(root,"entry.ts")],
+            new CompilerOptions {NoLib=true,Target=CompilerTarget.Es2015,Module=CompilerModule.Es2015});
+        Assert.Empty(program.Analyze().Diagnostics);
+        var outputs=program.EmitJavaScript();
+        Assert.Equal(3,outputs.Count);
+        var entry=Assert.Single(outputs.Where(o=>Path.GetFileName(o.SourceFile)=="entry.ts"));
+        Assert.Contains("[\"data-key\"]",entry.Text,StringComparison.Ordinal);
+        Assert.Contains("[0]",entry.Text,StringComparison.Ordinal);
+        Assert.Contains("[\"score-total\"]",entry.Text,StringComparison.Ordinal);
+        Assert.DoesNotContain(".\"data-key\"",entry.Text,StringComparison.Ordinal);
+    }
+
     private sealed class Host(IReadOnlyDictionary<string,string> sources) : ICompilerHost
     {
         public StringComparer FileNameComparer=>StringComparer.Ordinal;

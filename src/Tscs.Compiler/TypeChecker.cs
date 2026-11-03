@@ -557,7 +557,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
 
     // Numeric literals name an existing integer object member, never a
     // general object[number] index signature. Strings retain prior behavior.
-    private static bool TryStaticNamedIndex(ValueNode index,TypeSymbol? receiver,out string name)
+    private static bool TryStaticNamedIndex(ValueNode index,TypeSymbol? receiver,out string name,bool allowFreshMissing=false)
     {
         while(index is ValueParenthesized group)index=group.Expression;
         if(index is ValueAtom atom)
@@ -569,7 +569,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             }
             if(atom.Token.Kind==TokenKind.Number &&
                receiver is ObjectTypeSymbol shape &&
-               shape.Members.ContainsKey(Parser.PropertyName(atom.Token)))
+               (shape.Members.ContainsKey(Parser.PropertyName(atom.Token)) || allowFreshMissing))
             {
                 name=Parser.PropertyName(atom.Token);
                 return true;
@@ -2277,12 +2277,18 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 else presentReceiver=indexed.Optional && receiverType!=null
                     ?CompilerTypes.NonNullAssertionResult(receiverType):receiverType;
                 bool isChain=indexed.Optional || indexed.ChainContinuation;
-                if(presentReceiver!=null && TryStaticNamedIndex(indexed.Index,presentReceiver,out var key) &&
+                if(presentReceiver!=null && TryStaticNamedIndex(indexed.Index,presentReceiver,out var key,
+                        indexed.BindingFreshOmittedDefault) &&
                    (presentReceiver is ObjectTypeSymbol or UnionTypeSymbol ||
                     presentReceiver.Equals(CompilerTypes.Any)))
                 {
                     if(CompilerTypes.TryGetProperty(presentReceiver,key) is { } member)
                         PushOptionalResult(indexed,member,isChain,mayBeUndefined);
+                    else if(indexed.BindingFreshOmittedDefault &&
+                            presentReceiver is ObjectTypeSymbol)
+                        // Missing own key in a directly fresh object with a
+                        // binding default is undefined, not an invented member.
+                        PushOptionalResult(indexed,CompilerTypes.Undefined,isChain,mayBeUndefined);
                     else
                     {
                         Error(indexed.Open,"TS2339",
