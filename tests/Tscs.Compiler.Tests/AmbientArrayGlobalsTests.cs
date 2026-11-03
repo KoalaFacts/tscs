@@ -265,10 +265,17 @@ public sealed class AmbientArrayGlobalsTests : IDisposable
         Assert.Equal(0,spliced);
         Assert.Equal("",spliceOutput);
 
-        // Genuinely unimplemented library methods remain rejected even
-        // when an unrelated supported ambient member is present.
+        // Scalar-array flat is now a checked product method even if this
+        // deliberately minimal ambient only declares push and index reads.
+        var (flat,flatOutput)=Compile(ambient,
+            "const values: number[] = [21]; let copied:number[]=values.flat();");
+        Assert.Equal(0,flat);
+        Assert.Equal("",flatOutput);
+
+        // A still-unimplemented native iterator method must remain rejected
+        // rather than deriving arbitrary signatures from this ambient.
         var (unsupported,missing)=Compile(ambient,
-            "const values: number[] = [21]; values.flat();");
+            "const values: number[] = [21]; values.entries();");
         Assert.NotEqual(0,unsupported);
         Assert.Contains("TS2339",missing);
     }

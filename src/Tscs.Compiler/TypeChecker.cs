@@ -1853,6 +1853,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         // This must not erase undefined from an actually optional property.
         var optionalPresent=new Dictionary<ValueNode,TypeSymbol?>();
         var optionalSkipped=new Dictionary<ValueNode,bool>();
+        // Native flat signatures depend on the call's actual JavaScript this
+        // receiver. A function-valued object property can carry a copied
+        // intrinsic signature without being an array at runtime.
+        var boundNativeFlatMembers=new HashSet<ValueNode>(ReferenceEqualityComparer.Instance);
         void PushOptionalResult(ValueNode node,TypeSymbol? present,bool isChain,bool maySkip)
         {
             types.Push(present!=null && maySkip
@@ -2488,6 +2492,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             $"Property '{property.Name.Text}' does not exist on type '{presentReceiver.DisplayName}'.");
                     presentMember=null;
                 }
+                if(presentReceiver is ArrayTypeSymbol &&
+                   presentMember is FunctionTypeSymbol { NativeArrayFlatReceiver: not null })
+                    boundNativeFlatMembers.Add(property);
                 PushOptionalResult(property,presentMember,property.Optional||property.ChainContinuation,mayBeUndefined);
                 continue;
             }
@@ -2608,6 +2615,57 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                    arguments.Length>=3)
                     signature=signature with {Parameters=[CompilerTypes.Number,
                         CompilerTypes.Number,splicedElement]};
+                // Native flat's output varies with depth; no implicit any[].
+                // Only bounded nonnegative literal depths have checked types.
+                if(signature.NativeArrayFlatReceiver is { } flatReceiver)
+                {
+                    // Only a property checked *on a real array* is a native
+                    // flat call. Merely seeing .flat syntax on a structural
+                    // object carrying a transplanted intrinsic is unsound.
+                    // Parentheses preserve a JS reference and its this binding.
+                    ValueNode boundCallee=call.Callee;
+                    while(true)
+                    {
+                        if(boundCallee is ValueParenthesized wrapped)
+                            boundCallee=wrapped.Expression;
+                        else if(boundCallee is ValueNonNull asserted)
+                            boundCallee=asserted.Expression;
+                        else if(boundCallee is ValueTypeOperator annotated)
+                            boundCallee=annotated.Expression;
+                        else break;
+                    }
+                    if(!boundNativeFlatMembers.Contains(boundCallee))
+                        throw new CompilationFailure(Diagnostic.Error(file,call.Open,"TSCS1001",
+                            "Array.flat must be called on its checked native array receiver."));
+                    if(call.SpreadIndex>=0)
+                        throw new CompilationFailure(Diagnostic.Error(file,call.Open,"TSCS1001",
+                            "Array.flat does not support spread depth arguments."));
+                    int depth=1;
+                    if(call.Arguments.Count==1)
+                    {
+                        // Numeric literals are compared by decoded ECMAScript
+                        // value, not token spelling: 0x2, 2.0 and 2e0 are 2.
+                        if(!TryFiniteTupleIndex(call.Arguments[0],out var literalDepth) ||
+                           literalDepth>3)
+                            throw new CompilationFailure(Diagnostic.Error(file,call.Open,
+                                "TSCS1001","Array.flat depth must be a literal integer from 0 to 3."));
+                        depth=(int)literalDepth;
+                    }
+                    if(call.Arguments.Count<=1)
+                    {
+                        TypeSymbol elementType=flatReceiver.ElementType;
+                        for(int i=0;i<depth;i++)
+                        {
+                            if(elementType is UnionTypeSymbol union &&
+                               union.Alternatives.Any(arm=>arm is ArrayTypeSymbol))
+                                throw new CompilationFailure(Diagnostic.Error(file,call.Open,
+                                    "TSCS1001","Array.flat cannot yet flatten mixed array union elements."));
+                            if(elementType is not ArrayTypeSymbol nested)break;
+                            elementType=nested.ElementType;
+                        }
+                        signature=signature with {ReturnType=new ArrayTypeSymbol(elementType)};
+                    }
+                }
                 // Even if the shared callable signature fits the bounded
                 // return union, an optional call adds undefined. Guard that
                 // final join too: the public compilation API must diagnose a
