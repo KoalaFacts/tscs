@@ -22,6 +22,9 @@ public sealed class ArrayFlatMapTests
     [InlineData("type F=((v:{n:number})=>number)|((v:{n:number})=>number[]);function f(xs:{n:number}[],cb:F):number[]{return xs.flatMap(cb);}")]
     [InlineData("type F=((v:{n:number})=>number)|((v:{n:number})=>number);function f(xs:{n:number}[],cb:F):number[]{return xs.map(cb);}")]
     [InlineData("type F=((v:{n:number,m:string})=>number)|((v:{m:string,n:number})=>number[]);function f(xs:{n:number,m:string}[],cb:F):number[]{return xs.flatMap(cb);}")]
+    [InlineData("type F=((n:number)=>number|number[])|((n:number)=>number[]);function f(xs:number[],cb:F):number[]{return xs.flatMap(cb);}")]
+    [InlineData("function f(xs:number[],cb:(n:number)=>number|number[]):number[]{return xs.flatMap(cb);}")]
+    [InlineData("function f(xs:number[],cb:(n:number)=>number|string):(number|string)[]{return xs.flatMap(cb);}")]
     public void ExplicitCallbackResultsFlattenOneArrayLevel(string source) =>
         Assert.Empty(Compilation.Check("flat-map.ts",source));
 
@@ -40,6 +43,9 @@ public sealed class ArrayFlatMapTests
     [InlineData("type F=((v:{n:number})=>number)|((v:{n:string})=>number[]);function f(xs:{n:number}[],cb:F):number[]{return xs.flatMap(cb);}","TSCS1001")]
     [InlineData("type F=((v:{n:number})=>number)|((v:{n:number})=>string);function f(xs:{n:number}[],cb:F):(number|string)[]{return xs.map(cb);}","TSCS1001")]
     [InlineData("type F=((v:{n:number})=>number)|((v:{n:number})=>string[]);function f(xs:{n:number}[],cb:F):(number|string)[]{return xs.flatMap(cb);}","TSCS1001")]
+    [InlineData("function f(xs:number[],cb:(n:number)=>number|string[]):(number|string)[]{return xs.flatMap(cb);}", "TSCS1001")]
+    [InlineData("function f(xs:number[],cb:(n:number)=>string|number[]):(number|string)[]{return xs.flatMap(cb);}", "TSCS1001")]
+    [InlineData("type F=((n:number)=>number|string[])|((n:number)=>number[]);function f(xs:number[],cb:F):(number|string)[]{return xs.flatMap(cb);}", "TSCS1001")]
     public void InvalidFlatMapCallbacksAndResultTypesFailClosed(string source,string code) =>
         Assert.Contains(Compilation.Check("flat-map-invalid.ts",source),d=>d.Code==code);
 
