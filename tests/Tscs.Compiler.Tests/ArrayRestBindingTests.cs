@@ -64,7 +64,7 @@ public sealed class ArrayRestBindingTests
         {
             var sources=new Dictionary<string,string>(StringComparer.Ordinal)
             {
-                [Path.Combine(root,"values.ts")]="export const nums:number[]=[20,21,22];export const sparse:number[]=[7];sparse.length=2;export const pair:readonly [number,string,boolean]=[20,\"pair\",true];",
+                [Path.Combine(root,"values.ts")]="export const nums:number[]=[20,21,22];export const sparse:number[]=[7];sparse.length=2;export const pair:readonly [number,string,boolean]=[20,\"pair\",true];export const optEmpty:readonly [number,string?]=[13];export const optFull:readonly [number,string?]=[13,'ready'];export const optTriple:readonly [number,string?,boolean?]=[13,'ready',true];",
                 [Path.Combine(root,"sum.ts")]="export function sum(a:number,b:number):number{return a+b;}export function optionalCount(pair:readonly [number,string?]):0|1{const [head,...tail]=pair;return tail.length;}",
                 [Path.Combine(root,"bridge.ts")]="export {sum,optionalCount} from \"./sum.js\";",
                 [Path.Combine(root,"entry.ts")]=
