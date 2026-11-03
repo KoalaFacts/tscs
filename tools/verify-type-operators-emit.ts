@@ -54,11 +54,12 @@ try {
     'export function makeConstSpread(n:number):{readonly value:number;readonly tag:"ready"}{return {...{value:n},tag:"ready"} as const;}',
     'export const constTupleTail:readonly [21,"go"]=[21,"go"];',
     'export const constTupleSnapshot=[true,...constTupleTail] as const;',
-    'export function makeConstTupleSpread(n:number):readonly [number,string,boolean]{const tail:[string,boolean]=["go",true];return [n,...tail] as const;}'
+    'export function makeConstTupleSpread(n:number):readonly [number,string,boolean]{const tail:[string,boolean]=["go",true];return [n,...tail] as const;}',
+    'export function makeConstOptionalSpread(n:number,include:boolean):readonly [number,string?]{let t:[string?]=[];if(include)t=["tail"];return [n,...t] as const;}'
   ].join('\n'));
-  writeFileSync(join(folder,'bridge.ts'),'export { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple, makePair, makeNestedPair, makeOptional, makeRest, makeMaybeRest, makeSpreadTuple, makeOptionalSpread, makeComputed, namedSnapshot, mutableNamed, readonlySpread, makeConstSpread, constTupleSnapshot, makeConstTupleSpread } from "./factory.js";\n');
+  writeFileSync(join(folder,'bridge.ts'),'export { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple, makePair, makeNestedPair, makeOptional, makeRest, makeMaybeRest, makeSpreadTuple, makeOptionalSpread, makeComputed, namedSnapshot, mutableNamed, readonlySpread, makeConstSpread, constTupleSnapshot, makeConstTupleSpread, makeConstOptionalSpread } from "./factory.js";\n');
   writeFileSync(join(folder,'entry.ts'),[
-    'import { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple, makePair, makeNestedPair, makeOptional, makeRest, makeMaybeRest, makeSpreadTuple, makeOptionalSpread, makeComputed, namedSnapshot, mutableNamed, readonlySpread, makeConstSpread, constTupleSnapshot, makeConstTupleSpread } from "./bridge.js";',
+    'import { fromAny, make, makeA, makeB, immutable, immutableTuple, nestedTuple, makePair, makeNestedPair, makeOptional, makeRest, makeMaybeRest, makeSpreadTuple, makeOptionalSpread, makeComputed, namedSnapshot, mutableNamed, readonlySpread, makeConstSpread, constTupleSnapshot, makeConstTupleSpread, makeConstOptionalSpread } from "./bridge.js";',
     'import type { Pair, NestedPair, OptionalPair, RestPair, MaybeRest } from "./model.js";',
     'const raw: any = { value: 21, label: "ready" };',
     'const item = fromAny(raw);',
@@ -118,7 +119,12 @@ try {
     'export const tupleSpreadSecond:string=tupleValue[1];',
     'export const tupleSpreadThird:boolean=tupleValue[2];',
     'export const tupleSpreadLength:3=tupleValue.length;',
-    'export const tupleSpreadExact:21=constTupleSnapshot[1];'
+    'export const tupleSpreadExact:21=constTupleSnapshot[1];',
+    'const constOptionalShort=makeConstOptionalSpread(21,false);',
+    'const constOptionalLong=makeConstOptionalSpread(21,true);',
+    'export const constOptionalShortLength:1|2=constOptionalShort.length;',
+    'export const constOptionalLongLength:1|2=constOptionalLong.length;',
+    'export const constOptionalLongText:string|undefined=constOptionalLong[1];'
   ].join('\n'));
   writeFileSync(join(folder,'project.json'),JSON.stringify({
     files:['entry.ts','minimal.d.ts'],
@@ -129,7 +135,7 @@ try {
   for(const name of ['model','factory','bridge','entry'])
     assert.ok(existsSync(join(folder,name+'.js')),'missing '+name+'.js');
   const executed=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,label,extra,exact,checked,advanced,selected,selectedTag,otherLabel,readonlyTag,readonlyValue,readonlyValid,tupleFirst,tupleSecond,tupleLength,nestedTupleValue,namedTupleNumber,namedTupleText,namedNestedNumber,namedNestedValid,optionalShortLength,optionalLongLabel,restLabel,restLength,maybeRestLength,spreadText,spreadLength,inlineSpreadText,optionalSpreadShortLength,optionalSpreadLongText,composedNamedSeed,composedNamedMutable,computedTotal,computedFirst,constSpreadValue,constSpreadTag,constSpreadNested,tupleSpreadFirst,tupleSpreadSecond,tupleSpreadThird,tupleSpreadLength,tupleSpreadExact} from "./entry.js"; if(result!==42||label!=="ready"||extra!==42||exact!==21||checked!=="ready"||advanced!==42||selected!==23||selectedTag!=="a"||otherLabel!=="tagged"||readonlyTag!=="ready"||readonlyValue!==21||readonlyValid!==true||tupleFirst!==21||tupleSecond!=="go"||tupleLength!==2||nestedTupleValue!==42||namedTupleNumber!==21||namedTupleText!=="ready"||namedNestedNumber!==21||namedNestedValid!==true||optionalShortLength!==1||optionalLongLabel!=="ready"||restLabel!=="go"||restLength!==3||maybeRestLength!==1||spreadText!=="ready"||spreadLength!==3||inlineSpreadText!=="ok"||optionalSpreadShortLength!==1||optionalSpreadLongText!=="tail"||composedNamedSeed!==21||composedNamedMutable!==42||computedTotal!==21||computedFirst!==22||constSpreadValue!==40||constSpreadTag!=="ready"||constSpreadNested!==8||tupleSpreadFirst!==21||tupleSpreadSecond!=="go"||tupleSpreadThird!==true||tupleSpreadLength!==3||tupleSpreadExact!==21) throw Error("type-operator JS runtime mismatch");'],
+    'import {result,label,extra,exact,checked,advanced,selected,selectedTag,otherLabel,readonlyTag,readonlyValue,readonlyValid,tupleFirst,tupleSecond,tupleLength,nestedTupleValue,namedTupleNumber,namedTupleText,namedNestedNumber,namedNestedValid,optionalShortLength,optionalLongLabel,restLabel,restLength,maybeRestLength,spreadText,spreadLength,inlineSpreadText,optionalSpreadShortLength,optionalSpreadLongText,composedNamedSeed,composedNamedMutable,computedTotal,computedFirst,constSpreadValue,constSpreadTag,constSpreadNested,tupleSpreadFirst,tupleSpreadSecond,tupleSpreadThird,tupleSpreadLength,tupleSpreadExact,constOptionalShortLength,constOptionalLongLength,constOptionalLongText} from "./entry.js"; if(result!==42||label!=="ready"||extra!==42||exact!==21||checked!=="ready"||advanced!==42||selected!==23||selectedTag!=="a"||otherLabel!=="tagged"||readonlyTag!=="ready"||readonlyValue!==21||readonlyValid!==true||tupleFirst!==21||tupleSecond!=="go"||tupleLength!==2||nestedTupleValue!==42||namedTupleNumber!==21||namedTupleText!=="ready"||namedNestedNumber!==21||namedNestedValid!==true||optionalShortLength!==1||optionalLongLabel!=="ready"||restLabel!=="go"||restLength!==3||maybeRestLength!==1||spreadText!=="ready"||spreadLength!==3||inlineSpreadText!=="ok"||optionalSpreadShortLength!==1||optionalSpreadLongText!=="tail"||composedNamedSeed!==21||composedNamedMutable!==42||computedTotal!==21||computedFirst!==22||constSpreadValue!==40||constSpreadTag!=="ready"||constSpreadNested!==8||tupleSpreadFirst!==21||tupleSpreadSecond!=="go"||tupleSpreadThird!==true||tupleSpreadLength!==3||tupleSpreadExact!==21||constOptionalShortLength!==1||constOptionalLongLength!==2||constOptionalLongText!=="tail") throw Error("type-operator JS runtime mismatch");'],
     {cwd:folder,encoding:'utf8',timeout:15000});
   assert.equal(executed.error,undefined,String(executed.error));
   assert.equal(executed.status,0,executed.stdout+executed.stderr);
@@ -156,6 +162,10 @@ try {
     ['tuple-const-spread-write','let tail:[number,string]=[21,"go"];const x=[true,...tail] as const;x[1]=22;','TS2540'],
     ['tuple-const-spread-index','let tail:[number,string]=[21,"go"];const x=[true,...tail] as const;let bad=x[3];','TS2493'],
     ['tuple-const-spread-mutable','let tail:[number,string]=[21,"go"];const x=[true,...tail] as const;let bad:[true,number,string]=x;','TS4104'],
+    ['const-optional-spread-write','let t:[string?]=[];const x=[21,...t] as const;x[1]="wrong";','TS2540'],
+    ['const-optional-spread-index','let t:[string?]=[];const x=[21,...t] as const;let v=x[2];','TS2493'],
+    ['const-optional-spread-wrong-slot','let t:[string?]=[];const x=[21,...t] as const;let v:number=x[1];','TS2322'],
+    ['const-optional-spread-nonterminal','let t:[string?]=[];const x=[...t,21] as const;','TSCS1001'],
     ['tuple-spread-outside-scope','const p=[21,...[22]] as const;','TSCS1001'],
     ['tuple-annotation-wrong-slot','type Pair=[number,string];let p:Pair=[21,22];','TS2322'],
     ['tuple-annotation-short','type Pair=[number,string];let p:Pair=[21];','TS2322'],

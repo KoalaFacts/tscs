@@ -14,7 +14,7 @@ const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
 const suitePath='fixtures/type-operators/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
 assert.equal(suite.kind,'BOUNDED_TYPE_ASSERTIONS_SATISFIES_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,247,'do not shrink the frozen type-operator cohort');
+assert.equal(suite.cases.length,263,'do not shrink the frozen type-operator cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const minimalProfile='fixtures/array-iteration/minimal.d.ts';
 const minimal=readFileSync(minimalProfile,'utf8');
@@ -59,7 +59,8 @@ for(let i=0;i<suite.cases.length;i++){
   // Value spreads need the real iterable ambient under --noLib; old tuple
   // type-only cases retain their original byte-identical profile.
   const usesSpreadProfile=/^type-operators:(positive-(8[1-9]|9[0-6])|negative-(7[4-9]|8[0-9]))$/.test(item.id) ||
-    /^type-operators:(positive-12[1-8]|negative-(11[4-9]|12[01]))$/.test(item.id);
+    /^type-operators:(positive-12[1-8]|negative-(11[4-9]|12[01]))$/.test(item.id) ||
+    /^type-operators:(positive-(129|13[0-6])|negative-12[2-9])$/.test(item.id);
   // A readonly tuple vs mutable Array<T> requires the mutating Array method
   // contract. The previous minimal iteration ambient lacks push() and makes
   // the pinned reference accept an otherwise invalid readonly-to-mutable

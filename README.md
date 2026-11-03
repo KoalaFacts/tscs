@@ -205,7 +205,7 @@ These use the existing binder, type query, module and native ES2015 pipeline.
 A root `value as const` still rejects. Checked nested arithmetic and finite
 member/index expressions retain their inferred types; `21 + 1` is `number`,
 not a fabricated `22` literal. New object/tuple shells remain readonly;
-spread const assertions are not claimed.
+only statically checked finite spreads are supported.
 
 ## Finite object-spread const assertions (bounded)
 
@@ -238,7 +238,10 @@ including named imported aliases and finite optional tails, with exact checked
 indices and lengths. Unbounded array rests, nonterminal tuple rest, tuple value
 spreads from unknown-length arrays and general variadic inference remain unsupported and fail explicitly. Explicit finite fixed-length tuple values may now be copied with `[head, ...tail]` in a checked contextual tuple literal, preserving each position's type without re-evaluating the operand. Trailing optional-length tuple value spreads are now checked against contextual
 tuple minimum/maximum lengths with exact positional types. Optional spreads
-before additional source elements remain unsupported. This is bounded local
+before additional source elements remain unsupported. A final finite optional-length
+value spread in a fresh `as const` array likewise preserves its optional slots,
+length union and readonly outer tuple. Unknown-length or nonterminal optional
+spreads in const arrays still fail explicitly. This is bounded local
 semantics, not original TS7 suite acceptance.
 
 ## Array element types through indexed access (bounded)

@@ -254,7 +254,8 @@ internal static class Binder
 
     // A finite array spread has the same already-checked tuple identity in
     // cross-module prebinding and in ordinary expression checking. Unknown
-    // length arrays and optional-length tuple spreads remain unsupported.
+    // length arrays remain unsupported; optional tuple spreads are safe only
+    // when they are final elements of finite const arrays.
     private static ArrayTypeSymbol? ResolveConstTupleSpreadSource(
         ValueNode value,Scope scope,string file,int depth)
     {
