@@ -2628,38 +2628,63 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 // callback result determines the output element type.
                 TypeSymbol presentResult=signature.ReturnType;
                 if(signature.NativeArrayMapElementType is not null &&
-                   call.SpreadIndex<0 && arguments.Length==1 &&
-                   arguments[0] is FunctionTypeSymbol mapper)
+                   call.SpreadIndex<0 && arguments.Length==1)
                 {
-                    TypeSymbol mappedElement=mapper.ReturnType;
-                    if(signature.NativeArrayFlatMap)
+                    // A union of explicitly typed callback signatures can be
+                    // passed to map/flatMap. Never let a callable union silently
+                    // fall back to the intrinsic any[] placeholder. The same
+                    // checked input contract must hold in every callable arm.
+                    TypeSymbol? mapperReturn=null;
+                    if(arguments[0] is FunctionTypeSymbol mapper)
+                        mapperReturn=mapper.ReturnType;
+                    else if(arguments[0] is UnionTypeSymbol callbackUnion &&
+                            callbackUnion.Alternatives.All(item=>item is FunctionTypeSymbol))
                     {
-                        // JavaScript flatMap flattens arrays one level only.
-                        // A callback may return an element, an array, or a
-                        // checked union of both; strings remain scalar values.
-                        // Keep the compiler's finite union cap as a diagnostic.
                         try
                         {
-                            var members=new List<TypeSymbol>();
-                            if(mapper.ReturnType is UnionTypeSymbol alternatives)
-                            {
-                                foreach(var item in alternatives.Alternatives)
-                                    members.Add(item is ArrayTypeSymbol a ? a.ElementType : item);
-                            }
-                            else
-                                members.Add(mapper.ReturnType is ArrayTypeSymbol a
-                                    ? a.ElementType : mapper.ReturnType);
-                            mappedElement=CompilerTypes.Union(members);
+                            mapperReturn=CompilerTypes.TryCommonCallableSignature(callbackUnion)?.ReturnType;
                         }
                         catch(InvalidOperationException failure)
                         {
                             throw new CompilationFailure(Diagnostic.Error(file,call.Open,
                                 "TSCS1001",failure.Message));
                         }
+                        if(mapperReturn is null)
+                            throw new CompilationFailure(Diagnostic.Error(file,call.Open,
+                                "TSCS1001","Array callback union requires identical checked input signatures."));
                     }
-                    var mapped=new ArrayTypeSymbol(mappedElement);
-                    presentResult=mapped;
-                    resultType=CheckedOptionalCallReturn(mapped);
+                    if(mapperReturn is not null)
+                    {
+                        TypeSymbol mappedElement=mapperReturn;
+                        if(signature.NativeArrayFlatMap)
+                        {
+                            // JavaScript flatMap flattens arrays one level only.
+                            // A callback may return an element, an array, or a
+                            // checked union of both; strings remain scalar values.
+                            // Keep the compiler's finite union cap as a diagnostic.
+                            try
+                            {
+                                var members=new List<TypeSymbol>();
+                                if(mapperReturn is UnionTypeSymbol alternatives)
+                                {
+                                    foreach(var item in alternatives.Alternatives)
+                                        members.Add(item is ArrayTypeSymbol a ? a.ElementType : item);
+                                }
+                                else
+                                    members.Add(mapperReturn is ArrayTypeSymbol a
+                                        ? a.ElementType : mapperReturn);
+                                mappedElement=CompilerTypes.Union(members);
+                            }
+                            catch(InvalidOperationException failure)
+                            {
+                                throw new CompilationFailure(Diagnostic.Error(file,call.Open,
+                                    "TSCS1001",failure.Message));
+                            }
+                        }
+                        var mapped=new ArrayTypeSymbol(mappedElement);
+                        presentResult=mapped;
+                        resultType=CheckedOptionalCallReturn(mapped);
+                    }
                 }
                 if(call.Optional || call.ChainContinuation)
                 {
