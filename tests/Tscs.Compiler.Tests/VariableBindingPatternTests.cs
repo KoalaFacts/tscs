@@ -250,6 +250,38 @@ public sealed class VariableBindingPatternTests
         Assert.DoesNotContain(".\"data-key\"",entry.Text,StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData("""const {["data-key"]:label}={"data-key":"ready"};let s:string=label;""")]
+    [InlineData("""const {[0]:first}={0:21};let n:number=first;""")]
+    [InlineData("""const {["0"]:first}={0:21};let n:number=first;""")]
+    [InlineData("""const {["\u0064ata-key"]:label}={"data-key":"ready"};let s:string=label;""")]
+    [InlineData("""let {["data-key"]:value}:{"data-key":number}={"data-key":21};value=22;""")]
+    [InlineData("""const {["outer-key"]:{[0]:value}}={"outer-key":{0:42}};let n:number=value;""")]
+    [InlineData("""const {["missing"]:value=42}={};let n:number=value;""")]
+    [InlineData("""const {[0]:value=42}={};let n:number=value;""")]
+    [InlineData("""function pick({["data-key"]:value}:{"data-key":number}):number{return value;}let n:number=pick({"data-key":21});""")]
+    [InlineData("""const pick=({[0]:value}:{0:number}):number=>value;let n:number=pick({0:21});""")]
+    public void FiniteStaticComputedBindingKeysUseCheckedTypes(string source) =>
+        Assert.Empty(Compilation.Check("computed-binding-keys.ts",source));
+
+    [Theory]
+    [InlineData("""const {["missing"]:value}={"data-key":21};""","TS2339")]
+    [InlineData("""const {[0]:value}={0:21};let wrong:string=value;""","TS2322")]
+    [InlineData("""const {["data-key"]:value}={"data-key":21};value=22;""","TS2588")]
+    [InlineData("""const {["data-key"]:value="bad"}:{"data-key"?:number}={};""","TS2322")]
+    public void StaticComputedBindingsRejectRealTypeErrors(string source,string code) =>
+        Assert.Contains(Compilation.Check("computed-binding-keys-invalid.ts",source),
+            diagnostic=>diagnostic.Code==code);
+
+    [Theory]
+    [InlineData("""const key="data-key";const {[key]:value}={"data-key":21};""")]
+    [InlineData("""const {[0.5]:value}={0:21};""")]
+    [InlineData("""const {[1+1]:value}={2:21};""")]
+    [InlineData("""const {["data-key"]}={"data-key":21};""")]
+    [InlineData("""const {["data-key":value}={"data-key":21};""")]
+    public void DynamicOrMalformedComputedBindingsFailClosed(string source) =>
+        Assert.NotEmpty(Compilation.Check("computed-binding-keys-unsupported.ts",source));
+
     private sealed class Host(IReadOnlyDictionary<string,string> sources) : ICompilerHost
     {
         public StringComparer FileNameComparer=>StringComparer.Ordinal;

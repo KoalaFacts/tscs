@@ -377,7 +377,18 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             {
                 if(members.Count>=64)Unsupported(Current,"Binding pattern has too many members.");
                 var key=Current;
-                if(key.Kind==TokenKind.Identifier)Take();
+                if(Eat(TokenKind.OpenBracket))
+                {
+                    // Static computed keys need no runtime evaluation. The
+                    // existing checked bracket-read path preserves their
+                    // decoded string/integer identity and lazy defaults.
+                    if(Current.Kind is not (TokenKind.String or TokenKind.Number))
+                        Unsupported(Current,"Only static string or integer computed binding keys are supported.");
+                    key=ReadPropertyName(allowString:true,allowNumber:true);
+                    if(!Eat(TokenKind.CloseBracket))
+                        Unsupported(Current,"Expected ']' after a computed object binding key.");
+                }
+                else if(key.Kind==TokenKind.Identifier)Take();
                 else if(key.Kind is TokenKind.String or TokenKind.Number)
                     key=ReadPropertyName(allowString:true,allowNumber:true);
                 else Unsupported(key,"Only finite identifier, string and integer object binding keys are supported.");

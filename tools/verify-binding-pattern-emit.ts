@@ -33,11 +33,13 @@ try {
       'export const arrowDefault:(input:{value?:number})=>number=({value=42}:{value?:number}):number=>value;',
       'export const methodPick:{read(input:{value:number}):number}={read({value}:{value:number}):number{return value;}};',
       'export function literalPick({"data-key":value}:{"data-key":number}):number{return value*2;}',
-      'export function integerPick({0:value}:{0:number}):number{return value+1;}'
+      'export function integerPick({0:value}:{0:number}):number{return value+1;}',
+      'export function computedPick({["data-key"]:value}:{"data-key":number}):number{return value+1;}',
+      'export function computedZero({[0]:value}:{0:number}):number{return value+2;}'
     ].join('\n'),
-    'bridge.ts':'export {add,unpack,pickArray,pickNested,modify,arrowPick,arrowArray,expressionPick,arrowDefault,methodPick,literalPick,integerPick} from "./logic.js";',
+    'bridge.ts':'export {add,unpack,pickArray,pickNested,modify,arrowPick,arrowArray,expressionPick,arrowDefault,methodPick,literalPick,integerPick,computedPick,computedZero} from "./logic.js";',
     'entry.ts':[
-      'import {box,readings,packet} from "./model.js";import {add,unpack,pickArray,pickNested,modify,arrowPick,arrowArray,expressionPick,arrowDefault,methodPick,literalPick,integerPick} from "./bridge.js";',
+      'import {box,readings,packet} from "./model.js";import {add,unpack,pickArray,pickNested,modify,arrowPick,arrowArray,expressionPick,arrowDefault,methodPick,literalPick,integerPick,computedPick,computedZero} from "./bridge.js";',
       'const {value,nested:{tag}}=box;',
       'const [first,,third]=readings;',
       'let {value:mutable}:{value:number}=box;',
@@ -66,7 +68,11 @@ try {
       'const {0:missingNumeric=8}={};',
       'export const staticKeyResult:number=literalPick(packet)+integerPick({0:21})+scoreTotal+dataKey;',
       'export const staticKeyLabel:string=caption;',
-      'export const staticKeyDefaults:number=missingLiteral+missingNumeric;'
+      'export const staticKeyDefaults:number=missingLiteral+missingNumeric;',
+      'const {["data-key"]:computed,[0]:computedLabel,nested:{["score-total"]:computedScore}}=packet;',
+      'const {["missing"]:missingComputed=9}={};',
+      'export const computedKeyResult:number=computedPick(packet)+computedZero({0:21})+computedScore+computed+missingComputed;',
+      'export const computedKeyLabel:string=computedLabel;'
     ].join('\n')
   };
   for(const [name,source] of Object.entries(modules))writeFileSync(join(dir,name),source);
@@ -78,8 +84,8 @@ try {
   assert.match(emitted,/__tscs_binding_/,'binding temporaries must be emitted');
   assert.doesNotMatch(emitted,/\{\s*value\s*,\s*nested\s*:/,'TypeScript binding syntax was not lowered');
   const run=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,label,doubled,defaults,defaultCalls,undefinedOnly,optionalUndefinedValue,parameterResult,expressionBindings,staticKeyResult,staticKeyLabel,staticKeyDefaults} from "./entry.js";'+
-    'if(result!==83||label!=="ok"||doubled!==42||defaults!==135||defaultCalls!==3||undefinedOnly!==42||optionalUndefinedValue!==undefined||parameterResult!==146||expressionBindings!==188||staticKeyResult!==127||staticKeyLabel!=="ready"||staticKeyDefaults!==15)throw Error(JSON.stringify({result,label,doubled,defaults,defaultCalls,parameterResult,expressionBindings,staticKeyResult,staticKeyLabel,staticKeyDefaults}));'],
+    'import {result,label,doubled,defaults,defaultCalls,undefinedOnly,optionalUndefinedValue,parameterResult,expressionBindings,staticKeyResult,staticKeyLabel,staticKeyDefaults,computedKeyResult,computedKeyLabel} from "./entry.js";'+
+    'if(result!==83||label!=="ok"||doubled!==42||defaults!==135||defaultCalls!==3||undefinedOnly!==42||optionalUndefinedValue!==undefined||parameterResult!==146||expressionBindings!==188||staticKeyResult!==127||staticKeyLabel!=="ready"||staticKeyDefaults!==15||computedKeyResult!==117||computedKeyLabel!=="ready")throw Error(JSON.stringify({result,label,doubled,defaults,defaultCalls,parameterResult,expressionBindings,staticKeyResult,staticKeyLabel,staticKeyDefaults,computedKeyResult,computedKeyLabel}));'],
     {cwd:dir,encoding:'utf8',timeout:15000,env});
   assert.equal(run.error,undefined,String(run.error));
   assert.equal(run.status,0,run.stdout+run.stderr);
@@ -113,7 +119,11 @@ try {
     ['literal-key-missing','const {"data-key":label}={other:21};','TS2339',2],
     ['literal-key-type','const {0:zero}={0:21};let wrong:string=zero;','TS2322',2],
     ['literal-key-noalias','const {"data-key"}={"data-key":21};','TSCS1001',1],
-    ['literal-key-dynamic','const key="data-key";const {[key]:v}={"data-key":21};','TSCS1001',1]
+    ['literal-key-dynamic','const key="data-key";const {[key]:v}={"data-key":21};','TSCS1001',1],
+    ['computed-key-missing','const {["missing"]:value}={"data-key":21};','TS2339',2],
+    ['computed-key-type','const {[0]:value}={0:21};let wrong:string=value;','TS2322',2],
+    ['computed-key-noalias','const {["data-key"]}={"data-key":21};','TSCS1001',1],
+    ['computed-key-fraction','const {[0.5]:value}={0:21};','TSCS1001',1]
   ] as const;
   for(const [name,source,code,status] of negative) {
     writeFileSync(join(dir,'invalid-'+name+'.ts'),source);
@@ -122,5 +132,5 @@ try {
     assert.match(bad.stdout+bad.stderr,new RegExp(code));
     assert.equal(existsSync(join(dir,'invalid-'+name+'.js')),false,'invalid program emitted JS: '+name);
   }
-  console.log('Finite object/array binding patterns: four linked ES2015 modules executed; twenty-nine invalid programs emitted no JavaScript.');
+  console.log('Finite object/array binding patterns: four linked ES2015 modules executed; thirty-three invalid programs emitted no JavaScript.');
 } finally {rmSync(dir,{recursive:true,force:true});}

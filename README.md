@@ -69,7 +69,8 @@ output contains no TypeScript binding annotations. Finite object and array eleme
 including aliases and nested elements. Selected values are read once and
 fallbacks run lazily only for `undefined`, not other falsy values. These are
 lowered to checked conditional expressions. This is an intentionally
-bounded subset: rest bindings, dynamic/computed binding keys,
+bounded subset: rest bindings, dynamic computed binding expressions beyond
+static string/integer literals,
 array-iterator destructuring beyond checked arrays, catch binding
 patterns and unrestricted cross-module destructured exports remain unsupported.
 Named function declarations also support finite typed object/array parameter
