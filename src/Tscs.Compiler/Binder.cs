@@ -336,6 +336,7 @@ internal static class Binder
         var numericMembers=new HashSet<string>(StringComparer.Ordinal);
         var computedNumericMembers=new HashSet<string>(StringComparer.Ordinal);
         var optionalMembers=new HashSet<string>(StringComparer.Ordinal);
+        var mixedMembers=new HashSet<string>(StringComparer.Ordinal);
         foreach(var property in obj.Properties)
         {
             if(property.Spread)
@@ -346,6 +347,15 @@ internal static class Binder
                 if(source is null)return null;
                 foreach(var (spreadName,type) in source.Members)
                 {
+                    // typeof inference must enforce the same presence, readonly
+                    // and numeric-identity invariants as the expression checker.
+                    if(members.ContainsKey(spreadName) &&
+                       source.MixedRequiredOptionalMembers.Contains(spreadName) &&
+                       source.NumericMembers.Contains(spreadName))return null;
+                    if(source.MixedRequiredOptionalMembers.Contains(spreadName))
+                        mixedMembers.Add(spreadName);
+                    else if(!source.OptionalMembers.Contains(spreadName))
+                        mixedMembers.Remove(spreadName);
                     try
                     {
                         if(!CompilerTypes.MergeFiniteSpreadMember(members,numericMembers,
@@ -364,13 +374,16 @@ internal static class Binder
             var name=Parser.PropertyName(property.Name);
             members[name]=member;
             optionalMembers.Remove(name);
+            mixedMembers.Remove(name);
             if(property.Name.Kind==TokenKind.Number)numericMembers.Add(name);
             else numericMembers.Remove(name);
             if(property.Computed && property.Name.Kind==TokenKind.Number)computedNumericMembers.Add(name);
             else computedNumericMembers.Remove(name);
         }
+        mixedMembers.IntersectWith(optionalMembers);
         return new ObjectTypeSymbol(members,numericMembers:numericMembers,
-            optionalMembers:optionalMembers,computedNumericMembers:computedNumericMembers);
+            optionalMembers:optionalMembers,computedNumericMembers:computedNumericMembers,
+            mixedRequiredOptionalMembers:mixedMembers);
     }
 
     public static void InitializeDeclaredTypes(Scope scope)
