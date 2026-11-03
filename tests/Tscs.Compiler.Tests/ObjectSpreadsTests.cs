@@ -187,4 +187,40 @@ public sealed class ObjectSpreadsTests
             "const first={[0]:21};type Both=typeof first & {};let a:Both=first;"+
             "let p:{0?:string}={};const v={...a,...p} as const;let k:keyof typeof v=0;"));
 
+    // One differing member may be joined across otherwise identical union
+    // arms; multi-member correlated differences remain unsupported.
+    [Theory]
+    [InlineData("type V={value:number;tag:boolean}|{value:string;tag:boolean};function f(x:V){let y={...x};let n:number|string=y.value;let b:boolean=y.tag;}")]
+    [InlineData("function f(x:{value:number;tag:string}|{value:string;tag:string}):{value:number|string;tag:string}{return {...x};}")]
+    [InlineData("type V={inner:{readonly n:number};tag:boolean}|{inner:{n:number};tag:boolean};function f(x:V){let y={...x};let n:number=y.inner.n;}")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value:string;tag:boolean}){const y={...x} as const;let v:number|string=y.value;}")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value:string;tag:boolean}){const y={...x,value:42};let v:number=y.value;}")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value:string;tag:boolean}){const y={...x,tail:true};let v:number|string=y.value;}")]
+    [InlineData("function f(x:{0:number;tag:boolean}|{0:string;tag:boolean}){let y={...x};let v:number|string=y[0];let k:keyof typeof y=0;}")]
+    [InlineData("function f(x:{value:number;optional?:string}|{value:string;optional?:string}){let y={...x};let v:number|string=y.value;let opt:string|undefined=y.optional;}")]
+    public void FiniteSingleVaryingUnionSpreadsPreserveValues(string source) =>
+        Assert.Empty(Compilation.Check("finite-union-spread.ts",source));
+
+    [Theory]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value:string;tag:boolean}){let y={...x};let bad:boolean=y.value;}", "TS2322")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value:string;tag:boolean}){let y={...x};let bad:number=y.value;}", "TS2322")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value:string;tag:boolean}){let y={...x};let bad:string=y.value;}", "TS2322")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value:string;tag:boolean}){let y={...x};y.value=true;}", "TS2322")]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value:string;tag:boolean}){let y={...x} as const;y.value=42;}", "TS2540")]
+    [InlineData("function f(x:{inner:{readonly n:number};tag:boolean}|{inner:{n:number};tag:boolean}){let y={...x};y.inner.n=42;}", "TS2540")]
+    [InlineData("function f(x:{0:number;tag:boolean}|{0:string;tag:boolean}){let y={...x};let bad:boolean=y[0];}", "TS2322")]
+    [InlineData("function f(x:{value:number;optional?:string}|{value:string;optional?:string}){let y={...x};let bad:string=y.optional;}", "TS2322")]
+    public void FiniteSingleVaryingUnionSpreadsRejectBadTypes(string source,string expected) =>
+        Assert.Equal(new[] {expected},Compilation.Check("finite-union-spread-invalid.ts",source)
+            .Select(d=>d.Code).ToArray());
+
+    [Theory]
+    [InlineData("function f(x:{value:number;tag:boolean}|{value:string;tag:string}){let y={...x};}")]
+    [InlineData("function f(x:{a:number}|{b:string}){let y={...x};}")]
+    [InlineData("function f(x:{value:number}|null){let y={...x};}")]
+    public void CorrelatedOrIncompleteUnionSpreadsRemainExplicitlyUnsupported(string source) =>
+        Assert.Contains(Compilation.Check("union-spread-unimplemented.ts",source),
+            d=>d.Code=="TSCS1001");
+
+
 }

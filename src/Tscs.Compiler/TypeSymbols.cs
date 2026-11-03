@@ -604,32 +604,40 @@ internal static class CompilerTypes
         PreservesNumericKeyIdentity(a,b,includeReadonly:true,includeComputed:true) &&
         IsAssignable(a,b) && IsAssignable(b,a);
 
-    // A conditional expression may preserve two otherwise identical object
-    // types only because one numeric key came from a computed [0] source.
-    // A finite spread may consume that union: intersect provenance so an
-    // uncertain origin is never incorrectly advertised as definitely computed.
-    // Other unions (different values, readonly rules or nested metadata) are
-    // deliberately left for a future distributed spread implementation.
+    // Union object spreads may safely join a single varying member when all
+    // alternatives have the same finite keys, optional/readonly and numeric
+    // identities. One varying member cannot encode cross-property correlation;
+    // two or more varying members still fail closed rather than manufacturing
+    // independent unions that would accept impossible value combinations.
+    // Computed numeric provenance remains true only when every arm has it.
     public static ObjectTypeSymbol? TryFiniteObjectSpreadSource(TypeSymbol? value)
     {
         if(value is ObjectTypeSymbol shape)return shape;
         if(value is not UnionTypeSymbol union || union.Alternatives.Count>64 ||
            union.Alternatives[0] is not ObjectTypeSymbol first)return null;
+        var merged=new Dictionary<string,TypeSymbol>(first.Members,StringComparer.Ordinal);
         var computed=new HashSet<string>(first.ComputedNumericMembers,StringComparer.Ordinal);
+        string? varyingMember=null;
         foreach(var alternative in union.Alternatives.Skip(1))
         {
             if(alternative is not ObjectTypeSymbol other ||
                first.Members.Count!=other.Members.Count ||
                !first.ReadonlyMembers.SetEquals(other.ReadonlyMembers) ||
                !first.NumericMembers.SetEquals(other.NumericMembers) ||
-               !first.OptionalMembers.SetEquals(other.OptionalMembers) ||
-               first.Members.Any(member=>
-                   !other.Members.TryGetValue(member.Key,out var type) ||
-                   !IsUnionEquivalent(member.Value,type)))
+               !first.OptionalMembers.SetEquals(other.OptionalMembers))
                 return null;
+            foreach(var member in first.Members)
+            {
+                if(!other.Members.TryGetValue(member.Key,out var type))return null;
+                if(IsUnionEquivalent(member.Value,type))continue;
+                if(varyingMember is not null && varyingMember!=member.Key)return null;
+                varyingMember=member.Key;
+                try {merged[member.Key]=Union([merged[member.Key],type]);}
+                catch(InvalidOperationException) {return null;}
+            }
             computed.IntersectWith(other.ComputedNumericMembers);
         }
-        return new ObjectTypeSymbol(first.Members,first.ReadonlyMembers,
+        return new ObjectTypeSymbol(merged,first.ReadonlyMembers,
             first.NumericMembers,first.OptionalMembers,computed);
     }
 
