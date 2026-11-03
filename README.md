@@ -109,6 +109,16 @@ arbitrary iterator alternatives are rejected rather than miscompiled.
 Other iterables and downlevel iteration remain unsupported. The pinned-Go differential uses a symmetric, strictly validated
 String iterator ambient; this does not enable general library declarations.
 
+## Finite typeof guards for arrays and tuples (bounded)
+
+A `typeof value === "object"` guard can distinguish a checked array or
+finite tuple branch from known string/number/undefined alternatives. The
+inverse `!== "object"` branch is checked too, including readonly arrays
+and imported types. Since `typeof null` is also `"object"`, a nullable
+array remains possibly null until an additional explicit null guard.
+General structural object narrowing and property-path guards remain outside
+this safe subset; this does not claim full TS7 conformance.
+
 ## Structural object data
 
 Required named object members now use the same AST, Binder, semantic types,

@@ -14,7 +14,7 @@ const pin=JSON.parse(readFileSync('upstream.lock.json','utf8'));
 const suitePath='fixtures/type-operators/semantic-cases.json';
 const suite=JSON.parse(readFileSync(suitePath,'utf8'));
 assert.equal(suite.kind,'BOUNDED_TYPE_ASSERTIONS_SATISFIES_NOT_ORIGINAL_TS7_ACCEPTANCE');
-assert.equal(suite.cases.length,385,'do not shrink the frozen type-operator cohort');
+assert.equal(suite.cases.length,401,'do not shrink the frozen type-operator cohort');
 const product=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const minimalProfile='fixtures/array-iteration/minimal.d.ts';
 const minimal=readFileSync(minimalProfile,'utf8');
@@ -67,10 +67,14 @@ for(let i=0;i<suite.cases.length;i++){
   // assignment. Use the EXISTING readonly-array ambient on both compilers for
   // this new case; preserve all source, ID, expected codes and old profiles.
   const usesReadonlyMutationProfile=item.id==='type-operators:negative-96';
+  // Arrays and tuples are runtime objects under typeof, whereas a string is
+  // primitive. This new disjoint ID range uses the existing readonly-array
+  // ambient symmetrically for the pinned Go compiler and the C# product.
+  const usesTypeofArrayProfile=/^type-operators:(positive-(19[89]|20[0-5])|negative-19[1-8])$/.test(item.id);
   const profile=usesSpreadProfile?spreadProfile:
-    usesTupleProfile||usesReadonlyMutationProfile?tupleProfile:minimalProfile;
+    usesTupleProfile||usesReadonlyMutationProfile||usesTypeofArrayProfile?tupleProfile:minimalProfile;
   save(key+'/minimal.d.ts',usesSpreadProfile?spreadMinimal:
-    usesTupleProfile||usesReadonlyMutationProfile?tupleMinimal:minimal);
+    usesTupleProfile||usesReadonlyMutationProfile||usesTypeofArrayProfile?tupleMinimal:minimal);
   const args=['--noEmit','--noLib','--target','es2015','--pretty','false','input.ts','minimal.d.ts'];
   const expected=run(reference,args,folder);
   const actual=run(process.env.DOTNET??'dotnet',[product,...args],folder);

@@ -1,3 +1,20 @@
+## 2026-11-03 — Finite arrays/tuples in runtime typeof object guards (candidate; NOT_RUN)
+
+Checked `typeof value === "object"` and `!== "object"` now refine a known
+array or finite tuple alternative against primitive alternatives using the
+existing symbol flow and normal C# checker. Readonly array identity remains
+readonly; an explicit null alternative remains in the object branch until
+separately excluded. Arbitrary structural object shapes, unknown/any and
+mutable property-path flow are not inferred. Four-module ES2015 output
+executes both guarded branches and null safety, while negative cases must fail
+without JavaScript. Eight positive/eight negative fixed-source cases append
+to the unchanged 385 bounded TS7-Go type-operator IDs (401 total) with a
+symmetric existing readonly-array ambient profile. TypeScript 5.8.3 strict
+matched these additions as auxiliary evidence only; final exact-head Go and
+.NET results are NOT_RUN at creation. Original full TS7 acceptance remains
+historically 0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED. No
+original upstream PASS credit, pin, release gate or global test threshold change.
+
 ## 2026-11-03 — Finite union spreads with one optional member (candidate; NOT_RUN)
 
 C# object spread normalization joins a single shared member whose required or
