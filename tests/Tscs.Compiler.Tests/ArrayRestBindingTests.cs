@@ -26,6 +26,7 @@ public sealed class ArrayRestBindingTests
     [InlineData("const [...[tail]]=[20,22];","TSCS1001")]
     [InlineData("const [...tail]=\"hi\";","TSCS1001")]
     [InlineData("const [...tail]={0:21};","TSCS1001")]
+    [InlineData("let pair:[number,string]=[21,\"x\"];const [head,...tail]=pair;","TSCS1001")]
     [InlineData("const [head,...tail]=[21,22];let wrong:string=tail[0];","TS2322")]
     [InlineData("const [head,...tail]=[21,22];tail=[1];","TS2588")]
     public void UnsafeOrInvalidArrayRestBindingsFailClosed(string source,string code) =>
@@ -64,7 +65,9 @@ public sealed class ArrayRestBindingTests
             };
             info.ArgumentList.Add("--input-type=module");
             info.ArgumentList.Add("-e");
-            info.ArgumentList.Add("import {result} from './entry.js';console.log(result)");
+            // Dynamic import after overriding the source array's own slice
+            // guards against accidentally lowering rest to nums.slice(...).
+            info.ArgumentList.Add("import {nums} from './values.js';nums.slice=()=>{throw new Error('own slice invoked')};const {result}=await import('./entry.js');console.log(result)");
             using var process=Process.Start(info)!;
             if(!process.WaitForExit(10000))
             {

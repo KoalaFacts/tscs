@@ -428,7 +428,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 if(Eat(TokenKind.Ellipsis))
                 {
                     // Only a final named array rest is supported. A checked
-                    // native array is required by the generated slice access;
+                    // native array is required by the generated native iterator copy;
                     // arbitrary iterators and object/string operands fail closed.
                     if(Current.Kind!=TokenKind.Identifier)
                         Unsupported(Current,"Array binding rest requires a named variable.");
@@ -540,15 +540,20 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 }
                 if(arrayPattern.RestName is { } rest)
                 {
-                    // The array is already evaluated once into a checked
-                    // temporary. Native slice makes an independent writable
-                    // tail, including when the receiver was readonly.
+                    // Copy with native iteration before taking the tail. In
+                    // particular, the source array's own .slice property can
+                    // be overridden and must not control destructuring.
+                    // Tuple rest requires position-preserving inference and
+                    // remains fail-closed until that is implemented.
                     var start=arrayPattern.Elements.Count.ToString(System.Globalization.CultureInfo.InvariantCulture);
                     var number=new Token(TokenKind.Number,start,rest.Start,start.Length);
                     var slice=new Token(TokenKind.Identifier,"slice",rest.Start,rest.Length);
                     var openParen=new Token(TokenKind.OpenParen,"(",rest.Start,1);
-                    var tail=new ValueCall(
-                        new ValuePropertyAccess(source,slice,BindingArrayRest:true),
+                    var iterated=new ValueArray(arrayPattern.Open,
+                        [new ValueArraySpread(new Token(TokenKind.Ellipsis,"...",rest.Start,3),
+                            source,BindingArrayRest:true)],
+                        new Token(TokenKind.CloseBracket,"]",rest.Start,1));
+                    var tail=new ValueCall(new ValuePropertyAccess(iterated,slice),
                         openParen,[new ValueAtom(number)]);
                     target.Add(new Variable(rest,constant,null,tail,exported));
                 }
