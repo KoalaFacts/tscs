@@ -679,6 +679,17 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             "A union write requires at least one checked object alternative."));
     }
 
+    // A checked array union may exceed the bounded 64 alternative model;
+    // convert its overflow into a source diagnostic rather than a CLR exception.
+    private ArrayTypeSymbol? CheckedNativeArray(TypeSymbol? source,Token at)
+    {
+        try {return CompilerTypes.TryGetCheckedNativeArray(source);}
+        catch(InvalidOperationException failure)
+        {
+            throw new CompilationFailure(Diagnostic.Error(file,at,"TSCS1001",failure.Message));
+        }
+    }
+
     private void EnsureWritableIndex(ValueElementAccess target,TypeSymbol? receiver)
     {
         if(receiver is ArrayTypeSymbol {Readonly:true} readonlyArray)
@@ -689,6 +700,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             throw new CompilationFailure(Diagnostic.Error(file,target.Open,"TS2542",
                 $"Index signature in type '{readonlyArray.DisplayName}' only permits reading."));
         }
+        // Checked union reads must not make the original readonly arrays
+        // writable. A fresh destructured rest/spread copy remains mutable.
+        if(receiver is UnionTypeSymbol arrayUnion &&
+           arrayUnion.Alternatives.Count>0 &&
+           arrayUnion.Alternatives.All(arm=>arm is ArrayTypeSymbol) &&
+           arrayUnion.Alternatives.Cast<ArrayTypeSymbol>().Any(arm=>arm.Readonly))
+            throw new CompilationFailure(Diagnostic.Error(file,target.Open,"TS2542",
+                $"Index signature in type '{receiver.DisplayName}' only permits reading."));
         if(CompilerTypes.IsStringFamily(receiver))
             throw new CompilationFailure(Diagnostic.Error(file,target.Open,"TS2542",
                 "Index signature in type 'String' only permits reading."));
@@ -2202,7 +2221,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     continue;
                 }
                 var operandType=types.Pop();
-                if(CompilerTypes.TryGetCheckedNativeArray(operandType) is { } expanded)
+                if(CheckedNativeArray(operandType,spread.Keyword) is { } expanded)
                 {
                     // A trailing array rest uses the checked source's original
                     // tuple optional boundary when constructing its tail type.
@@ -2263,7 +2282,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 // numeric index on a string/object is not sufficient evidence:
                 // those reads have different observable JavaScript semantics.
                 if(indexed.BindingArrayElement && receiverType!=null &&
-                   CompilerTypes.TryGetCheckedNativeArray(receiverType) is null)
+                   CheckedNativeArray(receiverType,indexed.Open) is null)
                     throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
                         "Binding array patterns require a statically checked array receiver."));
                 var inheritedSkip=indexed.ChainContinuation &&
@@ -2286,7 +2305,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     presentReceiver.Equals(CompilerTypes.Any)) &&
                    !(CompilerTypes.IsNumber(indexType) &&
                      presentReceiver is UnionTypeSymbol &&
-                     CompilerTypes.TryGetCheckedNativeArray(presentReceiver) is not null))
+                     CheckedNativeArray(presentReceiver,indexed.Open) is not null))
                 {
                     if(CompilerTypes.TryGetProperty(presentReceiver,key) is { } member)
                         PushOptionalResult(indexed,member,isChain,mayBeUndefined);
@@ -2306,7 +2325,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 if(indexType!=null && !CompilerTypes.IsNumber(indexType))
                     throw new CompilationFailure(Diagnostic.Error(file,indexed.Open,"TSCS1001",
                         "Indexed reads currently require a number expression."));
-                if(CompilerTypes.TryGetCheckedNativeArray(presentReceiver) is { } array)
+                if(CheckedNativeArray(presentReceiver,indexed.Open) is { } array)
                 {
                     PushOptionalResult(indexed,array.TupleElements is not null && indexType is not null
                         ?ResolveFiniteTupleRead(array,indexed.Index,indexType,indexed.Open)

@@ -37,6 +37,7 @@ public sealed class ArrayRestBindingTests
     [InlineData("function accept(x:readonly number[]|string[]):void{const [first,...rest]=x;let n:number|string=first;let second:number|string=rest[0];}")]
     [InlineData("function choose(x:number[]|readonly string[]):number|string{const [,,...tail]=x;return tail[0];}let value:number|string=choose([1,2,3]);")]
     [InlineData("function combine(x:number[]|string[]):number|string{let [...tail]=x;let first:number|string=tail[0];return first;}")]
+    [InlineData("function check(xs:readonly number[]|readonly string[]):void{let [...copy]=xs;copy[0]=42;}")]
     public void NativeArrayRestBindingsUseExistingCheckedTypePaths(string source) =>
         Assert.Empty(Compilation.Check("array-rest.ts",source));
 
@@ -64,9 +65,22 @@ public sealed class ArrayRestBindingTests
     [InlineData("function bad(xs:number[]|string[]):void{const [head,...tail]=xs;tail[0]=true;}","TS2322")]
     [InlineData("function bad(xs:number[]|string[]):void{const [, ...tail]=xs;let n:number=tail[0];}","TS2322")]
     [InlineData("function bad(xs:number[]|string[]):void{const [head,...tail]=xs;let n:undefined=tail[0];}","TS2322")]
+    [InlineData("function check(xs:readonly number[]|readonly string[]):void{xs[0]=42;}","TS2542")]
+    [InlineData("function check(xs:readonly number[]|string[]):void{xs[0]=42;}","TS2542")]
     public void UnsafeOrInvalidArrayRestBindingsFailClosed(string source,string code) =>
         Assert.Contains(Compilation.Check("array-rest-invalid.ts",source),
             diagnostic=>diagnostic.Code==code);
+
+    [Fact]
+    public void OversizedArrayUnionElementJoinProducesDiagnosticInsteadOfCrash()
+    {
+        // Each alias has 33 variants; joining 66 would breach the 64 limit.
+        var a=string.Join("|",Enumerable.Range(1,33).Select(i=>$"\"a{i}\""));
+        var b=string.Join("|",Enumerable.Range(1,33).Select(i=>$"\"b{i}\""));
+        var source=$"type A={a};type B={b};function f(xs:A[]|B[]):void{{const copy=[...xs];}}";
+        Assert.Contains(Compilation.Check("overflow-union-rest.ts",source),
+            diagnostic=>diagnostic.Code=="TSCS1001");
+    }
 
     [Fact]
     public void LinkedArrayRestBindingsEmitAndExecuteRealEs2015()
