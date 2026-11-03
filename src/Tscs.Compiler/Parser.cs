@@ -543,8 +543,9 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     // Copy with native iteration before taking the tail. In
                     // particular, the source array's own .slice property can
                     // be overridden and must not control destructuring.
-                    // Tuple rest requires position-preserving inference and
-                    // remains fail-closed until that is implemented.
+                    // The checker derives a mutable positional tuple tail when the
+                    // checked source is a fixed tuple. The runtime copy still uses
+                    // this one-evaluation native iterator path.
                     var start=arrayPattern.Elements.Count.ToString(System.Globalization.CultureInfo.InvariantCulture);
                     var number=new Token(TokenKind.Number,start,rest.Start,start.Length);
                     var slice=new Token(TokenKind.Identifier,"slice",rest.Start,rest.Length);
@@ -554,7 +555,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                             source,BindingArrayRest:true)],
                         new Token(TokenKind.CloseBracket,"]",rest.Start,1));
                     var tail=new ValueCall(new ValuePropertyAccess(iterated,slice),
-                        openParen,[new ValueAtom(number)]);
+                        openParen,[new ValueAtom(number)],BindingArrayTail:true);
                     target.Add(new Variable(rest,constant,null,tail,exported));
                 }
                 return;

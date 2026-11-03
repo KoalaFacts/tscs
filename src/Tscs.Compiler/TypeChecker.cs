@@ -2204,9 +2204,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 var operandType=types.Pop();
                 if(operandType is ArrayTypeSymbol expanded)
                 {
-                    if(spread.BindingArrayRest && expanded.TupleElements is not null)
+                    if(spread.BindingArrayRest && expanded.TupleElements is not null &&
+                       expanded.TupleOptionalStart>=0)
                         throw new CompilationFailure(Diagnostic.Error(file,spread.Keyword,"TSCS1001",
-                            "Tuple rest bindings require position-preserving inference and are not supported yet."));
+                            "Optional-length tuple rest bindings require variable-length positional inference."));
                     checkedArraySpreadOperands[spread]=expanded;
                     types.Push(expanded.ElementType);
                 }
@@ -2688,6 +2689,29 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         Error(call.Open,signature.NativeMutableArraySplice &&
                             arguments.Length<=2 && i<2?"TS2769":"TS2345",
                             $"Argument of type '{actual.DisplayName}' is not assignable to parameter of type '{type.DisplayName}'.");
+                }
+                if(call.BindingArrayTail)
+                {
+                    // Only parser-generated destructuring lowers through this
+                    // marker. The checked iterator copy and slice retain native
+                    // sparse-array semantics, while a fixed tuple source also
+                    // carries exact tail positions at the type level.
+                    if(call.Callee is not ValuePropertyAccess { Receiver:ValueArray copied } ||
+                       copied.Elements.Count!=1 ||
+                       copied.Elements[0] is not ValueArraySpread {BindingArrayRest:true} restCopy ||
+                       !checkedArraySpreadOperands.TryGetValue(restCopy,out var source))
+                        throw new CompilationFailure(Diagnostic.Error(file,call.Open,"TSCS1001",
+                            "An array rest binding requires a checked array source."));
+                    if(source.TupleElements is { } positions)
+                    {
+                        if(call.Arguments.Count!=1 ||
+                           call.Arguments[0] is not ValueAtom {Token.Kind:TokenKind.Number} startToken ||
+                           !int.TryParse(startToken.Token.Text,
+                               System.Globalization.NumberStyles.None,
+                               System.Globalization.CultureInfo.InvariantCulture,out var start))
+                            throw new InvalidOperationException("Invalid generated finite tuple-rest offset.");
+                        resultType=CompilerTypes.FiniteTuple(positions.Skip(start).ToArray(),false);
+                    }
                 }
                 types.Push(resultType);
                 continue;
