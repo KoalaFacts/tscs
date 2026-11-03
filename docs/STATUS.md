@@ -9,7 +9,11 @@ An unoverlapped numeric property retains its numeric key identity; later
 required spreads or literal entries still replace previous key identity.
 
 Eight positive and eight negative source-backed cases extend the unchanged
-317 bounded pinned-Go type-operator cohort to 333. The 16 initial code/exit
+317 bounded pinned-Go type-operator cohort to 333. A review-identified
+regression was fixed in the same PR: static computed numeric `[0]` keys
+retain their numeric provenance through optional overlays (including
+intermediate spreads and cross-module values); two positive and two negative
+targeted reference cases bring the bounded cohort to 337. The 16 initial code/exit
 expectations were checked with local TypeScript 5.8.3 `--strict` as an
 auxiliary oracle, not the fixed TS7 Go reference. xUnit semantic checks and a
 four-module executable ES2015 runtime/no-emission check are included. Exact
