@@ -18,6 +18,9 @@ public sealed class StringConcatCompareTests
     [InlineData("""let result:number="same".localeCompare("same",undefined);""")]
     [InlineData("""let result:number="same".localeCompare("same","en");""")]
     [InlineData("""let isEqual:boolean="a".concat("b").localeCompare("ab")===0;""")]
+    [InlineData("""let compare:(other:string)=>number="a".localeCompare;""")]
+    [InlineData("""function use(fn:(other:string)=>number):number{return fn("a");}let result:number=use("a".localeCompare);""")]
+    [InlineData("""function append(s:string,suffix:string="!"):string{return s+suffix;}let f:(value:string)=>string=append;""")]
     public void NativeStringConcatAndComparisonAreChecked(string source) =>
         Assert.Empty(Compilation.Check("string-concat-compare.ts",source));
 
@@ -31,6 +34,8 @@ public sealed class StringConcatCompareTests
     [InlineData("""let result:number="a".localeCompare("b",true);""","TS2345")]
     [InlineData("""let result:number="a".localeCompare("b","en","extra");""","TS2554")]
     [InlineData("""let result:string="a".localeCompare("b");""","TS2322")]
+    [InlineData("""let compare:()=>number="a".localeCompare;""","TS2322")]
+    [InlineData("""let compare:(other:number)=>number="a".localeCompare;""","TS2322")]
     public void InvalidStringArgumentsAndReturnTypesAreRejected(string source,string code) =>
         Assert.Contains(Compilation.Check("invalid-string-concat-compare.ts",source),
             diagnostic=>diagnostic.Code==code);
