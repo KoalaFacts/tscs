@@ -1098,6 +1098,16 @@ internal static class CompilerTypes
                 "indexOf" or "lastIndexOf" =>
                     new FunctionTypeSymbol([String,Union([Number,Undefined])],Number,1),
                 "replace" or "replaceAll" => new FunctionTypeSymbol([String,String],String),
+                // Checked native string methods. concat's arguments are strings,
+                // not a spreadable array overload; the call checker validates
+                // each rest argument (including a trailing string[] spread).
+                // localeCompare's locale may be an explicit string or undefined;
+                // Intl options and general standard-library overloads remain
+                // outside the current bounded compiler contract.
+                "concat" => new FunctionTypeSymbol([new ArrayTypeSymbol(String)],
+                    String,0,String),
+                "localeCompare" => new FunctionTypeSymbol(
+                    [String,Union([String,Undefined])],Number,1),
                 "split" => new FunctionTypeSymbol([String,Union([Number,Undefined])],
                     new ArrayTypeSymbol(String),1),
                 "repeat" => new FunctionTypeSymbol([Number],String),
@@ -1113,7 +1123,6 @@ internal static class CompilerTypes
                 "at" => new FunctionTypeSymbol([Number],Union([String,Undefined])),
                 "codePointAt" =>
                     new FunctionTypeSymbol([Number],Union([Number,Undefined])),
-                "localeCompare" => new FunctionTypeSymbol([String],Number),
                 _ => null
             };
         if(receiver is ObjectTypeSymbol shape)
@@ -1334,8 +1343,34 @@ internal static class CompilerTypes
                         requiredFunction.MinimumArguments==1 &&
                         actualFunction.RestElementType is null &&
                         requiredFunction.RestElementType is null;
+                    // A plain callable with exactly one optional trailing
+                    // parameter is safe to use through a shorter signature:
+                    // callers can provide only the required prefix. Preserve
+                    // required inputs, rest identity, and intrinsic restrictions.
+                    // This also preserves the existing one-arg localeCompare
+                    // method conversion after adding an optional locale.
+                    bool omitsPlainOptionalTail=
+                        !actualFunction.NativeArrayObjectThisArg &&
+                        !requiredFunction.NativeArrayObjectThisArg &&
+                        actualFunction.NativeArrayMapElementType is null &&
+                        actualFunction.NativeArrayReduceReceiver is null &&
+                        actualFunction.NativeArrayFlatReceiver is null &&
+                        actualFunction.NativeArraySpliceOverloadElementType is null &&
+                        !actualFunction.NativeArrayFlatMap &&
+                        !actualFunction.NativeMutableArraySplice &&
+                        requiredFunction.NativeArrayMapElementType is null &&
+                        requiredFunction.NativeArrayReduceReceiver is null &&
+                        requiredFunction.NativeArrayFlatReceiver is null &&
+                        requiredFunction.NativeArraySpliceOverloadElementType is null &&
+                        !requiredFunction.NativeArrayFlatMap &&
+                        !requiredFunction.NativeMutableArraySplice &&
+                        actualFunction.RestElementType is null &&
+                        requiredFunction.RestElementType is null &&
+                        actualFunction.Parameters.Count==requiredFunction.Parameters.Count+1 &&
+                        actualFunction.MinimumArguments==requiredFunction.Parameters.Count &&
+                        requiredFunction.MinimumArguments==requiredFunction.Parameters.Count;
                     // Parameter inputs are contravariant; return values covariant.
-                    if(!omitsNativeThisArg &&
+                    if(!omitsNativeThisArg && !omitsPlainOptionalTail &&
                        (actualFunction.Parameters.Count!=requiredFunction.Parameters.Count ||
                         actualFunction.MinimumArguments!=requiredFunction.MinimumArguments ||
                         (actualFunction.RestElementType is null)!=(requiredFunction.RestElementType is null)))
