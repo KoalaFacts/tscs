@@ -889,11 +889,46 @@ internal static class CompilerTypes
         return Same(left,right,0);
     }
 
+    // A native array callback may ignore the value or explicitly receive
+    // the index and the original array. Check every declared parameter,
+    // including readonly provenance for the third argument. Each arity is
+    // distinct because the bounded function relation uses exact arities.
+    // Keep result typing and the existing callback-return limitations.
+    private static TypeSymbol NativeArrayCallbackSignatures(ArrayTypeSymbol source,TypeSymbol result)
+    {
+        var receiver=new ArrayTypeSymbol(source.ElementType,source.Readonly);
+        return Union([
+            new FunctionTypeSymbol([],result),
+            new FunctionTypeSymbol([source.ElementType],result),
+            new FunctionTypeSymbol([source.ElementType,Number],result),
+            new FunctionTypeSymbol([source.ElementType,Number,receiver],result)
+        ]);
+    }
+
     // A read through a union is safe only when every alternative has the
     // requested property. Its result type is the union of member types.
     public static TypeSymbol? TryGetProperty(TypeSymbol receiver,string name)
     {
         if(receiver.Equals(Any))return Any;
+        // A union of native arrays has one safe callback contract: every
+        // alternative contributes its element type, and any readonly arm makes
+        // the original-array callback parameter readonly. Otherwise the
+        // receiver types create distinct callable unions and previously valid
+        // single-argument callbacks fail before being checked. This special
+        // case covers only the checked callback family; mutable-only methods
+        // and depth-dependent flat retain their existing union behavior.
+        if(receiver is UnionTypeSymbol alternatives &&
+           name is ("some" or "every" or "find" or "findIndex" or
+                    "findLast" or "findLastIndex" or "forEach" or
+                    "filter" or "map" or "flatMap") &&
+           alternatives.Alternatives.Count>0 &&
+           alternatives.Alternatives.All(item=>item is ArrayTypeSymbol))
+        {
+            var members=alternatives.Alternatives.Cast<ArrayTypeSymbol>().ToArray();
+            var element=Union(members.Select(item=>item.ElementType));
+            return TryGetProperty(new ArrayTypeSymbol(element,
+                Readonly:members.Any(item=>item.Readonly)),name);
+        }
         // Native array reads are available through mutable and readonly views.
         // Optional arguments include explicit undefined, matching TypeScript's
         // standard array signatures. The ordinary call checker and ES2015
@@ -948,7 +983,7 @@ internal static class CompilerTypes
             // value parameter; no contextual inference or predicate type guards.
             if(name is "some" or "every" or "find" or "findIndex" or "findLast" or "findLastIndex" or "forEach")
             {
-                var callback=new FunctionTypeSymbol([array.ElementType],
+                var callback=NativeArrayCallbackSignatures(array,
                     name=="forEach"?Void:Boolean);
                 TypeSymbol result=name switch
                 {
@@ -975,14 +1010,14 @@ internal static class CompilerTypes
             // Their intrinsic identities cannot be erased into ordinary callables.
             if(name is "map" or "flatMap")
                 return new FunctionTypeSymbol(
-                    [new FunctionTypeSymbol([array.ElementType],Any)],
+                    [NativeArrayCallbackSignatures(array,Any)],
                     new ArrayTypeSymbol(Any),NativeArrayMapElementType:array.ElementType,
                     NativeArrayFlatMap:name=="flatMap");
             // Checked native array transformations: filter always creates a
             // writable copy; same-element folds use an optional initial T.
             if(name=="filter")
                 return new FunctionTypeSymbol(
-                    [new FunctionTypeSymbol([array.ElementType],Boolean)],
+                    [NativeArrayCallbackSignatures(array,Boolean)],
                     new ArrayTypeSymbol(array.ElementType));
             if(name is "reduce" or "reduceRight")
                 return new FunctionTypeSymbol(

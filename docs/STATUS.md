@@ -1,3 +1,23 @@
+## 2026-11-04 — Native array callbacks with typed index/receiver arguments (candidate; NOT_RUN)
+
+The C# checker extends the bounded native array callback contract from a
+single explicitly typed element to zero through three declared parameters:
+element, numeric index and the original readonly/mutable array. The third
+parameter preserves receiver readonly identity. Applies to some/every,
+find/findIndex, findLast/findLastIndex, forEach, filter, map and flatMap,
+using existing TypeSymbols relationships, checker, modules and JS emission.
+The reduce/reduceRight index callbacks, contextual untyped inference,
+thisArg overloads and predicate type guards remain outside the boundary.
+
+Source-backed positive and negative xUnit programs, four linked emitted
+ES modules with actual Node execution and a rejected cross-module invalid
+callback are registered. Auxiliary TS 5.8.3 strict diagnostic checks are
+separate from the pinned TS7 oracle. Exact-head hosted checks remain
+NOT_RUN until CI; complete TS7 acceptance remains historically
+0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED and release ineligible.
+No upstream pin, original targets, thresholds, test skips, protections or
+release gates are changed.
+
 ## 2026-11-04 — Checked native-array unions for destructuring and spreads (candidate; NOT_RUN)
 
 The C# checker joins member types of ordinary native-array union arms for
