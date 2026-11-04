@@ -2680,6 +2680,24 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         types.Push(null);
                         continue;
                     }
+                    // The pinned TS iterable overloads do not infer a
+                    // heterogeneous element type from arbitrary iterable
+                    // unions (for example number[] | string). Preserve the
+                    // safe homogeneous subset rather than inventing a
+                    // broader Array.from signature from union flattening.
+                    if(arguments[0] is UnionTypeSymbol sources &&
+                       sources.Alternatives.Any(source=>
+                       {
+                           var arm=CompilerTypes.TryGetIterationElementType(source);
+                           return arm is null ||
+                               !CompilerTypes.SameStructuralInput(arm,element);
+                       }))
+                    {
+                        Error(call.Open,"TSCS1001",
+                            "Array.from on heterogeneous iterable unions is not yet supported.");
+                        types.Push(null);
+                        continue;
+                    }
                     types.Push(new ArrayTypeSymbol(element));
                     continue;
                 }

@@ -1,11 +1,11 @@
 ## 2026-11-04 — Checked native Array.from for finite iterables (candidate; NOT_RUN)
 
 The C# compiler recognizes unshadowed direct `Array.from(iterable)` with a
-checked array, finite tuple, string, or finite union thereof. The result is
+checked array, finite tuple, string, or homogeneous finite union thereof. The result is
 a fresh writable array with joined element types; strings iterate Unicode
 code points. JavaScript output preserves the native ES2015 call. A shadowed
 `Array` goes through ordinary checked function call semantics. Array-like
-objects, optional map callback / thisArg, spreads and unknown iterables are
+objects, heterogeneous iterable unions, optional map callback / thisArg, spreads and unknown iterables are
 not claimed; unsupported forms reject rather than guessing. Source-backed
 positive/negative, four-module native runtime, and invalid/no-output tests
 are registered. Exact-head hosted .NET and fixed Go reference checks are
