@@ -18,6 +18,9 @@ public sealed class ParenthesizedCommaSequenceTests
     [InlineData("function mark():number{return 2;}function choose():number{return (mark(),42);}let result:number=choose();")]
     [InlineData("function mark():number{return 2;}let result:number=true?(mark(),42):0;")]
     [InlineData("function mark():number{return 2;}let result:boolean=(mark(),42)>0;")]
+    [InlineData("function mark():number{return 0;}let result:42=(mark(),42);")]
+    [InlineData("function mark():number{return 0;}let result:{value:42}=(mark(),{value:42});")]
+    [InlineData("function mark():number{return 0;}let result:[number,string]=(mark(),[21,\"ready\"]);")]
     public void EffectfulParenthesizedSequencesCheckBothSides(string source)=>
         Assert.Empty(Compilation.Check("comma-sequence.ts",source));
 
@@ -29,6 +32,8 @@ public sealed class ParenthesizedCommaSequenceTests
     [InlineData("function mark():number{return 21;}let result:number=(mark(),{value:1}.missing);","TS2339")]
     [InlineData("function mark(x:number):number{return x;}let result:number=(mark(\"bad\"),42);","TS2345")]
     [InlineData("function mark():number{return 21;}let result:number=(mark(),);","TSCS1001")]
+    [InlineData("function mark():number{return 0;}let result:{value:number}=(mark(),{value:42,extra:1});","TS2353")]
+    [InlineData("function mark():number{return 0;}function use(o:{value:number}):number{return o.value;}let result:number=use((mark(),{value:42,extra:1}));","TS2353")]
     public void InvalidOperandsAndUnusedPureLeftSideRemainErrors(string source,string code)=>
         Assert.Contains(Compilation.Check("comma-sequence-negative.ts",source),
             diagnostic=>diagnostic.Code==code);
