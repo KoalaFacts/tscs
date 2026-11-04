@@ -1098,6 +1098,16 @@ internal static class CompilerTypes
                 "indexOf" or "lastIndexOf" =>
                     new FunctionTypeSymbol([String,Union([Number,Undefined])],Number,1),
                 "replace" or "replaceAll" => new FunctionTypeSymbol([String,String],String),
+                // Checked native string methods. concat's arguments are strings,
+                // not a spreadable array overload; the call checker validates
+                // each rest argument (including a trailing string[] spread).
+                // localeCompare's locale may be an explicit string or undefined;
+                // Intl options and general standard-library overloads remain
+                // outside the current bounded compiler contract.
+                "concat" => new FunctionTypeSymbol([new ArrayTypeSymbol(String)],
+                    String,0,String),
+                "localeCompare" => new FunctionTypeSymbol(
+                    [String,Union([String,Undefined])],Number,1),
                 "split" => new FunctionTypeSymbol([String,Union([Number,Undefined])],
                     new ArrayTypeSymbol(String),1),
                 "repeat" => new FunctionTypeSymbol([Number],String),
