@@ -13,6 +13,8 @@ public sealed class ArrayOfNativeTests
     [InlineData("""let xs:boolean[]=Array.of(true,false);""")]
     [InlineData("""let xs=Array.of();xs.push(2);""")]
     [InlineData("""let xs:(number|undefined)[]=Array.of(1,undefined);""")]
+    [InlineData("""let xs:(number|undefined)[]=Array.of(undefined,1);""")]
+    [InlineData("""const one:1=1;let xs:1[]=Array.of(one,1);""")]
     [InlineData("""let xs:number[]=Array.of(...[2,4]);""")]
     [InlineData("""let source:readonly number[]=[2,4];let xs:number[]=Array.of(1,...source);xs.push(8);""")]
     [InlineData("""let xs:number[][]=Array.of([2],[4,6]);""")]
