@@ -543,6 +543,13 @@ internal static class JavaScriptEmitter
             switch(statement)
             {
                 case null: break;
+                case Block sequence:
+                    for(int i=0;i<sequence.Statements.Count;i++)
+                    {
+                        if(i>0)output.Append(", ");
+                        WriteForHeader(sequence.Statements[i]);
+                    }
+                    break;
                 case Variable variable:
                     output.Append("let ").Append(variable.Name.Text);
                     if(variable.Initializer is { } initial)

@@ -1,3 +1,22 @@
+## 2026-11-05 — Classic for comma headers (candidate; NOT_RUN)
+
+C# classic `for` loops now accept up to 64 checked assignment/update clauses in
+an expression-style initializer and increment clause, plus effectful comma
+sequence conditions. Each mutation retains the existing binder, lvalue/type
+validation and loop backedge handling; continue still runs the whole increment
+list. The emitter uses one comma-separated native ES2015 header rather than
+an additional runtime loop or helper. A declared `let` initializer still has
+one binding; multiple declared bindings, arbitrary pure expression updates,
+general assignment expressions and unrestricted comma operators remain
+unsupported. Pure unused left operands of comma conditions receive TS2695.
+
+Source-backed positive and negative cases, four linked executable modules and
+invalid-module no-emission checks are included. Exact-head hosted .NET,
+fixed TS7 Go and independent code review are NOT_RUN at candidate creation.
+No original TS7 suite ID is newly accepted: historical 0 PASS / 15,523
+SKIP_UNIMPLEMENTED and dynamic UNEXPANDED; release ineligible. No changes
+to upstream pin, SKIP registration, test floors or validation gates.
+
 ## 2026-11-05 — Native Object identity and own-key probes (candidate; NOT_RUN)
 
 The C# checker now recognizes unshadowed direct `Object.is(a,b)` and
