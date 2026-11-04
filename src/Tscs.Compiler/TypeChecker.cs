@@ -2653,11 +2653,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 }
                 if(intrinsicArrayFrom)
                 {
-                    // Array.from copies checked finite arrays/tuples and iterates
-                    // strings by Unicode code point. The existing iterator
-                    // element relation handles readonly and finite unions.
-                    // Its map callback, array-like objects and spread arguments
-                    // are outside this bounded implementation.
+                    // Array.from iterates a checked finite source. Explicitly
+                    // typed map callbacks receive the element and numeric index;
+                    // their result fixes the writable output array's element.
+                    // Array-like sources, contextual mapper inference, and spread
+                    // arguments remain outside this bounded implementation.
                     if(call.SpreadIndex>=0)
                     {
                         Error(call.Open,"TSCS1001",
@@ -2665,12 +2665,12 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         types.Push(null);
                         continue;
                     }
-                    if(arguments.Length!=1)
+                    if(arguments.Length is <1 or >3)
                     {
-                        Error(call.Open,arguments.Length==0?"TS2554":"TSCS1001",
+                        Error(call.Open,"TS2554",
                             arguments.Length==0
                                 ?"Array.from requires an iterable argument."
-                                :"Array.from mapping callbacks and thisArg are not yet supported.");
+                                :"Array.from accepts at most a source, mapping function and thisArg.");
                         types.Push(null);
                         continue;
                     }
@@ -2710,7 +2710,40 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         types.Push(null);
                         continue;
                     }
-                    types.Push(new ArrayTypeSymbol(element));
+                    TypeSymbol outputElement=element;
+                    if(arguments.Length>=2)
+                    {
+                        // The mapper is a normal checked function value, not an
+                        // invented any-returning intrinsic. Explicit zero-, one-
+                        // and two-parameter signatures are supported. The source
+                        // value must fit the declared parameter (contravariance);
+                        // the index is always a number. The native JS call keeps
+                        // any supplied thisArg, including primitive contexts.
+                        if(arguments[1] is not FunctionTypeSymbol mapper ||
+                           mapper.Parameters.Count>2 || mapper.RestElementType is not null)
+                        {
+                            Error(call.Open,"TS2345",
+                                "Array.from mapping requires a checked callback with at most two explicit parameters.");
+                            types.Push(null);
+                            continue;
+                        }
+                        TypeSymbol[] passed=[element,CompilerTypes.Number];
+                        bool valid=true;
+                        for(int i=0;i<mapper.Parameters.Count;i++)
+                            if(!CompilerTypes.IsAssignable(passed[i],mapper.Parameters[i]))
+                            {
+                                Error(call.Open,"TS2345",
+                                    $"Array.from callback parameter {i+1} cannot accept '{passed[i].DisplayName}'.");
+                                valid=false;
+                            }
+                        if(!valid)
+                        {
+                            types.Push(null);
+                            continue;
+                        }
+                        outputElement=mapper.ReturnType;
+                    }
+                    types.Push(new ArrayTypeSymbol(outputElement));
                     continue;
                 }
                 var calleeType=types.Pop();
