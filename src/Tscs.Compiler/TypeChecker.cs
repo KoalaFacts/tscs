@@ -2674,7 +2674,28 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         types.Push(null);
                         continue;
                     }
-                    var element=CompilerTypes.TryGetIterationElementType(arguments[0]);
+                    TypeSymbol? element;
+                    bool homogeneous=true;
+                    try
+                    {
+                        element=CompilerTypes.TryGetIterationElementType(arguments[0]);
+                        // The pinned iterable overloads do not infer a common
+                        // element from heterogeneous unions (number[] | string).
+                        // The bounded semantic model can also exceed its union
+                        // size limit during joining: diagnose, never crash.
+                        if(element is not null && arguments[0] is UnionTypeSymbol sources)
+                            homogeneous=sources.Alternatives.All(source=>
+                            {
+                                var arm=CompilerTypes.TryGetIterationElementType(source);
+                                return arm is not null &&
+                                    CompilerTypes.SameStructuralInput(arm,element!);
+                            });
+                    }
+                    catch(InvalidOperationException failure)
+                    {
+                        throw new CompilationFailure(Diagnostic.Error(file,call.Open,
+                            "TSCS1001",failure.Message));
+                    }
                     if(element is null)
                     {
                         Error(call.Open,"TSCS1001",
@@ -2682,18 +2703,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         types.Push(null);
                         continue;
                     }
-                    // The pinned TS iterable overloads do not infer a
-                    // heterogeneous element type from arbitrary iterable
-                    // unions (for example number[] | string). Preserve the
-                    // safe homogeneous subset rather than inventing a
-                    // broader Array.from signature from union flattening.
-                    if(arguments[0] is UnionTypeSymbol sources &&
-                       sources.Alternatives.Any(source=>
-                       {
-                           var arm=CompilerTypes.TryGetIterationElementType(source);
-                           return arm is null ||
-                               !CompilerTypes.SameStructuralInput(arm,element);
-                       }))
+                    if(!homogeneous)
                     {
                         Error(call.Open,"TSCS1001",
                             "Array.from on heterogeneous iterable unions is not yet supported.");

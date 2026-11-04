@@ -36,6 +36,16 @@ public sealed class ArrayFromIterableTests
         Assert.Contains(Compilation.Check("array-from-invalid.ts",source),
             d=>d.Code==diagnostic);
 
+    [Fact]
+    public void OversizedIterableUnionsProduceADiagnosticInsteadOfThrowing()
+    {
+        var first=string.Join("|",Enumerable.Range(0,33).Select(i=>$"\"left{i}\""));
+        var second=string.Join("|",Enumerable.Range(0,33).Select(i=>$"\"right{i}\""));
+        var source=$"type A={first};type B={second};function f(xs:A[]|B[]):void{{Array.from(xs);}}";
+        var diagnostics=Compilation.Check("array-from-large-union.ts",source);
+        Assert.Contains(diagnostics,d=>d.Code=="TSCS1001");
+    }
+
     private sealed class Host : ICompilerHost
     {
         public StringComparer FileNameComparer=>StringComparer.Ordinal;
