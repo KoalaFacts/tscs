@@ -1111,6 +1111,27 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             Receiver:ValueAtom {Token:{Kind:TokenKind.Identifier,Text:"Array"}}
         } && scope.Find("Array") is null && !HasPendingParameter(scope,"Array");
 
+
+    // Object.keys/values/entries are real runtime built-ins, never a
+    // synthesized ambient global. A lexically shadowed Object value retains
+    // its own checked property/call signature.
+    private static bool TryIntrinsicObjectEnumeration(ValueCall call,Scope scope,out string method)
+    {
+        method="";
+        if(call.Optional || call.ChainContinuation ||
+           call.Callee is not ValuePropertyAccess property ||
+           property.Optional || property.ChainContinuation ||
+           property.Receiver is not ValueAtom
+           {
+               Token:{Kind:TokenKind.Identifier,Text:"Object"}
+           } ||
+           property.Name.Text is not ("keys" or "values" or "entries") ||
+           scope.Find("Object") is not null || HasPendingParameter(scope,"Object"))
+            return false;
+        method=property.Name.Text;
+        return true;
+    }
+
     // Runtime Array.isArray is precise for checked arrays and definite
     // non-array primitives/functions. A structural object can actually be
     // backed by an array, so do not eliminate those arms by guessing.
@@ -2642,17 +2663,92 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 bool intrinsicArrayGuard=IsIntrinsicArrayIsArray(call,scope);
                 bool intrinsicArrayFrom=IsIntrinsicArrayFrom(call,scope);
                 bool intrinsicArrayOf=IsIntrinsicArrayOf(call,scope);
+                bool intrinsicObjectEnumeration=TryIntrinsicObjectEnumeration(call,scope,out var objectMethod);
                 if(!combine)
                 {
                     pending.Push((call,true));
                     for(int i=call.Arguments.Count-1;i>=0;i--)
                         pending.Push((call.Arguments[i],false));
-                    if(!intrinsicArrayGuard && !intrinsicArrayFrom && !intrinsicArrayOf)
+                    if(!intrinsicArrayGuard && !intrinsicArrayFrom && !intrinsicArrayOf && !intrinsicObjectEnumeration)
                         pending.Push((call.Callee,false));
                     continue;
                 }
                 var arguments=new TypeSymbol?[call.Arguments.Count];
                 for(int i=arguments.Length-1;i>=0;i--)arguments[i]=types.Pop();
+
+                if(intrinsicObjectEnumeration)
+                {
+                    // Only finite structural objects and native arrays have a
+                    // sound checked enumerable-member contract here. Every JS
+                    // result remains the original native call, with no polyfill.
+                    if(call.SpreadIndex>=0)
+                    {
+                        Error(call.Open,"TSCS1001",
+                            "Object enumeration spread arguments are not yet supported.");
+                        types.Push(null);
+                        continue;
+                    }
+                    if(arguments.Length!=1)
+                    {
+                        Error(call.Open,"TS2554",
+                            "Object."+objectMethod+" expects exactly one argument.");
+                        types.Push(null);
+                        continue;
+                    }
+                    var source=arguments[0];
+                    if(source is null)
+                    {
+                        types.Push(null);
+                        continue;
+                    }
+                    if(source is not (ObjectTypeSymbol or ArrayTypeSymbol))
+                    {
+                        Error(call.Open,"TSCS1001",
+                            "Object enumeration requires a checked finite object or array.");
+                        types.Push(null);
+                        continue;
+                    }
+                    if(objectMethod=="keys")
+                    {
+                        types.Push(new ArrayTypeSymbol(CompilerTypes.String));
+                        continue;
+                    }
+                    // The ES2017 generic overload has a usable element type
+                    // for arrays or homogeneous, required object members.
+                    // Heterogeneous/optional object fallbacks in the standard
+                    // library involve any; do not fabricate an any[] success.
+                    TypeSymbol? memberType=source switch
+                    {
+                        ArrayTypeSymbol array=>array.ElementType,
+                        ObjectTypeSymbol shape when
+                            shape.Members.Count>0 && shape.OptionalMembers.Count==0 &&
+                            shape.Members.Values.All(member=>CompilerTypes.SameStructuralInput(
+                                member,shape.Members.Values.First()))=>
+                            shape.Members.Values.First(),
+                        _=>null
+                    };
+                    if(memberType is null)
+                    {
+                        Error(call.Open,"TSCS1001",
+                            "Object.values/entries require a checked array or homogeneous required object members.");
+                        types.Push(null);
+                        continue;
+                    }
+                    if(objectMethod=="entries")
+                    {
+                        TypeSymbol entryElement;
+                        try {entryElement=CompilerTypes.Union([CompilerTypes.String,memberType]);}
+                        catch(InvalidOperationException failure)
+                        {
+                            throw new CompilationFailure(Diagnostic.Error(file,call.Open,
+                                "TSCS1001",failure.Message));
+                        }
+                        memberType=new ArrayTypeSymbol(entryElement,
+                            TupleElements:[CompilerTypes.String,memberType]);
+                    }
+                    types.Push(new ArrayTypeSymbol(memberType));
+                    continue;
+                }
                 if(intrinsicArrayGuard)
                 {
                     if(call.SpreadIndex>=0)
