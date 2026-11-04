@@ -22,6 +22,9 @@ public sealed class ArrayCallbackThisArgTests
     [InlineData("""function flat(xs:number[]|readonly number[]):number[]{let ctx={bias:3};return xs.flatMap((n:number):number[]=>[n+ctx.bias],ctx);}""")]
     [InlineData("""type MapFn=((n:number)=>number)|((n:number)=>number);function apply(xs:number[],cb:MapFn):number[]{return xs.map(cb,{bias:3});}""")]
     [InlineData("""let xs:number[]=[2];let out:number[]=xs.map((n:number):number=>n,undefined);""")]
+    [InlineData("""let xs:number[]=[1];let f:(cb:(n:number)=>boolean)=>boolean=xs.some;""")]
+    [InlineData("""let xs:readonly number[]=[1];let f:(cb:(n:number)=>boolean)=>number[]=xs.filter;""")]
+    [InlineData("""let xs:readonly number[]=[1];let f:(cb:(n:number)=>boolean)=>number|undefined=xs.findLast;""")]
     public void OptionalThisArgumentPreservesCheckedNativeTypes(string source) =>
         Assert.Empty(Compilation.Check("array-callback-thisarg.ts",source));
 
@@ -36,6 +39,7 @@ public sealed class ArrayCallbackThisArgTests
     [InlineData("""let xs:number[]=[2];let bad:string[]=xs.flatMap((n:number):number[]=>[n],{bias:3});""","TS2322")]
     [InlineData("""let xs:number[]=[2];let bad:number[]=xs.flatMap((n:number):string[]=>["x"],{bias:3});""","TS2322")]
     [InlineData("""let xs:readonly number[]=[2];let bad:string=xs.find((n:number):boolean=>true,{bias:3});""","TS2322")]
+    [InlineData("""let xs:readonly number[]=[1];let wrong:(cb:(s:string)=>boolean)=>boolean=xs.some;""","TS2322")]
     public void InvalidCallbacksReturnsAndArityStillReject(string source,string diagnostic) =>
         Assert.Contains(Compilation.Check("array-callback-thisarg-invalid.ts",source),
             d=>d.Code==diagnostic);
