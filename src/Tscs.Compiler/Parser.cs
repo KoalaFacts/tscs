@@ -1122,8 +1122,9 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     }
 
     // Both loop styles share the checked expression AST and lexically scoped
-    // bindings. Only one mutable let initializer and supported mutations are
-    // admitted for classic for; unsupported forms fail closed.
+    // bindings. Classic for keeps one mutable let declaration, while existing
+    // mutation forms may be sequenced in its initializer/update and effectful
+    // comma expressions may occur in its condition. Unsupported forms fail closed.
     private Statement ParseFor(int depth,bool inFunction)
     {
         var keyword=Take();
@@ -1158,11 +1159,11 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             initializer=new Variable(name,false,annotation,initial);
         }
         else if(Current.Kind!=TokenKind.Semi)
-            initializer=ParseWithInDisallowed(ParseForHeaderMutation);
+            initializer=ParseWithInDisallowed(ParseForHeaderMutations);
         if(!Eat(TokenKind.Semi))Unsupported(Current,"Expected first ';' in classic for header.");
-        ValueNode? condition=Current.Kind==TokenKind.Semi?null:ParseValue();
+        ValueNode? condition=Current.Kind==TokenKind.Semi?null:ParseForCommaCondition();
         if(!Eat(TokenKind.Semi))Unsupported(Current,"Expected second ';' in classic for header.");
-        Statement? update=Current.Kind==TokenKind.CloseParen?null:ParseForHeaderMutation();
+        Statement? update=Current.Kind==TokenKind.CloseParen?null:ParseForHeaderMutations();
         if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after classic for header.");
         var statements=ParseLoopBody(depth,inFunction);
         return new ClassicForStatement(keyword,initializer,condition,update,statements);
@@ -1184,6 +1185,37 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
         disallowIn=false;
         try { return parse(); }
         finally { disallowIn=old; }
+    }
+
+    // Reuse the ordinary checked mutation statements inside a synthetic Block.
+    // Its statements have no declarations and remain in the existing loop scope;
+    // the emitter writes them as one comma-separated for-header expression.
+    private Statement ParseForHeaderMutations()
+    {
+        var mutations=new List<Statement> { ParseForHeaderMutation() };
+        while(Eat(TokenKind.Comma))
+        {
+            if(mutations.Count>=64)
+                Unsupported(Current,"Classic for header mutation lists exceed the finite limit.");
+            mutations.Add(ParseForHeaderMutation());
+        }
+        return mutations.Count==1?mutations[0]:new Block(mutations);
+    }
+
+    // The comma expression is lower precedence than the loop condition.
+    // Each left operand must pass the shared TS2695 side-effect check.
+    private ValueNode ParseForCommaCondition()
+    {
+        var value=ParseValue();
+        int length=1;
+        while(Current.Kind==TokenKind.Comma)
+        {
+            var comma=Take();
+            if(++length>64)
+                Unsupported(comma,"Classic for comma conditions exceed the finite limit.");
+            value=new ValueBinary(value,comma,ParseValue());
+        }
+        return value;
     }
 
     private Statement ParseForHeaderMutation()
