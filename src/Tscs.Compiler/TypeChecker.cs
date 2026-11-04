@@ -1088,6 +1088,18 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             Receiver:ValueAtom {Token:{Kind:TokenKind.Identifier,Text:"Array"}}
         } && scope.Find("Array") is null && !HasPendingParameter(scope,"Array");
 
+    // Array.from has a separate, checked finite iterable contract. Recognize
+    // only the actual unshadowed runtime intrinsic; a local or parameter
+    // named Array must retain its ordinary callable property semantics.
+    private static bool IsIntrinsicArrayFrom(ValueCall call,Scope scope) =>
+        !call.Optional && !call.ChainContinuation &&
+        call.Callee is ValuePropertyAccess
+        {
+            Optional:false,ChainContinuation:false,
+            Name:{Text:"from"},
+            Receiver:ValueAtom {Token:{Kind:TokenKind.Identifier,Text:"Array"}}
+        } && scope.Find("Array") is null && !HasPendingParameter(scope,"Array");
+
     // Runtime Array.isArray is precise for checked arrays and definite
     // non-array primitives/functions. A structural object can actually be
     // backed by an array, so do not eliminate those arms by guessing.
@@ -2617,12 +2629,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 // The intrinsic takes any single value and returns boolean;
                 // ordinary property/call checking handles shadowed names.
                 bool intrinsicArrayGuard=IsIntrinsicArrayIsArray(call,scope);
+                bool intrinsicArrayFrom=IsIntrinsicArrayFrom(call,scope);
                 if(!combine)
                 {
                     pending.Push((call,true));
                     for(int i=call.Arguments.Count-1;i>=0;i--)
                         pending.Push((call.Arguments[i],false));
-                    if(!intrinsicArrayGuard)pending.Push((call.Callee,false));
+                    if(!intrinsicArrayGuard && !intrinsicArrayFrom)
+                        pending.Push((call.Callee,false));
                     continue;
                 }
                 var arguments=new TypeSymbol?[call.Arguments.Count];
@@ -2635,6 +2649,38 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     if(arguments.Length!=1)
                         Error(call.Open,"TS2554","Array.isArray expects exactly one argument.");
                     types.Push(CompilerTypes.Boolean);
+                    continue;
+                }
+                if(intrinsicArrayFrom)
+                {
+                    // Array.from copies checked finite arrays/tuples and iterates
+                    // strings by Unicode code point. The existing iterator
+                    // element relation handles readonly and finite unions.
+                    // Its map callback, array-like objects and spread arguments
+                    // are outside this bounded implementation.
+                    if(call.SpreadIndex>=0)
+                    {
+                        Error(call.Open,"TSCS1001",
+                            "Array.from spread arguments are not yet supported.");
+                        types.Push(null);
+                        continue;
+                    }
+                    if(arguments.Length!=1)
+                    {
+                        Error(call.Open,"TS2554",
+                            "Array.from currently expects exactly one iterable argument.");
+                        types.Push(null);
+                        continue;
+                    }
+                    var element=CompilerTypes.TryGetIterationElementType(arguments[0]);
+                    if(element is null)
+                    {
+                        Error(call.Open,"TSCS1001",
+                            "Array.from requires a checked array, tuple, string, or finite union of these.");
+                        types.Push(null);
+                        continue;
+                    }
+                    types.Push(new ArrayTypeSymbol(element));
                     continue;
                 }
                 var calleeType=types.Pop();
