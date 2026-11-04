@@ -1152,6 +1152,18 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         return true;
     }
 
+    // Native Object.assign mutates the first object at runtime. For finite,
+    // required and non-readonly shapes, merge disjoint (or identical) member
+    // types without inventing a general intersection/any escape hatch.
+    private static bool IsIntrinsicObjectAssign(ValueCall call,Scope scope) =>
+        !call.Optional && !call.ChainContinuation &&
+        call.Callee is ValuePropertyAccess
+        {
+            Optional:false,ChainContinuation:false,
+            Name:{Text:"assign"},
+            Receiver:ValueAtom {Token:{Kind:TokenKind.Identifier,Text:"Object"}}
+        } && scope.Find("Object") is null && !HasPendingParameter(scope,"Object");
+
     // Runtime Array.isArray is precise for checked arrays and definite
     // non-array primitives/functions. A structural object can actually be
     // backed by an array, so do not eliminate those arms by guessing.
@@ -2685,13 +2697,15 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 bool intrinsicArrayOf=IsIntrinsicArrayOf(call,scope);
                 bool intrinsicObjectEnumeration=TryIntrinsicObjectEnumeration(call,scope,out var objectMethod);
                 bool intrinsicObjectIntegrity=TryIntrinsicObjectIntegrity(call,scope,out var integrityMethod);
+                bool intrinsicObjectAssign=IsIntrinsicObjectAssign(call,scope);
                 if(!combine)
                 {
                     pending.Push((call,true));
                     for(int i=call.Arguments.Count-1;i>=0;i--)
                         pending.Push((call.Arguments[i],false));
                     if(!intrinsicArrayGuard && !intrinsicArrayFrom && !intrinsicArrayOf &&
-                       !intrinsicObjectEnumeration && !intrinsicObjectIntegrity)
+                       !intrinsicObjectEnumeration && !intrinsicObjectIntegrity &&
+                       !intrinsicObjectAssign)
                         pending.Push((call.Callee,false));
                     continue;
                 }
@@ -2748,6 +2762,61 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     }
                     // seal and preventExtensions return T, not Readonly<T>.
                     types.Push(target);
+                    continue;
+                }
+                if(intrinsicObjectAssign)
+                {
+                    // Object.assign returns its original target at runtime.
+                    // Keep aliases and mutation behavior in emitted JavaScript;
+                    // a finite type here describes the additional known keys.
+                    if(call.SpreadIndex>=0)
+                    {
+                        Error(call.Open,"TSCS1001",
+                            "Object.assign spread arguments are not yet supported.");
+                        types.Push(null);
+                        continue;
+                    }
+                    if(arguments.Length is < 1 or > 8)
+                    {
+                        Error(call.Open,"TS2554",
+                            "Object.assign supports one target and up to seven explicit sources.");
+                        types.Push(null);
+                        continue;
+                    }
+                    var mergedMembers=new Dictionary<string,TypeSymbol>(StringComparer.Ordinal);
+                    bool mergeIsChecked=true;
+                    foreach(var item in arguments)
+                    {
+                        if(item is null)
+                        {
+                            mergeIsChecked=false;
+                            break;
+                        }
+                        if(item is not ObjectTypeSymbol shape ||
+                           shape.OptionalMembers.Count>0 ||
+                           shape.ReadonlyMembers.Count>0 ||
+                           shape.NumericMembers.Count>0)
+                        {
+                            Error(call.Open,"TSCS1001",
+                                "Object.assign requires finite objects with required, writable, nonnumeric members.");
+                            mergeIsChecked=false;
+                            break;
+                        }
+                        foreach(var member in shape.Members)
+                        {
+                            if(mergedMembers.TryGetValue(member.Key,out var previous) &&
+                               !CompilerTypes.SameStructuralInput(previous,member.Value))
+                            {
+                                Error(call.Open,"TSCS1001",
+                                    "Object.assign overlapping members require identical checked types.");
+                                mergeIsChecked=false;
+                                break;
+                            }
+                            mergedMembers[member.Key]=member.Value;
+                        }
+                        if(!mergeIsChecked)break;
+                    }
+                    types.Push(mergeIsChecked?new ObjectTypeSymbol(mergedMembers):null);
                     continue;
                 }
                 if(intrinsicObjectEnumeration)
