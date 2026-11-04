@@ -2742,10 +2742,19 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             // tuple member (e.g. number|string). Without one,
                             // find a non-nullish anchor: a leading null must not
                             // hide incompatible later number/string members.
-                            if(ofSpread.TupleElements is {Count:>1} tuple && element is null)
+                            if(ofSpread.TupleElements is {Count:>1} tuple)
                             {
-                                var comparable=tuple.Where(member=>!NullishOnly(member)).ToArray();
-                                if(comparable.Length>1 &&
+                                // Strip nullish alternatives for compatibility
+                                // comparisons, but keep them in the inferred
+                                // output type. An earlier typed union may accept
+                                // every non-nullish member, while a preceding
+                                // null/undefined alone cannot constrain them.
+                                var comparable=tuple.Where(member=>!NullishOnly(member))
+                                    .Select(CompilerTypes.NonNullAssertionResult).ToArray();
+                                var constrained=element is null?null:CompilerTypes.NonNullAssertionResult(element);
+                                bool covered=constrained is not null &&
+                                    comparable.All(member=>CompilerTypes.IsAssignable(member,constrained));
+                                if(!covered && comparable.Length>1 &&
                                    comparable.Skip(1).Any(member=>
                                        !CompilerTypes.IsAssignable(member,comparable[0]) &&
                                        !CompilerTypes.IsAssignable(comparable[0],member) &&
