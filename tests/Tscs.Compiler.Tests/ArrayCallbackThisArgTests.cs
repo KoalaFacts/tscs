@@ -40,6 +40,12 @@ public sealed class ArrayCallbackThisArgTests
     [InlineData("""let xs:number[]=[2];let bad:number[]=xs.flatMap((n:number):string[]=>["x"],{bias:3});""","TS2322")]
     [InlineData("""let xs:readonly number[]=[2];let bad:string=xs.find((n:number):boolean=>true,{bias:3});""","TS2322")]
     [InlineData("""let xs:readonly number[]=[1];let wrong:(cb:(s:string)=>boolean)=>boolean=xs.some;""","TS2322")]
+    [InlineData("""let xs:number[]=[21];xs.map((n:number):number=>n,42);""","TS2554")]
+    [InlineData("""let xs:number[]=[21];xs.flatMap((n:number):number[]=>[n],42);""","TS2554")]
+    [InlineData("""let xs:number[]=[21];xs.filter((n:number):boolean=>true,42);""","TS2554")]
+    [InlineData("""let xs:number[]=[21];xs.some((n:number):boolean=>true,(n:number):boolean=>true);""","TS2554")]
+    [InlineData("""let xs:number[]=[21];xs.findLast((n:number):boolean=>true,1);""","TS2554")]
+    [InlineData("""let xs:number[]=[1];let wrong:(cb:(n:number)=>boolean,ctx:any)=>boolean=xs.some;""","TS2322")]
     public void InvalidCallbacksReturnsAndArityStillReject(string source,string diagnostic) =>
         Assert.Contains(Compilation.Check("array-callback-thisarg-invalid.ts",source),
             d=>d.Code==diagnostic);

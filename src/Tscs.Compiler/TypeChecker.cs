@@ -2589,6 +2589,25 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 if(callableType is not FunctionTypeSymbol signature)
                     throw new CompilationFailure(Diagnostic.Error(file,call.Open,"TSCS1001",
                         "Calls currently require a declared function with an explicit signature."));
+                // Bounded native thisArg permits a finite object/array or
+                // explicit undefined. The frozen TS7 custom minimal array
+                // ambient exposes one-argument overloads: primitive/function
+                // contexts are not accepted in this implemented subset.
+                // This is semantic type checking, not a source-name exception.
+                if(signature.NativeArrayObjectThisArg &&
+                   call.SpreadIndex<0 && arguments.Length==2)
+                {
+                    static bool SupportedThisArg(TypeSymbol? value)=>value switch
+                    {
+                        ObjectTypeSymbol or ArrayTypeSymbol=>true,
+                        PrimitiveTypeSymbol {Kind:PrimitiveKind.Undefined}=>true,
+                        UnionTypeSymbol u=>u.Alternatives.All(SupportedThisArg),
+                        _=>false
+                    };
+                    if(!SupportedThisArg(arguments[1]))
+                        Error(call.Open,"TS2554",
+                            "A primitive or callable thisArg is unsupported by the checked native array callback subset.");
+                }
                 // With an explicit seed the accumulator U may differ from the
                 // source element. A typed callback's first argument fixes U,
                 // but a zero-argument/invalid callback falls back to the seed,

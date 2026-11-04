@@ -48,7 +48,7 @@ internal sealed record UnionTypeSymbol(IReadOnlyList<TypeSymbol> Alternatives) :
 // can inspect fresh operand literals rather than only the joined type.
 internal sealed record LogicalValueOutcome(TypeSymbol Result,TypeSymbol? LeftResult,TypeSymbol Right,bool RightReachable);
 
-internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null,TypeSymbol? NativeArrayMapElementType=null,ArrayTypeSymbol? NativeArrayReduceReceiver=null,TypeSymbol? NativeArraySpliceOverloadElementType=null,bool NativeMutableArraySplice=false,bool NativeArrayFlatMap=false,ArrayTypeSymbol? NativeArrayFlatReceiver=null) : TypeSymbol
+internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null,TypeSymbol? NativeArrayMapElementType=null,ArrayTypeSymbol? NativeArrayReduceReceiver=null,TypeSymbol? NativeArraySpliceOverloadElementType=null,bool NativeMutableArraySplice=false,bool NativeArrayFlatMap=false,ArrayTypeSymbol? NativeArrayFlatReceiver=null,bool NativeArrayObjectThisArg=false) : TypeSymbol
 {
     public int MinimumArguments=>RequiredParameterCount<0?Parameters.Count:RequiredParameterCount;
     public override string DisplayName=>TypeDisplay.Format(this);
@@ -791,7 +791,8 @@ internal static class CompilerTypes
             signature.NativeArrayMapElementType is null &&
             signature.NativeArrayReduceReceiver is null &&
             signature.NativeArraySpliceOverloadElementType is null &&
-            signature.NativeArrayFlatReceiver is null;
+            signature.NativeArrayFlatReceiver is null &&
+            !signature.NativeArrayObjectThisArg;
         if(!Plain(first) || !signatures.All(other=>Plain(other) &&
             other.Parameters.Count==first.Parameters.Count &&
             other.MinimumArguments==first.MinimumArguments &&
@@ -857,6 +858,7 @@ internal static class CompilerTypes
                         af.MinimumArguments==bf.MinimumArguments &&
                         af.NativeArrayFlatMap==bf.NativeArrayFlatMap &&
                         af.NativeMutableArraySplice==bf.NativeMutableArraySplice &&
+                        af.NativeArrayObjectThisArg==bf.NativeArrayObjectThisArg &&
                         SameOptional(af.RestElementType,bf.RestElementType,depth) &&
                         SameOptional(af.NativeArrayMapElementType,bf.NativeArrayMapElementType,depth) &&
                         SameOptional(af.NativeArrayReduceReceiver,bf.NativeArrayReduceReceiver,depth) &&
@@ -1012,7 +1014,8 @@ internal static class CompilerTypes
                     "forEach" => Void,
                     _ => throw new InvalidOperationException()
                 };
-                return new FunctionTypeSymbol([callback,Any],result,1);
+                return new FunctionTypeSymbol([callback,Any],result,1,
+                    NativeArrayObjectThisArg:true);
             }
             // flat() makes a writable copy and flattens one level by default.
             // A native intrinsic marker lets the call checker infer safe literal
@@ -1031,13 +1034,15 @@ internal static class CompilerTypes
                 return new FunctionTypeSymbol(
                     [NativeArrayCallbackSignatures(array,Any),Any],
                     new ArrayTypeSymbol(Any),1,NativeArrayMapElementType:array.ElementType,
-                    NativeArrayFlatMap:name=="flatMap");
+                    NativeArrayFlatMap:name=="flatMap",
+                    NativeArrayObjectThisArg:true);
             // Checked native array transformations: filter always creates a
             // writable copy; same-element folds use an optional initial T.
             if(name=="filter")
                 return new FunctionTypeSymbol(
                     [NativeArrayCallbackSignatures(array,Boolean),Any],
-                    new ArrayTypeSymbol(array.ElementType),1);
+                    new ArrayTypeSymbol(array.ElementType),1,
+                    NativeArrayObjectThisArg:true);
             if(name is "reduce" or "reduceRight")
                 return new FunctionTypeSymbol(
                     [NativeArrayReduceCallbackSignatures(array.ElementType,array),
@@ -1305,6 +1310,13 @@ internal static class CompilerTypes
                     if(actualFunction.NativeArrayFlatReceiver is { } flatActual &&
                        requiredFunction.NativeArrayFlatReceiver is { } flatRequired &&
                        !SameStructuralInput(flatActual,flatRequired))return false;
+                    // A restricted native method cannot be assigned to an
+                    // unrestricted two-argument callable: that would allow a
+                    // primitive context through a first-class method reference.
+                    // Its one-argument callable conversion remains sound.
+                    if(actualFunction.NativeArrayObjectThisArg!=requiredFunction.NativeArrayObjectThisArg &&
+                       (requiredFunction.NativeArrayObjectThisArg ||
+                        requiredFunction.Parameters.Count>1))return false;
                     // A callable with one required callback and one optional
                     // any-valued thisArg is still assignable to a single-argument
                     // callback signature: callers of the target pass exactly one

@@ -1,13 +1,19 @@
 ## 2026-11-04 — Native array callback thisArg (candidate; NOT_RUN at creation)
 
-The C# checker now accepts an optional second `thisArg` value for the ten
+The C# checker now accepts an optional second finite object/array (or
+explicit `undefined`) `thisArg` value for the ten
 native array callback methods (`some`, `every`, `find`, `findIndex`,
 `findLast`, `findLastIndex`, `forEach`, `filter`, `map` and
 `flatMap`) on mutable and readonly arrays and checked array unions.
 The standard JavaScript call/receiver is preserved, with no JS rewriting.
 `map` and `flatMap` still infer and validate the first callback's
 explicit result type when the second argument is present; they cannot fall
-back to `any[]`. Excess arguments and unsafe callbacks reject normally.
+back to `any[]`. Excess arguments and unsafe callbacks reject normally. Primitive or
+callable `thisArg` values remain unimplemented and produce TS2554; this
+preserves the frozen custom minimal array ambient's one-argument
+expectations without changing any pinned source, profile, expected code or
+stable ID. Standard TypeScript libraries accept these values, but this
+bounded implementation does not yet.
 The parser does not claim explicit callback-`this` parameter annotations,
 contextual inference or general standard-library completeness.
 

@@ -19,7 +19,6 @@ public sealed class ArrayMapTests
     [InlineData("let xs:number[]=[3,5];let boxes:{value:number}[]=xs.map((n:number):{value:number}=>{return {value:n};});")]
     [InlineData("let xs:number[]=[1,2];let ys:readonly string[]=xs.map((n:number):string=>\"x\");")]
     [InlineData("let xs:number[]=[1,2];let mapped:string[]=xs.map(function(n:number):string{return `x${n}`;});")]
-    [InlineData("let xs:number[]=[21];xs.map((n:number):number=>n,42);")]
     public void MapsAcrossExplicitCallbackOutputTypes(string source) =>
         Assert.Empty(Compilation.Check("array-map.ts", source));
 
@@ -29,6 +28,7 @@ public sealed class ArrayMapTests
     [InlineData("let xs:number[]=[21];xs.map((s:string):string=>s);", "TS2345")]
     [InlineData("let xs:number[]=[21];let wrong:number[]=xs.map((n:number):string=>\"x\");", "TS2322")]
     [InlineData("let xs:readonly number[]=[21];xs.map((s:string):string=>s);", "TS2345")]
+    [InlineData("let xs:number[]=[21];xs.map((n:number):number=>n,42);", "TS2554")]
     [InlineData("let xs:number[]=[21];let strings:string[]=xs.map((n:number):string=>\"x\");strings[0]=3;", "TS2322")]
     [InlineData("let xs:number[]=[21];let wrong:boolean[]=xs.map((n:number):number=>n*2);", "TS2322")]
     [InlineData("function bad(xs:number[]|undefined):number{return xs?.map((n:number):string=>\"x\")[0] ?? 0;}", "TS2322")]
