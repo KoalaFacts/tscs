@@ -1,3 +1,24 @@
+## 2026-11-04 — Checked intrinsic Array.isArray and finite guard flow (candidate; NOT_RUN)
+
+The C# checker now recognizes direct unshadowed `Array.isArray(value)` calls
+as real JavaScript runtime boolean tests, and narrows a simple identifier's
+finite array/tuple versus known primitive/function union alternatives through
+the existing branch, negation, logical-guard and early-return flow pipeline.
+Readonly identity is preserved and unsafe writes remain errors. Structural
+object types, `unknown`, `any` and ambiguous alternatives do **not** invent
+array/non-array partitions; shadowed `Array` uses the ordinary checked value
+instead of the intrinsic. Spread arguments, optional/method-reference forms,
+general standard-library constructors and `any[]` narrowing are not claimed.
+The ES2015 emitter preserves native `Array.isArray` without a polyfill.
+
+Source-backed positive/negative xUnit cases, executable four-module JS and
+invalid/no-JS rejection tests are registered. Exact-head hosted .NET,
+pinned-Go existing reference and review are NOT_RUN at creation. No original
+TS7 target is promoted by this bounded feature: historically 0 PASS /
+15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED, release ineligible.
+The frozen upstream, existing reference case IDs, release/check gates,
+security settings and original acceptance denominator are unchanged.
+
 ## 2026-11-04 — Native array callback thisArg (candidate; NOT_RUN at creation)
 
 The C# checker now accepts an optional second finite object/array (or
