@@ -1,3 +1,23 @@
+## 2026-11-04 — Native array callback thisArg (candidate; NOT_RUN at creation)
+
+The C# checker now accepts an optional second `thisArg` value for the ten
+native array callback methods (`some`, `every`, `find`, `findIndex`,
+`findLast`, `findLastIndex`, `forEach`, `filter`, `map` and
+`flatMap`) on mutable and readonly arrays and checked array unions.
+The standard JavaScript call/receiver is preserved, with no JS rewriting.
+`map` and `flatMap` still infer and validate the first callback's
+explicit result type when the second argument is present; they cannot fall
+back to `any[]`. Excess arguments and unsafe callbacks reject normally.
+The parser does not claim explicit callback-`this` parameter annotations,
+contextual inference or general standard-library completeness.
+
+Source-backed positive/negative cases and four linked ES modules with native
+Node execution and invalid-program no-output checks are registered. Exact-head
+.NET and pinned-Go/CI checks are NOT_RUN at creation. This adds **zero**
+original TS7 upstream acceptance PASS: historically 0 PASS /
+15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED, release ineligible.
+No upstream pin, thresholds, skips, release gates or protection changes.
+
 ## 2026-11-04 — Native array callbacks with typed index/receiver arguments (candidate; NOT_RUN)
 
 The C# checker extends the bounded native array callback contract from a

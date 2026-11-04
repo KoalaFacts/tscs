@@ -997,8 +997,9 @@ internal static class CompilerTypes
             // Native array predicate methods on mutable and readonly views,
             // including ES2023 right-to-left findLast/findLastIndex.
             // Runtime methods preserve native iteration and do not mutate.
-            // This bounded contract intentionally requires one explicitly typed
-            // value parameter; no contextual inference or predicate type guards.
+            // The optional native thisArg is forwarded by JavaScript. The callback
+            // still requires explicit parameter types; 'this' annotations,
+            // contextual inference and predicate narrowing are not claimed.
             if(name is "some" or "every" or "find" or "findIndex" or "findLast" or "findLastIndex" or "forEach")
             {
                 var callback=NativeArrayCallbackSignatures(array,
@@ -1011,7 +1012,7 @@ internal static class CompilerTypes
                     "forEach" => Void,
                     _ => throw new InvalidOperationException()
                 };
-                return new FunctionTypeSymbol([callback],result);
+                return new FunctionTypeSymbol([callback,Any],result,1);
             }
             // flat() makes a writable copy and flattens one level by default.
             // A native intrinsic marker lets the call checker infer safe literal
@@ -1028,15 +1029,15 @@ internal static class CompilerTypes
             // Their intrinsic identities cannot be erased into ordinary callables.
             if(name is "map" or "flatMap")
                 return new FunctionTypeSymbol(
-                    [NativeArrayCallbackSignatures(array,Any)],
-                    new ArrayTypeSymbol(Any),NativeArrayMapElementType:array.ElementType,
+                    [NativeArrayCallbackSignatures(array,Any),Any],
+                    new ArrayTypeSymbol(Any),1,NativeArrayMapElementType:array.ElementType,
                     NativeArrayFlatMap:name=="flatMap");
             // Checked native array transformations: filter always creates a
             // writable copy; same-element folds use an optional initial T.
             if(name=="filter")
                 return new FunctionTypeSymbol(
-                    [NativeArrayCallbackSignatures(array,Boolean)],
-                    new ArrayTypeSymbol(array.ElementType));
+                    [NativeArrayCallbackSignatures(array,Boolean),Any],
+                    new ArrayTypeSymbol(array.ElementType),1);
             if(name is "reduce" or "reduceRight")
                 return new FunctionTypeSymbol(
                     [NativeArrayReduceCallbackSignatures(array.ElementType,array),

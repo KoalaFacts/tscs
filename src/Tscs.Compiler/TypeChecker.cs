@@ -2700,7 +2700,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 // callback result determines the output element type.
                 TypeSymbol presentResult=signature.ReturnType;
                 if(signature.NativeArrayMapElementType is not null &&
-                   call.SpreadIndex<0 && arguments.Length==1)
+                   call.SpreadIndex<0 && arguments.Length is >=1 and <=2)
                 {
                     // A union of explicitly typed callback signatures can be
                     // passed to map/flatMap. Never let a callable union silently
