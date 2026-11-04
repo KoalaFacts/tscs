@@ -1123,7 +1123,6 @@ internal static class CompilerTypes
                 "at" => new FunctionTypeSymbol([Number],Union([String,Undefined])),
                 "codePointAt" =>
                     new FunctionTypeSymbol([Number],Union([Number,Undefined])),
-                "localeCompare" => new FunctionTypeSymbol([String],Number),
                 _ => null
             };
         if(receiver is ObjectTypeSymbol shape)
