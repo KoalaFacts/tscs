@@ -1,3 +1,20 @@
+## 2026-11-05 — Native Object identity and own-key probes (candidate; NOT_RUN)
+
+The C# checker now recognizes unshadowed direct `Object.is(a,b)` and
+`Object.hasOwn(object,key)` in the ordinary parser/binder/checker/ES2015
+emission path. `Object.is` returns boolean for any two checked types and
+preserves SameValue runtime semantics (including NaN and signed zero).
+`Object.hasOwn` checks known objects/arrays/functions and string/number
+keys, including checked unions, without inventing property-path narrowing;
+inherited keys still return false at runtime. Shadowed `Object` calls use
+their declared type. Symbol keys, optional/spread intrinsics, general library
+inference and prototype analysis are not claimed. Source-backed positive and
+negative checks, four linked executed modules and invalid/no-output evidence
+are registered. Exact-head hosted CI and pinned TS7 Go reference are NOT_RUN
+at initial creation, and no original TS7 acceptance credit is claimed:
+historically 0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED,
+release ineligible. No original target IDs, skips, pin or gates change.
+
 ## 2026-11-04 — Checked native Array.from for finite iterables (candidate; NOT_RUN)
 
 The C# compiler recognizes unshadowed direct `Array.from(iterable)` with a

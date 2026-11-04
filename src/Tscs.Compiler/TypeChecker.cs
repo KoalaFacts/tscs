@@ -1132,6 +1132,25 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         return true;
     }
 
+    // Object.is compares identity with SameValue semantics, while Object.hasOwn
+    // tests own property keys (not inherited keys). Both remain native calls.
+    // A lexically shadowed Object is always checked as an ordinary value.
+    private static bool TryIntrinsicObjectIdentity(ValueCall call,Scope scope,out string method)
+    {
+        method="";
+        if(call.Optional || call.ChainContinuation ||
+           call.Callee is not ValuePropertyAccess property ||
+           property.Optional || property.ChainContinuation ||
+           property.Receiver is not ValueAtom
+           {
+               Token:{Kind:TokenKind.Identifier,Text:"Object"}
+           } || property.Name.Text is not ("is" or "hasOwn") ||
+           scope.Find("Object") is not null || HasPendingParameter(scope,"Object"))
+            return false;
+        method=property.Name.Text;
+        return true;
+    }
+
     // Native Object integrity calls require an unshadowed direct Object receiver.
     // The runtime owns the integrity operation; the checker models shallow readonly.
     private static bool TryIntrinsicObjectIntegrity(ValueCall call,Scope scope,out string method)
@@ -2697,6 +2716,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 bool intrinsicArrayOf=IsIntrinsicArrayOf(call,scope);
                 bool intrinsicObjectEnumeration=TryIntrinsicObjectEnumeration(call,scope,out var objectMethod);
                 bool intrinsicObjectIntegrity=TryIntrinsicObjectIntegrity(call,scope,out var integrityMethod);
+                bool intrinsicObjectIdentity=TryIntrinsicObjectIdentity(call,scope,out var identityMethod);
                 bool intrinsicObjectAssign=IsIntrinsicObjectAssign(call,scope);
                 if(!combine)
                 {
@@ -2705,13 +2725,49 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         pending.Push((call.Arguments[i],false));
                     if(!intrinsicArrayGuard && !intrinsicArrayFrom && !intrinsicArrayOf &&
                        !intrinsicObjectEnumeration && !intrinsicObjectIntegrity &&
-                       !intrinsicObjectAssign)
+                       !intrinsicObjectAssign && !intrinsicObjectIdentity)
                         pending.Push((call.Callee,false));
                     continue;
                 }
                 var arguments=new TypeSymbol?[call.Arguments.Count];
                 for(int i=arguments.Length-1;i>=0;i--)arguments[i]=types.Pop();
 
+                if(intrinsicObjectIdentity)
+                {
+                    if(call.SpreadIndex>=0)
+                    {
+                        Error(call.Open,"TSCS1001",
+                            "Object."+identityMethod+" spread arguments are not yet supported.");
+                        types.Push(null);
+                        continue;
+                    }
+                    if(arguments.Length!=2)
+                    {
+                        Error(call.Open,"TS2554",
+                            "Object."+identityMethod+" expects exactly two arguments.");
+                        types.Push(null);
+                        continue;
+                    }
+                    if(arguments[0] is null || arguments[1] is null)
+                    {
+                        types.Push(null);
+                        continue;
+                    }
+                    if(identityMethod=="hasOwn" &&
+                       (!CompilerTypes.CanUseInRight(arguments[0]!) ||
+                        !CompilerTypes.CanUseInLeft(arguments[1]!)))
+                    {
+                        Error(call.Open,"TSCS1001",
+                            "Object.hasOwn requires a checked object and a string or number property key.");
+                        types.Push(null);
+                        continue;
+                    }
+                    // Object.is accepts all checked values including nullish
+                    // values and different types. Neither intrinsic narrows
+                    // a symbol's flow type or adds a phantom object property.
+                    types.Push(CompilerTypes.Boolean);
+                    continue;
+                }
                 if(intrinsicObjectIntegrity)
                 {
                     if(call.SpreadIndex>=0)
