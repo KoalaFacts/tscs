@@ -11,8 +11,8 @@ public sealed class ArrayOfNativeTests
     [InlineData("""let xs:number[]=Array.of(2,4,6);xs.push(8);""")]
     [InlineData("""let xs:string[]=Array.of("koala","facts");xs.push("bakery");""")]
     [InlineData("""let xs:boolean[]=Array.of(true,false);""")]
-    [InlineData("""let xs:number[]=Array.of();""")]
-    [InlineData("""let xs:never[]=Array.of();""")]
+    [InlineData("""let xs=Array.of();xs.push(2);""")]
+    [InlineData("""let xs:(number|undefined)[]=Array.of(1,undefined);""")]
     [InlineData("""let xs:number[]=Array.of(...[2,4]);""")]
     [InlineData("""let source:readonly number[]=[2,4];let xs:number[]=Array.of(1,...source);xs.push(8);""")]
     [InlineData("""let xs:number[][]=Array.of([2],[4,6]);""")]
@@ -29,8 +29,8 @@ public sealed class ArrayOfNativeTests
     [InlineData("""let xs:number[]=Array.of(1,...["a","b"]);""","TS2345")]
     [InlineData("""let xs:number[]=Array.of(...42);""","TSCS1001")]
     [InlineData("""let xs:number[]=Array.of([2,4]);""","TS2322")]
-    [InlineData("""let xs:number[]=Array.of(1,undefined);""","TS2345")]
-    [InlineData("""let xs:number[]=Array.of();xs.push(2);""","TS2345")]
+    [InlineData("""let xs:number[]=Array.of(1,undefined);""","TS2322")]
+    [InlineData("""let xs=Array.of();let numbers:number[]=xs;""","TS2322")]
     [InlineData("""function make(Array:{of:(n:number)=>number}):number{return Array.of("wrong");}""","TS2345")]
     public void RejectsUnsafeElementTypesAndInvalidSpreads(string source,string code) =>
         Assert.Contains(Compilation.Check("array-of-invalid.ts",source),d=>d.Code==code);
@@ -55,7 +55,7 @@ public sealed class ArrayOfNativeTests
             host.Files[Path.Combine(root,"logic.ts")]=
                 """export function prepend(n:number,tail:readonly number[]):number[]{return Array.of(n,...tail);}""" +
                 """export function tag(prefix:string,tail:readonly string[]):string[]{return Array.of(prefix,...tail);}""" +
-                """export function empty():never[]{return Array.of();}""" +
+                """export function empty():unknown[]{return Array.of();}""" +
                 """export function records():{value:number}[]{return Array.of({value:2},{value:4});}""";
             host.Files[Path.Combine(root,"bridge.ts")]=
                 """export {numbers,words} from "./model.js";""" +
@@ -63,7 +63,7 @@ public sealed class ArrayOfNativeTests
             host.Files[Path.Combine(root,"entry.ts")]=
                 """import {numbers,words,prepend,tag,empty,records} from "./bridge.js";""" +
                 """export const made:number[]=prepend(7,numbers);made.push(9);""" +
-                """export const names:string[]=tag("hi",words);export const zero:never[]=empty();""" +
+                """export const names:string[]=tag("hi",words);export const zero:unknown[]=empty();""" +
                 """export const rows:{value:number}[]=records();""";
             var program=CompilerProgram.Load(host,[Path.Combine(root,"entry.ts")],
                 new CompilerOptions {NoLib=true,Target=CompilerTarget.Es2015,Module=CompilerModule.Es2015});
