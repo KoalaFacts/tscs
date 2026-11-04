@@ -9,6 +9,7 @@ public sealed class ArrayFromIterableTests
 {
     [Theory]
     [InlineData("""let xs:number[]=[2,4];let copy:number[]=Array.from(xs);copy.push(9);""")]
+    [InlineData("""let out:number[]=Array.from([1],(n:number):number=>n);""")]
     [InlineData("""let xs:readonly number[]=[2,4];let copy:number[]=Array.from(xs);copy.push(9);""")]
     [InlineData("""let xs:ReadonlyArray<string>=["a","b"];let copy:string[]=Array.from(xs);""")]
     [InlineData("""let xs:readonly [number,string]=[2,"b"];let copy:(number|string)[]=Array.from(xs);""")]
@@ -22,7 +23,6 @@ public sealed class ArrayFromIterableTests
 
     [Theory]
     [InlineData("""let out:number[]=Array.from();""","TS2554")]
-    [InlineData("""let out:number[]=Array.from([1],(n:number):number=>n);""","TSCS1001")]
     [InlineData("""let out:number[]=Array.from(42);""","TSCS1001")]
     [InlineData("""let out:number[]=Array.from(null);""","TSCS1001")]
     [InlineData("""function copy(x:number[]|null):number[]{return Array.from(x);}""","TSCS1001")]
