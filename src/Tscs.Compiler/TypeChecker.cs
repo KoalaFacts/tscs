@@ -62,6 +62,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             throw new CompilationFailure(Diagnostic.Error(file,function.Name,"TSCS1001",
                                 "Only function bodies with a definite value return are supported yet."));
                         var parameters=new Scope(scope);
+                        foreach(var pending in function.Parameters)
+                            parameters.PendingParameters.Add(pending.Name.Text);
                         foreach(var parameter in function.Parameters)
                         {
                             CheckStrictModuleBinding(parameter.Name);
@@ -77,6 +79,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                                     Mismatch(parameter.Name,actual,requiredType);
                             }
                             Binder.DeclareParameter(file,parameters,parameter);
+                            parameters.PendingParameters.Remove(parameter.Name.Text);
                         }
                         CheckBlock(function.Body,parameters,false,functionType.ReturnType);
                         break;
@@ -1066,6 +1069,16 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     // A bounded runtime intrinsic, not a fabricated global Array value.
     // A local/imported Array binding always wins; optional or transplanted
     // references do not get trusted built-in behavior.
+    private static bool HasPendingParameter(Scope scope,string name)
+    {
+        for(Scope? current=scope;current!=null;current=current.Parent)
+        {
+            if(current.Symbols.ContainsKey(name))return false;
+            if(current.PendingParameters.Contains(name))return true;
+        }
+        return false;
+    }
+
     private static bool IsIntrinsicArrayIsArray(ValueCall call,Scope scope) =>
         !call.Optional && !call.ChainContinuation &&
         call.Callee is ValuePropertyAccess
@@ -1073,7 +1086,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             Optional:false,ChainContinuation:false,
             Name:{Text:"isArray"},
             Receiver:ValueAtom {Token:{Kind:TokenKind.Identifier,Text:"Array"}}
-        } && scope.Find("Array") is null;
+        } && scope.Find("Array") is null && !HasPendingParameter(scope,"Array");
 
     // Runtime Array.isArray is precise for checked arrays and definite
     // non-array primitives/functions. A structural object can actually be
@@ -1989,6 +2002,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     // scope; a separate parameter scope permits name shadowing.
                     var nameScope=arrow.FunctionName is null?scope:new Scope(scope);
                     var local=new Scope(nameScope);
+                    foreach(var pending in arrow.Parameters)
+                        local.PendingParameters.Add(pending.Name.Text);
                     if(arrow.FunctionName is { } functionName)
                     {
                         CheckStrictModuleBinding(functionName);
@@ -2016,6 +2031,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                                 Mismatch(parameter.Name,resolved,expected);
                         }
                         Binder.DeclareParameter(file,local,parameter);
+                        local.PendingParameters.Remove(parameter.Name.Text);
                     }
                     var annotated=arrow.ReturnAnnotation is { } syntax
                         ?TypeResolver.Resolve(syntax,local,file):null;
@@ -3141,6 +3157,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     {
         var literal=CompilerTypes.FromLiteral(token);
         if(literal!=null)return literal;
+        if(token.Kind==TokenKind.Identifier && HasPendingParameter(scope,token.Text))
+            throw new CompilationFailure(Diagnostic.Error(file,token,"TSCS1001",
+                "Parameter default cannot read a parameter before initialization."));
         // Lexical declarations named undefined take precedence over the intrinsic.
         if(token.Kind==TokenKind.Identifier && token.Text=="undefined" && scope.Find("undefined") is null)
             return CompilerTypes.Undefined;
