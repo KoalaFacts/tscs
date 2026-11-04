@@ -625,6 +625,7 @@ internal static class JavaScriptEmitter
             ValueConditional or ValueArrow => 0,
             ValueBinary binary => binary.Operator.Kind switch
             {
+                TokenKind.Comma => 0,
                 TokenKind.BarBar or TokenKind.QuestionQuestion => 1,
                 TokenKind.AmpAmp => 2,
                 TokenKind.Bar => 3,
@@ -858,7 +859,8 @@ internal static class JavaScriptEmitter
                         else
                         {
                             Node(binary.Right,precedence,true);
-                            Text(" "+binary.Operator.Text+" ");
+                            Text(binary.Operator.Kind==TokenKind.Comma
+                                ? ", ":" "+binary.Operator.Text+" ");
                             Node(binary.Left,precedence);
                         }
                         break;
