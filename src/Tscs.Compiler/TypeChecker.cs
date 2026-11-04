@@ -2738,17 +2738,24 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             // iteration element were a pre-declared union T.
                             // Comparable and same-primitive-family members
                             // preserve ordinary homogeneous/literal spreads.
-                            if(ofSpread.TupleElements is {Count:>1} tuple &&
-                               tuple.Skip(1).Any(member=>
-                                   !CompilerTypes.IsAssignable(member,tuple[0]) &&
-                                   !CompilerTypes.IsAssignable(tuple[0],member) &&
-                                   !SamePrimitiveFamily(member,tuple[0]) &&
-                                   !NullishOnly(member) && !NullishOnly(tuple[0])))
+                            // An earlier element type may already accept every
+                            // tuple member (e.g. number|string). Without one,
+                            // find a non-nullish anchor: a leading null must not
+                            // hide incompatible later number/string members.
+                            if(ofSpread.TupleElements is {Count:>1} tuple && element is null)
                             {
-                                Error(call.Open,"TS2345",
-                                    "Array.of tuple spread members require one compatible inferred element type.");
-                                valid=false;
-                                continue;
+                                var comparable=tuple.Where(member=>!NullishOnly(member)).ToArray();
+                                if(comparable.Length>1 &&
+                                   comparable.Skip(1).Any(member=>
+                                       !CompilerTypes.IsAssignable(member,comparable[0]) &&
+                                       !CompilerTypes.IsAssignable(comparable[0],member) &&
+                                       !SamePrimitiveFamily(member,comparable[0])))
+                                {
+                                    Error(call.Open,"TS2345",
+                                        "Array.of tuple spread members require one compatible inferred element type.");
+                                    valid=false;
+                                    continue;
+                                }
                             }
                             item=ofSpread.ElementType;
                         }
