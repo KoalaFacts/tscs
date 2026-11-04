@@ -8,6 +8,17 @@ The goal is compatibility with the fixed TypeScript revision in
 Internal regressions and local runtime examples are not original TS7 acceptance.
 See [`docs/STATUS.md`](docs/STATUS.md) for current delivery and remaining scope.
 
+## Parenthesized sequence expressions (bounded)
+
+Parenthesized comma sequences such as `(record(), compute())` now
+type-check both operands, execute them left-to-right in native ES2015,
+and produce the final operand's type and value. Multiple steps and
+nested argument/return contexts share the existing AST and checker.
+A pure, unused left operand is diagnosed (TS2695) rather than counted
+as a supported statement. This does not add the general unparenthesized
+comma operator to `for` clauses or call argument lists, and the finite
+left-side-effect analysis intentionally rejects unproven effects.
+
 ## Develop
 
 On Linux x64, provision the exact repository toolchain and locked local NuGet feed:

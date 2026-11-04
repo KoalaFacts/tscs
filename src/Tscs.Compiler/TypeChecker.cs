@@ -1183,6 +1183,22 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             Receiver:ValueAtom {Token:{Kind:TokenKind.Identifier,Text:"Object"}}
         } && scope.Find("Object") is null && !HasPendingParameter(scope,"Object");
 
+    // TypeScript diagnoses an unused pure expression on the left of a comma.
+    // This bounded subset accepts explicit call/update/delete side effects;
+    // unknown getters and arbitrary expressions are not assumed effectful.
+    private static bool HasCommaLeftSideEffect(ValueNode expression)
+    {
+        while(expression is ValueParenthesized group)expression=group.Expression;
+        return expression switch
+        {
+            ValueCall or ValuePrefixUpdate or ValuePostfixUpdate=>true,
+            ValueUnary {Operator.Kind:TokenKind.Delete}=>true,
+            ValueBinary {Operator.Kind:TokenKind.Comma} chain=>
+                HasCommaLeftSideEffect(chain.Right),
+            _=>false
+        };
+    }
+
     // Runtime Array.isArray is precise for checked arrays and definite
     // non-array primitives/functions. A structural object can actually be
     // backed by an array, so do not eliminate those arms by guessing.
@@ -3594,6 +3610,15 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     throw new CompilationFailure(Diagnostic.Error(file,binary.Operator,"TSCS1001",failure.Message));
                 }
             }
+            else if(binary.Operator.Kind==TokenKind.Comma)
+            {
+                // Evaluate both operands left-to-right in emitted JS; only the
+                // final operand supplies the expression's static value type.
+                if(!HasCommaLeftSideEffect(binary.Left))
+                    Error(binary.Operator,"TS2695",
+                        "Left side of comma operator is unused and has no side effects.");
+                types.Push(right);
+            }
             else if(binary.Operator.Kind==TokenKind.Plus)
             {
                 var resultType=CompilerTypes.AdditionResult(left,right);
@@ -3889,6 +3914,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         // literals need contextual refinement beyond ordinary type relations.
         if(CompilerTypes.IsAssignable(actual,expected))return true;
         while(expression is ValueParenthesized group)expression=group.Expression;
+        // The sequence's value is its final operand. Preserve contextual
+        // singleton refinement and tuple/object checking on that source AST,
+        // not just the widened type of the whole sequence.
+        if(expression is ValueBinary {Operator.Kind:TokenKind.Comma} sequence)
+            return IsAssignableContextually(sequence.Right,actual,expected,depth+1);
         // The two arms may inhabit different alternatives of an expected union.
         if(expression is ValueConditional chosen && conditionalResults.TryGetValue(chosen,out var branches))
             return branches.True is { } t && branches.False is { } f &&
@@ -4014,6 +4044,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             }
             break;
         }
+        if(value is ValueBinary {Operator.Kind:TokenKind.Comma} sequence)
+            // The left operand runs, but only the final operand's fresh
+            // literal can supply the resulting value at this use site.
+            return CheckContextualLiteral(sequence.Right,expected,actual);
         if(value is ValueConditional chosen && conditionalResults.TryGetValue(chosen,out var branches))
         {
             // Freshness is a property of the source arms, not the joined

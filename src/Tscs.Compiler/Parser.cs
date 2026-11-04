@@ -2362,6 +2362,18 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             try
             {
                 var inner=ParseWithInAllowed(ParseValue);
+                // A parenthesized expression list is distinct from a call's
+                // argument separators, an array's elements and a for initializer.
+                // Keep the actual sequencing operator in the common binary AST.
+                int sequenceLength=1;
+                while(Current.Kind==TokenKind.Comma)
+                {
+                    var separator=Take();
+                    if(++sequenceLength>256)
+                        Unsupported(separator,"Parenthesized comma sequences exceed the finite compiler limit.");
+                    var next=ParseWithInAllowed(ParseValue);
+                    inner=new ValueBinary(inner,separator,next);
+                }
                 if(Current.Kind!=TokenKind.CloseParen)Unsupported(Current,"Expected ')' to close a parenthesized expression.");
                 return new ValueParenthesized(token,inner,Take());
             }
