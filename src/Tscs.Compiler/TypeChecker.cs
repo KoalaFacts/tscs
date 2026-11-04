@@ -2002,8 +2002,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     // scope; a separate parameter scope permits name shadowing.
                     var nameScope=arrow.FunctionName is null?scope:new Scope(scope);
                     var local=new Scope(nameScope);
-                    foreach(var pending in arrow.Parameters)
-                        local.PendingParameters.Add(pending.Name.Text);
+                    foreach(var parameterName in arrow.Parameters)
+                        local.PendingParameters.Add(parameterName.Name.Text);
                     if(arrow.FunctionName is { } functionName)
                     {
                         CheckStrictModuleBinding(functionName);
