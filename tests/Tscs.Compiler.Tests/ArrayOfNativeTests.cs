@@ -36,7 +36,7 @@ public sealed class ArrayOfNativeTests
     [InlineData("""let xs:number[]=Array.of(...["a","b"]);""","TS2322")]
     [InlineData("""let xs:number[]=Array.of(1,...["a","b"]);""","TS2345")]
     [InlineData("""let xs:number[]=Array.of(...42);""","TSCS1001")]
-    [InlineData("""function f(tail:readonly [null,number,string]){return Array.of(...tail);}""","TS2345")]
+    [InlineData("""function f(tail:readonly [null,number,string]):(null|number|string)[]{return Array.of(...tail);}""","TS2345")]
     [InlineData("""let pair:readonly [number,string]=[2,"a"];let xs:(number|string)[]=Array.of(...pair);""","TS2345")]
     [InlineData("""function f(x:{id:number}):{id:number}[]{return Array.of(x,{id:2,extra:true});}""","TS2353")]
     [InlineData("""function f(tail:readonly (number|string)[]):number[]{return Array.of(1,...tail);}""","TS2345")]
