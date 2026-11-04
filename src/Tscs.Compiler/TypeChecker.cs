@@ -1100,6 +1100,17 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             Receiver:ValueAtom {Token:{Kind:TokenKind.Identifier,Text:"Array"}}
         } && scope.Find("Array") is null && !HasPendingParameter(scope,"Array");
 
+    // Array.of creates a fresh writable array from checked runtime values.
+    // Keep shadowed Array bindings on their own declared callable signature.
+    private static bool IsIntrinsicArrayOf(ValueCall call,Scope scope) =>
+        !call.Optional && !call.ChainContinuation &&
+        call.Callee is ValuePropertyAccess
+        {
+            Optional:false,ChainContinuation:false,
+            Name:{Text:"of"},
+            Receiver:ValueAtom {Token:{Kind:TokenKind.Identifier,Text:"Array"}}
+        } && scope.Find("Array") is null && !HasPendingParameter(scope,"Array");
+
     // Runtime Array.isArray is precise for checked arrays and definite
     // non-array primitives/functions. A structural object can actually be
     // backed by an array, so do not eliminate those arms by guessing.
@@ -2630,12 +2641,13 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 // ordinary property/call checking handles shadowed names.
                 bool intrinsicArrayGuard=IsIntrinsicArrayIsArray(call,scope);
                 bool intrinsicArrayFrom=IsIntrinsicArrayFrom(call,scope);
+                bool intrinsicArrayOf=IsIntrinsicArrayOf(call,scope);
                 if(!combine)
                 {
                     pending.Push((call,true));
                     for(int i=call.Arguments.Count-1;i>=0;i--)
                         pending.Push((call.Arguments[i],false));
-                    if(!intrinsicArrayGuard && !intrinsicArrayFrom)
+                    if(!intrinsicArrayGuard && !intrinsicArrayFrom && !intrinsicArrayOf)
                         pending.Push((call.Callee,false));
                     continue;
                 }
@@ -2649,6 +2661,55 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     if(arguments.Length!=1)
                         Error(call.Open,"TS2554","Array.isArray expects exactly one argument.");
                     types.Push(CompilerTypes.Boolean);
+                    continue;
+                }
+                if(intrinsicArrayOf)
+                {
+                    // Bounded native Array.of<T>(...items:T[]): the first checked
+                    // argument (or the element of a final array spread) fixes T.
+                    // Subsequent values must fit T; do not silently infer a
+                    // heterogeneous union, as the pinned overload does not.
+                    // An empty call produces never[], assignable to other arrays
+                    // but not writable with an arbitrary new element.
+                    if(call.SpreadIndex>=0 && call.SpreadIndex!=arguments.Length-1)
+                    {
+                        Error(call.Open,"TSCS1001",
+                            "Array.of supports only a final checked array spread.");
+                        types.Push(null);
+                        continue;
+                    }
+                    TypeSymbol? element=null;
+                    bool valid=true;
+                    for(int i=0;i<arguments.Length;i++)
+                    {
+                        var actual=arguments[i];
+                        if(actual is null)
+                        {
+                            valid=false;
+                            continue;
+                        }
+                        TypeSymbol item;
+                        if(i==call.SpreadIndex)
+                        {
+                            if(actual is not ArrayTypeSymbol spread)
+                            {
+                                Error(call.Open,"TSCS1001",
+                                    "Array.of spread requires a statically checked array.");
+                                valid=false;
+                                continue;
+                            }
+                            item=spread.ElementType;
+                        }
+                        else item=WidenMutableLiteral(actual,call.Arguments[i],scope);
+                        if(element is null)element=item;
+                        else if(!CompilerTypes.IsAssignable(item,element))
+                        {
+                            Error(call.Open,"TS2345",
+                                $"Argument of type '{item.DisplayName}' is not assignable to parameter of type '{element.DisplayName}'.");
+                            valid=false;
+                        }
+                    }
+                    types.Push(valid?new ArrayTypeSymbol(element??CompilerTypes.Never):null);
                     continue;
                 }
                 if(intrinsicArrayFrom)
