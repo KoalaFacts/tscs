@@ -24,6 +24,8 @@ public sealed class ArrayCallbackTests
     [InlineData("function last(xs:readonly number[]):number{return xs.findLastIndex((n:number):boolean=>n===2);}let result:number=last([2,3,2]);")]
     [InlineData("let xs:number[]=[1,2];let found:number|undefined=xs.findLast((n:number):boolean=>{return n>=2;});")]
     [InlineData("let xs:ReadonlyArray<number>=[4,5];let result:number=xs.findLastIndex((n:number):boolean=>n<5);")]
+    [InlineData("let xs:number[]=[21];xs.some((n:number):boolean=>true,(n:number):boolean=>true);)]
+    [InlineData("let xs:number[]=[21];xs.findLast((n:number):boolean=>true,1);)]
     public void TypeChecksNativeArrayCallbacks(string source) =>
         Assert.Empty(Compilation.Check("array-callbacks.ts",source));
 
@@ -37,7 +39,6 @@ public sealed class ArrayCallbackTests
     [InlineData("let xs:number[]=[21];let wrong:number=xs.every((n:number):boolean=>true);","TS2322")]
     [InlineData("let xs:number[]=[21];let wrong:boolean=xs.findIndex((n:number):boolean=>true);","TS2322")]
     [InlineData("let xs:number[]=[21];let wrong:number=xs.forEach((n:number):void=>{});","TS2322")]
-    [InlineData("let xs:number[]=[21];xs.some((n:number):boolean=>true,(n:number):boolean=>true);","TS2554")]
     [InlineData("let xs:number[]=[21];xs.findLast();","TS2554")]
     [InlineData("let xs:readonly number[]=[21];xs.findLastIndex();","TS2554")]
     [InlineData("let xs:number[]=[21];xs.findLast(42);","TS2345")]
@@ -45,7 +46,6 @@ public sealed class ArrayCallbackTests
     [InlineData("let xs:number[]=[21];xs.findLastIndex((n:number):string=>\"bad\");","TS2345")]
     [InlineData("let xs:readonly number[]=[21];let wrong:string=xs.findLast((n:number):boolean=>true);","TS2322")]
     [InlineData("let xs:ReadonlyArray<number>=[21];let wrong:boolean=xs.findLastIndex((n:number):boolean=>true);","TS2322")]
-    [InlineData("let xs:number[]=[21];xs.findLast((n:number):boolean=>true,1);","TS2554")]
     public void RejectsInvalidArrayCallbacks(string source,string code) =>
         Assert.Contains(Compilation.Check("invalid-callback.ts",source),d=>d.Code==code);
 
