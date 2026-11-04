@@ -2695,18 +2695,20 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         TypeSymbol item;
                         if(i==call.SpreadIndex)
                         {
-                            if(actual is not ArrayTypeSymbol spread)
+                            if(actual is not ArrayTypeSymbol ofSpread)
                             {
                                 Error(call.Open,"TSCS1001",
                                     "Array.of spread requires a statically checked array.");
                                 valid=false;
                                 continue;
                             }
-                            item=spread.ElementType;
+                            item=ofSpread.ElementType;
                         }
                         else item=WidenMutableLiteral(actual,call.Arguments[i],scope);
                         if(element is null)element=item;
-                        else if(!CompilerTypes.IsAssignable(item,element))
+                        else if(!(i==call.SpreadIndex
+                            ? CompilerTypes.IsAssignable(item,element)
+                            : IsAssignableContextually(call.Arguments[i],item,element)))
                         {
                             // TypeScript can infer an optional element when
                             // null/undefined is mixed with an otherwise common T.
