@@ -31,6 +31,8 @@ public sealed class ArrayFromMappingTests
     [InlineData("""let out:number[]=Array.from([1],(n:number):number=>n,{},{});""","TS2554")]
     [InlineData("""let out:number[]=Array.from(42,(n:number):number=>n);""","TSCS1001")]
     [InlineData("""let out:number[]=Array.from([1],undefined);""","TS2345")]
+    [InlineData("""let rows:number[][]=[[1]];let out:number[][]=Array.from([0],rows.flat,rows);""","TS2345")]
+    [InlineData("""let rows:number[][]=[[1]];let out:number[][]=Array.from([0],rows.flat);""","TS2345")]
     [InlineData("""let out:number[]=Array.from([1],(n:number):number=>n);out[0]="bad";""","TS2322")]
     public void RejectsInvalidMapperSourcesArgumentsAndAssignments(string source,string code) =>
         Assert.Contains(Compilation.Check("array-from-map-invalid.ts",source),d=>d.Code==code);

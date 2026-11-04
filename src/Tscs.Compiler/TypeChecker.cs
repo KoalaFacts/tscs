@@ -2720,7 +2720,17 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         // the index is always a number. The native JS call keeps
                         // any supplied thisArg, including primitive contexts.
                         if(arguments[1] is not FunctionTypeSymbol mapper ||
-                           mapper.Parameters.Count>2 || mapper.RestElementType is not null)
+                           mapper.Parameters.Count>2 || mapper.RestElementType is not null ||
+                           // These method values have receiver/depth-dependent
+                           // contracts. Their placeholder return signatures
+                           // are not safe to reuse as Array.from mappers.
+                           mapper.NativeArrayFlatReceiver is not null ||
+                           mapper.NativeArrayMapElementType is not null ||
+                           mapper.NativeArrayReduceReceiver is not null ||
+                           mapper.NativeArraySpliceOverloadElementType is not null ||
+                           mapper.NativeMutableArraySplice ||
+                           mapper.NativeArrayFlatMap ||
+                           mapper.NativeArrayObjectThisArg)
                         {
                             Error(call.Open,"TS2345",
                                 "Array.from mapping requires a checked callback with at most two explicit parameters.");
