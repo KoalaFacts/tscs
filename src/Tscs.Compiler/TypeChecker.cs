@@ -2684,6 +2684,25 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         type.Equals(CompilerTypes.Null) ||
                         type.Equals(CompilerTypes.Undefined) ||
                         type is UnionTypeSymbol union && union.Alternatives.All(NullishOnly);
+                    // Nullish alternatives can join an otherwise compatible
+                    // inferred element. A number|string source must not silently
+                    // widen a number input into an unrelated union.
+                    static bool CompatibleNullishJoin(TypeSymbol first,TypeSymbol later)=>
+                        NullishOnly(first) || NullishOnly(later) ||
+                        (CompilerTypes.ContainsNullish(later) &&
+                         CompilerTypes.IsAssignable(CompilerTypes.NonNullAssertionResult(later),first)) ||
+                        (CompilerTypes.ContainsNullish(first) &&
+                         CompilerTypes.IsAssignable(CompilerTypes.NonNullAssertionResult(first),later));
+                    // A literal object in first position has an inferred,
+                    // fresh structural shape. It does not impose the same
+                    // excess-property constraint as a previously typed value.
+                    static bool FreshObject(ValueNode value)
+                    {
+                        while(value is ValueParenthesized grouped)value=grouped.Expression;
+                        return value is ValueObject;
+                    }
+                    bool firstArgumentFresh=call.Arguments.Count>0 &&
+                        FreshObject(call.Arguments[0]);
                     static bool SamePrimitiveFamily(TypeSymbol a,TypeSymbol b)
                     {
                         static PrimitiveKind? Kind(TypeSymbol type)=>type switch
@@ -2735,15 +2754,25 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         }
                         else item=WidenMutableLiteral(actual,call.Arguments[i],scope);
                         if(element is null)element=item;
-                        else if(!(i==call.SpreadIndex
-                            ? CompilerTypes.IsAssignable(item,element)
-                            : IsAssignableContextually(call.Arguments[i],item,element)))
+                        else
                         {
+                            // Named/typed first inputs constrain later fresh
+                            // object literals. Validate their own extra fields
+                            // before structural width assignability can hide
+                            // TS2353. A fresh first object instead uses bounded
+                            // structural inference without an excess check.
+                            if(!firstArgumentFresh && i!=call.SpreadIndex &&
+                               !CheckContextualLiteral(call.Arguments[i],element,item))
+                                valid=false;
+                            if(i==call.SpreadIndex
+                                ? CompilerTypes.IsAssignable(item,element)
+                                : IsAssignableContextually(call.Arguments[i],item,element))
+                                continue;
                             // TypeScript can infer an optional element when
                             // null/undefined is mixed with an otherwise common T.
                             // Do not generalize this to incompatible number/string
                             // argument families.
-                            if(NullishOnly(item) || NullishOnly(element))
+                            if(CompatibleNullishJoin(element,item))
                             {
                                 try {element=CompilerTypes.Union([element,item]);}
                                 catch(InvalidOperationException failure)
