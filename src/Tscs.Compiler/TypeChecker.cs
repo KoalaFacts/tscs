@@ -1100,6 +1100,17 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             Receiver:ValueAtom {Token:{Kind:TokenKind.Identifier,Text:"Array"}}
         } && scope.Find("Array") is null && !HasPendingParameter(scope,"Array");
 
+    // Array.of creates a fresh writable array from checked runtime values.
+    // Keep shadowed Array bindings on their own declared callable signature.
+    private static bool IsIntrinsicArrayOf(ValueCall call,Scope scope) =>
+        !call.Optional && !call.ChainContinuation &&
+        call.Callee is ValuePropertyAccess
+        {
+            Optional:false,ChainContinuation:false,
+            Name:{Text:"of"},
+            Receiver:ValueAtom {Token:{Kind:TokenKind.Identifier,Text:"Array"}}
+        } && scope.Find("Array") is null && !HasPendingParameter(scope,"Array");
+
     // Runtime Array.isArray is precise for checked arrays and definite
     // non-array primitives/functions. A structural object can actually be
     // backed by an array, so do not eliminate those arms by guessing.
@@ -2630,12 +2641,13 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 // ordinary property/call checking handles shadowed names.
                 bool intrinsicArrayGuard=IsIntrinsicArrayIsArray(call,scope);
                 bool intrinsicArrayFrom=IsIntrinsicArrayFrom(call,scope);
+                bool intrinsicArrayOf=IsIntrinsicArrayOf(call,scope);
                 if(!combine)
                 {
                     pending.Push((call,true));
                     for(int i=call.Arguments.Count-1;i>=0;i--)
                         pending.Push((call.Arguments[i],false));
-                    if(!intrinsicArrayGuard && !intrinsicArrayFrom)
+                    if(!intrinsicArrayGuard && !intrinsicArrayFrom && !intrinsicArrayOf)
                         pending.Push((call.Callee,false));
                     continue;
                 }
@@ -2649,6 +2661,151 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     if(arguments.Length!=1)
                         Error(call.Open,"TS2554","Array.isArray expects exactly one argument.");
                     types.Push(CompilerTypes.Boolean);
+                    continue;
+                }
+                if(intrinsicArrayOf)
+                {
+                    // Bounded native Array.of<T>(...items:T[]): the first checked
+                    // argument (or the element of a final array spread) fixes T.
+                    // Subsequent values must fit T; do not silently infer a
+                    // heterogeneous union, as the pinned overload does not.
+                    // Without contextual generic inference an empty call
+                    // produces unknown[]; a later typed context cannot infer T.
+                    if(call.SpreadIndex>=0 && call.SpreadIndex!=arguments.Length-1)
+                    {
+                        Error(call.Open,"TSCS1001",
+                            "Array.of supports only a final checked array spread.");
+                        types.Push(null);
+                        continue;
+                    }
+                    TypeSymbol? element=null;
+                    bool valid=true;
+                    static bool NullishOnly(TypeSymbol type)=>
+                        type.Equals(CompilerTypes.Null) ||
+                        type.Equals(CompilerTypes.Undefined) ||
+                        type is UnionTypeSymbol union && union.Alternatives.All(NullishOnly);
+                    // Nullish alternatives can join an otherwise compatible
+                    // inferred element. A number|string source must not silently
+                    // widen a number input into an unrelated union.
+                    static bool CompatibleNullishJoin(TypeSymbol first,TypeSymbol later)=>
+                        NullishOnly(first) || NullishOnly(later) ||
+                        (CompilerTypes.ContainsNullish(later) &&
+                         CompilerTypes.IsAssignable(CompilerTypes.NonNullAssertionResult(later),first)) ||
+                        (CompilerTypes.ContainsNullish(first) &&
+                         CompilerTypes.IsAssignable(CompilerTypes.NonNullAssertionResult(first),later));
+                    // A literal object in first position has an inferred,
+                    // fresh structural shape. It does not impose the same
+                    // excess-property constraint as a previously typed value.
+                    static bool FreshObject(ValueNode value)
+                    {
+                        while(value is ValueParenthesized grouped)value=grouped.Expression;
+                        return value is ValueObject;
+                    }
+                    bool firstArgumentFresh=call.Arguments.Count>0 &&
+                        FreshObject(call.Arguments[0]);
+                    static bool SamePrimitiveFamily(TypeSymbol a,TypeSymbol b)
+                    {
+                        static PrimitiveKind? Kind(TypeSymbol type)=>type switch
+                        {
+                            LiteralTypeSymbol literal=>literal.Kind,
+                            PrimitiveTypeSymbol primitive=>primitive.Kind,
+                            _=>null
+                        };
+                        var left=Kind(a);
+                        return (left is PrimitiveKind.Number or PrimitiveKind.String or PrimitiveKind.Boolean) &&
+                            left==Kind(b);
+                    }
+                    for(int i=0;i<arguments.Length;i++)
+                    {
+                        var actual=arguments[i];
+                        if(actual is null)
+                        {
+                            valid=false;
+                            continue;
+                        }
+                        TypeSymbol item;
+                        if(i==call.SpreadIndex)
+                        {
+                            if(actual is not ArrayTypeSymbol ofSpread)
+                            {
+                                Error(call.Open,"TSCS1001",
+                                    "Array.of spread requires a statically checked array.");
+                                valid=false;
+                                continue;
+                            }
+                            // Array.of<T>(...items:T[]) does not accept
+                            // incompatible tuple members as if their joined
+                            // iteration element were a pre-declared union T.
+                            // Comparable and same-primitive-family members
+                            // preserve ordinary homogeneous/literal spreads.
+                            // An earlier element type may already accept every
+                            // tuple member (e.g. number|string). Without one,
+                            // find a non-nullish anchor: a leading null must not
+                            // hide incompatible later number/string members.
+                            if(ofSpread.TupleElements is {Count:>1} tuple)
+                            {
+                                // Strip nullish alternatives for compatibility
+                                // comparisons, but keep them in the inferred
+                                // output type. An earlier typed union may accept
+                                // every non-nullish member, while a preceding
+                                // null/undefined alone cannot constrain them.
+                                var comparable=tuple.Where(member=>!NullishOnly(member))
+                                    .Select(CompilerTypes.NonNullAssertionResult).ToArray();
+                                var constrained=element is null?null:CompilerTypes.NonNullAssertionResult(element);
+                                bool covered=constrained is not null &&
+                                    comparable.All(member=>CompilerTypes.IsAssignable(member,constrained));
+                                if(!covered && comparable.Length>1 &&
+                                   comparable.Skip(1).Any(member=>
+                                       !CompilerTypes.IsAssignable(member,comparable[0]) &&
+                                       !CompilerTypes.IsAssignable(comparable[0],member) &&
+                                       !SamePrimitiveFamily(member,comparable[0])))
+                                {
+                                    Error(call.Open,"TS2345",
+                                        "Array.of tuple spread members require one compatible inferred element type.");
+                                    valid=false;
+                                    continue;
+                                }
+                            }
+                            item=ofSpread.ElementType;
+                        }
+                        else item=WidenMutableLiteral(actual,call.Arguments[i],scope);
+                        if(element is null)element=item;
+                        else
+                        {
+                            // Named/typed first inputs constrain later fresh
+                            // object literals. Validate their own extra fields
+                            // before structural width assignability can hide
+                            // TS2353. A fresh first object instead uses bounded
+                            // structural inference without an excess check.
+                            if(!firstArgumentFresh && i!=call.SpreadIndex &&
+                               !CheckContextualLiteral(call.Arguments[i],element,item))
+                                valid=false;
+                            if(i==call.SpreadIndex
+                                ? CompilerTypes.IsAssignable(item,element)
+                                : IsAssignableContextually(call.Arguments[i],item,element))
+                                continue;
+                            // TypeScript can infer an optional element when
+                            // null/undefined is mixed with an otherwise common T.
+                            // Do not generalize this to incompatible number/string
+                            // argument families.
+                            if(CompatibleNullishJoin(element,item))
+                            {
+                                try {element=CompilerTypes.Union([element,item]);}
+                                catch(InvalidOperationException failure)
+                                {
+                                    Error(call.Open,"TSCS1001",failure.Message);
+                                    valid=false;
+                                }
+                            }
+                            else
+                            {
+                                Error(call.Open,"TS2345",
+                                    $"Argument of type '{item.DisplayName}' is not assignable to parameter of type '{element.DisplayName}'.");
+                                valid=false;
+                            }
+                        }
+                    }
+                    types.Push(valid?new ArrayTypeSymbol(element??CompilerTypes.Unknown):null);
                     continue;
                 }
                 if(intrinsicArrayFrom)
