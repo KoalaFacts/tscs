@@ -1132,6 +1132,26 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         return true;
     }
 
+    // Native Object integrity calls require an unshadowed direct Object receiver.
+    // The runtime owns the integrity operation; the checker models shallow readonly.
+    private static bool TryIntrinsicObjectIntegrity(ValueCall call,Scope scope,out string method)
+    {
+        method="";
+        if(call.Optional || call.ChainContinuation ||
+           call.Callee is not ValuePropertyAccess property ||
+           property.Optional || property.ChainContinuation ||
+           property.Receiver is not ValueAtom
+           {
+               Token:{Kind:TokenKind.Identifier,Text:"Object"}
+           } ||
+           property.Name.Text is not ("freeze" or "seal" or "preventExtensions" or
+               "isFrozen" or "isSealed" or "isExtensible") ||
+           scope.Find("Object") is not null || HasPendingParameter(scope,"Object"))
+            return false;
+        method=property.Name.Text;
+        return true;
+    }
+
     // Runtime Array.isArray is precise for checked arrays and definite
     // non-array primitives/functions. A structural object can actually be
     // backed by an array, so do not eliminate those arms by guessing.
@@ -2664,18 +2684,72 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 bool intrinsicArrayFrom=IsIntrinsicArrayFrom(call,scope);
                 bool intrinsicArrayOf=IsIntrinsicArrayOf(call,scope);
                 bool intrinsicObjectEnumeration=TryIntrinsicObjectEnumeration(call,scope,out var objectMethod);
+                bool intrinsicObjectIntegrity=TryIntrinsicObjectIntegrity(call,scope,out var integrityMethod);
                 if(!combine)
                 {
                     pending.Push((call,true));
                     for(int i=call.Arguments.Count-1;i>=0;i--)
                         pending.Push((call.Arguments[i],false));
-                    if(!intrinsicArrayGuard && !intrinsicArrayFrom && !intrinsicArrayOf && !intrinsicObjectEnumeration)
+                    if(!intrinsicArrayGuard && !intrinsicArrayFrom && !intrinsicArrayOf &&
+                       !intrinsicObjectEnumeration && !intrinsicObjectIntegrity)
                         pending.Push((call.Callee,false));
                     continue;
                 }
                 var arguments=new TypeSymbol?[call.Arguments.Count];
                 for(int i=arguments.Length-1;i>=0;i--)arguments[i]=types.Pop();
 
+                if(intrinsicObjectIntegrity)
+                {
+                    if(call.SpreadIndex>=0)
+                    {
+                        Error(call.Open,"TSCS1001",
+                            "Object integrity spread arguments are not yet supported.");
+                        types.Push(null);
+                        continue;
+                    }
+                    if(arguments.Length!=1)
+                    {
+                        Error(call.Open,"TS2554",
+                            "Object."+integrityMethod+" expects exactly one argument.");
+                        types.Push(null);
+                        continue;
+                    }
+                    TypeSymbol? target=arguments[0];
+                    if(target is null)
+                    {
+                        types.Push(null);
+                        continue;
+                    }
+                    if(target is not (ObjectTypeSymbol or ArrayTypeSymbol))
+                    {
+                        Error(call.Open,"TSCS1001",
+                            "Object integrity requires a checked finite object or array.");
+                        types.Push(null);
+                        continue;
+                    }
+                    if(integrityMethod is "isFrozen" or "isSealed" or "isExtensible")
+                    {
+                        types.Push(CompilerTypes.Boolean);
+                        continue;
+                    }
+                    if(integrityMethod=="freeze")
+                    {
+                        // Only the outer shell is readonly; member values and
+                        // nested references retain their original type identity.
+                        target=target switch
+                        {
+                            ArrayTypeSymbol array=>array with { Readonly=true },
+                            ObjectTypeSymbol shape=>new ObjectTypeSymbol(
+                                shape.Members,shape.Members.Keys,shape.NumericMembers,
+                                shape.OptionalMembers,shape.ComputedNumericMembers,
+                                shape.MixedRequiredOptionalMembers),
+                            _=>target
+                        };
+                    }
+                    // seal and preventExtensions return T, not Readonly<T>.
+                    types.Push(target);
+                    continue;
+                }
                 if(intrinsicObjectEnumeration)
                 {
                     // Only finite structural objects and native arrays have a
