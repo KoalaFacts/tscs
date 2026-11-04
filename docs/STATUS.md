@@ -1,3 +1,20 @@
+## 2026-11-04 — Checked native Array.from for finite iterables (candidate; NOT_RUN)
+
+The C# compiler recognizes unshadowed direct `Array.from(iterable)` with a
+checked array, finite tuple, string, or homogeneous finite union thereof. The result is
+a fresh writable array with joined element types; strings iterate Unicode
+code points. JavaScript output preserves the native ES2015 call. A shadowed
+`Array` goes through ordinary checked function call semantics. Array-like
+objects, heterogeneous iterable unions, optional map callback / thisArg, spreads and unknown iterables are
+not claimed; unsupported forms reject rather than guessing. Source-backed
+positive/negative, four-module native runtime, and invalid/no-output tests
+are registered. Exact-head hosted .NET and fixed Go reference checks are
+NOT_RUN at candidate creation; the latter covers existing bounded cases,
+not a new original TS7 acceptance credit. Original TS7 acceptance remains
+historically 0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED and
+release ineligible. No source pin, reference IDs, release gates, global test
+thresholds or protection settings were changed.
+
 ## 2026-11-04 — Checked intrinsic Array.isArray and finite guard flow (candidate; NOT_RUN)
 
 The C# checker now recognizes direct unshadowed `Array.isArray(value)` calls
