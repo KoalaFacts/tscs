@@ -2589,23 +2589,22 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 if(callableType is not FunctionTypeSymbol signature)
                     throw new CompilationFailure(Diagnostic.Error(file,call.Open,"TSCS1001",
                         "Calls currently require a declared function with an explicit signature."));
-                // A supplied initial accumulator permits a distinct explicit U.
-                // Validate both callback contravariance and the initial value
-                // through the existing function argument checker. Without an
-                // initial value the older same-element fold contract remains.
-                if(signature.NativeArrayReduceElementType is { } element &&
+                // With an explicit seed the accumulator U may differ from the
+                // source element. A typed callback's first argument fixes U,
+                // but a zero-argument/invalid callback falls back to the seed,
+                // leaving the ordinary checker to reject the bad callback.
+                // Preserve the exact original array readonly identity.
+                if(signature.NativeArrayReduceReceiver is { } receiver &&
                    call.SpreadIndex<0 && arguments.Length==2)
                 {
-                    // A callable callback fixes U from its explicitly typed
-                    // first parameter; if the callback itself is invalid,
-                    // the checked seed still fixes U, so only the bad callback
-                    // gets TS2345 (matching pinned TS7 diagnostics).
                     TypeSymbol? accumulator=arguments[0] is FunctionTypeSymbol fold &&
-                        fold.Parameters.Count==2 ? fold.Parameters[0] : arguments[1];
+                        fold.Parameters.Count is >=1 and <=4
+                        ?fold.Parameters[0]:arguments[1];
                     if(accumulator is not null)
                         signature=new FunctionTypeSymbol(
-                            [new FunctionTypeSymbol([accumulator,element],accumulator),accumulator],
-                            accumulator,2,NativeArrayReduceElementType:element);
+                            [CompilerTypes.NativeArrayReduceCallbackSignatures(
+                                accumulator,receiver),accumulator],
+                            accumulator,2,NativeArrayReduceReceiver:receiver);
                 }
                 // The short splice/toSpliced(start, deleteCount?) overload permits an
                 // omitted/undefined delete count. Inserting items selects the
@@ -2849,7 +2848,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     // TS7 reports only the native reducing overload's arity
                     // error when the number of arguments is wrong. Keep the
                     // failure but avoid unrelated parameter mismatch noise.
-                    if(signature.NativeArrayReduceElementType is not null)
+                    if(signature.NativeArrayReduceReceiver is not null)
                     {
                         types.Push(resultType);
                         continue;

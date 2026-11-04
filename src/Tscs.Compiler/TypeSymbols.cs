@@ -48,7 +48,7 @@ internal sealed record UnionTypeSymbol(IReadOnlyList<TypeSymbol> Alternatives) :
 // can inspect fresh operand literals rather than only the joined type.
 internal sealed record LogicalValueOutcome(TypeSymbol Result,TypeSymbol? LeftResult,TypeSymbol Right,bool RightReachable);
 
-internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null,TypeSymbol? NativeArrayMapElementType=null,TypeSymbol? NativeArrayReduceElementType=null,TypeSymbol? NativeArraySpliceOverloadElementType=null,bool NativeMutableArraySplice=false,bool NativeArrayFlatMap=false,ArrayTypeSymbol? NativeArrayFlatReceiver=null) : TypeSymbol
+internal sealed record FunctionTypeSymbol(IReadOnlyList<TypeSymbol> Parameters,TypeSymbol ReturnType,int RequiredParameterCount=-1,TypeSymbol? RestElementType=null,TypeSymbol? NativeArrayMapElementType=null,ArrayTypeSymbol? NativeArrayReduceReceiver=null,TypeSymbol? NativeArraySpliceOverloadElementType=null,bool NativeMutableArraySplice=false,bool NativeArrayFlatMap=false,ArrayTypeSymbol? NativeArrayFlatReceiver=null) : TypeSymbol
 {
     public int MinimumArguments=>RequiredParameterCount<0?Parameters.Count:RequiredParameterCount;
     public override string DisplayName=>TypeDisplay.Format(this);
@@ -789,7 +789,7 @@ internal static class CompilerTypes
         var first=signatures[0];
         static bool Plain(FunctionTypeSymbol signature)=>
             signature.NativeArrayMapElementType is null &&
-            signature.NativeArrayReduceElementType is null &&
+            signature.NativeArrayReduceReceiver is null &&
             signature.NativeArraySpliceOverloadElementType is null &&
             signature.NativeArrayFlatReceiver is null;
         if(!Plain(first) || !signatures.All(other=>Plain(other) &&
@@ -859,7 +859,7 @@ internal static class CompilerTypes
                         af.NativeMutableArraySplice==bf.NativeMutableArraySplice &&
                         SameOptional(af.RestElementType,bf.RestElementType,depth) &&
                         SameOptional(af.NativeArrayMapElementType,bf.NativeArrayMapElementType,depth) &&
-                        SameOptional(af.NativeArrayReduceElementType,bf.NativeArrayReduceElementType,depth) &&
+                        SameOptional(af.NativeArrayReduceReceiver,bf.NativeArrayReduceReceiver,depth) &&
                         SameOptional(af.NativeArraySpliceOverloadElementType,
                             bf.NativeArraySpliceOverloadElementType,depth) &&
                         SameOptional(af.NativeArrayFlatReceiver,bf.NativeArrayFlatReceiver,depth) &&
@@ -905,6 +905,24 @@ internal static class CompilerTypes
         ]);
     }
 
+    // Native reduce/reduceRight callbacks accept 0-4 explicit parameters:
+    // accumulator, element, numeric index and the original array. The
+    // original receiver keeps its readonly provenance, while the callback
+    // return must remain assignable to the accumulator type.
+    public static TypeSymbol NativeArrayReduceCallbackSignatures(
+        TypeSymbol accumulator,ArrayTypeSymbol receiver)
+    {
+        var originalArray=new ArrayTypeSymbol(receiver.ElementType,receiver.Readonly);
+        return Union([
+            new FunctionTypeSymbol([],accumulator),
+            new FunctionTypeSymbol([accumulator],accumulator),
+            new FunctionTypeSymbol([accumulator,receiver.ElementType],accumulator),
+            new FunctionTypeSymbol([accumulator,receiver.ElementType,Number],accumulator),
+            new FunctionTypeSymbol(
+                [accumulator,receiver.ElementType,Number,originalArray],accumulator)
+        ]);
+    }
+
     // A read through a union is safe only when every alternative has the
     // requested property. Its result type is the union of member types.
     public static TypeSymbol? TryGetProperty(TypeSymbol receiver,string name)
@@ -920,7 +938,7 @@ internal static class CompilerTypes
         if(receiver is UnionTypeSymbol alternatives &&
            name is ("some" or "every" or "find" or "findIndex" or
                     "findLast" or "findLastIndex" or "forEach" or
-                    "filter" or "map" or "flatMap") &&
+                    "filter" or "map" or "flatMap" or "reduce" or "reduceRight") &&
            alternatives.Alternatives.Count>0 &&
            alternatives.Alternatives.All(item=>item is ArrayTypeSymbol))
         {
@@ -1021,8 +1039,8 @@ internal static class CompilerTypes
                     new ArrayTypeSymbol(array.ElementType));
             if(name is "reduce" or "reduceRight")
                 return new FunctionTypeSymbol(
-                    [new FunctionTypeSymbol([array.ElementType,array.ElementType],array.ElementType),
-                     array.ElementType],array.ElementType,1,NativeArrayReduceElementType:array.ElementType);
+                    [NativeArrayReduceCallbackSignatures(array.ElementType,array),
+                     array.ElementType],array.ElementType,1,NativeArrayReduceReceiver:array);
             if(array.Readonly)return null;
             return name switch
             {
@@ -1273,10 +1291,10 @@ internal static class CompilerTypes
                          actualFunction.NativeArrayFlatMap!=requiredFunction.NativeArrayFlatMap))return false;
                     // Reducing calls derive U from their explicitly typed callback.
                     // Do not erase that dependency into an ordinary callable.
-                    if((actualFunction.NativeArrayReduceElementType is null) !=
-                       (requiredFunction.NativeArrayReduceElementType is null))return false;
-                    if(actualFunction.NativeArrayReduceElementType is { } foldActual &&
-                       requiredFunction.NativeArrayReduceElementType is { } foldRequired &&
+                    if((actualFunction.NativeArrayReduceReceiver is null) !=
+                       (requiredFunction.NativeArrayReduceReceiver is null))return false;
+                    if(actualFunction.NativeArrayReduceReceiver is { } foldActual &&
+                       requiredFunction.NativeArrayReduceReceiver is { } foldRequired &&
                        !Check(foldActual,foldRequired))return false;
                     // A flat method is depth-dependent, not an ordinary
                     // monomorphic callable. Never erase that intrinsic marker
