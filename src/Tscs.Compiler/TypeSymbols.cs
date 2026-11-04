@@ -1125,6 +1125,21 @@ internal static class CompilerTypes
                     new FunctionTypeSymbol([Number],Union([Number,Undefined])),
                 _ => null
             };
+        // Built-in Number formatting is available on known numeric values,
+        // including numeric literals and bounded unions of numeric literals.
+        // The underlying JavaScript receiver performs the formatting; digit
+        // and radix value ranges are runtime checks, not static type facts.
+        // A general Number object / Intl overload model is not implemented.
+        if(IsNumber(receiver))
+            return name switch
+            {
+                "toString" => new FunctionTypeSymbol(
+                    [Union([Number,Undefined])],String,0),
+                "toFixed" or "toExponential" or "toPrecision" =>
+                    new FunctionTypeSymbol([Union([Number,Undefined])],String,0),
+                "valueOf" => new FunctionTypeSymbol([],Number),
+                _ => null
+            };
         if(receiver is ObjectTypeSymbol shape)
         {
             if(!shape.Members.TryGetValue(name,out var value))return null;
