@@ -910,6 +910,25 @@ internal static class CompilerTypes
     public static TypeSymbol? TryGetProperty(TypeSymbol receiver,string name)
     {
         if(receiver.Equals(Any))return Any;
+        // A union of native arrays has one safe callback contract: every
+        // alternative contributes its element type, and any readonly arm makes
+        // the original-array callback parameter readonly. Otherwise the
+        // receiver types create distinct callable unions and previously valid
+        // single-argument callbacks fail before being checked. This special
+        // case covers only the checked callback family; mutable-only methods
+        // and depth-dependent flat retain their existing union behavior.
+        if(receiver is UnionTypeSymbol alternatives &&
+           name is ("some" or "every" or "find" or "findIndex" or
+                    "findLast" or "findLastIndex" or "forEach" or
+                    "filter" or "map" or "flatMap") &&
+           alternatives.Alternatives.Count>0 &&
+           alternatives.Alternatives.All(item=>item is ArrayTypeSymbol))
+        {
+            var members=alternatives.Alternatives.Cast<ArrayTypeSymbol>().ToArray();
+            var element=Union(members.Select(item=>item.ElementType));
+            return TryGetProperty(new ArrayTypeSymbol(element,
+                Readonly:members.Any(item=>item.Readonly)),name);
+        }
         // Native array reads are available through mutable and readonly views.
         // Optional arguments include explicit undefined, matching TypeScript's
         // standard array signatures. The ordinary call checker and ES2015
