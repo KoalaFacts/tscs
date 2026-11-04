@@ -2684,6 +2684,18 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         type.Equals(CompilerTypes.Null) ||
                         type.Equals(CompilerTypes.Undefined) ||
                         type is UnionTypeSymbol union && union.Alternatives.All(NullishOnly);
+                    static bool SamePrimitiveFamily(TypeSymbol a,TypeSymbol b)
+                    {
+                        static PrimitiveKind? Kind(TypeSymbol type)=>type switch
+                        {
+                            LiteralTypeSymbol literal=>literal.Kind,
+                            PrimitiveTypeSymbol primitive=>primitive.Kind,
+                            _=>null
+                        };
+                        var left=Kind(a);
+                        return (left is PrimitiveKind.Number or PrimitiveKind.String or PrimitiveKind.Boolean) &&
+                            left==Kind(b);
+                    }
                     for(int i=0;i<arguments.Length;i++)
                     {
                         var actual=arguments[i];
@@ -2699,6 +2711,23 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             {
                                 Error(call.Open,"TSCS1001",
                                     "Array.of spread requires a statically checked array.");
+                                valid=false;
+                                continue;
+                            }
+                            // Array.of<T>(...items:T[]) does not accept
+                            // incompatible tuple members as if their joined
+                            // iteration element were a pre-declared union T.
+                            // Comparable and same-primitive-family members
+                            // preserve ordinary homogeneous/literal spreads.
+                            if(ofSpread.TupleElements is {Count:>1} tuple &&
+                               tuple.Skip(1).Any(member=>
+                                   !CompilerTypes.IsAssignable(member,tuple[0]) &&
+                                   !CompilerTypes.IsAssignable(tuple[0],member) &&
+                                   !SamePrimitiveFamily(member,tuple[0]) &&
+                                   !NullishOnly(member) && !NullishOnly(tuple[0])))
+                            {
+                                Error(call.Open,"TS2345",
+                                    "Array.of tuple spread members require one compatible inferred element type.");
                                 valid=false;
                                 continue;
                             }
