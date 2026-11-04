@@ -35,6 +35,9 @@ internal sealed class Scope(Scope? parent)
 {
     public Scope? Parent { get; } = parent;
     public Dictionary<string,Symbol> Symbols { get; } = new(StringComparer.Ordinal);
+    // Pending parameter declarations shadow globals and enclosing bindings
+    // throughout their own (and later) default initializers. They are TDZ.
+    public HashSet<string> PendingParameters { get; } = new(StringComparer.Ordinal);
     // Value and type declarations have separate namespaces; import type is
     // never fabricated as a runtime symbol or emitted JavaScript binding.
     public Dictionary<string,TypeBinding> Types { get; } = new(StringComparer.Ordinal);

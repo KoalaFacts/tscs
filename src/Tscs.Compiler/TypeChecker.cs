@@ -62,6 +62,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             throw new CompilationFailure(Diagnostic.Error(file,function.Name,"TSCS1001",
                                 "Only function bodies with a definite value return are supported yet."));
                         var parameters=new Scope(scope);
+                        foreach(var pending in function.Parameters)
+                            parameters.PendingParameters.Add(pending.Name.Text);
                         foreach(var parameter in function.Parameters)
                         {
                             CheckStrictModuleBinding(parameter.Name);
@@ -77,6 +79,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                                     Mismatch(parameter.Name,actual,requiredType);
                             }
                             Binder.DeclareParameter(file,parameters,parameter);
+                            parameters.PendingParameters.Remove(parameter.Name.Text);
                         }
                         CheckBlock(function.Body,parameters,false,functionType.ReturnType);
                         break;
@@ -1063,6 +1066,65 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     private readonly record struct DiscriminantBranches(
         Symbol Symbol,TypeSymbol WhenTrue,TypeSymbol WhenFalse);
 
+    // A bounded runtime intrinsic, not a fabricated global Array value.
+    // A local/imported Array binding always wins; optional or transplanted
+    // references do not get trusted built-in behavior.
+    private static bool HasPendingParameter(Scope scope,string name)
+    {
+        for(Scope? current=scope;current!=null;current=current.Parent)
+        {
+            if(current.Symbols.ContainsKey(name))return false;
+            if(current.PendingParameters.Contains(name))return true;
+        }
+        return false;
+    }
+
+    private static bool IsIntrinsicArrayIsArray(ValueCall call,Scope scope) =>
+        !call.Optional && !call.ChainContinuation &&
+        call.Callee is ValuePropertyAccess
+        {
+            Optional:false,ChainContinuation:false,
+            Name:{Text:"isArray"},
+            Receiver:ValueAtom {Token:{Kind:TokenKind.Identifier,Text:"Array"}}
+        } && scope.Find("Array") is null && !HasPendingParameter(scope,"Array");
+
+    // Runtime Array.isArray is precise for checked arrays and definite
+    // non-array primitives/functions. A structural object can actually be
+    // backed by an array, so do not eliminate those arms by guessing.
+    // unknown/any/void also forbid a sound finite partition.
+    private static DiscriminantBranches? TryNarrowArrayIsArray(ValueNode condition,Scope scope)
+    {
+        if(condition is not ValueCall call || !IsIntrinsicArrayIsArray(call,scope) ||
+           call.Arguments.Count!=1 || call.SpreadIndex>=0)
+            return null;
+        ValueNode input=call.Arguments[0];
+        while(input is ValueParenthesized grouped)input=grouped.Expression;
+        if(input is not ValueAtom {Token:{Kind:TokenKind.Identifier}} identifier)
+            return null;
+        var symbol=scope.Find(identifier.Token.Text);
+        if(symbol?.Type is not UnionTypeSymbol union)return null;
+        var arrays=new List<TypeSymbol>();
+        var other=new List<TypeSymbol>();
+        foreach(var candidate in union.Alternatives)
+        {
+            if(candidate is ArrayTypeSymbol)
+                arrays.Add(candidate);
+            else if(candidate is LiteralTypeSymbol ||
+                    candidate is FunctionTypeSymbol ||
+                    candidate is PrimitiveTypeSymbol
+                    {
+                        Kind:PrimitiveKind.Number or PrimitiveKind.String or
+                             PrimitiveKind.Boolean or PrimitiveKind.Null or
+                             PrimitiveKind.Undefined
+                    })
+                other.Add(candidate);
+            else return null;
+        }
+        if(arrays.Count==0 || other.Count==0)return null;
+        return new DiscriminantBranches(symbol,
+            CompilerTypes.Union(arrays),CompilerTypes.Union(other));
+    }
+
     private static DiscriminantBranches? TryNarrowDiscriminant(ValueNode condition,Scope scope,int depth=0)
     {
         // A deeply nested boolean expression must never overflow the managed
@@ -1110,6 +1172,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         }
         if(TryNarrowTruthyIdentifier(condition,scope) is { } truthy)
             return truthy;
+        if(TryNarrowArrayIsArray(condition,scope) is { } arrayGuard)
+            return arrayGuard;
         if(condition is not ValueBinary comparison)return null;
         if(comparison.Operator.Kind==TokenKind.In)
             return TryNarrowInProperty(comparison,scope);
@@ -1938,6 +2002,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     // scope; a separate parameter scope permits name shadowing.
                     var nameScope=arrow.FunctionName is null?scope:new Scope(scope);
                     var local=new Scope(nameScope);
+                    foreach(var parameterName in arrow.Parameters)
+                        local.PendingParameters.Add(parameterName.Name.Text);
                     if(arrow.FunctionName is { } functionName)
                     {
                         CheckStrictModuleBinding(functionName);
@@ -1965,6 +2031,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                                 Mismatch(parameter.Name,resolved,expected);
                         }
                         Binder.DeclareParameter(file,local,parameter);
+                        local.PendingParameters.Remove(parameter.Name.Text);
                     }
                     var annotated=arrow.ReturnAnnotation is { } syntax
                         ?TypeResolver.Resolve(syntax,local,file):null;
@@ -2546,16 +2613,30 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             }
             if(node is ValueCall call)
             {
+                // Recognize only a direct, unshadowed Array.isArray call.
+                // The intrinsic takes any single value and returns boolean;
+                // ordinary property/call checking handles shadowed names.
+                bool intrinsicArrayGuard=IsIntrinsicArrayIsArray(call,scope);
                 if(!combine)
                 {
                     pending.Push((call,true));
                     for(int i=call.Arguments.Count-1;i>=0;i--)
                         pending.Push((call.Arguments[i],false));
-                    pending.Push((call.Callee,false));
+                    if(!intrinsicArrayGuard)pending.Push((call.Callee,false));
                     continue;
                 }
                 var arguments=new TypeSymbol?[call.Arguments.Count];
                 for(int i=arguments.Length-1;i>=0;i--)arguments[i]=types.Pop();
+                if(intrinsicArrayGuard)
+                {
+                    if(call.SpreadIndex>=0)
+                        throw new CompilationFailure(Diagnostic.Error(file,call.Open,
+                            "TSCS1001","Array.isArray spread arguments are not yet supported."));
+                    if(arguments.Length!=1)
+                        Error(call.Open,"TS2554","Array.isArray expects exactly one argument.");
+                    types.Push(CompilerTypes.Boolean);
+                    continue;
+                }
                 var calleeType=types.Pop();
                 if(calleeType==null) { types.Push(null); continue; }
                 var inheritedSkip=call.ChainContinuation &&
@@ -3076,6 +3157,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     {
         var literal=CompilerTypes.FromLiteral(token);
         if(literal!=null)return literal;
+        if(token.Kind==TokenKind.Identifier && HasPendingParameter(scope,token.Text))
+            throw new CompilationFailure(Diagnostic.Error(file,token,"TSCS1001",
+                "Parameter default cannot read a parameter before initialization."));
         // Lexical declarations named undefined take precedence over the intrinsic.
         if(token.Kind==TokenKind.Identifier && token.Text=="undefined" && scope.Find("undefined") is null)
             return CompilerTypes.Undefined;
