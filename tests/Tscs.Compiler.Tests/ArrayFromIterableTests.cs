@@ -22,10 +22,10 @@ public sealed class ArrayFromIterableTests
 
     [Theory]
     [InlineData("""let out:number[]=Array.from();""","TS2554")]
-    [InlineData("""let out:number[]=Array.from([1],(n:number):number=>n);""","TS2554")]
+    [InlineData("""let out:number[]=Array.from([1],(n:number):number=>n);""","TSCS1001")]
     [InlineData("""let out:number[]=Array.from(42);""","TSCS1001")]
     [InlineData("""let out:number[]=Array.from(null);""","TSCS1001")]
-    [InlineData("""let x:number[]|null=[1];let out:number[]=Array.from(x);""","TSCS1001")]
+    [InlineData("""function copy(x:number[]|null):number[]{return Array.from(x);}""","TSCS1001")]
     [InlineData("""let x:number[]=[1];let out:number[]=Array.from(...x);""","TSCS1001")]
     [InlineData("""function copy(v:number[]|string):(number|string)[]{return Array.from(v);}""","TSCS1001")]
     [InlineData("""function copy(v:readonly [number,string]|string):(number|string)[]{return Array.from(v);}""","TSCS1001")]

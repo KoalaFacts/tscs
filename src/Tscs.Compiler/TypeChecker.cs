@@ -2667,8 +2667,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     }
                     if(arguments.Length!=1)
                     {
-                        Error(call.Open,"TS2554",
-                            "Array.from currently expects exactly one iterable argument.");
+                        Error(call.Open,arguments.Length==0?"TS2554":"TSCS1001",
+                            arguments.Length==0
+                                ?"Array.from requires an iterable argument."
+                                :"Array.from mapping callbacks and thisArg are not yet supported.");
                         types.Push(null);
                         continue;
                     }
