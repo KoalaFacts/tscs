@@ -17,7 +17,7 @@ public sealed class ArrayFilterReduceTests
     [InlineData("let xs:ReadonlyArray<number>=[2,3,4];let folded:number=xs.reduceRight((acc:number,n:number):number=>acc+n,0);")]
     [InlineData("let xs:string[]=[\"a\",\"b\"];let folded:string=xs.reduce((acc:string,s:string):string=>acc+s,\"\");")]
     [InlineData("type Readings=readonly number[];function even(xs:Readings):number[]{return xs.filter((n:number):boolean=>n%2===0);}let values:number[]=even([1,2,3,4]);")]
-    [InlineData("let xs:number[]=[21];xs.filter((n:number):boolean=>true,42);)]
+    [InlineData("let xs:number[]=[21];xs.filter((n:number):boolean=>true,42);")]
     public void CompilesFilterAndFolds(string source) =>
         Assert.Empty(Compilation.Check("array-filter-reduce.ts",source));
 

@@ -19,7 +19,7 @@ public sealed class ArrayMapTests
     [InlineData("let xs:number[]=[3,5];let boxes:{value:number}[]=xs.map((n:number):{value:number}=>{return {value:n};});")]
     [InlineData("let xs:number[]=[1,2];let ys:readonly string[]=xs.map((n:number):string=>\"x\");")]
     [InlineData("let xs:number[]=[1,2];let mapped:string[]=xs.map(function(n:number):string{return `x${n}`;});")]
-    [InlineData("let xs:number[]=[21];xs.map((n:number):number=>n,42);)]
+    [InlineData("let xs:number[]=[21];xs.map((n:number):number=>n,42);")]
     public void MapsAcrossExplicitCallbackOutputTypes(string source) =>
         Assert.Empty(Compilation.Check("array-map.ts", source));
 

@@ -24,8 +24,8 @@ public sealed class ArrayCallbackTests
     [InlineData("function last(xs:readonly number[]):number{return xs.findLastIndex((n:number):boolean=>n===2);}let result:number=last([2,3,2]);")]
     [InlineData("let xs:number[]=[1,2];let found:number|undefined=xs.findLast((n:number):boolean=>{return n>=2;});")]
     [InlineData("let xs:ReadonlyArray<number>=[4,5];let result:number=xs.findLastIndex((n:number):boolean=>n<5);")]
-    [InlineData("let xs:number[]=[21];xs.some((n:number):boolean=>true,(n:number):boolean=>true);)]
-    [InlineData("let xs:number[]=[21];xs.findLast((n:number):boolean=>true,1);)]
+    [InlineData("let xs:number[]=[21];xs.some((n:number):boolean=>true,(n:number):boolean=>true);")]
+    [InlineData("let xs:number[]=[21];xs.findLast((n:number):boolean=>true,1);")]
     public void TypeChecksNativeArrayCallbacks(string source) =>
         Assert.Empty(Compilation.Check("array-callbacks.ts",source));
 
