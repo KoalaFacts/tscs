@@ -2669,8 +2669,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     // argument (or the element of a final array spread) fixes T.
                     // Subsequent values must fit T; do not silently infer a
                     // heterogeneous union, as the pinned overload does not.
-                    // An empty call produces never[], assignable to other arrays
-                    // but not writable with an arbitrary new element.
+                    // Without contextual generic inference an empty call
+                    // produces unknown[]; a later typed context cannot infer T.
                     if(call.SpreadIndex>=0 && call.SpreadIndex!=arguments.Length-1)
                     {
                         Error(call.Open,"TSCS1001",
@@ -2680,6 +2680,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     }
                     TypeSymbol? element=null;
                     bool valid=true;
+                    static bool NullishOnly(TypeSymbol type)=>
+                        type.Equals(CompilerTypes.Null) ||
+                        type.Equals(CompilerTypes.Undefined) ||
+                        type is UnionTypeSymbol union && union.Alternatives.All(NullishOnly);
                     for(int i=0;i<arguments.Length;i++)
                     {
                         var actual=arguments[i];
@@ -2704,12 +2708,28 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         if(element is null)element=item;
                         else if(!CompilerTypes.IsAssignable(item,element))
                         {
-                            Error(call.Open,"TS2345",
-                                $"Argument of type '{item.DisplayName}' is not assignable to parameter of type '{element.DisplayName}'.");
-                            valid=false;
+                            // TypeScript can infer an optional element when
+                            // null/undefined is mixed with an otherwise common T.
+                            // Do not generalize this to incompatible number/string
+                            // argument families.
+                            if(NullishOnly(item) || NullishOnly(element))
+                            {
+                                try {element=CompilerTypes.Union([element,item]);}
+                                catch(InvalidOperationException failure)
+                                {
+                                    Error(call.Open,"TSCS1001",failure.Message);
+                                    valid=false;
+                                }
+                            }
+                            else
+                            {
+                                Error(call.Open,"TS2345",
+                                    $"Argument of type '{item.DisplayName}' is not assignable to parameter of type '{element.DisplayName}'.");
+                                valid=false;
+                            }
                         }
                     }
-                    types.Push(valid?new ArrayTypeSymbol(element??CompilerTypes.Never):null);
+                    types.Push(valid?new ArrayTypeSymbol(element??CompilerTypes.Unknown):null);
                     continue;
                 }
                 if(intrinsicArrayFrom)
