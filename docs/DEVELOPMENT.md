@@ -64,3 +64,13 @@ node tools/original-acceptance.ts --targets /tmp/targets.jsonl \
 
 The report lists every target's status and reasons, plus the missing-capability
 histograms summarized in [STATUS](STATUS.md#headline).
+
+Standard library syntax check against the same checkout (fails when a file
+reachable from `lib.es5.d.ts` or `lib.es2015.d.ts` has a diagnostic; see
+[STATUS](STATUS.md#standard-library)):
+
+```sh
+node tools/check-standard-library.ts --upstream .artifacts/original-empty-go/TypeScript \
+  --harness tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.FixtureHarness.dll \
+  --out /tmp/standard-library.json
+```

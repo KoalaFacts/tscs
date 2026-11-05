@@ -134,7 +134,23 @@ is executed by the `tools/verify-*-emit.ts` checks.
 
 ### Standard library
 
-`lib.*.d.ts` files cannot be loaded. Programs use `--noLib` with
+`lib.*.d.ts` files cannot be loaded yet. `DeclarationParser` (A2.1) parses
+ambient declaration syntax into a syntax tree: interfaces, type aliases,
+`declare var/let/const/function`, namespaces and `declare global`, call,
+construct, index, method, property and accessor members, generics with
+constraints, defaults and modifiers, union, intersection, conditional,
+`infer`, mapped, indexed, tuple, function and constructor types, `keyof`,
+`unique`, `readonly`, `typeof` queries, type predicates and binding-pattern
+parameters. It stops at the first error (upstream recovers and reports
+more); classes, enums, imports, initializers and template literal types with
+substitutions fail with TSCS1001. `tools/check-standard-library.ts` (CI job
+`original-go-reference`) parses every pinned bundled lib: **109 of 116**
+have zero diagnostics, including all 13 files reachable from `lib.es5.d.ts`
+and `lib.es2015.d.ts`, which the check requires. Syntax trees are not yet
+compared with the reference parser, and nothing is bound or checked: the
+CLI still accepts only the bounded globals below.
+
+Programs use `--noLib` with
 [`fixtures/minimal.d.ts`](../fixtures/minimal.d.ts) (empty global
 interfaces). A fixed set of natives is modelled in the checker instead:
 array `push`/`pop`/`shift`/`unshift`/`reverse`/`sort`/`fill`/`copyWithin`,
@@ -190,9 +206,11 @@ records the original case IDs it moves.
 | ID | Item | Why it matters | Status | Evidence |
 |---|---|---|---|---|
 | D1 | Short README, current-state STATUS, `tools/check-docs.ts` in CI | Docs that are true and findable | done (PR #210, 355c914) | at merge: README 30,505 → 4,906 bytes, STATUS 123,542 → 8,980 bytes; docs 78 → 77 files; 16 checker tests |
-| A1.1 | Acceptance runner over the 15,523 registered targets: SKIP with missing capabilities, run supported targets through tscs, compare diagnostics and `.js` emit with the pinned baselines, histogram, CI rerun with headline check | Turns the headline into a measured number | in progress | 0 PASS / 2 FAIL (`noCrashOnNoLib`, `parser509698`) / 15,521 SKIP; 6 runner tests |
+| A1.1 | Acceptance runner over the 15,523 registered targets: SKIP with missing capabilities, run supported targets through tscs, compare diagnostics and `.js` emit with the pinned baselines, histogram, CI rerun with headline check | Turns the headline into a measured number | done (PR #211, df43af6) | 0 PASS / 2 FAIL (`noCrashOnNoLib`, `parser509698`) / 15,521 SKIP; 6 runner tests |
 | A1.2 | Runner support for multi-file tests and `@module`, and `.types`/`.symbols` comparison | Larger runnable set once the library loads | todo | — |
-| A2 | Parse, bind and check `lib.es5.d.ts` and the es2015 libs; load them as the default lib | Almost every original case needs the standard library | todo | — |
+| A2.1 | Parse the pinned libs with zero syntax errors (`DeclarationParser`, `tools/check-standard-library.ts` in CI) | First step to loading the standard library | in progress | 109/116 pinned libs clean, es5+es2015 closure 13/13; 39 xUnit + 4 node tests |
+| A2.2 | Bind the parsed declarations (merging interfaces and namespaces) and compare syntax trees with the reference parser | Library symbols become available | todo | — |
+| A2.3 | Check enough of es5/es2015 to load them as the default lib instead of `fixtures/minimal.d.ts` | Unblocks 5,459 targets that need only the library | todo | — |
 | A3 | Close the cheapest family of failing original cases from A1's histogram, one family per PR | Moves original cases to PASS | todo | — |
 | C1 | Remove duplicated checker/emitter paths and per-feature verify scripts where a shared test proves identical behaviour | Less code to maintain | todo | — |
 
