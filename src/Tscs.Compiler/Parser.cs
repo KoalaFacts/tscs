@@ -1083,7 +1083,9 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     private SwitchStatement ParseSwitch(int depth,bool inFunction)
     {
         var keyword=Take();
-        if(!inFunction)Unsupported(keyword,"Returning switch statements are currently supported only inside functions.");
+        // Switch statements do not require a surrounding function. Their
+        // cases still use the same checked lexical scope, fallthrough,
+        // break and ES2015 emission in modules and function bodies.
         if(!Eat(TokenKind.OpenParen))Unsupported(Current,"Expected '(' after 'switch'.");
         var selector=ParseValue();
         if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after switch selector.");
