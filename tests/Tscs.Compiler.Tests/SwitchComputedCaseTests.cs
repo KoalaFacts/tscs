@@ -16,6 +16,7 @@ public sealed class SwitchComputedCaseTests
     [InlineData("""let delta:number=1;switch(-1){case (-delta):{break;}}""")]
     [InlineData("""let code:number=2;switch(code){case code:{break;}case code:{break;}default:{break;}}""")]
     [InlineData("""let amount:number=8;switch(amount){case (amount/2):{break;}case amount+1:{break;}}""")]
+    [InlineData("""function compare(x:number|boolean,y:number|string):number{switch(x){case y:{return 1;}default:{return 0;}}}""")]
     public void MutableWidenedAndArithmeticCaseValuesAreCheckedAndEmitted(string source) =>
         Assert.Empty(Compilation.Check("computed-case.ts",source));
 
@@ -24,6 +25,8 @@ public sealed class SwitchComputedCaseTests
     [InlineData("""let count:number=2;switch(count){case count+"x":{break;}}""","TS2678")]
     [InlineData("""let base:number=2;switch(base){case base+missing:{break;}}""","TS2304")]
     [InlineData("""let data:{value:number}={value:2};switch(2){case data:{break;}}""","TSCS1001")]
+    [InlineData("""let data:{value:number}={value:2};switch("x"){case ""+data:{break;}}""","TSCS1001")]
+    [InlineData("""let loose:any=2;switch(2){case loose/2:{break;}}""","TSCS1001")]
     [InlineData("""let value:number=2;switch(value){case value++:{break;}}""","TSCS1001")]
     [InlineData("""function twice(n:number):number{return n*2;}switch(2){case twice(1):{break;}}""","TSCS1001")]
     [InlineData("""let READY:number;switch(1){case READY:{break;}}""","TSCS1001")]

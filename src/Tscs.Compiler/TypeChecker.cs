@@ -412,7 +412,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     // getters, updates, assignments, deferred functions or conditional effects:
     // those require a separate evaluation/flow model before being admitted.
     // Iteration avoids stack overflow on long binary expression chains.
-    private static bool IsFinitePureSwitchCase(ValueNode value)
+    private bool IsFinitePureSwitchCase(ValueNode value,Scope scope)
     {
         var pending=new Stack<ValueNode>();
         pending.Push(value);
@@ -423,7 +423,13 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             switch(pending.Pop())
             {
                 case ValueAtom {Token.Kind:TokenKind.Identifier or TokenKind.Number or
-                    TokenKind.String or TokenKind.True or TokenKind.False or TokenKind.Null}:
+                    TokenKind.String or TokenKind.True or TokenKind.False or TokenKind.Null} atom:
+                    // A primitive final result is not enough: a string +
+                    // object may call user toString/valueOf, and an any
+                    // operand may hide arbitrary effects. Check every leaf.
+                    var operand=TypeOf(atom,scope);
+                    if(operand is null || !IsKnownPrimitiveSwitchCaseType(operand))
+                        return false;
                     break;
                 case ValueParenthesized group:
                     pending.Push(group.Expression);
@@ -453,6 +459,16 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         _=>false
     };
 
+    private static bool ComputedCaseTypesOverlap(TypeSymbol selector,TypeSymbol label)
+    {
+        // Partially intersecting unions can match even when neither whole
+        // union is assignable to the other (number|boolean vs number|string).
+        IReadOnlyList<TypeSymbol> selectors=selector is UnionTypeSymbol s?s.Alternatives:[selector];
+        IReadOnlyList<TypeSymbol> labels=label is UnionTypeSymbol l?l.Alternatives:[label];
+        return selectors.Any(left=>labels.Any(right=>
+            CompilerTypes.IsAssignable(left,right) || CompilerTypes.IsAssignable(right,left)));
+    }
+
     // Case-local types view the existing symbol. A normally completing
     // clause can fall into the next one, so its effective incoming union
     // must be joined with the next case's direct-entry variants.
@@ -470,9 +486,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             bool computed=type==null;
             if(computed)
             {
-                if(!IsFinitePureSwitchCase(label))
+                if(!IsFinitePureSwitchCase(label,scope))
+                {
+                    // Keep the first real semantic error from an invalid leaf,
+                    // instead of throwing a generic unsupported error over it.
+                    if(diagnostics.Count>diagnosticsBeforeLabel)return;
                     throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
                         "Only finite, side-effect-free primitive computed switch labels are supported."));
+                }
                 // A predeclared, not-yet-initialized binding cannot be used
                 // as a runtime case value (even if its annotation is known).
                 var unwrapped=label;
@@ -507,8 +528,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             }
             if(selectorType!=null && !type!.Equals(CompilerTypes.Null) &&
                !type.Equals(CompilerTypes.Undefined) &&
-               !CompilerTypes.IsAssignable(type,selectorType) &&
-               !(computed && CompilerTypes.IsAssignable(selectorType,type)))
+               !(computed
+                   ?ComputedCaseTypesOverlap(selectorType,type)
+                   :CompilerTypes.IsAssignable(type,selectorType)))
                 Error(clause.Keyword,"TS2678",
                     $"Type '{type.DisplayName}' is not comparable to type '{selectorType.DisplayName}'.");
         }
