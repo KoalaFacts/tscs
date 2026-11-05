@@ -389,9 +389,15 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         while(expression is ValueParenthesized group)expression=group.Expression;
         if(expression is not ValueAtom {Token.Kind:TokenKind.Identifier} atom)
             return null;
-        // Reuse actual value-read checks for TDZ, missing names and imports.
-        _=TypeOf(expression,scope);
+        // Preserve TS2304 rather than replacing a missing-name diagnostic
+        // with a later generic unsupported-label failure. The two intrinsic
+        // identifiers still go through their existing value-read behavior.
         var binding=scope.Find(atom.Token.Text);
+        if(binding is null && atom.Token.Text is not ("undefined" or "globalThis"))
+            throw new CompilationFailure(Diagnostic.Error(file,atom.Token,"TS2304",
+                $"Cannot find name '{atom.Token.Text}'."));
+        // Reuse actual value-read checks for TDZ and cross-file identity.
+        _=TypeOf(expression,scope);
         return binding is {IsConstant:true,Initialized:true}
             ?binding.DeclaredType as LiteralTypeSymbol
             :null;
