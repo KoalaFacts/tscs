@@ -489,11 +489,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             case ValueElementAccess
             {
                 Optional:false,ChainContinuation:false,
-                Receiver:ValueAtom {Token.Kind:TokenKind.Identifier} receiver,
+                Receiver:ValueAtom {Token.Kind:TokenKind.Identifier} indexReceiver,
                 Index:ValueAtom {Token.Kind:TokenKind.String}
-            } member:
-                if(TypeOf(receiver,scope) is not ObjectTypeSymbol ||
-                   TypeOf(member,scope) is not FunctionTypeSymbol)return false;
+            } indexedMember:
+                if(TypeOf(indexReceiver,scope) is not ObjectTypeSymbol ||
+                   TypeOf(indexedMember,scope) is not FunctionTypeSymbol)return false;
                 break;
             default:return false;
         }
