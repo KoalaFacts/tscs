@@ -437,18 +437,27 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             else break;
             if(accesses.Count>8)return false;
         }
-        if(expression is not ValueAtom {Token.Kind:TokenKind.Identifier} root ||
-           TypeOf(root,scope) is not ObjectTypeSymbol)
+        if(expression is not ValueAtom {Token.Kind:TokenKind.Identifier} root)
             return false;
+        var diagnosticsBeforeRoot=diagnostics.Count;
+        var rootType=TypeOf(root,scope);
+        // Preserve semantic diagnostics for missing identifiers/properties:
+        // their statically shaped read is not an unsupported side effect.
+        // CheckSwitch will retain the recorded error and continue checking
+        // remaining case bodies, even when a next-line ignore suppresses it.
+        if(rootType is null)return diagnostics.Count>diagnosticsBeforeRoot;
+        if(rootType is not ObjectTypeSymbol)return false;
         while(accesses.Count>0)
         {
             var member=accesses.Pop();
+            var diagnosticsBeforeMember=diagnostics.Count;
             var current=TypeOf(member,scope);
+            if(current is null)return diagnostics.Count>diagnosticsBeforeMember;
             if(accesses.Count>0)
             {
                 if(current is not ObjectTypeSymbol)return false;
             }
-            else return current is not null && IsKnownPrimitiveSwitchCaseType(current);
+            else return IsKnownPrimitiveSwitchCaseType(current);
         }
         return false;
     }

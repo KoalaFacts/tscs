@@ -20,6 +20,7 @@ public sealed class SwitchStaticPropertyCaseTests
     [Theory]
     [InlineData("""const codes:{value:number}={value:2};switch("wrong"){case codes.value:{break;}}""","TS2678")]
     [InlineData("""const codes:{value:number}={value:2};switch(2){case codes.missing:{break;}}""","TS2339")]
+    [InlineData("""switch(2){case missing.value:{break;}}""","TS2304")]
     [InlineData("""const codes:{nested:{value:number}}={nested:{value:2}};switch(2){case codes.nested:{break;}}""","TSCS1001")]
     [InlineData("""const codes:{value:any}={value:2};switch(2){case codes.value:{break;}}""","TSCS1001")]
     [InlineData("""function load():{value:number}{return {value:2};}switch(2){case load().value:{break;}}""","TSCS1001")]
