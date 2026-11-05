@@ -61,9 +61,11 @@ const fs = require('node:fs');
 fs.appendFileSync(process.env.FAKE_LOG, process.argv.slice(2).join(' ') + '\\n');
 const files = process.argv.slice(2).filter((a) => a.endsWith('.ts'));
 if (files.some((f) => fs.readFileSync(f, 'utf8').includes('// crash'))) process.exit(134);
+if (files.some((f) => fs.readFileSync(f, 'utf8').includes('// silent2'))) process.exit(2);
+if (files.some((f) => fs.readFileSync(f, 'utf8').includes('// stray'))) { fs.mkdirSync('nested'); fs.writeFileSync('nested/stray.js', ''); }
 for (const f of files) {
   const text = fs.readFileSync(f, 'utf8');
-  for (const m of text.matchAll(/\\/\\/ print: (.*)/g)) { console.log(m[1]); if (m[1].includes('TSCS')) process.exitCode = 1; }
+  for (const m of text.matchAll(/\\/\\/ print: (.*)/g)) { console.log(m[1]); process.exitCode = m[1].includes('TSCS') ? 1 : 2; }
   const e = /\\/\\/ emit: (.*)/.exec(text);
   if (e && process.argv.includes('--emitJs')) fs.writeFileSync(f.replace(/\\.ts$/, '.js'), e[1] + '\\r\\n');
 }`;
@@ -94,8 +96,10 @@ test('an executed target passes only when diagnostics and emit match the referen
     'crash.ts': '// @noLib: true\n// @noEmit: true\n// crash\n',
     'extra.ts': '// @noLib: true\n// emit: "use strict";\n',
     'noref.ts': '// @target: es5\n// @noLib: true\n',
+    'silent.ts': '// @noLib: true\n// @noEmit: true\n// silent2\n',
+    'stray.ts': '// @noLib: true\n// @noEmit: true\n// stray\n',
   }, {
-    ...Object.fromEntries(['ok', 'bad', 'emit', 'unsupported', 'crash', 'extra', 'lib'].map((n) => [`${n}.types`, ''])),
+    ...Object.fromEntries(['ok', 'bad', 'emit', 'unsupported', 'crash', 'extra', 'lib', 'silent', 'stray'].map((n) => [`${n}.types`, ''])),
     'ok.js': `${header('ok')}//// [ok.js]\r\n"use strict";\r\n`,
     'bad.js': `${header('bad')}//// [bad.js]\r\n"use strict";\r\n`,
     'emit.js': `${header('emit')}//// [emit.js]\r\n"use strict";\r\n`,
@@ -112,6 +116,9 @@ test('an executed target passes only when diagnostics and emit match the referen
       'a crash is never a PASS, even when the reference expects no output');
     assert.deepEqual(run('extra.ts', {nolib: 'true'}).reasons, ['emit unexpected: extra.js'],
       'without a .js baseline the reference emitted nothing');
+    assert.deepEqual(run('silent.ts', {nolib: 'true', noemit: 'true'}).reasons, ['tscs exit 2 disagrees with 0 diagnostic line(s)']);
+    assert.deepEqual(run('stray.ts', {nolib: 'true', noemit: 'true'}).reasons, ['emit unexpected: nested/stray.js'],
+      'outputs are collected recursively');
     const noReference = run('noref.ts', {nolib: 'true'});
     assert.deepEqual([noReference.status, noReference.reasons], ['SKIP', ['no-reference-baseline']],
       'a configuration the reference never ran is not compared against empty expectations');
@@ -120,7 +127,7 @@ test('an executed target passes only when diagnostics and emit match the referen
     const skipped = run('lib.ts', {target: 'es2015'});
     assert.deepEqual([skipped.status, skipped.reasons], ['SKIP', ['standard-library']]);
     const invocations = readFileSync(log, 'utf8').trim().split('\n');
-    assert.equal(invocations.length, 6, 'a SKIP target never runs the compiler');
+    assert.equal(invocations.length, 8, 'a SKIP target never runs the compiler');
     assert.ok(invocations.slice(0, 4).every((l) => l.includes('--emitJs --noLib --target es2015')));
     assert.ok(invocations[4].includes('--noEmit --noLib --target es2015'));
     assert.ok(invocations[5].includes('--emitJs'));

@@ -20,7 +20,7 @@ import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync, mkdirSync} from 'node:fs';
 import {tmpdir} from 'node:os';
-import {basename, dirname, extname, join, resolve} from 'node:path';
+import {basename, dirname, extname, join, normalize, relative, resolve, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {headlineOf} from './check-docs.ts';
 
@@ -210,9 +210,14 @@ export function runTarget(target: Target, options: RunOptions): TargetResult {
     const unsupported = tscsUnsupported(lines);
     if (unsupported !== null) return result('FAIL', [unsupported]);
     if (run.status !== 0 && run.status !== 2) return result('FAIL', [`tscs exited with ${run.status ?? run.signal}`]);
+    // The CLI exits 0 without diagnostics and 2 with them; anything else is not a clean comparison.
+    if ((run.status === 2) !== (lines.length > 0)) return result('FAIL', [`tscs exit ${run.status} disagrees with ${lines.length} diagnostic line(s)`]);
     const actualOutputs = new Map<string, string>();
-    for (const name of readdirSync(work)) {
-      if (name.endsWith('.js')) actualOutputs.set(name, readFileSync(join(work, name), 'utf8'));
+    const inputs = new Set(units!.map((u) => normalize(u.name).split(sep).join('/')));
+    for (const entry of readdirSync(work, {recursive: true, withFileTypes: true})) {
+      if (!entry.isFile()) continue;
+      const name = relative(work, join(entry.parentPath, entry.name)).split(sep).join('/');
+      if (!inputs.has(name)) actualOutputs.set(name, readFileSync(join(work, name), 'utf8'));
     }
     // No .js baseline (or noEmit) means the reference emitted nothing.
     const expectedOutputs = js === null || noEmit ? new Map<string, string>() : baselineOutputs(js, units!);
