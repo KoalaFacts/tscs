@@ -67,8 +67,11 @@ public sealed class ClassicForConstDeclarationTests
             Assert.Empty(program.Analyze().Diagnostics);
             var emitted=program.EmitJavaScript();
             Assert.Equal(4,emitted.Count);
-            Assert.Contains(emitted,item=>item.Text.Contains(
-                "const box = { n: 0 }, step = 2",StringComparison.Ordinal));
+            // Object literals are intentionally parenthesized by the ES2015
+            // emitter. Verify the native const header, not its object spacing.
+            Assert.Contains(emitted,item=>
+                item.Text.Contains("for (const box = ",StringComparison.Ordinal) &&
+                item.Text.Contains(", step = 2;",StringComparison.Ordinal));
             foreach(var file in emitted)
                 File.WriteAllText(Path.ChangeExtension(file.SourceFile,".js"),file.Text);
             File.WriteAllText(Path.Combine(root,"package.json"),"""{"type":"module"}""");
