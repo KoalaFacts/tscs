@@ -582,7 +582,7 @@ internal static class JavaScriptEmitter
                 case PostfixUpdate increment:
                     output.Append(increment.Name.Text).Append(increment.Operator.Text);
                     break;
-                case Expression { Value:ValuePrefixUpdate or ValuePostfixUpdate } expression:
+                case Expression { Value:ValuePrefixUpdate or ValuePostfixUpdate or ValueCall } expression:
                     WriteExpression(expression.Value);
                     break;
                 case CompoundAssignment compound:
