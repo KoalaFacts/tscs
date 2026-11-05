@@ -1898,8 +1898,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 case Variable { Initializer: { } initial }:
                     RecordValueWrites(initial,shadowed);
                     break;
-                case ForVariableDeclarations group:
-                    foreach(var declaration in group.Declarations)
+                case ForVariableDeclarations headerDeclarationBatch:
+                    foreach(var declaration in headerDeclarationBatch.Declarations)
                         if(declaration.Initializer is { } value)
                             RecordValueWrites(value,shadowed);
                     break;
@@ -1986,8 +1986,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     var headerLocals=new HashSet<string>(shadowed,StringComparer.Ordinal);
                     if(nestedClassic.Initializer is Variable loopLocal)
                         headerLocals.Add(loopLocal.Name.Text);
-                    if(nestedClassic.Initializer is ForVariableDeclarations group)
-                        foreach(var declaration in group.Declarations)
+                    if(nestedClassic.Initializer is ForVariableDeclarations nestedHeaderDeclarations)
+                        foreach(var declaration in nestedHeaderDeclarations.Declarations)
                             headerLocals.Add(declaration.Name.Text);
                     if(nestedClassic.Initializer is { } nestedInit)
                         Visit(nestedInit,headerLocals);
