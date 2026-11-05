@@ -379,28 +379,33 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         }
     }
     
-    // Case labels may use a literal expression or an immutable, already
-    // initialized binding whose declared type is one exact primitive literal.
-    // Never infer a constant label from a narrowed mutable read: the runtime
-    // case value could have changed, making discriminant narrowing unsound.
-    private LiteralTypeSymbol? TryReadSwitchCaseLabel(ValueNode expression,Scope scope)
+    // Switch labels are side-effect-free, exact primitive values: literals,
+    // intrinsic undefined, or initialized immutable bindings of an exact type.
+    // A narrowed mutable binding cannot become a constant runtime case label.
+    private TypeSymbol? TryReadSwitchCaseLabel(ValueNode expression,Scope scope)
     {
         if(TryReadLiteral(expression) is { } literal)return literal;
         while(expression is ValueParenthesized group)expression=group.Expression;
+        if(expression is ValueAtom {Token.Kind:TokenKind.Null})
+            return CompilerTypes.Null;
         if(expression is not ValueAtom {Token.Kind:TokenKind.Identifier} atom)
             return null;
-        // Preserve TS2304 rather than replacing a missing-name diagnostic
-        // with a later generic unsupported-label failure. The two intrinsic
-        // identifiers still go through their existing value-read behavior.
         var binding=scope.Find(atom.Token.Text);
         if(binding is null && atom.Token.Text is not ("undefined" or "globalThis"))
             throw new CompilationFailure(Diagnostic.Error(file,atom.Token,"TS2304",
                 $"Cannot find name '{atom.Token.Text}'."));
-        // Reuse actual value-read checks for TDZ and cross-file identity.
+        // TypeOf performs TDZ and cross-module checks. In particular, a
+        // declared but uninitialized const is never silently accepted.
         _=TypeOf(expression,scope);
-        return binding is {IsConstant:true,Initialized:true}
-            ?binding.DeclaredType as LiteralTypeSymbol
-            :null;
+        if(binding is null && atom.Token.Text=="undefined")
+            return CompilerTypes.Undefined;
+        if(binding is not {IsConstant:true,Initialized:true})
+            return null;
+        var declared=binding.DeclaredType;
+        return declared is LiteralTypeSymbol ||
+            declared?.Equals(CompilerTypes.Null)==true ||
+            declared?.Equals(CompilerTypes.Undefined)==true
+            ?declared:null;
     }
 
     // Case-local types view the existing symbol. A normally completing
@@ -409,20 +414,22 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     private void CheckSwitch(SwitchStatement switching,Scope scope,TypeSymbol? expectedReturn,bool allowContinue)
     {
         var selectorType=TypeOf(switching.Selector,scope);
-        var labels=new Dictionary<SwitchClause,LiteralTypeSymbol>();
-        var selected=new HashSet<LiteralTypeSymbol>();
+        var labels=new Dictionary<SwitchClause,TypeSymbol>();
+        var selected=new HashSet<TypeSymbol>();
         foreach(var clause in switching.Clauses)
         {
             if(clause.Label is not { } label)continue;
             var type=TryReadSwitchCaseLabel(label,scope);
             if(type==null)
                 throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
-                    "Only primitive literal and immutable single-literal switch case labels are supported."));
+                    "Only exact primitive literal, nullish and immutable exact switch case labels are supported."));
             if(!selected.Add(type))
                 throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
                     "Duplicate switch case labels are not supported yet."));
             labels.Add(clause,type);
-            if(selectorType!=null && !CompilerTypes.IsAssignable(type,selectorType))
+            if(selectorType!=null && !type.Equals(CompilerTypes.Null) &&
+               !type.Equals(CompilerTypes.Undefined) &&
+               !CompilerTypes.IsAssignable(type,selectorType))
                 Error(clause.Keyword,"TS2678",
                     $"Type '{type.DisplayName}' is not comparable to type '{selectorType.DisplayName}'.");
         }
