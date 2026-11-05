@@ -28,8 +28,16 @@ public sealed class ClassicForCommaHeaderTests
     public void EachHeaderPartIsTypeChecked(string source,string code)=>
         Assert.Contains(Compilation.Check("classic-for-comma-invalid.ts",source),d=>d.Code==code);
 
+    // This exact case was a rejection before multi-declaration support; it
+    // must now type-check instead of disappearing from regression coverage.
+    [Fact]
+    public void MultiDeclaratorCaseFormerlyUnsupportedNowCompiles()
+    {
+        const string source="""function f():number {for(let i=0,j=0;i<2;i++){}return 1;}""";
+        Assert.Empty(Compilation.Check("classic-for-multidecl-promoted.ts",source));
+    }
+
     [Theory]
-    [InlineData("""function f():number {for(let i=0,j=0;i<2;i++){}return 1;}""")]
     [InlineData("""function f():number {let i=0;for(;i<2;i++,){}return i;}""")]
     [InlineData("""function f():number {let i=0;for(;i<2;21,i++){}return i;}""")]
     public void OutsideTheFiniteHeaderContractStillRejects(string source)=>
