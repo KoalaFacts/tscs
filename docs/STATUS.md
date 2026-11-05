@@ -122,7 +122,8 @@ diagnostic and exit 1; they are intended never to be compiled silently.
   `try`/`finally`.
 - `switch` case labels: literals, `const` identifiers, finite computed
   primitives, pure conditionals and short-circuits, checked direct, member
-  and optional calls, static object data reads.
+  and optional calls, static object data reads, and bounded pure numeric
+  index reads of arrays, tuples and strings.
 
 ### Emit
 
