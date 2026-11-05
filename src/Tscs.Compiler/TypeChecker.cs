@@ -943,11 +943,13 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             ?Binder.Bind(file,declarations,scope):new Scope(scope);
         if(localDeclarations is { } prebound)
         {
-            // A later declarator is in lexical scope but cannot be read before
-            // its own initializer. The binder precomputes types for cross-file
-            // use, so reset definite initialization for this ordered header.
-            foreach(var local in prebound.Statements.Cast<Variable>())
-                header.Symbols[local.Name.Text].Initialized=false;
+            // Preserve the existing single-binding behavior, including
+            // closures that defer reading their own binding until invocation.
+            // A later declarator must not be read by an earlier initializer.
+            // Keep those future bindings uninitialized until checked in order.
+            if(loop.Initializer is ForVariableDeclarations)
+                foreach(var local in prebound.Statements.Skip(1).Cast<Variable>())
+                    header.Symbols[local.Name.Text].Initialized=false;
             CheckBlock(prebound,header,true,expectedReturn,preboundLocal:true);
         }
         else if(loop.Initializer is { } initializer)

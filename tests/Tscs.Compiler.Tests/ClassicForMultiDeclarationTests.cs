@@ -15,6 +15,8 @@ public sealed class ClassicForMultiDeclarationTests
     [InlineData("""function f(n:number):number {let i=10;for(let i=0,j=i+1;i<n;i++,j++){i++;}return i;}""")]
     [InlineData("""function f(n:number):number {let sum=0;for(let i=0,j=1;i<n;i++){for(let j=2,k=j+1;k<5;j++,k++){sum+=j;}sum+=j;}return sum;}""")]
     [InlineData("""function f(n:number):number {let sum=0;for(let i=0,j:number;i<n;i++,j=2){sum+=i;}return sum;}""")]
+    [InlineData("""function f():number {for(let thunk:()=>number=():number=>thunk(),i=0;false;){ }return 1;}""")]
+    [InlineData("""function f():number {for(let thunk:()=>number=():number=>thunk();false;){ }return 1;}""")]
     public void MultipleHeaderBindingsAreChecked(string source)=>
         Assert.Empty(Compilation.Check("classic-for-multibind.ts",source));
 
