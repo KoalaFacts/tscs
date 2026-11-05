@@ -456,6 +456,26 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         return true;
     }
 
+    // A finite runtime case label may call a directly bound, explicitly typed
+    // function. Only primitive, side-effect-free argument expressions are
+    // admitted. Member getters, optional calls, nested calls, spread arguments
+    // and dynamically typed callees need a richer effect model first.
+    // Native switch emission preserves conditional, ordered label evaluation;
+    // the call result never becomes a compile-time discriminant.
+    private bool IsFiniteCheckedSwitchCaseCall(ValueNode value,Scope scope)
+    {
+        while(value is ValueParenthesized group)value=group.Expression;
+        if(value is not ValueCall
+           {
+               Callee: ValueAtom {Token.Kind:TokenKind.Identifier} atom,
+               Optional:false, ChainContinuation:false, SpreadIndex:-1
+           } call || call.Arguments.Count>16)
+            return false;
+        if(TypeOf(atom,scope) is not FunctionTypeSymbol)
+            return false;
+        return call.Arguments.All(argument=>IsFinitePureSwitchCase(argument,scope));
+    }
+
     private static bool IsKnownPrimitiveSwitchCaseType(TypeSymbol type) => type switch
     {
         PrimitiveTypeSymbol {Kind:PrimitiveKind.Number or PrimitiveKind.String or
@@ -494,13 +514,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             bool computed=type==null;
             if(computed)
             {
-                if(!IsFinitePureSwitchCase(label,scope))
+                if(!IsFinitePureSwitchCase(label,scope) &&
+                   !IsFiniteCheckedSwitchCaseCall(label,scope))
                 {
                     // An unresolved name may carry a suppressible TS2304,
                     // but an unsupported call, object coercion or any-typed
                     // operand must remain a hard error even beside that name.
                     throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
-                        "Only finite, side-effect-free primitive computed switch labels are supported."));
+                        "Only finite primitive expressions and checked direct calls are supported as switch labels."));
                 }
                 // A predeclared, not-yet-initialized binding cannot be used
                 // as a runtime case value (even if its annotation is known).
