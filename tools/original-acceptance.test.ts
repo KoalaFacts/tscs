@@ -1,6 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync} from 'node:fs';
+import {createHash} from 'node:crypto';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {
@@ -9,7 +10,7 @@ import {
 } from './original-acceptance.ts';
 
 const target = (path: string, config: Record<string, string> | null, name = '', group = 'compiler'): Target => ({
-  id: `configuration:${path}:${name}`, upstreamPath: path, group,
+  id: `configuration:${path}:${name}`, upstreamPath: path, rawSha256: '', group,
   configuration: config === null ? null : {Name: name, Config: config},
 });
 
@@ -46,10 +47,11 @@ test('baseline names, diagnostics and emitted sections follow the pinned runner'
 test('comparison reports diagnostic and emit differences', () => {
   const out = new Map([['a.js', 'x']]);
   assert.deepEqual(compare(['e1'], ['e1'], out, new Map([['a.js', 'x\r\n']])), []);
-  assert.deepEqual(compare(['e1'], ['e2', 'e3'], null, new Map()), ['diagnostics differ (1 missing, 2 unexpected)']);
+  assert.deepEqual(compare(['e1'], ['e2', 'e3'], new Map(), new Map()), ['diagnostics differ (1 missing, 2 unexpected)']);
+  assert.deepEqual(compare([], [], new Map(), new Map([['a.js', 'x']])), ['emit unexpected: a.js']);
   assert.deepEqual(compare([], [], out, new Map([['a.js', 'y']])), ['emit differs: a.js']);
   assert.deepEqual(compare([], [], out, new Map()), ['emit missing: a.js']);
-  assert.deepEqual(compare(['e1', 'e2'], ['e2', 'e1'], null, new Map()), ['diagnostics differ (0 missing, 0 unexpected)']);
+  assert.deepEqual(compare(['e1', 'e2'], ['e2', 'e1'], new Map(), new Map()), ['diagnostics differ (0 missing, 0 unexpected)']);
 });
 
 // A stand-in compiler: prints the diagnostics in a.ts's "// print:" lines,
@@ -61,7 +63,7 @@ const files = process.argv.slice(2).filter((a) => a.endsWith('.ts'));
 if (files.some((f) => fs.readFileSync(f, 'utf8').includes('// crash'))) process.exit(134);
 for (const f of files) {
   const text = fs.readFileSync(f, 'utf8');
-  for (const m of text.matchAll(/\\/\\/ print: (.*)/g)) console.log(m[1]);
+  for (const m of text.matchAll(/\\/\\/ print: (.*)/g)) { console.log(m[1]); if (m[1].includes('TSCS')) process.exitCode = 1; }
   const e = /\\/\\/ emit: (.*)/.exec(text);
   if (e && process.argv.includes('--emitJs')) fs.writeFileSync(f.replace(/\\.ts$/, '.js'), e[1] + '\\r\\n');
 }`;
@@ -90,26 +92,38 @@ test('an executed target passes only when diagnostics and emit match the referen
     'unsupported.ts': '// @noLib: true\n// print: unsupported.ts(1,1): error TSCS1001: Not supported yet.\n',
     'lib.ts': '// @target: es2015\nlet x = 1;\n',
     'crash.ts': '// @noLib: true\n// @noEmit: true\n// crash\n',
+    'extra.ts': '// @noLib: true\n// emit: "use strict";\n',
+    'noref.ts': '// @target: es5\n// @noLib: true\n',
   }, {
+    ...Object.fromEntries(['ok', 'bad', 'emit', 'unsupported', 'crash', 'extra', 'lib'].map((n) => [`${n}.types`, ''])),
     'ok.js': `${header('ok')}//// [ok.js]\r\n"use strict";\r\n`,
     'bad.js': `${header('bad')}//// [bad.js]\r\n"use strict";\r\n`,
     'emit.js': `${header('emit')}//// [emit.js]\r\n"use strict";\r\n`,
   });
   try {
     const path = (n: string) => `tsc/testdata/tests/cases/compiler/${n}`;
-    const run = (n: string, c: Record<string, string>) => runTarget(target(path(n), c), options);
+    const sha = (n: string) => createHash('sha256').update(readFileSync(join(root, path(n)))).digest('hex');
+    const run = (n: string, c: Record<string, string>) => runTarget({...target(path(n), c), rawSha256: sha(n)}, options);
     assert.deepEqual(run('ok.ts', {target: 'es2015', nolib: 'true'}).status, 'PASS');
     assert.deepEqual(run('bad.ts', {target: 'es2015', nolib: 'true'}).reasons, ['diagnostics differ (0 missing, 1 unexpected)']);
     assert.deepEqual(run('emit.ts', {target: 'es2015', nolib: 'true'}).reasons, ['emit differs: emit.js']);
     assert.deepEqual(run('unsupported.ts', {nolib: 'true'}).reasons, ['tscs TSCS1001: Not supported yet.']);
     assert.deepEqual(run('crash.ts', {nolib: 'true', noemit: 'true'}).reasons, ['tscs exited with 134'],
       'a crash is never a PASS, even when the reference expects no output');
+    assert.deepEqual(run('extra.ts', {nolib: 'true'}).reasons, ['emit unexpected: extra.js'],
+      'without a .js baseline the reference emitted nothing');
+    const noReference = run('noref.ts', {nolib: 'true'});
+    assert.deepEqual([noReference.status, noReference.reasons], ['SKIP', ['no-reference-baseline']],
+      'a configuration the reference never ran is not compared against empty expectations');
+    assert.throws(() => runTarget({...target(path('ok.ts'), {nolib: 'true'}), rawSha256: '0'.repeat(64)}, options),
+      /does not match the registered pinned source/);
     const skipped = run('lib.ts', {target: 'es2015'});
     assert.deepEqual([skipped.status, skipped.reasons], ['SKIP', ['standard-library']]);
     const invocations = readFileSync(log, 'utf8').trim().split('\n');
-    assert.equal(invocations.length, 5, 'a SKIP target never runs the compiler');
+    assert.equal(invocations.length, 6, 'a SKIP target never runs the compiler');
     assert.ok(invocations.slice(0, 4).every((l) => l.includes('--emitJs --noLib --target es2015')));
     assert.ok(invocations[4].includes('--noEmit --noLib --target es2015'));
+    assert.ok(invocations[5].includes('--emitJs'));
     assert.ok(!existsSync(join(root, 'tsc/testdata/tests/cases/compiler/ok.js')), 'upstream checkout is not written');
   } finally {
     rmSync(root, {recursive: true, force: true});

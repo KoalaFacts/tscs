@@ -17,6 +17,7 @@
 // With --expect-headline the run fails when the measured totals differ from
 // that page's "Original upstream acceptance" headline.
 import {spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
 import {existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync, mkdirSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {basename, dirname, extname, join, resolve} from 'node:path';
@@ -26,6 +27,8 @@ import {headlineOf} from './check-docs.ts';
 export interface Target {
   id: string;
   upstreamPath: string;
+  /** SHA-256 of the original test file at the pinned revision. */
+  rawSha256: string;
   group: string;
   configuration: {Name: string; Config: Record<string, string>} | null;
 }
@@ -140,19 +143,21 @@ export function baselineOutputs(jsBaseline: string, inputs: Unit[]): Map<string,
 }
 
 export function compare(expectedDiagnostics: string[], actualDiagnostics: string[],
-  expectedOutputs: Map<string, string> | null, actualOutputs: Map<string, string>): string[] {
+  expectedOutputs: Map<string, string>, actualOutputs: Map<string, string>): string[] {
   const reasons: string[] = [];
   if (expectedDiagnostics.join('\n') !== actualDiagnostics.join('\n')) {
     const missing = expectedDiagnostics.filter((d) => !actualDiagnostics.includes(d)).length;
     const extra = actualDiagnostics.filter((d) => !expectedDiagnostics.includes(d)).length;
     reasons.push(`diagnostics differ (${missing} missing, ${extra} unexpected)`);
   }
-  if (expectedOutputs !== null) {
-    for (const [name, text] of expectedOutputs) {
-      const actual = actualOutputs.get(name);
-      if (actual === undefined) reasons.push(`emit missing: ${name}`);
-      else if (actual.replace(/\r\n/g, '\n').replace(/\n*$/, '') !== text) reasons.push(`emit differs: ${name}`);
-    }
+  // Line endings and trailing newlines are normalised on both sides.
+  for (const [name, text] of expectedOutputs) {
+    const actual = actualOutputs.get(name);
+    if (actual === undefined) reasons.push(`emit missing: ${name}`);
+    else if (actual.replace(/\r\n/g, '\n').replace(/\n*$/, '') !== text) reasons.push(`emit differs: ${name}`);
+  }
+  for (const name of actualOutputs.keys()) {
+    if (!expectedOutputs.has(name)) reasons.push(`emit unexpected: ${name}`);
   }
   return reasons;
 }
@@ -171,7 +176,11 @@ export function runTarget(target: Target, options: RunOptions): TargetResult {
   });
   let units: Unit[] | null = null;
   if (target.configuration !== null && target.group !== 'transpile') {
-    units = parseUnits(readFileSync(join(options.upstream, target.upstreamPath), 'utf8'), target.upstreamPath);
+    const raw = readFileSync(join(options.upstream, target.upstreamPath));
+    if (createHash('sha256').update(raw).digest('hex') !== target.rawSha256) {
+      throw new Error(`${target.upstreamPath} does not match the registered pinned source`);
+    }
+    units = parseUnits(raw.toString('utf8'), target.upstreamPath);
   }
   const missing = missingCapabilities(target, units);
   if (missing.length > 0) return result('SKIP', missing);
@@ -179,6 +188,11 @@ export function runTarget(target: Target, options: RunOptions): TargetResult {
   const baselineDir = join(options.upstream, 'tsc/testdata/baselines/reference', suite);
   const stem = baselineStem(target);
   const read = (p: string) => (existsSync(p) ? readFileSync(p, 'utf8') : null);
+  // The pinned runner writes .types/.symbols for every configuration it runs;
+  // without them the reference never ran this configuration (it skips some).
+  if (!existsSync(join(baselineDir, `${stem}.types`)) && !existsSync(join(baselineDir, `${stem}.symbols`))) {
+    return result('SKIP', ['no-reference-baseline']);
+  }
   const expectedDiagnostics = baselineDiagnostics(read(join(baselineDir, `${stem}.errors.txt`)));
   const js = read(join(baselineDir, `${stem}.js`));
   const config = target.configuration!.Config;
@@ -192,15 +206,16 @@ export function runTarget(target: Target, options: RunOptions): TargetResult {
     const args = [options.tscs, noEmit ? '--noEmit' : '--emitJs', '--noLib', '--target', 'es2015', ...units!.map((u) => u.name)];
     const run = spawnSync(options.dotnet, args, {cwd: work, encoding: 'utf8', timeout: 60_000});
     if (run.error) return result('FAIL', [`tscs did not run: ${run.error.message}`]);
-    if (run.status !== 0 && run.status !== 2) return result('FAIL', [`tscs exited with ${run.status ?? run.signal}`]);
     const lines = (run.stdout + run.stderr).split(/\r?\n/).filter((l) => l.length > 0);
     const unsupported = tscsUnsupported(lines);
     if (unsupported !== null) return result('FAIL', [unsupported]);
+    if (run.status !== 0 && run.status !== 2) return result('FAIL', [`tscs exited with ${run.status ?? run.signal}`]);
     const actualOutputs = new Map<string, string>();
     for (const name of readdirSync(work)) {
       if (name.endsWith('.js')) actualOutputs.set(name, readFileSync(join(work, name), 'utf8'));
     }
-    const expectedOutputs = js === null || noEmit ? null : baselineOutputs(js, units!);
+    // No .js baseline (or noEmit) means the reference emitted nothing.
+    const expectedOutputs = js === null || noEmit ? new Map<string, string>() : baselineOutputs(js, units!);
     const reasons = compare(expectedDiagnostics, lines, expectedOutputs, actualOutputs);
     return result(reasons.length === 0 ? 'PASS' : 'FAIL', reasons);
   } finally {
