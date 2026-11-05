@@ -20,6 +20,7 @@ public sealed class DoWhileDefiniteAssignmentTests
     [InlineData("""function run():number{let value:number;do{if(true){continue;}value=1;}while(value<2);return value;}""","TSCS1001")]
     [InlineData("""function run(flag:boolean):number{let value:number;do{if(flag){break;}value=1;}while(value<2);return value;}""","TSCS1001")]
     [InlineData("""function run():number{let a:number;let b:number;do{b=a;a=1;}while(a<2);return b;}""","TSCS1001")]
+    [InlineData("""function run():number{let value:number;let cb:()=>void;do{cb=():void=>{value=1;};}while(value<1);return 0;}""","TSCS1001")]
     [InlineData("""function run():number{let value:number;do{value="bad";}while(value<2);return value;}""","TS2322")]
     public void BypassedOutOfOrderOrWronglyTypedWritesCannotProveInitialization(string source,string code) =>
         Assert.Contains(Compilation.Check("do-while-assign-invalid.ts",source),d=>d.Code==code);

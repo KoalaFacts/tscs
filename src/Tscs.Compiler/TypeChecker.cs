@@ -915,6 +915,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             statement is Assignment or EmptyStatement);
         InvalidateLoopBackedgeFlowTypes(scope,loop.Body);
         var before=CaptureInitialized(scope);
+        var entryTypes=CaptureFlowTypes(scope);
         var writesBefore=CaptureFlowWriteVersions(scope);
         List<Symbol>? definitelyAssigned=null;
         try
@@ -935,6 +936,22 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             {
                 if(diagnostics.Count>beforeBodyDiagnostics)
                     throw new CompilationFailure(diagnostics[beforeBodyDiagnostics]);
+                // TypeOf on a deferred arrow RHS checks its function body
+                // without executing it. Reset speculative captured writes
+                // before checking the first condition. Only direct outer
+                // assignment targets are definitely initialized here.
+                var directTargets=new HashSet<Symbol>();
+                foreach(var statement in loop.Body.Statements)
+                    if(statement is Assignment target &&
+                       scope.Find(target.Name.Text) is { } symbol)
+                        directTargets.Add(symbol);
+                foreach(var (symbol,initialized) in before)
+                {
+                    if(directTargets.Contains(symbol))continue;
+                    symbol.Initialized=initialized;
+                    symbol.Type=entryTypes[symbol];
+                    symbol.FlowWriteVersion=writesBefore[symbol];
+                }
                 // All direct assignments have executed before this test on
                 // every path that can reach the condition. A failed RHS throws
                 // before the condition and before any following statement.
