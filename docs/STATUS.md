@@ -1,3 +1,20 @@
+## 2026-11-05 — Checked classic-for const declarations (candidate; NOT_RUN at creation)
+
+C# Parser, Binder, TypeChecker and JavaScriptEmitter now accept finite initialized
+`const` declarations in classic `for` headers, including multiple ordered
+bindings, type annotations and lexical closure captures. The initializer
+runs once, binding reassignments (including increment/update) reject with
+TS2588, while mutation of a const-bound object remains legal. Missing
+initializers reject explicitly; no unsupported `var` binding or
+unrestricted destructuring is admitted. Runtime uses native ES2015 `const` without
+rewriting loop behavior. Source-backed positive/negative, four-module
+executable JavaScript and invalid cross-module no-output tests are included.
+Exact-head hosted .NET, fixed TS7 Go reference and independent review are
+NOT_RUN at creation. Historical full upstream acceptance remains 0 PASS /
+15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED, release ineligible.
+No original upstream target IDs, skips, pin, global thresholds or release
+gates change.
+
 ## 2026-11-05 — Multiple checked classic-for let bindings (candidate; NOT_RUN at creation)
 
 The C# parser, lexical binder, checker and ES2015 emitter now support up to 64

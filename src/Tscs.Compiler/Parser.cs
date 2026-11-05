@@ -1128,7 +1128,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     }
 
     // Both loop styles share the checked expression AST and lexically scoped
-    // bindings. Classic for keeps finite mutable let declarations, while existing
+    // bindings. Classic for keeps finite let/const declarations, while existing
     // mutation forms may be sequenced in its initializer/update and effectful
     // comma expressions may occur in its condition. Unsupported forms fail closed.
     private Statement ParseFor(int depth,bool inFunction)
@@ -1157,12 +1157,13 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 var body=ParseLoopBody(depth,inFunction);
                 return new ForInStatement(keyword,name,constant,source,body);
             }
-            if(constant)Unsupported(name,"Classic for currently requires a mutable let binding.");
             TypeSyntax? annotation=Eat(TokenKind.Colon)?ReadTypeAnnotation():null;
             ValueNode? initial=Eat(TokenKind.Equal)?ParseWithInDisallowed(ParseValue):null;
+            if(constant && initial==null)
+                Unsupported(name,"Classic for const declarations require an initializer.");
             if(annotation==null && initial==null)
                 Unsupported(name,"Classic for declarations need an initializer or explicit type.");
-            var declarations=new List<Variable> {new(name,false,annotation,initial)};
+            var declarations=new List<Variable> {new(name,constant,annotation,initial)};
             while(Eat(TokenKind.Comma))
             {
                 if(declarations.Count>=64)
@@ -1173,9 +1174,11 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 Take();
                 TypeSyntax? nextAnnotation=Eat(TokenKind.Colon)?ReadTypeAnnotation():null;
                 ValueNode? nextInitial=Eat(TokenKind.Equal)?ParseWithInDisallowed(ParseValue):null;
+                if(constant && nextInitial==null)
+                    Unsupported(nextName,"Classic for const declarations require an initializer.");
                 if(nextAnnotation==null && nextInitial==null)
                     Unsupported(nextName,"Classic for declarations need an initializer or explicit type.");
-                declarations.Add(new Variable(nextName,false,nextAnnotation,nextInitial));
+                declarations.Add(new Variable(nextName,constant,nextAnnotation,nextInitial));
             }
             initializer=declarations.Count==1?declarations[0]:new ForVariableDeclarations(declarations);
         }
