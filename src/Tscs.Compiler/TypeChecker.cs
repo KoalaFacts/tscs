@@ -953,14 +953,19 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     // Preserve ordinary semantic diagnostics so the scanner
                     // can apply @ts-ignore. Throwing CompilationFailure here
                     // would bypass that suppression in Compilation.CheckSources.
+                    // An assignment with a suppressible type mismatch still
+                    // executes and initializes its mutable binding at runtime.
+                    // Keep its diagnostic, but don't let a later return throw
+                    // and replace the original TS2322/TS2345 with TSCS1001.
+                    if(target is { Imported:false,IsConstant:false })
+                        directTargets.Add(target);
                     if(diagnostics.Count>beforeBodyDiagnostics)break;
-                    if(target is { Initialized:true })directTargets.Add(target);
                 }
+                definitelyAssigned=[..directTargets];
                 if(diagnostics.Count==beforeBodyDiagnostics)
                 {
                     var conditionType=TypeOf(loop.Condition,scope);
                     CheckRuntimeCondition(loop.Condition,conditionType,loop.Keyword);
-                    definitelyAssigned=[..directTargets];
                 }
             }
         }
