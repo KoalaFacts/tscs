@@ -490,7 +490,15 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 {
                     // Keep the first real semantic error from an invalid leaf,
                     // instead of throwing a generic unsupported error over it.
-                    if(diagnostics.Count>diagnosticsBeforeLabel)return;
+                    if(diagnostics.Count>diagnosticsBeforeLabel)
+                    {
+                        // Retain the actual label error and still visit all
+                        // later labels and clause bodies. A next-line ts-ignore
+                        // can suppress this diagnostic, but never unrelated
+                        // type errors inside the switch.
+                        hasComputedLabels=true;
+                        continue;
+                    }
                     throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
                         "Only finite, side-effect-free primitive computed switch labels are supported."));
                 }
@@ -508,7 +516,15 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     // The value checker has already recorded the real semantic
                     // diagnostic (e.g. TS2304). Do not replace it with an
                     // unsupported-type error thrown from the switch checker.
-                    if(diagnostics.Count>diagnosticsBeforeLabel)return;
+                    if(diagnostics.Count>diagnosticsBeforeLabel)
+                    {
+                        // Retain the actual label error and still visit all
+                        // later labels and clause bodies. A next-line ts-ignore
+                        // can suppress this diagnostic, but never unrelated
+                        // type errors inside the switch.
+                        hasComputedLabels=true;
+                        continue;
+                    }
                     throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
                         "Computed switch case labels require a resolved primitive type."));
                 }

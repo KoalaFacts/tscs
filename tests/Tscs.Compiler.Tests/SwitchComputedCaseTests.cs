@@ -36,6 +36,45 @@ public sealed class SwitchComputedCaseTests
         Assert.Contains(Compilation.Check("computed-case-bad.ts",source),d=>d.Code==code);
 
     [Fact]
+    public void IgnoredUnknownCaseCannotHideIndependentBodyErrors()
+    {
+        const string source = """
+            let base:number=2;
+            switch(base){
+              // @ts-ignore
+              case base+missing:{
+                let invalid:number="wrong";
+                break;
+              }
+              case 3:{
+                let alsoInvalid:number="wrong";
+                break;
+              }
+            }
+            """;
+        var diagnostics=Compilation.Check("computed-case-ignored.ts",source);
+        Assert.DoesNotContain(diagnostics,d=>d.Code=="TS2304");
+        Assert.Equal(2,diagnostics.Count(d=>d.Code=="TS2322"));
+    }
+
+    [Fact]
+    public void UnknownComputedLabelRetainsOriginalNameErrorAndChecksBody()
+    {
+        const string source = """
+            let base:number=2;
+            switch(base){
+              case base+missing:{
+                let invalid:number="wrong";
+                break;
+              }
+            }
+            """;
+        var diagnostics=Compilation.Check("computed-case-unknown.ts",source);
+        Assert.Contains(diagnostics,d=>d.Code=="TS2304");
+        Assert.Contains(diagnostics,d=>d.Code=="TS2322");
+    }
+
+    [Fact]
     public void ExactLiteralDuplicateChecksRemainBlocking()
     {
         const string source="""let candidate:number=2;switch(candidate){case 1:{break;}case 1:{break;}case candidate:{break;}}""";
