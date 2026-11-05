@@ -456,23 +456,47 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         return true;
     }
 
-    // A finite runtime case label may call a directly bound, explicitly typed
-    // function. Only primitive, side-effect-free argument expressions are
-    // admitted. Member getters, optional calls, nested calls, spread arguments
-    // and dynamically typed callees need a richer effect model first.
-    // Native switch emission preserves conditional, ordered label evaluation;
-    // the call result never becomes a compile-time discriminant.
+    // A finite runtime case label may call a directly bound typed function or
+    // a checked function-valued member of an ordinary object identifier.
+    // This retains native member-call receiver identity and evaluates the
+    // label only when JavaScript switch matching reaches that case. Neither
+    // result is treated as an exact discriminant for narrowing.
+    // Optional/dynamic/recursive callee chains, spread arguments and untyped
+    // receivers require an explicit effect model before being admitted.
     private bool IsFiniteCheckedSwitchCaseCall(ValueNode value,Scope scope)
     {
         while(value is ValueParenthesized group)value=group.Expression;
         if(value is not ValueCall
            {
-               Callee: ValueAtom {Token.Kind:TokenKind.Identifier} atom,
-               Optional:false, ChainContinuation:false, SpreadIndex:-1
+               Optional:false,ChainContinuation:false,SpreadIndex:-1
            } call || call.Arguments.Count>16)
             return false;
-        if(TypeOf(atom,scope) is not FunctionTypeSymbol)
-            return false;
+        var callee=call.Callee;
+        while(callee is ValueParenthesized calleeGroup)callee=calleeGroup.Expression;
+        switch(callee)
+        {
+            case ValueAtom {Token.Kind:TokenKind.Identifier} direct:
+                if(TypeOf(direct,scope) is not FunctionTypeSymbol)return false;
+                break;
+            case ValuePropertyAccess
+            {
+                Optional:false,ChainContinuation:false,
+                Receiver:ValueAtom {Token.Kind:TokenKind.Identifier} receiver
+            } member:
+                if(TypeOf(receiver,scope) is not ObjectTypeSymbol ||
+                   TypeOf(member,scope) is not FunctionTypeSymbol)return false;
+                break;
+            case ValueElementAccess
+            {
+                Optional:false,ChainContinuation:false,
+                Receiver:ValueAtom {Token.Kind:TokenKind.Identifier} indexReceiver,
+                Index:ValueAtom {Token.Kind:TokenKind.String}
+            } indexedMember:
+                if(TypeOf(indexReceiver,scope) is not ObjectTypeSymbol ||
+                   TypeOf(indexedMember,scope) is not FunctionTypeSymbol)return false;
+                break;
+            default:return false;
+        }
         return call.Arguments.All(argument=>IsFinitePureSwitchCase(argument,scope));
     }
 
