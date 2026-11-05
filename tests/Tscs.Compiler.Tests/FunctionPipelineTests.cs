@@ -14,6 +14,28 @@ public sealed class FunctionPipelineTests
         Assert.Empty(Compilation.Check("source.ts",source));
 
     [Theory]
+    [InlineData("function greet() {} greet();")]
+    [InlineData("function greet(n: number) { if (n > 0) { return; } } greet(1);")]
+    [InlineData("function greet(flag: boolean) { try { if (flag) { return; } } finally { let n: number = 1; } } greet(false);")]
+    [InlineData("function greet() { while (true) { break; } } greet();")]
+    [InlineData("export function greet() { let list: number[] = [1]; list = [...list]; }")]
+    public void NamedFunctionsWithoutValueReturnsInferVoid(string source) =>
+        Assert.Empty(Compilation.Check("source.ts",source));
+
+    [Theory]
+    [InlineData("function f() { return 1; }")]
+    [InlineData("function f(flag: boolean) { if(flag) { return 1; } return; }")]
+    [InlineData("function f() { while (true) { return 'bad'; } }")]
+    [InlineData("function f() { try { return 1; } finally { return; } }")]
+    public void InferredValueReturnFunctionsStillFailClosed(string source) =>
+        Assert.Contains(Compilation.Check("source.ts",source),d=>d.Code=="TSCS1001");
+
+    [Fact]
+    public void InferredVoidIsNotSilentlyUsableAsANumber() =>
+        Assert.Contains(Compilation.Check("source.ts","function f() {} let n: number=f();"),
+            d=>d.Code=="TS2322");
+
+    [Theory]
     [InlineData("function id(x: number): number { return x; } let n = id(\"wrong\");", "TS2345")]
     [InlineData("function id(x: number): number { return x; } let n = id();", "TS2554")]
     [InlineData("function bad(x: number): number { return \"wrong\"; }", "TS2322")]
