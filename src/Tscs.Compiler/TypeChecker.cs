@@ -470,17 +470,25 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
 
     // A finite runtime case label may call a directly bound typed function or
     // a checked function-valued member of an ordinary object identifier.
-    // This retains native member-call receiver identity and evaluates the
-    // label only when JavaScript switch matching reaches that case. Neither
-    // result is treated as an exact discriminant for narrowing.
-    // Optional/dynamic/recursive callee chains, spread arguments and untyped
-    // receivers require an explicit effect model before being admitted.
+    // An optional call may additionally have a nullish callable, but the
+    // present branch must still have a concrete checked function signature.
+    // JavaScript emission preserves lazy argument evaluation, member receiver
+    // identity and source-order case matching. Neither call kind is an exact
+    // discriminant for narrowing. Optional receivers, dynamic/recursive
+    // callees, spread/effectful arguments and untyped values remain excluded.
+    private static bool IsFiniteSwitchCallable(TypeSymbol? type,bool optional)
+    {
+        if(type is null)return false;
+        return (optional?CompilerTypes.NonNullAssertionResult(type):type)
+            is FunctionTypeSymbol;
+    }
+
     private bool IsFiniteCheckedSwitchCaseCall(ValueNode value,Scope scope)
     {
         while(value is ValueParenthesized group)value=group.Expression;
         if(value is not ValueCall
            {
-               Optional:false,ChainContinuation:false,SpreadIndex:-1
+               ChainContinuation:false,SpreadIndex:-1
            } call || call.Arguments.Count>16)
             return false;
         var callee=call.Callee;
@@ -488,7 +496,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         switch(callee)
         {
             case ValueAtom {Token.Kind:TokenKind.Identifier} direct:
-                if(TypeOf(direct,scope) is not FunctionTypeSymbol)return false;
+                if(!IsFiniteSwitchCallable(TypeOf(direct,scope),call.Optional))return false;
                 break;
             case ValuePropertyAccess
             {
@@ -496,7 +504,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 Receiver:ValueAtom {Token.Kind:TokenKind.Identifier} receiver
             } member:
                 if(TypeOf(receiver,scope) is not ObjectTypeSymbol ||
-                   TypeOf(member,scope) is not FunctionTypeSymbol)return false;
+                   !IsFiniteSwitchCallable(TypeOf(member,scope),call.Optional))return false;
                 break;
             case ValueElementAccess
             {
@@ -505,7 +513,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 Index:ValueAtom {Token.Kind:TokenKind.String}
             } indexedMember:
                 if(TypeOf(indexReceiver,scope) is not ObjectTypeSymbol ||
-                   TypeOf(indexedMember,scope) is not FunctionTypeSymbol)return false;
+                   !IsFiniteSwitchCallable(TypeOf(indexedMember,scope),call.Optional))return false;
                 break;
             default:return false;
         }
