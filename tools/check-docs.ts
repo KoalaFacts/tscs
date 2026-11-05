@@ -3,8 +3,9 @@
 // Fails on broken relative links/anchors, top-level docs missing from the
 // README index, named repository paths that do not exist, README/STATUS size
 // budgets, and disagreeing headline acceptance counts.
-import {readFileSync, readdirSync, statSync, existsSync} from 'node:fs';
-import {join, dirname, normalize, relative, resolve, sep} from 'node:path';
+import {readFileSync, existsSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+import {join, dirname, normalize, resolve, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 export const README_BUDGET = 10 * 1024;
@@ -121,7 +122,9 @@ export function checkDocs(input: DocsInput): string[] {
     }
     if (!CURATED.test(path)) continue;
     for (const named of namedPaths(text)) {
-      if (!input.exists(named)) errors.push(`${path}: named path does not exist: ${named}`);
+      // Build outputs exist only after a build: validate the project that produces them.
+      const owner = /^(.*?)\/(bin|obj)\//.exec(named)?.[1] ?? named;
+      if (!input.exists(owner)) errors.push(`${path}: named path does not exist: ${owner}`);
     }
   }
   const readme = input.files.get('README.md');
@@ -148,17 +151,14 @@ export function checkDocs(input: DocsInput): string[] {
   return errors;
 }
 
+/** Markdown files git tracks or would track (ignored local worktrees, build output and caches are excluded). */
 export function loadRepository(root: string): DocsInput {
+  const listed = execFileSync('git', ['ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', '*.md'], {cwd: root, encoding: 'utf8'});
   const files = new Map<string, string>();
-  const walk = (dir: string) => {
-    for (const name of readdirSync(dir)) {
-      if (SKIP_DIRS.has(name)) continue;
-      const full = join(dir, name);
-      if (statSync(full).isDirectory()) walk(full);
-      else if (name.endsWith('.md')) files.set(relative(root, full).split(sep).join('/'), readFileSync(full, 'utf8'));
-    }
-  };
-  walk(root);
+  for (const path of listed.split('\0')) {
+    if (path === '' || path.split('/').some((part) => SKIP_DIRS.has(part)) || !existsSync(join(root, path))) continue;
+    files.set(path, readFileSync(join(root, path), 'utf8'));
+  }
   return {files, exists: (p) => p === '' || existsSync(join(root, p))};
 }
 
