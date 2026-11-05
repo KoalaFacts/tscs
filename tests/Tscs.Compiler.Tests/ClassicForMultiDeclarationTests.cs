@@ -17,6 +17,8 @@ public sealed class ClassicForMultiDeclarationTests
     [InlineData("""function f(n:number):number {let sum=0;for(let i=0,j:number;i<n;i++,j=2){sum+=i;}return sum;}""")]
     [InlineData("""function f():number {for(let thunk:()=>number=():number=>thunk(),i=0;false;){ }return 1;}""")]
     [InlineData("""function f():number {for(let thunk:()=>number=():number=>thunk();false;){ }return 1;}""")]
+    [InlineData("""function f():number {for(let i=0,thunk:()=>number=():number=>thunk();false;){ }return 1;}""")]
+    [InlineData("""function f():number {for(let i=0,thunk:()=>number=((():number=>thunk()) as ()=>number);false;){ }return 1;}""")]
     public void MultipleHeaderBindingsAreChecked(string source)=>
         Assert.Empty(Compilation.Check("classic-for-multibind.ts",source));
 
@@ -25,6 +27,8 @@ public sealed class ClassicForMultiDeclarationTests
     [InlineData("""function f(n:number):number {for(let i=0,j:number="bad";i<n;i++,j++){}return n;}""","TS2322")]
     [InlineData("""function f(n:number):number {for(let i=0,j=i+1;i<n;i++,j="bad"){}return n;}""","TS2322")]
     [InlineData("""function f(n:number):number {for(let i=j,j=1;i<n;i++){}return n;}""","TSCS1001")]
+    [InlineData("""function f(n:number):number {for(let i=i+1,j=1;i<n;i++){}return n;}""","TSCS1001")]
+    [InlineData("""function f(n:number):number {for(let i=0,j=j+1;i<n;i++){}return n;}""","TSCS1001")]
     [InlineData("""function f(n:number):number {for(let i=0,j:number=i;i<n;i++){}return j;}""","TS2304")]
     [InlineData("""function f(n:number):number {for(let i=0,j=1;i<n;i++,j++){}return j;}""","TS2304")]
     [InlineData("""function f(n:number):number {for(let i=0,j=1;i<n;i++,missing++){}return n;}""","TS2304")]

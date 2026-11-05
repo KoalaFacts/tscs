@@ -943,14 +943,21 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             ?Binder.Bind(file,declarations,scope):new Scope(scope);
         if(localDeclarations is { } prebound)
         {
-            // Preserve the existing single-binding behavior, including
-            // closures that defer reading their own binding until invocation.
-            // A later declarator must not be read by an earlier initializer.
-            // Keep those future bindings uninitialized until checked in order.
-            if(loop.Initializer is ForVariableDeclarations)
-                foreach(var local in prebound.Statements.Skip(1).Cast<Variable>())
-                    header.Symbols[local.Name.Text].Initialized=false;
-            CheckBlock(prebound,header,true,expectedReturn,preboundLocal:true);
+            // A header's bindings are lexically visible to all initializers,
+            // but are assigned in declaration order. Binder pre-initializes
+            // finite types for checking; that does not prove a value is ready.
+            foreach(var local in prebound.Statements.Cast<Variable>())
+                header.Symbols[local.Name.Text].Initialized=false;
+            foreach(var local in prebound.Statements.Cast<Variable>())
+            {
+                // Creating a direct arrow/function expression does not execute
+                // its body. Permit its own deferred recursive reference while
+                // retaining TDZ rejection for immediate self/forward reads.
+                // Do not grant this exception to a call that invokes the arrow.
+                if(IsDeferredFunctionValue(local.Initializer))
+                    header.Symbols[local.Name.Text].Initialized=true;
+                CheckBlock(new Block([local]),header,true,expectedReturn,preboundLocal:true);
+            }
         }
         else if(loop.Initializer is { } initializer)
             CheckBlock(new Block([initializer]),header,true,expectedReturn,preboundLocal:true);
@@ -982,6 +989,24 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         {
             RestoreInitialized(before);
             InvalidateLoopWrittenFlowTypes(writesBefore);
+        }
+    }
+
+    private static bool IsDeferredFunctionValue(ValueNode? value)
+    {
+        // Parentheses and erased type operators do not invoke the function.
+        // A ValueCall / comma expression could execute a deferred body now,
+        // and must not gain an initialization exemption.
+        while(true)
+        {
+            switch(value)
+            {
+                case ValueArrow:return true;
+                case ValueParenthesized grouped:value=grouped.Expression;break;
+                case ValueTypeOperator asserted:value=asserted.Expression;break;
+                case ValueNonNull nonNull:value=nonNull.Expression;break;
+                default:return false;
+            }
         }
     }
 
