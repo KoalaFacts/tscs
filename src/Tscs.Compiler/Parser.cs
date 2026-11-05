@@ -1104,14 +1104,9 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             if(keywordClause.Kind==TokenKind.Case)
             {
                 label=ParseValue();
-                // Exact primitive const identifiers (including imported ones)
-                // are checked after binding, not guessed from their spelling.
-                // Parentheses preserve a literal or constant identifier value.
-                var candidate=label;
-                while(candidate is ValueParenthesized grouped)candidate=grouped.Expression;
-                if(candidate is not ValueAtom {Token.Kind:TokenKind.String or TokenKind.Number or TokenKind.True or TokenKind.False or TokenKind.Null or TokenKind.Identifier} &&
-                   candidate is not ValueUnary {Operator.Kind:TokenKind.Minus,Operand:ValueAtom {Token.Kind:TokenKind.Number}})
-                    Unsupported(keywordClause,"Only primitive literal and immutable single-literal switch case labels are supported yet.");
+                // The binder/checker distinguish exact labels from finite,
+                // side-effect-free computed primitive values. Their runtime
+                // expressions remain intact for native ES2015 emission.
             }
             else if(hasDefault)Unsupported(keywordClause,"Duplicate switch defaults are not supported.");
             else hasDefault=true;

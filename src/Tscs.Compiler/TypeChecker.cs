@@ -408,6 +408,51 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             ?declared:null;
     }
 
+    // A bounded expression checker for computed case values. No calls, property
+    // getters, updates, assignments, deferred functions or conditional effects:
+    // those require a separate evaluation/flow model before being admitted.
+    // Iteration avoids stack overflow on long binary expression chains.
+    private static bool IsFinitePureSwitchCase(ValueNode value)
+    {
+        var pending=new Stack<ValueNode>();
+        pending.Push(value);
+        int visited=0;
+        while(pending.Count>0)
+        {
+            if(++visited>64)return false;
+            switch(pending.Pop())
+            {
+                case ValueAtom {Token.Kind:TokenKind.Identifier or TokenKind.Number or
+                    TokenKind.String or TokenKind.True or TokenKind.False or TokenKind.Null}:
+                    break;
+                case ValueParenthesized group:
+                    pending.Push(group.Expression);
+                    break;
+                case ValueUnary {Operator.Kind:TokenKind.Minus or TokenKind.Plus} unary:
+                    pending.Push(unary.Operand);
+                    break;
+                case ValueBinary {Operator.Kind:TokenKind.Plus or TokenKind.Minus or
+                    TokenKind.Star or TokenKind.Slash or TokenKind.Percent} binary:
+                    pending.Push(binary.Right);
+                    pending.Push(binary.Left);
+                    break;
+                default:return false;
+            }
+        }
+        return true;
+    }
+
+    private static bool IsKnownPrimitiveSwitchCaseType(TypeSymbol type) => type switch
+    {
+        PrimitiveTypeSymbol {Kind:PrimitiveKind.Number or PrimitiveKind.String or
+            PrimitiveKind.Boolean or PrimitiveKind.Null or PrimitiveKind.Undefined} => true,
+        LiteralTypeSymbol {Kind:PrimitiveKind.Number or PrimitiveKind.String or
+            PrimitiveKind.Boolean} => true,
+        UnionTypeSymbol union when union.Alternatives.Count<=64 =>
+            union.Alternatives.All(IsKnownPrimitiveSwitchCaseType),
+        _=>false
+    };
+
     // Case-local types view the existing symbol. A normally completing
     // clause can fall into the next one, so its effective incoming union
     // must be joined with the next case's direct-entry variants.
@@ -416,20 +461,44 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         var selectorType=TypeOf(switching.Selector,scope);
         var labels=new Dictionary<SwitchClause,TypeSymbol>();
         var selected=new HashSet<TypeSymbol>();
+        bool hasComputedLabels=false;
         foreach(var clause in switching.Clauses)
         {
             if(clause.Label is not { } label)continue;
             var type=TryReadSwitchCaseLabel(label,scope);
-            if(type==null)
-                throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
-                    "Only exact primitive literal, nullish and immutable exact switch case labels are supported."));
-            if(!selected.Add(type))
-                throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
-                    "Duplicate switch case labels are not supported yet."));
-            labels.Add(clause,type);
-            if(selectorType!=null && !type.Equals(CompilerTypes.Null) &&
+            bool computed=type==null;
+            if(computed)
+            {
+                if(!IsFinitePureSwitchCase(label))
+                    throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
+                        "Only finite, side-effect-free primitive computed switch labels are supported."));
+                // A predeclared, not-yet-initialized binding cannot be used
+                // as a runtime case value (even if its annotation is known).
+                var unwrapped=label;
+                while(unwrapped is ValueParenthesized group)unwrapped=group.Expression;
+                if(unwrapped is ValueAtom {Token.Kind:TokenKind.Identifier} atom &&
+                   scope.Find(atom.Token.Text) is {Initialized:false})
+                    throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
+                        "A switch case cannot read an uninitialized binding."));
+                type=TypeOf(label,scope);
+                if(type==null || !IsKnownPrimitiveSwitchCaseType(type))
+                    throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
+                        "Computed switch case labels require checked primitive types."));
+                // Dynamic case values are not constant: duplicate identity
+                // and discriminated-union narrowing cannot be assumed.
+                hasComputedLabels=true;
+            }
+            else
+            {
+                if(!selected.Add(type!))
+                    throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
+                        "Duplicate switch case labels are not supported yet."));
+                labels.Add(clause,type!);
+            }
+            if(selectorType!=null && !type!.Equals(CompilerTypes.Null) &&
                !type.Equals(CompilerTypes.Undefined) &&
-               !CompilerTypes.IsAssignable(type,selectorType))
+               !CompilerTypes.IsAssignable(type,selectorType) &&
+               !(computed && CompilerTypes.IsAssignable(selectorType,type)))
                 Error(clause.Keyword,"TS2678",
                     $"Type '{type.DisplayName}' is not comparable to type '{selectorType.DisplayName}'.");
         }
@@ -439,7 +508,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         string? memberName=null;
         // Share the same parenthesis-aware discriminant recognizer as if/else.
         // The selector's grouping must not erase the union branch information.
-        if(TryReadDiscriminant(switching.Selector,out var variable,out var property))
+        if(!hasComputedLabels &&
+           TryReadDiscriminant(switching.Selector,out var variable,out var property))
         {
             var symbol=scope.Find(variable.Text);
             if(symbol?.Type is UnionTypeSymbol union &&
