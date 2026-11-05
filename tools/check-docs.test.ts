@@ -1,5 +1,9 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {mkdtempSync, mkdirSync, writeFileSync, rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 import {checkDocs, loadRepository, slug, anchorsOf, namedPaths, headlineOf, README_BUDGET, STATUS_BUDGET} from './check-docs.ts';
 
 const HEAD = 'Original upstream acceptance: **0 PASS / 0 FAIL / 15,523 SKIP**';
@@ -56,6 +60,28 @@ test('commands in code blocks are checked, but links inside code are ignored', (
   const dev = '# Dev\n\n## Setup\n\n```sh\nnode tools/gone.ts\n[x](nowhere.md)\n```\n';
   const errors = checkDocs(repo(base({'docs/DEVELOPMENT.md': dev})));
   assert.deepEqual(errors, ['docs/DEVELOPMENT.md: named path does not exist: tools/gone.ts']);
+});
+
+test('build outputs are validated through the project that produces them', () => {
+  const dev = '# Dev\n\n## Setup\n\n```sh\ndotnet src/Tscs.Cli/bin/Release/net10.0/tscs.dll\ndotnet src/Gone/bin/Release/x.dll\n```\n';
+  const errors = checkDocs(repo(base({'docs/DEVELOPMENT.md': dev}), ['src/Tscs.Cli/Tscs.Cli.csproj']));
+  assert.deepEqual(errors, ['docs/DEVELOPMENT.md: named path does not exist: src/Gone']);
+});
+
+test('only files git tracks or would track are scanned', () => {
+  const root = mkdtempSync(join(tmpdir(), 'tscs-check-docs-'));
+  try {
+    execFileSync('git', ['init', '-q'], {cwd: root});
+    writeFileSync(join(root, '.gitignore'), '.worktrees/\n');
+    mkdirSync(join(root, '.worktrees/other/docs/evidence'), {recursive: true});
+    writeFileSync(join(root, '.worktrees/other/docs/evidence/receipt.md'), '[stale](missing.md)\n');
+    writeFileSync(join(root, 'README.md'), '# tscs\n');
+    mkdirSync(join(root, 'docs'));
+    writeFileSync(join(root, 'docs/NEW.md'), '# New\n');
+    assert.deepEqual([...loadRepository(root).files.keys()].sort(), ['README.md', 'docs/NEW.md']);
+  } finally {
+    rmSync(root, {recursive: true, force: true});
+  }
 });
 
 test('kept evidence records are not rewritten to satisfy link checks', () => {
