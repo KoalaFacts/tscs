@@ -905,27 +905,93 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
 
     private void CheckDoWhile(DoWhileStatement loop,Scope scope,TypeSymbol? expectedReturn)
     {
-        // The condition and body can run again after a rebinding on the
-        // previous iteration, so guard facts from before the loop are not
-        // reliable read types for their later evaluations.
+        // A do body executes before its condition. Direct, sequential
+        // assignments cannot be bypassed by break/continue/branch control
+        // flow. Only for that proven subset may the first condition (and the
+        // following statement) read bindings initialized by the body.
+        // Do not treat a conditional, nested loop, try, call statement or
+        // deferred closure as a proof of definite initialization.
+        bool guaranteedBody=loop.Body.Statements.All(statement=>
+            statement is EmptyStatement ||
+            statement is Assignment assignment &&
+                !ContainsNestedDeferredFunction(assignment.Value));
         InvalidateLoopBackedgeFlowTypes(scope,loop.Body);
-        // Check the condition with entry-state facts. This deliberately
-        // rejects a do body that only *may* initialize a condition variable:
-        // a continue or break may bypass its write on the first iteration.
-        var conditionType=TypeOf(loop.Condition,scope);
-        CheckRuntimeCondition(loop.Condition,conditionType,loop.Keyword);
         var before=CaptureInitialized(scope);
         var writesBefore=CaptureFlowWriteVersions(scope);
+        List<Symbol>? definitelyAssigned=null;
         try
         {
-            CheckBlock(loop.Body,scope,false,expectedReturn,true,true);
+            if(!guaranteedBody)
+            {
+                // A continue or conditional branch can bypass the first write.
+                var entryConditionType=TypeOf(loop.Condition,scope);
+                CheckRuntimeCondition(loop.Condition,entryConditionType,loop.Keyword);
+                CheckBlock(loop.Body,scope,false,expectedReturn,true,true);
+            }
+            else
+            {
+                int beforeBodyDiagnostics=diagnostics.Count;
+                var directTargets=new HashSet<Symbol>();
+                foreach(var statement in loop.Body.Statements)
+                {
+                    if(statement is not Assignment assignment)continue;
+                    // Evaluate one statement at a time: checking a deferred
+                    // arrow body must never initialize a captured binding for
+                    // the next statement's RHS or the loop condition.
+                    var priorInitialized=CaptureInitialized(scope);
+                    var priorTypes=CaptureFlowTypes(scope);
+                    var priorVersions=CaptureFlowWriteVersions(scope);
+                    CheckBlock(new Block([assignment]),scope,true,expectedReturn,true,true);
+                    var target=scope.Find(assignment.Name.Text);
+                    // Only a direct deferred function body contributes
+                    // speculative captured writes. A normal executed RHS may
+                    // contain n++ or other real mutations; preserving its
+                    // write version is essential to invalidate stale flow
+                    // narrowings after the loop.
+                    if(IsDeferredFunctionValue(assignment.Value))
+                        foreach(var (symbol,initialized) in priorInitialized)
+                        {
+                            if(ReferenceEquals(symbol,target))continue;
+                            symbol.Initialized=initialized;
+                            symbol.Type=priorTypes[symbol];
+                            symbol.FlowWriteVersion=priorVersions[symbol];
+                        }
+                    // Preserve ordinary semantic diagnostics so the scanner
+                    // can apply @ts-ignore. Throwing CompilationFailure here
+                    // would bypass that suppression in Compilation.CheckSources.
+                    // Even an ignored type mismatch is a runtime assignment:
+                    // its target is available to later statements. Keep the
+                    // semantic diagnostic for the scanner to suppress or report.
+                    if(target is { Imported:false,IsConstant:false })
+                    {
+                        directTargets.Add(target);
+                        target.Initialized=true;
+                    }
+                }
+                definitelyAssigned=[..directTargets];
+                // Never skip later body assignments or the condition merely
+                // because an earlier error may be @ts-ignore'd. A thrown
+                // condition error must not erase already recorded body errors.
+                try
+                {
+                    var conditionType=TypeOf(loop.Condition,scope);
+                    CheckRuntimeCondition(loop.Condition,conditionType,loop.Keyword);
+                }
+                catch(CompilationFailure failure) when (diagnostics.Count>beforeBodyDiagnostics)
+                {
+                    diagnostics.Add(failure.Diagnostic);
+                }
+            }
         }
         finally
         {
-            // In the bounded analysis, neither a loop iteration nor its
-            // continue/break paths may fabricate definite post-loop writes.
             RestoreInitialized(before);
             InvalidateLoopWrittenFlowTypes(writesBefore);
+            // The loop runs at least once. Preserve only proven direct
+            // binding writes, not speculative writes inside an initializer,
+            // conditional, function body or the condition itself.
+            if(definitelyAssigned is not null)
+                foreach(var symbol in definitelyAssigned)symbol.Initialized=true;
         }
     }
 
@@ -1075,6 +1141,55 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 default:return false;
             }
         }
+    }
+
+    // A nested arrow is checked statically but its captured assignments
+    // have not executed. Exclude such compound RHS expressions from the
+    // definite-write proof; a direct deferred function value is safe because
+    // the statement-level checker restores its captured effects immediately.
+    private static bool ContainsNestedDeferredFunction(ValueNode value)
+    {
+        if(IsDeferredFunctionValue(value))return false;
+        var pending=new Stack<ValueNode>();
+        pending.Push(value);
+        while(pending.Count>0)
+        {
+            switch(pending.Pop())
+            {
+                case ValueArrow:return true;
+                case ValueCall call:
+                    pending.Push(call.Callee);
+                    foreach(var argument in call.Arguments)pending.Push(argument);
+                    break;
+                case ValueBinary binary:
+                    pending.Push(binary.Left);pending.Push(binary.Right);break;
+                case ValueConditional conditional:
+                    pending.Push(conditional.Condition);
+                    pending.Push(conditional.WhenTrue);
+                    pending.Push(conditional.WhenFalse);
+                    break;
+                case ValueUnary unary:pending.Push(unary.Operand);break;
+                case ValueParenthesized grouped:pending.Push(grouped.Expression);break;
+                case ValueTypeOperator typed:pending.Push(typed.Expression);break;
+                case ValueNonNull nonNull:pending.Push(nonNull.Expression);break;
+                case ValuePrefixUpdate prefix:pending.Push(prefix.Target);break;
+                case ValuePostfixUpdate postfix:pending.Push(postfix.Target);break;
+                case ValueTemplate template:
+                    foreach(var expression in template.Expressions)pending.Push(expression);
+                    break;
+                case ValueElementAccess element:
+                    pending.Push(element.Receiver);pending.Push(element.Index);break;
+                case ValuePropertyAccess property:pending.Push(property.Receiver);break;
+                case ValueArraySpread spread:pending.Push(spread.Operand);break;
+                case ValueArray array:
+                    foreach(var element in array.Elements)pending.Push(element);
+                    break;
+                case ValueObject obj:
+                    foreach(var property in obj.Properties)pending.Push(property.Value);
+                    break;
+            }
+        }
+        return false;
     }
 
     // A callable body is not run by its declaration. For intervening
