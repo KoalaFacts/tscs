@@ -191,6 +191,19 @@ public class DeclarationParserTests
     [InlineData("interface A { , }","TS1131","Property or signature expected.",14)]
     [InlineData("x;","TS1128","Declaration or statement expected.",0)]
     [InlineData("global { }","TS1005","'declare' expected.",0)]
+    [InlineData("declare var class: number;","TS1359","Identifier expected. 'class' is a reserved word that cannot be used here.",12)]
+    [InlineData("interface while {}","TS1359","Identifier expected. 'while' is a reserved word that cannot be used here.",10)]
+    [InlineData("type if = 1;","TS1359","Identifier expected. 'if' is a reserved word that cannot be used here.",5)]
+    [InlineData("declare function f(class: number): void;","TS1359","Identifier expected. 'class' is a reserved word that cannot be used here.",19)]
+    [InlineData("type T<class> = 1;","TS1359","Identifier expected. 'class' is a reserved word that cannot be used here.",7)]
+    [InlineData("type T<A> = A extends infer break ? 1 : 2;","TS1359","Identifier expected. 'break' is a reserved word that cannot be used here.",28)]
+    [InlineData("declare namespace if {}","TS1359","Identifier expected. 'if' is a reserved word that cannot be used here.",18)]
+    [InlineData("type T = { [K in X]: K, };","TS1005","';' expected.",22)]
+    [InlineData("type T = this.x;","TS1005","';' expected.",13)]
+    [InlineData("type T = null.x;","TS1005","';' expected.",13)]
+    [InlineData("type T = void.x;","TS1005","';' expected.",13)]
+    [InlineData("type\nFoo = 1;","TS1128","Declaration or statement expected.",0)]
+    [InlineData("interface I { [a: string, b: string]: number }","TS1096","An index signature must have exactly one parameter.",36)]
     [InlineData("var x: number;","TS1046","Top-level declarations in .d.ts files must start with either a 'declare' or 'export' modifier.",0)]
     [InlineData("function f(): void;","TS1046","Top-level declarations in .d.ts files must start with either a 'declare' or 'export' modifier.",0)]
     public void ReportsTheFirstSyntaxError(string text,string code,string message,int start)
@@ -211,10 +224,64 @@ public class DeclarationParserTests
     [InlineData("declare var a: number, b: string;","Multiple variable declarators")]
     [InlineData("export { a as b };","Export aliases")]
     [InlineData("export default A;","Default exports and export assignments")]
+    [InlineData("type T = { [K in X]: K; x: 1 };","Mapped types with additional members")]
+    [InlineData("type T = Foo<>;","Empty type argument lists")]
+    [InlineData("type T = Foo<string,>;","Trailing commas in type arguments")]
     public void RejectsUnmodelledValidSyntaxAsUnsupported(string text,string construct)
     {
         var diagnostic=Assert.Single(DeclarationParser.Parse("a.d.ts",text).Diagnostics);
         Assert.Equal(("TSCS1001",$"{construct} are not supported in declaration files yet."),(diagnostic.Code,diagnostic.Message));
+    }
+
+    [Fact]
+    public void AccessorKeywordsMayBeFollowedByALineBreak()
+    {
+        var members=Single<AmbientInterface>("interface I { get\n x(): number; set\n [k](v: number): void; get\n (): void }").Members;
+        Assert.Collection(members,
+            m=>Assert.False(Assert.IsType<AmbientAccessorSignature>(m).Setter),
+            m=>Assert.Equal("[k]",Assert.IsType<AmbientAccessorSignature>(m).Name.Text),
+            m=>Assert.Equal("get",Assert.IsType<AmbientMethodSignature>(m).Name.Text));
+    }
+
+    [Fact]
+    public void NullIsALiteralTypeAndVoidAKeywordType()
+    {
+        Assert.Equal(TokenKind.Null,Assert.IsType<AmbientLiteralType>(AliasType("type N = null;")).Literal.Kind);
+        Assert.Equal("void",Assert.Single(Assert.IsType<AmbientTypeReference>(AliasType("type V = void;")).Name).Text);
+    }
+
+    [Theory]
+    [InlineData("type F = ({ a, b }: X) => void;")]
+    [InlineData("type F = ([a, [b]]) => void;")]
+    [InlineData("type F = ({ a }, b: number) => void;")]
+    public void FunctionTypesMayStartWithABindingPattern(string text)=>
+        Assert.IsType<AmbientFunctionType>(AliasType(text));
+
+    [Fact]
+    public void GluedCloseTokensSurviveTheInferRewind()
+    {
+        // The rewound constraint parse has already split the glued '>>'.
+        var outer=Assert.IsType<AmbientConditionalType>(AliasType(
+            "type A<T> = T extends Array<(infer U extends Array<number>) extends 1 ? 1 : 0> ? U : never;"));
+        Assert.IsType<AmbientTypeReference>(outer.Extends);
+        var nested=Assert.IsType<AmbientConditionalType>(AliasType(
+            "type B<T> = T extends [(infer U extends Array<Array<string>> ? 1 : 0)] ? U : never;"));
+        var element=Assert.IsType<AmbientParenthesizedType>(Assert.Single(Assert.IsType<AmbientTupleType>(nested.Extends).Elements).Type);
+        var inner=Assert.IsType<AmbientConditionalType>(element.Type);
+        Assert.Null(Assert.IsType<AmbientInferType>(inner.Check).Constraint);
+        Clean("type C<T = Array<Array<number>>>= T;");
+    }
+
+    [Fact]
+    public void DeepNestingFailsClosedInsteadOfOverflowing()
+    {
+        var types=DeclarationParser.Parse("a.d.ts","type T = "+new string('(',20_000)+"number"+new string(')',20_000)+";");
+        Assert.Equal("Declarations nested deeper than 200 levels are not supported in declaration files yet.",Assert.Single(types.Diagnostics).Message);
+        var members=DeclarationParser.Parse("a.d.ts","type T = "+string.Concat(Enumerable.Repeat("{ a: ",20_000))+"number"+new string('}',20_000)+";");
+        Assert.Equal("TSCS1001",Assert.Single(members.Diagnostics).Code);
+        var namespaces=DeclarationParser.Parse("a.d.ts",string.Concat(Enumerable.Repeat("declare namespace A { ",20_000))+new string('}',20_000));
+        Assert.Equal("TSCS1001",Assert.Single(namespaces.Diagnostics).Code);
+        Clean("type T = "+new string('(',50)+"number"+new string(')',50)+";");
     }
 
     [Fact]

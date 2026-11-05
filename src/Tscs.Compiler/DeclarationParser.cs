@@ -119,6 +119,33 @@ internal sealed class DeclarationParser
         if(!IsWord(Current))throw Error("TS1003","Identifier expected.");
         return Take();
     }
+    // parseIdentifier: reserved words are not identifiers (parseIdentifierName
+    // positions, such as property names and parts after '.', use ExpectIdentifier).
+    private Token ExpectBindingIdentifier()
+    {
+        if(IsWord(Current) && ReservedWords.Contains(Current.Text))
+            throw Error("TS1359",$"Identifier expected. '{Current.Text}' is a reserved word that cannot be used here.");
+        return ExpectIdentifier();
+    }
+    private static readonly HashSet<string> ReservedWords=new(StringComparer.Ordinal)
+    {
+        "break","case","catch","class","const","continue","debugger","default","delete","do","else","enum",
+        "export","extends","false","finally","for","function","if","import","in","instanceof","new","null",
+        "return","super","switch","this","throw","true","try","typeof","var","void","while","with"
+    };
+    // Bounded recursion: deeply nested input fails closed instead of overflowing the stack.
+    private const int MaximumNesting=200;
+    private int nesting;
+    private T Nested<T>(Func<T> parse)
+    {
+        if(++nesting>MaximumNesting)
+        {
+            nesting=0;
+            throw Unsupported($"Declarations nested deeper than {MaximumNesting} levels");
+        }
+        try{return parse();}
+        finally{if(nesting>0)nesting--;}
+    }
     // Identifiers and every keyword token: their Text is the spelling.
     private static bool IsWord(Token token)=>token.Kind is not (TokenKind.String or TokenKind.Number or TokenKind.Template or TokenKind.End) &&
         token.Text.Length>0 && (char.IsLetter(token.Text[0]) || token.Text[0] is '_' or '$');
@@ -186,7 +213,7 @@ internal sealed class DeclarationParser
         if(Current.Kind==TokenKind.Import)throw Unsupported("Imports");
         bool declared=EatWord("declare");
         if(Current.Kind==TokenKind.Interface)return ParseInterface(exported);
-        if(Current.Kind==TokenKind.Type && IsWord(Peek()))return ParseTypeAlias(exported);
+        if(Current.Kind==TokenKind.Type && IsWord(Peek()) && !Peek().LineBreak)return ParseTypeAlias(exported);
         // The pinned checker's grammar check for top-level .d.ts value declarations.
         if(topLevel && !declared && !exported &&
            (Current.Kind is TokenKind.Let or TokenKind.Const or TokenKind.Function || Is("var") || Is("namespace") || Is("module")))
@@ -197,7 +224,7 @@ internal sealed class DeclarationParser
             return ParseVariables(exported);
         }
         if(Current.Kind==TokenKind.Function)return ParseFunction(exported);
-        if((Is("namespace") || Is("module")) && IsWord(Peek()))return ParseNamespace(exported);
+        if((Is("namespace") || Is("module")) && IsWord(Peek()) && !Peek().LineBreak)return ParseNamespace(exported);
         if(Is("global") && Peek().Kind==TokenKind.Open)
         {
             if(!declared)throw Error("TS1005","'declare' expected.");
@@ -210,7 +237,8 @@ internal sealed class DeclarationParser
         throw Error("TS1128","Declaration or statement expected.");
     }
 
-    private List<AmbientStatement> ParseBlock()
+    private List<AmbientStatement> ParseBlock()=>Nested(ParseBlockBody);
+    private List<AmbientStatement> ParseBlockBody()
     {
         Expect(TokenKind.Open,"{");
         var body=new List<AmbientStatement>();
@@ -226,15 +254,15 @@ internal sealed class DeclarationParser
     private AmbientNamespace ParseNamespace(bool exported)
     {
         Take();
-        var name=new List<Token>{ExpectIdentifier()};
-        while(Eat(TokenKind.Dot))name.Add(ExpectIdentifier());
+        var name=new List<Token>{ExpectBindingIdentifier()};
+        while(Eat(TokenKind.Dot))name.Add(ExpectBindingIdentifier());
         return new(name,ParseBlock(),exported);
     }
 
     private AmbientInterface ParseInterface(bool exported)
     {
         Take();
-        var name=ExpectIdentifier();
+        var name=ExpectBindingIdentifier();
         var typeParameters=ParseTypeParameters();
         var bases=new List<AmbientTypeReference>();
         if(Eat(TokenKind.Extends))
@@ -254,7 +282,7 @@ internal sealed class DeclarationParser
     private AmbientTypeAlias ParseTypeAlias(bool exported)
     {
         Take();
-        var name=ExpectIdentifier();
+        var name=ExpectBindingIdentifier();
         var typeParameters=ParseTypeParameters();
         Expect(TokenKind.Equal,"=");
         var type=Is("intrinsic") && Peek().Kind is not (TokenKind.Dot or TokenKind.LessThan or TokenKind.OpenBracket)
@@ -267,7 +295,7 @@ internal sealed class DeclarationParser
     private AmbientStatement ParseVariables(bool exported)
     {
         var keyword=Take();
-        var name=ExpectIdentifier();
+        var name=ExpectBindingIdentifier();
         AmbientType? type=Eat(TokenKind.Colon)?ParseType():null;
         if(Current.Kind==TokenKind.Equal)throw Unsupported("Variable initializers");
         if(Current.Kind==TokenKind.Comma)throw Unsupported("Multiple variable declarators");
@@ -278,7 +306,7 @@ internal sealed class DeclarationParser
     private AmbientFunction ParseFunction(bool exported)
     {
         Take();
-        var name=ExpectIdentifier();
+        var name=ExpectBindingIdentifier();
         var signature=ParseSignature(TokenKind.Colon);
         if(Current.Kind==TokenKind.Open)throw Error("TS1183","An implementation cannot be declared in ambient contexts.");
         ExpectSemicolon();
@@ -295,7 +323,7 @@ internal sealed class DeclarationParser
         {
             var modifiers=new List<string>();
             while((Is("in") || Is("out") || Current.Kind==TokenKind.Const) && IsWord(Peek()))modifiers.Add(Take().Text);
-            var name=ExpectIdentifier();
+            var name=ExpectBindingIdentifier();
             AmbientType? constraint=Eat(TokenKind.Extends)?ParseType():null;
             AmbientType? defaultType=Eat(TokenKind.Equal)?ParseType():null;
             parameters.Add(new(name,constraint,defaultType,modifiers));
@@ -337,7 +365,7 @@ internal sealed class DeclarationParser
                 patternNames=[];
                 ParseBindingPattern(patternNames);
             }
-            else name=ExpectIdentifier();
+            else name=Is("this")?Take():ExpectBindingIdentifier();
             bool optional=Eat(TokenKind.Question);
             AmbientType? type=Eat(TokenKind.Colon)?ParseType():null;
             if(Current.Kind==TokenKind.Equal)throw Error("TS2371","A parameter initializer is only allowed in a function or constructor implementation.");
@@ -363,7 +391,7 @@ internal sealed class DeclarationParser
                 Take();
             }
             if(Current.Kind is TokenKind.Open or TokenKind.OpenBracket)ParseBindingPattern(names);
-            else names.Add(ExpectIdentifier());
+            else names.Add(ExpectBindingIdentifier());
             if(Current.Kind==TokenKind.Equal)throw Error("TS2371","A parameter initializer is only allowed in a function or constructor implementation.");
             if(!Eat(TokenKind.Comma))break;
         }
@@ -392,7 +420,8 @@ internal sealed class DeclarationParser
         return ParseType();
     }
 
-    private List<AmbientMember> ParseMembers()
+    private List<AmbientMember> ParseMembers()=>Nested(ParseMemberList);
+    private List<AmbientMember> ParseMemberList()
     {
         Expect(TokenKind.Open,"{");
         var members=new List<AmbientMember>();
@@ -412,6 +441,9 @@ internal sealed class DeclarationParser
     private bool IsModifier(string word)=>Is(word) && !Peek().LineBreak &&
         Peek().Kind is not (TokenKind.Colon or TokenKind.OpenParen or TokenKind.Question or TokenKind.LessThan or
             TokenKind.Semi or TokenKind.Comma or TokenKind.Close or TokenKind.Equal or TokenKind.End);
+    // canFollowGetOrSetKeyword: no same-line requirement for get/set.
+    private bool IsAccessorKeyword()=>(Is("get") || Is("set")) &&
+        (Peek().Kind is TokenKind.OpenBracket or TokenKind.String or TokenKind.Number || IsWord(Peek()));
 
     private AmbientMember ParseMember()
     {
@@ -429,11 +461,11 @@ internal sealed class DeclarationParser
             Take();
             var parameters=ParseParameters(TokenKind.CloseBracket);
             Expect(TokenKind.CloseBracket,"]");
-            if(parameters.Count==0)throw Error("TS1096","An index signature must have exactly one parameter.");
+            if(parameters.Count!=1)throw Error("TS1096","An index signature must have exactly one parameter.");
             Expect(TokenKind.Colon,":");
             return new AmbientIndexSignature(parameters,ParseType(),isReadonly);
         }
-        if(!isReadonly && (IsModifier("get") || IsModifier("set")))
+        if(!isReadonly && IsAccessorKeyword())
         {
             bool setter=Take().Text=="set";
             var accessorName=ParsePropertyName();
@@ -484,7 +516,8 @@ internal sealed class DeclarationParser
 
     // parseType: function/constructor types, then a union with an optional
     // conditional suffix (disallowed inside an extends clause).
-    private AmbientType ParseType()
+    private AmbientType ParseType()=>Nested(ParseTypeWorker);
+    private AmbientType ParseTypeWorker()
     {
         if(IsStartOfFunctionOrConstructorType())return ParseFunctionType();
         var type=ParseUnion();
@@ -513,13 +546,26 @@ internal sealed class DeclarationParser
     {
         var next=Peek();
         if(next.Kind is TokenKind.CloseParen or TokenKind.Ellipsis)return true;
-        if(IsWord(next))
+        // skipParameterStart: an identifier or a balanced binding pattern.
+        int after;
+        if(IsWord(next))after=2;
+        else if(next.Kind is TokenKind.Open or TokenKind.OpenBracket)
         {
-            var after=Peek(2);
-            if(after.Kind is TokenKind.Colon or TokenKind.Comma or TokenKind.Question or TokenKind.Equal)return true;
-            if(after.Kind==TokenKind.CloseParen && Peek(3).Kind==TokenKind.Arrow)return true;
+            int depth=0;
+            after=1;
+            do
+            {
+                var kind=Peek(after).Kind;
+                if(kind is TokenKind.Open or TokenKind.OpenBracket)depth++;
+                else if(kind is TokenKind.Close or TokenKind.CloseBracket)depth--;
+                else if(kind==TokenKind.End)return false;
+                after++;
+            }
+            while(depth>0);
         }
-        return false;
+        else return false;
+        if(Peek(after).Kind is TokenKind.Colon or TokenKind.Comma or TokenKind.Question or TokenKind.Equal)return true;
+        return Peek(after).Kind==TokenKind.CloseParen && Peek(after+1).Kind==TokenKind.Arrow;
     }
 
     private AmbientFunctionType ParseFunctionType()
@@ -556,7 +602,7 @@ internal sealed class DeclarationParser
         if(Is("infer"))
         {
             Take();
-            var name=ExpectIdentifier();
+            var name=ExpectBindingIdentifier();
             AmbientType? constraint=null;
             // tryParseConstraintOfInferType: keep `extends` only when it is not
             // the start of an enclosing conditional type.
@@ -620,7 +666,9 @@ internal sealed class DeclarationParser
             case TokenKind.Import:
                 throw Unsupported("Import types");
         }
-        if(Is("this") && Peek().Kind!=TokenKind.Dot)return new AmbientThisType(Take());
+        if(Is("this"))return new AmbientThisType(Take());
+        if(Current.Kind==TokenKind.Null)return new AmbientLiteralType(Take());
+        if(Current.Kind==TokenKind.Void)return new AmbientTypeReference([Take()],[]);
         if(IsWord(Current))
         {
             var name=ParseEntityName();
@@ -631,7 +679,7 @@ internal sealed class DeclarationParser
 
     private List<Token> ParseEntityName()
     {
-        var name=new List<Token>{ExpectIdentifier()};
+        var name=new List<Token>{ExpectBindingIdentifier()};
         while(Current.Kind==TokenKind.Dot){Take();name.Add(ExpectIdentifier());}
         return name;
     }
@@ -641,7 +689,12 @@ internal sealed class DeclarationParser
         var arguments=new List<AmbientType>();
         if(Current.LineBreak || Current.Kind!=TokenKind.LessThan)return arguments;
         Take();
-        do arguments.Add(ParseType());
+        if(Current.Kind==TokenKind.GreaterThan)throw Unsupported("Empty type argument lists");
+        do
+        {
+            if(Current.Kind==TokenKind.GreaterThan)throw Unsupported("Trailing commas in type arguments");
+            arguments.Add(ParseType());
+        }
         while(Eat(TokenKind.Comma));
         ExpectGreaterThan();
         return arguments;
@@ -666,7 +719,7 @@ internal sealed class DeclarationParser
         if(Current.Kind is TokenKind.Plus or TokenKind.Minus){readonlyModifier=Take().Text;Take();}
         else if(EatWord("readonly"))readonlyModifier="readonly";
         Expect(TokenKind.OpenBracket,"[");
-        var parameter=ExpectIdentifier();
+        var parameter=ExpectBindingIdentifier();
         Expect(TokenKind.In,"in");
         var constraint=ParseType();
         AmbientType? nameType=EatWord("as")?ParseType():null;
@@ -679,8 +732,9 @@ internal sealed class DeclarationParser
         }
         else if(Eat(TokenKind.Question))optionalModifier="?";
         AmbientType? type=Eat(TokenKind.Colon)?ParseType():null;
-        if(!Eat(TokenKind.Semi))Eat(TokenKind.Comma);
-        Expect(TokenKind.Close,"}");
+        ExpectSemicolon();
+        if(Current.Kind!=TokenKind.Close)throw Unsupported("Mapped types with additional members");
+        Take();
         return new(readonlyModifier,parameter,constraint,nameType,optionalModifier,type);
     }
 
