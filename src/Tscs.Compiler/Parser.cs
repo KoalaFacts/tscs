@@ -1109,7 +1109,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 // Parentheses preserve a literal or constant identifier value.
                 var candidate=label;
                 while(candidate is ValueParenthesized grouped)candidate=grouped.Expression;
-                if(candidate is not ValueAtom {Token.Kind:TokenKind.String or TokenKind.Number or TokenKind.True or TokenKind.False or TokenKind.Identifier} &&
+                if(candidate is not ValueAtom {Token.Kind:TokenKind.String or TokenKind.Number or TokenKind.True or TokenKind.False or TokenKind.Null or TokenKind.Identifier} &&
                    candidate is not ValueUnary {Operator.Kind:TokenKind.Minus,Operand:ValueAtom {Token.Kind:TokenKind.Number}})
                     Unsupported(keywordClause,"Only primitive literal and immutable single-literal switch case labels are supported yet.");
             }
@@ -1130,7 +1130,6 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             clauses.Add(new SwitchClause(keywordClause,label,body));
         }
         if(!Eat(TokenKind.Close))Unsupported(Current,"Expected '}' after switch clauses.");
-        if(clauses.Count==0)Unsupported(keyword,"An empty switch has no supported returning control flow.");
         return new SwitchStatement(keyword,selector,clauses);
     }
 
