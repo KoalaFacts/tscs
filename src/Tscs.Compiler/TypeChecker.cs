@@ -905,27 +905,51 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
 
     private void CheckDoWhile(DoWhileStatement loop,Scope scope,TypeSymbol? expectedReturn)
     {
-        // The condition and body can run again after a rebinding on the
-        // previous iteration, so guard facts from before the loop are not
-        // reliable read types for their later evaluations.
+        // A do body executes before its condition. Direct, sequential
+        // assignments cannot be bypassed by break/continue/branch control
+        // flow. Only for that proven subset may the first condition (and the
+        // following statement) read bindings initialized by the body.
+        // Do not treat a conditional, nested loop, try, call statement or
+        // deferred closure as a proof of definite initialization.
+        bool guaranteedBody=loop.Body.Statements.All(statement=>
+            statement is Assignment or EmptyStatement);
         InvalidateLoopBackedgeFlowTypes(scope,loop.Body);
-        // Check the condition with entry-state facts. This deliberately
-        // rejects a do body that only *may* initialize a condition variable:
-        // a continue or break may bypass its write on the first iteration.
-        var conditionType=TypeOf(loop.Condition,scope);
-        CheckRuntimeCondition(loop.Condition,conditionType,loop.Keyword);
         var before=CaptureInitialized(scope);
         var writesBefore=CaptureFlowWriteVersions(scope);
+        List<Symbol>? definitelyAssigned=null;
         try
         {
+            if(!guaranteedBody)
+            {
+                // When a continue can skip an assignment, checking the body
+                // first would incorrectly validate a first-iteration read.
+                var entryConditionType=TypeOf(loop.Condition,scope);
+                CheckRuntimeCondition(loop.Condition,entryConditionType,loop.Keyword);
+            }
             CheckBlock(loop.Body,scope,false,expectedReturn,true,true);
+            if(guaranteedBody)
+            {
+                // All direct assignments have executed before this test on
+                // every path that can reach the condition. A failed RHS throws
+                // before the condition and before any following statement.
+                var conditionType=TypeOf(loop.Condition,scope);
+                CheckRuntimeCondition(loop.Condition,conditionType,loop.Keyword);
+                definitelyAssigned=[];
+                foreach(var statement in loop.Body.Statements)
+                    if(statement is Assignment assignment &&
+                       scope.Find(assignment.Name.Text) is {Initialized:true} symbol)
+                        definitelyAssigned.Add(symbol);
+            }
         }
         finally
         {
-            // In the bounded analysis, neither a loop iteration nor its
-            // continue/break paths may fabricate definite post-loop writes.
             RestoreInitialized(before);
             InvalidateLoopWrittenFlowTypes(writesBefore);
+            // The loop runs at least once. Preserve only proven direct
+            // binding writes, not speculative writes inside an initializer,
+            // conditional, function body or the condition itself.
+            if(definitelyAssigned is not null)
+                foreach(var symbol in definitelyAssigned)symbol.Initialized=true;
         }
     }
 
