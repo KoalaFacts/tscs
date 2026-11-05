@@ -13,6 +13,7 @@ public sealed class DoWhileDefiniteAssignmentTests
     [InlineData("""function run():number{let a:number;let b:number;do{a=2;b=a+4;}while(b<6);return b;}""")]
     [InlineData("""function run():number{let count:number;let previous:number=0;do{count=previous+1;previous=count;}while(count<3);return count;}""")]
     [InlineData("""function run():number{let count:number;do count=2;while(count<2);return count;}""")]
+    [InlineData("""function run():number{let value:number;let cb:()=>void;do{cb=():void=>{value=2;};value=1;}while(value<1);return value;}""")]
     public void StraightLineAssignmentsInitializeBeforeTheFirstConditionAndAfterLoop(string source) =>
         Assert.Empty(Compilation.Check("do-while-assign.ts",source));
 
@@ -21,9 +22,27 @@ public sealed class DoWhileDefiniteAssignmentTests
     [InlineData("""function run(flag:boolean):number{let value:number;do{if(flag){break;}value=1;}while(value<2);return value;}""","TSCS1001")]
     [InlineData("""function run():number{let a:number;let b:number;do{b=a;a=1;}while(a<2);return b;}""","TSCS1001")]
     [InlineData("""function run():number{let value:number;let cb:()=>void;do{cb=():void=>{value=1;};}while(value<1);return 0;}""","TSCS1001")]
+    [InlineData("""function run():number{let value:number;let cb:()=>void;do{cb=():void=>{value=1;};value=value+1;}while(value<1);return value;}""","TSCS1001")]
+    [InlineData("""function run():number{let value:number;let cb:()=>void;do{cb=():void=>{value=1;};value=value;}while(value<1);return value;}""","TSCS1001")]
     [InlineData("""function run():number{let value:number;do{value="bad";}while(value<2);return value;}""","TS2322")]
     public void BypassedOutOfOrderOrWronglyTypedWritesCannotProveInitialization(string source,string code) =>
         Assert.Contains(Compilation.Check("do-while-assign-invalid.ts",source),d=>d.Code==code);
+
+    [Fact]
+    public void IgnoredBodyMismatchKeepsNormalDiagnosticSuppression()
+    {
+        var source="""
+            function run():number{
+              let n:number=0;
+              do{
+                // @ts-ignore
+                n="wrong";
+              }while(false);
+              return n;
+            }
+            """;
+        Assert.Empty(Compilation.Check("do-while-ignored.ts",source));
+    }
 
     private sealed class Host : ICompilerHost
     {
