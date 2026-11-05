@@ -6,17 +6,40 @@ validation logs stay in [evidence/](evidence/).
 
 ## Headline
 
-Original upstream acceptance: **0 PASS / 0 FAIL / 15,523 SKIP**
+Original upstream acceptance: **0 PASS / 2 FAIL / 15,521 SKIP**
 
-Measured on `7edd7f5` by the generated upstream placeholder suite
-(`tests/Tscs.Upstream.Placeholders`, materialized and discovered by
-`./scripts/verify-upstream-full-discovery.sh` in CI). Every one of the 15,523
-source/configuration targets discovered at the pinned revision
-(`upstream.lock.json`, TS 7.1.0-dev, commit `8d9b6da`) is
-`SKIP_UNIMPLEMENTED`: no original case is yet executed through tscs and
-compared with the pinned reference. Dynamic test domains (fourslash,
-language service, emit baselines) are not expanded, so the full case
-denominator is unknown. No release is claimed.
+Measured with the compiler at `7edd7f5` by `tools/original-acceptance.ts`,
+which CI reruns on every pull request (job `original-go-reference`) and which
+fails when this line disagrees with the measurement. Its denominator is the
+15,523 source/configuration targets registered from the pinned revision
+(`upstream.lock.json`, TS 7.1.0-dev, commit `8d9b6da`). A target runs
+through tscs only when tscs supports everything it needs; otherwise it is
+SKIP with each missing capability recorded. A run target is PASS only when
+tscs's diagnostics equal the pinned reference's `.errors.txt` baseline and,
+where the reference has a `.js` baseline, every emitted file equals it.
+`.types`/`.symbols` baselines are not compared yet.
+
+Why targets are skipped (each target counts under every capability it
+lacks; "only" = targets blocked by that capability alone):
+
+| Missing capability | Targets | Only this |
+|---|---|---|
+| Standard library (`lib.*.d.ts`) | 15,464 | 5,459 |
+| `@module` option | 3,453 | 0 |
+| `@target` other than es2015 | 3,172 | 0 |
+| Multi-file tests | 2,830 | 0 |
+| `@strict: false` | 2,825 | 0 |
+| `@declaration` | 2,058 | 0 |
+| JavaScript inputs / `allowJs` | 1,211 / 1,114 | 0 |
+| Transpile runner, reference-fatal sources | 28, 19 | 28, 19 |
+
+The two executed targets (`compiler/noCrashOnNoLib.ts`,
+`conformance/parser/.../parser509698.ts`) FAIL with TSCS1001 unsupported
+constructs. The xUnit placeholder suite (`tests/Tscs.Upstream.Placeholders`,
+discovered by `./scripts/verify-upstream-full-discovery.sh`) still registers
+all 15,523 targets as `SKIP_UNIMPLEMENTED`; its semantics are unchanged.
+Dynamic test domains (fourslash, language service) are not expanded, so the
+full case denominator is unknown. No release is claimed.
 
 Separate from that headline:
 
@@ -28,9 +51,9 @@ Separate from that headline:
   earns no original credit.
 - The pinned Go reference executes the original `TestLocal/emptyFile.ts`
   (`./scripts/verify-original-emptyfile-go.sh`, CI job
-  `original-go-reference`); tscs emits the matching `"use strict";` for
-  that file in an xUnit test, but this is not run through the original
-  harness and is not counted as PASS.
+  `original-go-reference`). tscs emits the matching `"use strict";` in an
+  xUnit test, but the acceptance runner counts `emptyFile.ts` as SKIP: its
+  configuration loads the standard library.
 
 ## What works
 
@@ -121,6 +144,8 @@ array `push`/`pop`/`shift`/`unshift`/`reverse`/`sort`/`fill`/`copyWithin`,
 - `tools/oracle` and `scripts/build-oracle.sh` build the pinned Go reference;
   `tools/check-oracle.ts` and `tools/verify-conformance.ts` compare
   diagnostics with tscs.
+- `tools/original-acceptance.ts` runs the registered original targets
+  against a pinned upstream checkout (see [Headline](#headline)).
 - `tests/Tscs.Upstream.Placeholders` holds one generated Fact per discovered
   original target, each `SKIP_UNIMPLEMENTED`; release mode fails while any
   remain. The inventory and ledgers are described in
@@ -140,10 +165,10 @@ ES2015, incremental and watch modes.
 
 ## Known gaps
 
-- The original harness does not yet run any original case through tscs, so
-  supported constructs carry no original credit (roadmap A1).
-- Without the standard library, nearly every original case needs
-  `lib.es5.d.ts` before it can be compared (roadmap A2).
+- 15,464 of 15,523 original targets need the standard library; 5,459 need
+  nothing else that the runner checks for (roadmap A2).
+- The acceptance runner does not yet support multi-file tests, other
+  targets or `@module`, and does not compare `.types`/`.symbols`.
 - Many constructs were added as narrow, separately verified slices; the
   per-feature `tools/verify-*-emit.ts` scripts and checker paths overlap
   (roadmap C1).
@@ -155,8 +180,9 @@ records the original case IDs it moves.
 
 | ID | Item | Why it matters | Status | Evidence |
 |---|---|---|---|---|
-| D1 | Short README, current-state STATUS, `tools/check-docs.ts` in CI | Docs that are true and findable | in progress | README 30,505 → under 10,240 bytes; STATUS 123,542 → under 25,600 bytes |
-| A1 | Original acceptance runner: run original compiler cases from the pinned revision through tscs, compare with the reference, PASS/FAIL/SKIP per case with a missing-feature histogram, in CI | Turns the headline into a measured number | todo | — |
+| D1 | Short README, current-state STATUS, `tools/check-docs.ts` in CI | Docs that are true and findable | done (PR #210) | README 30,505 → 4,906 bytes; STATUS 123,542 → 8,568 bytes; 13 checker tests |
+| A1.1 | Acceptance runner over the 15,523 registered targets: SKIP with missing capabilities, run supported targets through tscs, compare diagnostics and `.js` emit with the pinned baselines, histogram, CI rerun with headline check | Turns the headline into a measured number | in progress | 0 PASS / 2 FAIL (`noCrashOnNoLib`, `parser509698`) / 15,521 SKIP; 7 runner tests |
+| A1.2 | Runner support for multi-file tests and `@module`, and `.types`/`.symbols` comparison | Larger runnable set once the library loads | todo | — |
 | A2 | Parse, bind and check `lib.es5.d.ts` and the es2015 libs; load them as the default lib | Almost every original case needs the standard library | todo | — |
 | A3 | Close the cheapest family of failing original cases from A1's histogram, one family per PR | Moves original cases to PASS | todo | — |
 | C1 | Remove duplicated checker/emitter paths and per-feature verify scripts where a shared test proves identical behaviour | Less code to maintain | todo | — |
