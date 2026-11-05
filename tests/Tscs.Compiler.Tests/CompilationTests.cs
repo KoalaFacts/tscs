@@ -28,7 +28,7 @@ public class CompilationTests
         Assert.Multiple(()=>Assert.Equal(code,d.Code),()=>Assert.Equal(start,d.Start),()=>Assert.Equal(length,d.Length));
     }
     [Theory]
-    [InlineData("let n = 1; function f() {}")]
+    [InlineData("let n = 1; function f() { return 1; }")]
     public void UnsupportedSyntaxNeverSucceeds(string source) => Assert.Contains(Compilation.Check("test.ts",source),d=>d.Code=="TSCS1001");
 
     [Theory]
