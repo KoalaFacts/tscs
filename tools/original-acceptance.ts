@@ -192,6 +192,7 @@ export function runTarget(target: Target, options: RunOptions): TargetResult {
     const args = [options.tscs, noEmit ? '--noEmit' : '--emitJs', '--noLib', '--target', 'es2015', ...units!.map((u) => u.name)];
     const run = spawnSync(options.dotnet, args, {cwd: work, encoding: 'utf8', timeout: 60_000});
     if (run.error) return result('FAIL', [`tscs did not run: ${run.error.message}`]);
+    if (run.status !== 0 && run.status !== 2) return result('FAIL', [`tscs exited with ${run.status ?? run.signal}`]);
     const lines = (run.stdout + run.stderr).split(/\r?\n/).filter((l) => l.length > 0);
     const unsupported = tscsUnsupported(lines);
     if (unsupported !== null) return result('FAIL', [unsupported]);

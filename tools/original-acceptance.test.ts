@@ -58,6 +58,7 @@ const FAKE = `
 const fs = require('node:fs');
 fs.appendFileSync(process.env.FAKE_LOG, process.argv.slice(2).join(' ') + '\\n');
 const files = process.argv.slice(2).filter((a) => a.endsWith('.ts'));
+if (files.some((f) => fs.readFileSync(f, 'utf8').includes('// crash'))) process.exit(134);
 for (const f of files) {
   const text = fs.readFileSync(f, 'utf8');
   for (const m of text.matchAll(/\\/\\/ print: (.*)/g)) console.log(m[1]);
@@ -88,6 +89,7 @@ test('an executed target passes only when diagnostics and emit match the referen
     'emit.ts': '// @target: es2015\n// @noLib: true\n// emit: let x;\n',
     'unsupported.ts': '// @noLib: true\n// print: unsupported.ts(1,1): error TSCS1001: Not supported yet.\n',
     'lib.ts': '// @target: es2015\nlet x = 1;\n',
+    'crash.ts': '// @noLib: true\n// @noEmit: true\n// crash\n',
   }, {
     'ok.js': `${header('ok')}//// [ok.js]\r\n"use strict";\r\n`,
     'bad.js': `${header('bad')}//// [bad.js]\r\n"use strict";\r\n`,
@@ -100,11 +102,14 @@ test('an executed target passes only when diagnostics and emit match the referen
     assert.deepEqual(run('bad.ts', {target: 'es2015', nolib: 'true'}).reasons, ['diagnostics differ (0 missing, 1 unexpected)']);
     assert.deepEqual(run('emit.ts', {target: 'es2015', nolib: 'true'}).reasons, ['emit differs: emit.js']);
     assert.deepEqual(run('unsupported.ts', {nolib: 'true'}).reasons, ['tscs TSCS1001: Not supported yet.']);
+    assert.deepEqual(run('crash.ts', {nolib: 'true', noemit: 'true'}).reasons, ['tscs exited with 134'],
+      'a crash is never a PASS, even when the reference expects no output');
     const skipped = run('lib.ts', {target: 'es2015'});
     assert.deepEqual([skipped.status, skipped.reasons], ['SKIP', ['standard-library']]);
     const invocations = readFileSync(log, 'utf8').trim().split('\n');
-    assert.equal(invocations.length, 4, 'a SKIP target never runs the compiler');
-    assert.ok(invocations.every((l) => l.includes('--emitJs --noLib --target es2015')));
+    assert.equal(invocations.length, 5, 'a SKIP target never runs the compiler');
+    assert.ok(invocations.slice(0, 4).every((l) => l.includes('--emitJs --noLib --target es2015')));
+    assert.ok(invocations[4].includes('--noEmit --noLib --target es2015'));
     assert.ok(!existsSync(join(root, 'tsc/testdata/tests/cases/compiler/ok.js')), 'upstream checkout is not written');
   } finally {
     rmSync(root, {recursive: true, force: true});
