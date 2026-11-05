@@ -18,6 +18,9 @@ public sealed class SwitchComputedCaseTests
     [InlineData("""let amount:number=8;switch(amount){case (amount/2):{break;}case amount+1:{break;}}""")]
     [InlineData("""function twice(n:number):number{return n*2;}switch(2){case twice(1):{break;}}""")]
     [InlineData("""function compute(n:number):number{return n+1;}switch(3){case (compute(1+1)):{break;}default:{break;}}""")]
+    [InlineData("""const handler={code(n:number):number{return n+1;}};switch(2){case handler.code(1):{break;}default:{break;}}""")]
+    [InlineData("""const handler={code(n:number):number{return n+1;}};switch(2){case (handler.code)(1):{break;}}""")]
+    [InlineData("""const handler={code(n:number):number{return n+1;}};switch(2){case handler["code"](1):{break;}}""")]
     [InlineData("""function compare(x:number|boolean,y:number|string):number{switch(x){case y:{return 1;}default:{return 0;}}}""")]
     public void MutableWidenedAndArithmeticCaseValuesAreCheckedAndEmitted(string source) =>
         Assert.Empty(Compilation.Check("computed-case.ts",source));
@@ -34,6 +37,11 @@ public sealed class SwitchComputedCaseTests
     [InlineData("""function code(n:number):number{return n;}switch(2){case code("bad"):{break;}}""","TS2345")]
     [InlineData("""function box():{value:number}{return {value:2};}switch(2){case box():{break;}}""","TSCS1001")]
     [InlineData("""let notCallable:number=1;switch(1){case notCallable(1):{break;}}""","TSCS1001")]
+    [InlineData("""const handler={code(n:number):number{return n;}};switch(2){case handler.code("wrong"):{break;}}""","TS2345")]
+    [InlineData("""const handler={code(n:number):number{return n;}};switch("ok"){case handler.code(1):{break;}}""","TS2678")]
+    [InlineData("""const handler={code:1};switch(1){case handler.code(1):{break;}}""","TSCS1001")]
+    [InlineData("""const handler={code(n:number):number{return n;}};switch(1){case handler?.code(1):{break;}}""","TSCS1001")]
+    [InlineData("""const handler={code(n:number):number{return n;}};switch(1){case handler.code(1).toString():{break;}}""","TSCS1001")]
     [InlineData("""let READY:number;switch(1){case READY:{break;}}""","TSCS1001")]
     [InlineData("""let v:number=2;switch(v){case v:{let invalid:number="bad";}}""","TS2322")]
     [InlineData("""type E={kind:"ok";value:number}|{kind:"bad";reason:string};function read(e:E,k:string):number{switch(e.kind){case k:{return e.value;}default:{return 0;}}}""","TS2339")]
@@ -204,6 +212,67 @@ public sealed class SwitchComputedCaseTests
             Assert.Equal("1132",process.StandardOutput.ReadToEnd().Trim());
         }
         finally {Directory.Delete(root,true);}
+    }
+
+    [Fact]
+    public void CheckedMemberCaseCallsExecuteInOrderAcrossFourModules()
+    {
+        var root=Directory.CreateTempSubdirectory("tscs-member-switch-").FullName;
+        try
+        {
+            var host=new Host();
+            host.Files[Path.Combine(root,"model.ts")]=
+                """export let hits:number=0;export const handler={first(n:number):number{hits++;return n;},second(n:number):number{hits+=10;return n;}};export function count():number{return hits;}""";
+            host.Files[Path.Combine(root,"logic.ts")]=
+                """import {handler,count} from "./model.js";""" +
+                """export function choose(n:number):number{switch(n){case handler.first(1):{return count()*10+1;}case handler["second"](2):{return count()*10+2;}default:{return count()*10+9;}}}""";
+            host.Files[Path.Combine(root,"bridge.ts")]=
+                """export {choose} from "./logic.js";""";
+            host.Files[Path.Combine(root,"entry.ts")]=
+                """import {choose} from "./bridge.js";export const answer:number=choose(1)*100+choose(2);""";
+            var program=CompilerProgram.Load(host,[Path.Combine(root,"entry.ts")],
+                new CompilerOptions {NoLib=true,Target=CompilerTarget.Es2015,Module=CompilerModule.Es2015});
+            Assert.Empty(program.Analyze().Diagnostics);
+            var emitted=program.EmitJavaScript();
+            Assert.Equal(4,emitted.Count);
+            Assert.Contains(emitted,file=>file.Text.Contains("case handler.first(",StringComparison.Ordinal));
+            Assert.Contains(emitted,file=>file.Text.Contains("handler[",StringComparison.Ordinal));
+            foreach(var file in emitted)
+                File.WriteAllText(Path.ChangeExtension(file.SourceFile,".js"),file.Text);
+            File.WriteAllText(Path.Combine(root,"package.json"),"""{"type":"module"}""");
+            var info=new ProcessStartInfo("node"){
+                WorkingDirectory=root,UseShellExecute=false,
+                RedirectStandardOutput=true,RedirectStandardError=true
+            };
+            info.ArgumentList.Add("--input-type=module");
+            info.ArgumentList.Add("-e");
+            info.ArgumentList.Add("""import {answer} from './entry.js';console.log(JSON.stringify(answer));""");
+            using var process=Process.Start(info)!;
+            if(!process.WaitForExit(10000))
+            {
+                process.Kill(entireProcessTree:true);
+                throw new TimeoutException("Member-call switch module run exceeded ten seconds.");
+            }
+            Assert.Equal(0,process.ExitCode);
+            Assert.Equal("",process.StandardError.ReadToEnd());
+            Assert.Equal("1222",process.StandardOutput.ReadToEnd().Trim());
+        }
+        finally {Directory.Delete(root,true);}
+    }
+
+    [Fact]
+    public void InvalidImportedMemberCaseArgumentPreventsJavaScriptOutput()
+    {
+        const string root="/virtual/member-switch-invalid";
+        var host=new Host();
+        host.Files[root+"/model.ts"]=
+            """export const handler={code(n:number):number{return n;}};""";
+        host.Files[root+"/entry.ts"]=
+            """import {handler} from "./model.js";switch(2){case handler.code("bad"):{break;}default:{break;}}""";
+        var program=CompilerProgram.Load(host,[root+"/entry.ts"],
+            new CompilerOptions {NoLib=true,Target=CompilerTarget.Es2015,Module=CompilerModule.Es2015});
+        Assert.Contains(program.Analyze().Diagnostics,d=>d.Code=="TS2345");
+        Assert.Throws<InvalidOperationException>(()=>program.EmitJavaScript());
     }
 
     [Fact]
