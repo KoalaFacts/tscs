@@ -93,9 +93,18 @@ export function namedPaths(text: string): string[] {
   return [...paths];
 }
 
+/** Every "Original upstream acceptance: N PASS / N FAIL / N SKIP" headline in the text. */
+export function headlinesOf(text: string): string[] {
+  return [...text.matchAll(/Original upstream acceptance:\s*\**\s*([\d,]+) PASS \/ ([\d,]+) FAIL \/ ([\d,]+) SKIP/g)]
+    .map((m) => `${m[1]} PASS / ${m[2]} FAIL / ${m[3]} SKIP`);
+}
+
 export function headlineOf(text: string): string | null {
-  const m = /Original upstream acceptance:\s*\**\s*([\d,]+) PASS \/ ([\d,]+) FAIL \/ ([\d,]+) SKIP/.exec(text);
-  return m ? `${m[1]} PASS / ${m[2]} FAIL / ${m[3]} SKIP` : null;
+  return headlinesOf(text)[0] ?? null;
+}
+
+function decode(text: string): string | null {
+  try { return decodeURIComponent(text); } catch { return null; }
 }
 
 export function checkDocs(input: DocsInput): string[] {
@@ -112,8 +121,12 @@ export function checkDocs(input: DocsInput): string[] {
       if (/^[a-z][a-z0-9+.-]*:/i.test(link)) continue;
       const hash = link.indexOf('#');
       const target = hash >= 0 ? link.slice(0, hash) : link;
-      const anchor = hash >= 0 ? decodeURIComponent(link.slice(hash + 1)) : '';
-      const resolved = target === '' ? path : posixJoin(path, decodeURIComponent(target));
+      const anchor = hash >= 0 ? decode(link.slice(hash + 1)) : '';
+      const decodedTarget = decode(target);
+      if (anchor === null || decodedTarget === null) { errors.push(`${path}: malformed link: ${link}`); continue; }
+      // GitHub resolves a leading "/" against the repository root.
+      const resolved = target === '' ? path : decodedTarget.startsWith('/')
+        ? posixJoin('README.md', decodedTarget.slice(1)) : posixJoin(path, decodedTarget);
       if (resolved.startsWith('../')) { errors.push(`${path}: link leaves the repository: ${link}`); continue; }
       if (!input.exists(resolved)) { errors.push(`${path}: broken link: ${link}`); continue; }
       if (anchor && resolved.endsWith('.md') && !anchors(resolved).has(anchor)) {
@@ -132,7 +145,7 @@ export function checkDocs(input: DocsInput): string[] {
     errors.push('README.md is missing');
     return errors;
   }
-  const indexed = new Set(linksOf(readme).map((l) => posixJoin('README.md', decodeURIComponent(l.split('#')[0] || 'README.md'))));
+  const indexed = new Set(linksOf(readme).map((l) => posixJoin('README.md', (decode(l.split('#')[0]) ?? '').replace(/^\//, '') || 'README.md')));
   for (const path of input.files.keys()) {
     if (/^docs\/[^/]+\.md$/.test(path) && !indexed.has(path)) errors.push(`${path}: not linked from README.md`);
   }
@@ -142,11 +155,12 @@ export function checkDocs(input: DocsInput): string[] {
   if (status === undefined) errors.push('docs/STATUS.md is missing');
   else {
     if (size('docs/STATUS.md') > STATUS_BUDGET) errors.push(`docs/STATUS.md is ${size('docs/STATUS.md')} bytes; budget ${STATUS_BUDGET}`);
-    const a = headlineOf(readme);
-    const b = headlineOf(status);
-    if (a === null) errors.push('README.md has no "Original upstream acceptance: N PASS / N FAIL / N SKIP" headline');
-    if (b === null) errors.push('docs/STATUS.md has no "Original upstream acceptance: N PASS / N FAIL / N SKIP" headline');
-    if (a !== null && b !== null && a !== b) errors.push(`headline counts disagree: README.md "${a}" vs docs/STATUS.md "${b}"`);
+    const a = headlinesOf(readme);
+    const b = headlinesOf(status);
+    if (a.length === 0) errors.push('README.md has no "Original upstream acceptance: N PASS / N FAIL / N SKIP" headline');
+    if (b.length === 0) errors.push('docs/STATUS.md has no "Original upstream acceptance: N PASS / N FAIL / N SKIP" headline');
+    const distinct = [...new Set([...a, ...b])];
+    if (distinct.length > 1) errors.push(`headline counts disagree across README.md and docs/STATUS.md: ${distinct.map((h) => `"${h}"`).join(' vs ')}`);
   }
   return errors;
 }
