@@ -78,7 +78,7 @@ public sealed class CompilerHostTests
     public void UnsupportedSourceAndSyntaxErrorAreBothRetained()
     {
         var host=new MemoryHost();
-        host.Files["/virtual/a.ts"]="function f() {}";
+        host.Files["/virtual/a.ts"]="function f() { return 1; }";
         host.Files["/virtual/b.ts"]="let x = ;";
         var result=CompilerProgram.Load(host,["a.ts","b.ts"]).Analyze();
 
