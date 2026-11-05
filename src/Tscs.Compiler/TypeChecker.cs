@@ -950,13 +950,32 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 header.Symbols[local.Name.Text].Initialized=false;
             foreach(var local in prebound.Statements.Cast<Variable>())
             {
-                // Creating a direct arrow/function expression does not execute
-                // its body. Permit its own deferred recursive reference while
-                // retaining TDZ rejection for immediate self/forward reads.
-                // Do not grant this exception to a call that invokes the arrow.
-                if(IsDeferredFunctionValue(local.Initializer))
-                    header.Symbols[local.Name.Text].Initialized=true;
+                // A direct arrow/function initializer creates a callable but
+                // does not execute its body or parameter defaults. Checking
+                // that deferred body must not initialize a later declarator,
+                // narrow a captured symbol or record a runtime write.
+                // Keep the current binding readable for valid recursion.
+                var deferred=IsDeferredFunctionValue(local.Initializer);
+                var initializedBefore=deferred?CaptureInitialized(header):null;
+                var typesBefore=deferred?CaptureFlowTypes(header):null;
+                var writesBefore=deferred?CaptureFlowWriteVersions(header):null;
+                var binding=header.Symbols[local.Name.Text];
+                if(deferred)binding.Initialized=true;
                 CheckBlock(new Block([local]),header,true,expectedReturn,preboundLocal:true);
+                if(deferred)
+                {
+                    // Preserve the declaration type inferred from the arrow,
+                    // but discard speculative effects from its uncalled body.
+                    var resolvedType=binding.Type;
+                    var declaredType=binding.DeclaredType;
+                    RestoreInitialized(initializedBefore!);
+                    RestoreFlowTypes(typesBefore!);
+                    foreach(var (symbol,version) in writesBefore!)
+                        symbol.FlowWriteVersion=version;
+                    binding.Type=resolvedType;
+                    binding.DeclaredType=declaredType;
+                    binding.Initialized=true;
+                }
             }
         }
         else if(loop.Initializer is { } initializer)
