@@ -943,13 +943,19 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     var priorVersions=CaptureFlowWriteVersions(scope);
                     CheckBlock(new Block([assignment]),scope,true,expectedReturn,true,true);
                     var target=scope.Find(assignment.Name.Text);
-                    foreach(var (symbol,initialized) in priorInitialized)
-                    {
-                        if(ReferenceEquals(symbol,target))continue;
-                        symbol.Initialized=initialized;
-                        symbol.Type=priorTypes[symbol];
-                        symbol.FlowWriteVersion=priorVersions[symbol];
-                    }
+                    // Only a direct deferred function body contributes
+                    // speculative captured writes. A normal executed RHS may
+                    // contain n++ or other real mutations; preserving its
+                    // write version is essential to invalidate stale flow
+                    // narrowings after the loop.
+                    if(IsDeferredFunctionValue(assignment.Value))
+                        foreach(var (symbol,initialized) in priorInitialized)
+                        {
+                            if(ReferenceEquals(symbol,target))continue;
+                            symbol.Initialized=initialized;
+                            symbol.Type=priorTypes[symbol];
+                            symbol.FlowWriteVersion=priorVersions[symbol];
+                        }
                     // Preserve ordinary semantic diagnostics so the scanner
                     // can apply @ts-ignore. Throwing CompilationFailure here
                     // would bypass that suppression in Compilation.CheckSources.
