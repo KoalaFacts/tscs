@@ -9,7 +9,7 @@ const dll=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const env={...process.env,DOTNET_CLI_TELEMETRY_OPTOUT:'1',TESTINGPLATFORM_TELEMETRY_OPTOUT:'1'};
 function compile(...sources:string[]){
  const r=spawnSync(process.env.DOTNET??'dotnet',
-   [dll,'--emitJs','--noLib','--target','es2015',...sources,'minimal.d.ts'],
+   [dll,'--emitJs','--noLib','--target','es2015','--module','es2015',...sources,'minimal.d.ts'],
    {cwd:folder,encoding:'utf8',timeout:30000,maxBuffer:4*1024*1024,env});
  assert.equal(r.error,undefined,String(r.error));assert.equal(r.signal,null);return r;
 }
