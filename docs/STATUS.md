@@ -6,9 +6,9 @@ validation logs stay in [evidence/](evidence/).
 
 ## Headline
 
-Original upstream acceptance: **0 PASS / 2 FAIL / 15,521 SKIP**
+Original upstream acceptance: **1 PASS / 1 FAIL / 15,521 SKIP**
 
-Measured with the compiler at `7f75a59` by `tools/original-acceptance.ts`,
+Measured by `tools/original-acceptance.ts` against the frozen TS7 reference,
 which CI reruns on every pull request (job `original-go-reference`) and which
 fails when this line disagrees with the measurement. Its denominator is the
 15,523 source/configuration targets registered from the pinned revision
@@ -36,9 +36,10 @@ lacks; "only" = targets blocked by that capability alone):
 | JavaScript inputs / `allowJs` | 1,211 / 1,114 | 0 |
 | Transpile runner, reference-fatal sources | 28, 19 | 28, 19 |
 
-The two executed targets (`compiler/noCrashOnNoLib.ts`,
-`conformance/parser/.../parser509698.ts`) FAIL with TSCS1001 unsupported
-constructs. The xUnit placeholder suite (`tests/Tscs.Upstream.Placeholders`,
+Two original targets execute: `conformance/parser/.../parser509698.ts`
+(PASS: ambient function signatures, style trivia and erased JS), and
+`compiler/noCrashOnNoLib.ts` (FAIL: JavaScript output mismatch).
+Executed failures are never converted to SKIP. The xUnit placeholder suite (`tests/Tscs.Upstream.Placeholders`,
 discovered by `./scripts/verify-upstream-full-discovery.sh`) still registers
 all 15,523 targets as `SKIP_UNIMPLEMENTED`; its semantics are unchanged.
 Dynamic test domains (fourslash, language service) are not expanded, so the
@@ -108,6 +109,7 @@ diagnostic and exit 1; they are intended never to be compiled silently.
 - Bounded `keyof`, indexed access (`T["k"]`, `T[number]`), `typeof` queries,
   static computed keys, numeric key identity.
 - Functions: declarations, typed arrows and function expressions, optional,
+  source-file ambient `declare function` signatures (checked and erased),
   default and rest parameters, typed callback contracts, method signatures,
   object literal methods, inferred braced returns, closures over lexical
   bindings.
@@ -190,7 +192,7 @@ records the original case IDs it moves.
 | ID | Item | Why it matters | Status | Evidence |
 |---|---|---|---|---|
 | D1 | Short README, current-state STATUS, `tools/check-docs.ts` in CI | Docs that are true and findable | done (PR #210, 355c914) | at merge: README 30,505 → 4,906 bytes, STATUS 123,542 → 8,980 bytes; docs 78 → 77 files; 16 checker tests |
-| A1.1 | Acceptance runner over the 15,523 registered targets: SKIP with missing capabilities, run supported targets through tscs, compare diagnostics and `.js` emit with the pinned baselines, histogram, CI rerun with headline check | Turns the headline into a measured number | in progress | 0 PASS / 2 FAIL (`noCrashOnNoLib`, `parser509698`) / 15,521 SKIP; 6 runner tests |
+| A1.1 | Acceptance runner over the 15,523 registered targets: SKIP with missing capabilities, run supported targets through tscs, compare diagnostics and `.js` emit with the pinned baselines, histogram, CI rerun with headline check | Turns the headline into a measured number | in progress | 1 PASS (`parser509698`) / 1 FAIL (`noCrashOnNoLib`) / 15,521 SKIP; 6 runner tests |
 | A1.2 | Runner support for multi-file tests and `@module`, and `.types`/`.symbols` comparison | Larger runnable set once the library loads | todo | — |
 | A2 | Parse, bind and check `lib.es5.d.ts` and the es2015 libs; load them as the default lib | Almost every original case needs the standard library | todo | — |
 | A3 | Close the cheapest family of failing original cases from A1's histogram, one family per PR | Moves original cases to PASS | todo | — |

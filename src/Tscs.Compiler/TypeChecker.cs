@@ -54,6 +54,13 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     case Block nested: CheckBlock(nested,scope,false,expectedReturn,allowBreak,allowContinue);break;
                     case FunctionDeclaration function:
                         CheckStrictModuleBinding(function.Name);
+                        // Ambient signatures bind normally but have no checked body.
+                        if(function.Ambient)
+                        {
+                            foreach(var parameter in function.Parameters)
+                                CheckStrictModuleBinding(parameter.Name);
+                            break;
+                        }
                         var functionSymbol=scope.Symbols[function.Name.Text];
                         var functionType=(FunctionTypeSymbol)functionSymbol.Type!;
                         // Only value-returning functions need definite exit.
