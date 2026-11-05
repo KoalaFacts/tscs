@@ -9,10 +9,10 @@ namespace Tscs.Tests;
 public sealed class TopLevelSwitchTests
 {
     [Theory]
-    [InlineData("""let result:number=0; switch(2){case 1:{result=10;break;}case 2:{result=21;break;}default:{result=-1;}}""")]
-    [InlineData("""const kind:"ok"|"error"="ok";let result:number=0;switch(kind){case "ok":{result=21;break;}case "error":{result=0;break;}}""")]
+    [InlineData("""function choose(n:number):number{return n;}let result:number=0; switch(choose(2)){case 1:{result=10;break;}case 2:{result=21;break;}default:{result=-1;}}""")]
+    [InlineData("""function choose(flag:boolean):"ok"|"error"{return flag?"ok":"error";}const kind:"ok"|"error"=choose(true);let result:number=0;switch(kind){case "ok":{result=21;break;}case "error":{result=0;break;}}""")]
     [InlineData("""let total:number=0;for(let n:number=0;n<3;n++){switch(n){case 1:{total+=10;break;}default:{total+=1;break;}}}""")]
-    [InlineData("""let seen:number=0;switch(1){case 0:{seen=10;}case 1:{seen=seen+1;break;}default:{seen=0;}}""")]
+    [InlineData("""function choose():number{return 1;}let seen:number=0;switch(choose()){case 0:{seen=10;}case 1:{seen=seen+1;break;}default:{seen=0;}}""")]
     public void ModuleLevelSwitchUsesTheExistingCheckedPipeline(string source) =>
         Assert.Empty(Compilation.Check("top-level-switch.ts",source));
 
