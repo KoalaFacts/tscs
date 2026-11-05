@@ -408,6 +408,60 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             ?declared:null;
     }
 
+    // Runtime case labels may read bounded, statically named data members.
+    // Walk every link from an ordinary typed object identifier: a primitive
+    // result alone is insufficient because a computed receiver or dynamic
+    // index may execute user code. Optional chains, any and callable members
+    // still require their own explicit semantics before they are admitted.
+    private bool IsFiniteCheckedSwitchCaseDataRead(ValueNode expression,Scope scope)
+    {
+        var accesses=new Stack<ValueNode>();
+        while(true)
+        {
+            while(expression is ValueParenthesized group)expression=group.Expression;
+            if(expression is ValuePropertyAccess
+                {Optional:false,ChainContinuation:false} member)
+            {
+                accesses.Push(member);
+                expression=member.Receiver;
+            }
+            else if(expression is ValueElementAccess
+                {
+                    Optional:false,ChainContinuation:false,
+                    Index:ValueAtom {Token.Kind:TokenKind.String}
+                } indexed)
+            {
+                accesses.Push(indexed);
+                expression=indexed.Receiver;
+            }
+            else break;
+            if(accesses.Count>8)return false;
+        }
+        if(expression is not ValueAtom {Token.Kind:TokenKind.Identifier} root)
+            return false;
+        var diagnosticsBeforeRoot=diagnostics.Count;
+        var rootType=TypeOf(root,scope);
+        // Preserve semantic diagnostics for missing identifiers/properties:
+        // their statically shaped read is not an unsupported side effect.
+        // CheckSwitch will retain the recorded error and continue checking
+        // remaining case bodies, even when a next-line ignore suppresses it.
+        if(rootType is null)return diagnostics.Count>diagnosticsBeforeRoot;
+        if(rootType is not ObjectTypeSymbol)return false;
+        while(accesses.Count>0)
+        {
+            var member=accesses.Pop();
+            var diagnosticsBeforeMember=diagnostics.Count;
+            var current=TypeOf(member,scope);
+            if(current is null)return diagnostics.Count>diagnosticsBeforeMember;
+            if(accesses.Count>0)
+            {
+                if(current is not ObjectTypeSymbol)return false;
+            }
+            else return IsKnownPrimitiveSwitchCaseType(current);
+        }
+        return false;
+    }
+
     // Bounded pure switch labels can use checked conditional, nullish and
     // logical expressions. Inspect every possible operand, including lazy arms:
     // a runtime-unreachable branch must not hide a call, getter or mutation.
@@ -442,6 +496,12 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     break;
                 case ValueParenthesized group:
                     pending.Push(group.Expression);
+                    break;
+                case ValuePropertyAccess property:
+                    if(!IsFiniteCheckedSwitchCaseDataRead(property,scope))return false;
+                    break;
+                case ValueElementAccess element:
+                    if(!IsFiniteCheckedSwitchCaseDataRead(element,scope))return false;
                     break;
                 case ValueUnary {Operator.Kind:TokenKind.Minus or TokenKind.Plus or
                     TokenKind.Bang} unary:
