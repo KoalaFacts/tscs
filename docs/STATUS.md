@@ -1,3 +1,22 @@
+## 2026-11-05 — Checked effect expressions in classic-for clauses (candidate; NOT_RUN at creation)
+
+Classic-for initializer and update expression lists now reuse the existing C#
+value checker and ES2015 emitter for direct/optional calls (including
+parenthesized calls), guarded logical call effects, two effectful conditional
+arms, optional-property deletion and finite parenthesized comma effects.
+Arguments, both conditional branches and deletion targets retain their ordinary
+type diagnostics; optional-call arguments remain lazy. Pure values, partial
+effect-only conditionals, unsafe chain continuations and trailing commas
+still fail closed. The parser caps the outer header at 64 expressions.
+Source-backed positive/negative xUnit checks, four linked executable ES2015
+modules (including optional argument suppression, continue and effect order)
+and imported invalid/no-output checks are included. Exact-head hosted .NET,
+fixed TS7 Go reference and independent review are NOT_RUN at candidate
+creation. This is bounded source-level implementation, not an original TS7
+acceptance credit. Historical original scope: 0 PASS /
+15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED; release ineligible. No pin,
+original suite IDs, skip registry, validation gates or protection changed.
+
 ## 2026-11-05 — Checked calls in classic-for initializer and update (candidate; NOT_RUN at creation)
 
 The C# classic-for parser now permits an ordinary checked direct function or

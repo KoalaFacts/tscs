@@ -1266,12 +1266,29 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     "Classic for assignments require an identifier or named property or indexed element."))
             };
         }
-        if(expression is ValuePrefixUpdate or ValuePostfixUpdate ||
-           expression is ValueCall { Optional:false,ChainContinuation:false })
+        if(IsCheckedForHeaderEffect(expression))
             return new Expression(expression);
-        Unsupported(Current,"Only assignments, prefix/postfix updates and checked direct calls are supported in classic for headers.");
+        Unsupported(Current,"Only checked side-effect expressions or assignments are supported in classic for headers.");
         return default!;
     }
+
+    // Every admitted branch has an explicit, already type-checked side effect.
+    // Do not infer effects from arbitrary property reads, numeric expressions,
+    // or optional-chain continuations. Parentheses and finite comma sequences
+    // reuse the normal expression grammar and TypeChecker diagnostics.
+    private static bool IsCheckedForHeaderEffect(ValueNode value) => value switch
+    {
+        ValueCall { ChainContinuation:false } or ValuePrefixUpdate or ValuePostfixUpdate => true,
+        ValueUnary { Operator.Kind:TokenKind.Delete } => true,
+        ValueParenthesized grouped => IsCheckedForHeaderEffect(grouped.Expression),
+        ValueConditional conditional => IsCheckedForHeaderEffect(conditional.WhenTrue) &&
+                                        IsCheckedForHeaderEffect(conditional.WhenFalse),
+        ValueBinary { Operator.Kind:TokenKind.AmpAmp or TokenKind.BarBar or TokenKind.QuestionQuestion } logical =>
+            IsCheckedForHeaderEffect(logical.Right),
+        ValueBinary { Operator.Kind:TokenKind.Comma } sequence =>
+            IsCheckedForHeaderEffect(sequence.Left) && IsCheckedForHeaderEffect(sequence.Right),
+        _=>false
+    };
 
     // One loop body is either a braced block or one statement. The synthetic
     // Block reuses normal lexical checking, backedge flow and ES2015 emission.
