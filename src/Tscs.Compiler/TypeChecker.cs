@@ -465,6 +465,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         foreach(var clause in switching.Clauses)
         {
             if(clause.Label is not { } label)continue;
+            var diagnosticsBeforeLabel=diagnostics.Count;
             var type=TryReadSwitchCaseLabel(label,scope);
             bool computed=type==null;
             if(computed)
@@ -481,7 +482,16 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
                         "A switch case cannot read an uninitialized binding."));
                 type=TypeOf(label,scope);
-                if(type==null || !IsKnownPrimitiveSwitchCaseType(type))
+                if(type==null)
+                {
+                    // The value checker has already recorded the real semantic
+                    // diagnostic (e.g. TS2304). Do not replace it with an
+                    // unsupported-type error thrown from the switch checker.
+                    if(diagnostics.Count>diagnosticsBeforeLabel)return;
+                    throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
+                        "Computed switch case labels require a resolved primitive type."));
+                }
+                if(!IsKnownPrimitiveSwitchCaseType(type))
                     throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
                         "Computed switch case labels require checked primitive types."));
                 // Dynamic case values are not constant: duplicate identity
