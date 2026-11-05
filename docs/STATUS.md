@@ -1,3 +1,19 @@
+## 2026-11-05 — Multiple checked classic-for let bindings (candidate; NOT_RUN at creation)
+
+The C# parser, lexical binder, checker and ES2015 emitter now support up to 64
+`let` declarators in one classic `for` initializer, with ordered initialization,
+per-binding annotations/inference, duplicate and early-read rejection, loop-local
+scope and native JavaScript `let a = ..., b = ...` emission. Existing checked comma
+conditions, multiple updates, break/continue and nested loops are reused.
+Source-backed positive/negative checks, four linked executable modules and
+invalid cross-module no-output tests are included; exact-head hosted .NET,
+fixed TS7 Go reference and independent review are NOT_RUN at creation.
+`var`/`const` classic headers, unrestricted binding patterns and general
+assignment expressions remain unsupported. No original upstream TS7 accepted
+case is newly claimed: historical 0 PASS / 15,523 SKIP_UNIMPLEMENTED,
+dynamic UNEXPANDED; release ineligible. No original target IDs, pin,
+SKIP registry, protection or CI/release gates were changed.
+
 ## 2026-11-05 — Classic for comma headers (candidate; NOT_RUN)
 
 C# classic `for` loops now accept up to 64 checked assignment/update clauses in

@@ -933,10 +933,100 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     // establish definite initialization after a possibly empty loop.
     private void CheckClassicFor(ClassicForStatement loop,Scope scope,TypeSymbol? expectedReturn)
     {
-        Scope header=loop.Initializer is Variable declaration
-            ? Binder.Bind(file,new Block([declaration]),scope)
-            : new Scope(scope);
-        if(loop.Initializer is { } initializer)
+        Block? localDeclarations=loop.Initializer switch
+        {
+            Variable declaration=>new Block([declaration]),
+            ForVariableDeclarations group=>new Block([..group.Declarations]),
+            _=>null
+        };
+        Scope header=localDeclarations is { } declarations
+            ?Binder.Bind(file,declarations,scope):new Scope(scope);
+        if(localDeclarations is { } prebound)
+        {
+            var deferredCaptures=new HashSet<Symbol>();
+            // A header's bindings are lexically visible to all initializers,
+            // but are assigned in declaration order. Binder pre-initializes
+            // finite types for checking; that does not prove a value is ready.
+            foreach(var local in prebound.Statements.Cast<Variable>())
+                header.Symbols[local.Name.Text].Initialized=false;
+            foreach(var local in prebound.Statements.Cast<Variable>())
+            {
+                // A direct arrow/function initializer creates a callable but
+                // does not execute its body or parameter defaults. Checking
+                // that deferred body must not initialize a later declarator,
+                // narrow a captured symbol or record a runtime write.
+                // Keep the current binding readable for valid recursion.
+                var deferred=IsDeferredFunctionValue(local.Initializer);
+                // A later initializer may invoke an earlier closure directly,
+                // through an alias, or through a callback argument. Until its
+                // captured header variables have initialized, no executable
+                // calls can be proven safe within this bounded header subset.
+                if(!deferred && deferredCaptures.Any(symbol=>!symbol.Initialized) &&
+                   ContainsExecutedCall(local.Initializer))
+                    throw new CompilationFailure(Diagnostic.Error(file,local.Name,"TSCS1001",
+                        "Calls before captured classic-for bindings initialize are not supported."));
+                var initializedBefore=deferred?CaptureInitialized(header):null;
+                var typesBefore=deferred?CaptureFlowTypes(header):null;
+                var deferredWritesBefore=deferred?CaptureFlowWriteVersions(header):null;
+                var binding=header.Symbols[local.Name.Text];
+                var previousDeferred=deferredClassicForBindings;
+                var previousUnready=unreadyDeferredHeaderBindings;
+                var previousCaptures=recordingDeferredHeaderCaptures;
+                if(deferred)
+                {
+                    // An outer uncalled closure may itself contain nested
+                    // classic-for declarations. Preserve its unready captures
+                    // while checking the nested callable rather than hiding
+                    // them behind the inner header's tracking set.
+                    var unready=new HashSet<Symbol>(
+                        header.Symbols.Values.Where(symbol=>!symbol.Initialized));
+                    if(previousUnready is not null)unready.UnionWith(previousUnready);
+                    unreadyDeferredHeaderBindings=unready;
+                    recordingDeferredHeaderCaptures=new HashSet<Symbol>();
+                    // Future header bindings may be captured by this uncalled
+                    // callable, including writes. Permit only these symbols
+                    // in the deferred checker; do not exempt executed calls.
+                    var allowed=previousDeferred is null
+                        ?new HashSet<Symbol>():new HashSet<Symbol>(previousDeferred);
+                    allowed.UnionWith(header.Symbols.Values);
+                    deferredClassicForBindings=allowed;
+                    foreach(var symbol in header.Symbols.Values)
+                        symbol.Initialized=true;
+                }
+                try
+                {
+                    CheckBlock(new Block([local]),header,true,expectedReturn,preboundLocal:true);
+                }
+                finally
+                {
+                    deferredClassicForBindings=previousDeferred;
+                    if(deferred)
+                    {
+                        deferredCaptures.UnionWith(recordingDeferredHeaderCaptures!);
+                        // Captures discovered in a nested deferred initializer
+                        // are dependencies of any enclosing deferred body too.
+                        // Otherwise an outer header could call that body before
+                        // its later let binding has initialized.
+                        previousCaptures?.UnionWith(recordingDeferredHeaderCaptures!);
+                        // The callable was created but never invoked here.
+                        // Only the current binding's declared/inferred type
+                        // and initialization become real after this step.
+                        var resolvedType=binding.Type;
+                        var declaredType=binding.DeclaredType;
+                        RestoreInitialized(initializedBefore!);
+                        RestoreFlowTypes(typesBefore!);
+                        foreach(var (symbol,version) in deferredWritesBefore!)
+                            symbol.FlowWriteVersion=version;
+                        binding.Type=resolvedType;
+                        binding.DeclaredType=declaredType;
+                        binding.Initialized=local.Initializer is not null;
+                    }
+                    unreadyDeferredHeaderBindings=previousUnready;
+                    recordingDeferredHeaderCaptures=previousCaptures;
+                }
+            }
+        }
+        else if(loop.Initializer is { } initializer)
             CheckBlock(new Block([initializer]),header,true,expectedReturn,preboundLocal:true);
         // A for-update is speculative when checking the first body entry:
         // join possible body/update rebindings before checking both, then
@@ -967,6 +1057,71 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             RestoreInitialized(before);
             InvalidateLoopWrittenFlowTypes(writesBefore);
         }
+    }
+
+    private static bool IsDeferredFunctionValue(ValueNode? value)
+    {
+        // Parentheses and erased type operators do not invoke the function.
+        // A ValueCall / comma expression could execute a deferred body now,
+        // and must not gain an initialization exemption.
+        while(true)
+        {
+            switch(value)
+            {
+                case ValueArrow:return true;
+                case ValueParenthesized grouped:value=grouped.Expression;break;
+                case ValueTypeOperator asserted:value=asserted.Expression;break;
+                case ValueNonNull nonNull:value=nonNull.Expression;break;
+                default:return false;
+            }
+        }
+    }
+
+    // A callable body is not run by its declaration. For intervening
+    // initializers, conservatively reject executed calls while a previous
+    // callable still captures an uninitialized header binding. Inspect the
+    // runtime expression tree iteratively; a nested arrow is deferred unless
+    // invoked by a ValueCall outside it.
+    private static bool ContainsExecutedCall(ValueNode? expression)
+    {
+        if(expression is null)return false;
+        var pending=new Stack<ValueNode>();
+        pending.Push(expression);
+        while(pending.Count>0)
+        {
+            switch(pending.Pop())
+            {
+                case ValueCall:return true;
+                case ValueArrow:break;
+                case ValueBinary binary:
+                    pending.Push(binary.Right);pending.Push(binary.Left);break;
+                case ValueConditional conditional:
+                    pending.Push(conditional.Condition);
+                    pending.Push(conditional.WhenTrue);
+                    pending.Push(conditional.WhenFalse);
+                    break;
+                case ValueUnary unary:pending.Push(unary.Operand);break;
+                case ValueParenthesized grouped:pending.Push(grouped.Expression);break;
+                case ValueTypeOperator typed:pending.Push(typed.Expression);break;
+                case ValueNonNull nonNull:pending.Push(nonNull.Expression);break;
+                case ValuePrefixUpdate prefix:pending.Push(prefix.Target);break;
+                case ValuePostfixUpdate postfix:pending.Push(postfix.Target);break;
+                case ValueTemplate template:
+                    foreach(var value in template.Expressions)pending.Push(value);
+                    break;
+                case ValueElementAccess indexed:
+                    pending.Push(indexed.Receiver);pending.Push(indexed.Index);break;
+                case ValuePropertyAccess property:pending.Push(property.Receiver);break;
+                case ValueArraySpread spread:pending.Push(spread.Operand);break;
+                case ValueArray array:
+                    foreach(var value in array.Elements)pending.Push(value);
+                    break;
+                case ValueObject obj:
+                    foreach(var property in obj.Properties)pending.Push(property.Value);
+                    break;
+            }
+        }
+        return false;
     }
 
     // Each branch runs against the same lexical parent, but writes to symbols
@@ -1884,6 +2039,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 case Variable { Initializer: { } initial }:
                     RecordValueWrites(initial,shadowed);
                     break;
+                case ForVariableDeclarations headerDeclarationBatch:
+                    foreach(var declaration in headerDeclarationBatch.Declarations)
+                        if(declaration.Initializer is { } value)
+                            RecordValueWrites(value,shadowed);
+                    break;
                 case Assignment assignment:
                     Record(assignment.Name,shadowed);
                     RecordValueWrites(assignment.Value,shadowed);
@@ -1967,6 +2127,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     var headerLocals=new HashSet<string>(shadowed,StringComparer.Ordinal);
                     if(nestedClassic.Initializer is Variable loopLocal)
                         headerLocals.Add(loopLocal.Name.Text);
+                    if(nestedClassic.Initializer is ForVariableDeclarations nestedHeaderDeclarations)
+                        foreach(var declaration in nestedHeaderDeclarations.Declarations)
+                            headerLocals.Add(declaration.Name.Text);
                     if(nestedClassic.Initializer is { } nestedInit)
                         Visit(nestedInit,headerLocals);
                     if(nestedClassic.Condition is { } nestedCondition)
@@ -2009,6 +2172,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         return inferred;
     }
 
+    // Only directly deferred classic-for callable initializers may capture
+    // another binding from the same lexical header before its text declaration.
+    // Immediate initializer reads still obey TDZ/source-order checks.
+    private HashSet<Symbol>? deferredClassicForBindings;
+    // References to not-yet-initialized header bindings encountered while
+    // checking an uncalled closure are deferred runtime dependencies.
+    private HashSet<Symbol>? unreadyDeferredHeaderBindings;
+    private HashSet<Symbol>? recordingDeferredHeaderCaptures;
     private int arrowExpressionDepth;
     // Only active while checking a braced callable with an inferred return.
     // Its previous value is restored even when the nested checker fails.
@@ -3781,8 +3952,12 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 "Self references in named function return inference require an explicit return annotation."));
         else if(symbol.File!=file && !symbol.CrossFileTypeReady)
             throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001","Cross-file inference requires an explicit annotation or primitive literal initializer."));
-        else if(symbol.File==file && symbol.Declaration is not FunctionDeclaration && name.Start<=symbol.DeclarationStart)
+        else if(symbol.File==file && symbol.Declaration is not FunctionDeclaration &&
+                name.Start<=symbol.DeclarationStart &&
+                (deferredClassicForBindings is null || !deferredClassicForBindings.Contains(symbol)))
             throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001","References before declaration are not supported yet."));
+        if(symbol is not null && unreadyDeferredHeaderBindings?.Contains(symbol)==true)
+            recordingDeferredHeaderCaptures?.Add(symbol);
         return symbol;
     }
     private void CheckStrictModuleBinding(Token name)
