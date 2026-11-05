@@ -13,6 +13,7 @@ if [[ "$(go env GOTELEMETRY)" != "off" ]]; then echo "Go telemetry must be disab
 export GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local
 go test tools/scope-go/main.go tools/scope-go/main_test.go
 node --test tools/*.test.ts
+node tools/check-docs.ts
 node tools/verify-conformance.ts
 node tools/verify-js-emit.ts
 node tools/verify-named-types-emit.ts
