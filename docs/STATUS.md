@@ -46,7 +46,7 @@ full case denominator is unknown. No release is claimed.
 
 Separate from that headline:
 
-- Internal regressions: 19,586 xUnit tests (Microsoft Testing Platform,
+- Internal regressions: 19,586 xUnit tests on `7edd7f5` (`./scripts/verify.sh`) (Microsoft Testing Platform,
   `--fail-skips on`) plus about 170 Node tool tests and 76 executed-output
   checks (`tools/verify-*-emit.ts`) that run the emitted ES2015 modules.
 - A frozen, separate 29-case isolated cohort (`tests/conformance`) is
@@ -61,7 +61,7 @@ Separate from that headline:
 ## What works
 
 Everything below is a bounded subset: constructs outside it report a TSCS
-diagnostic and exit 1 rather than being compiled incorrectly.
+diagnostic and exit 1; they are intended never to be compiled silently.
 
 ### Project, host and modules
 
@@ -69,9 +69,10 @@ diagnostic and exit 1 rather than being compiled incorrectly.
   `--module es2015`, `-p`/`--project`, `--pretty false`, `--json`.
 - `tsconfig.json` with `files`, explicit `include`/`exclude` globs, `noEmit`,
   `noLib`, `target: "es2015"`, `module: "es2015"`; explicit files win over
-  excludes. All `compilerOptions` are parsed and typed per the pinned option
-  declarations (scalar, enum, list, `lib`, paths), with JSON diagnostics in
-  reference order.
+  excludes; any other option is rejected with TSCS1002. A port of the pinned
+  `compilerOptions` JSON conversion (scalar, enum, list, `lib`, paths, with
+  diagnostics in reference order) is tested against reference vectors but
+  not wired into tsconfig loading.
 - CompilerHost with real and virtual file systems; triple-slash path
   references; multi-file global scripts. A port of the pinned source decoder
   (UTF-8/UTF-16 BOMs) is tested but not yet wired into file loading.
@@ -164,7 +165,11 @@ maps, JSX/TSX, JavaScript inputs, decorators, async/await, generators,
 iterators beyond arrays and strings, `this` typing, overloads, mapped and
 conditional types, index signatures, module resolution through packages,
 `extends` in `tsconfig.json`, default implicit includes, targets other than
-ES2015, incremental and watch modes.
+ES2015, incremental and watch modes. Within the supported areas: no general
+contextual typing or inference for untyped parameters, no overloaded
+callbacks, no object-rest or computed binding patterns or general iterable
+destructuring, no getters/setters, no `instanceof`, no labelled statements
+and no `var`.
 
 ## Known gaps
 

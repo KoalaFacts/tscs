@@ -4,6 +4,7 @@ import {execFileSync} from 'node:child_process';
 import {mkdtempSync, mkdirSync, writeFileSync, rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {checkDocs, loadRepository, slug, anchorsOf, namedPaths, headlineOf, README_BUDGET, STATUS_BUDGET} from './check-docs.ts';
 
 const HEAD = 'Original upstream acceptance: **0 PASS / 0 FAIL / 15,523 SKIP**';
@@ -39,6 +40,11 @@ test('broken relative links fail', () => {
 test('missing anchors fail, including same-file anchors', () => {
   const errors = checkDocs(repo(base({'docs/STATUS.md': `# Status\n\n${HEAD}\n\n[a](DEVELOPMENT.md#nope) [b](#status) [c](#absent)\n`}), ['scripts/verify.sh']));
   assert.deepEqual(errors, ['docs/STATUS.md: missing anchor #nope in docs/DEVELOPMENT.md', 'docs/STATUS.md: missing anchor #absent in docs/STATUS.md']);
+});
+
+test('malformed percent-encoding is reported, and root-relative links resolve from the repository root', () => {
+  const errors = checkDocs(repo(base({'docs/STATUS.md': `# Status\n\n${HEAD}\n\n[a](#a%ZZ) [b](/docs/DEVELOPMENT.md#setup) [c](/docs/GONE.md) [d](DEVELOPMENT.md#set%75p)\n`}), ['scripts/verify.sh']));
+  assert.deepEqual(errors, ['docs/STATUS.md: malformed link: #a%ZZ', 'docs/STATUS.md: broken link: /docs/GONE.md']);
 });
 
 test('links leaving the repository fail', () => {
@@ -102,7 +108,9 @@ test('size budgets are enforced', () => {
 
 test('disagreeing or missing headline counts fail', () => {
   let errors = checkDocs(repo(base({'docs/STATUS.md': '# Status\n\nOriginal upstream acceptance: 1 PASS / 0 FAIL / 15,522 SKIP\n'}), ['scripts/verify.sh']));
-  assert.deepEqual(errors, ['headline counts disagree: README.md "0 PASS / 0 FAIL / 15,523 SKIP" vs docs/STATUS.md "1 PASS / 0 FAIL / 15,522 SKIP"']);
+  assert.deepEqual(errors, ['headline counts disagree across README.md and docs/STATUS.md: "0 PASS / 0 FAIL / 15,523 SKIP" vs "1 PASS / 0 FAIL / 15,522 SKIP"']);
+  errors = checkDocs(repo(base({'docs/STATUS.md': `# Status\n\n${HEAD}\n\nLater: Original upstream acceptance: 0 PASS / 0 FAIL / 1 SKIP\n`}), ['scripts/verify.sh']));
+  assert.deepEqual(errors, ['headline counts disagree across README.md and docs/STATUS.md: "0 PASS / 0 FAIL / 15,523 SKIP" vs "0 PASS / 0 FAIL / 1 SKIP"'], 'a second, stale headline is caught');
   errors = checkDocs(repo(base({'README.md': '# tscs\n\n[Status](docs/STATUS.md) [Dev](docs/DEVELOPMENT.md)\n'}), ['scripts/verify.sh']));
   assert.deepEqual(errors, ['README.md has no "Original upstream acceptance: N PASS / N FAIL / N SKIP" headline']);
 });
@@ -119,5 +127,5 @@ test('named paths ignore globs, placeholders and non-repository tokens', () => {
 });
 
 test('the repository documentation passes', () => {
-  assert.deepEqual(checkDocs(loadRepository(process.cwd())), []);
+  assert.deepEqual(checkDocs(loadRepository(fileURLToPath(new URL('..', import.meta.url)))), []);
 });
