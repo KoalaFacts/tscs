@@ -57,6 +57,28 @@ public sealed class SwitchComputedCaseTests
         Assert.Equal(2,diagnostics.Count(d=>d.Code=="TS2322"));
     }
 
+    [Theory]
+    [InlineData("""
+        let calls:number=0;
+        function mutate():number{calls++;return calls;}
+        switch(2){
+          // @ts-ignore
+          case missing+mutate():{break;}
+        }
+        """)]
+    [InlineData("""
+        let data:{value:number}={value:2};
+        switch(2){
+          // @ts-ignore
+          case missing+data:{break;}
+        }
+        """)]
+    public void IgnoredUnknownNameCannotMaskEffectfulOrNonprimitiveSibling(string source)
+    {
+        var diagnostics=Compilation.Check("computed-case-ignored-unsafe.ts",source);
+        Assert.Contains(diagnostics,d=>d.Code=="TSCS1001");
+    }
+
     [Fact]
     public void UnknownComputedLabelRetainsOriginalNameErrorAndChecksBody()
     {

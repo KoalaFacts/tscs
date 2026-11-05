@@ -427,9 +427,17 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     // A primitive final result is not enough: a string +
                     // object may call user toString/valueOf, and an any
                     // operand may hide arbitrary effects. Check every leaf.
+                    var priorDiagnostics=diagnostics.Count;
                     var operand=TypeOf(atom,scope);
-                    if(operand is null || !IsKnownPrimitiveSwitchCaseType(operand))
-                        return false;
+                    if(operand is null)
+                    {
+                        // A missing identifier records a real TS2304, but
+                        // cannot excuse an effectful or nonprimitive sibling.
+                        // Visit the entire bounded expression before recovery.
+                        if(diagnostics.Count==priorDiagnostics)return false;
+                        break;
+                    }
+                    if(!IsKnownPrimitiveSwitchCaseType(operand))return false;
                     break;
                 case ValueParenthesized group:
                     pending.Push(group.Expression);
@@ -488,17 +496,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             {
                 if(!IsFinitePureSwitchCase(label,scope))
                 {
-                    // Keep the first real semantic error from an invalid leaf,
-                    // instead of throwing a generic unsupported error over it.
-                    if(diagnostics.Count>diagnosticsBeforeLabel)
-                    {
-                        // Retain the actual label error and still visit all
-                        // later labels and clause bodies. A next-line ts-ignore
-                        // can suppress this diagnostic, but never unrelated
-                        // type errors inside the switch.
-                        hasComputedLabels=true;
-                        continue;
-                    }
+                    // An unresolved name may carry a suppressible TS2304,
+                    // but an unsupported call, object coercion or any-typed
+                    // operand must remain a hard error even beside that name.
                     throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
                         "Only finite, side-effect-free primitive computed switch labels are supported."));
                 }
