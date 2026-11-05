@@ -926,9 +926,15 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 var entryConditionType=TypeOf(loop.Condition,scope);
                 CheckRuntimeCondition(loop.Condition,entryConditionType,loop.Keyword);
             }
+            // Keep a real assignment mismatch rather than masking it with
+            // a downstream read-before-initialization failure in the condition.
+            // Compilation already fails closed on the first semantic failure.
+            int beforeBodyDiagnostics=diagnostics.Count;
             CheckBlock(loop.Body,scope,false,expectedReturn,true,true);
             if(guaranteedBody)
             {
+                if(diagnostics.Count>beforeBodyDiagnostics)
+                    throw new CompilationFailure(diagnostics[beforeBodyDiagnostics]);
                 // All direct assignments have executed before this test on
                 // every path that can reach the condition. A failed RHS throws
                 // before the condition and before any following statement.
