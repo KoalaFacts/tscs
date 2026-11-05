@@ -80,11 +80,11 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     pending.Push(branch.Consequent);
                     if(branch.Alternate is { } other)pending.Push(other);
                     break;
-                case WhileStatement loop: pending.Push(loop.Body); break;
-                case DoWhileStatement loop: pending.Push(loop.Body); break;
-                case ForOfStatement loop: pending.Push(loop.Body); break;
-                case ForInStatement loop: pending.Push(loop.Body); break;
-                case ClassicForStatement loop: pending.Push(loop.Body); break;
+                case WhileStatement whileLoop: pending.Push(whileLoop.Body); break;
+                case DoWhileStatement doLoop: pending.Push(doLoop.Body); break;
+                case ForOfStatement forOf: pending.Push(forOf.Body); break;
+                case ForInStatement forIn: pending.Push(forIn.Body); break;
+                case ClassicForStatement classicFor: pending.Push(classicFor.Body); break;
                 case SwitchStatement switching:
                     foreach(var clause in switching.Clauses)pending.Push(clause.Body);
                     break;
