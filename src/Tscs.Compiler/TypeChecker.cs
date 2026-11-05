@@ -974,8 +974,14 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 var previousCaptures=recordingDeferredHeaderCaptures;
                 if(deferred)
                 {
-                    unreadyDeferredHeaderBindings=new HashSet<Symbol>(
+                    // An outer uncalled closure may itself contain nested
+                    // classic-for declarations. Preserve its unready captures
+                    // while checking the nested callable rather than hiding
+                    // them behind the inner header's tracking set.
+                    var unready=new HashSet<Symbol>(
                         header.Symbols.Values.Where(symbol=>!symbol.Initialized));
+                    if(previousUnready is not null)unready.UnionWith(previousUnready);
+                    unreadyDeferredHeaderBindings=unready;
                     recordingDeferredHeaderCaptures=new HashSet<Symbol>();
                     // Future header bindings may be captured by this uncalled
                     // callable, including writes. Permit only these symbols
@@ -997,6 +1003,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     if(deferred)
                     {
                         deferredCaptures.UnionWith(recordingDeferredHeaderCaptures!);
+                        // Captures discovered in a nested deferred initializer
+                        // are dependencies of any enclosing deferred body too.
+                        // Otherwise an outer header could call that body before
+                        // its later let binding has initialized.
+                        previousCaptures?.UnionWith(recordingDeferredHeaderCaptures!);
                         // The callable was created but never invoked here.
                         // Only the current binding's declared/inferred type
                         // and initialization become real after this step.
