@@ -1266,8 +1266,10 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     "Classic for assignments require an identifier or named property or indexed element."))
             };
         }
-        if(expression is ValuePrefixUpdate or ValuePostfixUpdate)return new Expression(expression);
-        Unsupported(Current,"Only assignment and prefix/postfix updates are supported in classic for headers.");
+        if(expression is ValuePrefixUpdate or ValuePostfixUpdate ||
+           expression is ValueCall { Optional:false,ChainContinuation:false })
+            return new Expression(expression);
+        Unsupported(Current,"Only assignments, prefix/postfix updates and checked direct calls are supported in classic for headers.");
         return default!;
     }
 

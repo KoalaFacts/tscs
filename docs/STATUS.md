@@ -1,3 +1,21 @@
+## 2026-11-05 — Checked calls in classic-for initializer and update (candidate; NOT_RUN at creation)
+
+The C# classic-for parser now permits an ordinary checked direct function or
+member call as one finite initializer or update expression, including within
+the existing comma-separated list (up to 64 items). The existing TypeChecker
+validates the callable, argument count/types and lexical bindings, while the
+JavaScriptEmitter preserves native ES2015 call order, `continue` update behavior
+and receiver identity; no new runtime or synthetic type bypass is introduced.
+Pure non-call expressions and trailing commas still reject. Optional-chain
+calls, general arbitrary expression statements and unrestricted comma operator
+semantics are not claimed. Source-backed positive/negative regressions,
+four linked executed ES modules and imported invalid/no-JS emission validation
+are included. Exact-head hosted .NET, pinned TS7 Go reference and independent
+review are NOT_RUN at candidate creation; these are not original TS7 cases.
+Historical original acceptance remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED,
+dynamic UNEXPANDED; release ineligible. No original IDs, frozen upstream pin,
+skip registration, checks, protections or release gates change.
+
 ## 2026-11-05 — Checked classic-for const declarations (candidate; NOT_RUN at creation)
 
 C# Parser, Binder, TypeChecker and JavaScriptEmitter now accept finite initialized
