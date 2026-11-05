@@ -203,7 +203,12 @@ export function runTarget(target: Target, options: RunOptions): TargetResult {
       mkdirSync(dirname(join(work, u.name)), {recursive: true});
       writeFileSync(join(work, u.name), u.content);
     }
-    const args = [options.tscs, noEmit ? '--noEmit' : '--emitJs', '--noLib', '--target', 'es2015', ...units!.map((u) => u.name)];
+    // The pinned TS7 default ES2015 output preserves import/export syntax.
+    // tscs requires that effective module mode to be spelled explicitly;
+    // this is an invocation adapter, not a different upstream test config.
+    // Explicit @module configurations remain SKIP until A1.2 models them.
+    const args = [options.tscs, noEmit ? '--noEmit' : '--emitJs', '--noLib', '--target', 'es2015',
+      '--module', 'es2015', ...units!.map((u) => u.name)];
     const run = spawnSync(options.dotnet, args, {cwd: work, encoding: 'utf8', timeout: 60_000});
     if (run.error) return result('FAIL', [`tscs did not run: ${run.error.message}`]);
     const lines = (run.stdout + run.stderr).split(/\r?\n/).filter((l) => l.length > 0);
