@@ -1,3 +1,6 @@
+using System.Text;
+using Tscs.Compiler;
+
 namespace Tscs;
 
 /// <summary>
@@ -55,7 +58,15 @@ public sealed class FileSystemCompilerHost : IProjectSourceHost
         OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
 
     public string GetCanonicalFileName(string path) => Path.GetFullPath(path);
-    public string ReadFile(string canonicalFileName) => File.ReadAllText(canonicalFileName);
+    public string ReadFile(string canonicalFileName)
+    {
+        // Use the same byte boundary as the pinned Go source loader: strip
+        // UTF-8 BOMs, decode UTF-16 LE/BE BOMs and preserve source offsets
+        // after conversion to UTF-8. Do not silently replace malformed UTF-8
+        // bytes when exposing a .NET string to the scanner.
+        var bytes=SourceDecoder.Decode(File.ReadAllBytes(canonicalFileName));
+        return new UTF8Encoding(false,true).GetString(bytes);
+    }
     public bool DirectoryExists(string canonicalDirectoryName) => Directory.Exists(canonicalDirectoryName);
 
     public IEnumerable<CompilerDirectoryEntry> EnumerateDirectory(string canonicalDirectoryName)
