@@ -408,9 +408,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             ?declared:null;
     }
 
-    // A bounded expression checker for computed case values. No calls, property
-    // getters, updates, assignments, deferred functions or conditional effects:
-    // those require a separate evaluation/flow model before being admitted.
+    // Bounded pure switch labels can use checked conditional, nullish and
+    // logical expressions. Inspect every possible operand, including lazy arms:
+    // a runtime-unreachable branch must not hide a call, getter or mutation.
+    // Effects require a separate evaluation/flow model before admission.
     // Iteration avoids stack overflow on long binary expression chains.
     private bool IsFinitePureSwitchCase(ValueNode value,Scope scope)
     {
@@ -442,11 +443,22 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 case ValueParenthesized group:
                     pending.Push(group.Expression);
                     break;
-                case ValueUnary {Operator.Kind:TokenKind.Minus or TokenKind.Plus} unary:
+                case ValueUnary {Operator.Kind:TokenKind.Minus or TokenKind.Plus or
+                    TokenKind.Bang} unary:
                     pending.Push(unary.Operand);
                     break;
+                case ValueConditional conditional:
+                    pending.Push(conditional.WhenFalse);
+                    pending.Push(conditional.WhenTrue);
+                    pending.Push(conditional.Condition);
+                    break;
                 case ValueBinary {Operator.Kind:TokenKind.Plus or TokenKind.Minus or
-                    TokenKind.Star or TokenKind.Slash or TokenKind.Percent} binary:
+                    TokenKind.Star or TokenKind.Slash or TokenKind.Percent or
+                    TokenKind.AmpAmp or TokenKind.BarBar or TokenKind.QuestionQuestion or
+                    TokenKind.StrictEqual or TokenKind.StrictNotEqual or
+                    TokenKind.EqualEqual or TokenKind.BangEqual or
+                    TokenKind.LessThan or TokenKind.LessEqual or
+                    TokenKind.GreaterThan or TokenKind.GreaterEqual} binary:
                     pending.Push(binary.Right);
                     pending.Push(binary.Left);
                     break;
