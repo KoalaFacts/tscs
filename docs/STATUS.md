@@ -189,7 +189,7 @@ records the original case IDs it moves.
 
 | ID | Item | Why it matters | Status | Evidence |
 |---|---|---|---|---|
-| D1 | Short README, current-state STATUS, `tools/check-docs.ts` in CI | Docs that are true and findable | done (PR #210) | at PR #210: README 30,505 → 4,906 bytes, STATUS 123,542 → 8,568 bytes; 15 checker tests |
+| D1 | Short README, current-state STATUS, `tools/check-docs.ts` in CI | Docs that are true and findable | blocked (PR #210 green and reviewed; the task's merge was refused by its permission check; owner decision: merge #210 or allow the task to merge its own PRs) | at PR #210: README 30,505 → 4,906 bytes, STATUS 123,542 → 8,568 bytes; 15 checker tests |
 | A1.1 | Acceptance runner over the 15,523 registered targets: SKIP with missing capabilities, run supported targets through tscs, compare diagnostics and `.js` emit with the pinned baselines, histogram, CI rerun with headline check | Turns the headline into a measured number | in progress | 0 PASS / 2 FAIL (`noCrashOnNoLib`, `parser509698`) / 15,521 SKIP; 6 runner tests |
 | A1.2 | Runner support for multi-file tests and `@module`, and `.types`/`.symbols` comparison | Larger runnable set once the library loads | todo | — |
 | A2 | Parse, bind and check `lib.es5.d.ts` and the es2015 libs; load them as the default lib | Almost every original case needs the standard library | todo | — |
