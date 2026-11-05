@@ -3,7 +3,7 @@
   "kind": "BOUNDED_LOCAL_GUARD_PROBES_NOT_UPSTREAM_ACCEPTANCE",
   "upstreamCommit": "8d9b6da99ea7d4a8e7d906dd2532456dfe14e24f",
   "sourcePath": "tests/Tscs.Compiler.Tests/CompilationTests.cs",
-  "sourceGitBlob": "3dd236b75136bd171393fe7260316911eb95f13b",
+  "sourceGitBlob": "da3faeac703ef348e72a064576fcd2f8f53c07d5",
   "cases": [
     {
       "id": "bootstrap:primitive-number-declaration",
@@ -62,9 +62,9 @@
     },
     {
       "id": "bootstrap:function-declaration",
-      "source": "let n = 1; function f() {}",
+      "source": "let n = 1; function f() { return 1; }",
       "guardMethod": "UnsupportedSyntaxNeverSucceeds",
-      "capability": "function-declarations",
+      "capability": "inferred-named-function-value-return",
       "domain": "parser",
       "implementation": "UNIMPLEMENTED",
       "skipReason": "UNIMPLEMENTED",
