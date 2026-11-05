@@ -943,6 +943,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             ?Binder.Bind(file,declarations,scope):new Scope(scope);
         if(localDeclarations is { } prebound)
         {
+            var deferredCaptures=new HashSet<Symbol>();
             // A header's bindings are lexically visible to all initializers,
             // but are assigned in declaration order. Binder pre-initializes
             // finite types for checking; that does not prove a value is ready.
@@ -956,13 +957,26 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 // narrow a captured symbol or record a runtime write.
                 // Keep the current binding readable for valid recursion.
                 var deferred=IsDeferredFunctionValue(local.Initializer);
+                // A later initializer may invoke an earlier closure directly,
+                // through an alias, or through a callback argument. Until its
+                // captured header variables have initialized, no executable
+                // calls can be proven safe within this bounded header subset.
+                if(!deferred && deferredCaptures.Any(symbol=>!symbol.Initialized) &&
+                   ContainsExecutedCall(local.Initializer))
+                    throw new CompilationFailure(Diagnostic.Error(file,local.Name,"TSCS1001",
+                        "Calls before captured classic-for bindings initialize are not supported."));
                 var initializedBefore=deferred?CaptureInitialized(header):null;
                 var typesBefore=deferred?CaptureFlowTypes(header):null;
                 var deferredWritesBefore=deferred?CaptureFlowWriteVersions(header):null;
                 var binding=header.Symbols[local.Name.Text];
                 var previousDeferred=deferredClassicForBindings;
+                var previousUnready=unreadyDeferredHeaderBindings;
+                var previousCaptures=recordingDeferredHeaderCaptures;
                 if(deferred)
                 {
+                    unreadyDeferredHeaderBindings=new HashSet<Symbol>(
+                        header.Symbols.Values.Where(symbol=>!symbol.Initialized));
+                    recordingDeferredHeaderCaptures=new HashSet<Symbol>();
                     // Future header bindings may be captured by this uncalled
                     // callable, including writes. Permit only these symbols
                     // in the deferred checker; do not exempt executed calls.
@@ -982,6 +996,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     deferredClassicForBindings=previousDeferred;
                     if(deferred)
                     {
+                        deferredCaptures.UnionWith(recordingDeferredHeaderCaptures!);
                         // The callable was created but never invoked here.
                         // Only the current binding's declared/inferred type
                         // and initialization become real after this step.
@@ -995,6 +1010,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                         binding.DeclaredType=declaredType;
                         binding.Initialized=local.Initializer is not null;
                     }
+                    unreadyDeferredHeaderBindings=previousUnready;
+                    recordingDeferredHeaderCaptures=previousCaptures;
                 }
             }
         }
@@ -1047,6 +1064,53 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 default:return false;
             }
         }
+    }
+
+    // A callable body is not run by its declaration. For intervening
+    // initializers, conservatively reject executed calls while a previous
+    // callable still captures an uninitialized header binding. Inspect the
+    // runtime expression tree iteratively; a nested arrow is deferred unless
+    // invoked by a ValueCall outside it.
+    private static bool ContainsExecutedCall(ValueNode? expression)
+    {
+        if(expression is null)return false;
+        var pending=new Stack<ValueNode>();
+        pending.Push(expression);
+        while(pending.Count>0)
+        {
+            switch(pending.Pop())
+            {
+                case ValueCall:return true;
+                case ValueArrow:break;
+                case ValueBinary binary:
+                    pending.Push(binary.Right);pending.Push(binary.Left);break;
+                case ValueConditional conditional:
+                    pending.Push(conditional.Condition);
+                    pending.Push(conditional.WhenTrue);
+                    pending.Push(conditional.WhenFalse);
+                    break;
+                case ValueUnary unary:pending.Push(unary.Operand);break;
+                case ValueParenthesized grouped:pending.Push(grouped.Expression);break;
+                case ValueTypeOperator typed:pending.Push(typed.Expression);break;
+                case ValueNonNull nonNull:pending.Push(nonNull.Expression);break;
+                case ValuePrefixUpdate prefix:pending.Push(prefix.Target);break;
+                case ValuePostfixUpdate postfix:pending.Push(postfix.Target);break;
+                case ValueTemplate template:
+                    foreach(var value in template.Expressions)pending.Push(value);
+                    break;
+                case ValueElementAccess indexed:
+                    pending.Push(indexed.Receiver);pending.Push(indexed.Index);break;
+                case ValuePropertyAccess property:pending.Push(property.Receiver);break;
+                case ValueArraySpread spread:pending.Push(spread.Operand);break;
+                case ValueArray array:
+                    foreach(var value in array.Elements)pending.Push(value);
+                    break;
+                case ValueObject obj:
+                    foreach(var property in obj.Properties)pending.Push(property.Value);
+                    break;
+            }
+        }
+        return false;
     }
 
     // Each branch runs against the same lexical parent, but writes to symbols
@@ -2101,6 +2165,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     // another binding from the same lexical header before its text declaration.
     // Immediate initializer reads still obey TDZ/source-order checks.
     private HashSet<Symbol>? deferredClassicForBindings;
+    // References to not-yet-initialized header bindings encountered while
+    // checking an uncalled closure are deferred runtime dependencies.
+    private HashSet<Symbol>? unreadyDeferredHeaderBindings;
+    private HashSet<Symbol>? recordingDeferredHeaderCaptures;
     private int arrowExpressionDepth;
     // Only active while checking a braced callable with an inferred return.
     // Its previous value is restored even when the nested checker fails.
@@ -3877,6 +3945,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 name.Start<=symbol.DeclarationStart &&
                 (deferredClassicForBindings is null || !deferredClassicForBindings.Contains(symbol)))
             throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001","References before declaration are not supported yet."));
+        if(symbol is not null && unreadyDeferredHeaderBindings?.Contains(symbol)==true)
+            recordingDeferredHeaderCaptures?.Add(symbol);
         return symbol;
     }
     private void CheckStrictModuleBinding(Token name)
