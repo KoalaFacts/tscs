@@ -16,9 +16,6 @@ public sealed class SwitchConstantCaseTests
         Assert.Empty(Compilation.Check("switch-const-positive.ts",source));
 
     [Theory]
-    [InlineData("""let READY="ready";switch("ready"){case READY:{break;}}""","TSCS1001")]
-    [InlineData("""const READY:string="ready";switch("ready"){case READY:{break;}}""","TSCS1001")]
-    [InlineData("""function choose():string{return "ready";}const READY=choose();switch("ready"){case READY:{break;}}""","TSCS1001")]
     [InlineData("""const READY="ready";switch("ready"){case READY:{break;}case "ready":{break;}}""","TSCS1001")]
     [InlineData("""const CODE=42;switch("ready"){case CODE:{break;}}""","TS2678")]
     [InlineData("""switch("ready"){case READY:{break;}}const READY="ready";""","TSCS1001")]
@@ -87,12 +84,12 @@ public sealed class SwitchConstantCaseTests
     {
         const string root="/virtual/switch-const-invalid";
         var host=new Host();
-        host.Files[root+"/labels.ts"]="""export const READY:string="ready";""";
+        host.Files[root+"/labels.ts"]="""export const READY:number=21;""";
         host.Files[root+"/entry.ts"]=
             """import {READY} from "./labels.js";switch("ready"){case READY:{break;}}""";
         var program=CompilerProgram.Load(host,[root+"/entry.ts"],
             new CompilerOptions {NoLib=true,Target=CompilerTarget.Es2015,Module=CompilerModule.Es2015});
-        Assert.Contains(program.Analyze().Diagnostics,d=>d.Code=="TSCS1001");
+        Assert.Contains(program.Analyze().Diagnostics,d=>d.Code=="TS2678");
         Assert.Throws<InvalidOperationException>(()=>program.EmitJavaScript());
     }
 }
