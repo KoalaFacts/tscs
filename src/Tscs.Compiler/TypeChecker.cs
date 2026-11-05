@@ -408,11 +408,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             ?declared:null;
     }
 
-    // Runtime case labels may read bounded, statically named data members.
-    // Walk every link from an ordinary typed object identifier: a primitive
-    // result alone is insufficient because a computed receiver or dynamic
-    // index may execute user code. Optional chains, any and callable members
-    // still require their own explicit semantics before they are admitted.
+    // Bounded case labels can read named object data and checked numeric
+    // indices of arrays, tuples and strings. Walk all receiver links rather
+    // than trusting a final primitive type: each index must itself be pure,
+    // and the receiver must remain a known data shape. Optional chains,
+    // callable members, any and computed receivers with effects stay excluded.
     private bool IsFiniteCheckedSwitchCaseDataRead(ValueNode expression,Scope scope)
     {
         var accesses=new Stack<ValueNode>();
@@ -426,11 +426,12 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 expression=member.Receiver;
             }
             else if(expression is ValueElementAccess
-                {
-                    Optional:false,ChainContinuation:false,
-                    Index:ValueAtom {Token.Kind:TokenKind.String}
-                } indexed)
+                {Optional:false,ChainContinuation:false} indexed)
             {
+                // The existing index checker enforces the numeric index type
+                // or a statically named object key. Reject calls, mutations
+                // and object coercions before trusting its result type.
+                if(!IsFinitePureSwitchCase(indexed.Index,scope))return false;
                 accesses.Push(indexed);
                 expression=indexed.Receiver;
             }
@@ -446,7 +447,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         // CheckSwitch will retain the recorded error and continue checking
         // remaining case bodies, even when a next-line ignore suppresses it.
         if(rootType is null)return diagnostics.Count>diagnosticsBeforeRoot;
-        if(rootType is not ObjectTypeSymbol)return false;
+        if(rootType is not (ObjectTypeSymbol or ArrayTypeSymbol) &&
+           !CompilerTypes.IsStringFamily(rootType))return false;
         while(accesses.Count>0)
         {
             var member=accesses.Pop();
@@ -455,7 +457,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
             if(current is null)return diagnostics.Count>diagnosticsBeforeMember;
             if(accesses.Count>0)
             {
-                if(current is not ObjectTypeSymbol)return false;
+                if(current is not (ObjectTypeSymbol or ArrayTypeSymbol) &&
+                   !CompilerTypes.IsStringFamily(current))return false;
             }
             else return IsKnownPrimitiveSwitchCaseType(current);
         }

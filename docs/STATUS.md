@@ -1,3 +1,18 @@
+## 2026-11-06 — Checked array, tuple and string indexed switch labels (candidate; NOT_RUN at creation)
+
+Computed `case` expressions now use the existing TypeChecker indexed read and
+ES2015 emitter for bounded pure numeric indices of arrays, tuples and strings,
+including chained object/array reads and computed primitive indices. The actual
+index expression is inspected for side effects; calls, mutations, untyped
+receivers and optional chains stay unsupported. Source-backed positive and
+negative checks plus four linked executable modules and an invalid imported
+no-output check were added. Exact-head hosted .NET, fixed TS7 Go reference and
+independent review are NOT_RUN at candidate creation. This is a product-scoped
+implementation, not an original TS7 compatibility PASS. Historical original
+scope remains 0 PASS / 15,523 SKIP_UNIMPLEMENTED, dynamic UNEXPANDED, release
+ineligible. The upstream pin, original IDs, skip registry and CI gates do not
+change.
+
 ## 2026-11-05 — Checked effect expressions in classic-for clauses (candidate; NOT_RUN at creation)
 
 Classic-for initializer and update expression lists now reuse the existing C#
