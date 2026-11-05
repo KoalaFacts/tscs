@@ -255,6 +255,10 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             case Variable variable:
                 return variable.Initializer is { } initializer &&
                        DefaultReferencesAny(initializer,names,scoped);
+            case ForVariableDeclarations declarations:
+                return declarations.Declarations.Any(declaration =>
+                    declaration.Initializer is { } initializer &&
+                    DefaultReferencesAny(initializer,names,scoped));
             case Expression expression:
                 return DefaultReferencesAny(expression.Value,names,scoped);
             case ReturnStatement result:
@@ -331,6 +335,8 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             {
                 var inner=new HashSet<string>(scoped,StringComparer.Ordinal);
                 if(loop.Initializer is Variable local)inner.Add(local.Name.Text);
+                if(loop.Initializer is ForVariableDeclarations declarations)
+                    foreach(var declaration in declarations.Declarations)inner.Add(declaration.Name.Text);
                 return (loop.Initializer is { } init &&
                         DefaultReferencesAny(init,names,inner)) ||
                        (loop.Condition is { } condition &&
@@ -1122,7 +1128,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     }
 
     // Both loop styles share the checked expression AST and lexically scoped
-    // bindings. Classic for keeps one mutable let declaration, while existing
+    // bindings. Classic for keeps finite mutable let declarations, while existing
     // mutation forms may be sequenced in its initializer/update and effectful
     // comma expressions may occur in its condition. Unsupported forms fail closed.
     private Statement ParseFor(int depth,bool inFunction)
@@ -1156,7 +1162,22 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             ValueNode? initial=Eat(TokenKind.Equal)?ParseWithInDisallowed(ParseValue):null;
             if(annotation==null && initial==null)
                 Unsupported(name,"Classic for declarations need an initializer or explicit type.");
-            initializer=new Variable(name,false,annotation,initial);
+            var declarations=new List<Variable> {new(name,false,annotation,initial)};
+            while(Eat(TokenKind.Comma))
+            {
+                if(declarations.Count>=64)
+                    Unsupported(Current,"Classic for declaration lists exceed the finite limit.");
+                var nextName=Current;
+                if(nextName.Kind!=TokenKind.Identifier)
+                    Unsupported(nextName,"Classic for declarations require a name.");
+                Take();
+                TypeSyntax? nextAnnotation=Eat(TokenKind.Colon)?ReadTypeAnnotation():null;
+                ValueNode? nextInitial=Eat(TokenKind.Equal)?ParseWithInDisallowed(ParseValue):null;
+                if(nextAnnotation==null && nextInitial==null)
+                    Unsupported(nextName,"Classic for declarations need an initializer or explicit type.");
+                declarations.Add(new Variable(nextName,false,nextAnnotation,nextInitial));
+            }
+            initializer=declarations.Count==1?declarations[0]:new ForVariableDeclarations(declarations);
         }
         else if(Current.Kind!=TokenKind.Semi)
             initializer=ParseWithInDisallowed(ParseForHeaderMutations);

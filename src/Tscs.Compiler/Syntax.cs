@@ -98,6 +98,8 @@ internal sealed record WhileStatement(Token Keyword,ValueNode Condition,Block Bo
 internal sealed record DoWhileStatement(Token Keyword,Block Body,ValueNode Condition) : Statement;
 // A classic for declaration is scoped to the header, body and increment.
 internal sealed record ClassicForStatement(Token Keyword,Statement? Initializer,ValueNode? Condition,Statement? Update,Block Body) : Statement;
+// Multiple classic-for lexical declarations share one header scope and one native ES2015 let list.
+internal sealed record ForVariableDeclarations(IReadOnlyList<Variable> Declarations) : Statement;
 internal sealed record ImportSpecifier(Token Imported,Token Local);
 internal sealed record ImportDeclaration(Token ModulePath,IReadOnlyList<ImportSpecifier> Specifiers,bool TypeOnly=false) : Statement;
 internal sealed record ExportSpecifier(Token Local,Token Exported);

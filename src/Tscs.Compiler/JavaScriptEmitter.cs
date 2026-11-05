@@ -346,6 +346,9 @@ internal static class JavaScriptEmitter
                         names.Add(variable.Name.Text);
                         if(variable.Initializer is { } initializer)pending.Push(initializer);
                         break;
+                    case ForVariableDeclarations declarations:
+                        foreach(var declaration in declarations.Declarations)pending.Push(declaration);
+                        break;
                     case ReturnStatement returned:
                         if(returned.Value is { } returnValue)pending.Push(returnValue);
                         break;
@@ -548,6 +551,20 @@ internal static class JavaScriptEmitter
                     {
                         if(i>0)output.Append(", ");
                         WriteForHeader(sequence.Statements[i]);
+                    }
+                    break;
+                case ForVariableDeclarations declarations:
+                    output.Append("let ");
+                    for(int i=0;i<declarations.Declarations.Count;i++)
+                    {
+                        if(i>0)output.Append(", ");
+                        var declaration=declarations.Declarations[i];
+                        output.Append(declaration.Name.Text);
+                        if(declaration.Initializer is { } value)
+                        {
+                            output.Append(" = ");
+                            WriteExpression(value);
+                        }
                     }
                     break;
                 case Variable variable:

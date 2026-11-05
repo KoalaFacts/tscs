@@ -933,10 +933,24 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     // establish definite initialization after a possibly empty loop.
     private void CheckClassicFor(ClassicForStatement loop,Scope scope,TypeSymbol? expectedReturn)
     {
-        Scope header=loop.Initializer is Variable declaration
-            ? Binder.Bind(file,new Block([declaration]),scope)
-            : new Scope(scope);
-        if(loop.Initializer is { } initializer)
+        Block? localDeclarations=loop.Initializer switch
+        {
+            Variable declaration=>new Block([declaration]),
+            ForVariableDeclarations group=>new Block([..group.Declarations]),
+            _=>null
+        };
+        Scope header=localDeclarations is { } declarations
+            ?Binder.Bind(file,declarations,scope):new Scope(scope);
+        if(localDeclarations is { } prebound)
+        {
+            // A later declarator is in lexical scope but cannot be read before
+            // its own initializer. The binder precomputes types for cross-file
+            // use, so reset definite initialization for this ordered header.
+            foreach(var local in prebound.Statements.Cast<Variable>())
+                header.Symbols[local.Name.Text].Initialized=false;
+            CheckBlock(prebound,header,true,expectedReturn,preboundLocal:true);
+        }
+        else if(loop.Initializer is { } initializer)
             CheckBlock(new Block([initializer]),header,true,expectedReturn,preboundLocal:true);
         // A for-update is speculative when checking the first body entry:
         // join possible body/update rebindings before checking both, then
@@ -1884,6 +1898,11 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 case Variable { Initializer: { } initial }:
                     RecordValueWrites(initial,shadowed);
                     break;
+                case ForVariableDeclarations group:
+                    foreach(var declaration in group.Declarations)
+                        if(declaration.Initializer is { } value)
+                            RecordValueWrites(value,shadowed);
+                    break;
                 case Assignment assignment:
                     Record(assignment.Name,shadowed);
                     RecordValueWrites(assignment.Value,shadowed);
@@ -1967,6 +1986,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     var headerLocals=new HashSet<string>(shadowed,StringComparer.Ordinal);
                     if(nestedClassic.Initializer is Variable loopLocal)
                         headerLocals.Add(loopLocal.Name.Text);
+                    if(nestedClassic.Initializer is ForVariableDeclarations group)
+                        foreach(var declaration in group.Declarations)
+                            headerLocals.Add(declaration.Name.Text);
                     if(nestedClassic.Initializer is { } nestedInit)
                         Visit(nestedInit,headerLocals);
                     if(nestedClassic.Condition is { } nestedCondition)
