@@ -960,21 +960,41 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 var typesBefore=deferred?CaptureFlowTypes(header):null;
                 var deferredWritesBefore=deferred?CaptureFlowWriteVersions(header):null;
                 var binding=header.Symbols[local.Name.Text];
-                if(deferred)binding.Initialized=true;
-                CheckBlock(new Block([local]),header,true,expectedReturn,preboundLocal:true);
+                var previousDeferred=deferredClassicForBindings;
                 if(deferred)
                 {
-                    // Preserve the declaration type inferred from the arrow,
-                    // but discard speculative effects from its uncalled body.
-                    var resolvedType=binding.Type;
-                    var declaredType=binding.DeclaredType;
-                    RestoreInitialized(initializedBefore!);
-                    RestoreFlowTypes(typesBefore!);
-                    foreach(var (symbol,version) in deferredWritesBefore!)
-                        symbol.FlowWriteVersion=version;
-                    binding.Type=resolvedType;
-                    binding.DeclaredType=declaredType;
-                    binding.Initialized=true;
+                    // Future header bindings may be captured by this uncalled
+                    // callable, including writes. Permit only these symbols
+                    // in the deferred checker; do not exempt executed calls.
+                    var allowed=previousDeferred is null
+                        ?new HashSet<Symbol>():new HashSet<Symbol>(previousDeferred);
+                    allowed.UnionWith(header.Symbols.Values);
+                    deferredClassicForBindings=allowed;
+                    foreach(var symbol in header.Symbols.Values)
+                        symbol.Initialized=true;
+                }
+                try
+                {
+                    CheckBlock(new Block([local]),header,true,expectedReturn,preboundLocal:true);
+                }
+                finally
+                {
+                    deferredClassicForBindings=previousDeferred;
+                    if(deferred)
+                    {
+                        // The callable was created but never invoked here.
+                        // Only the current binding's declared/inferred type
+                        // and initialization become real after this step.
+                        var resolvedType=binding.Type;
+                        var declaredType=binding.DeclaredType;
+                        RestoreInitialized(initializedBefore!);
+                        RestoreFlowTypes(typesBefore!);
+                        foreach(var (symbol,version) in deferredWritesBefore!)
+                            symbol.FlowWriteVersion=version;
+                        binding.Type=resolvedType;
+                        binding.DeclaredType=declaredType;
+                        binding.Initialized=local.Initializer is not null;
+                    }
                 }
             }
         }
@@ -2077,6 +2097,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         return inferred;
     }
 
+    // Only directly deferred classic-for callable initializers may capture
+    // another binding from the same lexical header before its text declaration.
+    // Immediate initializer reads still obey TDZ/source-order checks.
+    private HashSet<Symbol>? deferredClassicForBindings;
     private int arrowExpressionDepth;
     // Only active while checking a braced callable with an inferred return.
     // Its previous value is restored even when the nested checker fails.
@@ -3849,7 +3873,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 "Self references in named function return inference require an explicit return annotation."));
         else if(symbol.File!=file && !symbol.CrossFileTypeReady)
             throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001","Cross-file inference requires an explicit annotation or primitive literal initializer."));
-        else if(symbol.File==file && symbol.Declaration is not FunctionDeclaration && name.Start<=symbol.DeclarationStart)
+        else if(symbol.File==file && symbol.Declaration is not FunctionDeclaration &&
+                name.Start<=symbol.DeclarationStart &&
+                (deferredClassicForBindings is null || !deferredClassicForBindings.Contains(symbol)))
             throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001","References before declaration are not supported yet."));
         return symbol;
     }
