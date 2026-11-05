@@ -94,6 +94,21 @@ public sealed class DoWhileDefiniteAssignmentTests
         Assert.Empty(Compilation.Check("do-while-ignored-initialization.ts",source));
     }
 
+    [Fact]
+    public void ExecutedRhsMutationInvalidatesThePostLoopNarrowing()
+    {
+        var source="""
+            function run(n:0|1):1{
+              if(!n){return 1;}
+              let text:string="";
+              do{text=`${n++}`;}while(false);
+              return n;
+            }
+            """;
+        Assert.Contains(Compilation.Check("do-while-template-update.ts",source),
+            d=>d.Code=="TS2322");
+    }
+
     private sealed class Host : ICompilerHost
     {
         public StringComparer FileNameComparer=>StringComparer.Ordinal;
