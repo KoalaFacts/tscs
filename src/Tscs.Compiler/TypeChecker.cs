@@ -472,7 +472,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
            } call || call.Arguments.Count>16)
             return false;
         var callee=call.Callee;
-        while(callee is ValueParenthesized group)callee=group.Expression;
+        while(callee is ValueParenthesized calleeGroup)callee=calleeGroup.Expression;
         switch(callee)
         {
             case ValueAtom {Token.Kind:TokenKind.Identifier} direct:
