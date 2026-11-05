@@ -222,7 +222,7 @@ public sealed class SwitchComputedCaseTests
         {
             var host=new Host();
             host.Files[Path.Combine(root,"model.ts")]=
-                """export let hits:number=0;export const handler={first(n:number):number{hits++;return n;},second(n:number):number{hits+=10;return n;}};export function count():number{return hits;}""";
+                """export let hits:number=0;export const handler:{first:(n:number)=>number;second:(n:number)=>number}={first(n:number):number{hits++;return n;},second(n:number):number{hits+=10;return n;}};export function count():number{return hits;}""";
             host.Files[Path.Combine(root,"logic.ts")]=
                 """import {handler,count} from "./model.js";""" +
                 """export function choose(n:number):number{switch(n){case handler.first(1):{return count()*10+1;}case handler["second"](2):{return count()*10+2;}default:{return count()*10+9;}}}""";
@@ -266,7 +266,7 @@ public sealed class SwitchComputedCaseTests
         const string root="/virtual/member-switch-invalid";
         var host=new Host();
         host.Files[root+"/model.ts"]=
-            """export const handler={code(n:number):number{return n;}};""";
+            """export const handler:{code:(n:number)=>number}={code(n:number):number{return n;}};""";
         host.Files[root+"/entry.ts"]=
             """import {handler} from "./model.js";switch(2){case handler.code("bad"):{break;}default:{break;}}""";
         var program=CompilerProgram.Load(host,[root+"/entry.ts"],
