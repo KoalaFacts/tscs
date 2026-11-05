@@ -16,6 +16,9 @@ public sealed class ClassicForEffectHeaderTests
     [InlineData("""function tick(n:number):number{return n;}function run(flag:number|undefined,end:number):number{let i=0;for(flag ?? tick(1);i<end;flag ?? tick(i),i++){}return i;}""")]
     [InlineData("""function tick(n:number):number{return n;}function run(end:number):number{let i=0;for((tick(1),tick(2));i<end;(tick(i),tick(3)),i++){}return i;}""")]
     [InlineData("""function run(b:{value?:number},end:number):number{let i=0;for(delete b.value;i<end;delete b.value,i++){}return i;}""")]
+    [InlineData("""function tick(n:number):number{return n;}function run(flag:boolean,end:number):number{let i=0;for((flag ? tick(1) : tick(2),tick(3));i<end;i++){}return i;}""")]
+    [InlineData("""function tick(n:number):number{return n;}function run(flag:boolean,end:number):number{let i=0;for((flag && tick(1),tick(3));i<end;i++){}return i;}""")]
+    [InlineData("""function tick(n:number):number{return n;}function run(flag:boolean,end:number):number{let i=0;for((flag || tick(1),tick(3));i<end;i++){}return i;}""")]
     public void CheckedSideEffectsRunInClassicForHeaders(string source) =>
         Assert.Empty(Compilation.Check("classic-for-effect.ts",source));
 

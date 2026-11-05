@@ -1348,6 +1348,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         {
             ValueCall or ValuePrefixUpdate or ValuePostfixUpdate=>true,
             ValueUnary {Operator.Kind:TokenKind.Delete}=>true,
+            ValueConditional conditional=>HasCommaLeftSideEffect(conditional.WhenTrue) &&
+                                           HasCommaLeftSideEffect(conditional.WhenFalse),
+            ValueBinary {Operator.Kind:TokenKind.AmpAmp or TokenKind.BarBar or TokenKind.QuestionQuestion} logical=>
+                HasCommaLeftSideEffect(logical.Right),
             ValueBinary {Operator.Kind:TokenKind.Comma} chain=>
                 HasCommaLeftSideEffect(chain.Right),
             _=>false
