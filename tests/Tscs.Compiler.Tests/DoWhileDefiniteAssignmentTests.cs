@@ -44,6 +44,56 @@ public sealed class DoWhileDefiniteAssignmentTests
         Assert.Empty(Compilation.Check("do-while-ignored.ts",source));
     }
 
+    [Fact]
+    public void IgnoringOneBodyMismatchDoesNotHideTheNextOrTheCondition()
+    {
+        var secondMismatch="""
+            function run():number{
+              let n:number=0;
+              do{
+                // @ts-ignore
+                n="ignored";
+                n=true;
+              }while(false);
+              return n;
+            }
+            """;
+        var errors=Compilation.Check("do-while-ignored-next.ts",secondMismatch);
+        Assert.Single(errors);
+        Assert.Equal("TS2322",errors[0].Code);
+
+        var conditionRead="""
+            function run():number{
+              let n:number=0;
+              let value:number;
+              do{
+                // @ts-ignore
+                n="ignored";
+              }while(value<1);
+              return n;
+            }
+            """;
+        Assert.Contains(Compilation.Check("do-while-ignored-condition.ts",conditionRead),
+            d=>d.Code=="TSCS1001");
+    }
+
+    [Fact]
+    public void IgnoredDirectAssignmentStillInitializesForLaterReads()
+    {
+        var source="""
+            function run():number{
+              let n:number;
+              do{
+                // @ts-ignore
+                n="ignored";
+                n=n+1;
+              }while(false);
+              return n;
+            }
+            """;
+        Assert.Empty(Compilation.Check("do-while-ignored-initialization.ts",source));
+    }
+
     private sealed class Host : ICompilerHost
     {
         public StringComparer FileNameComparer=>StringComparer.Ordinal;
