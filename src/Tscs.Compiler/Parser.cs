@@ -1104,9 +1104,14 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             if(keywordClause.Kind==TokenKind.Case)
             {
                 label=ParseValue();
-                if(label is not ValueAtom { Token.Kind:TokenKind.String or TokenKind.Number or TokenKind.True or TokenKind.False } &&
-                   label is not ValueUnary { Operator.Kind:TokenKind.Minus, Operand:ValueAtom { Token.Kind:TokenKind.Number } })
-                    Unsupported(keywordClause,"Only primitive literal switch case labels are supported yet.");
+                // Exact primitive const identifiers (including imported ones)
+                // are checked after binding, not guessed from their spelling.
+                // Parentheses preserve a literal or constant identifier value.
+                var candidate=label;
+                while(candidate is ValueParenthesized grouped)candidate=grouped.Expression;
+                if(candidate is not ValueAtom {Token.Kind:TokenKind.String or TokenKind.Number or TokenKind.True or TokenKind.False or TokenKind.Identifier} &&
+                   candidate is not ValueUnary {Operator.Kind:TokenKind.Minus,Operand:ValueAtom {Token.Kind:TokenKind.Number}})
+                    Unsupported(keywordClause,"Only primitive literal and immutable single-literal switch case labels are supported yet.");
             }
             else if(hasDefault)Unsupported(keywordClause,"Duplicate switch defaults are not supported.");
             else hasDefault=true;

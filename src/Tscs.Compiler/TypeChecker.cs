@@ -379,6 +379,30 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         }
     }
     
+    // Case labels may use a literal expression or an immutable, already
+    // initialized binding whose declared type is one exact primitive literal.
+    // Never infer a constant label from a narrowed mutable read: the runtime
+    // case value could have changed, making discriminant narrowing unsound.
+    private LiteralTypeSymbol? TryReadSwitchCaseLabel(ValueNode expression,Scope scope)
+    {
+        if(TryReadLiteral(expression) is { } literal)return literal;
+        while(expression is ValueParenthesized group)expression=group.Expression;
+        if(expression is not ValueAtom {Token.Kind:TokenKind.Identifier} atom)
+            return null;
+        // Preserve TS2304 rather than replacing a missing-name diagnostic
+        // with a later generic unsupported-label failure. The two intrinsic
+        // identifiers still go through their existing value-read behavior.
+        var binding=scope.Find(atom.Token.Text);
+        if(binding is null && atom.Token.Text is not ("undefined" or "globalThis"))
+            throw new CompilationFailure(Diagnostic.Error(file,atom.Token,"TS2304",
+                $"Cannot find name '{atom.Token.Text}'."));
+        // Reuse actual value-read checks for TDZ and cross-file identity.
+        _=TypeOf(expression,scope);
+        return binding is {IsConstant:true,Initialized:true}
+            ?binding.DeclaredType as LiteralTypeSymbol
+            :null;
+    }
+
     // Case-local types view the existing symbol. A normally completing
     // clause can fall into the next one, so its effective incoming union
     // must be joined with the next case's direct-entry variants.
@@ -390,10 +414,10 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         foreach(var clause in switching.Clauses)
         {
             if(clause.Label is not { } label)continue;
-            var type=TryReadLiteral(label);
+            var type=TryReadSwitchCaseLabel(label,scope);
             if(type==null)
                 throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
-                    "Only primitive literal switch case labels are supported."));
+                    "Only primitive literal and immutable single-literal switch case labels are supported."));
             if(!selected.Add(type))
                 throw new CompilationFailure(Diagnostic.Error(file,clause.Keyword,"TSCS1001",
                     "Duplicate switch case labels are not supported yet."));
