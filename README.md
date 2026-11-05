@@ -10,11 +10,12 @@ compiler test cases.
 
 ## Where it stands
 
-Original upstream acceptance: **0 PASS / 0 FAIL / 15,523 SKIP**
+Original upstream acceptance: **0 PASS / 2 FAIL / 15,521 SKIP**
 
-All 15,523 discovered original source/configuration targets are registered
-as `SKIP_UNIMPLEMENTED`: no original upstream case has yet been executed
-through tscs and compared with the pinned reference. The standard library
+Of the 15,523 original source/configuration targets at the pinned revision,
+`tools/original-acceptance.ts` runs the two that tscs can attempt and
+compares them with the pinned reference baselines (both fail); the rest are
+skipped, 15,464 of them because they need the standard library. The standard library
 (`lib.es5.d.ts` and later) cannot be loaded; programs are checked with
 `--noLib` against the empty interfaces in
 [`fixtures/minimal.d.ts`](fixtures/minimal.d.ts). What does work is a

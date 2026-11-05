@@ -48,3 +48,19 @@ restore, build, native `.ts`, focused host tests and offline tool reuse. It leav
 the existing full CI/release gates unchanged. Logs and checksum provenance are
 uploaded separately; no generated SKIP is counted as PASS. No tool binaries or
 credentials are committed. Setup failures are not hidden or classified as SKIP.
+
+Original upstream acceptance (needs a checkout of the pinned revision, such as
+the one `./scripts/verify-original-emptyfile-go.sh` leaves in
+`.artifacts/original-empty-go/TypeScript`):
+
+```sh
+node tools/materialize-upstream-placeholders.ts tests/Tscs.Upstream.Placeholders/packed /tmp/placeholders.zip
+unzip -p /tmp/placeholders.zip targets.jsonl > /tmp/targets.jsonl
+node tools/original-acceptance.ts --targets /tmp/targets.jsonl \
+  --upstream .artifacts/original-empty-go/TypeScript \
+  --tscs src/Tscs.Cli/bin/Release/net10.0/tscs.dll \
+  --out /tmp/original-acceptance.json --expect-headline docs/STATUS.md
+```
+
+The report lists every target's status and reasons, plus the missing-capability
+histograms summarized in [STATUS](STATUS.md#headline).
