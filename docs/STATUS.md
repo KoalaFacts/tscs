@@ -8,7 +8,7 @@ validation logs stay in [evidence/](evidence/).
 
 Original upstream acceptance: **0 PASS / 2 FAIL / 15,521 SKIP**
 
-Measured with the compiler at `7edd7f5` by `tools/original-acceptance.ts`,
+Measured with the compiler at `7f75a59` by `tools/original-acceptance.ts`,
 which CI reruns on every pull request (job `original-go-reference`) and which
 fails when this line disagrees with the measurement. Its denominator is the
 15,523 source/configuration targets registered from the pinned revision
