@@ -958,7 +958,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 var deferred=IsDeferredFunctionValue(local.Initializer);
                 var initializedBefore=deferred?CaptureInitialized(header):null;
                 var typesBefore=deferred?CaptureFlowTypes(header):null;
-                var writesBefore=deferred?CaptureFlowWriteVersions(header):null;
+                var deferredWritesBefore=deferred?CaptureFlowWriteVersions(header):null;
                 var binding=header.Symbols[local.Name.Text];
                 if(deferred)binding.Initialized=true;
                 CheckBlock(new Block([local]),header,true,expectedReturn,preboundLocal:true);
@@ -970,7 +970,7 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     var declaredType=binding.DeclaredType;
                     RestoreInitialized(initializedBefore!);
                     RestoreFlowTypes(typesBefore!);
-                    foreach(var (symbol,version) in writesBefore!)
+                    foreach(var (symbol,version) in deferredWritesBefore!)
                         symbol.FlowWriteVersion=version;
                     binding.Type=resolvedType;
                     binding.DeclaredType=declaredType;
