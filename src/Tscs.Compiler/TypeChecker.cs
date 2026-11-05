@@ -912,56 +912,56 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         // Do not treat a conditional, nested loop, try, call statement or
         // deferred closure as a proof of definite initialization.
         bool guaranteedBody=loop.Body.Statements.All(statement=>
-            statement is Assignment or EmptyStatement);
+            statement is EmptyStatement ||
+            statement is Assignment assignment &&
+                !ContainsNestedDeferredFunction(assignment.Value));
         InvalidateLoopBackedgeFlowTypes(scope,loop.Body);
         var before=CaptureInitialized(scope);
-        var entryTypes=CaptureFlowTypes(scope);
         var writesBefore=CaptureFlowWriteVersions(scope);
         List<Symbol>? definitelyAssigned=null;
         try
         {
             if(!guaranteedBody)
             {
-                // When a continue can skip an assignment, checking the body
-                // first would incorrectly validate a first-iteration read.
+                // A continue or conditional branch can bypass the first write.
                 var entryConditionType=TypeOf(loop.Condition,scope);
                 CheckRuntimeCondition(loop.Condition,entryConditionType,loop.Keyword);
+                CheckBlock(loop.Body,scope,false,expectedReturn,true,true);
             }
-            // Keep a real assignment mismatch rather than masking it with
-            // a downstream read-before-initialization failure in the condition.
-            // Compilation already fails closed on the first semantic failure.
-            int beforeBodyDiagnostics=diagnostics.Count;
-            CheckBlock(loop.Body,scope,false,expectedReturn,true,true);
-            if(guaranteedBody)
+            else
             {
-                if(diagnostics.Count>beforeBodyDiagnostics)
-                    throw new CompilationFailure(diagnostics[beforeBodyDiagnostics]);
-                // TypeOf on a deferred arrow RHS checks its function body
-                // without executing it. Reset speculative captured writes
-                // before checking the first condition. Only direct outer
-                // assignment targets are definitely initialized here.
+                int beforeBodyDiagnostics=diagnostics.Count;
                 var directTargets=new HashSet<Symbol>();
                 foreach(var statement in loop.Body.Statements)
-                    if(statement is Assignment target &&
-                       scope.Find(target.Name.Text) is { } symbol)
-                        directTargets.Add(symbol);
-                foreach(var (symbol,initialized) in before)
                 {
-                    if(directTargets.Contains(symbol))continue;
-                    symbol.Initialized=initialized;
-                    symbol.Type=entryTypes[symbol];
-                    symbol.FlowWriteVersion=writesBefore[symbol];
+                    if(statement is not Assignment assignment)continue;
+                    // Evaluate one statement at a time: checking a deferred
+                    // arrow body must never initialize a captured binding for
+                    // the next statement's RHS or the loop condition.
+                    var priorInitialized=CaptureInitialized(scope);
+                    var priorTypes=CaptureFlowTypes(scope);
+                    var priorVersions=CaptureFlowWriteVersions(scope);
+                    CheckBlock(new Block([assignment]),scope,true,expectedReturn,true,true);
+                    var target=scope.Find(assignment.Name.Text);
+                    foreach(var (symbol,initialized) in priorInitialized)
+                    {
+                        if(ReferenceEquals(symbol,target))continue;
+                        symbol.Initialized=initialized;
+                        symbol.Type=priorTypes[symbol];
+                        symbol.FlowWriteVersion=priorVersions[symbol];
+                    }
+                    // Preserve ordinary semantic diagnostics so the scanner
+                    // can apply @ts-ignore. Throwing CompilationFailure here
+                    // would bypass that suppression in Compilation.CheckSources.
+                    if(diagnostics.Count>beforeBodyDiagnostics)break;
+                    if(target is { Initialized:true })directTargets.Add(target);
                 }
-                // All direct assignments have executed before this test on
-                // every path that can reach the condition. A failed RHS throws
-                // before the condition and before any following statement.
-                var conditionType=TypeOf(loop.Condition,scope);
-                CheckRuntimeCondition(loop.Condition,conditionType,loop.Keyword);
-                definitelyAssigned=[];
-                foreach(var statement in loop.Body.Statements)
-                    if(statement is Assignment assignment &&
-                       scope.Find(assignment.Name.Text) is {Initialized:true} symbol)
-                        definitelyAssigned.Add(symbol);
+                if(diagnostics.Count==beforeBodyDiagnostics)
+                {
+                    var conditionType=TypeOf(loop.Condition,scope);
+                    CheckRuntimeCondition(loop.Condition,conditionType,loop.Keyword);
+                    definitelyAssigned=[..directTargets];
+                }
             }
         }
         finally
@@ -1122,6 +1122,55 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                 default:return false;
             }
         }
+    }
+
+    // A nested arrow is checked statically but its captured assignments
+    // have not executed. Exclude such compound RHS expressions from the
+    // definite-write proof; a direct deferred function value is safe because
+    // the statement-level checker restores its captured effects immediately.
+    private static bool ContainsNestedDeferredFunction(ValueNode value)
+    {
+        if(IsDeferredFunctionValue(value))return false;
+        var pending=new Stack<ValueNode>();
+        pending.Push(value);
+        while(pending.Count>0)
+        {
+            switch(pending.Pop())
+            {
+                case ValueArrow:return true;
+                case ValueCall call:
+                    pending.Push(call.Callee);
+                    foreach(var argument in call.Arguments)pending.Push(argument);
+                    break;
+                case ValueBinary binary:
+                    pending.Push(binary.Left);pending.Push(binary.Right);break;
+                case ValueConditional conditional:
+                    pending.Push(conditional.Condition);
+                    pending.Push(conditional.WhenTrue);
+                    pending.Push(conditional.WhenFalse);
+                    break;
+                case ValueUnary unary:pending.Push(unary.Operand);break;
+                case ValueParenthesized grouped:pending.Push(grouped.Expression);break;
+                case ValueTypeOperator typed:pending.Push(typed.Expression);break;
+                case ValueNonNull nonNull:pending.Push(nonNull.Expression);break;
+                case ValuePrefixUpdate prefix:pending.Push(prefix.Target);break;
+                case ValuePostfixUpdate postfix:pending.Push(postfix.Target);break;
+                case ValueTemplate template:
+                    foreach(var expression in template.Expressions)pending.Push(expression);
+                    break;
+                case ValueElementAccess element:
+                    pending.Push(element.Receiver);pending.Push(element.Index);break;
+                case ValuePropertyAccess property:pending.Push(property.Receiver);break;
+                case ValueArraySpread spread:pending.Push(spread.Operand);break;
+                case ValueArray array:
+                    foreach(var element in array.Elements)pending.Push(element);
+                    break;
+                case ValueObject obj:
+                    foreach(var property in obj.Properties)pending.Push(property.Value);
+                    break;
+            }
+        }
+        return false;
     }
 
     // A callable body is not run by its declaration. For intervening
