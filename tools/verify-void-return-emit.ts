@@ -24,13 +24,14 @@ try {
     '}',
     'export function callThrough(n:number):void {note(n);early(n);return;}',
     'export function noReturn(n:number):void {total+=n;}',
+    'export function inferred(n:number) {if(n<0){return;} total+=n;}',
     'export function delegate():void {return noReturn(0);}'
   ].join('\n'));
   writeFileSync(join(folder,'bridge.ts'),
-    'export {callThrough,delegate,total} from "./logic.js";\n');
+    'export {callThrough,delegate,inferred,total} from "./logic.js";\n');
   writeFileSync(join(folder,'entry.ts'),[
-    'import {callThrough,delegate} from "./bridge.js";',
-    'callThrough(20);callThrough(-3);delegate();',
+    'import {callThrough,delegate,inferred} from "./bridge.js";',
+    'callThrough(20);callThrough(-3);delegate();inferred(0);inferred(-1);',
     'export const result:number=42;'
   ].join('\n'));
   function compile(source:string){
@@ -58,7 +59,10 @@ try {
     ['wrong-call-usage','function f():void {} let n:number=f();','TS2322'],
     ['bare-number-return','function f():number {return;}','TSCS1001'],
     ['missing-name','function f():void {return missing;}','TS2304'],
-    ['missing-numeric-return','function f():number {let n:number=1;}','TSCS1001']
+    ['missing-numeric-return','function f():number {let n:number=1;}','TSCS1001'],
+    ['inferred-value-return','function f(){return 1;}','TSCS1001'],
+    ['inferred-nested-value-return','function f(flag:boolean){if(flag){return 1;}}','TSCS1001'],
+    ['inferred-void-misuse','function f(){} let n:number=f();','TS2322']
   ] as const;
   for(const [name,source,code] of invalid){
     writeFileSync(join(folder,name+'.ts'),source);

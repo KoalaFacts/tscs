@@ -61,6 +61,43 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     }
     private bool Eat(TokenKind kind) { if(Current.Kind!=kind)return false; position++;return true; }
 
+    // A named function without a result annotation can be prebound as () => void
+    // only when no lexical return has a value. Value-return inference still
+    // needs a flow-sensitive signature and must fail closed, including returns
+    // nested inside loops, switches, conditionals and try/finally blocks.
+    private static bool ContainsValueReturn(Block body)
+    {
+        var pending=new Stack<Statement>(body.Statements);
+        while(pending.Count>0)
+        {
+            switch(pending.Pop())
+            {
+                case ReturnStatement {Value:not null}: return true;
+                case Block nested:
+                    foreach(var child in nested.Statements)pending.Push(child);
+                    break;
+                case ConditionalStatement branch:
+                    pending.Push(branch.Consequent);
+                    if(branch.Alternate is { } other)pending.Push(other);
+                    break;
+                case WhileStatement whileLoop: pending.Push(whileLoop.Body); break;
+                case DoWhileStatement doLoop: pending.Push(doLoop.Body); break;
+                case ForOfStatement forOf: pending.Push(forOf.Body); break;
+                case ForInStatement forIn: pending.Push(forIn.Body); break;
+                case ClassicForStatement classicFor: pending.Push(classicFor.Body); break;
+                case SwitchStatement switching:
+                    foreach(var clause in switching.Clauses)pending.Push(clause.Body);
+                    break;
+                case TryStatement guarded:
+                    pending.Push(guarded.Body);
+                    if(guarded.CatchBody is { } caught)pending.Push(caught);
+                    if(guarded.FinallyBody is { } cleanup)pending.Push(cleanup);
+                    break;
+            }
+        }
+        return false;
+    }
+
     // Lower finite binding patterns to ordinary checked variable declarations.
     // The generated read-only temporary evaluates the source exactly once;
     // nested temporaries likewise preserve each nested receiver evaluation.
@@ -867,11 +904,15 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     }
                 }
                 if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after function parameters.");
-                if(!Eat(TokenKind.Colon))Unsupported(Current,"Function return types must be explicit in this compiler subset.");
-                var result=ReadTypeAnnotation();
+                bool inferredVoid=!Eat(TokenKind.Colon);
+                TypeSyntax result=inferredVoid
+                    ?new PrimitiveTypeSyntax(new Token(TokenKind.Void,"void",name.Start,0))
+                    :ReadTypeAnnotation();
                 if(!Eat(TokenKind.Open))Unsupported(Current,"Expected '{' before function body.");
                 var body=Parse(depth+1,true);
                 if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));
+                if(inferredVoid && ContainsValueReturn(body))
+                    Unsupported(name,"Named functions with inferred value returns are not supported yet.");
                 if(parameterElementDefaults.Count>0)
                 {
                     // Body declarations have no scope in native parameter

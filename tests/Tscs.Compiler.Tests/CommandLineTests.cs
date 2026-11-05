@@ -204,6 +204,27 @@ public class CommandLineTests : IDisposable
             Assert.Contains("TSCS1002",rejected.Out);
         }
     }
+    [Fact]
+    public void OnlyMissingNoLibGlobalsStillPermitCheckedEmitWithErrorExit()
+    {
+        var file=Write("only-missing-globals.ts","export function f(n: number) { if(n<0) { return; } }");
+        var result=Run("--emitJs","--noLib","--target","es2015","--module","es2015",file);
+        Assert.Equal(2,result.Code);
+        Assert.Equal(10,result.Out.Split("error TS2318:",StringSplitOptions.None).Length-1);
+        var emitted=Path.ChangeExtension(file,".js");
+        Assert.True(File.Exists(emitted));
+        Assert.Contains("export function f(n)",File.ReadAllText(emitted));
+    }
+
+    [Fact]
+    public void MissingGlobalsDoNotPermitEmissionOfInvalidSource()
+    {
+        var file=Write("invalid-no-lib.ts","function f(): number { return \"bad\"; }");
+        var result=Run("--emitJs","--noLib","--target","es2015",file);
+        Assert.Equal(2,result.Code);
+        Assert.False(File.Exists(Path.ChangeExtension(file,".js")));
+    }
+
     [Fact] public void MissingGlobalsAreReported()=>Assert.Contains("TS2318",Run("--noEmit","--noLib",Write("a.ts","let x = 1;")).Out);
     [Fact] public void UnsupportedAmbientMembersAreRejected()=>Assert.Equal(1,Run("--noEmit","--noLib",Write("a.ts","let x = 1;"),Write("bad.d.ts","interface Object { x: number } ")).Code);
     [Fact] public void MissingGlobalsPrecedeCheckerGrammarErrors()
