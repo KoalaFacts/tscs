@@ -75,7 +75,7 @@ diagnostic and exit 1; they are intended never to be compiled silently.
   not wired into tsconfig loading.
 - CompilerHost with real and virtual file systems; triple-slash path
   references; multi-file global scripts. A port of the pinned source decoder
-  (UTF-8/UTF-16 BOMs) is tested but not yet wired into file loading.
+  (UTF-8/UTF-16 BOMs) is tested but now wired into filesystem source loading for UTF-8 BOM and UTF-16 LE/BE BOM inputs. Malformed UTF-8 fails closed instead of being accepted by replacement decoding; the full byte/VFS profile is still incomplete.
 - Named ES module imports/exports/re-exports, `import type` and type-only
   re-exports, with a deferred module linker and host-canonical diagnostics.
 
