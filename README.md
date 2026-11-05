@@ -1,527 +1,88 @@
 # tscs
 
-A TypeScript compiler written in C#.
+A TypeScript compiler written in C# (.NET 10).
 
-**Experimental, bounded implementation — not a replacement for `tsc`.**
-The goal is compatibility with the fixed TypeScript revision in
-[`upstream.lock.json`](upstream.lock.json), with original test scope retained.
-Internal regressions and local runtime examples are not original TS7 acceptance.
-See [`docs/STATUS.md`](docs/STATUS.md) for current delivery and remaining scope.
+**Experimental and bounded — not a replacement for `tsc`.** The target is
+compatibility with the TypeScript revision pinned in
+[`upstream.lock.json`](upstream.lock.json) (TS 7.1.0-dev, the Go
+implementation at commit `8d9b6da`), measured by that revision's own original
+compiler test cases.
 
-## Parenthesized sequence expressions (bounded)
+## Where it stands
 
-Parenthesized comma sequences such as `(record(), compute())` now
-type-check both operands, execute them left-to-right in native ES2015,
-and produce the final operand's type and value. Multiple steps and
-nested argument/return contexts share the existing AST and checker.
-A pure, unused left operand is diagnosed (TS2695) rather than counted
-as a supported statement. This does not add the general unparenthesized
-comma operator to `for` clauses or call argument lists, and the finite
-left-side-effect analysis intentionally rejects unproven effects.
+Original upstream acceptance: **0 PASS / 0 FAIL / 15,523 SKIP**
 
-## Develop
+All 15,523 discovered original source/configuration targets are registered
+as `SKIP_UNIMPLEMENTED`: no original upstream case has yet been executed
+through tscs and compared with the pinned reference. The standard library
+(`lib.es5.d.ts` and later) cannot be loaded; programs are checked with
+`--noLib` against the empty interfaces in
+[`fixtures/minimal.d.ts`](fixtures/minimal.d.ts). What does work is a
+checked, bounded subset of the language with ES2015 output, covered by about
+19,600 internal xUnit regressions and executed-output checks. Internal
+regressions are not original acceptance. Details, gaps and the roadmap:
+[docs/STATUS.md](docs/STATUS.md).
 
-On Linux x64, provision the exact repository toolchain and locked local NuGet feed:
+## Build and run
+
+On Linux x64, provision the exact SDK (10.0.402), Node 24.22.1, Go 1.27.3 and
+the locked NuGet feed, then build:
 
 ```sh
 bash scripts/setup-dev-environment.sh
 source "${TSCS_DEV_ROOT:-${XDG_CACHE_HOME:-$HOME/.cache}/tscs/linux-x64}/env.sh"
-```
-
-The installer uses .NET SDK 10.0.402, Node 24.22.1 and Go 1.27.3, verifies official
-archives, disables telemetry, and supports offline cache reuse. It does not
-modify system runtimes or loosen dependency locks. See
-[`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) and [`AGENTS.md`](AGENTS.md).
-The compiler itself is C#; Node and Go are development/reference tools only.
-
-## Check or emit a supported program
-
-```sh
 dotnet build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false
-dotnet src/Tscs.Cli/bin/Release/net10.0/tscs.dll \
-  --noEmit --noLib --target es2015 \
-  fixtures/local/number-ok.ts fixtures/minimal.d.ts
 ```
 
-For checked ES2015 output, use `--emitJs --noLib --target es2015` instead of
-`--noEmit`. Add `--module es2015` for the supported named-module subset.
-Generated files must not already exist. The compiler does not execute user code.
-`fixtures/minimal.d.ts` supplies empty interfaces for isolated tests, **not a
-usable standard library**. Full standard-library loading remains unsupported.
-
-A bounded `tsconfig.json` can specify `files`, explicit `include`/`exclude` globs,
-`noEmit`, `noLib`, `target: "es2015"` and `module: "es2015"`:
+Check a program, or emit checked ES2015 JavaScript:
 
 ```sh
+dotnet src/Tscs.Cli/bin/Release/net10.0/tscs.dll --noEmit --noLib --target es2015 \
+  fixtures/local/number-ok.ts fixtures/minimal.d.ts
+dotnet src/Tscs.Cli/bin/Release/net10.0/tscs.dll --emitJs --noLib --target es2015 \
+  --module es2015 path/to/main.ts fixtures/minimal.d.ts
 dotnet src/Tscs.Cli/bin/Release/net10.0/tscs.dll --emitJs -p path/to/tsconfig.json
 ```
 
-Project configuration and source discovery share CompilerHost/VFS. Explicit
-files take precedence over excludes. Default implicit includes, `extends`,
-package resolution, symlink traversal and TSX/JS inputs are not complete.
-
-## Finite local destructuring bindings (bounded)
-
-Checked `const` and `let` declarations support finite object and array
-binding patterns, renames, skipped array positions and nested patterns:
-
-```typescript
-import { readings, box } from "./model.js";
-const { value, nested: { label } } = box;
-let [first, , third] = readings;
-first = value + third;
-```
-
-A binding initializer is evaluated once. Nested receivers are also evaluated
-once before extracting their children. The compiler lowers bindings to ordinary
-scoped variable declarations and type-checks every property/index read, binding
-assignment and module call with the existing Binder and TypeChecker; ES2015
-output contains no TypeScript binding annotations. Finite object and array elements also accept checked `= fallback` defaults,
-including aliases and nested elements. Selected values are read once and
-fallbacks run lazily only for `undefined`, not other falsy values. These are
-lowered to checked conditional expressions. This is an intentionally
-bounded subset: object-rest bindings, dynamic computed binding expressions beyond
-static string/integer literals,
-array-iterator destructuring beyond checked arrays, catch binding
-patterns and unrestricted cross-module destructured exports remain unsupported.
-Named function declarations also support finite typed object/array parameter
-patterns, including nested elements and checked defaults. Hidden typed
-positional bindings and mutable function-entry locals preserve existing checked
-call signatures and ES2015 output. Rest/computed patterns and arbitrary iterator destructuring remain unsupported.
-Finite explicitly typed object/array binding parameters are also available in
-arrow values, function expressions and concise object methods. Expression-bodied
-arrows lower to checked return blocks; bindings remain scoped to the callable
-and are evaluated once. Unsafe initialization ordering and body-shadowed
-parameter defaults fail closed. Untyped patterns and general iterator semantics
-are not claimed.
-Because finite destructuring is lowered into the function body, defaulted
-parameters preceding a binding pattern, later default parameters, and following
-parameters after a destructured element default are rejected rather than
-compiled with incorrect initialization order. Duplicate
-names across pattern and ordinary parameters are also diagnosed. Parameter
-element defaults that would resolve a function-body declaration differently
-from native parameter initialization, and parameter defaults that reference
-their own destructured names, are explicitly rejected rather than miscompiled.
-Safe references to external declarations remain supported.
-The source-backed, executed and pinned-Go checks are bounded, not the full TS7
-original harness.
-
-## Unicode-aware string iteration (bounded)
-
-Checked `for (const character of text)` and `for (let character of text)`
-accept known string values and string-literal types alongside existing array
-iteration. The element has type `string`, with lexical scoping, assignment
-validation, break/continue and conservative flow invalidation. Native ES2015
-`for..of` output iterates Unicode code points, including astral characters.
-Known unions of arrays and strings may also be iterated; each yielded element
-retains the union of all possible member element types. Mixed arrays of mutable
-and readonly views and string literals use the same checked binding. Every
-union branch must be known iterable: optional/nullable, unknown, boolean and
-arbitrary iterator alternatives are rejected rather than miscompiled.
-Other iterables and downlevel iteration remain unsupported. The pinned-Go differential uses a symmetric, strictly validated
-String iterator ambient; this does not enable general library declarations.
-
-## Finite typeof guards for arrays and tuples (bounded)
-
-A `typeof value === "object"` guard can distinguish a checked array or
-finite tuple branch from known string/number/undefined alternatives. The
-inverse `!== "object"` branch is checked too, including readonly arrays
-and imported types. Since `typeof null` is also `"object"`, a nullable
-array remains possibly null until an additional explicit null guard.
-General structural object narrowing and property-path guards remain outside
-this safe subset; this does not claim full TS7 conformance.
-
-## Structural object data
-
-Required named object members now use the same AST, Binder, semantic types,
-module linker, checker and JavaScript emitter as other supported code:
-
-```typescript
-// data.ts
-export const seed = { value: 21, label: "seed" };
-
-// transform.ts
-export function twice(data: { value: number }): { value: number } {
-  return { value: data.value * 2 };
-}
-
-// entry.ts
-import { seed } from "./data.js";
-import { twice } from "./transform.js";
-seed.value = 21;
-export const result: number = twice(seed).value;
-```
-
-Nested member reads/writes, inline shape annotations and structural width
-assignment are supported. Bounded `readonly` named properties in object types and
-interfaces retain compile-time read-only write checks across module imports. Fresh object literals receive excess-property checks;
-wider values already held in variables can satisfy narrower required shapes.
-Writing a member of an imported or `const` object does not rebind that object.
-Missing members and incompatible assignments are rejected before emission.
-
-Bounded JavaScript truthiness guards on identifiers (`if (value)`, `if (!value)`,
-and ternaries) distinguish definitely falsy nullish/literal alternatives from
-truthy objects, functions and arrays. Broad numbers/strings remain possible
-in the false arm because zero and empty strings are falsy. Reassignments
-invalidate branch refinements; runtime `!` accepts checked non-boolean
-operands. Checked runtime truthiness now accepts member/index reads, calls and
-arithmetic expressions as conditions in `if`, ternaries, `while`,
-`do/while` and classic `for`. Direct unary `void` conditions reject with
-TS2873 (always falsy); testing a `void`-typed function result rejects with
-TS1345. Only stable existing guards narrow symbols: a member test does not
-invent property-path flow facts. Bounded value-producing `&&`/`||` expressions now preserve JavaScript's
-operand result rather than coercing it to boolean, including checked nullable,
-number, string, literal, callable, array and finite object values. The type
-checker retains possibly falsy left alternatives for `&&` and truthy left
-alternatives for `||`, while checking the right operand under existing
-short-circuit flow facts. The ES2015 output uses native lazy logical operators.
-`void`, `unknown` and arbitrary unmodelled forms remain explicitly
-unsupported; complete TS7 logical-type inference is not claimed.
-
-Finite comparisons with unshadowed `undefined` or `void 0` now refine
-nullable locals and parameters on checked branches. Strict `===`/`!==`
-exclude only the `undefined` constituent; loose `==`/`!=` exclude
-both `null` and `undefined`. A lexical binding named `undefined` is
-not treated as the intrinsic, and writes invalidate stale flow refinements.
-These are bounded identifier guards, not general property-path narrowing.
-
-Explicit postfix non-null assertions (`config.value!`, `config.run!(21)`) now
-remove `null` and `undefined` from checked union types and erase to ES2015 JavaScript.
-They do not perform runtime checks: the programmer must know the value exists.
-Unlike `??`, they cannot supply a fallback. Finite optional member/index
-reads (`box?.value`, `box?.["value"]`, `array?.[0]`) and guarded
-continuations (`box?.inner.value`, `box?.items[0]`, `box?.run(21)`)
-lower to ES2015 with one receiver evaluation. Continuations are checked on
-the present path: missing or optional intermediate members are not silently
-treated as required. Remaining indices and call arguments are skipped on
-short-circuit; direct member calls keep their `this` receiver. Standalone
-optional calls (`fn?.(21)`) are also supported. Postfix non-null assertions
-*within* a continuation, continuations after optional function calls, general
-nullable flow, dynamic index signatures and writes through optional chains
-remain unsupported.
-
-Bounded typed nullish fallbacks (`config.value ?? 42`) keep non-nullish
-alternatives and lower to ES2015 with single evaluation of the left
-expression and a lazy right side. Explicit `null` literals, annotations and
-`T | null` unions are supported in finite typed programs, including optional
-member and function reads. General null-flow narrowing, JS coercions and
-complete compiler-option-dependent strict-null rules remain unsupported. Unparenthesized mixing with `&&`/`||`
-fails explicitly. Full optional-chain combinations and general null/flow semantics remain
-unimplemented.
-
-Finite optional data members (`value?: number`) are checked across type aliases, interfaces, inheritance and modules; omitted keys remain optional, while reads have a `number | undefined` type. Bounded readonly optional writes are rejected. Finite optional method signatures are supported; optional-property control-flow narrowing, readonly arrays, getter/setter accessors,
-index signatures, general iterable spreads, computed keys, prototype-setter literals,
-generic or unrestricted interface inheritance, or recursive type aliases. Named,
-non-generic interfaces can extend finite object/interface shapes with checked
-inherited required members. Such unimplemented forms fail explicitly.
-Parser depth and diagnostic display are bounded. Runtime and validation details:
-[`structural-object-data`](docs/progress/structural-object-data.md).
-
-## Const assertions with named literal members (bounded)
-
-Fresh `as const` objects and tuples can contain known identifier values from
-local or imported declarations. Exact constant primitives remain exact, mutable
-values retain their declared/widened types, and the fresh object/tuple shell is
-readonly without incorrectly freezing an object referred to by a member.
-These use the existing binder, type query, module and native ES2015 pipeline.
-A root `value as const` still rejects. Checked nested arithmetic and finite
-member/index expressions retain their inferred types; `21 + 1` is `number`,
-not a fabricated `22` literal. New object/tuple shells remain readonly;
-only statically checked finite spreads are supported.
-
-## Finite object-spread const assertions (bounded)
-
-A fresh object `{...existing, tag: "ready"} as const` preserves the
-already-checked types of spread members and makes the new outer properties
-readonly. Later explicit members override earlier spreads; nested objects
-*referenced* by a spread remain mutable unless already readonly. Optional
-spread members retain their optionality. Object spreads require statically
-checked object operands and do not imply general conditional-spread inference,
-deep freezing of references, or full TypeScript standard-library support.
-
-## Fixed tuple type annotations (bounded)
-
-Explicit positional tuples such as `type Pair = [number, string]` and
-`readonly [number, string]` retain each slot's checked type, fixed length,
-mutable/readonly index rules, aliases, typed function parameters and returns,
-and named ES2015 module boundaries. Fresh array literals are checked
-positionally and emitted as ordinary JavaScript arrays. Nested fixed tuples,
-`T[0]`, `T[number]` and `T["length"]` reuse existing type resolution.
-Fully named tuples such as `[first: number, second: string]` and
-`readonly [count: number, label: string]` share the same checked positional
-types and runtime erasure; their labels have no effect on assignability.
-Named and unnamed tuple slots may be mixed (TypeScript 5.2+), including
-contextual keyword labels such as `type` and `function`. Strict-mode
-reserved labels such as `interface`, `let` and `private` are rejected with
-TS1212. Trailing optional tuple elements such as [number, string?] and [id: number, label?: string]
-retain their optional read types and finite length unions; required elements may
-not follow optional elements. Finite *trailing* tuple rest elements expand explicit fixed tuple types,
-including named imported aliases and finite optional tails, with exact checked
-indices and lengths. Unbounded array rests, nonterminal tuple rest, tuple value
-spreads from unknown-length arrays and general variadic inference remain unsupported and fail explicitly. Explicit finite fixed-length tuple values may now be copied with `[head, ...tail]` in a checked contextual tuple literal, preserving each position's type without re-evaluating the operand. Trailing optional-length tuple value spreads are now checked against contextual
-tuple minimum/maximum lengths with exact positional types. Optional spreads
-before additional source elements remain unsupported. A final finite optional-length
-value spread in a fresh `as const` array likewise preserves its optional slots,
-length union and readonly outer tuple. Unknown-length or nonterminal optional
-spreads in const arrays still fail explicitly. This is bounded local
-semantics, not original TS7 suite acceptance.
-
-## Array element types through indexed access (bounded)
-
-Array and readonly-array type annotations can select their element type with
-`T[number]` or a non-negative safe integer literal index, and their length
-with `T["length"]`. A union of known arrays joins the selected element
-types; mixed object/array unions and unknown or unsupported index types
-fail explicitly. These types cross named ES2015 module boundaries, while
-ordinary JavaScript array indexing is emitted without a runtime helper.
-This is not general index-signature or standard-library compatibility.
-
-## String indexed-access types (bounded)
-
-Known string, string-literal and string-only union type operands expose
-`T[number]`, non-negative safe integer keys and `T["length"]`.
-The first two resolve to `string` (UTF-16 code units), while length resolves
-to `number`; finite key unions join these result types. These type selections
-erase in output and work across typed named-module boundaries. Unmodelled
-string members, arbitrary index signatures and full standard-library
-compatibility remain unsupported.
-
-## Named aliases, interfaces and unions (bounded)
-
-The compiler supports non-generic `type` aliases, required named-member
-`interface` shapes, `number | string`-style unions, object unions, postfix
-array union annotations and explicit `import type` between modules:
-
-```typescript
-// model.ts
-export interface Reading { value: number; label: string }
-export type Payload = Reading | number;
-
-// logic.ts
-import type { Reading } from "./model.js";
-export function twice(x: Reading): Reading {
-  return { value: x.value * 2, label: x.label };
-}
-```
-
-These declarations are erased from emitted JavaScript. The runtime graph
-and semantic limits are documented in
-[`named-types-union`](docs/progress/named-types-union.md). This does not
-implement general generic, recursive, narrowing, mapped or intersection types.
-
-## Typed callback contracts (bounded)
-
-Named function type annotations, such as `type Callback = (value: number) => number`,
-are resolved through the same Binder, TypeResolver, function relations and module
-linker as declared functions. Functions can be passed as annotated parameters,
-assigned to function-typed variables and stored in required object members.
-Finite trailing optional parameters and array rest parameters are supported.
-Type annotations erase in ES2015 output. Explicitly typed arrow values accept
-expression and braced bodies, lexical capture, checked local statements, and
-bounded inferred braced returns (all value-returning paths must return).
-Typed arrow values also support trailing optional typed parameters, defaults
-and final array rest parameters (`...items: number[]`). Rest element types are
-checked at calls and the braced body sees an ordinary array. Types are erased
-to native ES2015 parameters. Untyped arrow parameters, mixed bare/value return
-inference, overloads, generics,
-`this` parameters and unrestricted callable properties remain unsupported.
-
-Typed **anonymous function expressions** are checked callable values:
-`const twice = function(n: number): number { return n + n; }`.
-They reuse typed parameter grammar, lexical binding, return validation,
-function signatures, modules, and ES2015 output. Trailing optional/default
-and array-rest parameters are supported within the same checked subset.
-Named function expressions with explicit return annotations also support
-lexically scoped self-recursion; the self name does not leak to callers.
-Nonrecursive named function expressions infer checked braced returns, but self
-references during inference require an explicit return annotation. Generators,
-implicit untyped parameters and `this` semantics remain unsupported. See
-[`typed-function-expressions`](docs/progress/typed-function-expressions.md).
-
-## Checked interface and object method signatures (bounded)
-
-Required callable members accept TypeScript method spelling such as
-`interface Op { double(n: number): number }` and
-`type Box = { make(n: number): number }`. The method signature becomes
-the existing checked function-type contract: a typed function/arrow value can
-implement it, be extracted and called, and cross module boundaries without
-emitting the interface or annotation. Optional trailing parameters and final
-array-rest parameters use the same existing bounded semantics. This is a
-function-valued structural member, not a method declaration or `this` binding;
-method overload merging, general `this`, generics and readonly method modifiers
-are not implemented. Optional methods are checked as possibly undefined callable
-members; unguarded optional calls remain unsupported rather than silently accepted.
-
-## Checked object literal methods (bounded)
-
-Concise object literal methods now run through typed parameter binding,
-function-body checking, structural method contracts, and native ES2015 method
-emission: `const op = { twice(n: number) { return n + n; } }`.
-Required interfaces, extracted callbacks, nested methods, default parameters
-and final array-rest parameters reuse existing constraints. The emitted method
-retains JavaScript's non-constructible method semantics rather than replacing it
-with a constructor-valued function property. Untyped parameters, async/generator
-methods, computed method names, `super`, full `this` semantics, method overloads
-and class methods are not implemented.
-
-Static computed keys such as `{["twice"](n: number) { return n + n; }}`,
-`{["answer"]: 42}` and `{[0]: 42}` reuse checked structural members
-and retain native computed ES2015 syntax. Only literal strings and safe
-non-negative integer keys are supported; dynamic key expressions,
-computed accessors and `__proto__` semantics remain unsupported.
-
-## Checked member and returned-function calls (bounded)
-
-Function-valued object properties now support direct checked calls such as
-`box.run(21)`, `box["run"](21)` and `nested.inner.run(21)`. A callee may
-also be a parenthesized function expression or a returned callable.
-The Parser retains the full callee expression through TypeChecker and the
-ES2015 emitter; argument types, optional/default arity and final array-rest
-spreads reuse existing signature validation. Runtime member access stays a
-JavaScript member call instead of extracting the function. Dynamic object
-index signatures, optional chaining, general `this` typing, generics and
-overloads remain unsupported.
-
-## Fresh discriminated object unions with `satisfies` (bounded)
-
-A fresh object literal with a concrete string tag can use `satisfies` against a
-finite union of disjoint, required string-literal-tagged object shapes. The
-compiler checks the selected branch, retains the exact discriminant for later
-safe writes and emits plain ES2015 JavaScript. Ambiguous, missing, widened or
-overlapping discriminants and spread objects fail closed; full TypeScript
-contextual inference is not claimed. See source-backed type-operator tests.
-
-## Checked `void` expressions (bounded)
-
-Unary `void` checks and evaluates its operand once, returning semantic `undefined`.
-The result is assignable to `void` or `undefined`, not to `number` or `string`.
-Native ES2015 emission retains unary precedence, nested expressions and effects.
-This is distinct from a `void` function return annotation. The `delete` operator,
-`null` source literals and general nullable-flow narrowing remain unsupported.
-
-## Checked radix numeric literals (bounded)
-
-Hexadecimal (`0x2a`), binary (`0b101010`) and octal (`0o52`) integer
-spellings, including digit separators (`0x2_A`), share scanner tokens,
-literal types, object property identities, checked arithmetic and ES2015 output.
-Emission uses normalized decimal values. Malformed digits and separators fail
-closed. Values beyond JavaScript's maximum safe integer (2^53 - 1) are
-explicitly unsupported rather than rounded. This is not full TS7 support.
-
-## Checked template expressions (bounded)
-
-Untagged backtick strings may contain checked ${expression} substitutions:
-the existing parser and type checker validate numeric, string, boolean,
-nullish, object-property, arithmetic and callable expressions, while ES2015
-output retains native runtime interpolation. Multiple substitutions, literal
-escapes and multiline text are preserved. Embedded parser diagnostics retain
-the original UTF-16 offsets. Nested untagged templates with up to eight lexical nesting levels are checked
-recursively and emitted as native ES2015 templates. Tagged templates, deeper
-nesting and complete template literal types remain unsupported and fail closed. Backticks cannot replace quoted module
-specifiers or bare quoted object/type property keys.
-
-## Checked mutable array methods (bounded)
-
-Mutable `T[]` and `Array<T>` now expose native ES2015 `push`, `pop`,
-`unshift` and `shift` through the existing checked property-call path.
-Element arguments are checked, rest/spread arguments retain the existing
-bounded call rules, `push`/`unshift` return `number`, and `pop`/`shift`
-return `T | undefined`. `readonly T[]` and `ReadonlyArray<T>`
-reject these mutating methods. This does not implement arbitrary Array methods,
-callbacks, general method overloads or external standard-library resolution.
-
-Native mutable-array `reverse()`, `sort(compareFn?)`, `fill(value,start?,end?)`
-and `copyWithin(target,start,end?)` now retain the same checked `T[]`
-type and mutate the original receiver through native ES2015 calls. The
-optional `sort` callback requires an explicitly typed function/arrow with
-two element parameters and a numeric return. These methods are not available
-through readonly views. Contextual callback inference and method overloads
-remain unsupported; this bounded addition is not original TS7 acceptance.
-
-Both mutable and readonly arrays now accept bounded native `every`, `some`,
-`find`, `findIndex` and `forEach` with explicitly typed single-value
-callbacks, checked predicate/void results and ES2015 output. Index/array
-callback parameters, contextual inference, `thisArg`, type-guard predicates
-and full standard-library overloads remain unsupported. These are not original
-TS7 acceptance results.
-
-## Checked array filtering and same-element folds (bounded)
-
-Native `filter`, `reduce`, and `reduceRight` operate on mutable and
-readonly array views through checked, explicitly typed callbacks.
-`filter((value: T) => boolean)` creates a fresh, mutable `T[]`;
-`reduce`/`reduceRight` accept `(accumulator: T, value: T) => T`
-with an optional `T` initial value. Native ES2015 preserves order and
-the runtime error when reducing an empty array without an initial value.
-General different-type accumulators, contextual callback inference,
-index/array callback parameters and type-guard predicates are unsupported.
-
-Native `map` now transforms mutable or readonly arrays into fresh mutable
-arrays, preserving the explicitly typed callback return element type:
-`readonly number[]` may map through `(n: number): string => ...` to `string[]`.
-This is a bounded intrinsic on checked array method calls, not a general
-generic type-inference engine. Callback value parameters require explicit types;
-index/array callback parameters, `thisArg`, method overloads and untyped arrow
-inference are not supported. The emitted ES2015 JavaScript calls native `map`.
-
-## Checked native string operations (bounded)
-
-Primitive strings and string literal values support non-mutating
-`toUpperCase()`, `toLowerCase()`, `trim()`, `slice(start?, end?)`,
-`includes(search, position?)`, `startsWith(search, position?)`
-and `endsWith(search, endPosition?)` through ordinary checked calls
-and native ES2015 emission. Arguments, return types and arity are checked;
-the finite `String` ambient contract rejects unknown, duplicate or
-incompatible declarations. This does not implement complete standard-library
-loading, overloads, regex methods or original TS7 acceptance.
-
-## Other implemented subsets
-
-The current pipeline includes primitive/`any` variables, lexical scopes, selected
-arithmetic/boolean/comparison expressions, braced `if`/`else`, explicit supported
-function signatures, named imports/exports/re-exports, multi-file host-backed
-programs, and ES2015 AST-backed output. Function return inference, overloads,
-closures, general control flow, full type relations, declarations/maps,
-standard libraries and incremental/watch compilation remain incomplete.
-
-A bounded array and iteration family is being integrated: homogeneous array
-literals, `T[]` annotations, numeric indexed reads/writes, `.length`, and braced
-`for (const/let item of array)` with lexical iteration bindings. It also works
-with named object members and across ES2015 modules through the same checked
-AST and emitter. Empty evolving inference, heterogeneous unions, tuples,
-non-array iterables, index signatures, classic `for`/`for..in`, destructuring,
-and general array methods were **not** part of that initial slice; later sections
-and merged feature packages cover bounded variants. See
-[`array-index-forof`](docs/progress/array-index-forof.md) for validation and
-current merge status.
-
-A leading whole-line `// @ts-ignore` suppresses semantic diagnostics only on the
-immediately following physical line; scanner/parser errors are not suppressed.
-Other directive forms are not generally supported. Intrinsic `globalThis` is
-recognized but its type remains unsupported. Unsupported constructs/options
-report a TSCS diagnostic and exit 1; ordinary TypeScript errors exit 2; successful
-supported compilations exit 0. `--json` is a tscs diagnostic extension.
-
-## Verification and honest scope
+Options: `--noEmit`, `--emitJs`, `--noLib`, `--target es2015`,
+`--module es2015`, `-p`/`--project`, `--pretty false`, and the tscs extension
+`--json`. Exit codes: 0 success, 2 TypeScript errors, 1 unsupported construct
+or option (reported as a TSCS diagnostic). Output files must not already
+exist. The compiler never executes user code.
+
+Run the full development gate (what CI runs):
 
 ```sh
 ./scripts/verify.sh
 ```
 
-The development gate builds with locked dependencies, runs xUnit 4/Microsoft
-Testing.Platform and native Node `.ts` tests, checks the frozen 29-case isolated
-cohort, and actually executes emitted JavaScript. Targeted development tests can
-run the built MTP executable directly; report that separately from the SDK
-`dotnet test` coordinator. Existing fail-skips and release gates remain strict.
+## Capabilities by area
 
-The [local guard register](docs/testing/ts7/implementation-coverage.json) has
-14 existing probes: 9 implemented and 5 explicitly unimplemented. Its static
-execution fields remain NOT_RUN; actual results are evidence-bound separately.
-This is not an upstream completion percentage. The independent generated suite
-retains 15,523 configuration-level targets as SKIP/UNIMPLEMENTED, with 0 original
-accepts. The full dynamic case denominator remains unknown; no release is claimed.
+| Area | State | Detail |
+|---|---|---|
+| Project and host | Bounded `tsconfig.json` (`files`, explicit `include`/`exclude`, `noEmit`, `noLib`, `target`, `module`), CompilerHost/VFS, triple-slash path references | [STATUS](docs/STATUS.md#project-host-and-modules) |
+| Scanner and parser | Most expression, statement and type syntax used by the supported subset; JSON config parsing checked against vectors generated from the pinned reference | [STATUS](docs/STATUS.md#syntax) |
+| Types and checking | Primitives, literals, unions, named/structural objects, arrays, tuples, functions, bounded `keyof`/indexed access/`typeof`; no generics or classes | [STATUS](docs/STATUS.md#types-and-checking) |
+| Control flow | `if`, loops, `switch`, `try`, narrowing guards, definite assignment for the supported subset | [STATUS](docs/STATUS.md#control-flow-and-narrowing) |
+| Emit | ES2015 scripts and named ES modules from the checked AST | [STATUS](docs/STATUS.md#emit) |
+| Standard library | Not loadable; a fixed set of native array/string/object members is modelled directly | [STATUS](docs/STATUS.md#standard-library) |
+| Conformance harness | Pinned Go reference oracle, 15,523-target original inventory, frozen 29-case isolated cohort | [STATUS](docs/STATUS.md#conformance-harness) |
 
-See the [full scope inventory](docs/testing/ts7/README.md),
-[source correspondence](docs/PORTING.md), [design](docs/superpowers/specs/2026-10-24-tscs-compiler-design.md)
-and [original evidence](docs/evidence/).
+## Documentation
+
+| Document | Purpose | Reader |
+|---|---|---|
+| [docs/STATUS.md](docs/STATUS.md) | Current state: headline metric, what works, gaps, roadmap | Everyone |
+| [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Toolchain provisioning, focused build and test commands | Contributors |
+| [docs/PORTING.md](docs/PORTING.md) | C# module to upstream Go source correspondence | Compiler developers |
+| [docs/testing/ts7/README.md](docs/testing/ts7/README.md) | Upstream test inventory, ledgers and how they are generated | Harness developers |
+| [Design spec](docs/superpowers/specs/2026-10-24-tscs-compiler-design.md) and [bootstrap plan](docs/superpowers/plans/2026-10-24-compiler-bootstrap.md) | Original design and plan (historical) | Background |
+| [docs/progress/](docs/progress/) | Per-work-package records (historical) | Background |
+| [docs/evidence/](docs/evidence/) | Kept validation logs and receipts (historical, never rewritten) | Auditors |
+| [AGENTS.md](AGENTS.md) | Binding instructions for automated contributors | Agents |
+
+`node tools/check-docs.ts` (part of `./scripts/verify.sh`) checks links,
+this index, size budgets and that the headline above matches STATUS.
+
+The compiler is C#; Node and Go are development and reference tools only.
 Apache-2.0; see [NOTICE](NOTICE) for upstream attribution.

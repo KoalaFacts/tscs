@@ -5,19 +5,18 @@ This bootstrap is a bounded adaptation, **not a completed function-by-function p
 
 | C# module | Reference path / behavior | Current boundary |
 |---|---|---|
-| Scanner | tsc/internal/scanner/scanner.go, Scan | Trivia, identifier/keyword, decimal integer and quoted string paths; other tokens fail explicitly |
-| Parser | tsc/internal/parser/parser.go, parseVariableDeclarationList / parseVariableDeclarationWorker | Named primitive declarations, blocks, references, assignments, restricted recovery |
-| Binder | tsc/internal/binder/binder.go, bindBlockScopedDeclaration | Predeclared block tables; no module or declaration merging |
-| TypeChecker | tsc/internal/checker/checker.go, checkVariableLikeDeclaration / checkIdentifier / checkBinaryLikeExpression | Primitive relations, missing names, const assignment; no generic relation engine |
-| Compilation | tsc/internal/compiler/program.go, GetDiagnosticsOfAnyProgram | Syntax-before-semantics for supported single-file cases |
-| CommandLine | tsc/internal/execute/tsc/emit.go | Diagnostic presentation and noEmit exit status; restricted options, not full CLI parity |
+| Scanner | tsc/internal/scanner/scanner.go, Scan | Token set used by the supported subset; unsupported tokens fail explicitly ([STATUS](STATUS.md#syntax)) |
+| Parser | tsc/internal/parser/parser.go | Statements, expressions and type syntax of the supported subset ([STATUS](STATUS.md#syntax)) |
+| Binder | tsc/internal/binder/binder.go, bindBlockScopedDeclaration | Block, function and module scopes; no declaration merging |
+| TypeChecker / TypeResolver | tsc/internal/checker/checker.go | Bounded relations, narrowing and native members ([STATUS](STATUS.md#types-and-checking)); no generic relation engine |
+| Compilation | tsc/internal/compiler/program.go, GetDiagnosticsOfAnyProgram | Syntax-before-semantics, multi-file programs |
+| CommandLine | tsc/internal/execute/tsc/emit.go | Diagnostic presentation and exit status; restricted options, not full CLI parity |
 
 Go source offsets are UTF-8 byte offsets; tools/oracle/main.go converts locations
 into UTF-16 offsets for comparison with C#. CLI columns are separately compared.
 The oracle uses upstream diagnostic sorting/deduplication and the noEmit sequence.
 
-Intentional limits: the initial core checks an in-memory file and the CLI loads real
-files; a general virtual filesystem/project host is not yet ported. Standard-library
+Intentional limits: standard-library
 bootstrap accepts only explicitly supplied empty global interfaces. Type identities,
 module resolution, declaration merging, full Unicode identifier support, full
 numeric/string syntax and all checker branches require further upstream porting.
