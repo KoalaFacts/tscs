@@ -554,7 +554,7 @@ internal static class JavaScriptEmitter
                     }
                     break;
                 case ForVariableDeclarations declarations:
-                    output.Append("let ");
+                    output.Append(declarations.Declarations[0].Constant?"const ":"let ");
                     for(int i=0;i<declarations.Declarations.Count;i++)
                     {
                         if(i>0)output.Append(", ");
@@ -568,7 +568,7 @@ internal static class JavaScriptEmitter
                     }
                     break;
                 case Variable variable:
-                    output.Append("let ").Append(variable.Name.Text);
+                    output.Append(variable.Constant?"const ":"let ").Append(variable.Name.Text);
                     if(variable.Initializer is { } initial)
                     {
                         output.Append(" = ");

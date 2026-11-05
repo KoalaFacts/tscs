@@ -51,7 +51,7 @@ public sealed class ClassicForMultiDeclarationTests
     [Theory]
     [InlineData("""function f():number {for(let i=0,;i<2;i++){}return 1;}""")]
     [InlineData("""function f():number {for(let i=0,j;i<2;i++){}return 1;}""")]
-    [InlineData("""function f():number {for(const i=0,j=1;i<2;i++){}return 1;}""")]
+    [InlineData("""function f():number {for(const i=0,j:number;i<2;){}return 1;}""")]
     public void UnsupportedOrMalformedHeadersFailClosed(string source)=>
         Assert.NotEmpty(Compilation.Check("classic-for-multibind-unsupported.ts",source));
 

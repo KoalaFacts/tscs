@@ -50,7 +50,7 @@ public sealed class ClassicForTests
     }
 
     [Theory]
-    [InlineData("for(const i=0;i<3;i++){}")]
+    [InlineData("for(const i:number;i<3;){}")]
     [InlineData("for(let i=0;i<3;i++) const x=1;")]
     [InlineData("for(var i=0;i<3;i++){}")]
     public void UnsupportedVariantsRemainExplicit(string source) =>
