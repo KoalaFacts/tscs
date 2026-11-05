@@ -21,7 +21,7 @@ public sealed class ClassicForMultiDeclarationTests
     [InlineData("""function f():number {for(let i=0,thunk:()=>number=((():number=>thunk()) as ()=>number);false;){ }return 1;}""")]
     [InlineData("""function f():number {for(let setter:()=>void=():void=>{j=1;},j:number=2;false;){ }return 1;}""")]
     [InlineData("""function f():number {for(let getter:()=>number=():number=>j,j:number=2;false;){ }return 1;}""")]
-    [InlineData("""function f():number {for(let getter:()=>number=():number=>j,j:number=2,now=getter();false;){ }return now;}""")]
+    [InlineData("""function f():number {let result:number=0;for(let getter:()=>number=():number=>j,j:number=2,now=getter();false;){result=now;}return result;}""")]
     [InlineData("""function f():number {for(let getter:()=>number=():number=>1,now=getter(),j:number=2;false;){ }return 1;}""")]
     [InlineData("""function f():number {let result:number=0;for(let j:number=1,setter:()=>void=():void=>{j=5;},i=j;false;){result=i;}return result;}""")]
     public void MultipleHeaderBindingsAreChecked(string source)=>
