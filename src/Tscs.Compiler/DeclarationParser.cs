@@ -26,6 +26,8 @@ internal sealed record AmbientMappedType(string? ReadonlyModifier,Token Paramete
     AmbientType? NameType,string? OptionalModifier,AmbientType? Type) : AmbientType;
 internal sealed record AmbientTypeLiteral(IReadOnlyList<AmbientMember> Members) : AmbientType;
 internal sealed record AmbientParenthesizedType(AmbientType Type) : AmbientType;
+// Raw text pieces (escapes kept): Head, then each substitution's type and the text after it.
+internal sealed record AmbientTemplateLiteralType(Token Token,string Head,IReadOnlyList<(AmbientType Type,string Text)> Spans) : AmbientType;
 // `x is T`, `this is T`, `asserts x` and `asserts x is T`.
 internal sealed record AmbientTypePredicate(bool Asserts,Token Parameter,AmbientType? Type) : AmbientType;
 
@@ -58,6 +60,12 @@ internal sealed record AmbientFunction(Token Name,AmbientSignature Signature,boo
 // `declare global` has an empty Name.
 internal sealed record AmbientNamespace(IReadOnlyList<Token> Name,IReadOnlyList<AmbientStatement> Body,bool Exported) : AmbientStatement(Exported);
 internal sealed record AmbientExportList(IReadOnlyList<Token> Names) : AmbientStatement(false);
+// An ambient class: members carry their modifiers; no bodies or initializers.
+internal sealed record AmbientClass(Token Name,IReadOnlyList<AmbientTypeParameter> TypeParameters,
+    AmbientTypeReference? Base,IReadOnlyList<AmbientTypeReference> Implements,IReadOnlyList<AmbientClassMember> Members,
+    bool Abstract,bool Exported) : AmbientStatement(Exported);
+internal sealed record AmbientClassMember(IReadOnlyList<string> Modifiers,AmbientMember Member);
+internal sealed record AmbientConstructorDeclaration(AmbientSignature Signature) : AmbientMember;
 
 internal sealed record AmbientDeclarationFile(string File,IReadOnlyList<AmbientStatement> Statements,
     IReadOnlyList<(string Name,string Value)> ReferenceDirectives,IReadOnlyList<Diagnostic> Diagnostics);
@@ -71,7 +79,7 @@ internal sealed record AmbientDeclarationFile(string File,IReadOnlyList<AmbientS
 internal sealed class DeclarationParser
 {
     private readonly string file;
-    private readonly List<Token> tokens;
+    private List<Token> tokens;
     private int position;
     // inDisallowConditionalTypesContext: set while parsing an extends clause.
     private bool disallowConditional;
@@ -216,7 +224,8 @@ internal sealed class DeclarationParser
         if(Current.Kind==TokenKind.Type && IsWord(Peek()) && !Peek().LineBreak)return ParseTypeAlias(exported);
         // The pinned checker's grammar check for top-level .d.ts value declarations.
         if(topLevel && !declared && !exported &&
-           (Current.Kind is TokenKind.Let or TokenKind.Const or TokenKind.Function || Is("var") || Is("namespace") || Is("module")))
+           (Current.Kind is TokenKind.Let or TokenKind.Const or TokenKind.Function || Is("var") || Is("namespace") || Is("module") ||
+            Is("class") || (Is("abstract") && Peek().Text=="class")))
             throw new CompilationFailure(Diagnostic.Error(file,start,"TS1046","Top-level declarations in .d.ts files must start with either a 'declare' or 'export' modifier."));
         if(Current.Kind is TokenKind.Let or TokenKind.Const || Is("var"))
         {
@@ -233,7 +242,8 @@ internal sealed class DeclarationParser
         }
         if(Is("module") && Peek().Kind==TokenKind.String)throw Unsupported("Ambient module declarations");
         if(Is("enum"))throw Unsupported("Enums");
-        if(Is("class") || Is("abstract"))throw Unsupported("Classes");
+        if(Is("class"))return ParseClass(exported,isAbstract:false);
+        if(Is("abstract") && Peek().Text=="class" && !Peek().LineBreak){Take();return ParseClass(exported,isAbstract:true);}
         throw Error("TS1128","Declaration or statement expected.");
     }
 
@@ -396,6 +406,138 @@ internal sealed class DeclarationParser
             if(!Eat(TokenKind.Comma))break;
         }
         Expect(close,array?"]":"}");
+    }
+
+    private AmbientClass ParseClass(bool exported,bool isAbstract)
+    {
+        Take();
+        var name=ExpectBindingIdentifier();
+        var typeParameters=ParseTypeParameters();
+        AmbientTypeReference? baseType=null;
+        var implemented=new List<AmbientTypeReference>();
+        if(Eat(TokenKind.Extends))
+        {
+            baseType=ParseHeritageType();
+            if(Current.Kind==TokenKind.Comma)throw Error("TS1174","Classes can only extend a single class.");
+        }
+        if(EatWord("implements"))
+        {
+            do implemented.Add(ParseHeritageType());
+            while(Eat(TokenKind.Comma));
+        }
+        return new(name,typeParameters,baseType,implemented,Nested(ParseClassMembers),isAbstract,exported);
+    }
+
+    // ExpressionWithTypeArguments limited to entity names, as in declaration files.
+    private AmbientTypeReference ParseHeritageType()
+    {
+        var name=ParseEntityName();
+        return new(name,ParseTypeArguments());
+    }
+
+    private static readonly HashSet<string> ClassModifiers=new(StringComparer.Ordinal)
+        {"public","private","protected","static","readonly","abstract","declare","override","accessor"};
+
+    private List<AmbientClassMember> ParseClassMembers()
+    {
+        Expect(TokenKind.Open,"{");
+        var members=new List<AmbientClassMember>();
+        while(Current.Kind!=TokenKind.Close)
+        {
+            if(Current.Kind==TokenKind.End)throw Error("TS1005","'}' expected.");
+            if(Eat(TokenKind.Semi))continue;
+            var modifiers=new List<string>();
+            while(IsWord(Current) && ClassModifiers.Contains(Current.Text) && IsModifier(Current.Text))modifiers.Add(Take().Text);
+            members.Add(new(modifiers,ParseClassMember()));
+            if(Current.Kind==TokenKind.Open)throw Error("TS1183","An implementation cannot be declared in ambient contexts.");
+            if(Current.Kind==TokenKind.Equal)throw Unsupported("Class property initializers");
+            ExpectSemicolon();
+        }
+        Take();
+        return members;
+    }
+
+    private AmbientMember ParseClassMember()
+    {
+        if(Is("constructor") && Peek().Kind is TokenKind.OpenParen or TokenKind.LessThan)
+        {
+            Take();
+            return new AmbientConstructorDeclaration(ParseSignature(TokenKind.Colon));
+        }
+        if(Current.Kind==TokenKind.OpenBracket && IsIndexSignature())
+        {
+            Take();
+            var parameters=ParseParameters(TokenKind.CloseBracket);
+            Expect(TokenKind.CloseBracket,"]");
+            if(parameters.Count!=1)throw Error("TS1096","An index signature must have exactly one parameter.");
+            Expect(TokenKind.Colon,":");
+            return new AmbientIndexSignature(parameters,ParseType(),false);
+        }
+        if(IsAccessorKeyword())
+        {
+            bool setter=Take().Text=="set";
+            var accessorName=ParsePropertyName();
+            return new AmbientAccessorSignature(accessorName,ParseSignature(TokenKind.Colon),setter);
+        }
+        if(Current.Kind is TokenKind.OpenParen or TokenKind.LessThan)
+            throw Error("TS1068","Unexpected token. A constructor, method, accessor, or property was expected.");
+        var name=ParsePropertyName();
+        bool optional=Eat(TokenKind.Question);
+        if(Current.Kind is TokenKind.OpenParen or TokenKind.LessThan)
+            return new AmbientMethodSignature(name,ParseSignature(TokenKind.Colon),optional);
+        if(Current.Kind==TokenKind.Bang)throw Unsupported("Definite assignment assertions");
+        AmbientType? type=Eat(TokenKind.Colon)?ParseType():null;
+        return new AmbientPropertySignature(name,type,optional,false);
+    }
+
+    private AmbientTemplateLiteralType ParseTemplateLiteralType()
+    {
+        var token=Take();
+        string raw=token.Text;
+        var spans=new List<(AmbientType Type,string Text)>();
+        var text=new System.Text.StringBuilder();
+        string? head=null;
+        for(int i=1;i<raw.Length-1;)
+        {
+            if(raw[i]=='\\' && i+1<raw.Length-1){text.Append(raw,i,2);i+=2;continue;}
+            if(raw[i]=='$' && raw[i+1]=='{')
+            {
+                int end=TemplateInterpolation.FindClose(raw,i+2);
+                var type=ParseEmbeddedType(raw[(i+2)..end],token.Start+i+2);
+                if(head is null)head=text.ToString();
+                else spans[^1]=(spans[^1].Type,text.ToString());
+                text.Clear();
+                spans.Add((type,""));
+                i=end+1;
+                continue;
+            }
+            text.Append(raw[i++]);
+        }
+        spans[^1]=(spans[^1].Type,text.ToString());
+        return new(token,head!,spans);
+    }
+
+    // A template substitution is scanned on its own and parsed as one type,
+    // keeping absolute source offsets for diagnostics.
+    private AmbientType ParseEmbeddedType(string source,int offset)
+    {
+        var scanner=new Scanner(file,source,declarationFile:true);
+        List<Token> embedded;
+        try{embedded=scanner.Scan();}
+        catch(CompilationFailure failure){throw new CompilationFailure(failure.Diagnostic with {Start=failure.Diagnostic.Start+offset});}
+        if(scanner.Diagnostics.Count>0)throw new CompilationFailure(scanner.Diagnostics[0] with {Start=scanner.Diagnostics[0].Start+offset});
+        var savedTokens=tokens;
+        int savedPosition=position;
+        tokens=embedded.Select(t=>t with {Start=t.Start+offset}).ToList();
+        position=0;
+        try
+        {
+            if(Current.Kind==TokenKind.End)throw Error("TS1110","Type expected.");
+            var type=ParseType();
+            if(Current.Kind!=TokenKind.End)throw Error("TS1005","'}' expected.");
+            return type;
+        }
+        finally{tokens=savedTokens;position=savedPosition;}
     }
 
     private AmbientType ParseReturnType()=>WithConditionalTypes(false,ParseTypeOrTypePredicate);
@@ -641,7 +783,7 @@ internal sealed class DeclarationParser
             case TokenKind.String:case TokenKind.Number:case TokenKind.True:case TokenKind.False:
                 return new AmbientLiteralType(Take());
             case TokenKind.Template:
-                throw Unsupported("Template literal types");
+                return ParseTemplateLiteralType();
             case TokenKind.Minus when Peek().Kind==TokenKind.Number:
                 Take();
                 return new AmbientLiteralType(Take(),Negative:true);
