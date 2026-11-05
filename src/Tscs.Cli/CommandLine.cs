@@ -47,7 +47,13 @@ public static class CommandLine
                 if(missing.Length>0)diagnostics=missing;
             }
             int exitCode=unsupported?1:diagnostics.Length>0?2:0;
-            if(exitCode==0&&options.EmitJs)
+            // Missing --noLib global interfaces are reference-compatible TS2318
+            // environment diagnostics: they do not make a checked source unsafe
+            // to emit. Other source diagnostics still prevent all JavaScript.
+            // Preserve exit code 2 and the complete missing-global diagnostics.
+            bool canEmitCheckedSource=analysis.Diagnostics.Count==0 && !syntax && !unsupported &&
+                (exitCode==0 || (exitCode==2 && diagnostics.All(d=>d.Code=="TS2318")));
+            if(options.EmitJs&&canEmitCheckedSource)
             {
                 if(host is not FileSystemCompilerHost)
                     throw new InputFailure("Filesystem JavaScript output is unavailable for virtual compiler hosts.");
