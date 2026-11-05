@@ -208,7 +208,7 @@ public class CommandLineTests : IDisposable
     public void OnlyMissingNoLibGlobalsStillPermitCheckedEmitWithErrorExit()
     {
         var file=Write("only-missing-globals.ts","export function f(n: number) { if(n<0) { return; } }");
-        var result=Run("--emitJs","--noLib","--target","es2015",file);
+        var result=Run("--emitJs","--noLib","--target","es2015","--module","es2015",file);
         Assert.Equal(2,result.Code);
         Assert.Equal(10,result.Out.Split("error TS2318:",StringSplitOptions.None).Length-1);
         var emitted=Path.ChangeExtension(file,".js");
