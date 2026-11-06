@@ -41,7 +41,7 @@ try {
   // An empty statement before a string expression prevents it from becoming
   // a strict directive. Running the result catches incorrect AST erasure.
   const nonDirective=join(temporary,"non-directive.ts");
-  writeFileSync(nonDirective,'; "use strict"; function identity(eval: number): number { return eval; } let answer: number = identity(42);\n');
+  writeFileSync(nonDirective,'; "use strict"; function identity(value: number): number { return value; } let answer: number = identity(42);\n');
   const nonDirectiveCompile=spawnSync(process.env.DOTNET??"dotnet",[
     resolve("src/Tscs.Cli/bin/Release/net10.0/tscs.dll"),
     "--emitJs","--noLib","--target","es2015",nonDirective,globals

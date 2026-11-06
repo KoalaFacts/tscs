@@ -64,8 +64,7 @@ public static class Compilation
         {
             try
             {
-                var checker=new TypeChecker(source.File,
-                    strictModule:modules!=null && modules.ContainsKey(source.File));
+                var checker=new TypeChecker(source.File);
                 var scope=modules!=null && modules.TryGetValue(source.File,out var local)
                     ? local : global;
                 var checkedDiagnostics=scope==null

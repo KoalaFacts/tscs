@@ -29,6 +29,12 @@ public static class CommandLine
             var globals=new HashSet<string>(StringComparer.Ordinal);
             foreach(var path in inputs.Where(p=>ProjectSourceDiscovery.IsDeclarationFile(p,host.FileNameComparer)))
                 ReadGlobals(host.ReadFile(path),globals);
+            if(options.LibSpecified && !options.NoLib)
+                throw new InputFailure("--lib requires loading the standard library, which is not implemented; use --noLib.");
+            // Pinned program option diagnostic: reported first, does not block emit.
+            Diagnostic[] optionDiagnostics=options.LibSpecified
+                ? [new Diagnostic("TS5053","error","",0,0,"Option 'lib' cannot be specified with option 'noLib'.",[],[])]
+                : [];
             var program=CompilerProgram.Load(host,codeFiles,options.EffectiveCompilerOptions);
             var analysis=program.Analyze();
             // First original-profile emit slice: an empty parsed program under the
@@ -44,21 +50,23 @@ public static class CommandLine
             if(!unsupported&&!syntax&&!emptyOriginalEmit)
             {
                 var missing=GlobalTypes.Where(t=>!globals.Contains(t)).Select(t=>new Diagnostic("TS2318","error","",0,0,$"Cannot find global type '{t}'.",[],[])).ToArray();
-                if(missing.Length>0)diagnostics=missing;
+                // Like tsc, option and global diagnostics replace semantic ones.
+                if(missing.Length>0||optionDiagnostics.Length>0)diagnostics=[..optionDiagnostics,..missing];
             }
             int exitCode=unsupported?1:diagnostics.Length>0?2:0;
-            // Missing --noLib global interfaces are reference-compatible TS2318
-            // environment diagnostics: they do not make a checked source unsafe
-            // to emit. Other source diagnostics still prevent all JavaScript.
-            // Preserve exit code 2 and the complete missing-global diagnostics.
-            bool canEmitCheckedSource=analysis.Diagnostics.Count==0 && !syntax && !unsupported &&
-                (exitCode==0 || (exitCode==2 && diagnostics.All(d=>d.Code=="TS2318")));
+            // The pinned tsc reports option and global diagnostics (TS5053,
+            // TS2318) instead of semantic ones and still emits, as tsc does for
+            // semantic errors without noEmitOnError. Only then may a source with
+            // semantic diagnostics emit; syntax and unsupported input never do.
+            bool onlyHidingDiagnostics=diagnostics.Length>0 && diagnostics.All(d=>d.Code is "TS2318" or "TS5053");
+            bool canEmitCheckedSource=!syntax && !unsupported &&
+                (exitCode==0 && analysis.Diagnostics.Count==0 || exitCode==2 && onlyHidingDiagnostics);
             if(options.EmitJs&&canEmitCheckedSource)
             {
                 if(host is not FileSystemCompilerHost)
                     throw new InputFailure("Filesystem JavaScript output is unavailable for virtual compiler hosts.");
                 IReadOnlyList<JavaScriptOutput> emitted;
-                try { emitted=program.EmitJavaScript(); }
+                try { emitted=analysis.Diagnostics.Count==0?program.EmitJavaScript():program.EmitJavaScriptBehindGlobalDiagnostics(); }
                 catch(NotSupportedException error) { throw new InputFailure(error.Message); }
 
                 // Compute all outputs and reject existing files before writing any.

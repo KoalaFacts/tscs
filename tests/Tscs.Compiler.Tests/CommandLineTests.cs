@@ -217,11 +217,27 @@ public class CommandLineTests : IDisposable
     }
 
     [Fact]
-    public void MissingGlobalsDoNotPermitEmissionOfInvalidSource()
+    public void MissingGlobalsHideSemanticErrorsAndStillEmitLikeTheReference()
     {
+        // Pinned tsc reports global diagnostics instead of semantic ones and
+        // emits regardless (arrayIterationLibES5TargetDifferent(nolib=true,...)).
         var file=Write("invalid-no-lib.ts","function f(): number { return \"bad\"; }");
         var result=Run("--emitJs","--noLib","--target","es2015",file);
         Assert.Equal(2,result.Code);
+        Assert.DoesNotContain("TS2322",result.Out);
+        Assert.Equal(10,result.Out.Split("error TS2318:",StringSplitOptions.None).Length-1);
+        Assert.Equal("\"use strict\";\nfunction f() {\n    return \"bad\";\n}\n",File.ReadAllText(Path.ChangeExtension(file,".js")));
+    }
+
+    [Fact]
+    public void ReportedSemanticErrorsStillPreventEmission()
+    {
+        var file=Write("invalid-with-globals.ts","function f(): number { return \"bad\"; }");
+        var globals=Write("globals.d.ts",
+            "interface Array<T> {} interface Boolean {} interface Function {} interface CallableFunction {} interface NewableFunction {} interface IArguments {} interface Number {} interface Object {} interface RegExp {} interface String {}");
+        var result=Run("--emitJs","--noLib","--target","es2015",file,globals);
+        Assert.Equal(2,result.Code);
+        Assert.Contains("TS2322",result.Out);
         Assert.False(File.Exists(Path.ChangeExtension(file,".js")));
     }
 

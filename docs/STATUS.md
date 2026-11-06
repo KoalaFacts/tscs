@@ -6,7 +6,7 @@ validation logs stay in [evidence/](evidence/).
 
 ## Headline
 
-Original upstream acceptance: **2 PASS / 0 FAIL / 15,521 SKIP**
+Original upstream acceptance: **3 PASS / 0 FAIL / 15,520 SKIP**
 
 Measured by `tools/original-acceptance.ts` against the frozen TS7 reference,
 which CI reruns on every pull request (job `original-go-reference`) and which
@@ -27,20 +27,24 @@ lacks; "only" = targets blocked by that capability alone):
 
 | Missing capability | Targets | Only this |
 |---|---|---|
-| Standard library (`lib.*.d.ts`) | 15,464 | 5,459 |
+| Standard library (`lib.*.d.ts`) | 15,464 | 5,583 |
 | `@module` option | 3,453 | 0 |
-| `@target` other than es2015 | 3,172 | 0 |
+| `@target` other than es2015 | 3,172 | 2 |
 | Multi-file tests | 2,830 | 0 |
 | `@strict: false` | 2,825 | 0 |
 | `@declaration` | 2,058 | 0 |
 | JavaScript inputs / `allowJs` | 1,211 / 1,114 | 0 |
 | Transpile runner, reference-fatal sources | 28, 19 | 28, 19 |
 
-Two original targets execute: `conformance/parser/.../parser509698.ts`
-(PASS: ambient function signatures, style trivia and erased JS), and
-`compiler/noCrashOnNoLib.ts` (PASS: the ten TS2318 missing-global
+Three original targets execute, all PASS: `conformance/parser/.../parser509698.ts`
+(ambient function signatures, style trivia and erased JS),
+`compiler/noCrashOnNoLib.ts` (the ten TS2318 missing-global
 diagnostics under `@noLib`, and the reference printer's four-space block
-indentation and ungrouped spread operands).
+indentation and ungrouped spread operands), and
+`compiler/arrayIterationLibES5TargetDifferent.ts` (`nolib=true,target=es2015`:
+TS5053 for `@lib` with `@noLib`, ambient `declare const`, TS2495 hidden behind
+the global diagnostics, and the script `"use strict";` prologue). `@lib`
+without `@noLib` counts as needing the standard library.
 Executed failures are never converted to SKIP. The xUnit placeholder suite (`tests/Tscs.Upstream.Placeholders`,
 discovered by `./scripts/verify-upstream-full-discovery.sh`) still registers
 all 15,523 targets as `SKIP_UNIMPLEMENTED`; its semantics are unchanged.
@@ -69,7 +73,13 @@ diagnostic and exit 1; they are intended never to be compiled silently.
 ### Project, host and modules
 
 - CLI: `--noEmit`, `--emitJs`, `--noLib`, `--target es2015`,
-  `--module es2015`, `-p`/`--project`, `--pretty false`, `--json`.
+  `--module es2015`, `-p`/`--project`, `--pretty false`, `--json`;
+  `--lib <names>` only with `--noLib`, reporting the reference's TS5053
+  (the named libraries are not loaded).
+- Like the pinned `tsc`, option and global diagnostics (TS5053, TS2318) are
+  printed instead of semantic ones, and output is still emitted then; any
+  other semantic diagnostic withholds output, and syntax errors or TSCS
+  diagnostics always do.
 - `tsconfig.json` with `files`, explicit `include`/`exclude` globs, `noEmit`,
   `noLib`, `target: "es2015"`, `module: "es2015"`; explicit files win over
   excludes; any other option is rejected with TSCS1002. A port of the pinned
@@ -111,7 +121,8 @@ diagnostic and exit 1; they are intended never to be compiled silently.
 - Bounded `keyof`, indexed access (`T["k"]`, `T[number]`), `typeof` queries,
   static computed keys, numeric key identity.
 - Functions: declarations, typed arrows and function expressions, optional,
-  source-file ambient `declare function` signatures (checked and erased),
+  source-file ambient `declare function` signatures and typed
+  `declare let/const` variables (checked and erased),
   default and rest parameters, typed callback contracts, method signatures,
   object literal methods, inferred braced returns, closures over lexical
   bindings.
@@ -121,6 +132,11 @@ diagnostic and exit 1; they are intended never to be compiled silently.
 - Narrowing by `typeof`, truthiness, `===`/`!==` against literals, `null`
   and `undefined`, `in`, `Array.isArray`, discriminant properties, compound
   `&&`/`||`/`!` guards and returning guards; assignments invalidate facts.
+- `for..of` over arrays and strings; with no global `Iterable` (no library
+  is loaded) a named `number`, `boolean` or object source reports TS2495
+  like the reference and its elements are `any`.
+- Every file is strict, as in TS7: `eval`/`arguments` bindings, including
+  script parameters, report TS1100.
 - Definite assignment and return-path checks through loops, `switch`
   (including fall-through and exhaustive returns), `throw` and
   `try`/`finally`.
@@ -131,7 +147,9 @@ diagnostic and exit 1; they are intended never to be compiled silently.
 
 ### Emit
 
-ES2015 scripts and named ES modules are emitted from the checked AST; type
+ES2015 scripts and named ES modules are emitted from the checked AST; like
+the pinned `useStrict` transform, every script (no import/export) starts with
+`"use strict";` unless it already has that directive first. Type
 syntax is erased and runtime semantics are preserved (evaluation order,
 single evaluation of receivers, native `for..of` Unicode iteration). Like the
 reference printer, statement blocks are indented four spaces per level and
@@ -233,7 +251,7 @@ and no `var`.
 
 ## Known gaps
 
-- 15,464 of 15,523 original targets need the standard library; 5,459 need
+- 15,464 of 15,523 original targets need the standard library; 5,583 need
   nothing else that the runner checks for (roadmap A2).
 - The acceptance runner does not yet support multi-file tests, other
   targets or `@module`, and does not compare `.types`/`.symbols`.
@@ -260,10 +278,11 @@ records the original case IDs it moves.
 | A2.2a | Bind the parsed declarations into one global symbol table (cross-file merging, TS2300/TS2451 exclusions); the library check binds the default-lib closure | Library symbols become available | done (PR #220, 7b34604; review fixes PR #221, b5bd8e9) | pinned closure: 20 files, 2,250 global symbols (791 with more than one declaration), 0 diagnostics; 14 xUnit + 1 node test at merge, 16 with the review fixes |
 | A2.2b | Resolve every name the bound library uses (type, value and namespace meanings, scoped type parameters and `infer`); the library check fails on any unresolved name | Every library reference has a target, the input to computing library types | done (PR #222, 61dfa09) | pinned closure: 0 unresolved names (6 `globalThis` references before modelling it); 18 resolver xUnit + 1 node test; review fixes: postfix/operator type nesting limit, parameters do not shadow namespaces |
 | A2.2c | Compare the library syntax trees with the reference parser | Parser fidelity on the real libs, not only zero diagnostics | todo | — |
-| A2.3 | Check enough of es5/es2015 to load them as the default lib instead of `fixtures/minimal.d.ts` | Unblocks 5,459 targets that need only the library | todo | — |
+| A2.3 | Check enough of es5/es2015 to load them as the default lib instead of `fixtures/minimal.d.ts` | Unblocks 5,583 targets that need only the library | todo | — |
 | A3.1 | `compiler/noCrashOnNoLib.ts` to PASS: four-space block indentation and no added grouping around spread operands in emit | The only executed original FAIL; every original `.js` baseline with a block depends on the indentation | done (PR #219, 28053fa) | 1 PASS / 1 FAIL → 2 PASS / 0 FAIL / 15,521 SKIP (CI original-acceptance on main); `JavaScriptEmitTests` 22 (+1) |
+| A3.2 | `compiler/arrayIterationLibES5TargetDifferent.ts` (`nolib=true,target=es2015`) to PASS: runner passes `@lib`; CLI `--lib` with `--noLib` reports TS5053; ambient `declare let/const`; TS2495 for non-iterable `for..of` sources; script `"use strict";` prologue and strict script parameters; emit when only TS5053/TS2318 are printed | The only target whose sole gap was `@lib`; the prologue applies to every original script `.js` baseline | in progress (PR #224) | 2 PASS / 0 FAIL / 15,521 SKIP → 3 PASS / 0 FAIL / 15,520 SKIP; standard-library-only 5,459 → 5,583 (the `@lib` targets now need only the library) |
 | A3 | Close the cheapest family of failing original cases from A1's histogram, one family per PR | Moves original cases to PASS | todo | — |
 | C1 | Remove duplicated checker/emitter paths and per-feature verify scripts where a shared test proves identical behaviour | Less code to maintain | todo | — |
-| H1 | Agent verification skills (`.claude/skills/verification-first`, `.claude/skills/verify-tscs`) with a feature map run against the pinned reference | Every later PR is checked at the real boundary, not only by unit tests | in progress (`harness/verify-skills`) | feature map rows run on 61dfa09: 2 PASS / 0 FAIL / 15,521 SKIP, library 0 unresolved names |
+| H1 | Agent verification skills (`.claude/skills/verification-first`, `.claude/skills/verify-tscs`) with a feature map run against the pinned reference | Every later PR is checked at the real boundary, not only by unit tests | done (PR #223, 2cfd095) | feature map rows run on 61dfa09: 2 PASS / 0 FAIL / 15,521 SKIP, library 0 unresolved names |
 
 Last docs housekeeping: 2026-11-06 (D1).

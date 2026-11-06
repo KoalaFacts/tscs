@@ -7,7 +7,19 @@ public sealed class AmbientFunctionDeclarationTests
     [InlineData("declare function twice(n:number):number; let answer:number=twice(21);")]
     [InlineData("/// <style requireSemi=\"on\" />\ndeclare function first():void; declare function second():void;")]
     [InlineData("declare function greet(s:string, loud?:boolean):string; let a:string=greet(\"hi\");")]
+    // Ambient contexts are exempt from strict-mode eval/arguments names (pinned bindParameter).
+    [InlineData("declare function f(arguments:number):void;")]
+    [InlineData("declare function eval(code:string):void;")]
     public void AmbientSignaturesBindAndCheck(string source) =>
+        Assert.Empty(Compilation.Check("ambient.ts",source));
+
+    // Source-level ambient variables (arrayIterationLibES5TargetDifferent.ts):
+    // typed, uninitialized, read without a definite-assignment diagnostic.
+    [Theory]
+    [InlineData("declare const value:number; let copy:number=value;")]
+    [InlineData("declare let value:string; value=\"x\"; let copy:string=value;")]
+    [InlineData("declare const first:number, second:{ foo: string }; let n:number=first; let s:string=second.foo;")]
+    public void AmbientVariablesBindAndCheck(string source) =>
         Assert.Empty(Compilation.Check("ambient.ts",source));
 
     [Fact]
@@ -23,7 +35,12 @@ public sealed class AmbientFunctionDeclarationTests
     [InlineData("declare function f():string; let n:number=f();","TS2322")]
     [InlineData("declare function f():void {}","TSCS1001")]
     [InlineData("declare function f() {}","TSCS1001")]
-    [InlineData("declare const value:number;","TSCS1001")]
+    [InlineData("declare const value:number=1;","TSCS1001")]
+    [InlineData("declare let value;","TSCS1001")]
+    [InlineData("declare const {value}:{value:number};","TSCS1001")]
+    [InlineData("{ declare const value:number; }","TSCS1001")]
+    [InlineData("declare const value:string; let n:number=value;","TS2322")]
+    [InlineData("declare const value:number; value=2;","TS2588")]
     [InlineData("declare function f(n:number=1):number;","TSCS1001")]
     [InlineData("declare function f(x:number, x:string):void;","TSCS1001")]
     [InlineData("declare function f({n}:{n:number}):number;","TSCS1001")]

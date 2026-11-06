@@ -26,6 +26,50 @@ public sealed class JavaScriptEmitTests : IDisposable
     }
 
     [Fact]
+    public void AmbientVariablesAreErasedFromEmit()
+    {
+        var input=Write("ambient-variables.ts","declare const value: number;\ndeclare let other: string;\nlet copy: number = value;");
+        var result=Run("--emitJs","--noLib","--target","es2015",input,Globals());
+        Assert.Equal(0,result.Code);
+        Assert.Equal("",result.Output);
+        Assert.Equal("let copy = value;",File.ReadAllText(Path.ChangeExtension(input,".js")).Replace("\r\n","\n").Replace("\"use strict\";\n","").Trim());
+    }
+
+    // compiler/arrayIterationLibES5TargetDifferent.ts (nolib=true,target=es2015):
+    // TS5053 precedes the missing --noLib globals and does not block emit.
+    [Fact]
+    public void LibWithNoLibReportsTs5053BeforeMissingGlobalsAndStillEmits()
+    {
+        var input=Write("lib-with-no-lib.ts","declare function log(message?: any): void;\ndeclare const aNumber: number;\nfor (const x of [1, 2, 3]) {\n    log(x);\n}\n");
+        var result=Run("--emitJs","--noLib","--lib","es5","--target","es2015",input);
+        Assert.Equal(2,result.Code);
+        var lines=result.Output.Replace("\r\n","\n").Split('\n',StringSplitOptions.RemoveEmptyEntries);
+        Assert.Equal("error TS5053: Option 'lib' cannot be specified with option 'noLib'.",lines[0]);
+        Assert.Equal(11,lines.Length);
+        Assert.All(lines.Skip(1),l=>Assert.StartsWith("error TS2318: Cannot find global type '",l));
+        Assert.Contains("for (const x of [1, 2, 3]) {\n    log(x);\n}",File.ReadAllText(Path.ChangeExtension(input,".js")).Replace("\r\n","\n"));
+    }
+
+    [Fact]
+    public void Ts5053AloneHidesSemanticDiagnosticsAndStillEmits()
+    {
+        var input=Write("lib-hides.ts","let n: number = \"x\";");
+        var result=Run("--emitJs","--noLib","--lib","es5","--target","es2015",input,Globals());
+        Assert.Equal(2,result.Code);
+        Assert.Equal("error TS5053: Option 'lib' cannot be specified with option 'noLib'.",result.Output.Trim());
+        Assert.Equal("\"use strict\";\nlet n = \"x\";\n",File.ReadAllText(Path.ChangeExtension(input,".js")));
+    }
+
+    [Fact]
+    public void LibWithoutNoLibIsRejectedUntilTheStandardLibraryLoads()
+    {
+        var input=Write("lib-only.ts","let n: number = 1;");
+        var result=Run("--emitJs","--lib","es5","--target","es2015",input);
+        Assert.Equal(1,result.Code);
+        Assert.Contains("TSCS1002",result.Output);
+    }
+
+    [Fact]
     public void EmitsFunctionConditionsTypeErasureAndExpressionPrecedenceFromProgramAst()
     {
         var input=Write("choose.ts",
@@ -34,6 +78,7 @@ public sealed class JavaScriptEmitTests : IDisposable
         Assert.Equal(0,result.Code);
         Assert.Equal("",result.Output);
         Assert.Equal(
+            "\"use strict\";\n"+
             "function choose(flag) {\n"+
             "    if (flag && (1 < 2)) {\n"+
             "        return 3;\n"+
@@ -75,7 +120,7 @@ public sealed class JavaScriptEmitTests : IDisposable
         var result=Run("--emitJs","--noLib","--target","es2015",input,Globals());
         Assert.Equal(0,result.Code);
         var js=File.ReadAllText(Path.ChangeExtension(input,".js"));
-        Assert.Equal("let n = 1;\n{\n    n++;\n}\nif (n > 2) {\n    n = 3;\n} else if (n == 2) {\n    n = 4;\n} else {\n    n = 5;\n}\n",js);
+        Assert.Equal("\"use strict\";\nlet n = 1;\n{\n    n++;\n}\nif (n > 2) {\n    n = 3;\n} else if (n == 2) {\n    n = 4;\n} else {\n    n = 5;\n}\n",js);
     }
 
     [Fact]
@@ -161,10 +206,32 @@ public sealed class JavaScriptEmitTests : IDisposable
     public void EmptyStatementCannotPromoteLaterStringIntoStrictModeDirective()
     {
         var input=Write("directive.ts",
-            "; \"use strict\"; function identity(eval: number): number { return eval; } let answer: number = identity(42);");
+            "; \"use strict\"; function identity(value: number): number { return value; } let answer: number = identity(42);");
         var result=Run("--emitJs","--noLib","--target","es2015",input,Globals());
         Assert.Equal(0,result.Code);
-        Assert.StartsWith(";\n\"use strict\";\n",File.ReadAllText(Path.ChangeExtension(input,".js")));
+        // The pinned useStrict transform adds the prologue; the later string stays an expression.
+        Assert.StartsWith("\"use strict\";\n;\n\"use strict\";\n",File.ReadAllText(Path.ChangeExtension(input,".js")));
+    }
+
+    [Fact]
+    public void LeadingUseStrictDirectiveIsTheScriptPrologue()
+    {
+        var input=Write("prologue.ts","'use strict';\nlet n: number = 1;");
+        var result=Run("--emitJs","--noLib","--target","es2015",input,Globals());
+        Assert.Equal(0,result.Code);
+        Assert.Equal("'use strict';\nlet n = 1;\n",File.ReadAllText(Path.ChangeExtension(input,".js")));
+    }
+
+    [Theory]
+    [InlineData("function identity(eval: number): number { return eval; }","eval")]
+    [InlineData("function count(arguments: number): number { return arguments; }","arguments")]
+    public void ScriptParametersAreStrictLikeTheReference(string source,string name)
+    {
+        var input=Write("sloppy.ts",source);
+        var result=Run("--emitJs","--noLib","--target","es2015",input,Globals());
+        Assert.Equal(2,result.Code);
+        Assert.Contains($"error TS1100: Invalid use of '{name}' in strict mode.",result.Output);
+        Assert.False(File.Exists(Path.ChangeExtension(input,".js")));
     }
 
     [Fact]
@@ -222,6 +289,6 @@ public sealed class JavaScriptEmitTests : IDisposable
         var source=Write("long.ts","const total: number = "+expression+";");
         var result=Run("--emitJs","--noLib","--target","es2015",source,Globals());
         Assert.Equal(0,result.Code);
-        Assert.Equal("const total = "+expression+";\n",File.ReadAllText(Path.ChangeExtension(source,".js")));
+        Assert.Equal("\"use strict\";\nconst total = "+expression+";\n",File.ReadAllText(Path.ChangeExtension(source,".js")));
     }
 }

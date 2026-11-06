@@ -12,6 +12,9 @@ internal sealed class Options
     public bool NoEmit=>compilerOptions.NoEmit;
     public bool NoLib=>compilerOptions.NoLib;
     public bool EmitJs {get;private set;}
+    // Command-line --lib is accepted only to report the pinned TS5053 conflict
+    // with --noLib; loading the named libraries is not implemented yet.
+    public bool LibSpecified {get;private set;}
     public bool EmitEs2015Module=>compilerOptions.Module==CompilerModule.Es2015;
     public bool ExplicitEs2015Target=>compilerOptions.Target==CompilerTarget.Es2015;
     public static Options Parse(string[] args) => Parse(args,new FileSystemCompilerHost());
@@ -39,6 +42,11 @@ internal sealed class Options
                     if(++i==args.Length || (args[i]!="es2015" && args[i]!="es6"))
                         throw new InputFailure("Only --module es2015/es6 is supported for named ES modules.");
                     options.compilerOptions=options.compilerOptions with {Module=CompilerModule.Es2015};
+                    break;
+                case "--lib":
+                    if(++i==args.Length)throw new InputFailure("Missing lib list.");
+                    ValidateLib(args[i]);
+                    options.LibSpecified=true;
                     break;
                 case "--noEmit":options.compilerOptions=options.compilerOptions with {NoEmit=ReadBool(args,ref i)};break;
                 case "--noLib":options.compilerOptions=options.compilerOptions with {NoLib=ReadBool(args,ref i)};break;
@@ -162,6 +170,14 @@ internal sealed class Options
         if(result.Diagnostics.Count>0)throw new ConfigDiagnosticFailure(text,result.Diagnostics);
         // Null remains unset/default false, then explicit CLI flags override.
         return result.Value.Kind=="True";
+    }
+    private static void ValidateLib(string list)
+    {
+        var names=list.Split(',');
+        var known=JsonLibOptions.Declaration.EnumElement!.Entries!.Select(e=>e.Key).ToHashSet(StringComparer.Ordinal);
+        foreach(var name in names)
+            if(!known.Contains(name.Trim().ToLowerInvariant()))
+                throw new InputFailure($"Unsupported lib '{name}'.");
     }
     private static void ValidateTarget(string target)
     {if(!target.Equals("es2015",StringComparison.OrdinalIgnoreCase)&&!target.Equals("es6",StringComparison.OrdinalIgnoreCase))throw new InputFailure("Only target es2015/es6 is supported by the bootstrap.");}
