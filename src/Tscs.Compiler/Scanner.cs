@@ -4,10 +4,15 @@ using System.Text;
 namespace Tscs;
 
 // Bounded port of upstream scanner.Scan: trivia, identifier, primitive literal and punctuation paths.
-internal sealed class Scanner(string file, string text, bool jsonMode=false)
+// declarationFile scans ambient .d.ts sources for DeclarationParser: reserved
+// words become identifier tokens (the parser gives them contextual meaning)
+// and triple-slash reference directives are recorded instead of rejected.
+internal sealed class Scanner(string file, string text, bool jsonMode=false, bool declarationFile=false)
 {
     private int position;
     public List<Diagnostic> Diagnostics { get; } = [];
+    // Triple-slash reference directives of a declaration file, in source order.
+    public List<(string Name,string Value)> ReferenceDirectives { get; } = [];
     // The directive's source position is retained so embedded scanners can
     // import only globally whole-line directives after offset relocation.
     private readonly List<(int Start,int End,int DirectiveStart)> ignoredNextLines = [];
@@ -80,6 +85,15 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                         position += 2;
                     }
                     string comment = text[start..position];
+                    if (declarationFile && !block && comment.StartsWith("///", StringComparison.Ordinal))
+                    {
+                        // Non-directive triple-slash comments, and directives after the
+                        // first token, are ordinary comments upstream.
+                        var reference = ReferenceDirective.Match(comment);
+                        if (reference.Success && tokens.Count == 0)
+                            ReferenceDirectives.Add((reference.Groups["name"].Value, reference.Groups["value"].Value));
+                        continue;
+                    }
                     if (!jsonMode && (comment.Contains("@ts-", StringComparison.Ordinal) || comment.StartsWith("///", StringComparison.Ordinal)))
                     {
                         // A valid leading path reference is resolved by CompilerProgram.
@@ -105,6 +119,7 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
                     // Preserve rejection of bare "with" and declaration-name uses.
                     "with" when tokens.Count>0 && tokens[^1].Kind is (TokenKind.Dot or TokenKind.QuestionDot) => TokenKind.Identifier,
                     "super" or "instanceof" or "implements" or "package" or "private" or "protected" or "public" or "static" or "class" or "var" or "new" or "this" or "enum" or "async" or "await" or "yield" or "with" or "debugger" or "namespace" or "using" => TokenKind.Unsupported, _ => TokenKind.Identifier };
+                if(declarationFile && kind==TokenKind.Unsupported)kind=TokenKind.Identifier;
                 if(jsonMode)
                 {
                     // The bootstrap identifier classifier uses host Unicode tables.
@@ -500,6 +515,9 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false)
     private static int HexDigit(char c)=>c is >= '0' and <= '9'?c-'0':c is >= 'a' and <= 'f'?c-'a'+10:c is >= 'A' and <= 'F'?c-'A'+10:-1;
     private void Report(string code,string message,int start,int length=0)=>Diagnostics.Add(Diagnostic.Error(file,new(TokenKind.String,"",start,length),code,message));
     private CompilationFailure Error(Token token,string code,string message)=>new(Diagnostic.Error(file,token,code,message));
+    private static readonly System.Text.RegularExpressions.Regex ReferenceDirective=new(
+        """^///[ \t]*<reference[ \t]+(?<name>lib|types|path|no-default-lib)[ \t]*=[ \t]*(?:"(?<value>[^"]*)"|'(?<value>[^']*)')[ \t]*/>""",
+        System.Text.RegularExpressions.RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
     internal static bool IsLineBreak(char c)=>c is '\r' or '\n' or '\u2028' or '\u2029';
     private static bool IsIdentifierStart(char c)=>c is '_' or '$' || char.IsLetter(c);
     private static bool IsIdentifierPart(char c)=>IsIdentifierStart(c)||char.IsDigit(c)||char.GetUnicodeCategory(c) is UnicodeCategory.NonSpacingMark or UnicodeCategory.SpacingCombiningMark or UnicodeCategory.ConnectorPunctuation || c is '\u200C' or '\u200D';

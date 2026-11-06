@@ -7,6 +7,7 @@ This bootstrap is a bounded adaptation, **not a completed function-by-function p
 |---|---|---|
 | Scanner | tsc/internal/scanner/scanner.go, Scan | Token set used by the supported subset; unsupported tokens fail explicitly ([STATUS](STATUS.md#syntax)) |
 | Parser | tsc/internal/parser/parser.go | Statements, expressions and type syntax of the supported subset ([STATUS](STATUS.md#syntax)) |
+| DeclarationParser | tsc/internal/parser/parser.go: parseType, parseTypeMemberSemicolon, parseMappedType, tryParseConstraintOfInferType, parseTypeOrTypePredicate | Ambient `.d.ts` syntax tree only (not bound or checked); first error stops the parse; classes, enums, imports, template literal types with substitutions and initializers fail with TSCS1001 ([STATUS](STATUS.md#standard-library)) |
 | Binder | tsc/internal/binder/binder.go, bindBlockScopedDeclaration | Block, function and module scopes; no declaration merging |
 | TypeChecker / TypeResolver | tsc/internal/checker/checker.go | Bounded relations, narrowing and native members ([STATUS](STATUS.md#types-and-checking)); no generic relation engine |
 | Compilation | tsc/internal/compiler/program.go, GetDiagnosticsOfAnyProgram | Syntax-before-semantics, multi-file programs |
