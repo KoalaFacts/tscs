@@ -17,6 +17,8 @@ internal sealed class Options
     public bool LibSpecified {get;private set;}
     public bool EmitEs2015Module=>compilerOptions.Module==CompilerModule.Es2015;
     public bool ExplicitEs2015Target=>compilerOptions.Target==CompilerTarget.Es2015;
+    // Command-line esnext emits through the same writer, failing closed where it lowers.
+    public bool ExplicitEmitTarget=>compilerOptions.Target is CompilerTarget.Es2015 or CompilerTarget.EsNext;
     public static Options Parse(string[] args) => Parse(args,new FileSystemCompilerHost());
 
     internal static Options Parse(string[] args,IProjectSourceHost projectHost)
@@ -51,7 +53,7 @@ internal sealed class Options
                 case "--noEmit":options.compilerOptions=options.compilerOptions with {NoEmit=ReadBool(args,ref i)};break;
                 case "--noLib":options.compilerOptions=options.compilerOptions with {NoLib=ReadBool(args,ref i)};break;
                 case "--pretty":if(++i==args.Length||args[i]!="false")throw new InputFailure("Only --pretty false is supported.");break;
-                case "--target":if(++i==args.Length)throw new InputFailure("Missing target.");ValidateTarget(args[i]);options.compilerOptions=options.compilerOptions with {Target=CompilerTarget.Es2015};break;
+                case "--target":if(++i==args.Length)throw new InputFailure("Missing target.");options.compilerOptions=options.compilerOptions with {Target=ParseTarget(args[i])};break;
                 default:
                     if(arg.StartsWith('-'))throw new InputFailure($"Unsupported option '{arg}'.");
                     if(project!=null)throw new InputFailure("Cannot combine a project with source file arguments.");
@@ -179,8 +181,12 @@ internal sealed class Options
             if(!known.Contains(name.Trim().ToLowerInvariant()))
                 throw new InputFailure($"Unsupported lib '{name}'.");
     }
-    private static void ValidateTarget(string target)
-    {if(!target.Equals("es2015",StringComparison.OrdinalIgnoreCase)&&!target.Equals("es6",StringComparison.OrdinalIgnoreCase))throw new InputFailure("Only target es2015/es6 is supported by the bootstrap.");}
+    private static CompilerTarget ParseTarget(string target)
+    {
+        if(target.Equals("es2015",StringComparison.OrdinalIgnoreCase)||target.Equals("es6",StringComparison.OrdinalIgnoreCase))return CompilerTarget.Es2015;
+        if(target.Equals("esnext",StringComparison.OrdinalIgnoreCase))return CompilerTarget.EsNext;
+        throw new InputFailure("Only target es2015/es6/esnext is supported by the bootstrap.");
+    }
 }
 
 internal sealed class ConfigDiagnosticFailure(string text,IReadOnlyList<Diagnostic> diagnostics):Exception("Configuration syntax failed."){public string Text {get;}=text;public IReadOnlyList<Diagnostic> Diagnostics {get;}=diagnostics;}

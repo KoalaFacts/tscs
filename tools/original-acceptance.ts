@@ -78,7 +78,7 @@ export function parseUnits(code: string, fileName: string): Unit[] {
   return units;
 }
 
-const SUPPORTED_TARGETS = new Set(['es2015', 'es6']);
+const SUPPORTED_TARGETS = new Set(['es2015', 'es6', 'esnext']);
 
 /** Every capability the target needs that tscs does not provide. */
 export function missingCapabilities(target: Target, units: Unit[] | null): string[] {
@@ -211,7 +211,9 @@ export function runTarget(target: Target, options: RunOptions): TargetResult {
     // this is an invocation adapter, not a different upstream test config.
     // Explicit @module configurations remain SKIP until A1.2 models them.
     const lib = config.lib === undefined ? [] : ['--lib', String(config.lib).trim()];
-    const args = [options.tscs, noEmit ? '--noEmit' : '--emitJs', '--noLib', ...lib, '--target', 'es2015',
+    // A configuration without @target runs at the pinned ES2015 default.
+    const target = config.target === undefined ? 'es2015' : String(config.target).trim().toLowerCase();
+    const args = [options.tscs, noEmit ? '--noEmit' : '--emitJs', '--noLib', ...lib, '--target', target,
       '--module', 'es2015', ...units!.map((u) => u.name)];
     const run = spawnSync(options.dotnet, args, {cwd: work, encoding: 'utf8', timeout: 60_000});
     if (run.error) return result('FAIL', [`tscs did not run: ${run.error.message}`]);

@@ -39,6 +39,7 @@ After a source change, rebuild before exercising anything:
 | Standard library parse, bind, resolve (A2) | `DeclarationParser.cs`, `DeclarationBinder.cs`, `DeclarationResolver.cs`, `tools/fixture-harness`, `tools/check-standard-library.ts` | `node tools/check-standard-library.ts --upstream "$U" --harness tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.FixtureHarness.dll --out "$ACC/standard-library.json"` | the four summary lines: files clean (116/116), required 20/20, global symbols / merged / diagnostics, unresolved names | parser for user `.ts` (shared scanner), `DeclarationParserTests`, `DeclarationResolverTests` |
 | CLI check | `src/Tscs.Cli/Program.cs`, `CommandLine.cs`, `TypeChecker.cs` | `dotnet src/Tscs.Cli/bin/Release/net10.0/tscs.dll --noEmit --noLib --target es2015 fixtures/local/assignment-mismatch.ts fixtures/minimal.d.ts` | exit code (0 clean, 2 diagnostics) and the diagnostic lines, e.g. `TS2322: Type 'string' is not assignable to type 'number'.` | unsupported constructs must report a TSCS diagnostic, never compile silently |
 | CLI emit | `JavaScriptEmitter.cs` | `E="$(mktemp -d "$ACC/emit.XXXXXX")" && cp fixtures/local/number-ok.ts "$E/" && dotnet src/Tscs.Cli/bin/Release/net10.0/tscs.dll --emitJs --noLib --target es2015 "$E/number-ok.ts" fixtures/minimal.d.ts` (a fresh folder per run: the CLI refuses to overwrite an existing `.js`, TSCS1002) | the written `.js` next to the input (`"use strict";` then `let count = 1;`: every script gets the pinned prologue) | original `.js` baselines (four-space blocks), `tools/verify-*-emit.ts` executed modules |
+| CLI emit, `--target esnext` | `Options.cs` (`ParseTarget`), `JavaScriptEmitter.cs` (`Lowers`) | the CLI emit row with `--target esnext`, then the same with a file containing `let a: number \| undefined = undefined; let b = a ?? 1;` | identical `.js` to es2015 for the first; exit 1, `error TSCS1002: --target esnext output with ?? is not implemented` and no `.js` for the second | every ES2015 lowering site (`??`, `**`, `**=`, logical assignment, optional chaining, object spread, numeric separators) |
 | Isolated Go-oracle cohort | `tools/verify-conformance.ts`, `tests/conformance` | `node tools/verify-conformance.ts` | `Differential cohort: 29/29` | earns no original credit; do not cite it as acceptance |
 | Pinned Go reference run | `scripts/verify-original-emptyfile-go.sh`, `tools/verify-original-go-case.ts` | the Setup command above | the line `Original pinned Go TestLocal/emptyFile.ts completed; tscs product-side original acceptance remains NOT_RUN.`, exit 0 | reference provenance (`upstream-ref.txt`, `upstream-sources.sha256`) |
 | Docs truth | `tools/check-docs.ts` | `node tools/check-docs.ts` | `check-docs: ok`; README ≤ 10 KB, STATUS ≤ 25 KB, matching headline counts | every PR that edits README or docs/ |
@@ -73,7 +74,9 @@ runs `verify-upstream-lock-probe.sh` and `verify-upstream-full-discovery.sh`.
 
 ## Last verified
 
-2026-11-06 on `feat/array-iteration-nolib` (main `2cfd095` merged): acceptance
+2026-11-06 on `feat/target-esnext` (main `00fde7b`): acceptance 4 PASS / 0 FAIL /
+15,519 SKIP (adds `arrayIterationLibES5TargetDifferent(nolib=true,target=esnext)`);
+CLI emit esnext row as shown. Earlier: 2026-11-06 on `feat/array-iteration-nolib` (main `2cfd095` merged): acceptance
 3 PASS / 0 FAIL / 15,520 SKIP (`parser509698`, `noCrashOnNoLib`,
 `arrayIterationLibES5TargetDifferent(nolib=true,target=es2015)`); CLI check
 and emit rows as shown (script output now starts with `"use strict";`);

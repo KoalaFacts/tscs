@@ -241,6 +241,47 @@ public class CommandLineTests : IDisposable
         Assert.False(File.Exists(Path.ChangeExtension(file,".js")));
     }
 
+    [Theory]
+    [InlineData("function f(x: number): number { while (x > 1) { x = x - 1; } return x; } const g = (y: number) => f(y) * 2;")]
+    [InlineData("let a = 1; let b = a > 0 ? -a : a; b += 2;")]
+    public void EsNextTargetEmitsLikeEs2015WhereNothingIsLowered(string source)
+    {
+        var es2015=Write("es2015.ts",source);
+        var esnext=Write("esnext.ts",source);
+        var lib=Lib();
+        Assert.Equal((0,""),Run("--emitJs","--noLib","--target","es2015",es2015,lib));
+        Assert.Equal((0,""),Run("--emitJs","--noLib","--target","esnext",esnext,lib));
+        Assert.Equal(File.ReadAllText(Path.ChangeExtension(es2015,".js")),File.ReadAllText(Path.ChangeExtension(esnext,".js")));
+    }
+
+    [Theory]
+    [InlineData("let a: number | undefined = undefined; let b = a ?? 1;","??")]
+    [InlineData("let p = 2 ** 3;","**")]
+    [InlineData("let x = 2; x **= 2;","**=")]
+    [InlineData("let n: number | undefined = undefined; n ??= 1;","logical assignment")]
+    [InlineData("let o = { a: 1 }; let q = { ...o };","object spread")]
+    [InlineData("let o: { a: number } | undefined = undefined; let v = o?.a;","optional chaining")]
+    [InlineData("let s = 1_000;","numeric separators")]
+    public void EsNextTargetFailsClosedWhereTheEs2015WriterLowers(string source,string construct)
+    {
+        var lib=Lib();
+        var lowered=Write("lowered.ts",source);
+        Assert.Equal(0,Run("--emitJs","--noLib","--target","es2015",lowered,lib).Code);
+        var esnext=Write("esnext.ts",source);
+        var result=Run("--emitJs","--noLib","--target","esnext",esnext,lib);
+        Assert.Equal(1,result.Code);
+        Assert.Contains("TSCS1002",result.Out);
+        Assert.Contains("--target esnext output with "+construct+" is not implemented",result.Out);
+        Assert.False(File.Exists(Path.ChangeExtension(esnext,".js")));
+    }
+
+    [Fact] public void OtherTargetsRemainUnsupported()
+    {
+        var result=Run("--noEmit","--noLib","--target","es5",Write("a.ts","let x = 1;"),Lib());
+        Assert.Equal(1,result.Code);
+        Assert.Contains("Only target es2015/es6/esnext is supported",result.Out);
+    }
+
     [Fact] public void MissingGlobalsAreReported()=>Assert.Contains("TS2318",Run("--noEmit","--noLib",Write("a.ts","let x = 1;")).Out);
     [Fact] public void UnsupportedAmbientMembersAreRejected()=>Assert.Equal(1,Run("--noEmit","--noLib",Write("a.ts","let x = 1;"),Write("bad.d.ts","interface Object { x: number } ")).Code);
     [Fact] public void MissingGlobalsPrecedeCheckerGrammarErrors()

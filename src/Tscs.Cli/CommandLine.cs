@@ -20,8 +20,8 @@ public static class CommandLine
         try
         {
             var options=Options.Parse(args,host);
-            if(options.EmitJs && (options.NoEmit || !options.NoLib || !options.ExplicitEs2015Target))
-                throw new InputFailure("AST-backed output requires --emitJs --noLib --target es2015 and --noEmit false.");
+            if(options.EmitJs && (options.NoEmit || !options.NoLib || !options.ExplicitEmitTarget))
+                throw new InputFailure("AST-backed output requires --emitJs --noLib --target es2015/esnext and --noEmit false.");
             var inputs=options.Files.Select(host.GetCanonicalFileName).ToArray();
             var codeFiles=inputs.Where(p=>!ProjectSourceDiscovery.IsDeclarationFile(p,host.FileNameComparer)).ToArray();
             if(codeFiles.Length==0)throw new InputFailure("The bootstrap requires at least one .ts source file, plus optional minimal .d.ts globals.");

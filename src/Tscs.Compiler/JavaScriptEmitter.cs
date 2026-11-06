@@ -7,7 +7,7 @@ namespace Tscs;
 // this writer never reparses tokens or infers missing semantics.
 internal static class JavaScriptEmitter
 {
-    public static string Emit(Block root,bool emitModules=false)
+    public static string Emit(Block root,bool emitModules=false,bool esNext=false)
     {
         // Fully erased ES2015 scripts still emit the reference prologue.
         if(root.Statements.Count>0 &&
@@ -16,7 +16,7 @@ internal static class JavaScriptEmitter
                or FunctionDeclaration {Ambient:true, Exported:false}
                or Variable {Ambient:true, Exported:false}))
             return "\"use strict\";\r\n";
-        var writer=new Writer(emitModules);
+        var writer=new Writer(emitModules,esNext);
         foreach(var statement in root.Statements)writer.WriteStatement(statement,0);
         // The pinned useStrict transform prefixes every non-ES-module file;
         // an existing leading "use strict" directive is kept as the prologue.
@@ -38,8 +38,15 @@ internal static class JavaScriptEmitter
         return false;
     }
 
-    private sealed class Writer(bool emitModules)
+    private sealed class Writer(bool emitModules,bool esNext)
     {
+        // ESNext output keeps these constructs as written; the writer only
+        // knows their ES2015 lowering, so it refuses rather than lowering.
+        private void Lowers(string construct)
+        {
+            if(esNext)throw new NotSupportedException($"--target esnext output with {construct} is not implemented; the ES2015 writer would lower it.");
+        }
+
         private readonly StringBuilder output=new();
         public string Text=>output.ToString();
 
@@ -441,8 +448,18 @@ internal static class JavaScriptEmitter
             return names;
         }
 
+        private static bool IsOptionalLink(ValueNode node)=>node is ValuePropertyAccess { Optional:true } or ValuePropertyAccess { ChainContinuation:true }
+            or ValueElementAccess { Optional:true } or ValueElementAccess { ChainContinuation:true } or ValueCall { Optional:true } or ValueCall { ChainContinuation:true };
+
+        private static ValueNode Unparenthesized(ValueNode node)
+        {
+            while(node is ValueParenthesized grouped)node=grouped.Expression;
+            return node;
+        }
+
         private void WriteLogicalCompound(CompoundAssignment compound)
         {
+            Lowers("logical assignment");
             // ES2015 lacks logical assignments. Keep the checked identifier
             // lowering, which captures the old value for ??= and makes RHS lazy.
             if(compound.Target is ValueAtom { Token.Kind:TokenKind.Identifier } identifier)
@@ -528,6 +545,7 @@ internal static class JavaScriptEmitter
 
         private void WritePowerCompound(CompoundAssignment compound)
         {
+            Lowers("**=");
             // ES2015 has no ** or **=. Use Math.pow, preserving one evaluation
             // of any receiver/index and reading the old lvalue before the RHS.
             // The generated arrow is an expression, so it also works in for headers.
@@ -841,9 +859,12 @@ internal static class JavaScriptEmitter
                 bool wrap=precedence<item.ParentPrecedence ||
                     (item.IsRight && precedence==item.ParentPrecedence);
                 if(wrap)Text(")");
+                if(IsOptionalLink(node) || node is ValueUnary { Operator.Kind:TokenKind.Delete } deleted && IsOptionalLink(Unparenthesized(deleted.Operand)))
+                    Lowers("optional chaining");
                 switch(node)
                 {
                     case ValueAtom atom:
+                        if(atom.Token.Kind==TokenKind.Number && atom.Token.Text.Contains('_'))Lowers("numeric separators");
                         Text(atom.Token.Kind==TokenKind.Number
                             ?atom.Token.Value??atom.Token.Text:atom.Token.Text);
                         break;
@@ -900,6 +921,7 @@ internal static class JavaScriptEmitter
                     case ValueBinary binary:
                         if(binary.Operator.Kind==TokenKind.Power)
                         {
+                            Lowers("**");
                             // Right-associative AST nesting is retained by nested
                             // Math.pow calls, valid in the ES2015 target.
                             Text(")");
@@ -910,6 +932,7 @@ internal static class JavaScriptEmitter
                         }
                         else if(binary.Operator.Kind==TokenKind.QuestionQuestion)
                         {
+                            Lowers("??");
                             // ES2015 has no ?? operator; evaluate the left
                             // exactly once and preserve lazy RHS evaluation.
                             var temp=FreshPowerTemporary(ReferencedValueNames(binary.Right));
@@ -1058,6 +1081,7 @@ internal static class JavaScriptEmitter
                         // right evaluation/copy order for later expressions.
                         if(literalObject.Properties.Any(p=>p.Spread))
                         {
+                            Lowers("object spread");
                             Text(")");
                             for(int i=literalObject.Properties.Count-1;i>=0;i--)
                             {

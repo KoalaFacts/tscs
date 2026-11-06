@@ -8,7 +8,10 @@ namespace Tscs;
 public enum CompilerTarget
 {
     Unspecified=0,
-    Es2015=2
+    Es2015=2,
+    // Output equals ES2015 where the ES2015 writer lowers nothing; the
+    // writer refuses (fails closed) wherever it would lower.
+    EsNext=99
 }
 
 /// <summary>

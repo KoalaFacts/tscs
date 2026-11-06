@@ -10,7 +10,7 @@ compiler test cases.
 
 ## Where it stands
 
-Original upstream acceptance: **3 PASS / 0 FAIL / 15,520 SKIP**
+Original upstream acceptance: **4 PASS / 0 FAIL / 15,519 SKIP**
 
 Of the 15,523 original source/configuration targets at the pinned revision,
 `tools/original-acceptance.ts` runs the three that tscs can attempt and
@@ -45,7 +45,7 @@ dotnet src/Tscs.Cli/bin/Release/net10.0/tscs.dll --emitJs --noLib --target es201
 dotnet src/Tscs.Cli/bin/Release/net10.0/tscs.dll --emitJs -p path/to/tsconfig.json
 ```
 
-Options: `--noEmit`, `--emitJs`, `--noLib`, `--target es2015`,
+Options: `--noEmit`, `--emitJs`, `--noLib`, `--target es2015|esnext`,
 `--module es2015`, `-p`/`--project`, `--pretty false`, and the tscs extension
 `--json`. Exit codes: 0 success, 2 TypeScript errors, 1 unsupported construct
 or option (reported as a TSCS diagnostic). Output files must not already
