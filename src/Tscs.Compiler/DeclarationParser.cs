@@ -448,7 +448,7 @@ internal sealed class DeclarationParser
             if(Current.Kind==TokenKind.End)throw Error("TS1005","'}' expected.");
             if(Eat(TokenKind.Semi))continue;
             var modifiers=new List<string>();
-            while(IsWord(Current) && ClassModifiers.Contains(Current.Text) && IsModifier(Current.Text))modifiers.Add(Take().Text);
+            while(IsWord(Current) && ClassModifiers.Contains(Current.Text) && IsModifier(Current.Text,classMember:true))modifiers.Add(Take().Text);
             members.Add(new(modifiers,ParseClassMember()));
             if(Current.Kind==TokenKind.Open)throw Error("TS1183","An implementation cannot be declared in ambient contexts.");
             if(Current.Kind==TokenKind.Equal)throw Unsupported("Class property initializers");
@@ -460,7 +460,8 @@ internal sealed class DeclarationParser
 
     private AmbientMember ParseClassMember()
     {
-        if(Is("constructor") && Peek().Kind is TokenKind.OpenParen or TokenKind.LessThan)
+        if((Is("constructor") && Peek().Kind is TokenKind.OpenParen or TokenKind.LessThan) ||
+            (Current.Kind==TokenKind.String && Current.Value=="constructor" && Peek().Kind==TokenKind.OpenParen))
         {
             Take();
             return new AmbientConstructorDeclaration(ParseSignature(TokenKind.Colon));
@@ -581,7 +582,8 @@ internal sealed class DeclarationParser
     }
 
     // A word acts as a modifier only when the next token can start a member name.
-    private bool IsModifier(string word)=>Is(word) && !Peek().LineBreak &&
+    private bool IsModifier(string word,bool classMember=false)=>Is(word) &&
+        (!Peek().LineBreak || (classMember && word=="static")) &&
         Peek().Kind is not (TokenKind.Colon or TokenKind.OpenParen or TokenKind.Question or TokenKind.LessThan or
             TokenKind.Semi or TokenKind.Comma or TokenKind.Close or TokenKind.Equal or TokenKind.End);
     // canFollowGetOrSetKeyword: no same-line requirement for get/set.

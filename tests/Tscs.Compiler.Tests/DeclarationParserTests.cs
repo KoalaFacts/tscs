@@ -289,6 +289,72 @@ public class DeclarationParserTests
     }
 
     [Fact]
+    public void ClassStaticModifierMayCrossALineBreak()
+    {
+        var declaration=Single<AmbientClass>("declare class C { static\nfoo(): void; static: number; readonly value: number; }");
+        Assert.Collection(declaration.Members,
+            m=>
+            {
+                Assert.Equal(["static"],m.Modifiers);
+                Assert.Equal("foo",Assert.IsType<AmbientMethodSignature>(m.Member).Name.Text);
+            },
+            m=>
+            {
+                Assert.Empty(m.Modifiers);
+                Assert.Equal("static",Assert.IsType<AmbientPropertySignature>(m.Member).Name.Text);
+            },
+            m=>Assert.Equal(["readonly"],m.Modifiers));
+
+        // Unlike static, a different modifier with a line break remains a property name.
+        var separated=Single<AmbientClass>("declare class C { private\nfoo(): void; }");
+        Assert.Collection(separated.Members,
+            m=>
+            {
+                Assert.Empty(m.Modifiers);
+                Assert.Equal("private",Assert.IsType<AmbientPropertySignature>(m.Member).Name.Text);
+            },
+            m=>
+            {
+                Assert.Empty(m.Modifiers);
+                Assert.Equal("foo",Assert.IsType<AmbientMethodSignature>(m.Member).Name.Text);
+            });
+    }
+
+    [Fact]
+    public void StringLiteralConstructorNamesUseDecodedValues()
+    {
+        var declaration=Single<AmbientClass>("""
+            declare class C {
+                "constructor"(x: number);
+                "con\u0073tructor"(x: string);
+                "other"(x: boolean);
+                "constructor": string;
+            }
+            """);
+        Assert.Collection(declaration.Members,
+            m=>
+            {
+                Assert.Empty(m.Modifiers);
+                Assert.Single(Assert.IsType<AmbientConstructorDeclaration>(m.Member).Signature.Parameters);
+            },
+            m=>
+            {
+                Assert.Empty(m.Modifiers);
+                Assert.Single(Assert.IsType<AmbientConstructorDeclaration>(m.Member).Signature.Parameters);
+            },
+            m=>
+            {
+                Assert.Empty(m.Modifiers);
+                Assert.Equal("other",Assert.IsType<AmbientMethodSignature>(m.Member).Name.Text);
+            },
+            m=>
+            {
+                Assert.Empty(m.Modifiers);
+                Assert.Equal("constructor",Assert.IsType<AmbientPropertySignature>(m.Member).Name.Text);
+            });
+    }
+
+    [Fact]
     public void ParsesTemplateLiteralTypes()
     {
         var uuid=Assert.IsType<AmbientTemplateLiteralType>(AliasType("type U = `${string}-${string}`;"));
