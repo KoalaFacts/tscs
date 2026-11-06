@@ -51,6 +51,16 @@ public sealed class JavaScriptEmitTests : IDisposable
     }
 
     [Fact]
+    public void Ts5053AloneHidesSemanticDiagnosticsAndStillEmits()
+    {
+        var input=Write("lib-hides.ts","let n: number = \"x\";");
+        var result=Run("--emitJs","--noLib","--lib","es5","--target","es2015",input,Globals());
+        Assert.Equal(2,result.Code);
+        Assert.Equal("error TS5053: Option 'lib' cannot be specified with option 'noLib'.",result.Output.Trim());
+        Assert.Equal("\"use strict\";\nlet n = \"x\";\n",File.ReadAllText(Path.ChangeExtension(input,".js")));
+    }
+
+    [Fact]
     public void LibWithoutNoLibIsRejectedUntilTheStandardLibraryLoads()
     {
         var input=Write("lib-only.ts","let n: number = 1;");

@@ -50,9 +50,9 @@ public static class CommandLine
             if(!unsupported&&!syntax&&!emptyOriginalEmit)
             {
                 var missing=GlobalTypes.Where(t=>!globals.Contains(t)).Select(t=>new Diagnostic("TS2318","error","",0,0,$"Cannot find global type '{t}'.",[],[])).ToArray();
-                if(missing.Length>0)diagnostics=missing;
+                // Like tsc, option and global diagnostics replace semantic ones.
+                if(missing.Length>0||optionDiagnostics.Length>0)diagnostics=[..optionDiagnostics,..missing];
             }
-            if(!unsupported)diagnostics=[..optionDiagnostics,..diagnostics];
             int exitCode=unsupported?1:diagnostics.Length>0?2:0;
             // The pinned tsc reports option and global diagnostics (TS5053,
             // TS2318) instead of semantic ones and still emits, as tsc does for

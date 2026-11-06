@@ -7,6 +7,9 @@ public sealed class AmbientFunctionDeclarationTests
     [InlineData("declare function twice(n:number):number; let answer:number=twice(21);")]
     [InlineData("/// <style requireSemi=\"on\" />\ndeclare function first():void; declare function second():void;")]
     [InlineData("declare function greet(s:string, loud?:boolean):string; let a:string=greet(\"hi\");")]
+    // Ambient contexts are exempt from strict-mode eval/arguments names (pinned bindParameter).
+    [InlineData("declare function f(arguments:number):void;")]
+    [InlineData("declare function eval(code:string):void;")]
     public void AmbientSignaturesBindAndCheck(string source) =>
         Assert.Empty(Compilation.Check("ambient.ts",source));
 
