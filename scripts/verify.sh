@@ -17,6 +17,7 @@ node tools/check-docs.ts
 node tools/verify-conformance.ts
 node tools/verify-js-emit.ts
 node tools/verify-source-byte-loading-emit.ts
+node tools/verify-ambient-functions-emit.ts
 node tools/verify-named-types-emit.ts
 node tools/verify-readonly-emit.ts
 node tools/verify-readonly-array-emit.ts
