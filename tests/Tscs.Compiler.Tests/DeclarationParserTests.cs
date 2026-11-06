@@ -421,7 +421,13 @@ public class DeclarationParserTests
         // Each dotted segment is a level for the binder's recursion.
         var dotted=DeclarationParser.Parse("a.d.ts","declare namespace a"+string.Concat(Enumerable.Repeat(".a",100_000))+" { }");
         Assert.Equal("Declarations nested deeper than 200 levels are not supported in declaration files yet.",Assert.Single(dotted.Diagnostics).Message);
-        Assert.Empty(DeclarationParser.Parse("a.d.ts","declare namespace a"+string.Concat(Enumerable.Repeat(".a",150))+" { }").Diagnostics);
+        static string Dotted(int segments)=>"a"+string.Concat(Enumerable.Repeat(".a",segments-1));
+        Assert.Empty(DeclarationParser.Parse("a.d.ts","declare namespace "+Dotted(200)+" { }").Diagnostics);
+        Assert.Equal("TSCS1001",Assert.Single(DeclarationParser.Parse("a.d.ts","declare namespace "+Dotted(201)+" { }").Diagnostics).Code);
+        // Segments accumulate through nested namespaces.
+        Assert.Equal("TSCS1001",Assert.Single(DeclarationParser.Parse("a.d.ts",
+            "declare namespace "+Dotted(100)+" { namespace "+Dotted(101)+" { } }").Diagnostics).Code);
+        Assert.Empty(DeclarationParser.Parse("a.d.ts","declare namespace "+Dotted(100)+" { namespace "+Dotted(100)+" { } }").Diagnostics);
         var patterns=DeclarationParser.Parse("a.d.ts","declare function f("+new string('[',20_000)+"x"+new string(']',20_000)+": unknown): void;");
         Assert.Equal("TSCS1001",Assert.Single(patterns.Diagnostics).Code);
         var objects=DeclarationParser.Parse("a.d.ts","declare function f("+string.Concat(Enumerable.Repeat("{ a: ",20_000))+"x"+new string('}',20_000)+": unknown): void;");

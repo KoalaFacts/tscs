@@ -275,7 +275,10 @@ internal sealed class DeclarationParser
             }
             name.Add(ExpectBindingIdentifier());
         }
-        return new(name,ParseBlock(),exported);
+        // The extra segments stay counted while the body is parsed.
+        nesting+=name.Count-1;
+        try{return new(name,ParseBlock(),exported);}
+        finally{nesting=Math.Max(0,nesting-(name.Count-1));}
     }
 
     private AmbientInterface ParseInterface(bool exported)
