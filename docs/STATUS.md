@@ -156,19 +156,23 @@ classes and mapped types with extra members fail with TSCS1001. `tools/check-sta
 **116 of 116** have zero diagnostics (ambient class `#private` names are parsed),
 including all 20 files reachable from the default libs `lib.d.ts`
 and `lib.es6.d.ts`, which the check requires. The check then binds those 20
-files together with `DeclarationBinder` (A2.2a), in the reference's two
-stages: each file binds on its own (an excluded redeclaration is TS2451 when
+files together with `DeclarationBinder` (A2.2a), in two stages like the
+reference: each file binds on its own (an excluded redeclaration is TS2451 when
 the earlier symbol is block-scoped, else TS2300, and gets a fresh symbol),
 then script files merge into the globals (TS2451 when either side is
-block-scoped, else TS2300). Interfaces, namespaces including dotted names,
+block-scoped, else TS2300; TS2649 when the earlier symbol includes a
+non-instantiated namespace). Interfaces, namespaces including dotted names,
 function overloads, class + interface/namespace/function and `var` +
 interface merge; a file with a top-level export is a module whose only
-globals are its `declare global` blocks, and `declare global` in a script is
-TS2669. The pinned closure binds to 2,250 global symbols (791 with more than
+globals are its `declare global` blocks, and `declare global` in a script or
+nested in a namespace is TS2669. Dotted namespace names count toward the
+200-level nesting limit. The pinned closure binds to 2,250 global symbols (791 with more than
 one declaration) with zero diagnostics, which the check requires. Only the
 excluded declaration is reported (the reference also reports the earlier
-ones), and members hidden by an `export {}` inside a namespace are not
-modelled. Syntax trees are not yet compared with the reference parser, types
+ones); members hidden by an `export {}` inside a namespace, separate export
+and local tables in module files, qualified names in merge messages and the
+body of an invalid script `declare global` are not modelled, and each file's
+global augmentations merge right after it rather than after all scripts. Syntax trees are not yet compared with the reference parser, types
 are not resolved
 and nothing is checked: the CLI still accepts only the bounded globals below.
 
@@ -236,7 +240,7 @@ records the original case IDs it moves.
 | A1.2 | Runner support for multi-file tests and `@module`, and `.types`/`.symbols` comparison | Larger runnable set once the library loads | todo | — |
 | A2.1 | Parse the pinned libs with zero syntax errors (`DeclarationParser`, `tools/check-standard-library.ts` in CI) | First step to loading the standard library | done (PR #215, 68110ff) | at merge: 109/116 pinned libs clean, es5+es2015 closure 13/13; 63 xUnit + 4 node tests |
 | A2.1b | Template literal types and ambient classes; require the default libs (`lib.d.ts`, `lib.es6.d.ts`) and everything they reference | The es2015 default lib includes `dom` and `scripthost` | done (PR #216, 8e8a68d) | 115/116 pinned libs clean at merge, default-lib closure 20/20 |
-| A2.2a | Bind the parsed declarations into one global symbol table (cross-file merging, TS2300/TS2451 exclusions); the library check binds the default-lib closure | Library symbols become available | in progress (PR #220) | pinned closure: 20 files, 2,250 global symbols, 791 merged, 0 diagnostics; 14 xUnit + 1 node test |
+| A2.2a | Bind the parsed declarations into one global symbol table (cross-file merging, TS2300/TS2451 exclusions); the library check binds the default-lib closure | Library symbols become available | done (PR #220, 7b34604); review fixes in progress (TS2649, nested `declare global`, dotted-name depth) | pinned closure: 20 files, 2,250 global symbols (791 with more than one declaration), 0 diagnostics; 14 xUnit + 1 node test at merge, 16 with the review fixes |
 | A2.2b | Resolve type references in the bound declarations and compare syntax trees with the reference parser | Library types become usable by the checker | todo | — |
 | A2.3 | Check enough of es5/es2015 to load them as the default lib instead of `fixtures/minimal.d.ts` | Unblocks 5,459 targets that need only the library | todo | — |
 | A3.1 | `compiler/noCrashOnNoLib.ts` to PASS: four-space block indentation and no added grouping around spread operands in emit | The only executed original FAIL; every original `.js` baseline with a block depends on the indentation | done (PR #219, 28053fa) | 1 PASS / 1 FAIL → 2 PASS / 0 FAIL / 15,521 SKIP (CI original-acceptance on main); `JavaScriptEmitTests` 22 (+1) |

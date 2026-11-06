@@ -265,7 +265,16 @@ internal sealed class DeclarationParser
     {
         Take();
         var name=new List<Token>{ExpectBindingIdentifier()};
-        while(Eat(TokenKind.Dot))name.Add(ExpectBindingIdentifier());
+        while(Eat(TokenKind.Dot))
+        {
+            // Each segment of `A.B.C` is a nesting level for the binder.
+            if(nesting+name.Count>=MaximumNesting)
+            {
+                nesting=0;
+                throw Unsupported($"Declarations nested deeper than {MaximumNesting} levels");
+            }
+            name.Add(ExpectBindingIdentifier());
+        }
         return new(name,ParseBlock(),exported);
     }
 

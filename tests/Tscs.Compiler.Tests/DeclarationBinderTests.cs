@@ -120,4 +120,26 @@ public class DeclarationBinderTests
         Assert.Equal(AmbientMeaning.Function|AmbientMeaning.ValueModule,globals.Symbols["g"].Meanings);
         Assert.Equal(AmbientMeaning.Class|AmbientMeaning.ValueModule,globals.Symbols["C"].Meanings);
     }
+
+    [Fact]
+    public void ReportsValueMergesIntoANonInstantiatedNamespaceAcrossFiles()
+    {
+        const string later="declare let N: number; declare let N: string;";
+        var globals=Bind("declare namespace N { interface I { } } declare var N: number;",later);
+        // The per-file duplicate is TS2451 (the earlier symbol is block-scoped);
+        // the cross-file merge reports TS2649 once, at the later symbol's first declaration.
+        Assert.Equal([("TS2451",later.LastIndexOf('N')),("TS2649",later.IndexOf('N'))],globals.Diagnostics.Select(d=>(d.Code,d.Start)));
+        Assert.Equal("Cannot augment module 'N' with value exports because it resolves to a non-module entity.",globals.Diagnostics[1].Message);
+        Assert.Equal(2,globals.Symbols["N"].Declarations.Count);
+    }
+
+    [Fact]
+    public void ReportsGlobalAugmentationsNestedInANamespace()
+    {
+        const string text="export {}; declare namespace N { declare global { interface W { } } }";
+        var globals=Bind(text);
+        var diagnostic=Assert.Single(globals.Diagnostics);
+        Assert.Equal(("TS2669",text.IndexOf("global",StringComparison.Ordinal)),(diagnostic.Code,diagnostic.Start));
+        Assert.False(globals.Symbols.ContainsKey("W"));
+    }
 }
