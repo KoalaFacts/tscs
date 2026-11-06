@@ -34,9 +34,9 @@ After a source change, rebuild before exercising anything:
 | Original upstream acceptance (headline) | `tools/original-acceptance.ts`, `src/Tscs.Cli`, `src/Tscs.Compiler/Compilation.cs` | `node tools/original-acceptance.ts --targets /tmp/acc/targets.jsonl --upstream $U --tscs src/Tscs.Cli/bin/Release/net10.0/tscs.dll --out /tmp/acc/report.json --expect-headline docs/STATUS.md` | headline line `N PASS / N FAIL / N SKIP`, `soleMissingCapability`, the `results` entries whose `status` changed (by `upstreamPath`), before and after | README/STATUS headline (the run fails on disagreement), every executed target |
 | Standard library parse, bind, resolve (A2) | `DeclarationParser.cs`, `DeclarationBinder.cs`, `DeclarationResolver.cs`, `tools/fixture-harness`, `tools/check-standard-library.ts` | `node tools/check-standard-library.ts --upstream $U --harness tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.FixtureHarness.dll --out /tmp/acc/standard-library.json` | the four summary lines: files clean (116/116), required 20/20, global symbols / merged / diagnostics, unresolved names | parser for user `.ts` (shared scanner), `DeclarationParserTests`, `DeclarationResolverTests` |
 | CLI check | `src/Tscs.Cli/Program.cs`, `CommandLine.cs`, `TypeChecker.cs` | `dotnet src/Tscs.Cli/bin/Release/net10.0/tscs.dll --noEmit --noLib --target es2015 fixtures/local/assignment-mismatch.ts fixtures/minimal.d.ts` | exit code (0 clean, 2 diagnostics) and the diagnostic lines, e.g. `TS2322: Type 'string' is not assignable to type 'number'.` | unsupported constructs must report a TSCS diagnostic, never compile silently |
-| CLI emit | `JavaScriptEmitter.cs` | copy a fixture to a temp folder, then `tscs.dll --emitJs --noLib --target es2015 <tmp>/number-ok.ts fixtures/minimal.d.ts` | the written `.js` next to the input (`let count = 1;`) | original `.js` baselines (four-space blocks), `tools/verify-*-emit.ts` executed modules |
+| CLI emit | `JavaScriptEmitter.cs` | copy a fixture to a temp folder, then `dotnet src/Tscs.Cli/bin/Release/net10.0/tscs.dll --emitJs --noLib --target es2015 <tmp>/number-ok.ts fixtures/minimal.d.ts` | the written `.js` next to the input (`let count = 1;`) | original `.js` baselines (four-space blocks), `tools/verify-*-emit.ts` executed modules |
 | Isolated Go-oracle cohort | `tools/verify-conformance.ts`, `tests/conformance` | `node tools/verify-conformance.ts` | `Differential cohort: 29/29` | earns no original credit; do not cite it as acceptance |
-| Pinned Go reference run | `scripts/verify-original-emptyfile-go.sh`, `tools/verify-original-go-case.ts` | the Setup command above | final line `Original pinned Go TestLocal/emptyFile.ts completed`, exit 0 | reference provenance (`upstream-ref.txt`, `upstream-sources.sha256`) |
+| Pinned Go reference run | `scripts/verify-original-emptyfile-go.sh`, `tools/verify-original-go-case.ts` | the Setup command above | the line `Original pinned Go TestLocal/emptyFile.ts completed; tscs product-side original acceptance remains NOT_RUN.`, exit 0 | reference provenance (`upstream-ref.txt`, `upstream-sources.sha256`) |
 | Docs truth | `tools/check-docs.ts` | `node tools/check-docs.ts` | `check-docs: ok`; README ≤ 10 KB, STATUS ≤ 25 KB, matching headline counts | every PR that edits README or docs/ |
 
 ## Gate
@@ -51,8 +51,10 @@ runs `verify-upstream-lock-probe.sh` and `verify-upstream-full-discovery.sh`.
 
 ## Traps
 
-- The 15,523 xUnit placeholders are `SKIP_UNIMPLEMENTED` registrations; a
-  green xUnit run says nothing about original acceptance.
+- The 15,523 xUnit placeholders (packed in `tests/Tscs.Upstream.Placeholders/packed`,
+  materialized only by `verify-upstream-full-discovery.sh`) are
+  `SKIP_UNIMPLEMENTED` registrations; a green xUnit run says nothing about
+  original acceptance.
 - The Go `emptyFile.ts` PASS is the reference running, not tscs passing.
 - The 29-case cohort and `tools/verify-*-emit.ts` checks are bounded fixtures
   written for tscs; they are regressions, not upstream cases.
