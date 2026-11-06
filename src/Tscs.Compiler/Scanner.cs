@@ -169,6 +169,14 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false, boo
                 kind = invalid ? TokenKind.Unsupported : TokenKind.Number;
                 if (!invalid) decodedValue = number.ToString(CultureInfo.InvariantCulture);
             }
+            // Private identifiers are lexed only for ambient declaration syntax.
+            // Runtime source and JSON remain explicitly unsupported.
+            else if (declarationFile && first=='#' && position<text.Length && IsIdentifierStart(text[position]))
+            {
+                position++;
+                while(position<text.Length && IsIdentifierPart(text[position]))position++;
+                kind=TokenKind.PrivateIdentifier;
+            }
             else if (first is >= '0' and <= '9' ||
                      (!jsonMode && first == '.' && position < text.Length && text[position] is >= '0' and <= '9'))
             {
