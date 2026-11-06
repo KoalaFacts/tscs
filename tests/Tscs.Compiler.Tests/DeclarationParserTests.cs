@@ -488,7 +488,7 @@ public class DeclarationParserTests
     [Theory]
     [InlineData("interface I { #secret: number; }", "TSCS1001")]
     [InlineData("type T = { #secret: number };", "TSCS1001")]
-    [InlineData("declare var #secret: number;", "TSCS1001")]
+    [InlineData("declare var #secret: number;", "TS1003")]
     [InlineData("declare class C { #1: number; }", "TSCS1001")]
     [InlineData("declare class C { #secret?: number; }", "TS18019")]
     [InlineData("declare class C { private #secret: number; }", "TS18010")]
