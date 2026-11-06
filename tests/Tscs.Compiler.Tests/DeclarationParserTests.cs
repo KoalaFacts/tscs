@@ -418,6 +418,19 @@ public class DeclarationParserTests
         Assert.Equal("TSCS1001",Assert.Single(members.Diagnostics).Code);
         var namespaces=DeclarationParser.Parse("a.d.ts",string.Concat(Enumerable.Repeat("declare namespace A { ",20_000))+new string('}',20_000));
         Assert.Equal("TSCS1001",Assert.Single(namespaces.Diagnostics).Code);
+        // Each dotted segment is a level for the binder's recursion.
+        var dotted=DeclarationParser.Parse("a.d.ts","declare namespace a"+string.Concat(Enumerable.Repeat(".a",100_000))+" { }");
+        Assert.Equal("Declarations nested deeper than 200 levels are not supported in declaration files yet.",Assert.Single(dotted.Diagnostics).Message);
+        static string Dotted(int segments)=>"a"+string.Concat(Enumerable.Repeat(".a",segments-1));
+        Assert.Empty(DeclarationParser.Parse("a.d.ts","declare namespace "+Dotted(200)+" { }").Diagnostics);
+        Assert.Equal("TSCS1001",Assert.Single(DeclarationParser.Parse("a.d.ts","declare namespace "+Dotted(201)+" { }").Diagnostics).Code);
+        // Segments accumulate through nested namespaces.
+        Assert.Equal("TSCS1001",Assert.Single(DeclarationParser.Parse("a.d.ts",
+            "declare namespace "+Dotted(100)+" { namespace "+Dotted(101)+" { } }").Diagnostics).Code);
+        Assert.Empty(DeclarationParser.Parse("a.d.ts","declare namespace "+Dotted(100)+" { namespace "+Dotted(100)+" { } }").Diagnostics);
+        // The limit also applies to anything nested in the body of a 200-segment name.
+        Assert.Equal("TSCS1001",Assert.Single(DeclarationParser.Parse("a.d.ts","declare namespace "+Dotted(200)+" { namespace b { } }").Diagnostics).Code);
+        Assert.Equal("TSCS1001",Assert.Single(DeclarationParser.Parse("a.d.ts","declare namespace "+Dotted(200)+" { interface I { x: string } }").Diagnostics).Code);
         var patterns=DeclarationParser.Parse("a.d.ts","declare function f("+new string('[',20_000)+"x"+new string(']',20_000)+": unknown): void;");
         Assert.Equal("TSCS1001",Assert.Single(patterns.Diagnostics).Code);
         var objects=DeclarationParser.Parse("a.d.ts","declare function f("+string.Concat(Enumerable.Repeat("{ a: ",20_000))+"x"+new string('}',20_000)+": unknown): void;");

@@ -7,12 +7,13 @@ namespace Tscs;
 // symbol is block-scoped, else TS2300, and the excluded declaration gets a
 // fresh, unlisted symbol), then script files' symbols merge into the globals
 // (checker.go mergeSymbol; a conflict is TS2451 when either side is
-// block-scoped, else TS2300). A file with a top-level export is a module: only
+// block-scoped, else TS2300, or TS2649 when the earlier symbol includes a
+// non-instantiated namespace). A file with a top-level export is a module: only
 // its `declare global` blocks reach the globals, and `declare global` in a
-// script is TS2669. Diagnostics are reported at the excluded declaration only
-// (the reference also reports the earlier declarations), and members hidden by
-// an `export {}` inside a namespace are not modelled. Types are not resolved
-// and nothing is checked yet.
+// script or nested in a namespace is TS2669. Diagnostics are reported at the
+// excluded declaration only (the reference also reports the earlier
+// declarations), and members hidden by an `export {}` inside a namespace are
+// not modelled. Types are not resolved and nothing is checked yet.
 [Flags]
 internal enum AmbientMeaning
 {
@@ -77,8 +78,10 @@ internal static class DeclarationBinder
     {
         switch(statement)
         {
-            case AmbientNamespace { Name.Count: 0 }:
-                // `declare global` nested in a namespace is not a global augmentation here.
+            case AmbientNamespace { Name.Count: 0 } nested:
+                // checker.go reports `declare global` nested in a namespace too.
+                diagnostics.Add(Diagnostic.Error(file,nested.GlobalKeyword!.Value,"TS2669",
+                    "Augmentations for the global scope can only be directly nested in external modules or ambient module declarations."));
                 return;
             case AmbientNamespace ns:
                 DeclareNamespace(file,table,ns,0,diagnostics);
@@ -162,6 +165,15 @@ internal static class DeclarationBinder
         foreach(var (name,symbol) in source)
         {
             if(!target.TryGetValue(name,out var existing)){target[name]=symbol;continue;}
+            if((existing.Meanings&Excludes(symbol.Meanings))!=0 && (existing.Meanings&AmbientMeaning.NamespaceModule)!=0)
+            {
+                // checker.go mergeSymbol: a non-instantiated namespace target gets
+                // TS2649 at the later symbol's first declaration only.
+                var first=symbol.Declarations[0];
+                diagnostics.Add(Diagnostic.Error(first.File,first.Name,"TS2649",
+                    $"Cannot augment module '{name}' with value exports because it resolves to a non-module entity."));
+                continue;
+            }
             if((existing.Meanings&Excludes(symbol.Meanings))!=0)
             {
                 var blockScoped=((existing.Meanings|symbol.Meanings)&AmbientMeaning.BlockScopedVariable)!=0;
