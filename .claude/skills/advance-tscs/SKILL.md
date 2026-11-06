@@ -19,7 +19,8 @@ A long run of PRs each added one narrow "bounded" construct (classic-for header 
 ## Setup
 - Read `AGENTS.md` (binding), `README.md`, `docs/DEVELOPMENT.md`, `docs/PORTING.md`, `docs/STATUS.md`, `docs/superpowers/specs` and `plans`, `tests/conformance/*`.
 - Toolchain: `bash scripts/setup-dev-environment.sh`, then source the `env.sh` it prints (exact SDK 10.0.402, Node 24.22.1, Go 1.27.3), as `AGENTS.md` says.
-- Trap: earlier sessions reported "no local .NET SDK" and opened PRs untested. If setup fails, read the actual error and fix it (proxy CA bundle at `/root/.ccr/ca-bundle.crt`, see `/root/.ccr/README.md`). Never change `global.json` or relax locks. A PR opened without a local gate run must say so and cannot merge until hosted CI is green.
+- Trap: earlier sessions reported "no local .NET SDK" and opened PRs untested. If setup fails, read the actual error and fix it (proxy CA bundle at `/root/.ccr/ca-bundle.crt`, see `/root/.ccr/README.md`). Never change `global.json` or relax locks. A permission or access denial (not a broken tool) is a stop condition: report it, do not route around it.
+- **Hosted CI never replaces the local gate.** Every PR merges only after the applicable local gate has run on its final source. Results from earlier runs may be reused only for code the final diff does not touch, and the PR says what was reused; anything the edits affect is re-run. Stages that were blocked or not run are listed as such, never reported as passed. A PR opened before its local gate ran must say so and stays unmerged until the gate passes locally.
 
 ## Gate
 1. `dotnet build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false` (warnings are errors)
@@ -42,13 +43,13 @@ The Roadmap table in `docs/STATUS.md` is the order; take its first row that is n
 ## Authority
 - Branch prefixes `feat/`, `fix/`, `test/`, `docs/`, `refactor/`, `harness/`; squash merge pinned to head SHA.
 - First line of every PR body: "Opened by the tscs scheduled task."
-- Other sessions work here. An open PR with no push for 6+ hours may be adopted once — say so in a PR comment, then treat it as this task's PR (finish and merge it under the same conditions, or close it with a comment if it only adds anti-sprawl micro-features and has failing review). Dependabot PRs: report only.
+- Other sessions work here. Time without a push is **not** evidence that a PR's executor is gone: it may be running a long local validation or review. Adopt another PR only when all hold: no push, comment or review activity on it for 6+ hours; its author or executor is not shown active elsewhere (recent comments, other open PRs or branches from the same session, a scheduled task that names it); no other writer overlaps its files; and adopting it respects its dependencies and any owner priority. Then say so in a PR comment and treat it as this task's PR under the same merge conditions. Never close someone else's PR — a quiet branch, an anti-sprawl classification or a failing review does not authorise closure; report it instead. Adopting a PR never breaks the one-PR-at-a-time rule. Dependabot PRs: report only.
 
 ## Project rules
 - The compiler stays C#; Node and Go are reference/dev tools only.
 - Never edit `LICENSE`, `NOTICE` or `licenses/`.
 - Never change `upstream.lock.json`, `global.json`, the pinned upstream revision, the SKIP registry semantics, protections or release gates to make a number look better. No SKIP registration or protection weakened.
-- Extra merge condition: every hosted CI check on the head ran and passed (Compiler bootstrap, the original Go reference job, CodeQL if present). If Actions is billing-blocked, rely on the local gate only for changes it fully covers.
+- Extra merge condition: every hosted CI check on the head ran and passed (Compiler bootstrap, the original Go reference job, CodeQL if present). Only after a confirmed billing block (jobs with zero steps and a billing annotation) may missing hosted checks be set aside, and then only for changes the local gate fully covers; the billing exception never waives the local gate or any repository protection.
 
 ## Docs scope
 - No `docs/ROADMAP.md`, `docs/README.md`, `docs/features/` pages or `docs/progress/history-*.md`. The README is the index. Feature detail per area lives in `docs/PORTING.md`, `docs/DEVELOPMENT.md` or `docs/STATUS.md`. Files under `docs/evidence/` are kept records: never rewrite them.
