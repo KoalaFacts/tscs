@@ -45,6 +45,29 @@ public sealed class ProjectModuleOptionsTests : IDisposable
     }
 
     [Theory]
+    [InlineData("ESNext","export const answer = 42;\n",0)]
+    [InlineData("esnext","",1)]
+    public void ProjectEsNextTargetEmitsLikeEs2015AndFailsClosedWhereItLowers(string target,string expected,int lowering)
+    {
+        Globals();
+        var entry=Write("entry.ts",lowering==0?"export const answer: number = 42;":"export const answer = 2 ** 3;");
+        var config=Write("tsconfig.json",
+            "{\"files\":[\"entry.ts\",\"minimal.d.ts\"],\"compilerOptions\":{\"module\":\"es2015\",\"target\":\""+target+"\",\"noLib\":true}}");
+        var result=Run("--emitJs","-p",config);
+        if(lowering==0)
+        {
+            Assert.Equal((0,""),result);
+            Assert.Equal(expected,File.ReadAllText(Path.ChangeExtension(entry,".js")));
+        }
+        else
+        {
+            Assert.Equal(1,result.Code);
+            Assert.Contains("--target esnext output with ** is not implemented",result.Output);
+            Assert.False(File.Exists(Path.ChangeExtension(entry,".js")));
+        }
+    }
+
+    [Theory]
     [InlineData("commonjs",1,"Only module es2015/es6")]
     [InlineData("invalid-mode",2,"TS6046")]
     public void UnsupportedOrInvalidProjectModuleFailsWithoutOutput(string module,int exit,string expected)

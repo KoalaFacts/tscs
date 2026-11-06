@@ -262,6 +262,9 @@ public class CommandLineTests : IDisposable
     [InlineData("let o = { a: 1 }; let q = { ...o };","object spread")]
     [InlineData("let o: { a: number } | undefined = undefined; let v = o?.a;","optional chaining")]
     [InlineData("let s = 1_000;","numeric separators")]
+    [InlineData("let o = { 1_000: 1 };","numeric separators")]
+    [InlineData("let h = 0x10;","a rewritten numeric literal")]
+    [InlineData("let o = { 0b101: 1 };","a rewritten numeric literal")]
     public void EsNextTargetFailsClosedWhereTheEs2015WriterLowers(string source,string construct)
     {
         var lib=Lib();

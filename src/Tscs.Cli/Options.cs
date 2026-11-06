@@ -119,7 +119,8 @@ internal sealed class Options
                                 if(target.Diagnostics.Count>0)throw new ConfigDiagnosticFailure(text,target.Diagnostics);
                                 // Valid upstream targets beyond the bootstrap remain unsupported.
                                 if(target.Value.Kind=="Number"&&target.Value.Number==2){compilerOptions=compilerOptions with {Target=CompilerTarget.Es2015};break;}
-                                throw InvalidConfig(file,text,option.Value,"Only target es2015/es6 is supported by the bootstrap.");
+                                if(target.Value.Kind=="Number"&&target.Value.Number==99){compilerOptions=compilerOptions with {Target=CompilerTarget.EsNext};break;}
+                                throw InvalidConfig(file,text,option.Value,"Only target es2015/es6/esnext is supported by the bootstrap.");
                             case "module":
                                 // Use the pinned TS7 declaration and its diagnostic mapping,
                                 // not a second unvalidated string/enum parser. The effective

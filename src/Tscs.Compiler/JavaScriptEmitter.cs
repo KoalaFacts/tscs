@@ -448,6 +448,14 @@ internal static class JavaScriptEmitter
             return names;
         }
 
+        // The writer prints a number's decoded value (separators removed,
+        // hex/octal/binary as decimal); ESNext keeps the literal as written.
+        private void RewrittenNumber(Token number)
+        {
+            if(number.Value is { } value && value!=number.Text)
+                Lowers(number.Text.Contains('_')?"numeric separators":"a rewritten numeric literal");
+        }
+
         private static bool IsOptionalLink(ValueNode node)=>node is ValuePropertyAccess { Optional:true } or ValuePropertyAccess { ChainContinuation:true }
             or ValueElementAccess { Optional:true } or ValueElementAccess { ChainContinuation:true } or ValueCall { Optional:true } or ValueCall { ChainContinuation:true };
 
@@ -744,6 +752,7 @@ internal static class JavaScriptEmitter
             // The body has already been checked as a lexical function scope.
             void ObjectEntry(ObjectProperty entry)
             {
+                if(entry.Name.Kind==TokenKind.Number)RewrittenNumber(entry.Name);
                 var name=entry.Name.Kind==TokenKind.Number
                     ?entry.Name.Value??entry.Name.Text:entry.Name.Text;
                 var key=entry.Computed?"["+name+"]":name;
@@ -864,7 +873,7 @@ internal static class JavaScriptEmitter
                 switch(node)
                 {
                     case ValueAtom atom:
-                        if(atom.Token.Kind==TokenKind.Number && atom.Token.Text.Contains('_'))Lowers("numeric separators");
+                        if(atom.Token.Kind==TokenKind.Number)RewrittenNumber(atom.Token);
                         Text(atom.Token.Kind==TokenKind.Number
                             ?atom.Token.Value??atom.Token.Text:atom.Token.Text);
                         break;
