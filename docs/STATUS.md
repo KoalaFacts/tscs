@@ -221,7 +221,7 @@ records the original case IDs it moves.
 | A2.1b | Template literal types and ambient classes; require the default libs (`lib.d.ts`, `lib.es6.d.ts`) and everything they reference | The es2015 default lib includes `dom` and `scripthost` | done (PR #216, 8e8a68d; AST fix PR #217) | 115/116 pinned libs clean, default-lib closure 20/20; DeclarationParserTests 74 (+11) |
 | A2.2 | Bind the parsed declarations (merging interfaces and namespaces) and compare syntax trees with the reference parser | Library symbols become available | todo | — |
 | A2.3 | Check enough of es5/es2015 to load them as the default lib instead of `fixtures/minimal.d.ts` | Unblocks 5,459 targets that need only the library | todo | — |
-| A3.1 | `compiler/noCrashOnNoLib.ts` to PASS: four-space block indentation and no added grouping around spread operands in emit | The only executed original FAIL; every original `.js` baseline with a block depends on the indentation | in progress | 1 PASS / 1 FAIL → 2 PASS / 0 FAIL / 15,521 SKIP (local run on `edc0c97` + this change); `JavaScriptEmitTests` 22 (+1) |
+| A3.1 | `compiler/noCrashOnNoLib.ts` to PASS: four-space block indentation and no added grouping around spread operands in emit | The only executed original FAIL; every original `.js` baseline with a block depends on the indentation | in progress (PR #219) | 1 PASS / 1 FAIL → 2 PASS / 0 FAIL / 15,521 SKIP (local run on `edc0c97` + this change); `JavaScriptEmitTests` 22 (+1) |
 | A3 | Close the cheapest family of failing original cases from A1's histogram, one family per PR | Moves original cases to PASS | todo | — |
 | C1 | Remove duplicated checker/emitter paths and per-feature verify scripts where a shared test proves identical behaviour | Less code to maintain | todo | — |
 
