@@ -22,3 +22,7 @@ release gates remain required at their normal delivery points.
 
 Before claiming a change works, follow `.claude/skills/verification-first/SKILL.md`
 and exercise the rows of `.claude/skills/verify-tscs/SKILL.md` it touches.
+
+The scheduled development task follows `.claude/skills/advance-tscs/SKILL.md`
+(goal, gate, work order, project rules) with the shared run loop in
+`KoalaFacts/agent-harness` (`skills/autonomous-dev`).
