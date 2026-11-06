@@ -115,17 +115,24 @@ diagnostic and exit 1; they are intended never to be compiled silently.
   numeric/string/boolean literal types and unions, `void`.
 - Non-generic `type` aliases and interfaces (named, non-generic `extends`),
   structural object types with optional and `readonly` members, finite
-  intersections, excess-property checks on fresh literals.
+  intersections, excess-property checks on fresh literals; circular aliases
+  report TS2456.
 - Arrays (`T[]`, `Array<T>`, `readonly T[]`, `ReadonlyArray<T>`), fixed,
   labelled and optional tuples, tuple rest expansion.
 - Bounded `keyof`, indexed access (`T["k"]`, `T[number]`), `typeof` queries,
-  static computed keys, numeric key identity.
+  static computed keys, numeric key identity (non-negative integer member
+  names; fractional keys and dynamic `obj[n]` reads of objects fail closed).
+- Bitwise and shift operands must be `number` or `any` (others fail closed);
+  `as` between unrelated types is TS2352, a `satisfies` mismatch TS1360;
+  `satisfies` against a discriminated object union needs a fresh object
+  literal with a unique string-literal discriminant (otherwise TSCS1001).
 - Functions: declarations, typed arrows and function expressions, optional,
   source-file ambient `declare function` signatures and typed
   `declare let/const` variables (checked and erased),
   default and rest parameters, typed callback contracts, method signatures,
   object literal methods, inferred braced returns, closures over lexical
-  bindings.
+  bindings; a named function expression's name is an immutable binding
+  visible only inside it.
 
 ### Control flow and narrowing
 
@@ -218,7 +225,9 @@ array `push`/`pop`/`shift`/`unshift`/`reverse`/`sort`/`fill`/`copyWithin`,
 `map`/`filter`/`reduce`/`reduceRight`/`flat`/`flatMap`, queries such as
 `indexOf`/`includes`/`find`/`findLast`/`some`/`every`, `Array.from`/`of`/
 `isArray`; common `String` methods including `at`, `normalize`,
-`replaceAll` and `isWellFormed`; `Object.keys`/`values`/`entries`/`assign`/
+`replaceAll` and `isWellFormed` (`replace`/`replaceAll`/`split` take string
+arguments only; newer methods such as `padStart` are emitted unpolyfilled);
+`Object.keys`/`values`/`entries`/`assign`/
 `freeze`/`is`/`hasOwn`.
 
 ### Conformance harness
@@ -239,7 +248,8 @@ array `push`/`pop`/`shift`/`unshift`/`reverse`/`sort`/`fill`/`copyWithin`,
 
 Generics (beyond the `Array<T>` spelling), classes, enums, namespaces,
 declaration files as input beyond `minimal.d.ts`, declaration emit, source
-maps, JSX/TSX, JavaScript inputs, decorators, async/await, generators,
+maps, JSX/TSX, JavaScript inputs, regular expression literals, decorators,
+async/await, generators,
 iterators beyond arrays and strings, `this` typing, overloads, mapped and
 conditional types, index signatures, module resolution through packages,
 `extends` in `tsconfig.json`, default implicit includes, targets other than
@@ -280,9 +290,10 @@ records the original case IDs it moves.
 | A2.2c | Compare the library syntax trees with the reference parser | Parser fidelity on the real libs, not only zero diagnostics | todo | — |
 | A2.3 | Check enough of es5/es2015 to load them as the default lib instead of `fixtures/minimal.d.ts` | Unblocks 5,583 targets that need only the library | todo | — |
 | A3.1 | `compiler/noCrashOnNoLib.ts` to PASS: four-space block indentation and no added grouping around spread operands in emit | The only executed original FAIL; every original `.js` baseline with a block depends on the indentation | done (PR #219, 28053fa) | 1 PASS / 1 FAIL → 2 PASS / 0 FAIL / 15,521 SKIP (CI original-acceptance on main); `JavaScriptEmitTests` 22 (+1) |
-| A3.2 | `compiler/arrayIterationLibES5TargetDifferent.ts` (`nolib=true,target=es2015`) to PASS: runner passes `@lib`; CLI `--lib` with `--noLib` reports TS5053; ambient `declare let/const`; TS2495 for non-iterable `for..of` sources; script `"use strict";` prologue and strict script parameters; emit when only TS5053/TS2318 are printed | The only target whose sole gap was `@lib`; the prologue applies to every original script `.js` baseline | in progress (PR #224) | 2 PASS / 0 FAIL / 15,521 SKIP → 3 PASS / 0 FAIL / 15,520 SKIP; standard-library-only 5,459 → 5,583 (the `@lib` targets now need only the library) |
+| A3.2 | `compiler/arrayIterationLibES5TargetDifferent.ts` (`nolib=true,target=es2015`) to PASS: runner passes `@lib`; CLI `--lib` with `--noLib` reports TS5053; ambient `declare let/const`; TS2495 for non-iterable `for..of` sources; script `"use strict";` prologue and strict script parameters; emit when only TS5053/TS2318 are printed | The only target whose sole gap was `@lib`; the prologue applies to every original script `.js` baseline | done (PR #224, cd1dea6) | 2 PASS / 0 FAIL / 15,521 SKIP → 3 PASS / 0 FAIL / 15,520 SKIP; standard-library-only 5,459 → 5,583 (the `@lib` targets now need only the library) |
 | A3 | Close the cheapest family of failing original cases from A1's histogram, one family per PR | Moves original cases to PASS | todo | — |
+| A3.3 | `compiler/arrayIterationLibES5TargetDifferent.ts` (`nolib=true,target=esnext`) to PASS: `--target esnext` with output identical to ES2015 where no lowering applies, failing closed where the ES2015 writer lowers (logical assignment, `**`, `??`, optional chaining, object spread, numeric separators) | The only target whose sole gap is `option:target=esnext`; its pinned `.errors.txt` and `.js` equal the `es2015` ones | todo | — |
 | C1 | Remove duplicated checker/emitter paths and per-feature verify scripts where a shared test proves identical behaviour | Less code to maintain | todo | — |
 | H1 | Agent verification skills (`.claude/skills/verification-first`, `.claude/skills/verify-tscs`) with a feature map run against the pinned reference | Every later PR is checked at the real boundary, not only by unit tests | done (PR #223, 2cfd095) | feature map rows run on 61dfa09: 2 PASS / 0 FAIL / 15,521 SKIP, library 0 unresolved names |
 
-Last docs housekeeping: 2026-11-06 (D1).
+Last docs housekeeping: 2026-11-07 (Sydney date), the 2026-11-07 housekeeping PR.
