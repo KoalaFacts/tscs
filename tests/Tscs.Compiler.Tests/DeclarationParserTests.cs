@@ -204,6 +204,15 @@ public class DeclarationParserTests
     [InlineData("type T = void.x;","TS1005","';' expected.",13)]
     [InlineData("type\nFoo = 1;","TS1128","Declaration or statement expected.",0)]
     [InlineData("interface I { [a: string, b: string]: number }","TS1096","An index signature must have exactly one parameter.",36)]
+    [InlineData("class C {}","TS1046","Top-level declarations in .d.ts files must start with either a 'declare' or 'export' modifier.",0)]
+    [InlineData("declare class C { m(): void {} }","TS1183","An implementation cannot be declared in ambient contexts.",28)]
+    [InlineData("declare class C { (): void }","TS1068","Unexpected token. A constructor, method, accessor, or property was expected.",18)]
+    [InlineData("declare class C extends A, B {}","TS1174","Classes can only extend a single class.",25)]
+    [InlineData("declare class class {}","TS1359","Identifier expected. 'class' is a reserved word that cannot be used here.",14)]
+    [InlineData("declare class C { x: number, y: number }","TS1005","';' expected.",27)]
+    [InlineData("type A = `a${}`;","TS1110","Type expected.",13)]
+    [InlineData("type A = `a${B C}`;","TS1005","'}' expected.",15)]
+    [InlineData("type A = `a${class}`;","TS1359","Identifier expected. 'class' is a reserved word that cannot be used here.",13)]
     [InlineData("var x: number;","TS1046","Top-level declarations in .d.ts files must start with either a 'declare' or 'export' modifier.",0)]
     [InlineData("function f(): void;","TS1046","Top-level declarations in .d.ts files must start with either a 'declare' or 'export' modifier.",0)]
     public void ReportsTheFirstSyntaxError(string text,string code,string message,int start)
@@ -213,12 +222,12 @@ public class DeclarationParserTests
     }
 
     [Theory]
-    [InlineData("declare class C {}","Classes")]
     [InlineData("declare enum E { A }","Enums")]
     [InlineData("declare const enum E { A }","Enums")]
     [InlineData("import { A } from \"a\";","Imports")]
     [InlineData("declare module \"m\" {}","Ambient module declarations")]
-    [InlineData("type A = `a${B}`;","Template literal types")]
+    [InlineData("declare class C { x = 1; }","Class property initializers")]
+    [InlineData("declare class C { x!: number; }","Definite assignment assertions")]
     [InlineData("type A = typeof import(\"a\");","Import types")]
     [InlineData("declare const x = 1;","Variable initializers")]
     [InlineData("declare var a: number, b: string;","Multiple variable declarators")]
@@ -231,6 +240,68 @@ public class DeclarationParserTests
     {
         var diagnostic=Assert.Single(DeclarationParser.Parse("a.d.ts",text).Diagnostics);
         Assert.Equal(("TSCS1001",$"{construct} are not supported in declaration files yet."),(diagnostic.Code,diagnostic.Message));
+    }
+
+    [Fact]
+    public void ParsesAmbientClasses()
+    {
+        var file=Clean("""
+            declare class SafeArray<T = any> {
+                private constructor();
+                private SafeArray_typekey: SafeArray<T>;
+            }
+            declare abstract class Iterator<T, TResult = undefined> extends Base<T> implements A, B.C<T> {
+                abstract next(value?: T): IteratorResult<T, TResult>;
+                static readonly count: number;
+                [key: string]: unknown;
+                get size(): number;
+                static: boolean;
+                constructor: unknown;
+            }
+            """);
+        Assert.Collection(file.Statements,
+            s=>
+            {
+                var safe=Assert.IsType<AmbientClass>(s);
+                Assert.False(safe.Abstract);
+                Assert.IsType<AmbientConstructorDeclaration>(safe.Members[0].Member);
+                Assert.Equal(["private"],safe.Members[0].Modifiers);
+                Assert.Equal("SafeArray_typekey",Assert.IsType<AmbientPropertySignature>(safe.Members[1].Member).Name.Text);
+            },
+            s=>
+            {
+                var iterator=Assert.IsType<AmbientClass>(s);
+                Assert.True(iterator.Abstract);
+                Assert.Equal("Base",iterator.Base!.Name[0].Text);
+                Assert.Equal(["A","B"],iterator.Implements.Select(i=>i.Name[0].Text));
+                Assert.Collection(iterator.Members,
+                    m=>
+                    {
+                        Assert.Equal(["abstract"],m.Modifiers);
+                        Assert.Equal("next",Assert.IsType<AmbientMethodSignature>(m.Member).Name.Text);
+                    },
+                    m=>Assert.Equal(["static","readonly"],m.Modifiers),
+                    m=>Assert.IsType<AmbientIndexSignature>(m.Member),
+                    m=>Assert.IsType<AmbientAccessorSignature>(m.Member),
+                    m=>Assert.Equal("static",Assert.IsType<AmbientPropertySignature>(m.Member).Name.Text),
+                    m=>Assert.Equal("constructor",Assert.IsType<AmbientPropertySignature>(m.Member).Name.Text));
+            });
+    }
+
+    [Fact]
+    public void ParsesTemplateLiteralTypes()
+    {
+        var uuid=Assert.IsType<AmbientTemplateLiteralType>(AliasType("type U = `${string}-${string}`;"));
+        Assert.Equal("",uuid.Head);
+        Assert.Equal(["-",""],uuid.Spans.Select(s=>s.Text));
+        var nested=Assert.IsType<AmbientTemplateLiteralType>(AliasType("type N<T extends string> = `a\\`${Uppercase<T>}b${`x${T}` | \"y\"}c`;"));
+        Assert.Equal("a\\`",nested.Head);
+        Assert.IsType<AmbientTypeReference>(nested.Spans[0].Type);
+        Assert.IsType<AmbientTemplateLiteralType>(Assert.IsType<AmbientUnionType>(nested.Spans[1].Type).Members[0]);
+        Assert.Equal(["b","c"],nested.Spans.Select(s=>s.Text));
+        // Diagnostics inside a substitution keep absolute offsets.
+        var inner=Assert.Single(DeclarationParser.Parse("a.d.ts","type A = `${string}${1 +}`;").Diagnostics);
+        Assert.Equal(("TS1005",23),(inner.Code,inner.Start));
     }
 
     [Fact]

@@ -11,13 +11,14 @@
 //     --out <report.json>
 //
 // Exits 1 when any file reachable through `/// <reference lib>` from the
-// required roots (lib.es5.d.ts and lib.es2015.d.ts) has a diagnostic.
+// required roots has a diagnostic: lib.d.ts and lib.es6.d.ts, the default
+// libs for targets es5 and es2015 (getDefaultLibFileName).
 import {spawnSync} from 'node:child_process';
 import {existsSync, readFileSync, readdirSync, writeFileSync} from 'node:fs';
 import {join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
-export const REQUIRED_ROOTS = ['lib.es5.d.ts', 'lib.es2015.d.ts'];
+export const REQUIRED_ROOTS = ['lib.d.ts', 'lib.es6.d.ts'];
 
 export interface Diagnostic {code: string; start: number; message: string}
 export interface FileResult {file: string; statements: number; libReferences: string[]; diagnostics: Diagnostic[]}
@@ -99,7 +100,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   console.log(`Standard library syntax: ${report.clean} of ${report.libs} pinned lib files parse with zero diagnostics`);
   for (const [k, v] of Object.entries(report.firstDiagnostics)) console.log(`  ${v.length}\t${k}\t${v.join(', ')}`);
   const failing = report.required.filter((r) => !r.clean);
-  console.log(`Required (es5 and es2015 closure): ${report.required.length - failing.length} of ${report.required.length} clean`);
+  console.log(`Required (default libs for es5 and es2015 and their references): ${report.required.length - failing.length} of ${report.required.length} clean`);
   if (failing.length > 0) {
     console.error(`required lib files with diagnostics: ${failing.map((r) => r.file).join(', ')}`);
     process.exit(1);

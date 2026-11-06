@@ -66,7 +66,7 @@ The report lists every target's status and reasons, plus the missing-capability
 histograms summarized in [STATUS](STATUS.md#headline).
 
 Standard library syntax check against the same checkout (fails when a file
-reachable from `lib.es5.d.ts` or `lib.es2015.d.ts` has a diagnostic; see
+reachable from the default libs `lib.d.ts` or `lib.es6.d.ts` has a diagnostic; see
 [STATUS](STATUS.md#standard-library)):
 
 ```sh
