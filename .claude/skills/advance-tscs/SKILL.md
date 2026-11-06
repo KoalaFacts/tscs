@@ -23,12 +23,10 @@ A long run of PRs each added one narrow "bounded" construct (classic-for header 
 - **Hosted CI never replaces the local gate.** Every PR merges only after the applicable local gate has run on its final source. Results from earlier runs may be reused only for code the final diff does not touch, and the PR says what was reused; anything the edits affect is re-run. Stages that were blocked or not run are listed as such, never reported as passed. A PR opened before its local gate ran must say so and stays unmerged until the gate passes locally.
 
 ## Gate
-1. `dotnet build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false` (warnings are errors)
-2. The test projects under `tests/` that CI runs
-3. `node --test` for the `tools/*.test.ts` you touch
-4. `./scripts/verify.sh` (what `ci.yml` runs)
-5. `tools/check-docs.ts`
-6. When touching the oracle/harness: the pinned Go reference lanes (`verify-original-emptyfile-go.sh`, full discovery); otherwise the hosted jobs are the evidence.
+1. `./scripts/verify.sh` — what `ci.yml` runs: locked restore, Release build (warnings are errors), all test projects, `go test` for `tools/scope-go`, `node --test tools/*.test.ts`, `tools/check-docs.ts`, then the conformance and emit checks.
+2. The rest of `ci.yml`: `scripts/verify-upstream-lock-probe.sh` and `scripts/verify-upstream-full-discovery.sh`.
+3. The original-acceptance measurement locally (the `verify-tscs` headline row: `node tools/original-acceptance.ts ... --expect-headline docs/STATUS.md`) for every PR body's before/after PASS/FAIL/SKIP; when touching the oracle/harness, also `scripts/verify-original-emptyfile-go.sh`. Hosted jobs add evidence; they never stand in for this step.
+For a quick inner loop, `dotnet build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false` after a restore.
 
 ## Ledger
 The "Roadmap" section of `docs/STATUS.md`: headline metric with commit, then the work table with original case IDs and counts as evidence per row.
@@ -48,7 +46,7 @@ The Roadmap table in `docs/STATUS.md` is the order; take its first row that is n
 ## Project rules
 - The compiler stays C#; Node and Go are reference/dev tools only.
 - Never edit `LICENSE`, `NOTICE` or `licenses/`.
-- Never change `upstream.lock.json`, `global.json`, the pinned upstream revision, the SKIP registry semantics, protections or release gates to make a number look better. No SKIP registration or protection weakened.
+- Never change `upstream.lock.json`, `global.json`, the pinned upstream revision, the SKIP registry semantics, protections or release gates, for any reason. No SKIP registration or protection weakened.
 - Extra merge condition: every hosted CI check on the head ran and passed (Compiler bootstrap, the original Go reference job, CodeQL if present). Only after a confirmed billing block (jobs with zero steps and a billing annotation) may missing hosted checks be set aside, and then only for changes the local gate fully covers; the billing exception never waives the local gate or any repository protection.
 
 ## Docs scope
