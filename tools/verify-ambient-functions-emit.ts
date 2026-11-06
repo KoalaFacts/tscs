@@ -31,7 +31,7 @@ try {
  for(const [name,source,code] of [
    ['wrong-arg','declare function twice(n:number):number; let r=twice("bad");','TS2345'],
    ['wrong-type','declare function label(n:number):string; let n:number=label(1);','TS2322'],
-   ['bad-decl','declare const value:number;','TSCS1001'],
+   ['bad-decl','declare const value:number=1;','TSCS1001'],
    ['duplicate-parameters','declare function f(x:number, x:string):void;','TSCS1001']
  ] as const){
    writeFileSync(join(folder,name+'.ts'),source);

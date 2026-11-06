@@ -1,7 +1,7 @@
 namespace Tscs;
 
 // Primitive branches of checkVariableLikeDeclaration/checkIdentifier/checkBinaryLikeExpression.
-internal sealed class TypeChecker(string file,bool strictModule=false)
+internal sealed class TypeChecker(string file)
 {
     private readonly List<Diagnostic> diagnostics=[];
     private readonly Dictionary<ValueConditional,(TypeSymbol? True,TypeSymbol? False)> conditionalResults = new(ReferenceEqualityComparer.Instance);
@@ -198,8 +198,8 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                             ?WidenMutableLiteral(inferred,mutableValueInitializer,scope):source;
                         symbol.Type=annotatedType??constantLiteral??inferredSource;
                         symbol.DeclaredType=symbol.Type;
-                        symbol.Initialized=v.Initializer!=null;
-                        if(v.Constant&&v.Initializer==null) Error(v.Name,"TS1155","'const' declarations must be initialized.");
+                        symbol.Initialized=v.Initializer!=null || v.Ambient;
+                        if(v.Constant&&v.Initializer==null&&!v.Ambient) Error(v.Name,"TS1155","'const' declarations must be initialized.");
                         if(annotatedType!=null && source!=null &&
                            CheckContextualLiteral(v.Initializer!,annotatedType,source) &&
                            !IsAssignableContextually(v.Initializer!,source,annotatedType))
@@ -763,6 +763,17 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
         catch(InvalidOperationException failure)
         {
             throw new CompilationFailure(Diagnostic.Error(file,loop.Keyword,"TSCS1001",failure.Message));
+        }
+        // tscs loads no library, so no global Iterable exists: like the pinned
+        // checker without one (arrayIterationLibES5TargetDifferent.ts), a
+        // non-array, non-string source is TS2495 and its elements are 'any'.
+        // Only named sources of definitely non-iterable types take this path.
+        if(elementType is null && loop.Source is ValueAtom { Token.Kind: TokenKind.Identifier } named &&
+           sourceType is { } nonIterable && (nonIterable is PrimitiveTypeSymbol { Kind: PrimitiveKind.Number or PrimitiveKind.Boolean } ||
+               nonIterable is ObjectTypeSymbol))
+        {
+            Error(named.Token,"TS2495",$"Type '{nonIterable.DisplayName}' is not an array type or a string type.");
+            elementType=CompilerTypes.Any;
         }
         if(elementType is null)
             throw new CompilationFailure(Diagnostic.Error(file,loop.Keyword,"TSCS1001",
@@ -4371,9 +4382,9 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
     }
     private void CheckStrictModuleBinding(Token name)
     {
-        // ES modules are always strict, including nested function scopes.
-        // Do not impose module-only restrictions on sloppy script parameters.
-        if(strictModule && (name.Text is "eval" or "arguments"))
+        // The pinned binder reports eval/arguments bindings in every file:
+        // TS7 emits a "use strict" prologue for scripts, so none is sloppy.
+        if(name.Text is "eval" or "arguments")
             Error(name,"TS1100",$"Invalid use of '{name.Text}' in strict mode.");
     }
     // Literal values are widened during general expression inference, but a

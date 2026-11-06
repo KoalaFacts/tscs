@@ -230,7 +230,18 @@ public sealed class CompilerProgram
     public IReadOnlyList<JavaScriptOutput> EmitJavaScript(bool emitModules) =>
         EmitJavaScript((bool?)emitModules);
 
-    public IReadOnlyList<JavaScriptOutput> EmitJavaScript(bool? emitModules=null)
+    public IReadOnlyList<JavaScriptOutput> EmitJavaScript(bool? emitModules=null)=>
+        EmitJavaScript(emitModules,allowSemanticDiagnostics:false);
+
+    /// <summary>
+    /// Emit when the reference prints only option/global diagnostics (TS5053,
+    /// TS2318), which hide semantic ones, and emits like tsc without
+    /// noEmitOnError. Syntax errors and unsupported (TSCS) input still refuse.
+    /// </summary>
+    internal IReadOnlyList<JavaScriptOutput> EmitJavaScriptBehindGlobalDiagnostics()=>
+        EmitJavaScript(null,allowSemanticDiagnostics:true);
+
+    private IReadOnlyList<JavaScriptOutput> EmitJavaScript(bool? emitModules,bool allowSemanticDiagnostics)
     {
         if(Options.NoEmit)
             throw new InvalidOperationException("JavaScript output is disabled by noEmit.");
@@ -238,7 +249,9 @@ public sealed class CompilerProgram
         // ordinary Program emission uses the same typed effective options as CLI.
         bool emitNamedModules=emitModules ?? Options.Module==CompilerModule.Es2015;
         var checkedProgram=Analyze();
-        if(checkedProgram.HasSyntaxErrors || checkedProgram.Diagnostics.Count>0)
+        if(checkedProgram.HasSyntaxErrors || (allowSemanticDiagnostics
+               ? checkedProgram.Diagnostics.Any(d=>d.Code.StartsWith("TSCS",StringComparison.Ordinal))
+               : checkedProgram.Diagnostics.Count>0))
             throw new InvalidOperationException("JavaScript output requires a successful checked program.");
         var output=new JavaScriptOutput[sources.Length];
         for(int i=0;i<sources.Length;i++)

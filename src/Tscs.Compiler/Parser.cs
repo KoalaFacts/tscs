@@ -724,8 +724,27 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     Unsupported(Current,"Only exported variables, functions, type aliases and interfaces are supported yet.");
             }
             bool ambient=Eat(TokenKind.Declare);
-            if(ambient && (depth!=0 || Current.Kind!=TokenKind.Function))
-                Unsupported(Current,"Only source-level ambient function signatures are supported.");
+            if(ambient && (depth!=0 || Current.Kind is not (TokenKind.Function or TokenKind.Let or TokenKind.Const)))
+                Unsupported(Current,"Only source-level ambient function signatures and typed let/const declarations are supported.");
+            if(ambient && Current.Kind is TokenKind.Let or TokenKind.Const)
+            {
+                // A source-level ambient variable is a typed, uninitialized
+                // declaration that binds a value and emits nothing.
+                bool ambientConstant=Take().Kind==TokenKind.Const;
+                while(true)
+                {
+                    var name=Current;
+                    if(name.Kind!=TokenKind.Identifier)Unsupported(name,"Ambient variables require a named declaration.");
+                    Take();
+                    if(!Eat(TokenKind.Colon))Unsupported(Current,"Ambient variables require a type annotation.");
+                    var annotation=ReadTypeAnnotation();
+                    if(Current.Kind==TokenKind.Equal)Unsupported(Current,"Ambient variables cannot have initializers.");
+                    statements.Add(new Variable(name,ambientConstant,annotation,null,exported,Ambient:true));
+                    if(!Eat(TokenKind.Comma))break;
+                }
+                EndStatement();
+                continue;
+            }
             if(Current.Kind is TokenKind.Type or TokenKind.Interface)
             {
                 if(depth!=0)Unsupported(Current,"Type declarations require source-file scope.");

@@ -96,6 +96,9 @@ export function missingCapabilities(target: Target, units: Unit[] | null): strin
       if (value !== 'true' && value !== 'false') missing.push(`option:${key}=${value}`);
     } else if (key === 'strict') {
       if (value !== 'true') missing.push(`option:strict=${value}`);
+    } else if (key === 'lib') {
+      // With @noLib the reference reports TS5053 and loads no library, which
+      // tscs reproduces; without it the standard-library capability is missing.
     } else missing.push(`option:${key}`);
   }
   if (String(config.nolib ?? config.noLib ?? '').trim().toLowerCase() !== 'true') missing.push('standard-library');
@@ -207,7 +210,8 @@ export function runTarget(target: Target, options: RunOptions): TargetResult {
     // tscs requires that effective module mode to be spelled explicitly;
     // this is an invocation adapter, not a different upstream test config.
     // Explicit @module configurations remain SKIP until A1.2 models them.
-    const args = [options.tscs, noEmit ? '--noEmit' : '--emitJs', '--noLib', '--target', 'es2015',
+    const lib = config.lib === undefined ? [] : ['--lib', String(config.lib).trim()];
+    const args = [options.tscs, noEmit ? '--noEmit' : '--emitJs', '--noLib', ...lib, '--target', 'es2015',
       '--module', 'es2015', ...units!.map((u) => u.name)];
     const run = spawnSync(options.dotnet, args, {cwd: work, encoding: 'utf8', timeout: 60_000});
     if (run.error) return result('FAIL', [`tscs did not run: ${run.error.message}`]);

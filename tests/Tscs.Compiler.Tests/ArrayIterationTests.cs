@@ -26,6 +26,22 @@ public sealed class ArrayIterationTests
     public void ArrayProgramsFollowTheSharedCompilerPipeline(string source) =>
         Assert.Empty(Compilation.Check("arrays.ts", source));
 
+    // compiler/arrayIterationLibES5TargetDifferent.ts: without a global
+    // Iterable (tscs loads no library), the reference reports TS2495 at the
+    // iterated expression and the loop variable is not further checked.
+    [Theory]
+    [InlineData("declare const aNumber: number; for (const x of aNumber) { x; }", "aNumber", "number")]
+    [InlineData("declare const aFlag: boolean; for (const x of aFlag) { x; }", "aFlag", "boolean")]
+    [InlineData("declare const anObject: { foo: string }; for (const x of anObject) { x; }", "anObject", "{ foo: string; }")]
+    public void NonIterableSourcesReportTs2495AtTheIteratedExpression(string source,string expression,string type)
+    {
+        var diagnostic=Assert.Single(Compilation.Check("arrays.ts",source));
+        Assert.Equal("TS2495",diagnostic.Code);
+        Assert.Equal($"Type '{type}' is not an array type or a string type.",diagnostic.Message);
+        Assert.Equal(source.LastIndexOf(expression,StringComparison.Ordinal),diagnostic.Start);
+        Assert.Equal(expression.Length,diagnostic.Length);
+    }
+
     [Theory]
     [InlineData("const xs = [1, 2]; xs[0] = \"bad\";", "TS2322")]
     [InlineData("const xs = [1, 2]; xs.missing;", "TS2339")]

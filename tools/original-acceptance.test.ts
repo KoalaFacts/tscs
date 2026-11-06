@@ -27,6 +27,9 @@ test('missing capabilities are all recorded, and supported targets have none', (
   assert.deepEqual(missingCapabilities(target('a.ts', {target: 'es2015', nolib: 'true'}), units), []);
   assert.deepEqual(missingCapabilities(target('a.ts', {target: 'ES6', noLib: 'true', noemit: 'true', strict: 'true'}), units), []);
   assert.deepEqual(missingCapabilities(target('a.ts', {target: 'es2015'}), units), ['standard-library']);
+  assert.deepEqual(missingCapabilities(target('a.ts', {target: 'es2015', nolib: 'true', lib: 'es5'}), units), [],
+    '@lib with @noLib is the pinned TS5053 conflict, which tscs reports');
+  assert.deepEqual(missingCapabilities(target('a.ts', {target: 'es2015', nolib: 'false', lib: 'es5'}), units), ['standard-library']);
   assert.deepEqual(missingCapabilities(target('a.ts', {target: 'es5', module: 'commonjs', strict: 'false', nolib: 'true'}),
     [{name: 'a.tsx', content: ''}, {name: 'b.d.ts', content: ''}]),
   ['option:target=es5', 'option:module', 'option:strict=false', 'input:.tsx', 'multi-file']);
@@ -98,11 +101,13 @@ test('an executed target passes only when diagnostics and emit match the referen
     'noref.ts': '// @target: es5\n// @noLib: true\n',
     'silent.ts': '// @noLib: true\n// @noEmit: true\n// silent2\n',
     'stray.ts': '// @noLib: true\n// @noEmit: true\n// stray\n',
+    'withlib.ts': '// @lib: es5\n// @noLib: true\n// emit: "use strict";\n',
   }, {
-    ...Object.fromEntries(['ok', 'bad', 'emit', 'unsupported', 'crash', 'extra', 'lib', 'silent', 'stray'].map((n) => [`${n}.types`, ''])),
+    ...Object.fromEntries(['ok', 'bad', 'emit', 'unsupported', 'crash', 'extra', 'lib', 'silent', 'stray', 'withlib'].map((n) => [`${n}.types`, ''])),
     'ok.js': `${header('ok')}//// [ok.js]\r\n"use strict";\r\n`,
     'bad.js': `${header('bad')}//// [bad.js]\r\n"use strict";\r\n`,
     'emit.js': `${header('emit')}//// [emit.js]\r\n"use strict";\r\n`,
+    'withlib.js': `${header('withlib')}//// [withlib.js]\r\n"use strict";\r\n`,
   });
   try {
     const path = (n: string) => `tsc/testdata/tests/cases/compiler/${n}`;
@@ -126,8 +131,10 @@ test('an executed target passes only when diagnostics and emit match the referen
       /does not match the registered pinned source/);
     const skipped = run('lib.ts', {target: 'es2015'});
     assert.deepEqual([skipped.status, skipped.reasons], ['SKIP', ['standard-library']]);
+    assert.equal(run('withlib.ts', {lib: 'es5', nolib: 'true'}).status, 'PASS');
     const invocations = readFileSync(log, 'utf8').trim().split('\n');
-    assert.equal(invocations.length, 8, 'a SKIP target never runs the compiler');
+    assert.equal(invocations.length, 9, 'a SKIP target never runs the compiler');
+    assert.ok(invocations[8].includes('--emitJs --noLib --lib es5 --target es2015'), 'the @lib list is passed through');
     assert.ok(invocations.slice(0, 4).every((l) => l.includes('--emitJs --noLib --target es2015')));
     assert.ok(invocations[4].includes('--noEmit --noLib --target es2015'));
     assert.ok(invocations[5].includes('--emitJs'));

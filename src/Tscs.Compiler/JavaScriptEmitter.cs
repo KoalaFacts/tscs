@@ -13,11 +13,29 @@ internal static class JavaScriptEmitter
         if(root.Statements.Count>0 &&
            root.Statements.All(s=>s is TypeAliasDeclaration {Exported:false}
                or InterfaceDeclaration {Exported:false}
-               or FunctionDeclaration {Ambient:true, Exported:false}))
+               or FunctionDeclaration {Ambient:true, Exported:false}
+               or Variable {Ambient:true, Exported:false}))
             return "\"use strict\";\r\n";
         var writer=new Writer(emitModules);
         foreach(var statement in root.Statements)writer.WriteStatement(statement,0);
-        return writer.Text;
+        // The pinned useStrict transform prefixes every non-ES-module file;
+        // an existing leading "use strict" directive is kept as the prologue.
+        if(IsModule(root) || StartsWithUseStrict(root))return writer.Text;
+        return "\"use strict\";\n"+writer.Text;
+    }
+
+    private static bool IsModule(Block root)=>root.Statements.Any(s=>
+        s is ImportDeclaration or ExportDeclaration or Variable { Exported:true } or FunctionDeclaration { Exported:true } or
+        TypeAliasDeclaration { Exported:true } or InterfaceDeclaration { Exported:true });
+
+    private static bool StartsWithUseStrict(Block root)
+    {
+        foreach(var statement in root.Statements)
+        {
+            if(statement is not Expression { Value: ValueAtom { Token.Kind: TokenKind.String } directive })return false;
+            if(directive.Token.Text is "\"use strict\"" or "'use strict'")return true;
+        }
+        return false;
     }
 
     private sealed class Writer(bool emitModules)
@@ -38,6 +56,9 @@ internal static class JavaScriptEmitter
                 case EmptyStatement:
                     Indent(depth);
                     output.Append(";\n");
+                    break;
+                case Variable {Ambient:true}:
+                    // Ambient variables have no JavaScript runtime declaration.
                     break;
                 case Variable variable:
                     Indent(depth);
