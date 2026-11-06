@@ -449,7 +449,18 @@ internal sealed class DeclarationParser
             if(Eat(TokenKind.Semi))continue;
             var modifiers=new List<string>();
             while(IsWord(Current) && ClassModifiers.Contains(Current.Text) && IsModifier(Current.Text,classMember:true))modifiers.Add(Take().Text);
-            members.Add(new(modifiers,ParseClassMember()));
+            var member=ParseClassMember();
+            var memberName=member switch
+            {
+                AmbientPropertySignature property=>property.Name,
+                AmbientMethodSignature method=>method.Name,
+                AmbientAccessorSignature accessor=>accessor.Name,
+                _=>null
+            };
+            if(memberName?.Tokens[0].Kind==TokenKind.PrivateIdentifier &&
+               modifiers.Any(m=>m is "private" or "public" or "protected"))
+                throw Error("TS18010","An accessibility modifier cannot be used with a private identifier.");
+            members.Add(new(modifiers,member));
             if(Current.Kind==TokenKind.Open)throw Error("TS1183","An implementation cannot be declared in ambient contexts.");
             if(Current.Kind==TokenKind.Equal)throw Unsupported("Class property initializers");
             ExpectSemicolon();
@@ -478,13 +489,15 @@ internal sealed class DeclarationParser
         if(IsAccessorKeyword())
         {
             bool setter=Take().Text=="set";
-            var accessorName=ParsePropertyName();
+            var accessorName=ParsePropertyName(allowPrivate:true);
             return new AmbientAccessorSignature(accessorName,ParseSignature(TokenKind.Colon),setter);
         }
         if(Current.Kind is TokenKind.OpenParen or TokenKind.LessThan)
             throw Error("TS1068","Unexpected token. A constructor, method, accessor, or property was expected.");
-        var name=ParsePropertyName();
+        var name=ParsePropertyName(allowPrivate:true);
         bool optional=Eat(TokenKind.Question);
+        if(name.Tokens[0].Kind==TokenKind.PrivateIdentifier && optional)
+            throw Error("TS18019","'?' modifier cannot be used with a private identifier.");
         if(Current.Kind is TokenKind.OpenParen or TokenKind.LessThan)
             return new AmbientMethodSignature(name,ParseSignature(TokenKind.Colon),optional);
         if(Current.Kind==TokenKind.Bang)throw Unsupported("Definite assignment assertions");
@@ -588,7 +601,7 @@ internal sealed class DeclarationParser
             TokenKind.Semi or TokenKind.Comma or TokenKind.Close or TokenKind.Equal or TokenKind.End);
     // canFollowGetOrSetKeyword: no same-line requirement for get/set.
     private bool IsAccessorKeyword()=>(Is("get") || Is("set")) &&
-        (Peek().Kind is TokenKind.OpenBracket or TokenKind.String or TokenKind.Number || IsWord(Peek()));
+        (Peek().Kind is TokenKind.OpenBracket or TokenKind.String or TokenKind.Number or TokenKind.PrivateIdentifier || IsWord(Peek()));
 
     private AmbientMember ParseMember()
     {
@@ -637,8 +650,15 @@ internal sealed class DeclarationParser
         return Peek(2).Kind is TokenKind.Colon or TokenKind.Comma || (Peek(2).Kind==TokenKind.Question && Peek(3).Kind==TokenKind.Colon);
     }
 
-    private AmbientPropertyName ParsePropertyName()
+    private AmbientPropertyName ParsePropertyName(bool allowPrivate=false)
     {
+        // Private identifiers belong to ambient class members, never to
+        // interfaces, object type literals, or computed property names.
+        if(Current.Kind==TokenKind.PrivateIdentifier)
+        {
+            if(!allowPrivate)throw Unsupported("Private identifiers outside class members");
+            return new([Take()],false);
+        }
         // Templates are not literal property names (isTypeMemberStart).
         if(Current.Kind==TokenKind.Template || Current.Text.StartsWith('`'))throw Error("TS1131","Property or signature expected.");
         if(Current.Kind is TokenKind.String or TokenKind.Number)return new([Take()],false);
