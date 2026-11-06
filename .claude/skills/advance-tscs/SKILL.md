@@ -41,6 +41,7 @@ The Roadmap table in `docs/STATUS.md` is the order; take its first row that is n
 ## Authority
 - Branch prefixes `feat/`, `fix/`, `test/`, `docs/`, `refactor/`, `harness/`; squash merge pinned to head SHA.
 - First line of every PR body: "Opened by the tscs scheduled task."
+- Before starting an item, list remote branches newest first (`git branch -r --sort=-committerdate`) and open PRs: a branch from another session on the same item, even without a PR, means that item is taken — pick the next independent one and report the overlap. (A run on 2026-11-06 duplicated A3.3 because `feat/target-esnext` had no PR.)
 - Other sessions work here. Time without a push is **not** evidence that a PR's executor is gone: it may be running a long local validation or review. Adopt another PR only when all hold: no push, comment or review activity on it for 6+ hours; its author or executor is not shown active elsewhere (recent comments, other open PRs or branches from the same session, a scheduled task that names it); no other writer overlaps its files; and adopting it respects its dependencies and any owner priority. Then say so in a PR comment and treat it as this task's PR under the same merge conditions. Never close someone else's PR — a quiet branch, an anti-sprawl classification or a failing review does not authorise closure; report it instead. Adopting a PR never breaks the one-PR-at-a-time rule. Dependabot PRs: report only.
 
 ## Project rules
