@@ -57,8 +57,8 @@ internal sealed record AmbientTypeAlias(Token Name,IReadOnlyList<AmbientTypePara
 // Keyword is var, let or const.
 internal sealed record AmbientVariable(Token Keyword,Token Name,AmbientType? Type,bool Exported) : AmbientStatement(Exported);
 internal sealed record AmbientFunction(Token Name,AmbientSignature Signature,bool Exported) : AmbientStatement(Exported);
-// `declare global` has an empty Name.
-internal sealed record AmbientNamespace(IReadOnlyList<Token> Name,IReadOnlyList<AmbientStatement> Body,bool Exported) : AmbientStatement(Exported);
+// `declare global` has an empty Name and keeps its `global` keyword.
+internal sealed record AmbientNamespace(IReadOnlyList<Token> Name,IReadOnlyList<AmbientStatement> Body,bool Exported,Token? GlobalKeyword=null) : AmbientStatement(Exported);
 internal sealed record AmbientExportList(IReadOnlyList<Token> Names) : AmbientStatement(false);
 // An ambient class: members carry their modifiers; no bodies or initializers.
 internal sealed record AmbientClass(Token Name,IReadOnlyList<AmbientTypeParameter> TypeParameters,
@@ -237,8 +237,8 @@ internal sealed class DeclarationParser
         if(Is("global") && Peek().Kind==TokenKind.Open)
         {
             if(!declared)throw Error("TS1005","'declare' expected.");
-            Take();
-            return new AmbientNamespace([],ParseBlock(),exported);
+            var keyword=Take();
+            return new AmbientNamespace([],ParseBlock(),exported,keyword);
         }
         if(Is("module") && Peek().Kind==TokenKind.String)throw Unsupported("Ambient module declarations");
         if(Is("enum"))throw Unsupported("Enums");

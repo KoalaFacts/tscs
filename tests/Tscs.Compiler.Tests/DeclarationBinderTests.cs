@@ -23,7 +23,7 @@ public class DeclarationBinderTests
         var array=globals.Symbols["Array"];
         Assert.Equal(AmbientMeaning.Interface|AmbientMeaning.FunctionScopedVariable,array.Meanings);
         Assert.Equal(3,array.Declarations.Count);
-        Assert.Equal(2,array.Declarations.OfType<AmbientInterface>().SelectMany(i=>i.Members).Count());
+        Assert.Equal(2,array.Declarations.Select(d=>d.Statement).OfType<AmbientInterface>().SelectMany(i=>i.Members).Count());
         Assert.Equal(["Array","ArrayConstructor"],globals.Symbols.Keys.Order());
     }
 
@@ -35,8 +35,8 @@ public class DeclarationBinderTests
             +" declare function parseInt(s: string): number; declare function parseInt(s: string, radix: number): number;"
             +" declare class Box { value: number; } interface Box { label: string; }",
             "declare namespace Intl { interface NumberFormat { format(n: number): string; } }"
-            +" declare namespace A.B { type Only = string; }"
-            +" declare global { interface Window { name: string; } }");
+            +" declare namespace A.B { type Only = string; }",
+            "export {}; declare global { interface Window { name: string; } } interface ModuleLocal { }");
         Assert.Empty(globals.Diagnostics);
         var intl=globals.Symbols["Intl"];
         Assert.Equal(AmbientMeaning.ValueModule|AmbientMeaning.NamespaceModule,intl.Meanings);
@@ -49,13 +49,50 @@ public class DeclarationBinderTests
         Assert.Equal(AmbientMeaning.NamespaceModule,a.Exports["B"].Meanings);
         Assert.Equal(AmbientMeaning.TypeAlias,a.Exports["B"].Exports["Only"].Meanings);
         Assert.Equal(AmbientMeaning.Interface,globals.Symbols["Window"].Meanings);
+        // A file with a top-level export is a module: only `declare global` reaches the globals.
+        Assert.False(globals.Symbols.ContainsKey("ModuleLocal"));
+    }
+
+    [Fact]
+    public void ReportsGlobalAugmentationsInScriptFiles()
+    {
+        const string text="declare global { interface Window { } }";
+        var globals=Bind(text);
+        var diagnostic=Assert.Single(globals.Diagnostics);
+        Assert.Equal("TS2669",diagnostic.Code);
+        Assert.Equal("Augmentations for the global scope can only be directly nested in external modules or ambient module declarations.",diagnostic.Message);
+        Assert.Equal(text.IndexOf("global",StringComparison.Ordinal),diagnostic.Start);
+        Assert.Equal("global".Length,diagnostic.Length);
+        Assert.Empty(globals.Symbols);
+    }
+
+    [Fact]
+    public void ReportsCrossFileConflictsWhenEitherSideIsBlockScoped()
+    {
+        var globals=Bind("declare var x: number; type T = string;","declare let x: number; interface T { }");
+        Assert.Equal([("TS2451","x"),("TS2300","T")],globals.Diagnostics.Select(d=>(d.Code,d.Message.Split('\'')[1])));
+        Assert.All(globals.Diagnostics,d=>Assert.Equal("lib.1.d.ts",d.File));
+        Assert.Equal("declare let x: number; interface T { }".IndexOf('x'),globals.Diagnostics[0].Start);
+        Assert.Single(globals.Symbols["x"].Declarations);
+    }
+
+    [Fact]
+    public void BindsAnExcludedNamespaceToAFreshSymbol()
+    {
+        // The reference gives each excluded declaration its own symbol, so the
+        // two bodies' `x` never meet and only `N` is reported.
+        var globals=Bind("declare var N: number; declare namespace N { let x: number; } declare namespace N { let x: number; }");
+        Assert.Equal(["TS2300","TS2300"],globals.Diagnostics.Select(d=>d.Code));
+        Assert.Empty(globals.Symbols["N"].Exports);
     }
 
     [Theory]
     [InlineData("type T = string; interface T { }","TS2300","Duplicate identifier 'T'.")]
     [InlineData("interface T { } type T = string;","TS2300","Duplicate identifier 'T'.")]
     [InlineData("declare var x: number; declare class x { }","TS2300","Duplicate identifier 'x'.")]
-    [InlineData("declare var x: number; declare let x: number;","TS2451","Cannot redeclare block-scoped variable 'x'.")]
+    // Within one file the message follows the earlier symbol's meanings.
+    [InlineData("declare var x: number; declare let x: number;","TS2300","Duplicate identifier 'x'.")]
+    [InlineData("declare class C { } declare class C { }","TS2300","Duplicate identifier 'C'.")]
     [InlineData("declare const x: number; declare var x: number;","TS2451","Cannot redeclare block-scoped variable 'x'.")]
     [InlineData("declare function f(): void; declare var f: number;","TS2300","Duplicate identifier 'f'.")]
     [InlineData("declare namespace N { var v: number; } declare var N: number;","TS2300","Duplicate identifier 'N'.")]
