@@ -115,15 +115,17 @@ diagnostic and exit 1; they are intended never to be compiled silently.
   numeric/string/boolean literal types and unions, `void`.
 - Non-generic `type` aliases and interfaces (named, non-generic `extends`),
   structural object types with optional and `readonly` members, finite
-  intersections, excess-property checks on fresh literals.
+  intersections, excess-property checks on fresh literals; circular aliases
+  report TS2456.
 - Arrays (`T[]`, `Array<T>`, `readonly T[]`, `ReadonlyArray<T>`), fixed,
   labelled and optional tuples, tuple rest expansion.
 - Bounded `keyof`, indexed access (`T["k"]`, `T[number]`), `typeof` queries,
   static computed keys, numeric key identity (non-negative integer member
   names; fractional keys and dynamic `obj[n]` reads of objects fail closed).
 - Bitwise and shift operands must be `number` or `any` (others fail closed);
-  `as` between unrelated types is TS2352, a `satisfies` mismatch TS1360, and
-  `satisfies` against a discriminated object union fails closed.
+  `as` between unrelated types is TS2352, a `satisfies` mismatch TS1360;
+  `satisfies` against a discriminated object union needs a fresh object
+  literal with a unique string-literal discriminant (otherwise TSCS1001).
 - Functions: declarations, typed arrows and function expressions, optional,
   source-file ambient `declare function` signatures and typed
   `declare let/const` variables (checked and erased),
