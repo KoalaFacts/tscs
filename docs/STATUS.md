@@ -157,31 +157,33 @@ classes and mapped types with extra members fail with TSCS1001. `tools/check-sta
 including all 20 files reachable from the default libs `lib.d.ts`
 and `lib.es6.d.ts`, which the check requires. The check then binds those 20
 files together with `DeclarationBinder` (A2.2a), in two stages like the
-reference: each file binds on its own (an excluded redeclaration is TS2451 when
-the earlier symbol is block-scoped, else TS2300, and gets a fresh symbol),
-then script files merge into the globals (TS2451 when either side is
-block-scoped, else TS2300; TS2649 when the earlier symbol includes a
+reference: each file binds on its own (an excluded redeclaration is TS2451
+when the earlier symbol is block-scoped, else TS2300, and gets a fresh
+symbol), then script files merge into the globals (TS2451 when either side
+is block-scoped, else TS2300; TS2649 when the earlier symbol includes a
 non-instantiated namespace). Interfaces, namespaces including dotted names,
 function overloads, class + interface/namespace/function and `var` +
 interface merge; a file with a top-level export is a module whose only
 globals are its `declare global` blocks, and `declare global` in a script or
-nested in a namespace is TS2669. Dotted namespace names count toward the
-200-level nesting limit. The pinned closure binds to 2,250 global symbols (791 with more than
-one declaration) with zero diagnostics, which the check requires. Only the
+nested in a namespace is TS2669. Every segment of a dotted namespace name
+counts toward the 200-level nesting limit, through nested namespaces too.
+The pinned closure binds to 2,250 global symbols (791 with more than one
+declaration) with zero diagnostics, which the check requires. Only the
 excluded declaration is reported (the reference also reports the earlier
 ones); members hidden by an `export {}` inside a namespace, separate export
 and local tables in module files, qualified names in merge messages and the
-body of an invalid script `declare global` are not modelled, and each file's
-global augmentations merge right after it rather than after all scripts.
-`DeclarationResolver` (A2.2b) then resolves every entity name the closure
-uses, in types, `typeof` queries, computed property names and heritage
-clauses, with the pinned name resolver's scopes (type parameters, `infer`
-only in its true branch, mapped-type parameters, signature parameters,
-enclosing namespace exports, the globals and `globalThis`); a failed lookup
-is TS2304, TS2503, TS2694, TS2693 or TS2749, and the check requires zero
-for the pinned closure. Module-local declarations are not resolved (the
-pinned libs have none). Syntax trees are not yet compared with the
-reference parser, types are not computed, and nothing is checked: the CLI still accepts only the bounded globals below.
+body of an invalid (script or nested) `declare global` are not modelled, and
+each file's global augmentations merge right after it rather than after all
+scripts. `DeclarationResolver` (A2.2b) then resolves every entity name the
+closure uses, in types, `typeof` queries, computed property names and
+heritage clauses, with the pinned name resolver's scopes (type parameters,
+`infer` only in its true branch, mapped-type parameters, signature
+parameters, enclosing namespace exports, the globals and `globalThis`); a
+failed lookup is TS2304, TS2503, TS2694, TS2693 or TS2749, and the check
+requires zero for the pinned closure. Module-local declarations are not
+resolved (the pinned libs have none). Syntax trees are not yet compared with
+the reference parser, types are not computed, and nothing is checked: the
+CLI still accepts only the bounded globals below.
 
 Programs use `--noLib` with
 [`fixtures/minimal.d.ts`](../fixtures/minimal.d.ts) (empty global

@@ -10,10 +10,11 @@ namespace Tscs;
 // block-scoped, else TS2300, or TS2649 when the earlier symbol includes a
 // non-instantiated namespace). A file with a top-level export is a module: only
 // its `declare global` blocks reach the globals, and `declare global` in a
-// script is TS2669. Diagnostics are reported at the excluded declaration only
-// (the reference also reports the earlier declarations), and members hidden by
-// an `export {}` inside a namespace are not modelled. Names are resolved by
-// DeclarationResolver; types are not computed and nothing is checked yet.
+// script or nested in a namespace is TS2669. Diagnostics are reported at the
+// excluded declaration only (the reference also reports the earlier
+// declarations), and members hidden by an `export {}` inside a namespace are
+// not modelled. Names are resolved by DeclarationResolver; types are not
+// computed and nothing is checked yet.
 [Flags]
 internal enum AmbientMeaning
 {

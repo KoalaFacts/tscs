@@ -134,6 +134,15 @@ public class DeclarationBinderTests
     }
 
     [Fact]
+    public void ReportsTS2649OnlyWhenTheEarlierSymbolIsTheNamespace()
+    {
+        // Here the later file holds the namespace: an ordinary TS2451 at each of its declarations.
+        var globals=Bind("declare var N: number;","declare namespace N { interface I { } } declare let N: number;");
+        Assert.Equal(["TS2451","TS2451"],globals.Diagnostics.Select(d=>d.Code));
+        Assert.Single(globals.Symbols["N"].Declarations);
+    }
+
+    [Fact]
     public void ReportsGlobalAugmentationsNestedInANamespace()
     {
         const string text="export {}; declare namespace N { declare global { interface W { } } }";
