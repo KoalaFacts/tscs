@@ -9,6 +9,12 @@ internal static class JavaScriptEmitter
 {
     public static string Emit(Block root,bool emitModules=false)
     {
+        // Fully erased ES2015 scripts still emit the reference prologue.
+        if(root.Statements.Count>0 &&
+           root.Statements.All(s=>s is TypeAliasDeclaration {Exported:false}
+               or InterfaceDeclaration {Exported:false}
+               or FunctionDeclaration {Ambient:true, Exported:false}))
+            return "\"use strict\";\r\n";
         var writer=new Writer(emitModules);
         foreach(var statement in root.Statements)writer.WriteStatement(statement,0);
         return writer.Text;
@@ -133,6 +139,8 @@ internal static class JavaScriptEmitter
                         WriteBlock(cleanup,depth);
                     }
                     output.Append('\n');
+                    break;
+                case FunctionDeclaration {Ambient:true}:
                     break;
                 case FunctionDeclaration function:
                     Indent(depth);

@@ -720,9 +720,12 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     EndStatement();
                     continue;
                 }
-                if(Current.Kind is not (TokenKind.Let or TokenKind.Const or TokenKind.Function or TokenKind.Type or TokenKind.Interface))
+                if(Current.Kind is not (TokenKind.Let or TokenKind.Const or TokenKind.Function or TokenKind.Declare or TokenKind.Type or TokenKind.Interface))
                     Unsupported(Current,"Only exported variables, functions, type aliases and interfaces are supported yet.");
             }
+            bool ambient=Eat(TokenKind.Declare);
+            if(ambient && (depth!=0 || Current.Kind!=TokenKind.Function))
+                Unsupported(Current,"Only source-level ambient function signatures are supported.");
             if(Current.Kind is TokenKind.Type or TokenKind.Interface)
             {
                 if(depth!=0)Unsupported(Current,"Type declarations require source-file scope.");
@@ -855,6 +858,8 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                                 Unsupported(parameter,
                                     "A whole-parameter default cannot reference its own destructured names.");
                         }
+                        if(ambient && (parameterPattern is not null || defaultValue is not null))
+                            Unsupported(parameter,"Ambient parameters require named typed declarations without initializers.");
                         // An earlier parameter initializer executes before this
                         // pattern binds its names; body-entry lowering cannot
                         // reproduce an outer-name capture or TDZ dependency.
@@ -908,6 +913,14 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 TypeSyntax result=inferredVoid
                     ?new PrimitiveTypeSyntax(new Token(TokenKind.Void,"void",name.Start,0))
                     :ReadTypeAnnotation();
+                if(ambient)
+                {
+                    if(inferredVoid)Unsupported(name,"Ambient function signatures require an explicit return type.");
+                    if(!Eat(TokenKind.Semi))
+                        Unsupported(Current,"Ambient signatures require ';' and cannot have a body.");
+                    statements.Add(new FunctionDeclaration(name,parameters,result,new Block([]),exported,Ambient:true));
+                    continue;
+                }
                 if(!Eat(TokenKind.Open))Unsupported(Current,"Expected '{' before function body.");
                 var body=Parse(depth+1,true);
                 if(!Eat(TokenKind.Close))Diagnostics.Add(Diagnostic.Error(file,Current,"TS1005","'}' expected."));

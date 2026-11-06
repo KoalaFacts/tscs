@@ -100,7 +100,8 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false, boo
                         // Do not treat arbitrary triple-slash comments as implemented.
                         if (!(comment.StartsWith("///",StringComparison.Ordinal) &&
                               referenceDirectiveStarts.Contains(start)) &&
-                            !TryRegisterTsIgnore(start,position,block))
+                            !TryRegisterTsIgnore(start,position,block) &&
+                            !IsLegacyStyleComment(comment))
                             throw Error(new(TokenKind.Unsupported,comment,start,position-start),"TSCS1001","Comment directives are not supported yet.");
                     }
                     continue;
@@ -113,11 +114,11 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false, boo
             {
                 while (position < text.Length && IsIdentifierPart(text[position])) position++;
                 string value = text[begin..position];
-                kind = value switch { "let"=>TokenKind.Let,"const"=>TokenKind.Const,"import"=>TokenKind.Import,"export"=>TokenKind.Export,"function"=>TokenKind.Function,"return"=>TokenKind.Return,"void"=>TokenKind.Void,"delete"=>TokenKind.Delete,"throw"=>TokenKind.Throw,"try"=>TokenKind.Try,"catch"=>TokenKind.Catch,"finally"=>TokenKind.Finally,"if"=>TokenKind.If,"else"=>TokenKind.Else,"for"=>TokenKind.For,"while"=>TokenKind.While,"do"=>TokenKind.Do,"switch"=>TokenKind.Switch,"case"=>TokenKind.Case,"default"=>TokenKind.Default,"break"=>TokenKind.Break,"continue"=>TokenKind.Continue,"type"=>TokenKind.Type,"interface"=>TokenKind.Interface,"extends"=>TokenKind.Extends,"true"=>TokenKind.True,"false"=>TokenKind.False,"null"=>TokenKind.Null,"typeof"=>TokenKind.Typeof,"in"=>TokenKind.In,
+                kind = value switch { "let"=>TokenKind.Let,"const"=>TokenKind.Const,"import"=>TokenKind.Import,"export"=>TokenKind.Export,"function"=>TokenKind.Function,"declare"=>TokenKind.Declare,"return"=>TokenKind.Return,"void"=>TokenKind.Void,"delete"=>TokenKind.Delete,"throw"=>TokenKind.Throw,"try"=>TokenKind.Try,"catch"=>TokenKind.Catch,"finally"=>TokenKind.Finally,"if"=>TokenKind.If,"else"=>TokenKind.Else,"for"=>TokenKind.For,"while"=>TokenKind.While,"do"=>TokenKind.Do,"switch"=>TokenKind.Switch,"case"=>TokenKind.Case,"default"=>TokenKind.Default,"break"=>TokenKind.Break,"continue"=>TokenKind.Continue,"type"=>TokenKind.Type,"interface"=>TokenKind.Interface,"extends"=>TokenKind.Extends,"true"=>TokenKind.True,"false"=>TokenKind.False,"null"=>TokenKind.Null,"typeof"=>TokenKind.Typeof,"in"=>TokenKind.In,
                     // A reserved keyword is a valid dotted property name: xs.with(i, value).
                     // Preserve rejection of bare "with" and declaration-name uses.
                     "with" when tokens.Count>0 && tokens[^1].Kind is (TokenKind.Dot or TokenKind.QuestionDot) => TokenKind.Identifier,
-                    "super" or "instanceof" or "implements" or "package" or "private" or "protected" or "public" or "static" or "class" or "var" or "declare" or "new" or "this" or "enum" or "async" or "await" or "yield" or "with" or "debugger" or "namespace" or "using" => TokenKind.Unsupported, _ => TokenKind.Identifier };
+                    "super" or "instanceof" or "implements" or "package" or "private" or "protected" or "public" or "static" or "class" or "var" or "new" or "this" or "enum" or "async" or "await" or "yield" or "with" or "debugger" or "namespace" or "using" => TokenKind.Unsupported, _ => TokenKind.Identifier };
                 if(declarationFile && kind==TokenKind.Unsupported)kind=TokenKind.Identifier;
                 if(jsonMode)
                 {
@@ -477,6 +478,18 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false, boo
                 {position++;return text[(position-2)..position];}
                 return escaped.ToString();
         }
+    }
+    // The pinned reference treats legacy style pragmas as comment trivia.
+    // Other triple-slash reference and TS directives remain unsupported.
+    private static bool IsLegacyStyleComment(string comment)
+    {
+        if(!comment.StartsWith("///",StringComparison.Ordinal))return false;
+        var payload=comment[3..].Trim();
+        if(!payload.StartsWith("<style ",StringComparison.Ordinal) ||
+           !payload.EndsWith("/>",StringComparison.Ordinal))return false;
+        var attribute=payload[7..^2].Trim();
+        return attribute is "requireSemi=\"on\"" or "requireSemi=\"off\"" or
+            "requireSemi='on'" or "requireSemi='off'";
     }
     private bool TryRegisterTsIgnore(int start,int end,bool block)
     {
