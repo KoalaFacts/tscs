@@ -172,9 +172,16 @@ excluded declaration is reported (the reference also reports the earlier
 ones); members hidden by an `export {}` inside a namespace, separate export
 and local tables in module files, qualified names in merge messages and the
 body of an invalid script `declare global` are not modelled, and each file's
-global augmentations merge right after it rather than after all scripts. Syntax trees are not yet compared with the reference parser, types
-are not resolved
-and nothing is checked: the CLI still accepts only the bounded globals below.
+global augmentations merge right after it rather than after all scripts.
+`DeclarationResolver` (A2.2b) then resolves every entity name the closure
+uses, in types, `typeof` queries, computed property names and heritage
+clauses, with the pinned name resolver's scopes (type parameters, `infer`
+only in its true branch, mapped-type parameters, signature parameters,
+enclosing namespace exports, the globals and `globalThis`); a failed lookup
+is TS2304, TS2503, TS2694, TS2693 or TS2749, and the check requires zero
+for the pinned closure. Module-local declarations are not resolved (the
+pinned libs have none). Syntax trees are not yet compared with the
+reference parser, types are not computed, and nothing is checked: the CLI still accepts only the bounded globals below.
 
 Programs use `--noLib` with
 [`fixtures/minimal.d.ts`](../fixtures/minimal.d.ts) (empty global
@@ -242,6 +249,7 @@ records the original case IDs it moves.
 | A2.1b | Template literal types and ambient classes; require the default libs (`lib.d.ts`, `lib.es6.d.ts`) and everything they reference | The es2015 default lib includes `dom` and `scripthost` | done (PR #216, 8e8a68d) | 115/116 pinned libs clean at merge, default-lib closure 20/20 |
 | A2.2a | Bind the parsed declarations into one global symbol table (cross-file merging, TS2300/TS2451 exclusions); the library check binds the default-lib closure | Library symbols become available | done (PR #220, 7b34604); review fixes in progress (TS2649, nested `declare global`, dotted-name depth) | pinned closure: 20 files, 2,250 global symbols (791 with more than one declaration), 0 diagnostics; 14 xUnit + 1 node test at merge, 16 with the review fixes |
 | A2.2b | Resolve type references in the bound declarations and compare syntax trees with the reference parser | Library types become usable by the checker | todo | — |
+| A2.2b | Resolve every name the bound library uses (type, value and namespace meanings, scoped type parameters and `infer`); the library check fails on any unresolved name | Every library reference has a target, the input to computing library types | in progress (PR after #221) | pinned closure: 0 unresolved names (6 `globalThis` references before modelling it); 17 xUnit + 1 node test |
 | A2.3 | Check enough of es5/es2015 to load them as the default lib instead of `fixtures/minimal.d.ts` | Unblocks 5,459 targets that need only the library | todo | — |
 | A3.1 | `compiler/noCrashOnNoLib.ts` to PASS: four-space block indentation and no added grouping around spread operands in emit | The only executed original FAIL; every original `.js` baseline with a block depends on the indentation | done (PR #219, 28053fa) | 1 PASS / 1 FAIL → 2 PASS / 0 FAIL / 15,521 SKIP (CI original-acceptance on main); `JavaScriptEmitTests` 22 (+1) |
 | A3 | Close the cheapest family of failing original cases from A1's histogram, one family per PR | Moves original cases to PASS | todo | — |
