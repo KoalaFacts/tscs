@@ -296,4 +296,4 @@ records the original case IDs it moves.
 | C1 | Remove duplicated checker/emitter paths and per-feature verify scripts where a shared test proves identical behaviour | Less code to maintain | todo | — |
 | H1 | Agent verification skills (`.claude/skills/verification-first`, `.claude/skills/verify-tscs`) with a feature map run against the pinned reference | Every later PR is checked at the real boundary, not only by unit tests | done (PR #223, 2cfd095) | feature map rows run on 61dfa09: 2 PASS / 0 FAIL / 15,521 SKIP, library 0 unresolved names |
 
-Last docs housekeeping: 2026-11-07 (Sydney), `docs/housekeeping-2026-11-07`.
+Last docs housekeeping: 2026-11-07 (Sydney date), the 2026-11-07 housekeeping PR.
