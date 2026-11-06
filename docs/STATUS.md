@@ -119,13 +119,18 @@ diagnostic and exit 1; they are intended never to be compiled silently.
 - Arrays (`T[]`, `Array<T>`, `readonly T[]`, `ReadonlyArray<T>`), fixed,
   labelled and optional tuples, tuple rest expansion.
 - Bounded `keyof`, indexed access (`T["k"]`, `T[number]`), `typeof` queries,
-  static computed keys, numeric key identity.
+  static computed keys, numeric key identity (non-negative integer member
+  names; fractional keys and dynamic `obj[n]` reads of objects fail closed).
+- Bitwise and shift operands must be `number` or `any` (others fail closed);
+  `as` between unrelated types is TS2352, a `satisfies` mismatch TS1360, and
+  `satisfies` against a discriminated object union fails closed.
 - Functions: declarations, typed arrows and function expressions, optional,
   source-file ambient `declare function` signatures and typed
   `declare let/const` variables (checked and erased),
   default and rest parameters, typed callback contracts, method signatures,
   object literal methods, inferred braced returns, closures over lexical
-  bindings.
+  bindings; a named function expression's name is an immutable binding
+  visible only inside it.
 
 ### Control flow and narrowing
 
@@ -218,7 +223,9 @@ array `push`/`pop`/`shift`/`unshift`/`reverse`/`sort`/`fill`/`copyWithin`,
 `map`/`filter`/`reduce`/`reduceRight`/`flat`/`flatMap`, queries such as
 `indexOf`/`includes`/`find`/`findLast`/`some`/`every`, `Array.from`/`of`/
 `isArray`; common `String` methods including `at`, `normalize`,
-`replaceAll` and `isWellFormed`; `Object.keys`/`values`/`entries`/`assign`/
+`replaceAll` and `isWellFormed` (`replace`/`replaceAll`/`split` take string
+arguments only; newer methods such as `padStart` are emitted unpolyfilled);
+`Object.keys`/`values`/`entries`/`assign`/
 `freeze`/`is`/`hasOwn`.
 
 ### Conformance harness
@@ -239,7 +246,8 @@ array `push`/`pop`/`shift`/`unshift`/`reverse`/`sort`/`fill`/`copyWithin`,
 
 Generics (beyond the `Array<T>` spelling), classes, enums, namespaces,
 declaration files as input beyond `minimal.d.ts`, declaration emit, source
-maps, JSX/TSX, JavaScript inputs, decorators, async/await, generators,
+maps, JSX/TSX, JavaScript inputs, regular expression literals, decorators,
+async/await, generators,
 iterators beyond arrays and strings, `this` typing, overloads, mapped and
 conditional types, index signatures, module resolution through packages,
 `extends` in `tsconfig.json`, default implicit includes, targets other than
