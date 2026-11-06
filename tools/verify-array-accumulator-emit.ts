@@ -3,17 +3,11 @@ import {spawnSync} from 'node:child_process';
 import {existsSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
+import {runTscs} from './tscs-process.ts';
 
 // Actual native JS execution, typed rejection; no original harness acceptance.
 const folder=mkdtempSync(join(tmpdir(),'tscs-array-accumulator-'));
-const compiler=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
-const env={...process.env,DOTNET_CLI_TELEMETRY_OPTOUT:'1',TESTINGPLATFORM_TELEMETRY_OPTOUT:'1'};
-function compile(args:string[]) {
-  const r=spawnSync(process.env.DOTNET??'dotnet',[compiler,...args],{cwd:folder,encoding:'utf8',timeout:30000,env});
-  assert.equal(r.error,undefined,String(r.error));
-  assert.equal(r.signal,null,'compiler timed out or crashed');
-  return r;
-}
+function compile(args:string[]){return runTscs(folder,args);}
 try {
   writeFileSync(join(folder,'package.json'),'{"type":"module"}\n');
   writeFileSync(join(folder,'minimal.d.ts'),readFileSync('fixtures/array-accumulator/minimal.d.ts','utf8'));

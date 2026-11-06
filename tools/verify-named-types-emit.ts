@@ -3,16 +3,10 @@ import {spawnSync} from 'node:child_process';
 import {mkdtempSync,writeFileSync,readFileSync,existsSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
+import {runTscs} from './tscs-process.ts';
 
 const directory=mkdtempSync(join(tmpdir(),'tscs-named-types-'));
-const compiler=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
-function run(args:string[]) {
-  const result=spawnSync(process.env.DOTNET??'dotnet',[compiler,...args],{cwd:directory,
-    encoding:'utf8',timeout:30000,env:{...process.env,DOTNET_CLI_TELEMETRY_OPTOUT:'1',TESTINGPLATFORM_TELEMETRY_OPTOUT:'1'}});
-  assert.equal(result.error,undefined,String(result.error));
-  assert.equal(result.signal,null,'compiler terminated by signal');
-  return result;
-}
+function run(args:string[]){return runTscs(directory,args);}
 try {
   writeFileSync(join(directory,'package.json'),'{"type":"module"}\n');
   writeFileSync(join(directory,'minimal.d.ts'),readFileSync('fixtures/minimal.d.ts'));

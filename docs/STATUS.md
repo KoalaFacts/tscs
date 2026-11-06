@@ -271,7 +271,8 @@ and no `var`.
   (`...((c ? a : b))`, `...(a)` for `...a!`) where the reference prints none.
 - Many constructs were added as narrow, separately verified slices; the
   per-feature `tools/verify-*-emit.ts` scripts and checker paths overlap
-  (roadmap C1).
+  (roadmap C1). 31 of the 78 scripts run the CLI through the shared
+  `tools/tscs-process.ts`; the other 47 still carry their own copy.
 
 ## Roadmap
 
@@ -294,6 +295,7 @@ records the original case IDs it moves.
 | A3 | Close the cheapest family of failing original cases from A1's histogram, one family per PR | Moves original cases to PASS | todo | — |
 | A3.3 | `compiler/arrayIterationLibES5TargetDifferent.ts` (`nolib=true,target=esnext`) to PASS: `--target esnext` with output identical to ES2015 where no lowering applies, failing closed where the ES2015 writer lowers (logical assignment, `**`, `??`, optional chaining, object spread, numeric separators) | The only target whose sole gap is `option:target=esnext`; its pinned `.errors.txt` and `.js` equal the `es2015` ones | todo | — |
 | C1 | Remove duplicated checker/emitter paths and per-feature verify scripts where a shared test proves identical behaviour | Less code to maintain | todo | — |
+| C1.1 | One shared `runTscs` helper (`tools/tscs-process.ts`, with a test) for the emit checks' copied spawn-and-assert function | Less duplicated harness code; one place to change how the checks run the CLI | in progress (refactor/shared-tscs-process) | 31 of 78 `tools/verify-*-emit.ts` migrated mechanically (assertions and timeouts unchanged), 278 lines removed / 64 added; all 31 pass; `tscs-process.test.ts` 2 tests |
 | H1 | Agent verification skills (`.claude/skills/verification-first`, `.claude/skills/verify-tscs`) with a feature map run against the pinned reference | Every later PR is checked at the real boundary, not only by unit tests | done (PR #223, 2cfd095) | feature map rows run on 61dfa09: 2 PASS / 0 FAIL / 15,521 SKIP, library 0 unresolved names |
 
 Last docs housekeeping: 2026-11-07 (Sydney date), the 2026-11-07 housekeeping PR.
