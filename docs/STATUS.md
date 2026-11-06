@@ -166,7 +166,8 @@ function overloads, class + interface/namespace/function and `var` +
 interface merge; a file with a top-level export is a module whose only
 globals are its `declare global` blocks, and `declare global` in a script or
 nested in a namespace is TS2669. Every segment of a dotted namespace name
-counts toward the 200-level nesting limit, through nested namespaces too.
+counts toward the 200-level nesting limit, and stays counted for
+everything nested in its body.
 The pinned closure binds to 2,250 global symbols (791 with more than one
 declaration) with zero diagnostics, which the check requires. Only the
 excluded declaration is reported (the reference also reports the earlier
