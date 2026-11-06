@@ -25,7 +25,8 @@ internal static class JavaScriptEmitter
         private readonly StringBuilder output=new();
         public string Text=>output.ToString();
 
-        private void Indent(int depth)=>output.Append(' ',depth*2);
+        // The reference printer indents each block level by four spaces.
+        private void Indent(int depth)=>output.Append(' ',depth*4);
 
         public void WriteStatement(Statement statement,int depth)
         {
@@ -690,6 +691,14 @@ internal static class JavaScriptEmitter
             void Text(string literal)=>pending.Push(new(null,literal,0,false));
             void Node(ValueNode node,int parentPrecedence=0,bool right=false)=>
                 pending.Push(new(node,null,parentPrecedence,right));
+            // A spread operand is an AssignmentExpression (the parser never
+            // yields a bare comma there): like the reference printer, add no
+            // grouping; source parentheses are kept by ValueParenthesized.
+            void Spread(ValueNode operand)
+            {
+                Node(operand);
+                Text("...");
+            }
 
             // A concise method must stay a native ES2015 method (not
             // "key: function"), since methods have no constructor prototype.
@@ -995,9 +1004,7 @@ internal static class JavaScriptEmitter
                         {
                             if(array.Elements[i] is ValueArraySpread spread)
                             {
-                                Text(")");
-                                Node(spread.Operand);
-                                Text("...(");
+                                Spread(spread.Operand);
                             }
                             else Node(array.Elements[i]);
                             if(i>0)Text(", ");
@@ -1108,9 +1115,7 @@ internal static class JavaScriptEmitter
                                 {
                                     if(i==call.SpreadIndex)
                                     {
-                                        Text(")");
-                                        Node(call.Arguments[i]);
-                                        Text("...(");
+                                        Spread(call.Arguments[i]);
                                     }
                                     else Node(call.Arguments[i]);
                                     if(i>0)Text(", ");
@@ -1129,9 +1134,7 @@ internal static class JavaScriptEmitter
                                 {
                                     if(i==call.SpreadIndex)
                                     {
-                                        Text(")");
-                                        Node(call.Arguments[i]);
-                                        Text("...(");
+                                        Spread(call.Arguments[i]);
                                     }
                                     else Node(call.Arguments[i]);
                                     if(i>0)Text(", ");
@@ -1147,11 +1150,7 @@ internal static class JavaScriptEmitter
                         {
                             if(i==call.SpreadIndex)
                             {
-                                // Always group the spread operand to preserve
-                                // conditional/binary expression precedence.
-                                Text(")");
-                                Node(call.Arguments[i]);
-                                Text("...(");
+                                Spread(call.Arguments[i]);
                             }
                             else Node(call.Arguments[i]);
                             if(i>0)Text(", ");

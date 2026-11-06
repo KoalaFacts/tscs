@@ -35,13 +35,34 @@ public sealed class JavaScriptEmitTests : IDisposable
         Assert.Equal("",result.Output);
         Assert.Equal(
             "function choose(flag) {\n"+
-            "  if (flag && (1 < 2)) {\n"+
-            "    return 3;\n"+
-            "  } else {\n"+
-            "    return 4;\n"+
-            "  }\n"+
+            "    if (flag && (1 < 2)) {\n"+
+            "        return 3;\n"+
+            "    } else {\n"+
+            "        return 4;\n"+
+            "    }\n"+
             "}\n"+
             "let answer = choose(true);\n",
+            File.ReadAllText(Path.ChangeExtension(input,".js")));
+    }
+
+    [Fact]
+    public void EmitsSpreadOperandsWithoutAddedGroupingAndFourSpaceBlocks()
+    {
+        // Original TS7 compiler/noCrashOnNoLib.ts output: source parentheses
+        // are kept once, bare operands stay bare, nested blocks use 4 spaces.
+        var input=Write("spread.ts",
+            "export function f() {\n    let e: {}[] = [];\n    while (true) {\n      e = [...(e || [])];\n      e = [...e, ...[e]];\n    }\n}\n");
+        var result=Run("--emitJs","--noLib","--target","es2015","--module","es2015",input,Globals());
+        Assert.Equal(0,result.Code);
+        Assert.Equal("",result.Output);
+        Assert.Equal(
+            "export function f() {\n"+
+            "    let e = [];\n"+
+            "    while (true) {\n"+
+            "        e = [...(e || [])];\n"+
+            "        e = [...e, ...[e]];\n"+
+            "    }\n"+
+            "}\n",
             File.ReadAllText(Path.ChangeExtension(input,".js")));
     }
 
@@ -53,7 +74,7 @@ public sealed class JavaScriptEmitTests : IDisposable
         var result=Run("--emitJs","--noLib","--target","es2015",input,Globals());
         Assert.Equal(0,result.Code);
         var js=File.ReadAllText(Path.ChangeExtension(input,".js"));
-        Assert.Equal("let n = 1;\n{\n  n++;\n}\nif (n > 2) {\n  n = 3;\n} else if (n == 2) {\n  n = 4;\n} else {\n  n = 5;\n}\n",js);
+        Assert.Equal("let n = 1;\n{\n    n++;\n}\nif (n > 2) {\n    n = 3;\n} else if (n == 2) {\n    n = 4;\n} else {\n    n = 5;\n}\n",js);
     }
 
     [Fact]
@@ -70,7 +91,7 @@ public sealed class JavaScriptEmitTests : IDisposable
         Assert.Equal("export { value as answer } from \"./value.js\";\n",
             File.ReadAllText(Path.ChangeExtension(bridge,".js")));
         Assert.Equal("import { answer as input } from \"./bridge.js\";\n"+
-            "export function twice(x) {\n  return x + x;\n}\n"+
+            "export function twice(x) {\n    return x + x;\n}\n"+
             "export const result = twice(input);\n",
             File.ReadAllText(Path.ChangeExtension(entry,".js")));
     }
