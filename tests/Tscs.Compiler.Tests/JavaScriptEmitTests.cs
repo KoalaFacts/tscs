@@ -48,8 +48,9 @@ public sealed class JavaScriptEmitTests : IDisposable
     [Fact]
     public void EmitsSpreadOperandsWithoutAddedGroupingAndFourSpaceBlocks()
     {
-        // Original TS7 compiler/noCrashOnNoLib.ts output: source parentheses
-        // are kept once, bare operands stay bare, nested blocks use 4 spaces.
+        // Original TS7 compiler/noCrashOnNoLib.ts output: a parenthesized
+        // binary operand gets no extra grouping, bare operands stay bare,
+        // nested blocks use 4 spaces.
         var input=Write("spread.ts",
             "export function f() {\n    let e: {}[] = [];\n    while (true) {\n      e = [...(e || [])];\n      e = [...e, ...[e]];\n    }\n}\n");
         var result=Run("--emitJs","--noLib","--target","es2015","--module","es2015",input,Globals());

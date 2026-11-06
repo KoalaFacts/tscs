@@ -134,8 +134,8 @@ diagnostic and exit 1; they are intended never to be compiled silently.
 ES2015 scripts and named ES modules are emitted from the checked AST; type
 syntax is erased and runtime semantics are preserved (evaluation order,
 single evaluation of receivers, native `for..of` Unicode iteration). Like the
-reference printer, blocks are indented four spaces per level and source
-parentheses are kept without adding grouping around spread operands. Output
+reference printer, statement blocks are indented four spaces per level and
+spread operands get no added grouping. Output
 is executed by the `tools/verify-*-emit.ts` checks.
 
 ### Standard library
@@ -203,6 +203,10 @@ and no `var`.
   nothing else that the runner checks for (roadmap A2).
 - The acceptance runner does not yet support multi-file tests, other
   targets or `@module`, and does not compare `.types`/`.symbols`.
+- Emit parity gaps found in review of A3.1: arrow and function-expression
+  block bodies restart indentation at column 0 instead of the enclosing
+  depth, and conditional, `as` and `!` operands keep extra grouping
+  (`...((c ? a : b))`, `...(a)` for `...a!`) where the reference prints none.
 - Many constructs were added as narrow, separately verified slices; the
   per-feature `tools/verify-*-emit.ts` scripts and checker paths overlap
   (roadmap C1).
