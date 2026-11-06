@@ -386,7 +386,8 @@ internal sealed class DeclarationParser
     }
 
     // parseArrayBindingPattern / parseObjectBindingPattern without initializers.
-    private void ParseBindingPattern(List<Token> names)
+    private void ParseBindingPattern(List<Token> names)=>Nested(()=>{ParseBindingPatternBody(names);return true;});
+    private void ParseBindingPatternBody(List<Token> names)
     {
         bool array=Current.Kind==TokenKind.OpenBracket;
         var close=array?TokenKind.CloseBracket:TokenKind.Close;
