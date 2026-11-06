@@ -65,8 +65,9 @@ node tools/original-acceptance.ts --targets /tmp/targets.jsonl \
 The report lists every target's status and reasons, plus the missing-capability
 histograms summarized in [STATUS](STATUS.md#headline).
 
-Standard library syntax check against the same checkout (fails when a file
-reachable from the default libs `lib.d.ts` or `lib.es6.d.ts` has a diagnostic; see
+Standard library syntax and binding check against the same checkout (fails
+when a file reachable from the default libs `lib.d.ts` or `lib.es6.d.ts` has a
+syntax diagnostic, or binding those files together reports one; see
 [STATUS](STATUS.md#standard-library)):
 
 ```sh
