@@ -281,6 +281,10 @@ public class DeclarationParserTests
         Assert.Equal("TSCS1001",Assert.Single(members.Diagnostics).Code);
         var namespaces=DeclarationParser.Parse("a.d.ts",string.Concat(Enumerable.Repeat("declare namespace A { ",20_000))+new string('}',20_000));
         Assert.Equal("TSCS1001",Assert.Single(namespaces.Diagnostics).Code);
+        var patterns=DeclarationParser.Parse("a.d.ts","declare function f("+new string('[',20_000)+"x"+new string(']',20_000)+": unknown): void;");
+        Assert.Equal("TSCS1001",Assert.Single(patterns.Diagnostics).Code);
+        var objects=DeclarationParser.Parse("a.d.ts","declare function f("+string.Concat(Enumerable.Repeat("{ a: ",20_000))+"x"+new string('}',20_000)+": unknown): void;");
+        Assert.Equal("TSCS1001",Assert.Single(objects.Diagnostics).Code);
         Clean("type T = "+new string('(',50)+"number"+new string(')',50)+";");
     }
 
