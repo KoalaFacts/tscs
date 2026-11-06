@@ -146,8 +146,8 @@ tuple, template literal, function and constructor types, `keyof`, `unique`,
 `readonly`, `typeof` queries, type predicates and binding-pattern
 parameters. It stops at the first error (upstream recovers and reports
 more), rejects reserved words as declaration names, and limits nesting to
-200 levels; enums, imports, initializers, private names and mapped types
-with extra members fail with TSCS1001. `tools/check-standard-library.ts`
+200 levels; enums, imports, class initializers, private names outside ambient
+classes and mapped types with extra members fail with TSCS1001. `tools/check-standard-library.ts`
 (CI job `original-go-reference`) parses every pinned bundled lib:
 **116 of 116** have zero diagnostics (ambient class `#private` names are parsed),
 including all 20 files reachable from the default libs `lib.d.ts`
@@ -214,7 +214,7 @@ records the original case IDs it moves.
 | A1.1 | Acceptance runner over the 15,523 registered targets: SKIP with missing capabilities, run supported targets through tscs, compare diagnostics and `.js` emit with the pinned baselines, histogram, CI rerun with headline check | Turns the headline into a measured number | done (PR #211, df43af6) | 1 PASS (`parser509698`, since #214) / 1 FAIL (`noCrashOnNoLib`) / 15,521 SKIP; 6 runner tests |
 | A1.2 | Runner support for multi-file tests and `@module`, and `.types`/`.symbols` comparison | Larger runnable set once the library loads | todo | — |
 | A2.1 | Parse the pinned libs with zero syntax errors (`DeclarationParser`, `tools/check-standard-library.ts` in CI) | First step to loading the standard library | done (PR #215, 68110ff) | at merge: 109/116 pinned libs clean, es5+es2015 closure 13/13; 63 xUnit + 4 node tests |
-| A2.1b | Template literal types and ambient classes; require the default libs (`lib.d.ts`, `lib.es6.d.ts`) and everything they reference | The es2015 default lib includes `dom` and `scripthost` | in progress | 115/116 pinned libs clean, default-lib closure 20/20; DeclarationParserTests 74 (+11) |
+| A2.1b | Template literal types and ambient classes; require the default libs (`lib.d.ts`, `lib.es6.d.ts`) and everything they reference | The es2015 default lib includes `dom` and `scripthost` | done (PR #216, 8e8a68d) | 115/116 pinned libs clean at merge, default-lib closure 20/20 |
 | A2.2 | Bind the parsed declarations (merging interfaces and namespaces) and compare syntax trees with the reference parser | Library symbols become available | todo | — |
 | A2.3 | Check enough of es5/es2015 to load them as the default lib instead of `fixtures/minimal.d.ts` | Unblocks 5,459 targets that need only the library | todo | — |
 | A3 | Close the cheapest family of failing original cases from A1's histogram, one family per PR | Moves original cases to PASS | todo | — |
