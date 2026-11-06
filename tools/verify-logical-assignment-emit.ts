@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {existsSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
-import {join,resolve} from 'node:path';
+import {join} from 'node:path';
+import {runTscs} from './tscs-process.ts';
 
 // Four linked ES2015 modules and genuine no-emit negatives; NOT original TS7.
 const dir=mkdtempSync(join(tmpdir(),'tscs-logical-assignment-'));
@@ -17,11 +18,7 @@ try {
   };
   for(const [name,source] of Object.entries(sources))writeFileSync(join(dir,name),source+'\n');
   writeFileSync(join(dir,'project.json'),JSON.stringify({files:['entry.ts','minimal.d.ts'],compilerOptions:{module:'es2015',target:'es2015',noLib:true}}));
-  const dll=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
-  function compile(args:string[]){
-    const r=spawnSync(process.env.DOTNET??'dotnet',[dll,...args],{cwd:dir,encoding:'utf8',timeout:30000,maxBuffer:4*1024*1024,env:{...process.env,DOTNET_CLI_TELEMETRY_OPTOUT:'1',TESTINGPLATFORM_TELEMETRY_OPTOUT:'1'}});
-    assert.equal(r.error,undefined,String(r.error));assert.equal(r.signal,null);return r;
-  }
+  function compile(args:string[]){return runTscs(dir,args);}
   const built=compile(['--emitJs','-p','project.json']);
   assert.equal(built.status,0,built.stdout+'\n'+built.stderr);
   for(const name of ['model','data','logic','entry']){

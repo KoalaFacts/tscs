@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {mkdtempSync,writeFileSync,readFileSync,existsSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
-import {join,resolve} from 'node:path';
+import {join} from 'node:path';
+import {runTscs} from './tscs-process.ts';
 
 // A real ES2015 cross-module runtime, not just textual emitter assertions.
 const folder=mkdtempSync(join(tmpdir(),'tscs-discriminant-flow-'));
@@ -31,16 +32,7 @@ try {
     files:['entry.ts','minimal.d.ts'],
     compilerOptions:{noLib:true,target:'es2015',module:'es2015'}
   }));
-  const compiler=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
-  function compile(args:string[]) {
-    const result=spawnSync(process.env.DOTNET??'dotnet',[compiler,...args],{
-      cwd:folder,encoding:'utf8',timeout:30000,maxBuffer:4*1024*1024,
-      env:{...process.env,DOTNET_CLI_TELEMETRY_OPTOUT:'1',TESTINGPLATFORM_TELEMETRY_OPTOUT:'1'}
-    });
-    assert.equal(result.error,undefined,String(result.error));
-    assert.equal(result.signal,null);
-    return result;
-  }
+  function compile(args:string[]){return runTscs(folder,args);}
   const compiled=compile(['--emitJs','-p','tsconfig.json']);
   assert.equal(compiled.status,0,compiled.stdout+'\n'+compiled.stderr);
   for(const name of ['model','logic','entry'])
