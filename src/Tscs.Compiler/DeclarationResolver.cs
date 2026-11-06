@@ -38,6 +38,7 @@ internal static class DeclarationResolver
         {
             var globalThis=new AmbientSymbol("globalThis"){Meanings=Namespace};
             foreach(var (name,symbol) in globals.Symbols)globalThis.Exports[name]=symbol;
+            globalThis.Exports["globalThis"]=globalThis;
             table["globalThis"]=globalThis;
         }
         var root=new Scope(null,table);
@@ -290,7 +291,7 @@ internal static class DeclarationResolver
             }
             // `typeof x.y` on a variable is a property access the resolver does not model.
             if(meaning==AmbientMeaning.Value && Lookup(first.Text,AmbientMeaning.Value,scope,out var value)
-                && (value is null || (value.Meanings&Namespace)==0))return;
+                && (value is null || (value.Meanings&AmbientMeaning.ValueModule)==0))return;
             if(!Lookup(first.Text,Namespace,scope,out var symbol) || symbol is null)
             {
                 diagnostics.Add(meaning==AmbientMeaning.Value
@@ -317,7 +318,8 @@ internal static class DeclarationResolver
             for(;scope is not null;scope=scope.Parent)
             {
                 if((meaning&AmbientMeaning.Type)!=0 && scope.Types.Contains(name)){symbol=null;return true;}
-                if((meaning&AmbientMeaning.Value)!=0 && scope.Values.Contains(name)){symbol=null;return true;}
+                // Parameters are plain values: a namespace lookup passes over them.
+                if((meaning&AmbientMeaning.Value)!=0 && (meaning&Namespace)!=meaning && scope.Values.Contains(name)){symbol=null;return true;}
                 if(scope.Table is not null && scope.Table.TryGetValue(name,out var found) && (found.Meanings&meaning)!=0)
                 {
                     symbol=found;

@@ -91,6 +91,17 @@ public class DeclarationResolverTests
     }
 
     [Fact]
+    public void ResolvesQualifiedNamesPastShadowingValuesAndMergedVariables()
+    {
+        // A parameter has no namespace meaning, so `Intl.Collator` still finds the global namespace.
+        Assert.Empty(Resolve("declare namespace Intl { interface Collator {} } declare function f(Intl: number): Intl.Collator;"));
+        // `globalThis` is one of its own exports.
+        Assert.Empty(Resolve("type Q = typeof globalThis.globalThis;"));
+        // A non-instantiated namespace merged with a variable: `typeof N.a` reads the variable's property.
+        Assert.Empty(Resolve("declare namespace N { interface I {} } declare var N: { a: number }; type Q = typeof N.a;"));
+    }
+
+    [Fact]
     public void ReportsEveryUnresolvedNameInSourceOrder()
     {
         Assert.Equal(["A","B","C"],Resolve("interface I extends A { b: B; } declare function f(): C;").Select(d=>d.Message.Split('\'')[1]));
