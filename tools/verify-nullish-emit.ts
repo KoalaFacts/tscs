@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {existsSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
-import {join,resolve} from 'node:path';
+import {join} from 'node:path';
 import {runTscs} from './tscs-process.ts';
 
 // Actual four-module ES2015 output and negative no-emit, not original TS7 acceptance.

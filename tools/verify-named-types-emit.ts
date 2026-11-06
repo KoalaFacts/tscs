@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {mkdtempSync,writeFileSync,readFileSync,existsSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
-import {join,resolve} from 'node:path';
+import {join} from 'node:path';
 import {runTscs} from './tscs-process.ts';
 
 const directory=mkdtempSync(join(tmpdir(),'tscs-named-types-'));
