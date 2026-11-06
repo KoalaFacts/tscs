@@ -3,7 +3,7 @@ import {mkdirSync, mkdtempSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import test from 'node:test';
-import {libFiles, parseLibs, requiredClosure, summarize, type FileResult} from './check-standard-library.ts';
+import {bindRoots, libFiles, parseLibs, requiredClosure, summarize, type FileResult} from './check-standard-library.ts';
 
 // Stands in for the fixture harness: one JSONL response per request; a lib
 // whose text contains "BAD" gets a diagnostic, references are read back.
@@ -11,6 +11,13 @@ const FAKE = `
 const lines = require('node:fs').readFileSync(0, 'utf8').split('\\n').filter(Boolean);
 for (const line of lines) {
   const row = JSON.parse(line);
+  if (row.profile === 'declaration-binding') {
+    // One global per file; a file containing "DUP" gets a binder diagnostic.
+    const diagnostics = row.files.filter((f) => Buffer.from(f.input, 'base64').toString('utf8').includes('DUP'))
+      .map((f) => ({file: f.fileName, code: 'TS2300', start: 0, message: "Duplicate identifier 'DUP'."}));
+    console.log(JSON.stringify({id: row.id, expected: {globals: row.files.length, diagnostics}}));
+    continue;
+  }
   if (row.profile !== 'declaration-syntax') process.exit(3);
   const text = Buffer.from(row.input, 'base64').toString('utf8');
   const references = [...text.matchAll(/<reference lib="([^"]+)"/g)].map((m) => ({name: 'lib', value: m[1]}));
@@ -62,4 +69,19 @@ test('a diagnostic in a required file is reported as not clean; others only coun
 test('a failing harness is an error, never a clean result', () => {
   const {dir} = libs({'lib.es5.d.ts': ''});
   assert.throws(() => parseLibs(dir, libFiles(dir), {dotnet: process.execPath, harness: join(dir, 'missing.cjs')}), /harness exited/);
+});
+
+test('each root closure is bound as one request and binder diagnostics are returned', () => {
+  const {dir, options} = libs({
+    'lib.es5.d.ts': '/// <reference lib="decorators" />\ninterface A {}',
+    'lib.decorators.d.ts': 'interface DUP {}',
+    'lib.es2015.d.ts': '/// <reference lib="es5" />',
+    'lib.dom.d.ts': 'interface D {}',
+  });
+  const results = parseLibs(dir, libFiles(dir), options);
+  assert.deepEqual(bindRoots(dir, results, ['lib.dom.d.ts', 'lib.es2015.d.ts'], options), [
+    {root: 'lib.dom.d.ts', files: 1, globals: 1, diagnostics: []},
+    {root: 'lib.es2015.d.ts', files: 3, globals: 3,
+      diagnostics: [{file: 'lib.decorators.d.ts', code: 'TS2300', start: 0, message: "Duplicate identifier 'DUP'."}]},
+  ]);
 });

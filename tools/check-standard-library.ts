@@ -22,12 +22,14 @@ export const REQUIRED_ROOTS = ['lib.d.ts', 'lib.es6.d.ts'];
 
 export interface Diagnostic {code: string; start: number; message: string}
 export interface FileResult {file: string; statements: number; libReferences: string[]; diagnostics: Diagnostic[]}
+export interface BindingResult {root: string; files: number; globals: number; diagnostics: (Diagnostic & {file: string})[]}
 export interface Report {
   libs: number;
   clean: number;
   required: {file: string; clean: boolean}[];
   firstDiagnostics: Record<string, string[]>;
   files: FileResult[];
+  binding?: BindingResult[];
 }
 export interface HarnessOptions {dotnet: string; harness: string}
 
@@ -47,6 +49,19 @@ export function parseLibs(dir: string, files: string[], options: HarnessOptions)
   return rows.map((r) => ({file: r.id, statements: r.expected.statements,
     libReferences: r.expected.references.filter((x) => x.name === 'lib').map((x) => `lib.${x.value.toLowerCase()}.d.ts`),
     diagnostics: r.expected.diagnostics}));
+}
+
+// Binds each root's closure into one global symbol table (DeclarationBinder).
+export function bindRoots(dir: string, results: FileResult[], roots: string[], options: HarnessOptions): BindingResult[] {
+  const closures = roots.map((root) => requiredClosure(results, [root]));
+  const input = roots.map((root, i) => JSON.stringify({id: root, profile: 'declaration-binding',
+    files: closures[i].map((f) => ({fileName: f, input: readFileSync(join(dir, f)).toString('base64')}))})).join('\n') + '\n';
+  const run = spawnSync(options.dotnet, [options.harness], {input, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024});
+  if (run.status !== 0) throw new Error(`harness exited with ${run.status}: ${run.stderr}`);
+  const rows = run.stdout.split('\n').filter((l) => l.trim().length > 0)
+    .map((l) => JSON.parse(l) as {id: string; expected: {globals: number; diagnostics: (Diagnostic & {file: string})[]}});
+  if (rows.length !== roots.length || rows.some((r, i) => r.id !== roots[i])) throw new Error('harness returned mismatched rows');
+  return rows.map((r, i) => ({root: r.id, files: closures[i].length, globals: r.expected.globals, diagnostics: r.expected.diagnostics}));
 }
 
 // Files reachable from the roots through lib reference directives.
@@ -96,13 +111,21 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const options = {dotnet: process.env.DOTNET ?? 'dotnet', harness: resolve(argument(args, '--harness'))};
   const files = libFiles(dir);
   const report = summarize(parseLibs(dir, files, options), REQUIRED_ROOTS);
+  const failing = report.required.filter((r) => !r.clean);
+  // Binding needs syntax-clean files, so it runs only when every required lib parses.
+  if (failing.length === 0) report.binding = bindRoots(dir, report.files, REQUIRED_ROOTS, options);
   writeFileSync(out, JSON.stringify(report, null, 2) + '\n', {flag: 'wx'});
   console.log(`Standard library syntax: ${report.clean} of ${report.libs} pinned lib files parse with zero diagnostics`);
   for (const [k, v] of Object.entries(report.firstDiagnostics)) console.log(`  ${v.length}\t${k}\t${v.join(', ')}`);
-  const failing = report.required.filter((r) => !r.clean);
   console.log(`Required (default libs for es5 and es2015 and their references): ${report.required.length - failing.length} of ${report.required.length} clean`);
   if (failing.length > 0) {
     console.error(`required lib files with diagnostics: ${failing.map((r) => r.file).join(', ')}`);
     process.exit(1);
   }
+  const binding = report.binding!;
+  for (const b of binding) {
+    console.log(`Binding ${b.root}: ${b.files} files, ${b.globals} global symbols, ${b.diagnostics.length} binder diagnostics`);
+    for (const d of b.diagnostics.slice(0, 10)) console.error(`  ${d.file}(${d.start}): ${d.code} ${d.message}`);
+  }
+  if (binding.some((b) => b.diagnostics.length > 0)) process.exit(1);
 }

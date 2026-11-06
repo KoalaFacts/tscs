@@ -152,8 +152,15 @@ with extra members fail with TSCS1001. `tools/check-standard-library.ts`
 **115 of 116** have zero diagnostics (`lib.es2026.json.d.ts` uses a private
 name), including all 20 files reachable from the default libs `lib.d.ts`
 and `lib.es6.d.ts`, which the check requires. Syntax trees are not yet
-compared with the reference parser, and nothing is bound or checked: the
-CLI still accepts only the bounded globals below.
+compared with the reference parser. `DeclarationBinder` (A2.2a) merges the
+parsed files into one global symbol table by name, with the reference
+binder's merge rules (interfaces with interfaces and classes, namespaces with
+functions, classes and namespaces, values with types; TS2300/TS2451 for
+excluded combinations, reported on the later declaration only, where the
+reference reports every one). The same check binds the closures of
+`lib.d.ts` (18 files) and `lib.es6.d.ts` (19 files): **2,250 global
+symbols each, zero binder diagnostics**, and fails otherwise. Nothing is
+type-checked: the CLI still accepts only the bounded globals below.
 
 Programs use `--noLib` with
 [`fixtures/minimal.d.ts`](../fixtures/minimal.d.ts) (empty global
@@ -215,7 +222,8 @@ records the original case IDs it moves.
 | A1.2 | Runner support for multi-file tests and `@module`, and `.types`/`.symbols` comparison | Larger runnable set once the library loads | todo | — |
 | A2.1 | Parse the pinned libs with zero syntax errors (`DeclarationParser`, `tools/check-standard-library.ts` in CI) | First step to loading the standard library | done (PR #215, 68110ff) | at merge: 109/116 pinned libs clean, es5+es2015 closure 13/13; 63 xUnit + 4 node tests |
 | A2.1b | Template literal types and ambient classes; require the default libs (`lib.d.ts`, `lib.es6.d.ts`) and everything they reference | The es2015 default lib includes `dom` and `scripthost` | in progress | 115/116 pinned libs clean, default-lib closure 20/20; DeclarationParserTests 74 (+11) |
-| A2.2 | Bind the parsed declarations (merging interfaces and namespaces) and compare syntax trees with the reference parser | Library symbols become available | todo | — |
+| A2.2a | Bind the parsed declarations into one global symbol table (`DeclarationBinder`, merge rules, TS2300/TS2451), bound for both default-lib closures in `tools/check-standard-library.ts` | Library symbols become available | in progress | `lib.d.ts`/`lib.es6.d.ts` closures: 2,250 globals, 0 binder diagnostics; DeclarationBinderTests 12, check-standard-library node tests 5 (+1) |
+| A2.2b | Compare declaration syntax trees with the reference parser | Parser fidelity is measured, not assumed | todo | — |
 | A2.3 | Check enough of es5/es2015 to load them as the default lib instead of `fixtures/minimal.d.ts` | Unblocks 5,459 targets that need only the library | todo | — |
 | A3 | Close the cheapest family of failing original cases from A1's histogram, one family per PR | Moves original cases to PASS | todo | — |
 | C1 | Remove duplicated checker/emitter paths and per-feature verify scripts where a shared test proves identical behaviour | Less code to maintain | todo | — |
