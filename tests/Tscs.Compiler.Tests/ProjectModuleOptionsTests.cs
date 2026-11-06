@@ -59,6 +59,25 @@ public sealed class ProjectModuleOptionsTests : IDisposable
         Assert.False(File.Exists(Path.ChangeExtension(input,".js")));
     }
 
+    [Theory]
+    [InlineData("esnext",0)]
+    [InlineData("es5",1)]
+    public void ProjectTargetEsNextEmitsAndOtherTargetsStayRejected(string target,int exit)
+    {
+        Globals();
+        var input=Write("entry.ts","export const answer: number = 42;");
+        var config=Write("tsconfig.json",
+            "{\"files\":[\"entry.ts\",\"minimal.d.ts\"],\"compilerOptions\":{\"module\":\"es2015\",\"target\":\""+target+"\",\"noLib\":true}}");
+        var result=Run("--emitJs","-p",config);
+        Assert.Equal(exit,result.Code);
+        if(exit==0)Assert.Equal("export const answer = 42;\n",File.ReadAllText(Path.ChangeExtension(input,".js")));
+        else
+        {
+            Assert.Contains("es2015/es6/esnext",result.Output);
+            Assert.False(File.Exists(Path.ChangeExtension(input,".js")));
+        }
+    }
+
     [Fact]
     public void NullProjectModuleDoesNotImplicitlyEnableEmitAndExplicitCliCanOverride()
     {

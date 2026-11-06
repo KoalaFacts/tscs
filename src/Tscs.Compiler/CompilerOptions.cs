@@ -8,7 +8,8 @@ namespace Tscs;
 public enum CompilerTarget
 {
     Unspecified=0,
-    Es2015=2
+    Es2015=2,
+    EsNext=99
 }
 
 /// <summary>

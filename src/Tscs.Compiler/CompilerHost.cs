@@ -263,7 +263,7 @@ public sealed class CompilerProgram
                 s is ImportDeclaration or ExportDeclaration or Variable { Exported: true } or FunctionDeclaration { Exported: true } or
                 TypeAliasDeclaration { Exported:true } or InterfaceDeclaration { Exported:true }))
                 throw new NotSupportedException("ES module JavaScript output is not implemented; specify --module es2015 for supported named modules.");
-            output[i]=new JavaScriptOutput(source.File,JavaScriptEmitter.Emit(parsed.Root,emitNamedModules));
+            output[i]=new JavaScriptOutput(source.File,JavaScriptEmitter.Emit(parsed.Root,emitNamedModules,Options.Target==CompilerTarget.EsNext));
         }
         return Array.AsReadOnly(output);
     }

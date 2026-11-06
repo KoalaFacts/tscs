@@ -7,7 +7,7 @@ namespace Tscs;
 // this writer never reparses tokens or infers missing semantics.
 internal static class JavaScriptEmitter
 {
-    public static string Emit(Block root,bool emitModules=false)
+    public static string Emit(Block root,bool emitModules=false,bool esNext=false)
     {
         // Fully erased ES2015 scripts still emit the reference prologue.
         if(root.Statements.Count>0 &&
@@ -16,7 +16,7 @@ internal static class JavaScriptEmitter
                or FunctionDeclaration {Ambient:true, Exported:false}
                or Variable {Ambient:true, Exported:false}))
             return "\"use strict\";\r\n";
-        var writer=new Writer(emitModules);
+        var writer=new Writer(emitModules,esNext);
         foreach(var statement in root.Statements)writer.WriteStatement(statement,0);
         // The pinned useStrict transform prefixes every non-ES-module file;
         // an existing leading "use strict" directive is kept as the prologue.
@@ -38,9 +38,41 @@ internal static class JavaScriptEmitter
         return false;
     }
 
-    private sealed class Writer(bool emitModules)
+    private sealed class Writer(bool emitModules,bool esNext)
     {
         private readonly StringBuilder output=new();
+
+        // ESNext keeps these constructs native, so the ES2015 lowerings below
+        // would not match the reference. Fail closed instead of emitting them.
+        private void RequireNoLowering(string construct)
+        {
+            if(esNext)
+                throw new NotSupportedException($"JavaScript output for target esnext does not implement native {construct}; use --target es2015.");
+        }
+
+        private static bool IsOptionalChain(ValueNode node)=>node switch
+        {
+            ValueParenthesized group=>IsOptionalChain(group.Expression),
+            ValuePropertyAccess property=>property.Optional||property.ChainContinuation,
+            ValueElementAccess element=>element.Optional||element.ChainContinuation,
+            ValueCall call=>call.Optional||call.ChainContinuation,
+            _=>false
+        };
+
+        private void RequireNoLowering(ValueNode node)
+        {
+            if(!esNext)return;
+            switch(node)
+            {
+                case ValueBinary {Operator.Kind:TokenKind.Power}:RequireNoLowering("'**'");break;
+                case ValueBinary {Operator.Kind:TokenKind.QuestionQuestion}:RequireNoLowering("'??'");break;
+                case ValueAtom {Token.Kind:TokenKind.Number,Token.Value:not null}:RequireNoLowering("numeric separators");break;
+                case ValueObject literal when literal.Properties.Any(p=>p.Spread||(p.Name.Kind==TokenKind.Number&&p.Name.Value!=null)):
+                    RequireNoLowering("object spread or numeric separators");break;
+                case ValueUnary unary when IsOptionalChain(unary.Operand):RequireNoLowering("optional chaining");break;
+                case ValuePropertyAccess or ValueElementAccess or ValueCall when IsOptionalChain(node):RequireNoLowering("optional chaining");break;
+            }
+        }
         public string Text=>output.ToString();
 
         // The reference printer indents each block level by four spaces.
@@ -443,6 +475,7 @@ internal static class JavaScriptEmitter
 
         private void WriteLogicalCompound(CompoundAssignment compound)
         {
+            RequireNoLowering("logical assignment");
             // ES2015 lacks logical assignments. Keep the checked identifier
             // lowering, which captures the old value for ??= and makes RHS lazy.
             if(compound.Target is ValueAtom { Token.Kind:TokenKind.Identifier } identifier)
@@ -528,6 +561,7 @@ internal static class JavaScriptEmitter
 
         private void WritePowerCompound(CompoundAssignment compound)
         {
+            RequireNoLowering("'**='");
             // ES2015 has no ** or **=. Use Math.pow, preserving one evaluation
             // of any receiver/index and reading the old lvalue before the RHS.
             // The generated arrow is an expression, so it also works in for headers.
@@ -841,6 +875,7 @@ internal static class JavaScriptEmitter
                 bool wrap=precedence<item.ParentPrecedence ||
                     (item.IsRight && precedence==item.ParentPrecedence);
                 if(wrap)Text(")");
+                RequireNoLowering(node);
                 switch(node)
                 {
                     case ValueAtom atom:

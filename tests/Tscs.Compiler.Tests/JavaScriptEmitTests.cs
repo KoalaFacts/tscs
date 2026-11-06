@@ -61,6 +61,48 @@ public sealed class JavaScriptEmitTests : IDisposable
     }
 
     [Fact]
+    public void EsNextTargetEmitsLikeEs2015WhereNothingIsLowered()
+    {
+        var input=Write("esnext-plain.ts","let values: number[] = [1, 2]; for (const v of values) { let w: number = v; }");
+        var result=Run("--emitJs","--noLib","--target","esnext",input,Globals());
+        Assert.Equal(0,result.Code);
+        Assert.Equal("",result.Output);
+        Assert.Equal("\"use strict\";\nlet values = [1, 2];\nfor (const v of values) {\n    let w = v;\n}\n",
+            File.ReadAllText(Path.ChangeExtension(input,".js")));
+    }
+
+    [Theory]
+    [InlineData("power","let a: number = 2 ** 3;","'**'")]
+    [InlineData("power-assign","let a: number = 2; a **= 3;","'**='")]
+    [InlineData("nullish","let a: number | undefined = undefined; let b: number = a ?? 1;","'??'")]
+    [InlineData("logical-assign","let a: number | undefined = undefined; a ??= 1;","logical assignment")]
+    [InlineData("optional","let o: {v: number} | undefined = undefined; let b = o?.v;","optional chaining")]
+    [InlineData("optional-delete","let o: {v?: number} | undefined = undefined; let b = delete o?.v;","optional chaining")]
+    [InlineData("spread","let o = {a: 1}; let p = {...o};","object spread")]
+    [InlineData("separator","let a: number = 1_000;","numeric separators")]
+    public void EsNextTargetFailsClosedWhereTheEs2015WriterLowers(string name,string source,string construct)
+    {
+        var input=Write("esnext-"+name+".ts",source);
+        var result=Run("--emitJs","--noLib","--target","esnext",input,Globals());
+        Assert.Equal(1,result.Code);
+        Assert.Contains("TSCS1002",result.Output);
+        Assert.Contains(construct,result.Output);
+        Assert.False(File.Exists(Path.ChangeExtension(input,".js")));
+        // The same source still lowers under the ES2015 target.
+        var es2015=Write("es2015-"+name+".ts",source);
+        Assert.Equal(0,Run("--emitJs","--noLib","--target","es2015",es2015,Globals()).Code);
+    }
+
+    [Fact]
+    public void UnsupportedTargetsStayRejected()
+    {
+        var input=Write("es5-target.ts","let n: number = 1;");
+        var result=Run("--emitJs","--noLib","--target","es5",input,Globals());
+        Assert.Equal(1,result.Code);
+        Assert.Contains("es2015/es6/esnext",result.Output);
+    }
+
+    [Fact]
     public void LibWithoutNoLibIsRejectedUntilTheStandardLibraryLoads()
     {
         var input=Write("lib-only.ts","let n: number = 1;");

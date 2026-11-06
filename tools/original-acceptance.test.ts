@@ -27,6 +27,7 @@ test('missing capabilities are all recorded, and supported targets have none', (
   assert.deepEqual(missingCapabilities(target('a.ts', {target: 'es2015', nolib: 'true'}), units), []);
   assert.deepEqual(missingCapabilities(target('a.ts', {target: 'ES6', noLib: 'true', noemit: 'true', strict: 'true'}), units), []);
   assert.deepEqual(missingCapabilities(target('a.ts', {target: 'es2015'}), units), ['standard-library']);
+  assert.deepEqual(missingCapabilities(target('a.ts', {target: 'esnext', nolib: 'true'}), units), []);
   assert.deepEqual(missingCapabilities(target('a.ts', {target: 'es2015', nolib: 'true', lib: 'es5'}), units), [],
     '@lib with @noLib is the pinned TS5053 conflict, which tscs reports');
   assert.deepEqual(missingCapabilities(target('a.ts', {target: 'es2015', nolib: 'false', lib: 'es5'}), units), ['standard-library']);

@@ -10,7 +10,7 @@ compiler test cases.
 
 ## Where it stands
 
-Original upstream acceptance: **3 PASS / 0 FAIL / 15,520 SKIP**
+Original upstream acceptance: **4 PASS / 0 FAIL / 15,519 SKIP**
 
 Of the 15,523 original source/configuration targets at the pinned revision,
 `tools/original-acceptance.ts` runs the three that tscs can attempt and

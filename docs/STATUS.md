@@ -6,7 +6,7 @@ validation logs stay in [evidence/](evidence/).
 
 ## Headline
 
-Original upstream acceptance: **3 PASS / 0 FAIL / 15,520 SKIP**
+Original upstream acceptance: **4 PASS / 0 FAIL / 15,519 SKIP**
 
 Measured by `tools/original-acceptance.ts` against the frozen TS7 reference,
 which CI reruns on every pull request (job `original-go-reference`) and which
@@ -27,9 +27,9 @@ lacks; "only" = targets blocked by that capability alone):
 
 | Missing capability | Targets | Only this |
 |---|---|---|
-| Standard library (`lib.*.d.ts`) | 15,464 | 5,583 |
+| Standard library (`lib.*.d.ts`) | 15,464 | 5,775 |
 | `@module` option | 3,453 | 0 |
-| `@target` other than es2015 | 3,172 | 2 |
+| `@target` other than es2015/esnext | 2,306 | 1 |
 | Multi-file tests | 2,830 | 0 |
 | `@strict: false` | 2,825 | 0 |
 | `@declaration` | 2,058 | 0 |
@@ -72,7 +72,9 @@ diagnostic and exit 1; they are intended never to be compiled silently.
 
 ### Project, host and modules
 
-- CLI: `--noEmit`, `--emitJs`, `--noLib`, `--target es2015`,
+- CLI: `--noEmit`, `--emitJs`, `--noLib`, `--target es2015` or `esnext`
+  (ESNext output equals ES2015 output; any construct the ES2015 writer lowers
+  fails closed with TSCS1002 under ESNext),
   `--module es2015`, `-p`/`--project`, `--pretty false`, `--json`;
   `--lib <names>` only with `--noLib`, reporting the reference's TS5053
   (the named libraries are not loaded).
@@ -243,7 +245,7 @@ maps, JSX/TSX, JavaScript inputs, decorators, async/await, generators,
 iterators beyond arrays and strings, `this` typing, overloads, mapped and
 conditional types, index signatures, module resolution through packages,
 `extends` in `tsconfig.json`, default implicit includes, targets other than
-ES2015, incremental and watch modes. Within the supported areas: no general
+ES2015 and ESNext, incremental and watch modes. Within the supported areas: no general
 contextual typing or inference for untyped parameters, no overloaded
 callbacks, no object-rest or dynamic computed binding patterns or general iterable
 destructuring, no getters/setters, no `instanceof`, no labelled statements
@@ -251,7 +253,7 @@ and no `var`.
 
 ## Known gaps
 
-- 15,464 of 15,523 original targets need the standard library; 5,583 need
+- 15,464 of 15,523 original targets need the standard library; 5,775 need
   nothing else that the runner checks for (roadmap A2).
 - The acceptance runner does not yet support multi-file tests, other
   targets or `@module`, and does not compare `.types`/`.symbols`.
@@ -278,10 +280,11 @@ records the original case IDs it moves.
 | A2.2a | Bind the parsed declarations into one global symbol table (cross-file merging, TS2300/TS2451 exclusions); the library check binds the default-lib closure | Library symbols become available | done (PR #220, 7b34604; review fixes PR #221, b5bd8e9) | pinned closure: 20 files, 2,250 global symbols (791 with more than one declaration), 0 diagnostics; 14 xUnit + 1 node test at merge, 16 with the review fixes |
 | A2.2b | Resolve every name the bound library uses (type, value and namespace meanings, scoped type parameters and `infer`); the library check fails on any unresolved name | Every library reference has a target, the input to computing library types | done (PR #222, 61dfa09) | pinned closure: 0 unresolved names (6 `globalThis` references before modelling it); 18 resolver xUnit + 1 node test; review fixes: postfix/operator type nesting limit, parameters do not shadow namespaces |
 | A2.2c | Compare the library syntax trees with the reference parser | Parser fidelity on the real libs, not only zero diagnostics | todo | — |
-| A2.3 | Check enough of es5/es2015 to load them as the default lib instead of `fixtures/minimal.d.ts` | Unblocks 5,583 targets that need only the library | todo | — |
+| A2.3 | Check enough of es5/es2015 to load them as the default lib instead of `fixtures/minimal.d.ts` | Unblocks 5,775 targets that need only the library | todo | — |
 | A3.1 | `compiler/noCrashOnNoLib.ts` to PASS: four-space block indentation and no added grouping around spread operands in emit | The only executed original FAIL; every original `.js` baseline with a block depends on the indentation | done (PR #219, 28053fa) | 1 PASS / 1 FAIL → 2 PASS / 0 FAIL / 15,521 SKIP (CI original-acceptance on main); `JavaScriptEmitTests` 22 (+1) |
-| A3.2 | `compiler/arrayIterationLibES5TargetDifferent.ts` (`nolib=true,target=es2015`) to PASS: runner passes `@lib`; CLI `--lib` with `--noLib` reports TS5053; ambient `declare let/const`; TS2495 for non-iterable `for..of` sources; script `"use strict";` prologue and strict script parameters; emit when only TS5053/TS2318 are printed | The only target whose sole gap was `@lib`; the prologue applies to every original script `.js` baseline | in progress (PR #224) | 2 PASS / 0 FAIL / 15,521 SKIP → 3 PASS / 0 FAIL / 15,520 SKIP; standard-library-only 5,459 → 5,583 (the `@lib` targets now need only the library) |
+| A3.2 | `compiler/arrayIterationLibES5TargetDifferent.ts` (`nolib=true,target=es2015`) to PASS: runner passes `@lib`; CLI `--lib` with `--noLib` reports TS5053; ambient `declare let/const`; TS2495 for non-iterable `for..of` sources; script `"use strict";` prologue and strict script parameters; emit when only TS5053/TS2318 are printed | The only target whose sole gap was `@lib`; the prologue applies to every original script `.js` baseline | done (PR #224, cd1dea6) | 2 PASS / 0 FAIL / 15,521 SKIP → 3 PASS / 0 FAIL / 15,520 SKIP; standard-library-only 5,459 → 5,583 (the `@lib` targets now need only the library) |
 | A3 | Close the cheapest family of failing original cases from A1's histogram, one family per PR | Moves original cases to PASS | todo | — |
+| A3.3 | `compiler/arrayIterationLibES5TargetDifferent.ts` (`nolib=true,target=esnext`) to PASS: `--target esnext` (CLI, tsconfig `99`) with output identical to ES2015 where nothing is lowered, failing closed (TSCS1002) where the ES2015 writer lowers (logical assignment, `**`/`**=`, `??`, optional chaining, object spread, numeric separators); the runner passes explicit `@target` | The only target whose sole gap was `option:target=esnext`; its pinned `.errors.txt` and `.js` equal the es2015 ones | in progress (`feat/target-esnext`) | 3 PASS / 0 FAIL / 15,520 SKIP → 4 PASS / 0 FAIL / 15,519 SKIP; standard-library-only 5,583 → 5,775 (esnext targets now need only the library); 12 xUnit + 1 runner assertion |
 | C1 | Remove duplicated checker/emitter paths and per-feature verify scripts where a shared test proves identical behaviour | Less code to maintain | todo | — |
 | H1 | Agent verification skills (`.claude/skills/verification-first`, `.claude/skills/verify-tscs`) with a feature map run against the pinned reference | Every later PR is checked at the real boundary, not only by unit tests | done (PR #223, 2cfd095) | feature map rows run on 61dfa09: 2 PASS / 0 FAIL / 15,521 SKIP, library 0 unresolved names |
 

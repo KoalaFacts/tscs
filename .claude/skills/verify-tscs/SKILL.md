@@ -35,7 +35,7 @@ After a source change, rebuild before exercising anything:
 
 | Feature | Code entry points | How to exercise it for real | Evidence to capture | Neighbours at risk |
 |---|---|---|---|---|
-| Original upstream acceptance (headline) | `tools/original-acceptance.ts`, `src/Tscs.Cli`, `src/Tscs.Compiler/Compilation.cs` | `node tools/original-acceptance.ts --targets "$ACC/targets.jsonl" --upstream "$U" --tscs src/Tscs.Cli/bin/Release/net10.0/tscs.dll --out "$ACC/report.json" --expect-headline docs/STATUS.md` | headline line `N PASS / N FAIL / N SKIP` (`@lib` is passed as `--lib` and only runs with `@noLib`), `soleMissingCapability`, the `results` entries whose `status` changed (by `upstreamPath`), before and after | README/STATUS headline (the run fails on disagreement), every executed target |
+| Original upstream acceptance (headline) | `tools/original-acceptance.ts`, `src/Tscs.Cli`, `src/Tscs.Compiler/Compilation.cs` | `node tools/original-acceptance.ts --targets "$ACC/targets.jsonl" --upstream "$U" --tscs src/Tscs.Cli/bin/Release/net10.0/tscs.dll --out "$ACC/report.json" --expect-headline docs/STATUS.md` | headline line `N PASS / N FAIL / N SKIP` (`@lib` is passed as `--lib` and only runs with `@noLib`; an explicit `@target` es2015/esnext is passed as `--target`), `soleMissingCapability`, the `results` entries whose `status` changed (by `upstreamPath`), before and after | README/STATUS headline (the run fails on disagreement), every executed target |
 | Standard library parse, bind, resolve (A2) | `DeclarationParser.cs`, `DeclarationBinder.cs`, `DeclarationResolver.cs`, `tools/fixture-harness`, `tools/check-standard-library.ts` | `node tools/check-standard-library.ts --upstream "$U" --harness tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.FixtureHarness.dll --out "$ACC/standard-library.json"` | the four summary lines: files clean (116/116), required 20/20, global symbols / merged / diagnostics, unresolved names | parser for user `.ts` (shared scanner), `DeclarationParserTests`, `DeclarationResolverTests` |
 | CLI check | `src/Tscs.Cli/Program.cs`, `CommandLine.cs`, `TypeChecker.cs` | `dotnet src/Tscs.Cli/bin/Release/net10.0/tscs.dll --noEmit --noLib --target es2015 fixtures/local/assignment-mismatch.ts fixtures/minimal.d.ts` | exit code (0 clean, 2 diagnostics) and the diagnostic lines, e.g. `TS2322: Type 'string' is not assignable to type 'number'.` | unsupported constructs must report a TSCS diagnostic, never compile silently |
 | CLI emit | `JavaScriptEmitter.cs` | `E="$(mktemp -d "$ACC/emit.XXXXXX")" && cp fixtures/local/number-ok.ts "$E/" && dotnet src/Tscs.Cli/bin/Release/net10.0/tscs.dll --emitJs --noLib --target es2015 "$E/number-ok.ts" fixtures/minimal.d.ts` (a fresh folder per run: the CLI refuses to overwrite an existing `.js`, TSCS1002) | the written `.js` next to the input (`"use strict";` then `let count = 1;`: every script gets the pinned prologue) | original `.js` baselines (four-space blocks), `tools/verify-*-emit.ts` executed modules |
@@ -73,7 +73,10 @@ runs `verify-upstream-lock-probe.sh` and `verify-upstream-full-discovery.sh`.
 
 ## Last verified
 
-2026-11-06 on `feat/array-iteration-nolib` (main `2cfd095` merged): acceptance
+2026-11-06 on `feat/target-esnext` (main `cd1dea6`): acceptance 4 PASS / 0 FAIL /
+15,519 SKIP (adds `arrayIterationLibES5TargetDifferent(nolib=true,target=esnext)`);
+`--target esnext` emit of a lowered construct (`2 ** 3`) reports TSCS1002.
+Earlier: 2026-11-06 on `feat/array-iteration-nolib` (main `2cfd095` merged): acceptance
 3 PASS / 0 FAIL / 15,520 SKIP (`parser509698`, `noCrashOnNoLib`,
 `arrayIterationLibES5TargetDifferent(nolib=true,target=es2015)`); CLI check
 and emit rows as shown (script output now starts with `"use strict";`);
