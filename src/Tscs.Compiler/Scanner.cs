@@ -87,9 +87,10 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false, boo
                     string comment = text[start..position];
                     if (declarationFile && !block && comment.StartsWith("///", StringComparison.Ordinal))
                     {
-                        // Non-directive triple-slash comments are ordinary comments upstream.
+                        // Non-directive triple-slash comments, and directives after the
+                        // first token, are ordinary comments upstream.
                         var reference = ReferenceDirective.Match(comment);
-                        if (reference.Success)
+                        if (reference.Success && tokens.Count == 0)
                             ReferenceDirectives.Add((reference.Groups["name"].Value, reference.Groups["value"].Value));
                         continue;
                     }
