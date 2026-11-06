@@ -436,9 +436,18 @@ public class DeclarationParserTests
     [Fact]
     public void ScannerDiagnosticsStopTheParse()
     {
-        var diagnostic=Assert.Single(DeclarationParser.Parse("a.d.ts","type A = \"open;").Diagnostics);
-        Assert.Equal("TS1002",diagnostic.Code);
-        Assert.Equal("TSCS1001",Assert.Single(DeclarationParser.Parse("a.d.ts","declare var #x: number;").Diagnostics).Code);
+        // An unterminated string is still a scanner failure; no partial AST
+        // may escape the lexical error.
+        var lexical=DeclarationParser.Parse("a.d.ts","type A = \"open;");
+        Assert.Equal("TS1002",Assert.Single(lexical.Diagnostics).Code);
+        Assert.Empty(lexical.Statements);
+
+        // In declaration mode '#x' now has a dedicated PrivateIdentifier
+        // token. Outside an ambient class it reaches the binding-name parser,
+        // which correctly rejects it as TS1003 rather than a scanner TSCS1001.
+        var globalPrivate=DeclarationParser.Parse("a.d.ts","declare var #x: number;");
+        Assert.Equal("TS1003",Assert.Single(globalPrivate.Diagnostics).Code);
+        Assert.Empty(globalPrivate.Statements);
     }
 
     [Fact]
