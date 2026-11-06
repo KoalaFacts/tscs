@@ -447,4 +447,56 @@ public class DeclarationParserTests
         Assert.Contains(Compilation.Check("a.ts","declare var x: number;"),d=>d.Code=="TSCS1001");
         Assert.Contains(Compilation.Check("a.ts","/// <reference lib=\"es5\" />\nlet x = 1;"),d=>d.Code=="TSCS1001");
     }
+
+    [Fact]
+    public void ParsesEcmaPrivateNamesInAmbientClassDeclarations()
+    {
+        // The pinned lib.es2026.json.d.ts uses #isRawJson on an ambient class.
+        var file=Clean("""
+            export {};
+            declare class RawJSONInstance {
+                #isRawJson: unknown;
+                static #count: number;
+                #make(value: string): string;
+                get #value(): string;
+                set #value(value: string);
+                readonly rawJSON: string;
+            }
+            declare global { interface RawJSON extends RawJSONInstance {} }
+            """);
+        var declaration=Assert.IsType<AmbientClass>(file.Statements[1]);
+        Assert.Equal("RawJSONInstance",declaration.Name.Text);
+        Assert.Collection(declaration.Members,
+            m=>
+            {
+                var property=Assert.IsType<AmbientPropertySignature>(m.Member);
+                Assert.Equal("#isRawJson",property.Name.Text);
+                Assert.Equal(TokenKind.PrivateIdentifier,property.Name.Tokens[0].Kind);
+            },
+            m=>
+            {
+                Assert.Equal(["static"],m.Modifiers);
+                Assert.Equal("#count",Assert.IsType<AmbientPropertySignature>(m.Member).Name.Text);
+            },
+            m=>Assert.Equal("#make",Assert.IsType<AmbientMethodSignature>(m.Member).Name.Text),
+            m=>Assert.Equal("#value",Assert.IsType<AmbientAccessorSignature>(m.Member).Name.Text),
+            m=>Assert.True(Assert.IsType<AmbientAccessorSignature>(m.Member).Setter),
+            m=>Assert.Equal("rawJSON",Assert.IsType<AmbientPropertySignature>(m.Member).Name.Text));
+        Assert.IsType<AmbientNamespace>(file.Statements[2]);
+    }
+
+    [Theory]
+    [InlineData("interface I { #secret: number; }", "TSCS1001")]
+    [InlineData("type T = { #secret: number };", "TSCS1001")]
+    [InlineData("declare var #secret: number;", "TSCS1001")]
+    [InlineData("declare class C { #1: number; }", "TSCS1001")]
+    [InlineData("declare class C { #secret?: number; }", "TS18019")]
+    [InlineData("declare class C { private #secret: number; }", "TS18010")]
+    [InlineData("declare class C { protected get #secret(): number; }", "TS18010")]
+    [InlineData("declare class C { #secret = 1; }", "TSCS1001")]
+    public void RejectsIllegalOrOutOfScopePrivateNames(string source,string code)
+    {
+        var diagnostic=Assert.Single(DeclarationParser.Parse("private.d.ts",source).Diagnostics);
+        Assert.Equal(code,diagnostic.Code);
+    }
 }

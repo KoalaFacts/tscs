@@ -149,8 +149,8 @@ more), rejects reserved words as declaration names, and limits nesting to
 200 levels; enums, imports, initializers, private names and mapped types
 with extra members fail with TSCS1001. `tools/check-standard-library.ts`
 (CI job `original-go-reference`) parses every pinned bundled lib:
-**115 of 116** have zero diagnostics (`lib.es2026.json.d.ts` uses a private
-name), including all 20 files reachable from the default libs `lib.d.ts`
+**116 of 116** have zero diagnostics (ambient class `#private` names are parsed),
+including all 20 files reachable from the default libs `lib.d.ts`
 and `lib.es6.d.ts`, which the check requires. Syntax trees are not yet
 compared with the reference parser, and nothing is bound or checked: the
 CLI still accepts only the bounded globals below.
