@@ -102,6 +102,25 @@ public class DeclarationResolverTests
     }
 
     [Fact]
+    public void ResolvesIndexSignatureParametersAsValues()
+    {
+        // An index signature is a signature declaration: its parameter is in scope for `typeof`.
+        Assert.Empty(Resolve("interface D { [key: string]: typeof key; }"));
+        Assert.Equal(("TS2304","Cannot find name 'other'."),Code(Single("interface D { [key: string]: typeof other; }")));
+    }
+
+    [Fact]
+    public void ReadsStaticMembersOfAClassMergedWithAnInstantiatedNamespace()
+    {
+        // `typeof C.s` is a property access on the class value, not a namespace export lookup.
+        Assert.Empty(Resolve("declare class C { static s: number; } declare namespace C { var v: number; } type Q = typeof C.s; type R = typeof C.v;"));
+        // A pure namespace still reports a missing export.
+        Assert.Equal(("TS2694","Namespace 'N' has no exported member 'x'."),Code(Single("declare namespace N { var v: number; } type Q = typeof N.x;")));
+    }
+
+    private static (string,string) Code((string Code,string Message,int Start,int Length) d)=>(d.Code,d.Message);
+
+    [Fact]
     public void ReportsEveryUnresolvedNameInSourceOrder()
     {
         Assert.Equal(["A","B","C"],Resolve("interface I extends A { b: B; } declare function f(): C;").Select(d=>d.Message.Split('\'')[1]));

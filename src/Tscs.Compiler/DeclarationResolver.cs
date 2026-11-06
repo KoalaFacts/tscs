@@ -161,9 +161,14 @@ internal static class DeclarationResolver
                     Signature(c.Signature,scope);
                     break;
                 case AmbientIndexSignature i:
-                    foreach(var p in i.Parameters)if(p.Type is not null)Type(p.Type,scope);
-                    Type(i.Type,scope);
+                {
+                    // An index signature is a signature declaration: its parameters are locals.
+                    var values=new Scope(scope);
+                    foreach(var p in i.Parameters)values.Values.Add(p.Name.Text);
+                    foreach(var p in i.Parameters)if(p.Type is not null)Type(p.Type,values);
+                    Type(i.Type,values);
                     break;
+                }
             }
         }
 
@@ -304,6 +309,10 @@ internal static class DeclarationResolver
                 var wanted=i==name.Count-1?meaning:Namespace;
                 if(!symbol.Exports.TryGetValue(name[i].Text,out var member) || (member.Meanings&wanted)==0)
                 {
+                    // In a `typeof` query a class, function or variable merged with the
+                    // namespace makes the rest a property access (`typeof C.staticMember`),
+                    // which the resolver does not model.
+                    if(meaning==AmbientMeaning.Value && (symbol.Meanings&AmbientMeaning.Value&~AmbientMeaning.ValueModule)!=0)return;
                     var left=string.Join(".",name.Take(i).Select(t=>t.Text));
                     diagnostics.Add(Error(name[i],"TS2694",$"Namespace '{left}' has no exported member '{name[i].Text}'."));
                     return;
