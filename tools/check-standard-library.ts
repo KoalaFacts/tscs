@@ -26,7 +26,9 @@ import {fileURLToPath} from 'node:url';
 export const REQUIRED_ROOTS = ['lib.d.ts', 'lib.es6.d.ts'];
 
 export interface Diagnostic {code: string; start: number; message: string}
-export interface FileResult {file: string; statements: number; libReferences: string[]; diagnostics: Diagnostic[]}
+export interface InventoryRow {kind: string; names: string[]; members: number}
+export interface FileResult {file: string; statements: number; libReferences: string[]; diagnostics: Diagnostic[];
+  inventory: InventoryRow[]}
 export interface Report {
   libs: number;
   clean: number;
@@ -49,11 +51,40 @@ export function parseLibs(dir: string, files: string[], options: HarnessOptions)
   if (run.status !== 0) throw new Error(`harness exited with ${run.status}: ${run.stderr}`);
   const rows = run.stdout.split('\n').filter((l) => l.trim().length > 0)
     .map((l) => JSON.parse(l) as {id: string; expected: {statements: number;
-      references: {name: string; value: string}[]; diagnostics: Diagnostic[]}});
+      references: {name: string; value: string}[]; diagnostics: Diagnostic[]; inventory?: InventoryRow[]}});
   if (rows.length !== files.length || rows.some((r, i) => r.id !== files[i])) throw new Error('harness returned mismatched rows');
   return rows.map((r) => ({file: r.id, statements: r.expected.statements,
     libReferences: r.expected.references.filter((x) => x.name === 'lib').map((x) => `lib.${x.value.toLowerCase()}.d.ts`),
-    diagnostics: r.expected.diagnostics}));
+    diagnostics: r.expected.diagnostics, inventory: r.expected.inventory ?? []}));
+}
+
+/** Statement inventories of the given lib files from the reference parser (tools/declaration-ast-go). */
+export function referenceInventories(dir: string, files: string[], reference: string): Map<string, InventoryRow[]> {
+  const input = files.map((f) => JSON.stringify({fileName: f, text: readFileSync(join(dir, f), 'utf8')})).join('\n') + '\n';
+  const run = spawnSync(reference, [], {input, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024});
+  if (run.status !== 0) throw new Error(`reference parser exited with ${run.status}: ${run.stderr}`);
+  const rows = run.stdout.split('\n').filter((l) => l.trim().length > 0).map((l) => JSON.parse(l) as
+    {fileName: string; diagnostics: number; statements: InventoryRow[]});
+  if (rows.length !== files.length || rows.some((r, i) => r.fileName !== files[i])) throw new Error('reference returned mismatched rows');
+  const bad = rows.filter((r) => r.diagnostics > 0);
+  if (bad.length > 0) throw new Error(`reference parser reported diagnostics in ${bad.map((r) => r.fileName).join(', ')}`);
+  return new Map(rows.map((r) => [r.fileName, r.statements]));
+}
+
+/** The first statement per file whose kind, names or member count differ from the reference. */
+export function compareInventories(results: FileResult[], reference: Map<string, InventoryRow[]>): string[] {
+  const key = (r: InventoryRow | undefined) => (r ? `${r.kind} ${r.names.join(',')} members=${r.members}` : '(none)');
+  const mismatches: string[] = [];
+  for (const result of results) {
+    const expected = reference.get(result.file);
+    if (!expected) throw new Error(`no reference inventory for ${result.file}`);
+    for (let i = 0; i < Math.max(expected.length, result.inventory.length); i++) {
+      if (key(expected[i]) === key(result.inventory[i])) continue;
+      mismatches.push(`${result.file} statement ${i}: reference ${key(expected[i])}, tscs ${key(result.inventory[i])}`);
+      break;
+    }
+  }
+  return mismatches;
 }
 
 /** Binds the given lib files together into one global symbol table. */
@@ -124,6 +155,13 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   if (failing.length > 0) {
     console.error(`required lib files with diagnostics: ${failing.map((r) => r.file).join(', ')}`);
     process.exit(1);
+  }
+  if (args.includes('--reference')) {
+    const mismatches = compareInventories(report.files.filter((r) => r.diagnostics.length === 0),
+      referenceInventories(dir, report.files.filter((r) => r.diagnostics.length === 0).map((r) => r.file), resolve(argument(args, '--reference'))));
+    console.log(`Statement inventory against the reference parser: ${report.clean - mismatches.length} of ${report.clean} files match`);
+    for (const m of mismatches.slice(0, 20)) console.error(`  ${m}`);
+    if (mismatches.length > 0) process.exit(1);
   }
   const binding = bindLibs(dir, report.required.map((r) => r.file), options);
   console.log(`Required closure binding: ${binding.files} files, ${binding.symbols} global symbols (${binding.merged} merged), ${binding.diagnostics.length} diagnostics`);

@@ -189,8 +189,11 @@ namespace or type parameter in the wrong position); `infer` in a signature's
 type-parameter constraints and index-signature parameters is not collected;
 misplaced `infer` (TS1338) and unknown `intrinsic` aliases (TS2795) are not
 reported. Module-local declarations are not resolved (the pinned libs have
-none). Syntax trees are not yet compared with
-the reference parser, types are not computed, and nothing is checked: the
+none). With `--reference` (CI), every lib file's statement inventory
+(kind, declared names, member count per statement) is compared with the
+pinned reference parser's (`tools/declaration-ast-go`, A2.2c-1): **116 of
+116** match. Nested types and member shapes are not yet compared with the
+reference parser, types are not computed, and nothing is checked: the
 CLI still accepts only the bounded globals below.
 
 Programs use `--noLib` with
@@ -206,6 +209,8 @@ array `push`/`pop`/`shift`/`unshift`/`reverse`/`sort`/`fill`/`copyWithin`,
 ### Conformance harness
 
 - `tools/oracle` and `scripts/build-oracle.sh` build the pinned Go reference;
+  `tools/declaration-ast-go` prints the reference parser's statement
+  inventory for `tools/check-standard-library.ts --reference`;
   `tools/check-oracle.ts` and `tools/verify-conformance.ts` compare
   diagnostics with tscs.
 - `tools/original-acceptance.ts` runs the registered original targets
@@ -259,7 +264,8 @@ records the original case IDs it moves.
 | A2.1b | Template literal types and ambient classes; require the default libs (`lib.d.ts`, `lib.es6.d.ts`) and everything they reference | The es2015 default lib includes `dom` and `scripthost` | done (PR #216, 8e8a68d) | 115/116 pinned libs clean at merge, default-lib closure 20/20 |
 | A2.2a | Bind the parsed declarations into one global symbol table (cross-file merging, TS2300/TS2451 exclusions); the library check binds the default-lib closure | Library symbols become available | done (PR #220, 7b34604; review fixes PR #221, b5bd8e9) | pinned closure: 20 files, 2,250 global symbols (791 with more than one declaration), 0 diagnostics; 14 xUnit + 1 node test at merge, 16 with the review fixes |
 | A2.2b | Resolve every name the bound library uses (type, value and namespace meanings, scoped type parameters and `infer`); the library check fails on any unresolved name | Every library reference has a target, the input to computing library types | in progress (PR #222) | pinned closure: 0 unresolved names (6 `globalThis` references before modelling it); 18 resolver xUnit + 1 node test; review fixes: postfix/operator type nesting limit, parameters do not shadow namespaces |
-| A2.2c | Compare the library syntax trees with the reference parser | Parser fidelity on the real libs, not only zero diagnostics | todo | — |
+| A2.2c-1 | Compare each lib file's statement inventory (kind, names, member count) with the pinned reference parser in CI | Parser fidelity on the real libs, not only zero diagnostics | in progress (PR after #222) | 116/116 pinned lib files match; 2 node tests |
+| A2.2c-2 | Compare member and type shapes with the reference parser | Catches misparsed types the inventory cannot see | todo | — |
 | A2.3 | Check enough of es5/es2015 to load them as the default lib instead of `fixtures/minimal.d.ts` | Unblocks 5,459 targets that need only the library | todo | — |
 | A3.1 | `compiler/noCrashOnNoLib.ts` to PASS: four-space block indentation and no added grouping around spread operands in emit | The only executed original FAIL; every original `.js` baseline with a block depends on the indentation | done (PR #219, 28053fa) | 1 PASS / 1 FAIL → 2 PASS / 0 FAIL / 15,521 SKIP (CI original-acceptance on main); `JavaScriptEmitTests` 22 (+1) |
 | A3 | Close the cheapest family of failing original cases from A1's histogram, one family per PR | Moves original cases to PASS | todo | — |

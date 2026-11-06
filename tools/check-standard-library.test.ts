@@ -3,7 +3,8 @@ import {mkdirSync, mkdtempSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import test from 'node:test';
-import {bindLibs, libFiles, parseLibs, requiredClosure, summarize, type FileResult} from './check-standard-library.ts';
+import {bindLibs, compareInventories, libFiles, parseLibs, referenceInventories, requiredClosure, summarize, type FileResult,
+  type InventoryRow} from './check-standard-library.ts';
 
 // Stands in for the fixture harness: one JSONL response per request; a lib
 // whose text contains "BAD" gets a diagnostic, references are read back;
@@ -93,4 +94,38 @@ test('unresolved names are reported per file, and a response without them is an 
   assert.deepEqual(binding.diagnostics, []);
   assert.deepEqual(binding.unresolved, [{file: 'lib.a.d.ts', code: 'TS2304', start: 17, message: "Cannot find name 'MISSING'."}]);
   assert.throws(() => bindLibs(dir, ['lib.c.d.ts'], options), /unresolved/);
+});
+
+test('statement inventories are compared with the reference parser, first difference per file', () => {
+  const row = (kind: string, names: string[], members = 0): InventoryRow => ({kind, names, members});
+  const result = (file: string, inventory: InventoryRow[]): FileResult => ({file, statements: inventory.length, libReferences: [], diagnostics: [], inventory});
+  const same = [row('KindInterfaceDeclaration', ['A'], 2), row('KindVariableStatement', ['a'])];
+  const reference = new Map([['lib.a.d.ts', same], ['lib.b.d.ts', same], ['lib.c.d.ts', same], ['lib.d.d.ts', same]]);
+  assert.deepEqual(compareInventories([
+    result('lib.a.d.ts', same),
+    result('lib.b.d.ts', [row('KindInterfaceDeclaration', ['A'], 1), row('KindVariableStatement', ['b'])]),
+    result('lib.c.d.ts', same.slice(0, 1)),
+    result('lib.d.d.ts', [...same, row('KindFunctionDeclaration', ['f'])]),
+  ], reference), [
+    'lib.b.d.ts statement 0: reference KindInterfaceDeclaration A members=2, tscs KindInterfaceDeclaration A members=1',
+    'lib.c.d.ts statement 1: reference KindVariableStatement a members=0, tscs (none)',
+    'lib.d.d.ts statement 2: reference (none), tscs KindFunctionDeclaration f members=0',
+  ]);
+  assert.throws(() => compareInventories([result('lib.e.d.ts', same)], reference), /no reference inventory/);
+});
+
+test('a failing or diagnosing reference parser is an error', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tscs-ref-'));
+  writeFileSync(join(dir, 'lib.a.d.ts'), 'interface A {}');
+  const script = (name: string, body: string) => {
+    const path = join(dir, name);
+    writeFileSync(path, `#!/usr/bin/env node\n${body}\n`, {mode: 0o755});
+    return path;
+  };
+  const ok = script('ok.cjs', "require('node:fs').readFileSync(0); console.log(JSON.stringify({fileName: 'lib.a.d.ts', diagnostics: 0, " +
+    "statements: [{kind: 'KindInterfaceDeclaration', names: ['A'], members: 0}]}));");
+  assert.deepEqual(referenceInventories(dir, ['lib.a.d.ts'], ok).get('lib.a.d.ts'), [{kind: 'KindInterfaceDeclaration', names: ['A'], members: 0}]);
+  const diagnosing = script('diag.cjs', "require('node:fs').readFileSync(0); console.log(JSON.stringify({fileName: 'lib.a.d.ts', diagnostics: 1, statements: []}));");
+  assert.throws(() => referenceInventories(dir, ['lib.a.d.ts'], diagnosing), /reported diagnostics/);
+  assert.throws(() => referenceInventories(dir, ['lib.a.d.ts'], script('fail.cjs', 'process.exit(4);')), /exited with 4/);
 });

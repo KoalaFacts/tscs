@@ -16,9 +16,29 @@ public static class FixtureDeclarationSyntax
         {
             statements=result.Statements.Count,
             references=result.ReferenceDirectives.Select(r=>new{name=r.Name,value=r.Value}).ToArray(),
-            diagnostics=result.Diagnostics.Select(d=>new{code=d.Code,start=d.Start,message=d.Message}).ToArray()
+            diagnostics=result.Diagnostics.Select(d=>new{code=d.Code,start=d.Start,message=d.Message}).ToArray(),
+            inventory=result.Statements.Select(Inventory).ToArray()
         };
     }
+
+    // The statement inventory tools/declaration-ast-go prints for the reference
+    // parser (roadmap A2.2c): kind, declared names and member count. A dotted
+    // namespace is the reference's outer ModuleDeclaration, whose body is the
+    // next segment, so it has no direct members.
+    private static object Inventory(AmbientStatement statement)=>statement switch
+    {
+        AmbientInterface i=>Row("KindInterfaceDeclaration",[i.Name.Text],i.Members.Count),
+        AmbientClass c=>Row("KindClassDeclaration",[c.Name.Text],c.Members.Count),
+        AmbientTypeAlias a=>Row("KindTypeAliasDeclaration",[a.Name.Text],0),
+        AmbientFunction f=>Row("KindFunctionDeclaration",[f.Name.Text],0),
+        AmbientVariable v=>Row("KindVariableStatement",[v.Name.Text],0),
+        AmbientNamespace { GlobalKeyword: { } } g=>Row("KindModuleDeclaration",["global"],g.Body.Count),
+        AmbientNamespace n=>Row("KindModuleDeclaration",[n.Name[0].Text],n.Name.Count>1?0:n.Body.Count),
+        AmbientExportList=>Row("KindExportDeclaration",[],0),
+        _=>Row(statement.GetType().Name,[],0)
+    };
+
+    private static object Row(string kind,string[] names,int members)=>new{kind,names,members};
 
     public static object ProbeBinding(JsonElement request)
     {

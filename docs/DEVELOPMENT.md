@@ -67,11 +67,15 @@ histograms summarized in [STATUS](STATUS.md#headline).
 
 Standard library syntax and binding check against the same checkout (fails
 when a file reachable from the default libs `lib.d.ts` or `lib.es6.d.ts` has a
-syntax diagnostic, or binding those files together reports one; see
-[STATUS](STATUS.md#standard-library)):
+syntax diagnostic, binding those files together reports one or leaves a name
+unresolved, or, with `--reference`, a file's statement inventory differs from
+the reference parser's; see [STATUS](STATUS.md#standard-library)). The
+reference inventory adapter `tools/declaration-ast-go/main.go` is built inside
+the pinned checkout like `tools/oracle` (copy it to `tsc/cmd/tscs-declaration-ast/`,
+`go build`, remove the copy):
 
 ```sh
 node tools/check-standard-library.ts --upstream .artifacts/original-empty-go/TypeScript \
   --harness tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.FixtureHarness.dll \
-  --out /tmp/standard-library.json
+  --reference .artifacts/declaration-ast --out /tmp/standard-library.json
 ```

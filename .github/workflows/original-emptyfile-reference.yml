@@ -124,8 +124,15 @@ jobs:
             --upstream .artifacts/original-empty-go/TypeScript \
             --tscs src/Tscs.Cli/bin/Release/net10.0/tscs.dll \
             --out "$out/report.json" --expect-headline docs/STATUS.md
+          # The reference-parser inventory adapter is copied in, built, and removed again.
+          upstream_tsc=.artifacts/original-empty-go/TypeScript/tsc
+          mkdir "$upstream_tsc/cmd/tscs-declaration-ast"
+          cp tools/declaration-ast-go/main.go "$upstream_tsc/cmd/tscs-declaration-ast/main.go"
+          (cd "$upstream_tsc"; GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local GOWORK=off timeout 180s go build -o "$GITHUB_WORKSPACE/.artifacts/declaration-ast" ./cmd/tscs-declaration-ast)
+          rm -r "$upstream_tsc/cmd/tscs-declaration-ast"
           node tools/check-standard-library.ts --upstream .artifacts/original-empty-go/TypeScript \
             --harness tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.FixtureHarness.dll \
+            --reference .artifacts/declaration-ast \
             --out "$out/standard-library.json"
       - name: Preserve original upstream acceptance report
         if: always()
