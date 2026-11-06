@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {mkdtempSync,writeFileSync,readFileSync,existsSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
-import {join,resolve} from 'node:path';
+import {join} from 'node:path';
+import {runTscs} from './tscs-process.ts';
 
 // Runs checked emitted ES2015, not a snapshot of an expected JS string.
 // This bounded test is NOT an original upstream TS7 harness acceptance.
@@ -45,16 +46,7 @@ try {
   writeFileSync(join(folder,'tsconfig.json'),JSON.stringify({
     files:['entry.ts','minimal.d.ts'],compilerOptions:{noLib:true,target:'es2015',module:'es2015'}
   }));
-  const dll=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
-  function compile(args:string[]) {
-    const run=spawnSync(process.env.DOTNET??'dotnet',[dll,...args],{
-      cwd:folder,encoding:'utf8',timeout:30000,maxBuffer:4*1024*1024,
-      env:{...process.env,DOTNET_CLI_TELEMETRY_OPTOUT:'1',TESTINGPLATFORM_TELEMETRY_OPTOUT:'1'}
-    });
-    assert.equal(run.error,undefined,String(run.error));
-    assert.equal(run.signal,null,'compiler timed out or crashed');
-    return run;
-  }
+    function compile(args:string[]){return runTscs(folder,args);}
   const compiled=compile(['--emitJs','-p','tsconfig.json']);
   assert.equal(compiled.status,0,compiled.stdout+'\n'+compiled.stderr);
   for(const name of ['model','logic','entry'])

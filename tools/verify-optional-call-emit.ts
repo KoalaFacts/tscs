@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {existsSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
-import {join,resolve} from 'node:path';
+import {join} from 'node:path';
+import {runTscs} from './tscs-process.ts';
 
 // Actual checked four-module ES2015 output. Not original TS7 acceptance.
 const dir=mkdtempSync(join(tmpdir(),'tscs-optional-call-'));
@@ -50,16 +51,7 @@ try {
     files:['entry.ts','minimal.d.ts'],
     compilerOptions:{module:'es2015',target:'es2015',noLib:true}
   }));
-  const dll=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
-  const env={...process.env,DOTNET_CLI_TELEMETRY_OPTOUT:'1',
-    TESTINGPLATFORM_TELEMETRY_OPTOUT:'1'};
-  function compile(args:string[]){
-    const run=spawnSync(process.env.DOTNET??'dotnet',[dll,...args],
-      {cwd:dir,encoding:'utf8',timeout:30000,env});
-    assert.equal(run.error,undefined,String(run.error));
-    assert.equal(run.signal,null,'compiler crashed or timed out');
-    return run;
-  }
+  function compile(args:string[]){return runTscs(dir,args);}
   const good=compile(['--emitJs','-p',join(dir,'project.json')]);
   assert.equal(good.status,0,good.stdout+good.stderr);
   for(const name of ['model','data','logic','entry']){

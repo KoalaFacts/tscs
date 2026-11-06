@@ -2,19 +2,12 @@ import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {existsSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
-import {join,resolve} from 'node:path';
+import {join} from 'node:path';
+import {runTscs} from './tscs-process.ts';
 
 // Real four-module JavaScript execution and no-emit negative diagnostics.
 const folder=mkdtempSync(join(tmpdir(),'tscs-string-methods-'));
-const compiler=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
-const env={...process.env,DOTNET_CLI_TELEMETRY_OPTOUT:'1',TESTINGPLATFORM_TELEMETRY_OPTOUT:'1'};
-function compile(args:string[]){
-  const result=spawnSync(process.env.DOTNET??'dotnet',[compiler,...args],
-    {cwd:folder,encoding:'utf8',timeout:30000,env});
-  assert.equal(result.error,undefined,String(result.error));
-  assert.equal(result.signal,null,'compiler crashed or timed out');
-  return result;
-}
+function compile(args:string[]){return runTscs(folder,args);}
 try {
   writeFileSync(join(folder,'package.json'),'{"type":"module"}\n');
   const minimal=readFileSync('fixtures/string-methods/extended-minimal.d.ts','utf8');
