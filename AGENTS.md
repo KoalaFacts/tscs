@@ -19,3 +19,6 @@ script or a successful remote CI run installed binaries into that local worker.
 See `docs/DEVELOPMENT.md` for focused build/test commands. Do not repeatedly run
 the full suite just to prove the same environment is alive. Existing full CI and
 release gates remain required at their normal delivery points.
+
+Before claiming a change works, follow `.claude/skills/verification-first/SKILL.md`
+and exercise the rows of `.claude/skills/verify-tscs/SKILL.md` it touches.
