@@ -6,7 +6,7 @@ validation logs stay in [evidence/](evidence/).
 
 ## Headline
 
-Original upstream acceptance: **1 PASS / 1 FAIL / 15,521 SKIP**
+Original upstream acceptance: **2 PASS / 0 FAIL / 15,521 SKIP**
 
 Measured by `tools/original-acceptance.ts` against the frozen TS7 reference,
 which CI reruns on every pull request (job `original-go-reference`) and which
@@ -38,7 +38,9 @@ lacks; "only" = targets blocked by that capability alone):
 
 Two original targets execute: `conformance/parser/.../parser509698.ts`
 (PASS: ambient function signatures, style trivia and erased JS), and
-`compiler/noCrashOnNoLib.ts` (FAIL: JavaScript output mismatch).
+`compiler/noCrashOnNoLib.ts` (PASS: the ten TS2318 missing-global
+diagnostics under `@noLib`, and the reference printer's four-space block
+indentation and ungrouped spread operands).
 Executed failures are never converted to SKIP. The xUnit placeholder suite (`tests/Tscs.Upstream.Placeholders`,
 discovered by `./scripts/verify-upstream-full-discovery.sh`) still registers
 all 15,523 targets as `SKIP_UNIMPLEMENTED`; its semantics are unchanged.
@@ -131,7 +133,9 @@ diagnostic and exit 1; they are intended never to be compiled silently.
 
 ES2015 scripts and named ES modules are emitted from the checked AST; type
 syntax is erased and runtime semantics are preserved (evaluation order,
-single evaluation of receivers, native `for..of` Unicode iteration). Output
+single evaluation of receivers, native `for..of` Unicode iteration). Like the
+reference printer, statement blocks are indented four spaces per level and
+spread operands get no added grouping. Output
 is executed by the `tools/verify-*-emit.ts` checks.
 
 ### Standard library
@@ -206,6 +210,10 @@ and no `var`.
   nothing else that the runner checks for (roadmap A2).
 - The acceptance runner does not yet support multi-file tests, other
   targets or `@module`, and does not compare `.types`/`.symbols`.
+- Emit parity gaps found in review of A3.1: arrow and function-expression
+  block bodies restart indentation at column 0 instead of the enclosing
+  depth, and conditional, `as` and `!` operands keep extra grouping
+  (`...((c ? a : b))`, `...(a)` for `...a!`) where the reference prints none.
 - Many constructs were added as narrow, separately verified slices; the
   per-feature `tools/verify-*-emit.ts` scripts and checker paths overlap
   (roadmap C1).
@@ -218,13 +226,14 @@ records the original case IDs it moves.
 | ID | Item | Why it matters | Status | Evidence |
 |---|---|---|---|---|
 | D1 | Short README, current-state STATUS, `tools/check-docs.ts` in CI | Docs that are true and findable | done (PR #210, 355c914) | at merge: README 30,505 → 4,906 bytes, STATUS 123,542 → 8,980 bytes; docs 78 → 77 files; 16 checker tests |
-| A1.1 | Acceptance runner over the 15,523 registered targets: SKIP with missing capabilities, run supported targets through tscs, compare diagnostics and `.js` emit with the pinned baselines, histogram, CI rerun with headline check | Turns the headline into a measured number | done (PR #211, df43af6) | 1 PASS (`parser509698`, since #214) / 1 FAIL (`noCrashOnNoLib`) / 15,521 SKIP; 6 runner tests |
+| A1.1 | Acceptance runner over the 15,523 registered targets: SKIP with missing capabilities, run supported targets through tscs, compare diagnostics and `.js` emit with the pinned baselines, histogram, CI rerun with headline check | Turns the headline into a measured number | done (PR #211, df43af6) | 1 PASS (`parser509698`, since #214) / 1 FAIL (`noCrashOnNoLib`, PASS since A3.1) / 15,521 SKIP; 6 runner tests |
 | A1.2 | Runner support for multi-file tests and `@module`, and `.types`/`.symbols` comparison | Larger runnable set once the library loads | todo | — |
 | A2.1 | Parse the pinned libs with zero syntax errors (`DeclarationParser`, `tools/check-standard-library.ts` in CI) | First step to loading the standard library | done (PR #215, 68110ff) | at merge: 109/116 pinned libs clean, es5+es2015 closure 13/13; 63 xUnit + 4 node tests |
 | A2.1b | Template literal types and ambient classes; require the default libs (`lib.d.ts`, `lib.es6.d.ts`) and everything they reference | The es2015 default lib includes `dom` and `scripthost` | done (PR #216, 8e8a68d) | 115/116 pinned libs clean at merge, default-lib closure 20/20 |
 | A2.2a | Bind the parsed declarations into one global symbol table (cross-file merging, TS2300/TS2451 exclusions); the library check binds the default-lib closure | Library symbols become available | in progress (PR #220) | pinned closure: 20 files, 2,250 global symbols, 791 merged, 0 diagnostics; 10 xUnit + 1 node test |
 | A2.2b | Resolve type references in the bound declarations and compare syntax trees with the reference parser | Library types become usable by the checker | todo | — |
 | A2.3 | Check enough of es5/es2015 to load them as the default lib instead of `fixtures/minimal.d.ts` | Unblocks 5,459 targets that need only the library | todo | — |
+| A3.1 | `compiler/noCrashOnNoLib.ts` to PASS: four-space block indentation and no added grouping around spread operands in emit | The only executed original FAIL; every original `.js` baseline with a block depends on the indentation | in progress (PR #219) | 1 PASS / 1 FAIL → 2 PASS / 0 FAIL / 15,521 SKIP (local run on `edc0c97` + this change); `JavaScriptEmitTests` 22 (+1) |
 | A3 | Close the cheapest family of failing original cases from A1's histogram, one family per PR | Moves original cases to PASS | todo | — |
 | C1 | Remove duplicated checker/emitter paths and per-feature verify scripts where a shared test proves identical behaviour | Less code to maintain | todo | — |
 
