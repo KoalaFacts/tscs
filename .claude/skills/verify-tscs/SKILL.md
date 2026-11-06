@@ -74,7 +74,7 @@ runs `verify-upstream-lock-probe.sh` and `verify-upstream-full-discovery.sh`.
 
 ## Last verified
 
-2026-11-06 on `feat/target-esnext` (main `00fde7b`): acceptance 4 PASS / 0 FAIL /
+2026-11-06 on `feat/target-esnext-2` (main `00fde7b`): acceptance 4 PASS / 0 FAIL /
 15,519 SKIP (adds `arrayIterationLibES5TargetDifferent(nolib=true,target=esnext)`);
 CLI emit esnext row as shown. Earlier: 2026-11-06 on `feat/array-iteration-nolib` (main `2cfd095` merged): acceptance
 3 PASS / 0 FAIL / 15,520 SKIP (`parser509698`, `noCrashOnNoLib`,
