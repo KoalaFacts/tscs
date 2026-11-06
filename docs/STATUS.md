@@ -167,7 +167,8 @@ interface merge; a file with a top-level export is a module whose only
 globals are its `declare global` blocks, and `declare global` in a script or
 nested in a namespace is TS2669. Every segment of a dotted namespace name
 counts toward the 200-level nesting limit, and stays counted for
-everything nested in its body.
+everything nested in its body; so does each `[]`/`[K]` of a postfix chain
+and each `keyof`/`unique`/`readonly` operator.
 The pinned closure binds to 2,250 global symbols (791 with more than one
 declaration) with zero diagnostics, which the check requires. Only the
 excluded declaration is reported (the reference also reports the earlier
@@ -175,9 +176,22 @@ ones); members hidden by an `export {}` inside a namespace, separate export
 and local tables in module files, qualified names in merge messages and the
 body of an invalid (script or nested) `declare global` are not modelled, and
 each file's global augmentations merge right after it rather than after all
-scripts. Syntax trees are not yet compared with the reference parser, types
-are not resolved and nothing is checked: the CLI still accepts only the
-bounded globals below.
+scripts. `DeclarationResolver` (A2.2b) then resolves every entity name the
+closure uses, in types, `typeof` queries, computed property names and
+heritage clauses, with the pinned name resolver's scopes (type parameters,
+`infer` only in its true branch, mapped-type parameters, signature
+parameters, enclosing namespace exports, the globals and `globalThis`); a
+failed lookup is TS2304, TS2503, TS2694, TS2693 or TS2749, and the check
+requires zero for the pinned closure. Known gaps: property accesses after a
+value (`typeof x.y`) are not checked; some wrong-meaning uses get TS2304 or
+TS2694 where the reference reports TS2708, TS2709, TS2693 or TS2749 (a
+namespace or type parameter in the wrong position); `infer` in a signature's
+type-parameter constraints and index-signature parameters is not collected;
+misplaced `infer` (TS1338) and unknown `intrinsic` aliases (TS2795) are not
+reported. Module-local declarations are not resolved (the pinned libs have
+none). Syntax trees are not yet compared with
+the reference parser, types are not computed, and nothing is checked: the
+CLI still accepts only the bounded globals below.
 
 Programs use `--noLib` with
 [`fixtures/minimal.d.ts`](../fixtures/minimal.d.ts) (empty global
@@ -243,8 +257,9 @@ records the original case IDs it moves.
 | A1.2 | Runner support for multi-file tests and `@module`, and `.types`/`.symbols` comparison | Larger runnable set once the library loads | todo | — |
 | A2.1 | Parse the pinned libs with zero syntax errors (`DeclarationParser`, `tools/check-standard-library.ts` in CI) | First step to loading the standard library | done (PR #215, 68110ff) | at merge: 109/116 pinned libs clean, es5+es2015 closure 13/13; 63 xUnit + 4 node tests |
 | A2.1b | Template literal types and ambient classes; require the default libs (`lib.d.ts`, `lib.es6.d.ts`) and everything they reference | The es2015 default lib includes `dom` and `scripthost` | done (PR #216, 8e8a68d) | 115/116 pinned libs clean at merge, default-lib closure 20/20 |
-| A2.2a | Bind the parsed declarations into one global symbol table (cross-file merging, TS2300/TS2451 exclusions); the library check binds the default-lib closure | Library symbols become available | done (PR #220, 7b34604); review fixes in progress (TS2649, nested `declare global`, dotted-name depth) | pinned closure: 20 files, 2,250 global symbols (791 with more than one declaration), 0 diagnostics; 14 xUnit + 1 node test at merge, 16 with the review fixes |
-| A2.2b | Resolve type references in the bound declarations and compare syntax trees with the reference parser | Library types become usable by the checker | todo | — |
+| A2.2a | Bind the parsed declarations into one global symbol table (cross-file merging, TS2300/TS2451 exclusions); the library check binds the default-lib closure | Library symbols become available | done (PR #220, 7b34604; review fixes PR #221, b5bd8e9) | pinned closure: 20 files, 2,250 global symbols (791 with more than one declaration), 0 diagnostics; 14 xUnit + 1 node test at merge, 16 with the review fixes |
+| A2.2b | Resolve every name the bound library uses (type, value and namespace meanings, scoped type parameters and `infer`); the library check fails on any unresolved name | Every library reference has a target, the input to computing library types | in progress (PR #222) | pinned closure: 0 unresolved names (6 `globalThis` references before modelling it); 18 resolver xUnit + 1 node test; review fixes: postfix/operator type nesting limit, parameters do not shadow namespaces |
+| A2.2c | Compare the library syntax trees with the reference parser | Parser fidelity on the real libs, not only zero diagnostics | todo | — |
 | A2.3 | Check enough of es5/es2015 to load them as the default lib instead of `fixtures/minimal.d.ts` | Unblocks 5,459 targets that need only the library | todo | — |
 | A3.1 | `compiler/noCrashOnNoLib.ts` to PASS: four-space block indentation and no added grouping around spread operands in emit | The only executed original FAIL; every original `.js` baseline with a block depends on the indentation | done (PR #219, 28053fa) | 1 PASS / 1 FAIL → 2 PASS / 0 FAIL / 15,521 SKIP (CI original-acceptance on main); `JavaScriptEmitTests` 22 (+1) |
 | A3 | Close the cheapest family of failing original cases from A1's histogram, one family per PR | Moves original cases to PASS | todo | — |

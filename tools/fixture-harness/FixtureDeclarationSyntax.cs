@@ -32,7 +32,8 @@ public static class FixtureDeclarationSyntax
         {
             symbols=globals.Symbols.Count,
             merged=globals.Symbols.Values.Count(s=>s.Declarations.Count>1),
-            diagnostics=globals.Diagnostics.Select(d=>new{file=d.File,code=d.Code,start=d.Start,message=d.Message}).ToArray()
+            diagnostics=globals.Diagnostics.Select(d=>new{file=d.File,code=d.Code,start=d.Start,message=d.Message}).ToArray(),
+            unresolved=DeclarationResolver.Resolve(files,globals).Select(d=>new{file=d.File,code=d.Code,start=d.Start,message=d.Message}).ToArray()
         };
     }
 }

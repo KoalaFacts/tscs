@@ -435,7 +435,15 @@ public class DeclarationParserTests
         Assert.Equal("TSCS1001",Assert.Single(patterns.Diagnostics).Code);
         var objects=DeclarationParser.Parse("a.d.ts","declare function f("+string.Concat(Enumerable.Repeat("{ a: ",20_000))+"x"+new string('}',20_000)+": unknown): void;");
         Assert.Equal("TSCS1001",Assert.Single(objects.Diagnostics).Code);
+        // Postfix array and indexed-access chains and prefix type operators are levels too.
+        var arrays=DeclarationParser.Parse("a.d.ts","type T = string"+string.Concat(Enumerable.Repeat("[]",60_000))+";");
+        Assert.Equal("TSCS1001",Assert.Single(arrays.Diagnostics).Code);
+        var indexed=DeclarationParser.Parse("a.d.ts","type T = string"+string.Concat(Enumerable.Repeat("[0]",60_000))+";");
+        Assert.Equal("TSCS1001",Assert.Single(indexed.Diagnostics).Code);
+        var operators=DeclarationParser.Parse("a.d.ts","type T = "+string.Concat(Enumerable.Repeat("keyof ",20_000))+"string;");
+        Assert.Equal("TSCS1001",Assert.Single(operators.Diagnostics).Code);
         Clean("type T = "+new string('(',50)+"number"+new string(')',50)+";");
+        Clean("type T = string"+string.Concat(Enumerable.Repeat("[]",50))+"; type K = "+string.Concat(Enumerable.Repeat("keyof ",50))+"string;");
     }
 
     [Fact]

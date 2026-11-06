@@ -146,13 +146,17 @@ internal sealed class DeclarationParser
     private int nesting;
     private T Nested<T>(Func<T> parse)
     {
+        Enter();
+        try{return parse();}
+        finally{if(nesting>0)nesting--;}
+    }
+    private void Enter()
+    {
         if(++nesting>MaximumNesting)
         {
             nesting=0;
             throw Unsupported($"Declarations nested deeper than {MaximumNesting} levels");
         }
-        try{return parse();}
-        finally{if(nesting>0)nesting--;}
     }
     // Identifiers and every keyword token: their Text is the spelling.
     private static bool IsWord(Token token)=>token.Kind is not (TokenKind.String or TokenKind.Number or TokenKind.Template or TokenKind.End) &&
@@ -774,7 +778,7 @@ internal sealed class DeclarationParser
         if(Is("keyof") || Is("unique") || Is("readonly"))
         {
             var op=Take();
-            return new AmbientTypeOperator(op,ParseOperatorType());
+            return new AmbientTypeOperator(op,Nested(ParseOperatorType));
         }
         if(Is("infer"))
         {
@@ -799,15 +803,24 @@ internal sealed class DeclarationParser
     private AmbientType ParsePostfixType()
     {
         var type=ParseNonArrayType();
-        while(!Current.LineBreak && Current.Kind==TokenKind.OpenBracket)
+        // Each `[]` or `[K]` wraps the type once more: a nesting level for the
+        // resolver's recursion, counted until the chain ends.
+        int steps=0;
+        try
         {
-            Take();
-            if(Eat(TokenKind.CloseBracket)){type=new AmbientArrayType(type);continue;}
-            var index=ParseType();
-            Expect(TokenKind.CloseBracket,"]");
-            type=new AmbientIndexedAccessType(type,index);
+            while(!Current.LineBreak && Current.Kind==TokenKind.OpenBracket)
+            {
+                Take();
+                Enter();
+                steps++;
+                if(Eat(TokenKind.CloseBracket)){type=new AmbientArrayType(type);continue;}
+                var index=ParseType();
+                Expect(TokenKind.CloseBracket,"]");
+                type=new AmbientIndexedAccessType(type,index);
+            }
+            return type;
         }
-        return type;
+        finally{nesting=Math.Max(0,nesting-steps);}
     }
 
     private AmbientType ParseNonArrayType()

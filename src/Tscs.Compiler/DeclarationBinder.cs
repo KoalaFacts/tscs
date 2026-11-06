@@ -13,7 +13,8 @@ namespace Tscs;
 // script or nested in a namespace is TS2669. Diagnostics are reported at the
 // excluded declaration only (the reference also reports the earlier
 // declarations), and members hidden by an `export {}` inside a namespace are
-// not modelled. Types are not resolved and nothing is checked yet.
+// not modelled. Names are resolved by DeclarationResolver; types are not
+// computed and nothing is checked yet.
 [Flags]
 internal enum AmbientMeaning
 {
@@ -51,7 +52,7 @@ internal static class DeclarationBinder
         var diagnostics=new List<Diagnostic>();
         foreach(var file in files)
         {
-            var module=file.Statements.Any(s=>s.Exported || s is AmbientExportList);
+            var module=IsModule(file);
             var locals=new Dictionary<string,AmbientSymbol>(StringComparer.Ordinal);
             var augmentations=new Dictionary<string,AmbientSymbol>(StringComparer.Ordinal);
             foreach(var statement in file.Statements)
@@ -73,6 +74,9 @@ internal static class DeclarationBinder
         }
         return new(globals,diagnostics);
     }
+
+    // A file with a top-level export is a module.
+    public static bool IsModule(AmbientDeclarationFile file)=>file.Statements.Any(s=>s.Exported || s is AmbientExportList);
 
     private static void Declare(string file,Dictionary<string,AmbientSymbol> table,AmbientStatement statement,List<Diagnostic> diagnostics)
     {

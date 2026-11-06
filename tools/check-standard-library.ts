@@ -4,7 +4,8 @@
 // with tscs's DeclarationParser through the development fixture harness and
 // reports which files parse with zero diagnostics, then binds the required
 // closure together (DeclarationBinder: cross-file merging and duplicate
-// declarations). Types are not resolved or checked, the syntax trees are not
+// declarations) and resolves every name it uses (DeclarationResolver).
+// Types are not computed or checked, the syntax trees are not
 // compared with the reference parser, and programs still use --noLib. Usage
 // (repository root):
 //
@@ -13,7 +14,8 @@
 //     --out <report.json>
 //
 // Exits 1 when any file reachable through `/// <reference lib>` from the
-// required roots has a diagnostic, or binding that closure reports one: the
+// required roots has a diagnostic, or binding that closure reports one or
+// leaves a name unresolved: the
 // roots are lib.d.ts and lib.es6.d.ts, the default libs for targets es5 and
 // es2015 (getDefaultLibFileName).
 import {spawnSync} from 'node:child_process';
@@ -32,7 +34,8 @@ export interface Report {
   firstDiagnostics: Record<string, string[]>;
   files: FileResult[];
 }
-export interface Binding {files: number; symbols: number; merged: number; diagnostics: (Diagnostic & {file: string})[]}
+export interface Binding {files: number; symbols: number; merged: number; diagnostics: (Diagnostic & {file: string})[];
+  unresolved: (Diagnostic & {file: string})[]}
 export interface HarnessOptions {dotnet: string; harness: string}
 
 export function libFiles(dir: string): string[] {
@@ -62,6 +65,7 @@ export function bindLibs(dir: string, files: string[], options: HarnessOptions):
   const rows = run.stdout.split('\n').filter((l) => l.trim().length > 0).map((l) => JSON.parse(l) as
     {id: string; expected: Omit<Binding, 'files'>});
   if (rows.length !== 1 || rows[0].id !== 'closure') throw new Error('harness returned mismatched rows');
+  if (!Array.isArray(rows[0].expected.unresolved)) throw new Error('harness returned no unresolved names list');
   return {files: files.length, ...rows[0].expected};
 }
 
@@ -124,5 +128,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const binding = bindLibs(dir, report.required.map((r) => r.file), options);
   console.log(`Required closure binding: ${binding.files} files, ${binding.symbols} global symbols (${binding.merged} merged), ${binding.diagnostics.length} diagnostics`);
   for (const d of binding.diagnostics.slice(0, 20)) console.error(`  ${d.file}@${d.start} ${d.code} ${d.message}`);
-  if (binding.diagnostics.length > 0) process.exit(1);
+  console.log(`Required closure name resolution: ${binding.unresolved.length} unresolved names`);
+  for (const d of binding.unresolved.slice(0, 20)) console.error(`  ${d.file}@${d.start} ${d.code} ${d.message}`);
+  if (binding.diagnostics.length > 0 || binding.unresolved.length > 0) process.exit(1);
 }

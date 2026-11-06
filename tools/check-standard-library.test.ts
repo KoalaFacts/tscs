@@ -7,7 +7,8 @@ import {bindLibs, libFiles, parseLibs, requiredClosure, summarize, type FileResu
 
 // Stands in for the fixture harness: one JSONL response per request; a lib
 // whose text contains "BAD" gets a diagnostic, references are read back;
-// a binding request reports TS2300 for every file containing "DUP".
+// a binding request reports TS2300 for every file containing "DUP" and an
+// unresolved TS2304 for every file containing "MISSING".
 const FAKE = `
 const lines = require('node:fs').readFileSync(0, 'utf8').split('\\n').filter(Boolean);
 for (const line of lines) {
@@ -16,7 +17,10 @@ for (const line of lines) {
     const texts = row.files.map((f) => ({file: f.fileName, text: Buffer.from(f.input, 'base64').toString('utf8')}));
     const diagnostics = texts.filter((t) => t.text.includes('DUP')).map((t) =>
       ({file: t.file, code: 'TS2300', start: t.text.indexOf('DUP'), message: "Duplicate identifier 'DUP'."}));
-    console.log(JSON.stringify({id: row.id, expected: {symbols: texts.length, merged: 0, diagnostics}}));
+    const unresolved = texts.filter((t) => t.text.includes('MISSING')).map((t) =>
+      ({file: t.file, code: 'TS2304', start: t.text.indexOf('MISSING'), message: "Cannot find name 'MISSING'."}));
+    console.log(JSON.stringify({id: row.id, expected: {symbols: texts.length, merged: 0, diagnostics,
+      ...(texts.some((t) => t.text.includes('NO_UNRESOLVED_FIELD')) ? {} : {unresolved})}}));
     continue;
   }
   if (row.profile !== 'declaration-syntax') process.exit(3);
@@ -78,5 +82,15 @@ test('the closure is bound in one request and binder diagnostics are reported pe
   assert.equal(binding.files, 2);
   assert.equal(binding.symbols, 2);
   assert.deepEqual(binding.diagnostics, [{file: 'lib.b.d.ts', code: 'TS2300', start: 5, message: "Duplicate identifier 'DUP'."}]);
+  assert.deepEqual(binding.unresolved, []);
   assert.throws(() => bindLibs(dir, ['lib.a.d.ts'], {...options, harness: join(dir, 'missing.cjs')}), /harness exited/);
+});
+
+test('unresolved names are reported per file, and a response without them is an error', () => {
+  const {dir, options} = libs({'lib.a.d.ts': 'interface A { b: MISSING; }', 'lib.b.d.ts': 'interface B {}',
+    'lib.c.d.ts': 'NO_UNRESOLVED_FIELD'});
+  const binding = bindLibs(dir, ['lib.a.d.ts', 'lib.b.d.ts'], options);
+  assert.deepEqual(binding.diagnostics, []);
+  assert.deepEqual(binding.unresolved, [{file: 'lib.a.d.ts', code: 'TS2304', start: 17, message: "Cannot find name 'MISSING'."}]);
+  assert.throws(() => bindLibs(dir, ['lib.c.d.ts'], options), /unresolved/);
 });
