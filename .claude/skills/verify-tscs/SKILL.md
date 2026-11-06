@@ -15,14 +15,18 @@ baselines. Everything else is a prerequisite or a narrower check.
 ```sh
 bash scripts/setup-dev-environment.sh            # exact SDK, Node 24.22.1, Go 1.27.3; builds Release
 source "${TSCS_DEV_ROOT:-${XDG_CACHE_HOME:-$HOME/.cache}/tscs/linux-x64}/env.sh"
+# One fresh evidence root per session; earlier sessions' evidence is never touched.
+ACC="$(mktemp -d "${TMPDIR:-/tmp}/tscs-verify.XXXXXX")"
 # Pinned reference checkout + actual Go TestLocal/emptyFile.ts run (network once, ~5 min).
-# Refuses to overwrite an existing output folder; pick a fresh one per session.
-TSCS_ORIGINAL_GO_RESULTS=$HOME/oracle-go bash scripts/verify-original-emptyfile-go.sh
-U=$HOME/oracle-go/TypeScript                     # used by the rows below
-# Original targets list (once per checkout)
-node tools/materialize-upstream-placeholders.ts tests/Tscs.Upstream.Placeholders/packed /tmp/acc/placeholders.zip
-unzip -p /tmp/acc/placeholders.zip targets.jsonl > /tmp/acc/targets.jsonl
+# The script refuses an existing output folder, so pass a child it creates itself.
+TSCS_ORIGINAL_GO_RESULTS="$ACC/oracle-go" bash scripts/verify-original-emptyfile-go.sh
+U="$ACC/oracle-go/TypeScript"                     # used by the rows below
+# Original targets list
+node tools/materialize-upstream-placeholders.ts tests/Tscs.Upstream.Placeholders/packed "$ACC/placeholders.zip"
+unzip -p "$ACC/placeholders.zip" targets.jsonl > "$ACC/targets.jsonl"
 ```
+
+All paths below are under `$ACC`; quote them, since `TMPDIR` may contain spaces.
 
 After a source change, rebuild before exercising anything:
 `dotnet build Tscs.slnx -c Release --no-restore -m:1 -p:UseSharedCompilation=false`.
@@ -31,10 +35,10 @@ After a source change, rebuild before exercising anything:
 
 | Feature | Code entry points | How to exercise it for real | Evidence to capture | Neighbours at risk |
 |---|---|---|---|---|
-| Original upstream acceptance (headline) | `tools/original-acceptance.ts`, `src/Tscs.Cli`, `src/Tscs.Compiler/Compilation.cs` | `node tools/original-acceptance.ts --targets /tmp/acc/targets.jsonl --upstream $U --tscs src/Tscs.Cli/bin/Release/net10.0/tscs.dll --out /tmp/acc/report.json --expect-headline docs/STATUS.md` | headline line `N PASS / N FAIL / N SKIP`, `soleMissingCapability`, the `results` entries whose `status` changed (by `upstreamPath`), before and after | README/STATUS headline (the run fails on disagreement), every executed target |
-| Standard library parse, bind, resolve (A2) | `DeclarationParser.cs`, `DeclarationBinder.cs`, `DeclarationResolver.cs`, `tools/fixture-harness`, `tools/check-standard-library.ts` | `node tools/check-standard-library.ts --upstream $U --harness tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.FixtureHarness.dll --out /tmp/acc/standard-library.json` | the four summary lines: files clean (116/116), required 20/20, global symbols / merged / diagnostics, unresolved names | parser for user `.ts` (shared scanner), `DeclarationParserTests`, `DeclarationResolverTests` |
+| Original upstream acceptance (headline) | `tools/original-acceptance.ts`, `src/Tscs.Cli`, `src/Tscs.Compiler/Compilation.cs` | `node tools/original-acceptance.ts --targets "$ACC/targets.jsonl" --upstream "$U" --tscs src/Tscs.Cli/bin/Release/net10.0/tscs.dll --out "$ACC/report.json" --expect-headline docs/STATUS.md` | headline line `N PASS / N FAIL / N SKIP`, `soleMissingCapability`, the `results` entries whose `status` changed (by `upstreamPath`), before and after | README/STATUS headline (the run fails on disagreement), every executed target |
+| Standard library parse, bind, resolve (A2) | `DeclarationParser.cs`, `DeclarationBinder.cs`, `DeclarationResolver.cs`, `tools/fixture-harness`, `tools/check-standard-library.ts` | `node tools/check-standard-library.ts --upstream "$U" --harness tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.FixtureHarness.dll --out "$ACC/standard-library.json"` | the four summary lines: files clean (116/116), required 20/20, global symbols / merged / diagnostics, unresolved names | parser for user `.ts` (shared scanner), `DeclarationParserTests`, `DeclarationResolverTests` |
 | CLI check | `src/Tscs.Cli/Program.cs`, `CommandLine.cs`, `TypeChecker.cs` | `dotnet src/Tscs.Cli/bin/Release/net10.0/tscs.dll --noEmit --noLib --target es2015 fixtures/local/assignment-mismatch.ts fixtures/minimal.d.ts` | exit code (0 clean, 2 diagnostics) and the diagnostic lines, e.g. `TS2322: Type 'string' is not assignable to type 'number'.` | unsupported constructs must report a TSCS diagnostic, never compile silently |
-| CLI emit | `JavaScriptEmitter.cs` | copy a fixture to a temp folder, then `dotnet src/Tscs.Cli/bin/Release/net10.0/tscs.dll --emitJs --noLib --target es2015 <tmp>/number-ok.ts fixtures/minimal.d.ts` | the written `.js` next to the input (`let count = 1;`) | original `.js` baselines (four-space blocks), `tools/verify-*-emit.ts` executed modules |
+| CLI emit | `JavaScriptEmitter.cs` | `mkdir "$ACC/emit" && cp fixtures/local/number-ok.ts "$ACC/emit/" && dotnet src/Tscs.Cli/bin/Release/net10.0/tscs.dll --emitJs --noLib --target es2015 "$ACC/emit/number-ok.ts" fixtures/minimal.d.ts` | the written `.js` next to the input (`let count = 1;`) | original `.js` baselines (four-space blocks), `tools/verify-*-emit.ts` executed modules |
 | Isolated Go-oracle cohort | `tools/verify-conformance.ts`, `tests/conformance` | `node tools/verify-conformance.ts` | `Differential cohort: 29/29` | earns no original credit; do not cite it as acceptance |
 | Pinned Go reference run | `scripts/verify-original-emptyfile-go.sh`, `tools/verify-original-go-case.ts` | the Setup command above | the line `Original pinned Go TestLocal/emptyFile.ts completed; tscs product-side original acceptance remains NOT_RUN.`, exit 0 | reference provenance (`upstream-ref.txt`, `upstream-sources.sha256`) |
 | Docs truth | `tools/check-docs.ts` | `node tools/check-docs.ts` | `check-docs: ok`; README ≤ 10 KB, STATUS ≤ 25 KB, matching headline counts | every PR that edits README or docs/ |
@@ -73,4 +77,5 @@ runs `verify-upstream-lock-probe.sh` and `verify-upstream-full-discovery.sh`.
 (`parser509698`, `noCrashOnNoLib`); library 116/116 clean, 20 required files,
 2,250 global symbols (791 merged), 0 diagnostics, 0 unresolved names; CLI
 check and emit rows as shown; cohort 29/29; Go `emptyFile.ts` completed;
-`./scripts/verify.sh` 19,759 xUnit passed.
+`./scripts/verify.sh` 19,759 xUnit passed. Setup re-run verbatim on a clean
+worker in two separate sessions (two `mktemp -d` roots), each completing.
