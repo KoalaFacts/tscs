@@ -356,6 +356,14 @@ public class DeclarationParserTests
     }
 
     [Fact]
+    public void OnlyLeadingReferenceDirectivesAreRecorded()
+    {
+        var file=Clean("/** header */\n/// <reference lib=\"es5\" />\ninterface A {}\n/// <reference lib=\"missing\" />\ninterface B {}");
+        Assert.Equal([("lib","es5")],file.ReferenceDirectives);
+        Assert.Equal(2,file.Statements.Count);
+    }
+
+    [Fact]
     public void ScannerDiagnosticsStopTheParse()
     {
         var diagnostic=Assert.Single(DeclarationParser.Parse("a.d.ts","type A = \"open;").Diagnostics);
