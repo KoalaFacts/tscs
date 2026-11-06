@@ -151,9 +151,16 @@ classes and mapped types with extra members fail with TSCS1001. `tools/check-sta
 (CI job `original-go-reference`) parses every pinned bundled lib:
 **116 of 116** have zero diagnostics (ambient class `#private` names are parsed),
 including all 20 files reachable from the default libs `lib.d.ts`
-and `lib.es6.d.ts`, which the check requires. Syntax trees are not yet
-compared with the reference parser, and nothing is bound or checked: the
-CLI still accepts only the bounded globals below.
+and `lib.es6.d.ts`, which the check requires. The check then binds those 20
+files together with `DeclarationBinder` (A2.2a): declarations merge across
+files under the reference binder's exclusion rules (interfaces, namespaces
+including dotted names, function overloads, class + interface/namespace,
+`var` + interface, `declare global`), and an excluded redeclaration is
+TS2300 or TS2451. The pinned closure binds to 2,250 global symbols (791
+merged) with zero diagnostics, which the check requires. Only the excluded
+declaration is reported (the reference also reports the earlier ones). Syntax
+trees are not yet compared with the reference parser, types are not resolved
+and nothing is checked: the CLI still accepts only the bounded globals below.
 
 Programs use `--noLib` with
 [`fixtures/minimal.d.ts`](../fixtures/minimal.d.ts) (empty global
@@ -215,7 +222,8 @@ records the original case IDs it moves.
 | A1.2 | Runner support for multi-file tests and `@module`, and `.types`/`.symbols` comparison | Larger runnable set once the library loads | todo | — |
 | A2.1 | Parse the pinned libs with zero syntax errors (`DeclarationParser`, `tools/check-standard-library.ts` in CI) | First step to loading the standard library | done (PR #215, 68110ff) | at merge: 109/116 pinned libs clean, es5+es2015 closure 13/13; 63 xUnit + 4 node tests |
 | A2.1b | Template literal types and ambient classes; require the default libs (`lib.d.ts`, `lib.es6.d.ts`) and everything they reference | The es2015 default lib includes `dom` and `scripthost` | done (PR #216, 8e8a68d) | 115/116 pinned libs clean at merge, default-lib closure 20/20 |
-| A2.2 | Bind the parsed declarations (merging interfaces and namespaces) and compare syntax trees with the reference parser | Library symbols become available | todo | — |
+| A2.2a | Bind the parsed declarations into one global symbol table (cross-file merging, TS2300/TS2451 exclusions); the library check binds the default-lib closure | Library symbols become available | in progress (PR #220) | pinned closure: 20 files, 2,250 global symbols, 791 merged, 0 diagnostics; 10 xUnit + 1 node test |
+| A2.2b | Resolve type references in the bound declarations and compare syntax trees with the reference parser | Library types become usable by the checker | todo | — |
 | A2.3 | Check enough of es5/es2015 to load them as the default lib instead of `fixtures/minimal.d.ts` | Unblocks 5,459 targets that need only the library | todo | — |
 | A3 | Close the cheapest family of failing original cases from A1's histogram, one family per PR | Moves original cases to PASS | todo | — |
 | C1 | Remove duplicated checker/emitter paths and per-feature verify scripts where a shared test proves identical behaviour | Less code to maintain | todo | — |

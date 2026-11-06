@@ -3,14 +3,22 @@ import {mkdirSync, mkdtempSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import test from 'node:test';
-import {libFiles, parseLibs, requiredClosure, summarize, type FileResult} from './check-standard-library.ts';
+import {bindLibs, libFiles, parseLibs, requiredClosure, summarize, type FileResult} from './check-standard-library.ts';
 
 // Stands in for the fixture harness: one JSONL response per request; a lib
-// whose text contains "BAD" gets a diagnostic, references are read back.
+// whose text contains "BAD" gets a diagnostic, references are read back;
+// a binding request reports TS2300 for every file containing "DUP".
 const FAKE = `
 const lines = require('node:fs').readFileSync(0, 'utf8').split('\\n').filter(Boolean);
 for (const line of lines) {
   const row = JSON.parse(line);
+  if (row.profile === 'declaration-binding') {
+    const texts = row.files.map((f) => ({file: f.fileName, text: Buffer.from(f.input, 'base64').toString('utf8')}));
+    const diagnostics = texts.filter((t) => t.text.includes('DUP')).map((t) =>
+      ({file: t.file, code: 'TS2300', start: t.text.indexOf('DUP'), message: "Duplicate identifier 'DUP'."}));
+    console.log(JSON.stringify({id: row.id, expected: {symbols: texts.length, merged: 0, diagnostics}}));
+    continue;
+  }
   if (row.profile !== 'declaration-syntax') process.exit(3);
   const text = Buffer.from(row.input, 'base64').toString('utf8');
   const references = [...text.matchAll(/<reference lib="([^"]+)"/g)].map((m) => ({name: 'lib', value: m[1]}));
@@ -62,4 +70,13 @@ test('a diagnostic in a required file is reported as not clean; others only coun
 test('a failing harness is an error, never a clean result', () => {
   const {dir} = libs({'lib.es5.d.ts': ''});
   assert.throws(() => parseLibs(dir, libFiles(dir), {dotnet: process.execPath, harness: join(dir, 'missing.cjs')}), /harness exited/);
+});
+
+test('the closure is bound in one request and binder diagnostics are reported per file', () => {
+  const {dir, options} = libs({'lib.a.d.ts': 'interface A {}', 'lib.b.d.ts': 'type DUP = 1;'});
+  const binding = bindLibs(dir, ['lib.a.d.ts', 'lib.b.d.ts'], options);
+  assert.equal(binding.files, 2);
+  assert.equal(binding.symbols, 2);
+  assert.deepEqual(binding.diagnostics, [{file: 'lib.b.d.ts', code: 'TS2300', start: 5, message: "Duplicate identifier 'DUP'."}]);
+  assert.throws(() => bindLibs(dir, ['lib.a.d.ts'], {...options, harness: join(dir, 'missing.cjs')}), /harness exited/);
 });
