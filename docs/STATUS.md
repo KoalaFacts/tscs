@@ -166,7 +166,8 @@ function overloads, class + interface/namespace/function and `var` +
 interface merge; a file with a top-level export is a module whose only
 globals are its `declare global` blocks, and `declare global` in a script or
 nested in a namespace is TS2669. Every segment of a dotted namespace name
-counts toward the 200-level nesting limit, through nested namespaces too.
+counts toward the 200-level nesting limit, and stays counted for
+everything nested in its body.
 The pinned closure binds to 2,250 global symbols (791 with more than one
 declaration) with zero diagnostics, which the check requires. Only the
 excluded declaration is reported (the reference also reports the earlier
@@ -175,7 +176,8 @@ and local tables in module files, qualified names in merge messages and the
 body of an invalid (script or nested) `declare global` are not modelled, and
 each file's global augmentations merge right after it rather than after all
 scripts. Syntax trees are not yet compared with the reference parser, types
-are not resolved and nothing is checked: the CLI still accepts only the bounded globals below.
+are not resolved and nothing is checked: the CLI still accepts only the
+bounded globals below.
 
 Programs use `--noLib` with
 [`fixtures/minimal.d.ts`](../fixtures/minimal.d.ts) (empty global

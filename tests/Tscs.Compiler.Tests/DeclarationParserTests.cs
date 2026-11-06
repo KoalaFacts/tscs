@@ -428,6 +428,9 @@ public class DeclarationParserTests
         Assert.Equal("TSCS1001",Assert.Single(DeclarationParser.Parse("a.d.ts",
             "declare namespace "+Dotted(100)+" { namespace "+Dotted(101)+" { } }").Diagnostics).Code);
         Assert.Empty(DeclarationParser.Parse("a.d.ts","declare namespace "+Dotted(100)+" { namespace "+Dotted(100)+" { } }").Diagnostics);
+        // The limit also applies to anything nested in the body of a 200-segment name.
+        Assert.Equal("TSCS1001",Assert.Single(DeclarationParser.Parse("a.d.ts","declare namespace "+Dotted(200)+" { namespace b { } }").Diagnostics).Code);
+        Assert.Equal("TSCS1001",Assert.Single(DeclarationParser.Parse("a.d.ts","declare namespace "+Dotted(200)+" { interface I { x: string } }").Diagnostics).Code);
         var patterns=DeclarationParser.Parse("a.d.ts","declare function f("+new string('[',20_000)+"x"+new string(']',20_000)+": unknown): void;");
         Assert.Equal("TSCS1001",Assert.Single(patterns.Diagnostics).Code);
         var objects=DeclarationParser.Parse("a.d.ts","declare function f("+string.Concat(Enumerable.Repeat("{ a: ",20_000))+"x"+new string('}',20_000)+": unknown): void;");
