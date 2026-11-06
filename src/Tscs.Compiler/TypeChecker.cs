@@ -54,11 +54,17 @@ internal sealed class TypeChecker(string file,bool strictModule=false)
                     case Block nested: CheckBlock(nested,scope,false,expectedReturn,allowBreak,allowContinue);break;
                     case FunctionDeclaration function:
                         CheckStrictModuleBinding(function.Name);
-                        // Ambient signatures bind normally but have no checked body.
+                        // Ambient signatures have no body, but their parameters
+                        // still occupy one scope: repeated names must not escape
+                        // the same redeclaration check as normal functions.
                         if(function.Ambient)
                         {
+                            var ambientParameters=new Scope(scope);
                             foreach(var parameter in function.Parameters)
+                            {
                                 CheckStrictModuleBinding(parameter.Name);
+                                Binder.DeclareParameter(file,ambientParameters,parameter);
+                            }
                             break;
                         }
                         var functionSymbol=scope.Symbols[function.Name.Text];

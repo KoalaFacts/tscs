@@ -25,6 +25,7 @@ public sealed class AmbientFunctionDeclarationTests
     [InlineData("declare function f() {}","TSCS1001")]
     [InlineData("declare const value:number;","TSCS1001")]
     [InlineData("declare function f(n:number=1):number;","TSCS1001")]
+    [InlineData("declare function f(x:number, x:string):void;","TSCS1001")]
     [InlineData("declare function f({n}:{n:number}):number;","TSCS1001")]
     [InlineData("/// <reference types=\"node\" />\ndeclare function f():void;","TSCS1001")]
     [InlineData("/// <style unsupported=\"on\" />\ndeclare function f():void;","TSCS1001")]
