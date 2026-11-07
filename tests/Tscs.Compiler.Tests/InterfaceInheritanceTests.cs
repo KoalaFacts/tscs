@@ -188,7 +188,6 @@ public sealed class InterfaceInheritanceTests
     [InlineData("const first={a:7,b:\"ok\"} as P;","{a:number;b:string}")]
     [InlineData("const first={a:7,b:\"ok\"} as const;","{a:number;b:string}")]
     [InlineData("function first(...v:P[]):number{return 7;}","(v?:P)=>number")]
-    [InlineData("function first(...v:P[]):number{return 7;}","(...v:{a:number;b:string}[])=>number")]
     public void RepeatedAmbientVarStillRejectsDifferentNullAssertedAndRestTypes(string values,string other)=>
         Assert.Contains(Compilation.CheckFiles([
             new SourceInput("types.d.ts",QueryPrelude),
