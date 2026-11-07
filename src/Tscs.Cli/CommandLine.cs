@@ -27,15 +27,29 @@ public static class CommandLine
             if(codeFiles.Length==0)throw new InputFailure("The bootstrap requires at least one .ts source file, plus optional minimal .d.ts globals.");
             if(codeFiles.Any(p=>!ProjectSourceDiscovery.IsTypeScriptFile(p,host.FileNameComparer)))throw new InputFailure("Only .ts input is supported.");
             var globals=new HashSet<string>(StringComparer.Ordinal);
+            var typedAmbientFiles=new List<string>();
             foreach(var path in inputs.Where(p=>ProjectSourceDiscovery.IsDeclarationFile(p,host.FileNameComparer)))
-                ReadGlobals(host.ReadFile(path),globals);
+            {
+                var text=host.ReadFile(path);
+                // The noLib bootstrap accepts an independently checked subset of
+                // typed ambient values, not arbitrary lib.* declaration syntax.
+                // Reparse these with the ordinary program AST for real checking.
+                var declarations=DeclarationParser.Parse(path,text);
+                if(declarations.Diagnostics.Count==0 && declarations.Statements.Count>0 &&
+                   declarations.Statements.All(statement=>statement is AmbientFunction {Exported:false}
+                       or AmbientVariable {Exported:false,Keyword.Text:"let" or "const"}))
+                    typedAmbientFiles.Add(path);
+                else ReadGlobals(text,globals);
+            }
             if(options.LibSpecified && !options.NoLib)
                 throw new InputFailure("--lib requires loading the standard library, which is not implemented; use --noLib.");
             // Pinned program option diagnostic: reported first, does not block emit.
             Diagnostic[] optionDiagnostics=options.LibSpecified
                 ? [new Diagnostic("TS5053","error","",0,0,"Option 'lib' cannot be specified with option 'noLib'.",[],[])]
                 : [];
-            var program=CompilerProgram.Load(host,codeFiles,options.EffectiveCompilerOptions);
+            // Check typed declaration sources before consumers, independent of
+            // argument order, so ambient values are initialized before reads.
+            var program=CompilerProgram.Load(host,[..typedAmbientFiles,..codeFiles],options.EffectiveCompilerOptions);
             var analysis=program.Analyze();
             // First original-profile emit slice: an empty parsed program under the
             // explicit ES2015 target. This does NOT silently accept nonempty source

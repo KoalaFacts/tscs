@@ -253,19 +253,21 @@ public sealed class CompilerProgram
                ? checkedProgram.Diagnostics.Any(d=>d.Code.StartsWith("TSCS",StringComparison.Ordinal))
                : checkedProgram.Diagnostics.Count>0))
             throw new InvalidOperationException("JavaScript output requires a successful checked program.");
-        var output=new JavaScriptOutput[sources.Length];
-        for(int i=0;i<sources.Length;i++)
+        var output=new List<JavaScriptOutput>(sources.Length);
+        foreach(var source in sources)
         {
-            var source=sources[i];
+            // Ambient declaration units contribute checked bindings, never JS.
+            if(source.File.EndsWith(".d.ts",StringComparison.OrdinalIgnoreCase))
+                continue;
             if(!syntaxSnapshots.TryGetValue(source.File,out var syntax) || syntax.Source is not { } parsed)
                 throw new InvalidOperationException("No validated AST snapshot exists for the source.");
             if(!emitNamedModules && parsed.Root.Statements.Any(s=>
                 s is ImportDeclaration or ExportDeclaration or Variable { Exported: true } or FunctionDeclaration { Exported: true } or
                 TypeAliasDeclaration { Exported:true } or InterfaceDeclaration { Exported:true }))
                 throw new NotSupportedException("ES module JavaScript output is not implemented; specify --module es2015 for supported named modules.");
-            output[i]=new JavaScriptOutput(source.File,JavaScriptEmitter.Emit(parsed.Root,emitNamedModules));
+            output.Add(new JavaScriptOutput(source.File,JavaScriptEmitter.Emit(parsed.Root,emitNamedModules)));
         }
-        return Array.AsReadOnly(output);
+        return output.AsReadOnly();
     }
 }
 

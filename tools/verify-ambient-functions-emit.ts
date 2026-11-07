@@ -36,5 +36,26 @@ try {
    assert.match(r.stdout+r.stderr,new RegExp(code));
    assert.equal(existsSync(join(folder,name+'.js')),false);
  }
+ // A genuine checked .d.ts unit contributes typed bindings to the real
+ // compilation without turning into an emitted JavaScript file.
+ writeFileSync(join(folder,'globals.d.ts'),'declare const factor: number; declare function triple(n:number):number;');
+ writeFileSync(join(folder,'linked.ts'),'let result: number = triple(factor);');
+ const linked=compile('linked.ts','globals.d.ts');
+ assert.equal(linked.status,0,linked.stdout+linked.stderr);
+ assert.equal(existsSync(join(folder,'globals.d.js')),false);
+ const linkedJs=readFileSync(join(folder,'linked.js'),'utf8');
+ assert.equal(runInNewContext(linkedJs+'result',{factor:7,triple:(n:number)=>n*3},{timeout:1500}),21);
+ for(const [name,source,code] of [
+   ['invalid-call','let result: number = triple("bad");','TS2345'],
+   ['invalid-assignment','let result: boolean = triple(7);','TS2322']
+ ] as const){
+   writeFileSync(join(folder,name+'.ts'),source);
+   const outcome=compile(name+'.ts','globals.d.ts');
+   assert.equal(outcome.status,2,outcome.stdout+outcome.stderr);
+   assert.match(outcome.stdout+outcome.stderr,new RegExp(code));
+   assert.equal(existsSync(join(folder,name+'.js')),false);
+   assert.equal(existsSync(join(folder,'globals.d.js')),false);
+ }
+ console.log('Ambient declarations: checked .d.ts values link across files, execute 21, invalid calls emit no JS.');
  console.log('Ambient declarations: 2 source units execute 42, invalid programs emit no JS.');
 } finally {rmSync(folder,{recursive:true,force:true});}
