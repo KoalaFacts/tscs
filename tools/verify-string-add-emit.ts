@@ -1,3 +1,4 @@
+import {runTscs} from './tscs-process.ts';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {existsSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
@@ -40,9 +41,7 @@ try {
   }));
   const compiler=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
   const environment={...process.env,DOTNET_CLI_TELEMETRY_OPTOUT:'1',TESTINGPLATFORM_TELEMETRY_OPTOUT:'1'};
-  const compiled=spawnSync(process.env.DOTNET??'dotnet',
-    [compiler,'--emitJs','-p',join(folder,'project.json')],
-    {cwd:folder,encoding:'utf8',timeout:30000,env:environment});
+  const compiled=runTscs(folder,['--emitJs','-p',join(folder,'project.json')]);
   assert.equal(compiled.error,undefined,String(compiled.error));
   assert.equal(compiled.status,0,compiled.stdout+compiled.stderr);
   for(const name of ['model','logic','bridge','entry'])
@@ -53,9 +52,7 @@ try {
   assert.equal(executed.error,undefined,String(executed.error));
   assert.equal(executed.status,0,executed.stdout+executed.stderr);
   writeFileSync(join(folder,'invalid.ts'),'let n: number = 21; n += "not numeric";');
-  const rejected=spawnSync(process.env.DOTNET??'dotnet',
-    [compiler,'--emitJs','--noLib','--target','es2015',join(folder,'invalid.ts'),join(folder,'minimal.d.ts')],
-    {cwd:folder,encoding:'utf8',timeout:30000,env:environment});
+  const rejected=runTscs(folder,['--emitJs','--noLib','--target','es2015',join(folder,'invalid.ts'),join(folder,'minimal.d.ts')]);
   assert.equal(rejected.error,undefined,String(rejected.error));
   assert.equal(rejected.status,2,rejected.stdout+rejected.stderr);
   assert.match(rejected.stdout+rejected.stderr,/TS2322/);

@@ -1,12 +1,12 @@
+import {runTscs} from './tscs-process.ts';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {existsSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
-import {join,resolve} from 'node:path';
+import {join} from 'node:path';
 
 // Four checked linked ES2015 modules executed by Node; not original TS7 acceptance.
 const folder=mkdtempSync(join(tmpdir(),'tscs-condition-truthiness-'));
-const dll=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const env={...process.env,DOTNET_CLI_TELEMETRY_OPTOUT:'1',TESTINGPLATFORM_TELEMETRY_OPTOUT:'1'};
 try {
   writeFileSync(join(folder,'package.json'),'{"type":"module"}\n');
@@ -41,7 +41,7 @@ try {
   ].join('\n'));
   writeFileSync(join(folder,'tsconfig.json'),JSON.stringify({files:['entry.ts','minimal.d.ts'],compilerOptions:{module:'es2015',target:'es2015',noLib:true}}));
   const compile=(args:string[])=>{
-    const r=spawnSync(process.env.DOTNET??'dotnet',[dll,...args],{cwd:folder,encoding:'utf8',timeout:30000,maxBuffer:4*1024*1024,env});
+    const r=runTscs(folder,[...args]);
     assert.equal(r.error,undefined,String(r.error));
     assert.equal(r.signal,null,'compiler signal or timeout');
     return r;

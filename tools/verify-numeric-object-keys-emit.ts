@@ -1,11 +1,11 @@
+import {runTscs} from './tscs-process.ts';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {existsSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
-import {join,resolve} from 'node:path';
+import {join} from 'node:path';
 
 const folder=mkdtempSync(join(tmpdir(),'tscs-numeric-object-keys-'));
-const dll=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
 const env={...process.env,DOTNET_CLI_TELEMETRY_OPTOUT:'1',TESTINGPLATFORM_TELEMETRY_OPTOUT:'1'};
 try {
   writeFileSync(join(folder,'package.json'),'{"type":"module"}\n');
@@ -31,9 +31,7 @@ try {
     'export const textKey:number=seed["0"];'
   ].join('\n'));
   function compile(name:string){
-    const run=spawnSync(process.env.DOTNET??'dotnet',
-      [dll,'--emitJs','--noLib','--target','es2015','--module','es2015',name,'minimal.d.ts'],
-      {cwd:folder,encoding:'utf8',timeout:30000,maxBuffer:4*1024*1024,env});
+    const run=runTscs(folder,['--emitJs','--noLib','--target','es2015','--module','es2015',name,'minimal.d.ts']);
     assert.equal(run.error,undefined,String(run.error));
     assert.equal(run.signal,null,'compiler crashed or timed out');
     return run;

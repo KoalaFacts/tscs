@@ -272,14 +272,10 @@ and no `var`.
 - The acceptance runner now permits safe multi-source `.ts` inputs and
   explicit `@module: es2015`/`es6`; virtual symlinks, other module transforms,
   other targets, and `.types`/`.symbols` comparison remain unsupported.
-- Emit parity gaps found in review of A3.1: arrow and function-expression
-  block bodies restart indentation at column 0 instead of the enclosing
-  depth, and conditional, `as` and `!` operands keep extra grouping
-  (`...((c ? a : b))`, `...(a)` for `...a!`) where the reference prints none.
 - Many constructs were added as narrow, separately verified slices; the
   per-feature `tools/verify-*-emit.ts` scripts and checker paths overlap
-  (roadmap C1). 49 of the 78 scripts run the CLI through the shared
-  `tools/tscs-process.ts`; the other 29 still carry their own copy.
+  (roadmap C1). All 78 executed-output scripts run the compiler through
+  `tools/tscs-process.ts`; independent Node execution remains bounded and direct.
 
 ## Roadmap
 
@@ -304,6 +300,7 @@ records the original case IDs it moves.
 | A3.3 | `compiler/arrayIterationLibES5TargetDifferent.ts` (`nolib=true,target=esnext`) to PASS: `--target esnext` with output identical to ES2015 where no lowering applies, failing closed where the ES2015 writer lowers (logical assignment, `**`, `??`, optional chaining, object spread, numeric separators) | The only target whose sole gap is `option:target=esnext`; its pinned `.errors.txt` and `.js` equal the `es2015` ones | todo | — |
 | C1 | Remove duplicated checker/emitter paths and per-feature verify scripts where a shared test proves identical behaviour | Less code to maintain | todo | — |
 | C1.1 | One shared `runTscs` helper (`tools/tscs-process.ts`, with a test) for the emit checks' copied spawn-and-assert function | Less duplicated harness code; one place to change how the checks run the CLI | done (PR #226, 00fde7b) | 31 of 78 `tools/verify-*-emit.ts` migrated mechanically (assertions and timeouts unchanged), scripts 311 lines removed / 93 added; all 31 pass; `tscs-process.test.ts` 2 tests |
+| C1.2 | Move remaining emitted-output verification to the checked compiler process helper, retaining actual JS execution, diagnostic and no-output assertions | One shared invocation path without a coverage reduction | done | #231: 39/78; #232: 49/78; this integration: 78/78. Original acceptance unchanged (3 PASS / 0 FAIL / 15,520 SKIP) |
 | H1 | Agent verification skills (`.claude/skills/verification-first`, `.claude/skills/verify-tscs`) with a feature map run against the pinned reference | Every later PR is checked at the real boundary, not only by unit tests | done (PR #223, 2cfd095) | feature map rows run on 61dfa09: 2 PASS / 0 FAIL / 15,521 SKIP, library 0 unresolved names |
 
 Last docs housekeeping: 2026-11-07 (Sydney date), the 2026-11-07 housekeeping PR.
