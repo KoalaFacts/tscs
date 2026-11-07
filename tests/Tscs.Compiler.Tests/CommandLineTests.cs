@@ -489,6 +489,39 @@ public class CommandLineTests : IDisposable
         Assert.False(File.Exists(Path.ChangeExtension(declarations,".js")));
     }
 
+
+    [Fact]
+    public void IdenticalAmbientVarDeclarationsMergeAcrossFilesAndRetainTheCheckedType()
+    {
+        var first=Write("first-vars.d.ts","type Amount = number; declare var total: Amount;");
+        var second=Write("second-vars.d.ts","declare var total: number;");
+        var consumer=Write("merged.ts","total = total + 3; let checked: number = total;");
+        // Consumer first; alias declaration arrives after the repeated variable.
+        var result=Run("--emitJs","--noLib","--target","es2015",consumer,second,first,Lib());
+        Assert.Equal(0,result.Code);
+        Assert.Equal("",result.Out);
+        Assert.True(File.Exists(Path.ChangeExtension(consumer,".js")));
+        Assert.False(File.Exists(Path.ChangeExtension(first,".js")));
+        Assert.False(File.Exists(Path.ChangeExtension(second,".js")));
+    }
+
+    [Theory]
+    [InlineData("declare var total: string;","TS2403")]
+    [InlineData("declare let total: number;","TSCS1001")]
+    [InlineData("declare const total: number;","TSCS1001")]
+    public void ConflictingOrNonVarAmbientRedeclarationsDoNotEmitJavaScript(string other,string diagnostic)
+    {
+        var first=Write("first-vars.d.ts","declare var total: number;");
+        var second=Write("second-vars.d.ts",other);
+        var consumer=Write("merged.ts","total = total + 1; let checked: number = total;");
+        var result=Run("--emitJs","--noLib","--target","es2015",consumer,first,second,Lib());
+        Assert.NotEqual(0,result.Code);
+        Assert.Contains(diagnostic,result.Out);
+        Assert.False(File.Exists(Path.ChangeExtension(consumer,".js")));
+        Assert.False(File.Exists(Path.ChangeExtension(first,".js")));
+        Assert.False(File.Exists(Path.ChangeExtension(second,".js")));
+    }
+
     [Theory]
     [InlineData("var running: number = 2;")]
     [InlineData("declare var running: number = 2;")]

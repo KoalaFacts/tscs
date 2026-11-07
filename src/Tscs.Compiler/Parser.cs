@@ -736,7 +736,8 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             {
                 // A source-level ambient variable is a typed, uninitialized
                 // declaration that binds a value and emits nothing.
-                bool ambientConstant=Take().Kind==TokenKind.Const;
+                var ambientKind=Take().Kind;
+                bool ambientConstant=ambientKind==TokenKind.Const;
                 while(true)
                 {
                     var name=Current;
@@ -745,7 +746,8 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     if(!Eat(TokenKind.Colon))Unsupported(Current,"Ambient variables require a type annotation.");
                     var annotation=ReadTypeAnnotation();
                     if(Current.Kind==TokenKind.Equal)Unsupported(Current,"Ambient variables cannot have initializers.");
-                    statements.Add(new Variable(name,ambientConstant,annotation,null,exported,Ambient:true));
+                    statements.Add(new Variable(name,ambientConstant,annotation,null,exported,Ambient:true,
+                        AmbientVar:ambientKind==TokenKind.Var));
                     if(!Eat(TokenKind.Comma))break;
                 }
                 EndStatement();

@@ -93,6 +93,25 @@ try {
  assert.match(badWritable.stdout+badWritable.stderr,/TS2322/);
  assert.equal(existsSync(join(folder,'bad-writable.js')),false);
  assert.equal(existsSync(join(folder,'writable.d.js')),false);
+ // Repeated standard-library-style ambient var declarations must unify
+ // before checking consumers, regardless of .d.ts/consumer CLI order.
+ writeFileSync(join(folder,'merged-a.d.ts'),'type Count = number; declare var tally: Count;');
+ writeFileSync(join(folder,'merged-b.d.ts'),'declare var tally: number;');
+ writeFileSync(join(folder,'merged.ts'),'tally = tally + 4; let checked: number = tally;');
+ const merged=compile('merged.ts','merged-b.d.ts','merged-a.d.ts');
+ assert.equal(merged.status,0,merged.stdout+merged.stderr);
+ assert.equal(existsSync(join(folder,'merged-a.d.js')),false);
+ assert.equal(existsSync(join(folder,'merged-b.d.js')),false);
+ const mergedJs=readFileSync(join(folder,'merged.js'),'utf8');
+ assert.equal(runInNewContext(mergedJs+'checked',{tally:3},{timeout:1500}),7);
+ writeFileSync(join(folder,'merged-bad.d.ts'),'declare var tally: string;');
+ writeFileSync(join(folder,'invalid-merged.ts'),'tally = tally + 1;');
+ const conflict=compile('invalid-merged.ts','merged-a.d.ts','merged-bad.d.ts');
+ assert.equal(conflict.status,2,conflict.stdout+conflict.stderr);
+ assert.match(conflict.stdout+conflict.stderr,/TS2403/);
+ assert.equal(existsSync(join(folder,'invalid-merged.js')),false);
+ assert.equal(existsSync(join(folder,'merged-bad.d.js')),false);
+ console.log('Ambient var redeclarations: compatible d.ts merge executes 7; incompatible types emit no JS.');
  console.log('Ambient var: cross-file checked mutable global executes 10; invalid assignment emits no JS.');
  console.log('Ambient types: linked type alias, interface and value execute 8; bad assignment emits no JS.');
  console.log('Ambient declarations: checked .d.ts values link across files, execute 21, invalid calls emit no JS.');

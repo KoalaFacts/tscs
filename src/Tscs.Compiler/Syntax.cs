@@ -77,7 +77,7 @@ internal sealed record ValueElementAccess(ValueNode Receiver,Token Open,ValueNod
 internal sealed record ValuePropertyAccess(ValueNode Receiver,Token Name,bool Optional=false,bool ChainContinuation=false,bool BindingFreshOmittedDefault=false) : ValueNode;
 internal sealed record PropertyAssignment(ValuePropertyAccess Target,ValueNode Value) : Statement;
 internal sealed record ElementAssignment(ValueElementAccess Target,ValueNode Value) : Statement;
-internal sealed record Variable(Token Name, bool Constant, TypeSyntax? Annotation, ValueNode? Initializer, bool Exported=false, bool Ambient=false) : Statement;
+internal sealed record Variable(Token Name, bool Constant, TypeSyntax? Annotation, ValueNode? Initializer, bool Exported=false, bool Ambient=false, bool AmbientVar=false) : Statement;
 // Optional typed parameters are erased during ES2015 emission.
 // A checked default initializer is evaluated at call time and makes a trailing argument omissible.
 internal sealed record ParameterDeclaration(Token Name,TypeSyntax Annotation,bool Optional=false,ValueNode? DefaultValue=null,bool Rest=false) : Statement;
