@@ -1,8 +1,9 @@
+import {runTscs} from './tscs-process.ts';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {existsSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
-import {join,resolve} from 'node:path';
+import {join} from 'node:path';
 
 // Real four-module JS execution of compound narrowing and short-circuiting.
 // Bounded implementation proof; not original TS7 harness acceptance.
@@ -45,10 +46,7 @@ try {
   writeFileSync(join(folder,'project.json'),JSON.stringify({
     files:['entry.ts','minimal.d.ts'],compilerOptions:{module:'es2015',target:'es2015',noLib:true}
   }));
-  const compiler=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
-  const env={...process.env,DOTNET_CLI_TELEMETRY_OPTOUT:'1',TESTINGPLATFORM_TELEMETRY_OPTOUT:'1'};
-  const compile=spawnSync(process.env.DOTNET??'dotnet',[compiler,'--emitJs','-p',join(folder,'project.json')],
-    {cwd:folder,encoding:'utf8',timeout:30000,env});
+  const compile=runTscs(folder,['--emitJs','-p',join(folder,'project.json')]);
   assert.equal(compile.error,undefined,String(compile.error));
   assert.equal(compile.status,0,compile.stdout+compile.stderr);
   for(const name of ['model','rules','bridge','entry'])
@@ -60,9 +58,7 @@ try {
   assert.equal(run.status,0,run.stdout+run.stderr);
   writeFileSync(join(folder,'wrong.ts'),
     'type P = { kind: "ok"; value: number } | { kind: "bad"; message: string }; function wrong(p: P): number { if (p.kind === "ok" && p.message === "bad") { return 1; } return 0; }');
-  const rejected=spawnSync(process.env.DOTNET??'dotnet',
-    [compiler,'--emitJs','--noLib','--target','es2015',join(folder,'wrong.ts'),join(folder,'minimal.d.ts')],
-    {cwd:folder,encoding:'utf8',timeout:30000,env});
+  const rejected=runTscs(folder,['--emitJs','--noLib','--target','es2015',join(folder,'wrong.ts'),join(folder,'minimal.d.ts')]);
   assert.equal(rejected.error,undefined,String(rejected.error));
   assert.equal(rejected.status,2,rejected.stdout+rejected.stderr);
   assert.match(rejected.stdout+rejected.stderr,/TS2339/);

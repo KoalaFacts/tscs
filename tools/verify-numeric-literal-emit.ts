@@ -1,8 +1,9 @@
+import {runTscs} from './tscs-process.ts';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {existsSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
-import {join,resolve} from 'node:path';
+import {join} from 'node:path';
 
 // Four-module ES2015 runtime; not original TS7 acceptance.
 const folder=mkdtempSync(join(tmpdir(),'tscs-numeric-literals-'));
@@ -45,11 +46,7 @@ try {
     files:['entry.ts','minimal.d.ts'],
     compilerOptions:{module:'es2015',target:'es2015',noLib:true}
   }));
-  const compiler=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
-  const env={...process.env,DOTNET_CLI_TELEMETRY_OPTOUT:'1',TESTINGPLATFORM_TELEMETRY_OPTOUT:'1'};
-  const compiled=spawnSync(process.env.DOTNET??'dotnet',
-    [compiler,'--emitJs','-p',join(folder,'project.json')],
-    {cwd:folder,encoding:'utf8',timeout:30000,env});
+  const compiled=runTscs(folder,['--emitJs','-p',join(folder,'project.json')]);
   assert.equal(compiled.error,undefined,String(compiled.error));
   assert.equal(compiled.status,0,compiled.stdout+compiled.stderr);
   for(const name of ['model','logic','bridge','entry'])
@@ -77,10 +74,8 @@ try {
     ['unsafe-radix','let n: number = 0x20000000000000;',1,/TSCS1001/]
   ] as const) {
     writeFileSync(join(folder,name+'.ts'),source);
-    const rejected=spawnSync(process.env.DOTNET??'dotnet',
-      [compiler,'--emitJs','--noLib','--target','es2015',
-        join(folder,name+'.ts'),join(folder,'minimal.d.ts')],
-      {cwd:folder,encoding:'utf8',timeout:30000,env});
+    const rejected=runTscs(folder,['--emitJs','--noLib','--target','es2015',
+        join(folder,name+'.ts'),join(folder,'minimal.d.ts')]);
     assert.equal(rejected.error,undefined,String(rejected.error));
     assert.equal(rejected.status,exit,rejected.stdout+rejected.stderr);
     assert.match(rejected.stdout+rejected.stderr,pattern);

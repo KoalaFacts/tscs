@@ -278,7 +278,7 @@ and no `var`.
   (`...((c ? a : b))`, `...(a)` for `...a!`) where the reference prints none.
 - Many constructs were added as narrow, separately verified slices; the
   per-feature `tools/verify-*-emit.ts` scripts and checker paths overlap
-  (roadmap C1). 31 of the 78 scripts run the CLI through the shared
+  (roadmap C1). 39 of the 78 scripts run the CLI through the shared
   `tools/tscs-process.ts`; the other 47 still carry their own copy.
 
 ## Roadmap
