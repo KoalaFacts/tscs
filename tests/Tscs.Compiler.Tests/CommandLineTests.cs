@@ -505,6 +505,12 @@ public class CommandLineTests : IDisposable
         var mixed=Run("--noEmit","--noLib",consumer,declarations,Path.Combine(directory,"minimal.d.ts"));
         Assert.Equal(1,mixed.Code);
         Assert.Contains("TSCS1002",mixed.Out);
+        // The bootstrap global interfaces are validated separately; a
+        // declaration alias must never shadow one through the checked path.
+        File.WriteAllText(declarations,"type Object = number;");
+        var shadow=Run("--noEmit","--noLib",consumer,declarations,Lib());
+        Assert.Equal(1,shadow.Code);
+        Assert.Contains("TSCS1002",shadow.Out);
     }
 
     [Theory]
