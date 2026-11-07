@@ -463,6 +463,50 @@ public class CommandLineTests : IDisposable
         Assert.False(File.Exists(Path.ChangeExtension(declarations,".js")));
     }
 
+    [Fact]
+    public void AmbientDtsBindsNonGenericTypesAndValuesAcrossSourcesWithoutEmittingDeclarations()
+    {
+        var types=Write("types.d.ts",
+            "type Amount = number; interface Basket { amount: Amount; label: string; } declare const basket: Basket;");
+        var consumer=Write("consumer.ts",
+            "let total: Amount = basket.amount + 1; let name: string = basket.label;");
+        // Both the type alias and interface come from a later CLI argument.
+        var result=Run("--emitJs","--noLib","--target","es2015",consumer,types,Lib());
+        Assert.Equal(0,result.Code);
+        Assert.Equal("",result.Out);
+        Assert.True(File.Exists(Path.ChangeExtension(consumer,".js")));
+        Assert.False(File.Exists(Path.ChangeExtension(types,".js")));
+    }
+
+    [Theory]
+    [InlineData("let total: Amount = \"bad\";","TS2322")]
+    [InlineData("let basketValue: Basket = { amount: \"bad\", label: \"ok\" };","TS2322")]
+    public void AmbientDtsRejectsNamedTypeMismatchesWithoutOutput(string source,string diagnostic)
+    {
+        var types=Write("types.d.ts",
+            "type Amount = number; interface Basket { amount: Amount; label: string; }");
+        var consumer=Write("bad.ts",source);
+        var result=Run("--emitJs","--noLib","--target","es2015",consumer,types,Lib());
+        Assert.Equal(2,result.Code);
+        Assert.Contains(diagnostic,result.Out);
+        Assert.False(File.Exists(Path.ChangeExtension(consumer,".js")));
+        Assert.False(File.Exists(Path.ChangeExtension(types,".js")));
+    }
+
+    [Fact]
+    public void AmbientDtsDoesNotAcceptGenericTypesOrBootstrapGlobalInterfacesAsCheckedAliases()
+    {
+        var consumer=Write("consumer.ts","let value = 1;");
+        var declarations=Write("types.d.ts","type Box<T> = { value: T };");
+        var generic=Run("--noEmit","--noLib",consumer,declarations,Lib());
+        Assert.Equal(1,generic.Code);
+        Assert.Contains("TSCS1002",generic.Out);
+        File.WriteAllText(declarations,"interface Object {} type Amount = number;");
+        var mixed=Run("--noEmit","--noLib",consumer,declarations,Path.Combine(directory,"minimal.d.ts"));
+        Assert.Equal(1,mixed.Code);
+        Assert.Contains("TSCS1002",mixed.Out);
+    }
+
     [Theory]
     [InlineData("let output: number = double(\"wrong\");","TS2345")]
     [InlineData("let output: boolean = double(7);","TS2322")]
