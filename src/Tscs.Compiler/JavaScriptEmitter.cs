@@ -42,12 +42,17 @@ internal static class JavaScriptEmitter
     {
         private readonly StringBuilder output=new();
         public string Text=>output.ToString();
+        private int activeStatementDepth;
 
         // The reference printer indents each block level by four spaces.
         private void Indent(int depth)=>output.Append(' ',depth*4);
 
         public void WriteStatement(Statement statement,int depth)
         {
+            var previousDepth=activeStatementDepth;
+            activeStatementDepth=depth;
+            try
+            {
             switch(statement)
             {
                 case TypeAliasDeclaration or InterfaceDeclaration:
@@ -291,6 +296,11 @@ internal static class JavaScriptEmitter
                     break;
                 default:
                     throw new NotSupportedException("The AST-backed ES2015 writer only supports checked global-script statements.");
+            }
+            }
+            finally
+            {
+                activeStatementDepth=previousDepth;
             }
         }
 
@@ -673,7 +683,7 @@ internal static class JavaScriptEmitter
             }
         }
 
-        private readonly record struct Piece(ValueNode? Node,string? Literal,int ParentPrecedence,bool IsRight,Block? ArrowBlock=null);
+        private readonly record struct Piece(ValueNode? Node,string? Literal,int ParentPrecedence,bool IsRight,Block? ArrowBlock=null,bool SpreadOperand=false);
 
         private static int Precedence(ValueNode node) => node switch
         {
@@ -710,14 +720,14 @@ internal static class JavaScriptEmitter
             // supported long left-deep expressions safe to emit as well.
             var pending=new Stack<Piece>();
             void Text(string literal)=>pending.Push(new(null,literal,0,false));
-            void Node(ValueNode node,int parentPrecedence=0,bool right=false)=>
-                pending.Push(new(node,null,parentPrecedence,right));
+            void Node(ValueNode node,int parentPrecedence=0,bool right=false,bool spreadOperand=false)=>
+                pending.Push(new(node,null,parentPrecedence,right,null,spreadOperand));
             // A spread operand is an AssignmentExpression (the parser never
             // yields a bare comma there): like the reference printer, add no
             // grouping; source parentheses are kept by ValueParenthesized.
             void Spread(ValueNode operand)
             {
-                Node(operand);
+                Node(operand,spreadOperand:true);
                 Text("...");
             }
 
@@ -833,7 +843,7 @@ internal static class JavaScriptEmitter
                 if(item.ArrowBlock is { } block)
                 {
                     // Emit statements only when their turn arrives in the expression stack.
-                    WriteBlock(block,0);
+                    WriteBlock(block,activeStatementDepth);
                     continue;
                 }
                 var node=item.Node!;
@@ -889,13 +899,13 @@ internal static class JavaScriptEmitter
                     case ValueConditional chosen:
                         // Parenthesize the complete conditional: nested values
                         // retain right-associativity and JS evaluates one arm.
-                        Text(")");
+                        if(!item.SpreadOperand)Text(")");
                         Node(chosen.WhenFalse);
                         Text(" : ");
                         Node(chosen.WhenTrue);
                         Text(" ? ");
                         Node(chosen.Condition);
-                        Text("(");
+                        if(!item.SpreadOperand)Text("(");
                         break;
                     case ValueBinary binary:
                         if(binary.Operator.Kind==TokenKind.Power)
@@ -977,20 +987,31 @@ internal static class JavaScriptEmitter
                         Node(postfix.Target,precedence);
                         break;
                     case ValueTypeOperator typed:
-                        Text(")");
-                        Node(typed.Expression);
-                        Text("(");
+                        // Type erasure must not invent parentheses around a spread operand.
+                        if(item.SpreadOperand)Node(typed.Expression,spreadOperand:true);
+                        else
+                        {
+                            Text(")");
+                            Node(typed.Expression);
+                            Text("(");
+                        }
                         break;
                     case ValueNonNull asserted:
-                        // TypeScript's ! is never a runtime null check. Parentheses
-                        // preserve receiver binding and expression precedence.
-                        Text(")");
-                        Node(asserted.Expression);
-                        Text("(");
+                        // TypeScript's ! is never a runtime null check. Retain grouping
+                        // outside spreads, but do not add one to a spread operand.
+                        if(item.SpreadOperand)Node(asserted.Expression,spreadOperand:true);
+                        else
+                        {
+                            Text(")");
+                            Node(asserted.Expression);
+                            Text("(");
+                        }
                         break;
                     case ValueParenthesized grouped:
+                        // Source-written parentheses remain, including around a spread's
+                        // conditional. Its synthetic inner pair is unnecessary.
                         Text(")");
-                        Node(grouped.Expression);
+                        Node(grouped.Expression,spreadOperand:item.SpreadOperand);
                         Text("(");
                         break;
                     case ValueElementAccess continuedIndex when continuedIndex.ChainContinuation:

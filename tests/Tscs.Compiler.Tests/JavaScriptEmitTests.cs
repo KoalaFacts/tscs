@@ -113,6 +113,55 @@ public sealed class JavaScriptEmitTests : IDisposable
     }
 
     [Fact]
+    public void NestedFunctionExpressionBlocksUseTheEnclosingStatementDepth()
+    {
+        var input=Write("nested-printer.ts",
+            "export function calculate(n:number):number { "+
+            "const arrow=(x:number):number=>{return x+1;}; "+
+            "const closure=function(x:number):number{return arrow(x);}; "+
+            "return closure(n); }");
+        var result=Run("--emitJs","--noLib","--target","es2015","--module","es2015",input,Globals());
+        Assert.Equal(0,result.Code);
+        Assert.Equal("",result.Output);
+        Assert.Equal(
+            "export function calculate(n) {\n"+
+            "    const arrow = (x) => {\n"+
+            "        return x + 1;\n"+
+            "    };\n"+
+            "    const closure = function (x) {\n"+
+            "        return arrow(x);\n"+
+            "    };\n"+
+            "    return closure(n);\n"+
+            "}\n",File.ReadAllText(Path.ChangeExtension(input,".js")));
+    }
+
+    [Fact]
+    public void SpreadOperandsEraseTypesWithoutInventingParentheses()
+    {
+        var input=Write("spread-erasure.ts",
+            "export const tail:number[]=[20,21];"+
+            "export const nonNull:number[]=[...tail!];"+
+            "export const chosen:number[]=[...(true ? tail : [42])];");
+        var result=Run("--emitJs","--noLib","--target","es2015","--module","es2015",input,Globals());
+        Assert.Equal(0,result.Code);
+        Assert.Equal("",result.Output);
+        Assert.Equal(
+            "export const tail = [20, 21];\n"+
+            "export const nonNull = [...tail];\n"+
+            "export const chosen = [...(true ? tail : [42])];\n",
+            File.ReadAllText(Path.ChangeExtension(input,".js")));
+    }
+
+    [Fact]
+    public void AnInvalidSpreadStillPreventsEmit()
+    {
+        var input=Write("spread-invalid.ts","export const bad:number[]=[...42!];");
+        var result=Run("--emitJs","--noLib","--target","es2015","--module","es2015",input,Globals());
+        Assert.NotEqual(0,result.Code);
+        Assert.False(File.Exists(Path.ChangeExtension(input,".js")));
+    }
+
+    [Fact]
     public void EmitsNestedScopesElseIfAndUpdatesWithoutReparsing()
     {
         var input=Write("branches.ts",
