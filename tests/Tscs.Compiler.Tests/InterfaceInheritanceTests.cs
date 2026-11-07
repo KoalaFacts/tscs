@@ -64,7 +64,7 @@ public sealed class InterfaceInheritanceTests
     [InlineData("interface R { value?:number } interface R { value:number }","TS2687")]
     [InlineData("type R={value:number};interface R{extra:number}","TS2300")]
     [InlineData("interface R{value:number} type R={extra:number}","TS2300")]
-    [InlineData("interface R { value:number } interface R { extra:number } let r:R={value:21};","TS2322")]
+    [InlineData("interface R { value:number } interface R { extra:number } let r:R={value:21};","TS2741")]
     [InlineData("interface R { value:number } interface R { extra:number } let r:R={value:21,extra:\"bad\"};","TS2322")]
     public void IncompatibleInterfaceMergesAndConsumersFailClosed(string source,string code)=>
         Assert.Contains(Compilation.Check("merged-bad.ts",source),d=>d.Code==code);
