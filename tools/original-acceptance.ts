@@ -82,6 +82,13 @@ export function parseUnits(code: string, fileName: string): Unit[] {
 const SUPPORTED_TARGETS = new Set(['es2015', 'es6']);
 const SUPPORTED_MODULES = new Set(['es2015', 'es6']);
 
+// Pinned upstream config keys may retain TypeScript's camelCase spelling.
+// Missing-capability classification and CLI invocation must interpret the
+// same effective option names, regardless of how the registry spells them.
+function option(config: Record<string, string>, name: string): string | undefined {
+  return Object.entries(config).find(([key]) => key.toLowerCase() === name)?.[1];
+}
+
 /** Every capability the target needs that tscs does not provide. */
 export function missingCapabilities(target: Target, units: Unit[] | null): string[] {
   if (target.configuration === null) return ['reference-fatal-source'];
@@ -105,7 +112,7 @@ export function missingCapabilities(target: Target, units: Unit[] | null): strin
       // tscs reproduces; without it the standard-library capability is missing.
     } else missing.push(`option:${key}`);
   }
-  if (String(config.nolib ?? config.noLib ?? '').trim().toLowerCase() !== 'true') missing.push('standard-library');
+  if (String(option(config, 'nolib') ?? '').trim().toLowerCase() !== 'true') missing.push('standard-library');
   if (units !== null) {
     // Multi-source virtual files are now written to a private work directory.
     // Reject names that would escape it, silently alias, or require a foreign
@@ -191,13 +198,15 @@ export function runTarget(target: Target, options: RunOptions): TargetResult {
     id: target.id, upstreamPath: target.upstreamPath,
     configuration: target.configuration?.Name ?? '', status, reasons,
   });
+  // A target which cannot execute still must match its pinned source bytes:
+  // neither reference-fatal nor transpile SKIPs waive fixture integrity.
+  const raw = readFileSync(join(options.upstream, target.upstreamPath));
+  if (createHash('sha256').update(raw).digest('hex') !== target.rawSha256) {
+    throw new Error(`${target.upstreamPath} does not match the registered pinned source`);
+  }
   let units: Unit[] | null = null;
   let hasSymlinks = false;
   if (target.configuration !== null && target.group !== 'transpile') {
-    const raw = readFileSync(join(options.upstream, target.upstreamPath));
-    if (createHash('sha256').update(raw).digest('hex') !== target.rawSha256) {
-      throw new Error(`${target.upstreamPath} does not match the registered pinned source`);
-    }
     const source = raw.toString('utf8');
     hasSymlinks = source.split(/\r?\n/).some((line) => LINK.test(line));
     units = parseUnits(source, target.upstreamPath);
@@ -219,7 +228,7 @@ export function runTarget(target: Target, options: RunOptions): TargetResult {
   const expectedDiagnostics = baselineDiagnostics(read(join(baselineDir, `${stem}.errors.txt`)));
   const js = read(join(baselineDir, `${stem}.js`));
   const config = target.configuration!.Config;
-  const noEmit = String(config.noemit ?? '').toLowerCase() === 'true';
+  const noEmit = String(option(config, 'noemit') ?? '').trim().toLowerCase() === 'true';
   const work = mkdtempSync(join(tmpdir(), 'tscs-original-'));
   try {
     for (const u of units!) {
@@ -231,9 +240,10 @@ export function runTarget(target: Target, options: RunOptions): TargetResult {
     // this is an invocation adapter, not a different upstream test config.
     // Explicit ES2015/ES6 module mode is equivalent to this CLI's native
     // ES2015 module mode. Other module transforms are filtered above.
-    const moduleOption = String(config.module ?? config.Module ?? '').trim().toLowerCase();
+    const moduleOption = String(option(config, 'module') ?? '').trim().toLowerCase();
     const moduleMode = moduleOption === 'es6' || moduleOption === '' ? 'es2015' : moduleOption;
-    const lib = config.lib === undefined ? [] : ['--lib', String(config.lib).trim()];
+    const libValue = option(config, 'lib');
+    const lib = libValue === undefined ? [] : ['--lib', String(libValue).trim()];
     const args = [options.tscs, noEmit ? '--noEmit' : '--emitJs', '--noLib', ...lib, '--target', 'es2015',
       '--module', moduleMode, ...units!.map((u) => u.name)];
     const run = spawnSync(options.dotnet, args, {cwd: work, encoding: 'utf8', timeout: 60_000});
