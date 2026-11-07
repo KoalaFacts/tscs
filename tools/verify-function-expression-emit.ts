@@ -15,13 +15,15 @@ try {
       'import type {Callback} from "./model.js";',
       'const offset:number=1;',
       'export const inc:Callback=function(n:number):number{return n+offset;};',
-      'export function apply(cb:Callback,n:number):number{return cb(n);}'
+      'export function apply(cb:Callback,n:number):number{return cb(n);}',
+      'export function nestedIndented(n:number):number{const f=(v:number):number=>{return v+1;};return f(n);}'
     ].join('\n'),
-    'bridge.ts':'export {inc,apply} from "./logic.js";',
+    'bridge.ts':'export {inc,apply,nestedIndented} from "./logic.js";',
     'entry.ts':[
-      'import {inc,apply} from "./bridge.js";',
+      'import {inc,apply,nestedIndented} from "./bridge.js";',
       'const doubled=function(n:number):number{return n+n;};',
       'export const result:number=apply(doubled,21);',
+      'export const nestedIndentedResult:number=nestedIndented(41);',
       'export const captured:number=inc(41);',
       'export const immediate:number=apply(function(n:number):number{return n+n;},21);',
       'const make=function(n:number):(m:number)=>number{return function(m:number):number{return n+m;};};',
@@ -63,8 +65,11 @@ try {
   assert.equal(good.status,0,good.stdout+good.stderr);
   for(const name of ['model','logic','bridge','entry'])
     assert.ok(existsSync(join(dir,name+'.js')),'missing checked output '+name);
+  assert.match(readFileSync(join(dir,'logic.js'),'utf8'),
+    /export function nestedIndented\(n\) \{\n    const f = \(v\) => \{\n        return v \+ 1;\n    \};\n    return f\(n\);\n\}/,
+    'arrow block inside a function must use nested four-space indentation');
   const runtime=spawnSync(process.execPath,['--input-type=module','--eval',
-    'import {result,captured,immediate,nested,rest,inferredResult,recursiveResult,scopedResult,namedDefaultResult,namedRestResult,namedNestedResult,inferredNamedResult,inferredShadowResult,inferredNestedResult} from "./entry.js"; if([result,captured,immediate,nested,rest,inferredResult,recursiveResult,scopedResult,namedDefaultResult,namedRestResult,namedNestedResult,inferredNamedResult,inferredShadowResult,inferredNestedResult].some(x=>x!==42))throw Error("function expression output mismatch");'],
+    'import {result,nestedIndentedResult,captured,immediate,nested,rest,inferredResult,recursiveResult,scopedResult,namedDefaultResult,namedRestResult,namedNestedResult,inferredNamedResult,inferredShadowResult,inferredNestedResult} from "./entry.js"; if([result,nestedIndentedResult,captured,immediate,nested,rest,inferredResult,recursiveResult,scopedResult,namedDefaultResult,namedRestResult,namedNestedResult,inferredNamedResult,inferredShadowResult,inferredNestedResult].some(x=>x!==42))throw Error("function expression output mismatch");'],
     {cwd:dir,encoding:'utf8',timeout:15000});
   assert.equal(runtime.error,undefined,String(runtime.error));
   assert.equal(runtime.status,0,runtime.stdout+runtime.stderr);
