@@ -35,10 +35,22 @@ internal static class DeclarationTypeIdentity
     {
         // Unknown cycles cannot prove declaration identity.
         if(depth>64)return true;
-        if(syntax is TypeQuerySyntax query &&
-           scope.Find(query.Root.Text) is { } value &&
-           value.Declaration is Variable { Annotation: { } annotation })
-            return HasIntersection(annotation,value.DeclaringScope??scope,depth+1);
+        if(syntax is TypeQuerySyntax query)
+        {
+            // Follow the declared annotations of the queried value. A value
+            // whose type is inferred (an initializer, an 'as' target) has no
+            // source shape to inspect here, so it cannot prove identity.
+            var value=scope.Find(query.Root.Text);
+            var owner=value?.DeclaringScope??scope;
+            return value?.Declaration switch
+            {
+                Variable { Annotation: { } annotation }=>HasIntersection(annotation,owner,depth+1),
+                FunctionDeclaration function=>
+                    function.Parameters.Any(p=>HasIntersection(p.Annotation,owner,depth+1)) ||
+                    HasIntersection(function.ReturnAnnotation,owner,depth+1),
+                _=>true
+            };
+        }
         return syntax switch
         {
             IntersectionTypeSyntax=>true,
@@ -56,10 +68,16 @@ internal static class DeclarationTypeIdentity
                 function.Parameters.Any(p=>HasIntersection(p.Type,scope,depth+1)) ||
                 HasIntersection(function.ReturnType,scope,depth+1),
             UnionTypeSyntax union=>union.Members.Any(p=>HasIntersection(p,scope,depth+1)),
-            KeyofTypeSyntax keyed=>HasIntersection(keyed.Target,scope,depth+1),
+            // A key set has no object-intersection provenance: keyof (A&B) and
+            // the literal union of its keys are the same declaration type.
+            KeyofTypeSyntax=>false,
+            // A literal property projection carries only the selected
+            // property's provenance; anything else stays conservative.
             IndexedAccessTypeSyntax indexed=>
-                HasIntersection(indexed.Target,scope,depth+1) ||
-                HasIntersection(indexed.Index,scope,depth+1),
+                Project(indexed,scope,"",depth+1) is { } selected
+                    ? HasIntersection(selected.Syntax,selected.Scope,depth+1)
+                    : HasIntersection(indexed.Target,scope,depth+1) ||
+                      HasIntersection(indexed.Index,scope,depth+1),
             _=>false
         };
     }
@@ -68,6 +86,12 @@ internal static class DeclarationTypeIdentity
         TypeSyntax right,Scope rightScope,string rightFile,int depth)
     {
         if(depth>64)return false;
+        // Compare what derived syntax denotes, not the derived node itself:
+        // 'typeof x' is x's declared type and P["k"] is P's property type.
+        if(Unwrap(left,leftScope,leftFile,depth) is { } l)
+            return SameSyntax(l.Syntax,l.Scope,l.File,right,rightScope,rightFile,depth+1);
+        if(Unwrap(right,rightScope,rightFile,depth) is { } r)
+            return SameSyntax(left,leftScope,leftFile,r.Syntax,r.Scope,r.File,depth+1);
         if(left is NamedTypeSyntax ln && leftScope.FindType(ln.Name.Text) is { } lb)
         {
             if(right is NamedTypeSyntax rn &&
@@ -150,6 +174,82 @@ internal static class DeclarationTypeIdentity
                 // No proof of source identity: fail closed, not a compatibility PASS.
                 return false;
         }
+    }
+
+    private readonly record struct Denoted(TypeSyntax Syntax,Scope Scope,string File);
+
+    private static Denoted? Unwrap(TypeSyntax syntax,Scope scope,string file,int depth)=>syntax switch
+    {
+        TypeQuerySyntax { Members.Count:0 } query when
+            scope.Find(query.Root.Text) is { Declaration: Variable { Annotation: { } annotation } } value=>
+            new Denoted(annotation,value.DeclaringScope??scope,value.File),
+        IndexedAccessTypeSyntax indexed=>Project(indexed,scope,file,depth),
+        _=>null
+    };
+
+    // Selects the declared syntax of one required property named by a string
+    // literal key. Optional members, index signatures, merged interfaces,
+    // unknown forms and properties declared by several intersection members
+    // return null, so the caller keeps its conservative comparison.
+    private static Denoted? Project(IndexedAccessTypeSyntax indexed,Scope scope,string file,int depth)
+    {
+        if(indexed.Index is not LiteralTypeSyntax { Negative:false } literal ||
+           CompilerTypes.FromLiteralExact(literal.Literal,false) is not
+               LiteralTypeSymbol { Kind:PrimitiveKind.String } key)return null;
+        var found=Select(indexed.Target,scope,file,key.Value,depth+1);
+        return found is { Known:true,Value: { } value } ? value : null;
+    }
+
+    private readonly record struct Selection(bool Known,Denoted? Value)
+    {
+        public static readonly Selection Unknown=new(false,null);
+        public static readonly Selection Absent=new(true,null);
+    }
+
+    private static Selection Select(TypeSyntax syntax,Scope scope,string file,string key,int depth)
+    {
+        if(depth>64)return Selection.Unknown;
+        switch(syntax)
+        {
+            case NamedTypeSyntax named when scope.FindType(named.Name.Text) is { } binding:
+                return binding.MergedInterfaces.Count!=0
+                    ? Selection.Unknown
+                    : Select(binding.Syntax,binding.Owner,binding.File,key,depth+1);
+            case TypeQuerySyntax when Unwrap(syntax,scope,file,depth) is { } denoted:
+                return Select(denoted.Syntax,denoted.Scope,denoted.File,key,depth+1);
+            case ObjectTypeSyntax shape:
+            {
+                var matches=shape.Properties.Where(p=>
+                    string.Equals(Parser.PropertyName(p.Name),key,StringComparison.Ordinal)).ToList();
+                if(matches.Count==0)return Selection.Absent;
+                return matches.Count==1 && !matches[0].Optional
+                    ? new Selection(true,new Denoted(matches[0].Type,scope,file))
+                    : Selection.Unknown;
+            }
+            case InterfaceExtensionTypeSyntax inherited:
+            {
+                var own=Select(inherited.Body,scope,file,key,depth+1);
+                if(!own.Known || own.Value is not null)return own;
+                return Single(inherited.Bases.Select(b=>Select(b,scope,file,key,depth+1)));
+            }
+            case IntersectionTypeSyntax both:
+                return Single(both.Members.Select(m=>Select(m,scope,file,key,depth+1)));
+            default:
+                return Selection.Unknown;
+        }
+    }
+
+    private static Selection Single(IEnumerable<Selection> parts)
+    {
+        Denoted? value=null;
+        foreach(var part in parts)
+        {
+            if(!part.Known)return Selection.Unknown;
+            if(part.Value is null)continue;
+            if(value is not null)return Selection.Unknown;
+            value=part.Value;
+        }
+        return new Selection(true,value);
     }
 
     private static bool Unordered<T>(IReadOnlyList<T> left,Scope leftScope,string leftFile,

@@ -52,6 +52,11 @@ try {
   assert.equal(existsSync(join(dir,'bad-merged-entry.js')),false);
   // Declaration equality is not the spelling order. Intersections retain
   // their source shape even when the runtime-checking object is flattened.
+  const {runInNewContext}=await import('node:vm');
+  const typeFile='identity-common.d.ts';
+  writeFileSync(join(dir,typeFile),
+    'type A={a:number};type B={b:string};type P=A&B;type Q={a:number;b:string};'+
+    'declare const first:P;declare const second:P;');
   const identities:[string,string,string,boolean][]=[
     ['order-object','interface Identity{value:{a:number;b:string}}',
       'interface Identity{value:{b:string;a:number}}',true],
@@ -64,7 +69,19 @@ try {
     ['intersection-array','interface Identity{value:({a:number}&{b:string})[]}',
       'interface Identity{value:{a:number;b:string}[]}',false],
     ['intersection-function','interface Identity{value:(x:{a:number}&{b:string})=>number}',
-      'interface Identity{value:(x:{a:number;b:string})=>number}',false]
+      'interface Identity{value:(x:{a:number;b:string})=>number}',false],
+    // Derived syntax denotes its resulting declaration type (pinned Go accepts
+    // the first three in both orders and both entry paths).
+    ['derived-typeof','interface Identity{value:typeof first}',
+      'interface Identity{value:typeof second}',true],
+    ['derived-keyof','interface Identity{value:keyof P}',
+      'interface Identity{value:"a"|"b"}',true],
+    ['derived-indexed','interface Identity{value:P["a"]}',
+      'interface Identity{value:number}',true],
+    ['derived-indexed-conflict','interface Identity{value:P["b"]}',
+      'interface Identity{value:number}',false],
+    ['derived-typeof-intersection-object','interface Identity{value:typeof first}',
+      'interface Identity{value:{a:number;b:string}}',false]
   ];
   for(const [id,one,two,allowed] of identities)
     for(const reversed of [false,true]){
@@ -76,7 +93,7 @@ try {
       writeFileSync(join(dir,secondFile),reversed?one:two);
       writeFileSync(join(dir,entryFile),'export const identityResult:number=7;');
       const checked=compile(['--emitJs','--noLib','--target','es2015','--module','es2015',
-        entryFile,firstFile,secondFile,'minimal.d.ts']);
+        entryFile,typeFile,firstFile,secondFile,'minimal.d.ts']);
       assert.equal(checked.status,allowed?0:2,prefix+': '+checked.stdout+checked.stderr);
       if(allowed){
         const ran=spawnSync(process.execPath,['--input-type=module','--eval',
@@ -95,10 +112,6 @@ try {
   // declaration inputs in both file orders and two callable-union neighbours
   // in both type orders. Pinned Go outcomes were captured before this fix.
   // Execute actual compiler JS for positives and assert no JS for conflicts.
-  const {runInNewContext}=await import('node:vm');
-  const typeFile='identity-common.d.ts';
-  writeFileSync(join(dir,typeFile),
-    'type A={a:number};type B={b:string};type P=A&B;type Q={a:number;b:string};');
   const varCases:{id:string;a:string;b:string;valid:boolean;read:string;value:unknown}[]=[
     {id:'var-object-reorder',a:'{a:number;b:string}',b:'{b:string;a:number}',
       valid:true,read:'item.a',value:{a:7,b:'ok'}},
@@ -122,7 +135,15 @@ try {
       a:'(x:{a:number}&{b:string})=>number',
       b:'(x:{b:string;a:number})=>number',valid:false,read:'7',value:()=>7},
     {id:'var-array-intersection',a:'({a:number}&{b:string})[]',
-      b:'{b:string;a:number}[]',valid:false,read:'7',value:[{a:7,b:'ok'}]}
+      b:'{b:string;a:number}[]',valid:false,read:'7',value:[{a:7,b:'ok'}]},
+    {id:'var-derived-typeof',a:'typeof first',b:'typeof second',
+      valid:true,read:'item.a',value:{a:7,b:'ok'}},
+    {id:'var-derived-keyof',a:'keyof P',b:'"a"|"b"',
+      valid:true,read:'item==="a"?7:0',value:'a'},
+    {id:'var-derived-indexed',a:'P["a"]',b:'number',valid:true,read:'item',value:7},
+    {id:'var-derived-indexed-conflict',a:'P["b"]',b:'number',valid:false,read:'7',value:7},
+    {id:'var-derived-typeof-intersection-object',a:'typeof first',b:'{a:number;b:string}',
+      valid:false,read:'7',value:{a:7,b:'ok'}}
   ];
   for(const identity of varCases)
     for(const reverse of [false,true]){

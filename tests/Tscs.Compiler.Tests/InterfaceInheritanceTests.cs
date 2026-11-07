@@ -101,6 +101,42 @@ public sealed class InterfaceInheritanceTests
         Assert.Contains(conflict,d=>d.Code=="TS2403" && d.File=="b.d.ts");
     }
 
+    private const string DerivedPrelude=
+        "type A={a:number};type B={b:string};type P=A&B;declare const first:P;declare const second:P;";
+
+    [Theory]
+    [InlineData("typeof first","typeof second")]
+    [InlineData("keyof P","\"a\"|\"b\"")]
+    [InlineData("P[\"a\"]","number")]
+    public void DeclarationIdentityComparesWhatDerivedSyntaxDenotes(string one,string two)
+    {
+        foreach(var (left,right) in new[]{(one,two),(two,one)})
+        {
+            Assert.Empty(Compilation.Check("derived-ok.ts",
+                DerivedPrelude+$"interface R{{value:{left}}}interface R{{value:{right}}}"));
+            Assert.Empty(Compilation.CheckFiles([
+                new SourceInput("types.d.ts",DerivedPrelude),
+                new SourceInput("a.d.ts",$"declare var item:{left};"),
+                new SourceInput("b.d.ts",$"declare var item:{right};"),
+                new SourceInput("entry.ts","let result=7;")
+            ]));
+        }
+    }
+
+    [Theory]
+    [InlineData("P[\"b\"]","number")]
+    [InlineData("typeof first","{a:number;b:string}")]
+    public void DerivedDeclarationIdentityStillRejectsDifferentTypes(string one,string two)=>
+        Assert.Contains(Compilation.Check("derived-bad.ts",
+            DerivedPrelude+$"interface R{{value:{one}}}interface R{{value:{two}}}"),d=>d.Code=="TS2717");
+
+    [Theory]
+    [InlineData("function f(x:A&B):number{return 1}","typeof f","(x:{a:number;b:string})=>number")]
+    [InlineData("const v={a:1,b:\"x\"} as A&B;","typeof v","{a:number;b:string}")]
+    public void TypeQueryWithoutDeclaredIntersectionShapeFailsClosed(string value,string one,string two)=>
+        Assert.Contains(Compilation.Check("derived-query.ts",
+            DerivedPrelude+value+$"interface R{{value:{one}}}interface R{{value:{two}}}"),d=>d.Code=="TS2717");
+
     [Fact]
     public void ConflictingDeclarationFilesReportTheLaterFile()
     {
