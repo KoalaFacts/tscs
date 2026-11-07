@@ -42,7 +42,7 @@ try {
  writeFileSync(join(folder,'linked.ts'),'let result: number = triple(factor);');
  const linked=compile('linked.ts','globals.d.ts');
  assert.equal(linked.status,0,linked.stdout+linked.stderr);
- assert.equal(existsSync(join(folder,'globals.js')),false);
+ assert.equal(existsSync(join(folder,'globals.d.js')),false);
  const linkedJs=readFileSync(join(folder,'linked.js'),'utf8');
  assert.equal(runInNewContext(linkedJs+'result',{factor:7,triple:(n:number)=>n*3},{timeout:1500}),21);
  for(const [name,source,code] of [
@@ -54,7 +54,7 @@ try {
    assert.equal(outcome.status,2,outcome.stdout+outcome.stderr);
    assert.match(outcome.stdout+outcome.stderr,new RegExp(code));
    assert.equal(existsSync(join(folder,name+'.js')),false);
-   assert.equal(existsSync(join(folder,'globals.js')),false);
+   assert.equal(existsSync(join(folder,'globals.d.js')),false);
  }
  console.log('Ambient declarations: checked .d.ts values link across files, execute 21, invalid calls emit no JS.');
  console.log('Ambient declarations: 2 source units execute 42, invalid programs emit no JS.');
