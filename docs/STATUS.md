@@ -263,8 +263,9 @@ and no `var`.
 
 - 15,464 of 15,523 original targets need the standard library; 5,583 need
   nothing else that the runner checks for (roadmap A2).
-- The acceptance runner does not yet support multi-file tests, other
-  targets or `@module`, and does not compare `.types`/`.symbols`.
+- The acceptance runner now permits safe multi-source `.ts` inputs and
+  explicit `@module: es2015`/`es6`; virtual symlinks, other module transforms,
+  other targets, and `.types`/`.symbols` comparison remain unsupported.
 - Emit parity gaps found in review of A3.1: arrow and function-expression
   block bodies restart indentation at column 0 instead of the enclosing
   depth, and conditional, `as` and `!` operands keep extra grouping
@@ -283,7 +284,8 @@ records the original case IDs it moves.
 |---|---|---|---|---|
 | D1 | Short README, current-state STATUS, `tools/check-docs.ts` in CI | Docs that are true and findable | done (PR #210, 355c914) | at merge: README 30,505 → 4,906 bytes, STATUS 123,542 → 8,980 bytes; docs 78 → 77 files; 16 checker tests |
 | A1.1 | Acceptance runner over the 15,523 registered targets: SKIP with missing capabilities, run supported targets through tscs, compare diagnostics and `.js` emit with the pinned baselines, histogram, CI rerun with headline check | Turns the headline into a measured number | done (PR #211, df43af6) | 1 PASS (`parser509698`, since #214) / 1 FAIL (`noCrashOnNoLib`, PASS since A3.1) / 15,521 SKIP; 6 runner tests |
-| A1.2 | Runner support for multi-file tests and `@module`, and `.types`/`.symbols` comparison | Larger runnable set once the library loads | todo | — |
+| A1.2 | Runner support for multi-file tests and `@module`, and `.types`/`.symbols` comparison | Larger runnable set once the library loads | in progress; A1.2a branch | `.types`/`.symbols` still not compared |
+| A1.2a | Run safe multi-source original inputs as one program, support explicit ES2015 module configurations, and refuse unmodelled symlinks and unsafe paths | Allows real multi-file and module baseline comparison without silently dropping inputs | implemented on branch; integration pending | New paired-source emitted-output and capability/negative-path tests; original PASS / FAIL / SKIP remains 3 / 0 / 15,520 until exact-SHA Go reference confirms |
 | A2.1 | Parse the pinned libs with zero syntax errors (`DeclarationParser`, `tools/check-standard-library.ts` in CI) | First step to loading the standard library | done (PR #215, 68110ff) | at merge: 109/116 pinned libs clean, es5+es2015 closure 13/13; 63 xUnit + 4 node tests |
 | A2.1b | Template literal types and ambient classes; require the default libs (`lib.d.ts`, `lib.es6.d.ts`) and everything they reference | The es2015 default lib includes `dom` and `scripthost` | done (PR #216, 8e8a68d) | 115/116 pinned libs clean at merge, default-lib closure 20/20 |
 | A2.2a | Bind the parsed declarations into one global symbol table (cross-file merging, TS2300/TS2451 exclusions); the library check binds the default-lib closure | Library symbols become available | done (PR #220, 7b34604; review fixes PR #221, b5bd8e9) | pinned closure: 20 files, 2,250 global symbols (791 with more than one declaration), 0 diagnostics; 14 xUnit + 1 node test at merge, 16 with the review fixes |

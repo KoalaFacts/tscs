@@ -7,8 +7,9 @@
 // recorded. An executed target is PASS only when tscs's diagnostics equal the
 // pinned reference baseline (<name>.errors.txt, or no errors when that file
 // is absent) and, where the reference has a <name>.js baseline, every emitted
-// output section equals tscs's emitted file. `.types`/`.symbols` baselines are
-// not compared. Usage (from the repository root):
+// output section equals tscs's emitted file. This includes safe multi-file
+// inputs and explicit ES2015 modules; virtual symlinks and unsupported module
+// transforms remain SKIP. `.types`/`.symbols` baselines are not compared. Usage (from the repository root):
 //
 //   node tools/original-acceptance.ts --targets <targets.jsonl> \
 //     --upstream <TypeScript checkout> --tscs <tscs.dll> --out <report.json> \
@@ -79,6 +80,7 @@ export function parseUnits(code: string, fileName: string): Unit[] {
 }
 
 const SUPPORTED_TARGETS = new Set(['es2015', 'es6']);
+const SUPPORTED_MODULES = new Set(['es2015', 'es6']);
 
 /** Every capability the target needs that tscs does not provide. */
 export function missingCapabilities(target: Target, units: Unit[] | null): string[] {
@@ -92,6 +94,8 @@ export function missingCapabilities(target: Target, units: Unit[] | null): strin
     if (key === 'filename') continue;
     if (key === 'target') {
       if (!SUPPORTED_TARGETS.has(value)) missing.push(`option:target=${value}`);
+    } else if (key === 'module') {
+      if (!SUPPORTED_MODULES.has(value)) missing.push(`option:module=${value}`);
     } else if (key === 'nolib' || key === 'noemit') {
       if (value !== 'true' && value !== 'false') missing.push(`option:${key}=${value}`);
     } else if (key === 'strict') {
@@ -103,11 +107,19 @@ export function missingCapabilities(target: Target, units: Unit[] | null): strin
   }
   if (String(config.nolib ?? config.noLib ?? '').trim().toLowerCase() !== 'true') missing.push('standard-library');
   if (units !== null) {
+    // Multi-source virtual files are now written to a private work directory.
+    // Reject names that would escape it, silently alias, or require a foreign
+    // filesystem convention. These are unsupported virtual filesystem inputs,
+    // not executed failures that can be reclassified as SKIP.
+    const names = new Set<string>();
     for (const u of units) {
       const ext = u.name.endsWith('.d.ts') ? '.d.ts' : extname(u.name).toLowerCase();
       if (ext !== '.ts' && ext !== '.d.ts') missing.push(`input:${ext || 'none'}`);
+      if (u.name.length === 0 || u.name.includes('\\') || u.name.startsWith('/') || /^[A-Za-z]:/.test(u.name) ||
+          u.name.split('/').some((segment) => segment === '' || segment === '.' || segment === '..') ||
+          names.has(u.name)) missing.push('virtual-file-path');
+      names.add(u.name);
     }
-    if (units.length > 1) missing.push('multi-file');
   }
   return [...new Set(missing)];
 }
@@ -178,14 +190,20 @@ export function runTarget(target: Target, options: RunOptions): TargetResult {
     configuration: target.configuration?.Name ?? '', status, reasons,
   });
   let units: Unit[] | null = null;
+  let hasSymlinks = false;
   if (target.configuration !== null && target.group !== 'transpile') {
     const raw = readFileSync(join(options.upstream, target.upstreamPath));
     if (createHash('sha256').update(raw).digest('hex') !== target.rawSha256) {
       throw new Error(`${target.upstreamPath} does not match the registered pinned source`);
     }
-    units = parseUnits(raw.toString('utf8'), target.upstreamPath);
+    const source = raw.toString('utf8');
+    hasSymlinks = source.split(/\r?\n/).some((line) => LINK.test(line));
+    units = parseUnits(source, target.upstreamPath);
   }
   const missing = missingCapabilities(target, units);
+  // parseUnits removes @link directives; do not execute such targets without
+  // implementing their virtual symlink graph and reference paths.
+  if (hasSymlinks) missing.push('virtual-symlink');
   if (missing.length > 0) return result('SKIP', missing);
   const suite = target.upstreamPath.includes('/cases/conformance/') ? 'conformance' : 'compiler';
   const baselineDir = join(options.upstream, 'tsc/testdata/baselines/reference', suite);
@@ -209,10 +227,13 @@ export function runTarget(target: Target, options: RunOptions): TargetResult {
     // The pinned TS7 default ES2015 output preserves import/export syntax.
     // tscs requires that effective module mode to be spelled explicitly;
     // this is an invocation adapter, not a different upstream test config.
-    // Explicit @module configurations remain SKIP until A1.2 models them.
+    // Explicit ES2015/ES6 module mode is equivalent to this CLI's native
+    // ES2015 module mode. Other module transforms are filtered above.
+    const moduleOption = String(config.module ?? config.Module ?? '').trim().toLowerCase();
+    const moduleMode = moduleOption === 'es6' || moduleOption === '' ? 'es2015' : moduleOption;
     const lib = config.lib === undefined ? [] : ['--lib', String(config.lib).trim()];
     const args = [options.tscs, noEmit ? '--noEmit' : '--emitJs', '--noLib', ...lib, '--target', 'es2015',
-      '--module', 'es2015', ...units!.map((u) => u.name)];
+      '--module', moduleMode, ...units!.map((u) => u.name)];
     const run = spawnSync(options.dotnet, args, {cwd: work, encoding: 'utf8', timeout: 60_000});
     if (run.error) return result('FAIL', [`tscs did not run: ${run.error.message}`]);
     const lines = (run.stdout + run.stderr).split(/\r?\n/).filter((l) => l.length > 0);
