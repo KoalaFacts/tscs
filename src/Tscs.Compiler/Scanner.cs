@@ -118,6 +118,9 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false, boo
                     // A reserved keyword is a valid dotted property name: xs.with(i, value).
                     // Preserve rejection of bare "with" and declaration-name uses.
                     "with" when tokens.Count>0 && tokens[^1].Kind is (TokenKind.Dot or TokenKind.QuestionDot) => TokenKind.Identifier,
+                    // Preserve the declaration parser\u0027s contextual identifier spelling.
+                    // Ordinary source parsing admits var only after ambient declare.
+                    "var" when !declarationFile => TokenKind.Var,
                     "super" or "instanceof" or "implements" or "package" or "private" or "protected" or "public" or "static" or "class" or "var" or "new" or "this" or "enum" or "async" or "await" or "yield" or "with" or "debugger" or "namespace" or "using" => TokenKind.Unsupported, _ => TokenKind.Identifier };
                 if(declarationFile && kind==TokenKind.Unsupported)kind=TokenKind.Identifier;
                 if(jsonMode)

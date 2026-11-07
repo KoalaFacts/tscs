@@ -171,11 +171,13 @@ is executed by the `tools/verify-*-emit.ts` checks.
 
 ### Standard library
 
-The noLib CLI accepts bounded, non-overloaded typed `declare let/const/function`
+The noLib CLI accepts bounded, non-overloaded typed `declare var/let/const/function`
 value signatures and non-generic named `type` aliases/`interface` shapes
 from separate `.d.ts` inputs. These share the real parser, binder and checker
 with `.ts` consumers, including cross-file structural typing and negative
-diagnostics; no declaration file emits JavaScript. Generic aliases/interfaces,
+diagnostics; no declaration file emits JavaScript. Single typed ambient `var`
+bindings are writable, while var redeclaration/merging remains unsupported.
+Generic aliases/interfaces,
 ambient classes and library-wide declaration merging remain unsupported.
 This is an A2.3 prerequisite, **not** default-library loading, general ambient
 declaration support or an original upstream PASS.

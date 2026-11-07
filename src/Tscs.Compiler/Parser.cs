@@ -724,9 +724,9 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     Unsupported(Current,"Only exported variables, functions, type aliases and interfaces are supported yet.");
             }
             bool ambient=Eat(TokenKind.Declare);
-            if(ambient && (depth!=0 || Current.Kind is not (TokenKind.Function or TokenKind.Let or TokenKind.Const)))
-                Unsupported(Current,"Only source-level ambient function signatures and typed let/const declarations are supported.");
-            if(ambient && Current.Kind is TokenKind.Let or TokenKind.Const)
+            if(ambient && (depth!=0 || Current.Kind is not (TokenKind.Function or TokenKind.Let or TokenKind.Const or TokenKind.Var)))
+                Unsupported(Current,"Only source-level ambient function signatures and typed var/let/const declarations are supported.");
+            if(ambient && Current.Kind is TokenKind.Let or TokenKind.Const or TokenKind.Var)
             {
                 // A source-level ambient variable is a typed, uninitialized
                 // declaration that binds a value and emits nothing.
