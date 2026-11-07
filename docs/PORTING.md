@@ -25,7 +25,7 @@ Unsupported behavior cannot be interpreted as a conformance pass.
 
 ## Shared global-script compilation (2026-10-27; PR #8)
 
-The C# compiler now routes both one-file and multiple-file inputs through
+The C# compiler routes both one-file and multiple-file inputs through
 `Compilation.AnalyzeFiles`: lex and parse separate source texts into
 file-identified ASTs, prebind top-level `let`/`const` symbols from every
 script, then check primitive expressions using a common global scope.
@@ -62,7 +62,7 @@ acceptance ledger remains separate from these local architecture checks.
 
 ## Host-backed path-reference source graph (2026-10-27; PR #8)
 
-`CompilerProgram.Load` now expands a bounded, transitive set of **leading**
+`CompilerProgram.Load` expands a bounded, transitive set of **leading**
 `/// <reference path="./other.ts" />` source dependencies through
 `ICompilerHost.ResolveReferencePath`. The host canonicalizes each dependency,
 and a visited-set prevents duplicate source reads across diamonds and cycles.
@@ -95,7 +95,7 @@ credited without the independent reference and complete original assertions.
 
 ## Shared source syntax snapshots (2026-10-27; PR #8)
 
-The host-backed dependency loader and `Compilation.AnalyzeFiles` now share
+The host-backed dependency loader and `Compilation.AnalyzeFiles` share
 one scanner/parser result per canonical source, preserving either its AST or its
 real lexical/parser/unsupported diagnostics. This removes duplicate parsing for
 imported modules without adding a second syntax path. CLI JSON retains the
@@ -105,7 +105,7 @@ unimplemented; these changes do not award upstream acceptance.
 
 ## Bound local module exports (2026-10-27; PR #8)
 
-The shared Program AST now feeds a separate module export table in Binder.
+The shared Program AST feeds a separate module export table in Binder.
 Local exports retain their declaring symbol across public aliases and source
 order; `export {}` creates a module boundary without exposing private globals.
 The importer uses this table rather than searching exported variable ASTs
@@ -156,7 +156,7 @@ for functions, unions, generics or full TypeScript type relations.
 
 ## Explicit function signatures and calls (2026-10-27; PR #8)
 
-The scanner/parser now admit named source-level functions with required parameter
+The scanner/parser admit named source-level functions with required parameter
 and return primitive annotations, a bounded statement body ending in a direct
 value `return`, and identifier call expressions with a bounded call nesting depth.
 Binder predeclares callable symbols alongside variables, creates distinct typed
@@ -174,7 +174,7 @@ The Parser retains the exact Scanner line-break flag on the token following
 `return`. Under the current value-return-only subset, a line terminator after
 `return` (including CRLF or one inside a block comment) is rejected rather
 than silently treating the following expression as the return value.
-`FunctionControlFlow` now analyzes unconditional sequential/nested lexical
+`FunctionControlFlow` analyzes unconditional sequential/nested lexical
 blocks for a definite value return; TypeChecker enforces that semantic
 requirement instead of the Parser requiring a direct last statement.
 This permits nested straight-line return blocks without treating functions
@@ -199,7 +199,7 @@ assertions and pinned reference results.
 
 ## Shared primitive expression precedence (2026-10-27; PR #8)
 
-The same Scanner and AST expression pipeline now supports parenthesized groups,
+The same Scanner and AST expression pipeline supports parenthesized groups,
 boolean unary negation, strict/loose equality and inequality, numeric relational
 comparisons and boolean `&&` / `||`. Parser precedence is multiplicative,
 additive, relational, equality, logical AND and logical OR, with iterative
@@ -250,13 +250,13 @@ non-named syntax, package resolution, source maps or declaration emission.
 
 ## Project ES2015 module option through the shared emit path (2026-10-28)
 
-The bounded `tsconfig.json` `compilerOptions.module` adapter now uses the frozen
+The bounded `tsconfig.json` `compilerOptions.module` adapter uses the frozen
 TS7 enum declaration and reports its diagnostics for invalid values. `es2015`
 and `es6` select the same effective module mode as the existing CLI
 `--module` flag, while `null` means unset; other module modes remain
 explicitly unsupported. The independent `--emitJs` opt-in is still required
 for output, and the existing `noLib`/`target` restrictions still apply.
-A project can now supply its `files`, `module`, `target` and `noLib` in
+A project can supply its `files`, `module`, `target` and `noLib` in
 one config, with `--emitJs -p tsconfig.json` emitting a checked multi-source
 named ESM graph. No second parser/emit pipeline or default output behavior was
 introduced. Project `extends`, `include`, module-resolution modes, CommonJS,
@@ -301,7 +301,7 @@ and a complete, reference-verified TS7 effective-config lifecycle.
 canonical directory entries carrying directory and symbolic-link metadata.
 The filesystem implementation supplies OS entries while an in-memory VFS can
 supply the same paths and source text without touching disk. Project glob
-discovery now runs through this host boundary, using the host filename comparer
+discovery runs through this host boundary, using the host filename comparer
 for package boundaries, suffixes and matching, then passes discovered roots to
 the unchanged `CompilerProgram.Load` snapshot/binder/checker pipeline.
 CLI config discovery and Program loading share one `FileSystemCompilerHost`.
