@@ -39,6 +39,150 @@ public sealed class InterfaceInheritanceTests
     public void InvalidHeritageFailsClosed(string source,string code)=>
         Assert.Contains(Compilation.Check("heritage-bad.ts",source),d=>d.Code==code);
 
+
+    [Theory]
+    [InlineData("interface Record { value:number } interface Record { label:string } let data:Record={value:21,label:\"ok\"}; let answer:number=data.value;")]
+    [InlineData("interface Record { readonly value:number } interface Record { readonly value:number; label:string } let data:Record={value:21,label:\"ok\"};")]
+    [InlineData("interface Record { value:number } interface Record { extra:number } type Keys=keyof Record; let k:Keys=\"extra\";")]
+    public void ReopenedFiniteInterfacesContributeAllProperties(string source)=>
+        Assert.Empty(Compilation.Check("merged.ts",source));
+
+    [Fact]
+    public void ReopenedInterfacesBindAcrossDeclarationFilesBeforeConsumer()
+    {
+        var diagnostics=Compilation.CheckFiles([
+            new SourceInput("first.d.ts","interface Reading { value:number; }"),
+            new SourceInput("second.d.ts","interface Reading { label:string; }"),
+            new SourceInput("entry.ts","let r:Reading={value:21,label:\"yes\"}; let total:number=r.value;")
+        ]);
+        Assert.Empty(diagnostics);
+    }
+
+    [Theory]
+    [InlineData("interface R { value:number } interface R { value:string }","TS2717")]
+    [InlineData("interface R { readonly value:number } interface R { value:number }","TS2687")]
+    [InlineData("interface R { value?:number } interface R { value:number }","TS2687")]
+    [InlineData("type R={value:number};interface R{extra:number}","TS2300")]
+    [InlineData("interface R{value:number} type R={extra:number}","TS2300")]
+    [InlineData("interface R { value:number } interface R { extra:number } let r:R={value:21};","TS2741")]
+    [InlineData("interface R { value:number } interface R { extra:number } let r:R={value:21,extra:\"bad\"};","TS2322")]
+    public void IncompatibleInterfaceMergesAndConsumersFailClosed(string source,string code)=>
+        Assert.Contains(Compilation.Check("merged-bad.ts",source),d=>d.Code==code);
+
+    [Theory]
+    [InlineData("interface R{value:{a:number;b:string}}interface R{value:{b:string;a:number}}let r:R={value:{a:1,b:\"x\"}};")]
+    [InlineData("interface R{value:number|string}interface R{value:string|number}let r:R={value:1};")]
+    [InlineData("type Shape={a:number}&{b:string};interface R{value:Shape}interface R{value:Shape}")]
+    public void DeclarationIdentityAcceptsOrderIndependentAndSameIntersectionTypes(string source)=>
+        Assert.Empty(Compilation.Check("identity-ok.ts",source));
+
+    [Theory]
+    [InlineData("interface R{value:{a:number}&{b:string}}interface R{value:{a:number;b:string}}")]
+    [InlineData("interface R{value:{a:number;b:string}}interface R{value:{a:number}&{b:string}}")]
+    [InlineData("interface R{value:({a:number}&{b:string})[]}interface R{value:{a:number;b:string}[]}")]
+    [InlineData("interface R{value:(x:{a:number}&{b:string})=>number}interface R{value:(x:{a:number;b:string})=>number}")]
+    public void DeclarationIdentityRejectsFlattenedIntersectionProvenance(string source)=>
+        Assert.Contains(Compilation.Check("identity-bad.ts",source),d=>d.Code=="TS2717");
+
+    [Fact]
+    public void AmbientVarMergingUsesIdentityRatherThanPrintedOrder()
+    {
+        var compatible=Compilation.CheckFiles([
+            new SourceInput("a.d.ts","declare var total:{a:number;b:string};"),
+            new SourceInput("b.d.ts","declare var total:{b:string;a:number};"),
+            new SourceInput("entry.ts","let result:number=total.a;")
+        ]);
+        Assert.Empty(compatible);
+        var conflict=Compilation.CheckFiles([
+            new SourceInput("a.d.ts","declare var total:{a:number}&{b:string};"),
+            new SourceInput("b.d.ts","declare var total:{a:number;b:string};"),
+            new SourceInput("entry.ts","let result:number=total.a;")
+        ]);
+        Assert.Contains(conflict,d=>d.Code=="TS2403" && d.File=="b.d.ts");
+    }
+
+    private const string DerivedPrelude=
+        "type A={a:number};type B={b:string};type P=A&B;declare const first:P;declare const second:P;";
+
+    [Theory]
+    [InlineData("typeof first","typeof second")]
+    [InlineData("keyof P","\"a\"|\"b\"")]
+    [InlineData("P[\"a\"]","number")]
+    public void DeclarationIdentityComparesWhatDerivedSyntaxDenotes(string one,string two)
+    {
+        foreach(var (left,right) in new[]{(one,two),(two,one)})
+        {
+            Assert.Empty(Compilation.Check("derived-ok.ts",
+                DerivedPrelude+$"interface R{{value:{left}}}interface R{{value:{right}}}"));
+            Assert.Empty(Compilation.CheckFiles([
+                new SourceInput("types.d.ts",DerivedPrelude),
+                new SourceInput("a.d.ts",$"declare var item:{left};"),
+                new SourceInput("b.d.ts",$"declare var item:{right};"),
+                new SourceInput("entry.ts","let result=7;")
+            ]));
+        }
+    }
+
+    [Theory]
+    [InlineData("P[\"b\"]","number")]
+    [InlineData("typeof first","{a:number;b:string}")]
+    public void DerivedDeclarationIdentityStillRejectsDifferentTypes(string one,string two)=>
+        Assert.Contains(Compilation.Check("derived-bad.ts",
+            DerivedPrelude+$"interface R{{value:{one}}}interface R{{value:{two}}}"),d=>d.Code=="TS2717");
+
+    [Theory]
+    [InlineData("function f(x:A&B):number{return 1}","typeof f","(x:{a:number;b:string})=>number")]
+    [InlineData("const v={a:1,b:\"x\"} as A&B;","typeof v","{a:number;b:string}")]
+    public void TypeQueryWithoutDeclaredIntersectionShapeFailsClosed(string value,string one,string two)=>
+        Assert.Contains(Compilation.Check("derived-query.ts",
+            DerivedPrelude+value+$"interface R{{value:{one}}}interface R{{value:{two}}}"),d=>d.Code=="TS2717");
+
+    private const string QueryPrelude="type A={a:number};type B={b:string};type P=A&B;";
+
+    // Review regression on 2d3bb1d: inferred and function-declaration roots
+    // without intersection provenance compare by the type they denote.
+    [Theory]
+    [InlineData("let first=7;let second=8;")]
+    [InlineData("const first={a:7,b:\"ok\"};const second={a:8,b:\"yes\"};")]
+    [InlineData("function first(v:P):number{return 1}function second(v:P):number{return 2}")]
+    public void TypeQueriesOfEqualDeclaredOrInferredTypesMerge(string values)
+    {
+        foreach(var (left,right) in new[]{("first","second"),("second","first")})
+        {
+            Assert.Empty(Compilation.Check("query-ok.ts",
+                QueryPrelude+values+$"interface R{{value:typeof {left}}}interface R{{value:typeof {right}}}"));
+            Assert.Empty(Compilation.CheckFiles([
+                new SourceInput("types.d.ts",QueryPrelude),
+                new SourceInput("shared.ts",values),
+                new SourceInput("a.d.ts",$"declare var item:typeof {left};"),
+                new SourceInput("b.d.ts",$"declare var item:typeof {right};"),
+                new SourceInput("entry.ts","let result=7;")
+            ]));
+        }
+    }
+
+    [Theory]
+    [InlineData("let first=7;let second=\"x\";","typeof second")]
+    [InlineData("function first(v:P):number{return 1}","(v:{a:number;b:string})=>number")]
+    [InlineData("function first(v:P):number{return 1}function second(v:{a:number;b:string}):number{return 2}","typeof second")]
+    [InlineData("const first={a:7,b:\"ok\"};const v={a:1,b:\"x\"} as P;","typeof v")]
+    [InlineData("let first=null;","null")]
+    [InlineData("let first=(null);let second=null;","typeof second")]
+    public void TypeQueryIdentityStillRejectsDifferentOrUnprovenTypes(string values,string other)=>
+        Assert.Contains(Compilation.Check("query-bad.ts",
+            QueryPrelude+values+$"interface R{{value:typeof first}}interface R{{value:{other}}}"),d=>d.Code=="TS2717");
+
+    [Fact]
+    public void ConflictingDeclarationFilesReportTheLaterFile()
+    {
+        var errors=Compilation.CheckFiles([
+            new SourceInput("first.d.ts","interface R { value:number; }"),
+            new SourceInput("second.d.ts","interface R { value:string; }"),
+            new SourceInput("entry.ts","let x:number=1;")
+        ]);
+        Assert.Contains(errors,e=>e.Code=="TS2717" && e.File=="second.d.ts");
+    }
+
     private sealed class Host:ICompilerHost
     {
         public StringComparer FileNameComparer=>StringComparer.Ordinal;

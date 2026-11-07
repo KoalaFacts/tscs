@@ -95,9 +95,23 @@ internal static class Binder
                 :iface.Body),
             _=>throw new InvalidOperationException("Not a type declaration.")
         };
-        if(!scope.Types.TryAdd(name.Text,new TypeBinding(file,name,syntax,scope)))
+        if(scope.Types.TryGetValue(name.Text,out var previous))
+        {
+            // Non-generic interfaces may reopen a single global/module type.
+            // Imported types and aliases remain separate, non-mergeable symbols.
+            if(declaration is InterfaceDeclaration && previous.IsInterface &&
+               ReferenceEquals(previous.Owner,scope))
+            {
+                previous.MergedInterfaces.Add((file,name,syntax,scope));
+                return;
+            }
             throw new CompilationFailure(Diagnostic.Error(file,name,"TS2300",
                 $"Duplicate identifier '{name.Text}'."));
+        }
+        scope.Types.Add(name.Text,new TypeBinding(file,name,syntax,scope)
+        {
+            IsInterface=declaration is InterfaceDeclaration
+        });
     }
 
     public static void DeclareParameter(string file,Scope scope,ParameterDeclaration parameter)
@@ -408,8 +422,8 @@ internal static class Binder
             foreach(var (file,merged) in symbol.AmbientVarMerges)
             {
                 var actual=TypeResolver.Resolve(merged.Annotation!,scope,file);
-                if(!string.Equals(expected.DisplayName,actual.DisplayName,StringComparison.Ordinal) ||
-                   !CompilerTypes.IsEquivalent(expected,actual))
+                if(!DeclarationTypeIdentity.Same(first.Annotation!,scope,symbol.File,
+                    merged.Annotation!,scope,file))
                     throw new CompilationFailure(Diagnostic.Error(file,merged.Name,"TS2403",
                         $"Subsequent variable declarations must have the same type. Variable '{merged.Name.Text}' must be of type '{expected.DisplayName}', but here has type '{actual.DisplayName}'."));
             }
