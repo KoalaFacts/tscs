@@ -37,7 +37,9 @@ try {
     'export const nested:number=read([...items,...extra]);',
     'export const emptyResult:number=sum([...empty,42]);',
     'export const pair:number=sum([20,...[21,1]]);',
-    'export const length:number=size([1,...nums,...tail]);'
+    'export const length:number=size([1,...nums,...tail]);',
+    'export const nonNull:number=sum([...tail!,21]);',
+    'export const conditional:number=sum([...(true ? nums : tail),22]);'
   ].join('\n'));
   function compile(source:string){
     const r=spawnSync(process.env.DOTNET??'dotnet',
@@ -51,9 +53,13 @@ try {
   assert.equal(built.status,0,built.stdout+built.stderr);
   for(const name of ['model','logic','bridge','entry'])
     assert.ok(existsSync(join(folder,name+'.js')),'missing '+name+'.js');
+  const emitted=readFileSync(join(folder,'entry.js'),'utf8');
+  assert.match(emitted,/\[\.\.\.tail, 21\]/,'non-null assertions on spread operands must erase without added grouping');
+  assert.match(emitted,/\[\.\.\.\(true \? nums : tail\), 22\]/,
+    'conditional spreads retain only the source-written parentheses');
   const runtime=spawnSync(process.execPath,['--input-type=module','--eval',[
-    'import {result,mixed,nested,emptyResult,pair,length} from "./entry.js";',
-    'if(result!==42||mixed!==42||nested!==42||emptyResult!==42||pair!==42||length!==3)',
+    'import {result,mixed,nested,emptyResult,pair,length,nonNull,conditional} from "./entry.js";',
+    'if(result!==42||mixed!==42||nested!==42||emptyResult!==42||pair!==42||length!==3||nonNull!==42||conditional!==42)',
     '  throw Error("array spread runtime mismatch");'
   ].join('\n')],{cwd:folder,encoding:'utf8',timeout:15000});
   assert.equal(runtime.error,undefined,String(runtime.error));
