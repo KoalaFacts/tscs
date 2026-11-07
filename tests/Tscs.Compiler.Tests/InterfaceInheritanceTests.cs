@@ -161,6 +161,43 @@ public sealed class InterfaceInheritanceTests
         }
     }
 
+    // Review regressions on merged #238 (main 8a9bd2b): main aa3782e and the
+    // pinned reference accept these repeated ambient var declarations.
+    [Theory]
+    [InlineData("const first=null;const second=null;","typeof second")]
+    [InlineData("const first={x:null};const second={x:null};","typeof second")]
+    [InlineData("const first=[null];const second=[null];","typeof second")]
+    [InlineData("const first=null;","null")]
+    [InlineData("const first={x:null};","{x:null}")]
+    [InlineData("const first={a:7,b:\"ok\"} as P;","P")]
+    [InlineData("function first(...v:P[]):number{return 7;}","(...v:P[])=>number")]
+    public void RepeatedAmbientVarKeepsMainNullAssertedAndRestIdentity(string values,string other)
+    {
+        foreach(var (left,right) in new[]{("typeof first",other),(other,"typeof first")})
+            Assert.Empty(Compilation.CheckFiles([
+                new SourceInput("types.d.ts",QueryPrelude),
+                new SourceInput("shared.ts",values),
+                new SourceInput("a.d.ts",$"declare var item:{left};"),
+                new SourceInput("b.d.ts",$"declare var item:{right};"),
+                new SourceInput("entry.ts","let result=7;")
+            ]));
+    }
+
+    [Theory]
+    [InlineData("let first=null;","null")]
+    [InlineData("const first={a:7,b:\"ok\"} as P;","{a:number;b:string}")]
+    [InlineData("const first={a:7,b:\"ok\"} as const;","{a:number;b:string}")]
+    [InlineData("function first(...v:P[]):number{return 7;}","(v?:P)=>number")]
+    [InlineData("function first(...v:P[]):number{return 7;}","(...v:{a:number;b:string}[])=>number")]
+    public void RepeatedAmbientVarStillRejectsDifferentNullAssertedAndRestTypes(string values,string other)=>
+        Assert.Contains(Compilation.CheckFiles([
+            new SourceInput("types.d.ts",QueryPrelude),
+            new SourceInput("shared.ts",values),
+            new SourceInput("a.d.ts","declare var item:typeof first;"),
+            new SourceInput("b.d.ts",$"declare var item:{other};"),
+            new SourceInput("entry.ts","let result=7;")
+        ]),d=>d.Code=="TS2403");
+
     [Theory]
     [InlineData("let first=7;let second=\"x\";","typeof second")]
     [InlineData("function first(v:P):number{return 1}","(v:{a:number;b:string})=>number")]

@@ -47,8 +47,11 @@ internal static class DeclarationTypeIdentity
             return value?.Declaration switch
             {
                 Variable { Annotation: { } annotation }=>HasIntersection(annotation,owner,depth+1),
+                // 'x as T' declares x with exactly the asserted type T.
                 Variable { Annotation: null,Initializer: { } initializer } when
-                    query.Members.Count==0 && TypeFree(initializer,0)=>false,
+                    AssertedType(initializer) is { } asserted=>HasIntersection(asserted,owner,depth+1),
+                Variable { Annotation: null,Initializer: { } initializer } variable when
+                    query.Members.Count==0 && TypeFree(initializer,0,variable.Constant)=>false,
                 FunctionDeclaration function=>
                     function.Parameters.Any(p=>HasIntersection(p.Annotation,owner,depth+1)) ||
                     HasIntersection(function.ReturnAnnotation,owner,depth+1),
@@ -187,6 +190,10 @@ internal static class DeclarationTypeIdentity
         TypeQuerySyntax { Members.Count:0 } query when
             scope.Find(query.Root.Text) is { Declaration: Variable { Annotation: { } annotation } } value=>
             new Denoted(annotation,value.DeclaringScope??scope,value.File),
+        TypeQuerySyntax { Members.Count:0 } query when
+            scope.Find(query.Root.Text) is { Declaration: Variable { Annotation: null,Initializer: { } initializer } } value &&
+            AssertedType(initializer) is { } asserted=>
+            new Denoted(asserted,value.DeclaringScope??scope,value.File),
         // A function declaration's type is the signature its required
         // annotations spell, so two functions with the same annotated
         // signature denote the same declaration type.
@@ -194,7 +201,7 @@ internal static class DeclarationTypeIdentity
             scope.Find(query.Root.Text) is { Declaration: FunctionDeclaration function } value=>
             new Denoted(new FunctionTypeSyntax(function.Name,
                     function.Parameters.Select(p=>new FunctionTypeParameter(
-                        p.Name,p.Annotation,p.Optional || p.DefaultValue is not null,p.Rest)).ToList(),
+                        p.Name,p.Annotation,!p.Rest && (p.Optional || p.DefaultValue is not null),p.Rest)).ToList(),
                     function.ReturnAnnotation),
                 value.DeclaringScope??scope,value.File),
         IndexedAccessTypeSyntax indexed=>Project(indexed,scope,file,depth),
@@ -269,28 +276,38 @@ internal static class DeclarationTypeIdentity
     // Literal-only initializer syntax: its inferred type is built from
     // literals and operators alone, never from a type annotation, assertion,
     // call result or other binding that could carry an intersection.
-    private static bool TypeFree(ValueNode value,int depth)
+    // A bare top-level 'null' is literal-only only for a const: an unannotated
+    // 'let x=null' is an implicit any in the reference, while 'const x=null'
+    // is null and a nested null ({x:null}, [null]) keeps the null type.
+    private static bool TypeFree(ValueNode value,int depth,bool nullOk)
     {
         if(depth>64)return false;
         return value switch
         {
-            // 'null' is excluded: an unannotated 'let x=null' is an implicit
-            // any in the reference, not the null type the checker infers here.
             ValueAtom { Shorthand:false } atom=>atom.Token.Kind is
                 TokenKind.Number or TokenKind.String or TokenKind.Template or
-                TokenKind.True or TokenKind.False,
-            ValueTemplate template=>template.Expressions.All(e=>TypeFree(e,depth+1)),
-            ValueUnary unary=>TypeFree(unary.Operand,depth+1),
-            ValueBinary binary=>TypeFree(binary.Left,depth+1) && TypeFree(binary.Right,depth+1),
-            ValueParenthesized inner=>TypeFree(inner.Expression,depth+1),
-            ValueConditional conditional=>TypeFree(conditional.Condition,depth+1) &&
-                TypeFree(conditional.WhenTrue,depth+1) && TypeFree(conditional.WhenFalse,depth+1),
+                TokenKind.True or TokenKind.False || (nullOk && atom.Token.Kind==TokenKind.Null),
+            ValueTemplate template=>template.Expressions.All(e=>TypeFree(e,depth+1,false)),
+            ValueUnary unary=>TypeFree(unary.Operand,depth+1,false),
+            ValueBinary binary=>TypeFree(binary.Left,depth+1,false) && TypeFree(binary.Right,depth+1,false),
+            ValueParenthesized inner=>TypeFree(inner.Expression,depth+1,nullOk),
+            ValueConditional conditional=>TypeFree(conditional.Condition,depth+1,false) &&
+                TypeFree(conditional.WhenTrue,depth+1,false) && TypeFree(conditional.WhenFalse,depth+1,false),
             ValueObject shape=>shape.Properties.All(p=>
-                !p.Spread && !p.Method && !p.Computed && TypeFree(p.Value,depth+1)),
-            ValueArray array=>array.Elements.All(e=>TypeFree(e,depth+1)),
+                !p.Spread && !p.Method && !p.Computed && TypeFree(p.Value,depth+1,true)),
+            ValueArray array=>array.Elements.All(e=>TypeFree(e,depth+1,true)),
             _=>false
         };
     }
+
+    // The target of a plain 'as T' assertion ('as const' and 'satisfies' excluded).
+    private static TypeSyntax? AssertedType(ValueNode value)=>value switch
+    {
+        ValueParenthesized inner=>AssertedType(inner.Expression),
+        ValueTypeOperator { Keyword.Text:"as",Target: var target } when
+            target is not NamedTypeSyntax { Name.Kind: TokenKind.Const }=>target,
+        _=>null
+    };
 
     private static bool Unordered<T>(IReadOnlyList<T> left,Scope leftScope,string leftFile,
         IReadOnlyList<T> right,Scope rightScope,string rightFile,int depth)
