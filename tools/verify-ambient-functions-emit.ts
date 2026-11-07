@@ -76,6 +76,24 @@ try {
  assert.match(badNamed.stdout+badNamed.stderr,/TS2322/);
  assert.equal(existsSync(join(folder,'bad-named.js')),false);
  assert.equal(existsSync(join(folder,'models.d.js')),false);
+ // Real standard-library-style "declare var" participates in the checked
+ // program as a mutable global, but the ambient declaration itself emits nothing.
+ writeFileSync(join(folder,'writable.d.ts'),'type Seed = number; declare var seed: Seed;');
+ writeFileSync(join(folder,'writable.ts'),'seed = seed + 2; let doubled: Seed = seed * 2;');
+ const writable=compile('writable.ts','writable.d.ts');
+ assert.equal(writable.status,0,writable.stdout+writable.stderr);
+ assert.equal(existsSync(join(folder,'writable.d.js')),false);
+ const writableJs=readFileSync(join(folder,'writable.js'),'utf8');
+ const writableResult=runInNewContext(writableJs+'[seed,doubled]',{seed:3},{timeout:1500});
+ assert.equal(writableResult[0],5);
+ assert.equal(writableResult[1],10);
+ writeFileSync(join(folder,'bad-writable.ts'),'seed = "wrong";');
+ const badWritable=compile('bad-writable.ts','writable.d.ts');
+ assert.equal(badWritable.status,2,badWritable.stdout+badWritable.stderr);
+ assert.match(badWritable.stdout+badWritable.stderr,/TS2322/);
+ assert.equal(existsSync(join(folder,'bad-writable.js')),false);
+ assert.equal(existsSync(join(folder,'writable.d.js')),false);
+ console.log('Ambient var: cross-file checked mutable global executes 10; invalid assignment emits no JS.');
  console.log('Ambient types: linked type alias, interface and value execute 8; bad assignment emits no JS.');
  console.log('Ambient declarations: checked .d.ts values link across files, execute 21, invalid calls emit no JS.');
  console.log('Ambient declarations: 2 source units execute 42, invalid programs emit no JS.');

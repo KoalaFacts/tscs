@@ -464,6 +464,45 @@ public class CommandLineTests : IDisposable
     }
 
     [Fact]
+    public void AmbientVarContributesWritableCheckedGlobalWithoutDeclarationOutput()
+    {
+        var declarations=Write("ambient-vars.d.ts","type Sample = number; declare var running: Sample;");
+        var consumer=Write("run.ts","running = running + 2; let output: Sample = running;");
+        var result=Run("--emitJs","--noLib","--target","es2015",consumer,declarations,Lib());
+        Assert.Equal(0,result.Code);
+        Assert.Equal("",result.Out);
+        Assert.True(File.Exists(Path.ChangeExtension(consumer,".js")));
+        Assert.False(File.Exists(Path.ChangeExtension(declarations,".js")));
+    }
+
+    [Theory]
+    [InlineData("let output: string = running;")]
+    [InlineData("running = \"wrong\";")]
+    public void AmbientVarTypeMismatchBlocksJavaScript(string source)
+    {
+        var declarations=Write("ambient-vars.d.ts","declare var running: number;");
+        var consumer=Write("invalid.ts",source);
+        var result=Run("--emitJs","--noLib","--target","es2015",consumer,declarations,Lib());
+        Assert.Equal(2,result.Code);
+        Assert.Contains("TS2322",result.Out);
+        Assert.False(File.Exists(Path.ChangeExtension(consumer,".js")));
+        Assert.False(File.Exists(Path.ChangeExtension(declarations,".js")));
+    }
+
+    [Theory]
+    [InlineData("var running: number = 2;")]
+    [InlineData("declare var running: number = 2;")]
+    [InlineData("declare var running;")]
+    public void UnsupportedVarSyntaxNeverCompilesSilently(string source)
+    {
+        var file=Write("invalid.ts",source);
+        var result=Run("--emitJs","--noLib","--target","es2015",file,Lib());
+        Assert.Equal(1,result.Code);
+        Assert.Contains("TSCS1001",result.Out);
+        Assert.False(File.Exists(Path.ChangeExtension(file,".js")));
+    }
+
+    [Fact]
     public void AmbientDtsBindsNonGenericTypesAndValuesAcrossSourcesWithoutEmittingDeclarations()
     {
         var types=Write("types.d.ts",

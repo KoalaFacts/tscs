@@ -183,7 +183,7 @@ public static class CommandLine
     private static bool IsCheckedAmbientStatement(AmbientStatement statement) => statement switch
     {
         AmbientFunction {Exported:false} => true,
-        AmbientVariable {Exported:false,Keyword.Text:"let" or "const"} => true,
+        AmbientVariable {Exported:false,Keyword.Text:"var" or "let" or "const"} => true,
         AmbientTypeAlias {Exported:false,TypeParameters.Count:0} alias
             when !GlobalTypes.Contains(alias.Name.Text,StringComparer.Ordinal) => true,
         AmbientInterface {Exported:false,TypeParameters.Count:0} iface
