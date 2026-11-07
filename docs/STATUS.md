@@ -171,6 +171,13 @@ is executed by the `tools/verify-*-emit.ts` checks.
 
 ### Standard library
 
+The noLib CLI accepts bounded, non-overloaded typed `declare let/const/function`
+value signatures from separate `.d.ts` inputs. They share the ordinary
+program binder and checker with `.ts` consumers, including negative argument
+and assignment diagnostics, and emit no JavaScript of their own. This is a
+checked A2.3 prerequisite, **not** default-library loading, general ambient
+declaration support or an original upstream PASS.
+
 `lib.*.d.ts` files cannot be loaded yet. `DeclarationParser` (A2.1) parses
 ambient declaration syntax into a syntax tree: interfaces, type aliases,
 `declare var/let/const/function`, ambient (and abstract) classes,

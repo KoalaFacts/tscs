@@ -451,6 +451,47 @@ public class CommandLineTests : IDisposable
         Assert.Contains("TSCS1002",fake.Out);
     }
     [Fact]
+    public void TypedAmbientDtsContributesCrossFileValuesWithoutEmittingADeclarationFile()
+    {
+        var declarations=Write("values.d.ts","declare const seed: number; declare function double(value: number): number;");
+        var entry=Write("entry.ts","let output: number = double(seed);");
+        // The consumer appears first: initialization must not follow CLI order.
+        var result=Run("--emitJs","--noLib","--target","es2015",entry,declarations,Lib());
+        Assert.Equal(0,result.Code);
+        Assert.Equal("",result.Out);
+        Assert.True(File.Exists(Path.ChangeExtension(entry,".js")));
+        Assert.False(File.Exists(Path.ChangeExtension(declarations,".js")));
+    }
+
+    [Theory]
+    [InlineData("let output: number = double(\"wrong\");","TS2345")]
+    [InlineData("let output: boolean = double(7);","TS2322")]
+    public void TypedAmbientDtsRejectsWrongCallsAndAssignmentsWithoutEmitting(string source,string code)
+    {
+        var declarations=Write("values.d.ts","declare const seed: number; declare function double(value: number): number;");
+        var entry=Write("bad.ts",source);
+        var result=Run("--emitJs","--noLib","--target","es2015",entry,declarations,Lib());
+        Assert.Equal(2,result.Code);
+        Assert.Contains(code,result.Out);
+        Assert.False(File.Exists(Path.ChangeExtension(entry,".js")));
+        Assert.False(File.Exists(Path.ChangeExtension(declarations,".js")));
+    }
+
+    [Fact]
+    public void TypedAmbientDtsStillRejectsOverloadsAndUnsupportedDeclarations()
+    {
+        var entry=Write("entry.ts","let output = 1;");
+        var declarations=Write("bad.d.ts","declare function f(x:number):number; declare function f(x:string):number;");
+        var rejected=Run("--noEmit","--noLib",entry,declarations,Lib());
+        Assert.Equal(1,rejected.Code);
+        Assert.Contains("TSCS1001",rejected.Out);
+        File.WriteAllText(declarations,"declare class C { value: number; }");
+        var unsupported=Run("--noEmit","--noLib",entry,declarations,Path.Combine(directory,"minimal.d.ts"));
+        Assert.Equal(1,unsupported.Code);
+        Assert.Contains("TSCS1002",unsupported.Out);
+    }
+
+    [Fact]
     public void CrossFileRootGlobalThisStillRequiresIntrinsicHandling()
     {
         var a=Write("a.ts","let globalThis = 1;");
