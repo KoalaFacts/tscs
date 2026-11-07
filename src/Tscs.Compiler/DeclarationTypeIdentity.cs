@@ -274,9 +274,11 @@ internal static class DeclarationTypeIdentity
         if(depth>64)return false;
         return value switch
         {
+            // 'null' is excluded: an unannotated 'let x=null' is an implicit
+            // any in the reference, not the null type the checker infers here.
             ValueAtom { Shorthand:false } atom=>atom.Token.Kind is
                 TokenKind.Number or TokenKind.String or TokenKind.Template or
-                TokenKind.True or TokenKind.False or TokenKind.Null,
+                TokenKind.True or TokenKind.False,
             ValueTemplate template=>template.Expressions.All(e=>TypeFree(e,depth+1)),
             ValueUnary unary=>TypeFree(unary.Operand,depth+1),
             ValueBinary binary=>TypeFree(binary.Left,depth+1) && TypeFree(binary.Right,depth+1),

@@ -166,6 +166,8 @@ public sealed class InterfaceInheritanceTests
     [InlineData("function first(v:P):number{return 1}","(v:{a:number;b:string})=>number")]
     [InlineData("function first(v:P):number{return 1}function second(v:{a:number;b:string}):number{return 2}","typeof second")]
     [InlineData("const first={a:7,b:\"ok\"};const v={a:1,b:\"x\"} as P;","typeof v")]
+    [InlineData("let first=null;","null")]
+    [InlineData("let first=(null);let second=null;","typeof second")]
     public void TypeQueryIdentityStillRejectsDifferentOrUnprovenTypes(string values,string other)=>
         Assert.Contains(Compilation.Check("query-bad.ts",
             QueryPrelude+values+$"interface R{{value:typeof first}}interface R{{value:{other}}}"),d=>d.Code=="TS2717");
