@@ -1,8 +1,9 @@
+import {runTscs} from './tscs-process.ts';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {existsSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
-import {join,resolve} from 'node:path';
+import {join} from 'node:path';
 
 // Actual four-module runtime and negative no-emit, not original TS7 acceptance.
 const folder=mkdtempSync(join(tmpdir(),'tscs-conditional-value-'));
@@ -57,11 +58,7 @@ try {
     files:['entry.ts','minimal.d.ts'],
     compilerOptions:{module:'es2015',target:'es2015',noLib:true}
   }));
-  const compiler=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
-  const environment={...process.env,DOTNET_CLI_TELEMETRY_OPTOUT:'1',TESTINGPLATFORM_TELEMETRY_OPTOUT:'1'};
-  const compiled=spawnSync(process.env.DOTNET??'dotnet',
-    [compiler,'--emitJs','-p',join(folder,'project.json')],
-    {cwd:folder,encoding:'utf8',timeout:30000,env:environment});
+  const compiled=runTscs(folder,['--emitJs','-p',join(folder,'project.json')]);
   assert.equal(compiled.error,undefined,String(compiled.error));
   assert.equal(compiled.status,0,compiled.stdout+compiled.stderr);
   for(const name of ['model','choose','bridge','entry'])
@@ -73,18 +70,14 @@ try {
   assert.equal(run.status,0,run.stdout+run.stderr);
   writeFileSync(join(folder,'invalid.ts'),
     'function wrong(flag: boolean): number { return flag ? "wrong" : 0; }');
-  const rejected=spawnSync(process.env.DOTNET??'dotnet',
-    [compiler,'--emitJs','--noLib','--target','es2015',join(folder,'invalid.ts'),join(folder,'minimal.d.ts')],
-    {cwd:folder,encoding:'utf8',timeout:30000,env:environment});
+  const rejected=runTscs(folder,['--emitJs','--noLib','--target','es2015',join(folder,'invalid.ts'),join(folder,'minimal.d.ts')]);
   assert.equal(rejected.error,undefined,String(rejected.error));
   assert.equal(rejected.status,2,rejected.stdout+rejected.stderr);
   assert.match(rejected.stdout+rejected.stderr,/TS2322/);
   assert.equal(existsSync(join(folder,'invalid.js')),false);
   writeFileSync(join(folder,'invalid-unbraced.ts'),
     'function wrong(flag: boolean): number { if (flag) const value = 1; return 0; }');
-  const invalidUnbraced=spawnSync(process.env.DOTNET??'dotnet',
-    [compiler,'--emitJs','--noLib','--target','es2015',join(folder,'invalid-unbraced.ts'),join(folder,'minimal.d.ts')],
-    {cwd:folder,encoding:'utf8',timeout:30000,env:environment});
+  const invalidUnbraced=runTscs(folder,['--emitJs','--noLib','--target','es2015',join(folder,'invalid-unbraced.ts'),join(folder,'minimal.d.ts')]);
   assert.equal(invalidUnbraced.error,undefined,String(invalidUnbraced.error));
   assert.equal(invalidUnbraced.status,1,invalidUnbraced.stdout+invalidUnbraced.stderr);
   assert.match(invalidUnbraced.stdout+invalidUnbraced.stderr,/TSCS1001/);
