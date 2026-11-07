@@ -36,8 +36,7 @@ public static class CommandLine
                 // Reparse these with the ordinary program AST for real checking.
                 var declarations=DeclarationParser.Parse(path,text);
                 if(declarations.Diagnostics.Count==0 && declarations.Statements.Count>0 &&
-                   declarations.Statements.All(statement=>statement is AmbientFunction {Exported:false}
-                       or AmbientVariable {Exported:false,Keyword.Text:"let" or "const"}))
+                   declarations.Statements.All(IsCheckedAmbientStatement))
                     typedAmbientFiles.Add(path);
                 else ReadGlobals(text,globals);
             }
@@ -177,6 +176,19 @@ public static class CommandLine
         var path=Path.GetRelativePath(Environment.CurrentDirectory,Path.GetFullPath(d.File)).Replace(Path.DirectorySeparatorChar,'/');
         return $"{path}({line},{column}): error {d.Code}: {d.Message}";
     }
+    // Only pass declaration shapes that the ordinary source parser, binder and
+    // type checker can actually check. The parsed library AST has a much larger
+    // grammar; recognizing it is not permission to silently accept it here.
+    // Bootstrap globals still use the separately validated minimal contract.
+    private static bool IsCheckedAmbientStatement(AmbientStatement statement) => statement switch
+    {
+        AmbientFunction {Exported:false} => true,
+        AmbientVariable {Exported:false,Keyword.Text:"let" or "const"} => true,
+        AmbientTypeAlias {Exported:false,TypeParameters.Count:0} => true,
+        AmbientInterface {Exported:false,TypeParameters.Count:0} iface
+            when !GlobalTypes.Contains(iface.Name.Text,StringComparer.Ordinal) => true,
+        _ => false
+    };
     // Ambient globals remain a deliberately bounded, validated declaration
     // subset. ES2015 array spread requires an iterable Array<T> contract in
     // the pinned reference compiler. Recognize that exact structural protocol
