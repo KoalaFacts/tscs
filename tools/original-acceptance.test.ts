@@ -41,6 +41,9 @@ test('missing capabilities are all recorded, and supported targets have none', (
   assert.deepEqual(missingCapabilities(target('a.ts', {nolib: 'true'}),
     [{name: '../escape.ts', content: ''}]), ['virtual-file-path']);
   assert.deepEqual(missingCapabilities(target('a.ts', {nolib: 'true'}),
+    [{name: '--noEmit.ts', content: ''}]), ['virtual-file-path'],
+    'a filename must not inject a CLI option');
+  assert.deepEqual(missingCapabilities(target('a.ts', {nolib: 'true'}),
     [{name: 'src/a.ts', content: ''}, {name: 'src/a.ts', content: ''}]), ['virtual-file-path']);
   assert.deepEqual(missingCapabilities(target('a.ts', null), null), ['reference-fatal-source']);
   assert.deepEqual(missingCapabilities(target('a.ts', {}, '', 'transpile'), null), ['transpile-runner']);
@@ -112,7 +115,7 @@ test('an executed target passes only when diagnostics and emit match the referen
     'stray.ts': '// @noLib: true\n// @noEmit: true\n// stray\n',
     'withlib.ts': '// @lib: es5\n// @noLib: true\n// emit: "use strict";\n',
     'paired.ts': '// @target: es2015\n// @noLib: true\n// @module: es2015\n// @filename: a.ts\n// emit: let a = 1;\n// @filename: b.ts\n// emit: let b = 2;\n',
-    'linked.ts': '// @noLib: true\n// @filename: a.ts\n// @link: b.ts -> a.ts\n// emit: let a = 1;\n',
+    'linked.ts': '// @noLib: true\n// @filename: a.ts\n// @Link: b.ts -> a.ts\n// emit: let a = 1;\n',
   }, {
     ...Object.fromEntries(['ok', 'bad', 'emit', 'unsupported', 'crash', 'extra', 'lib', 'silent', 'stray', 'withlib', 'paired'].map((n) => [`${n}.types`, ''])),
     'ok.js': `${header('ok')}//// [ok.js]\r\n"use strict";\r\n`,

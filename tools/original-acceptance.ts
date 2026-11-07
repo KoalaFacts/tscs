@@ -48,7 +48,7 @@ export interface TargetResult {
 }
 
 const OPTION = /^\/{2}\s*@(\w+)\s*:\s*([^\r\n]*)/;
-const LINK = /^\/{2}\s*@link\s*:/;
+const LINK = /^\/{2}\s*@link\s*:/i;
 
 /**
  * Splits an original test file into units, following the pinned
@@ -115,7 +115,8 @@ export function missingCapabilities(target: Target, units: Unit[] | null): strin
     for (const u of units) {
       const ext = u.name.endsWith('.d.ts') ? '.d.ts' : extname(u.name).toLowerCase();
       if (ext !== '.ts' && ext !== '.d.ts') missing.push(`input:${ext || 'none'}`);
-      if (u.name.length === 0 || u.name.includes('\\') || u.name.startsWith('/') || /^[A-Za-z]:/.test(u.name) ||
+      if (u.name.length === 0 || u.name.includes('\\') || u.name.includes('\0') ||
+          u.name.startsWith('/') || u.name.startsWith('-') || /^[A-Za-z]:/.test(u.name) ||
           u.name.split('/').some((segment) => segment === '' || segment === '.' || segment === '..') ||
           names.has(u.name)) missing.push('virtual-file-path');
       names.add(u.name);
