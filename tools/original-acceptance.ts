@@ -118,7 +118,8 @@ export function missingCapabilities(target: Target, units: Unit[] | null): strin
       if (u.name.length === 0 || u.name.includes('\\') || u.name.includes('\0') ||
           u.name.startsWith('/') || u.name.startsWith('-') || /^[A-Za-z]:/.test(u.name) ||
           u.name.split('/').some((segment) => segment === '' || segment === '.' || segment === '..') ||
-          names.has(u.name)) missing.push('virtual-file-path');
+          names.has(u.name) || [...names].some((name) =>
+            u.name.startsWith(`${name}/`) || name.startsWith(`${u.name}/`))) missing.push('virtual-file-path');
       names.add(u.name);
     }
   }

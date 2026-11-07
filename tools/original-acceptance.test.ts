@@ -178,3 +178,28 @@ test('the report counts every status and both capability histograms', () => {
   assert.deepEqual(report.failures, {'diagnostics differ': 1, 'tscs TSCS1001': 1});
   assert.equal(headline({PASS: 0, FAIL: 2, SKIP: 15521}), '0 PASS / 2 FAIL / 15,521 SKIP');
 });
+
+// A file cannot also supply a directory, regardless of virtual input order.
+for (const [name, paths, collision] of [
+  ['file-first', ['src.ts', 'src.ts/b.ts'], true],
+  ['child-first', ['src.ts/b.ts', 'src.ts'], true],
+  ['declaration-file-first', ['types.d.ts', 'types.d.ts/a.ts'], true],
+  ['declaration-child-first', ['types.d.ts/a.ts', 'types.d.ts'], true],
+  ['deep-file-first', ['src/a.ts', 'src/a.ts/nested/b.ts'], true],
+  ['deep-child-first', ['src/a.ts/nested/b.ts', 'src/a.ts'], true],
+  ['siblings', ['src/a.ts', 'src/b.ts'], false],
+  ['extension-prefix', ['src.ts', 'src.tsx/b.ts'], false],
+  ['text-prefix', ['a.ts', 'a.ts-more/b.ts'], false],
+] as const) {
+  test(`virtual file/directory prefix boundary: ${name}`, () => {
+    const source = '// @noLib: true\n' + paths.map((path) => `// @filename: ${path}\n// empty\n`).join('');
+    const {root, options, log} = upstream({[`${name}.ts`]: source}, {[`${name}.types`]: ''});
+    try {
+      const path = `tsc/testdata/tests/cases/compiler/${name}.ts`;
+      const input = {...target(path, {nolib: 'true'}), rawSha256: createHash('sha256').update(source).digest('hex')};
+      const result = runTarget(input, options);
+      assert.deepEqual([result.status, result.reasons], collision ? ['SKIP', ['virtual-file-path']] : ['PASS', []]);
+      assert.equal(existsSync(log), !collision, 'unsupported layouts must be rejected before compiler invocation');
+    } finally { rmSync(root, {recursive: true, force: true}); }
+  });
+}
