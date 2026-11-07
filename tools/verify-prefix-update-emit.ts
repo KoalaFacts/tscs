@@ -1,3 +1,4 @@
+import {runTscs} from './tscs-process.ts';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {existsSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
@@ -37,9 +38,7 @@ try {
   const compiler=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
   const env={...process.env,DOTNET_CLI_TELEMETRY_OPTOUT:'1',TESTINGPLATFORM_TELEMETRY_OPTOUT:'1'};
   function compile(file:string){
-    const result=spawnSync(process.env.DOTNET??'dotnet',
-      [compiler,'--emitJs','--noLib','--target','es2015','--module','es2015',file,'minimal.d.ts'],
-      {cwd:folder,encoding:'utf8',timeout:30000,env});
+    const result=runTscs(folder,['--emitJs','--noLib','--target','es2015','--module','es2015',file,'minimal.d.ts']);
     assert.equal(result.error,undefined,String(result.error));
     assert.equal(result.signal,null,'compiler timed out or crashed');
     return result;

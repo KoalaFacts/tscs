@@ -1,3 +1,4 @@
+import {runTscs} from './tscs-process.ts';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {mkdtempSync,writeFileSync,readFileSync,existsSync,rmSync} from 'node:fs';
@@ -35,10 +36,7 @@ try {
   }));
   const compiler=resolve('src/Tscs.Cli/bin/Release/net10.0/tscs.dll');
   function compile(args:string[]) {
-    const result=spawnSync(process.env.DOTNET??'dotnet',[compiler,...args],{
-      cwd:folder,encoding:'utf8',timeout:30000,maxBuffer:4*1024*1024,
-      env:{...process.env,DOTNET_CLI_TELEMETRY_OPTOUT:'1',TESTINGPLATFORM_TELEMETRY_OPTOUT:'1'}
-    });
+    const result=runTscs(folder,[...args]);
     assert.equal(result.error,undefined,String(result.error));
     assert.equal(result.signal,null);
     return result;

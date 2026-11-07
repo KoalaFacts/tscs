@@ -1,8 +1,9 @@
+import {runTscs} from './tscs-process.ts';
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import {join} from 'node:path';
 
 // Genuine end-to-end smoke: the C# compiler emits checked, nonempty script
 // JavaScript, which Node executes. Independent TS7 acceptance is separate.
@@ -19,14 +20,7 @@ try {
     "let answer: number = choose(true);"
   ].join("\n")+"\n");
   writeFileSync(globals,"interface Array<T> {} interface Boolean {} interface Function {} interface CallableFunction {} interface NewableFunction {} interface IArguments {} interface Number {} interface Object {} interface RegExp {} interface String {}");
-  const compiler=spawnSync(process.env.DOTNET??"dotnet",[
-    resolve("src/Tscs.Cli/bin/Release/net10.0/tscs.dll"),
-    "--emitJs","--noLib","--target","es2015",source,globals
-  ],{encoding:"utf8",timeout:30000,env:{
-    ...process.env,
-    DOTNET_CLI_TELEMETRY_OPTOUT:"1",
-    TESTINGPLATFORM_TELEMETRY_OPTOUT:"1"
-  }});
+  const compiler=runTscs(process.cwd(),["--emitJs","--noLib","--target","es2015",source,globals]);
   assert.equal(compiler.error,undefined,String(compiler.error));
   assert.equal(compiler.status,0,compiler.stdout+"\n"+compiler.stderr);
   assert.ok(existsSync(javascript),"AST-backed .js was not written");
@@ -42,14 +36,7 @@ try {
   // a strict directive. Running the result catches incorrect AST erasure.
   const nonDirective=join(temporary,"non-directive.ts");
   writeFileSync(nonDirective,'; "use strict"; function identity(value: number): number { return value; } let answer: number = identity(42);\n');
-  const nonDirectiveCompile=spawnSync(process.env.DOTNET??"dotnet",[
-    resolve("src/Tscs.Cli/bin/Release/net10.0/tscs.dll"),
-    "--emitJs","--noLib","--target","es2015",nonDirective,globals
-  ],{encoding:"utf8",timeout:30000,env:{
-    ...process.env,
-    DOTNET_CLI_TELEMETRY_OPTOUT:"1",
-    TESTINGPLATFORM_TELEMETRY_OPTOUT:"1"
-  }});
+  const nonDirectiveCompile=runTscs(process.cwd(),["--emitJs","--noLib","--target","es2015",nonDirective,globals]);
   assert.equal(nonDirectiveCompile.error,undefined,String(nonDirectiveCompile.error));
   assert.equal(nonDirectiveCompile.status,0,nonDirectiveCompile.stdout+"\n"+nonDirectiveCompile.stderr);
   const second=spawnSync(process.execPath,[
@@ -75,14 +62,7 @@ try {
     files:["entry.ts","minimal.d.ts"],
     compilerOptions:{module:"es2015",target:"es2015",noLib:true}
   }));
-  const moduleCompile=spawnSync(process.env.DOTNET??"dotnet",[
-    resolve("src/Tscs.Cli/bin/Release/net10.0/tscs.dll"),
-    "--emitJs","-p",project
-  ],{encoding:"utf8",timeout:30000,env:{
-    ...process.env,
-    DOTNET_CLI_TELEMETRY_OPTOUT:"1",
-    TESTINGPLATFORM_TELEMETRY_OPTOUT:"1"
-  }});
+  const moduleCompile=runTscs(process.cwd(),["--emitJs","-p",project]);
   assert.equal(moduleCompile.error,undefined,String(moduleCompile.error));
   assert.equal(moduleCompile.status,0,moduleCompile.stdout+"\n"+moduleCompile.stderr);
   for(const file of ["value.js","bridge.js","entry.js"])
@@ -116,9 +96,7 @@ try {
     files:["object-entry.ts","minimal.d.ts"],
     compilerOptions:{module:"es2015",target:"es2015",noLib:true}
   }));
-  const objectCompile=spawnSync(process.env.DOTNET??"dotnet",[
-    resolve("src/Tscs.Cli/bin/Release/net10.0/tscs.dll"),"--emitJs","-p",objectProject
-  ],{encoding:"utf8",timeout:30000});
+  const objectCompile=runTscs(process.cwd(),["--emitJs","-p",objectProject]);
   assert.equal(objectCompile.error,undefined,String(objectCompile.error));
   assert.equal(objectCompile.status,0,objectCompile.stdout+"\n"+objectCompile.stderr);
   const objectRun=spawnSync(process.execPath,["--input-type=module","--eval",
@@ -131,10 +109,7 @@ try {
   // partially writing an executable program.
   const invalid=join(temporary,"invalid-object.ts");
   writeFileSync(invalid,'const data = { value: 1 }; data.value = "wrong";');
-  const rejected=spawnSync(process.env.DOTNET??"dotnet",[
-    resolve("src/Tscs.Cli/bin/Release/net10.0/tscs.dll"),
-    "--emitJs","--noLib","--target","es2015",invalid,globals
-  ],{encoding:"utf8",timeout:30000});
+  const rejected=runTscs(process.cwd(),["--emitJs","--noLib","--target","es2015",invalid,globals]);
   assert.equal(rejected.error,undefined,String(rejected.error));
   assert.equal(rejected.status,2,rejected.stdout+"\n"+rejected.stderr);
   assert.match(rejected.stdout+rejected.stderr,/TS2322/);
@@ -164,9 +139,7 @@ try {
     files:["array-entry.ts","minimal.d.ts"],
     compilerOptions:{module:"es2015",target:"es2015",noLib:true}
   }));
-  const arrayCompile=spawnSync(process.env.DOTNET??"dotnet",[
-    resolve("src/Tscs.Cli/bin/Release/net10.0/tscs.dll"),"--emitJs","-p",arrayProject
-  ],{encoding:"utf8",timeout:30000});
+  const arrayCompile=runTscs(process.cwd(),["--emitJs","-p",arrayProject]);
   assert.equal(arrayCompile.error,undefined,String(arrayCompile.error));
   assert.equal(arrayCompile.status,0,arrayCompile.stdout+"\n"+arrayCompile.stderr);
   for(const name of ["array-data","array-sum","array-bridge","array-entry"])
@@ -179,10 +152,7 @@ try {
   assert.equal(arrayRun.status,0,arrayRun.stdout+"\n"+arrayRun.stderr);
   const invalidArray=join(temporary,"invalid-array.ts");
   writeFileSync(invalidArray,'const xs = [1,2]; xs[0] = "bad";');
-  const rejectedArray=spawnSync(process.env.DOTNET??"dotnet",[
-    resolve("src/Tscs.Cli/bin/Release/net10.0/tscs.dll"),
-    "--emitJs","--noLib","--target","es2015",invalidArray,globals
-  ],{encoding:"utf8",timeout:30000});
+  const rejectedArray=runTscs(process.cwd(),["--emitJs","--noLib","--target","es2015",invalidArray,globals]);
   assert.equal(rejectedArray.error,undefined,String(rejectedArray.error));
   assert.equal(rejectedArray.status,2,rejectedArray.stdout+"\n"+rejectedArray.stderr);
   assert.match(rejectedArray.stdout+rejectedArray.stderr,/TS2322/);
