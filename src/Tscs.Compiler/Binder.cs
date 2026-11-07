@@ -418,12 +418,10 @@ internal static class Binder
         {
             if(symbol.AmbientVarMerges.Count==0)continue;
             var first=(Variable)symbol.Declaration;
-            var expected=TypeResolver.Resolve(first.Annotation!,scope,symbol.File);
             foreach(var (file,merged) in symbol.AmbientVarMerges)
             {
-                var actual=TypeResolver.Resolve(merged.Annotation!,scope,file);
-                if(!string.Equals(expected.DisplayName,actual.DisplayName,StringComparison.Ordinal) ||
-                   !CompilerTypes.IsEquivalent(expected,actual))
+                if(!DeclarationTypeIdentity.Same(first.Annotation!,scope,symbol.File,
+                    merged.Annotation!,scope,file))
                     throw new CompilationFailure(Diagnostic.Error(file,merged.Name,"TS2403",
                         $"Subsequent variable declarations must have the same type. Variable '{merged.Name.Text}' must be of type '{expected.DisplayName}', but here has type '{actual.DisplayName}'."));
             }

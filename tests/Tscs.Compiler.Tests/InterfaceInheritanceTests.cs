@@ -69,6 +69,38 @@ public sealed class InterfaceInheritanceTests
     public void IncompatibleInterfaceMergesAndConsumersFailClosed(string source,string code)=>
         Assert.Contains(Compilation.Check("merged-bad.ts",source),d=>d.Code==code);
 
+    [Theory]
+    [InlineData("interface R{value:{a:number;b:string}}interface R{value:{b:string;a:number}}let r:R={value:{a:1,b:\"x\"}};")]
+    [InlineData("interface R{value:number|string}interface R{value:string|number}let r:R={value:1};")]
+    [InlineData("type Shape={a:number}&{b:string};interface R{value:Shape}interface R{value:Shape}")]
+    public void DeclarationIdentityAcceptsOrderIndependentAndSameIntersectionTypes(string source)=>
+        Assert.Empty(Compilation.Check("identity-ok.ts",source));
+
+    [Theory]
+    [InlineData("interface R{value:{a:number}&{b:string}}interface R{value:{a:number;b:string}}")]
+    [InlineData("interface R{value:{a:number;b:string}}interface R{value:{a:number}&{b:string}}")]
+    [InlineData("interface R{value:({a:number}&{b:string})[]}interface R{value:{a:number;b:string}[]}")]
+    [InlineData("interface R{value:(x:{a:number}&{b:string})=>number}interface R{value:(x:{a:number;b:string})=>number}")]
+    public void DeclarationIdentityRejectsFlattenedIntersectionProvenance(string source)=>
+        Assert.Contains(Compilation.Check("identity-bad.ts",source),d=>d.Code=="TS2717");
+
+    [Fact]
+    public void AmbientVarMergingUsesIdentityRatherThanPrintedOrder()
+    {
+        var compatible=Compilation.CheckFiles([
+            new SourceInput("a.d.ts","declare var total:{a:number;b:string};"),
+            new SourceInput("b.d.ts","declare var total:{b:string;a:number};"),
+            new SourceInput("entry.ts","let result:number=total.a;")
+        ]);
+        Assert.Empty(compatible);
+        var conflict=Compilation.CheckFiles([
+            new SourceInput("a.d.ts","declare var total:{a:number}&{b:string};"),
+            new SourceInput("b.d.ts","declare var total:{a:number;b:string};"),
+            new SourceInput("entry.ts","let result:number=total.a;")
+        ]);
+        Assert.Contains(conflict,d=>d.Code=="TS2403" && d.File=="b.d.ts");
+    }
+
     [Fact]
     public void ConflictingDeclarationFilesReportTheLaterFile()
     {

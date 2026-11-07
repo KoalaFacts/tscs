@@ -50,6 +50,47 @@ try {
   assert.equal(conflict.status,2,conflict.stdout+conflict.stderr);
   assert.match(conflict.stdout+conflict.stderr,/TS2717/);
   assert.equal(existsSync(join(dir,'bad-merged-entry.js')),false);
+  // Declaration equality is not the spelling order. Intersections retain
+  // their source shape even when the runtime-checking object is flattened.
+  const identities:[string,string,string,boolean][]=[
+    ['order-object','interface Identity{value:{a:number;b:string}}',
+      'interface Identity{value:{b:string;a:number}}',true],
+    ['order-union','interface Identity{value:number|string}',
+      'interface Identity{value:string|number}',true],
+    ['same-intersection','interface Identity{value:{a:number}&{b:string}}',
+      'interface Identity{value:{a:number}&{b:string}}',true],
+    ['intersection-object','interface Identity{value:{a:number}&{b:string}}',
+      'interface Identity{value:{a:number;b:string}}',false],
+    ['intersection-array','interface Identity{value:({a:number}&{b:string})[]}',
+      'interface Identity{value:{a:number;b:string}[]}',false],
+    ['intersection-function','interface Identity{value:(x:{a:number}&{b:string})=>number}',
+      'interface Identity{value:(x:{a:number;b:string})=>number}',false]
+  ];
+  for(const [id,one,two,allowed] of identities)
+    for(const reversed of [false,true]){
+      const prefix=id+(reversed?'-rev':'');
+      const firstFile=prefix+'-first.d.ts';
+      const secondFile=prefix+'-second.d.ts';
+      const entryFile=prefix+'-entry.ts';
+      writeFileSync(join(dir,firstFile),reversed?two:one);
+      writeFileSync(join(dir,secondFile),reversed?one:two);
+      writeFileSync(join(dir,entryFile),'export const identityResult:number=7;');
+      const checked=compile(['--emitJs','--noLib','--target','es2015','--module','es2015',
+        entryFile,firstFile,secondFile,'minimal.d.ts']);
+      assert.equal(checked.status,allowed?0:2,prefix+': '+checked.stdout+checked.stderr);
+      if(allowed){
+        const ran=spawnSync(process.execPath,['--input-type=module','--eval',
+          'import {identityResult} from "./'+prefix+'-entry.js";if(identityResult!==7)throw Error("identity");'],
+          {cwd:dir,encoding:'utf8',timeout:15000});
+        assert.equal(ran.error,undefined,String(ran.error));
+        assert.equal(ran.status,0,ran.stdout+ran.stderr);
+      }else{
+        assert.match(checked.stdout+checked.stderr,/TS2717/,prefix);
+        assert.equal(existsSync(join(dir,prefix+'-entry.js')),false,prefix);
+      }
+      assert.equal(existsSync(join(dir,prefix+'-first.d.js')),false,prefix);
+      assert.equal(existsSync(join(dir,prefix+'-second.d.js')),false,prefix);
+    }
   const invalid:[string,string,string,number][]=[
     ['wrong-value','interface A{value:number}interface B extends A{}let b:B={value:"bad"};','TS2322',2],
     ['readonly-parent','interface A{readonly value:number}interface B extends A{}let b:B={value:1};b.value=2;','TS2540',2],

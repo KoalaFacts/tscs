@@ -37,6 +37,12 @@ internal static class TypeResolver
             var readonlyKeys=new HashSet<string>(original.ReadonlyMembers,StringComparer.Ordinal);
             var numericKeys=new HashSet<string>(original.NumericMembers,StringComparer.Ordinal);
             var optionalKeys=new HashSet<string>(original.OptionalMembers,StringComparer.Ordinal);
+            // Keep original member annotation and scope for source-identity
+            // checks; Resolve(IntersectionTypeSyntax) flattens this information.
+            var origins=new Dictionary<string,(TypeSyntax Syntax,Scope Owner,string File)>(StringComparer.Ordinal);
+            foreach(var key in original.Members.Keys)
+                if(DeclarationTypeIdentity.DirectProperty(binding.Syntax,key) is { } property)
+                    origins.Add(key,(property.Type,binding.Owner,binding.File));
             foreach(var (file,name,syntax,owner) in binding.MergedInterfaces)
             {
                 if(Resolve(syntax,owner,file,depth+1) is not ObjectTypeSymbol next)
@@ -54,8 +60,14 @@ internal static class TypeResolver
                            optionalKeys.Contains(key)!=incomingOptional)
                             throw new CompilationFailure(Diagnostic.Error(file,name,"TS2687",
                                 $"All declarations of '{key}' must have identical modifiers."));
-                        if(!CompilerTypes.IsEquivalent(previous,type) ||
-                           !string.Equals(previous.DisplayName,type.DisplayName,StringComparison.Ordinal))
+                        var incoming=DeclarationTypeIdentity.DirectProperty(syntax,key);
+                        bool same=origins.TryGetValue(key,out var prior) && incoming is not null
+                            ?DeclarationTypeIdentity.Same(prior.Syntax,prior.Owner,prior.File,
+                                incoming.Type,owner,file)
+                            :CompilerTypes.SameStructuralInput(previous,type) &&
+                                !DeclarationTypeIdentity.HasIntersection(binding.Syntax,binding.Owner) &&
+                                !DeclarationTypeIdentity.HasIntersection(syntax,owner);
+                        if(!same)
                             throw new CompilationFailure(Diagnostic.Error(file,name,"TS2717",
                                 $"Subsequent property declarations must have the same type. Property '{key}' must be of type '{previous.DisplayName}', but here has type '{type.DisplayName}'."));
                         continue;
@@ -64,6 +76,8 @@ internal static class TypeResolver
                         throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
                             "Merged interface exceeds the finite 128-member limit."));
                     members.Add(key,type);
+                    if(DeclarationTypeIdentity.DirectProperty(syntax,key) is { } declaredProperty)
+                        origins.Add(key,(declaredProperty.Type,owner,file));
                     if(incomingReadonly)readonlyKeys.Add(key);
                     if(incomingNumeric)numericKeys.Add(key);
                     if(incomingOptional)optionalKeys.Add(key);
