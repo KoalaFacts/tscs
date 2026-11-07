@@ -186,7 +186,9 @@ declaration files: disjoint members accumulate, matching repeated members
 remain valid, and incompatible types or modifiers fail with TS2717/TS2687.
 Repeated declaration types compare by identity: object members and union
 arms ignore order, intersections keep their source shape, and `typeof x`,
-`keyof T` and literal-key `T["k"]` compare by the type they denote.
+`keyof T` and literal-key `T["k"]` compare by the type they denote (a
+`typeof` root needs an annotation, a function signature or a literal-only
+initializer; other inferred roots are rejected conservatively).
 This is not generic or library-wide declaration merging.
 This is an A2.3 prerequisite, **not** default-library loading, general ambient
 declaration support or an original upstream PASS.

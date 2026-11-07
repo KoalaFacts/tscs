@@ -38,13 +38,17 @@ internal static class DeclarationTypeIdentity
         if(syntax is TypeQuerySyntax query)
         {
             // Follow the declared annotations of the queried value. A value
-            // whose type is inferred (an initializer, an 'as' target) has no
-            // source shape to inspect here, so it cannot prove identity.
+            // inferred from type-free literal syntax cannot carry intersection
+            // provenance, so its checked type is its declaration identity.
+            // Any other inferred value (an 'as' target, a call, another
+            // binding) has no source shape to inspect and cannot prove identity.
             var value=scope.Find(query.Root.Text);
             var owner=value?.DeclaringScope??scope;
             return value?.Declaration switch
             {
                 Variable { Annotation: { } annotation }=>HasIntersection(annotation,owner,depth+1),
+                Variable { Annotation: null,Initializer: { } initializer } when
+                    query.Members.Count==0 && TypeFree(initializer,0)=>false,
                 FunctionDeclaration function=>
                     function.Parameters.Any(p=>HasIntersection(p.Annotation,owner,depth+1)) ||
                     HasIntersection(function.ReturnAnnotation,owner,depth+1),
@@ -183,6 +187,16 @@ internal static class DeclarationTypeIdentity
         TypeQuerySyntax { Members.Count:0 } query when
             scope.Find(query.Root.Text) is { Declaration: Variable { Annotation: { } annotation } } value=>
             new Denoted(annotation,value.DeclaringScope??scope,value.File),
+        // A function declaration's type is the signature its required
+        // annotations spell, so two functions with the same annotated
+        // signature denote the same declaration type.
+        TypeQuerySyntax { Members.Count:0 } query when
+            scope.Find(query.Root.Text) is { Declaration: FunctionDeclaration function } value=>
+            new Denoted(new FunctionTypeSyntax(function.Name,
+                    function.Parameters.Select(p=>new FunctionTypeParameter(
+                        p.Name,p.Annotation,p.Optional || p.DefaultValue is not null,p.Rest)).ToList(),
+                    function.ReturnAnnotation),
+                value.DeclaringScope??scope,value.File),
         IndexedAccessTypeSyntax indexed=>Project(indexed,scope,file,depth),
         _=>null
     };
@@ -250,6 +264,30 @@ internal static class DeclarationTypeIdentity
             value=part.Value;
         }
         return new Selection(true,value);
+    }
+
+    // Literal-only initializer syntax: its inferred type is built from
+    // literals and operators alone, never from a type annotation, assertion,
+    // call result or other binding that could carry an intersection.
+    private static bool TypeFree(ValueNode value,int depth)
+    {
+        if(depth>64)return false;
+        return value switch
+        {
+            ValueAtom { Shorthand:false } atom=>atom.Token.Kind is
+                TokenKind.Number or TokenKind.String or TokenKind.Template or
+                TokenKind.True or TokenKind.False or TokenKind.Null,
+            ValueTemplate template=>template.Expressions.All(e=>TypeFree(e,depth+1)),
+            ValueUnary unary=>TypeFree(unary.Operand,depth+1),
+            ValueBinary binary=>TypeFree(binary.Left,depth+1) && TypeFree(binary.Right,depth+1),
+            ValueParenthesized inner=>TypeFree(inner.Expression,depth+1),
+            ValueConditional conditional=>TypeFree(conditional.Condition,depth+1) &&
+                TypeFree(conditional.WhenTrue,depth+1) && TypeFree(conditional.WhenFalse,depth+1),
+            ValueObject shape=>shape.Properties.All(p=>
+                !p.Spread && !p.Method && !p.Computed && TypeFree(p.Value,depth+1)),
+            ValueArray array=>array.Elements.All(e=>TypeFree(e,depth+1)),
+            _=>false
+        };
     }
 
     private static bool Unordered<T>(IReadOnlyList<T> left,Scope leftScope,string leftFile,

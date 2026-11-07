@@ -167,6 +167,33 @@ try {
       assert.equal(existsSync(join(dir,one.replace(/\.d\.ts$/,'.d.js'))),false,id);
       assert.equal(existsSync(join(dir,two.replace(/\.d\.ts$/,'.d.js'))),false,id);
     }
+  // typeof of inferred literal values and of same-signature function
+  // declarations denotes their declared type (pinned Go accepts all three
+  // in both orders); a reviewer-reported regression on 2d3bb1d.
+  const valueFile='identity-values.ts';
+  writeFileSync(join(dir,valueFile),'let n1=7;let n2=8;const o1={a:7,b:"ok"};const o2={a:8,b:"yes"};'+
+    'function f1(v:P):number{return v.a}function f2(v:P):number{return v.a}');
+  const queryCases:{id:string;a:string;b:string;read:string;value:unknown}[]=[
+    {id:'query-inferred-number',a:'n1',b:'n2',read:'item',value:7},
+    {id:'query-inferred-object',a:'o1',b:'o2',read:'item.a',value:{a:7,b:'ok'}},
+    {id:'query-function-signature',a:'f1',b:'f2',read:'item({a:7,b:"ok"})',
+      value:(v:{a:number})=>v.a}
+  ];
+  for(const identity of queryCases)
+    for(const reverse of [false,true]){
+      const id=identity.id+(reverse?'-reverse':'');
+      const one=id+'-first.d.ts',two=id+'-second.d.ts',entry=id+'-entry.ts';
+      writeFileSync(join(dir,one),'declare var item:typeof '+(reverse?identity.b:identity.a)+';');
+      writeFileSync(join(dir,two),'declare var item:typeof '+(reverse?identity.a:identity.b)+';');
+      writeFileSync(join(dir,entry),'let answer:number='+identity.read+';');
+      rmSync(join(dir,'identity-values.js'),{force:true});
+      const checked=compile(['--emitJs','--noLib','--target','es2015',
+        entry,valueFile,typeFile,one,two,'minimal.d.ts']);
+      assert.equal(checked.status,0,id+': '+checked.stdout+checked.stderr);
+      const output=join(dir,entry.replace(/\.ts$/,'.js'));
+      assert.equal(runInNewContext(readFileSync(output,'utf8')+'\nanswer;',
+        {item:identity.value}),7,id+' result');
+    }
   for(const member of [false,true])
     for(const reversed of [false,true]){
       const id='ordinary-union-call-'+(member?'member-':'direct-')+(reversed?'reverse':'forward');

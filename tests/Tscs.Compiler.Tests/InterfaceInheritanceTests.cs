@@ -137,6 +137,39 @@ public sealed class InterfaceInheritanceTests
         Assert.Contains(Compilation.Check("derived-query.ts",
             DerivedPrelude+value+$"interface R{{value:{one}}}interface R{{value:{two}}}"),d=>d.Code=="TS2717");
 
+    private const string QueryPrelude="type A={a:number};type B={b:string};type P=A&B;";
+
+    // Review regression on 2d3bb1d: inferred and function-declaration roots
+    // without intersection provenance compare by the type they denote.
+    [Theory]
+    [InlineData("let first=7;let second=8;")]
+    [InlineData("const first={a:7,b:\"ok\"};const second={a:8,b:\"yes\"};")]
+    [InlineData("function first(v:P):number{return 1}function second(v:P):number{return 2}")]
+    public void TypeQueriesOfEqualDeclaredOrInferredTypesMerge(string values)
+    {
+        foreach(var (left,right) in new[]{("first","second"),("second","first")})
+        {
+            Assert.Empty(Compilation.Check("query-ok.ts",
+                QueryPrelude+values+$"interface R{{value:typeof {left}}}interface R{{value:typeof {right}}}"));
+            Assert.Empty(Compilation.CheckFiles([
+                new SourceInput("types.d.ts",QueryPrelude),
+                new SourceInput("shared.ts",values),
+                new SourceInput("a.d.ts",$"declare var item:typeof {left};"),
+                new SourceInput("b.d.ts",$"declare var item:typeof {right};"),
+                new SourceInput("entry.ts","let result=7;")
+            ]));
+        }
+    }
+
+    [Theory]
+    [InlineData("let first=7;let second=\"x\";","typeof second")]
+    [InlineData("function first(v:P):number{return 1}","(v:{a:number;b:string})=>number")]
+    [InlineData("function first(v:P):number{return 1}function second(v:{a:number;b:string}):number{return 2}","typeof second")]
+    [InlineData("const first={a:7,b:\"ok\"};const v={a:1,b:\"x\"} as P;","typeof v")]
+    public void TypeQueryIdentityStillRejectsDifferentOrUnprovenTypes(string values,string other)=>
+        Assert.Contains(Compilation.Check("query-bad.ts",
+            QueryPrelude+values+$"interface R{{value:typeof first}}interface R{{value:{other}}}"),d=>d.Code=="TS2717");
+
     [Fact]
     public void ConflictingDeclarationFilesReportTheLaterFile()
     {
