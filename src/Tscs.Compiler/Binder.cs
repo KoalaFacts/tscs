@@ -30,6 +30,9 @@ internal sealed class Symbol(string file,Statement declaration,Scope? declaringS
     public bool Initialized { get; set; }
     public bool CrossFileTypeReady { get; set; }
     public bool Imported { get; set; }
+    // Only identically typed ambient var declarations can share this binding.
+    // Other redeclarations fail closed; these remain source-backed.
+    public List<(string File,Variable Declaration)> AmbientVarMerges { get; }=[];
 }
 internal sealed class Scope(Scope? parent)
 {
@@ -394,6 +397,23 @@ internal static class Binder
         // Validate all declarations even when nothing references their aliases.
         // The scope is complete before any named type is resolved.
         foreach(var binding in scope.Types.Values.Distinct())_ = TypeResolver.ResolveBinding(binding);
+        // TypeScript permits multiple ambient var declarations only when their
+        // resolved types agree. Check every saved source position after aliases
+        // have been bound; never silently use the first or last annotation.
+        foreach(var symbol in scope.Symbols.Values)
+        {
+            if(symbol.AmbientVarMerges.Count==0)continue;
+            var first=(Variable)symbol.Declaration;
+            var expected=TypeResolver.Resolve(first.Annotation!,scope,symbol.File);
+            foreach(var (file,merged) in symbol.AmbientVarMerges)
+            {
+                var actual=TypeResolver.Resolve(merged.Annotation!,scope,file);
+                if(!string.Equals(expected.DisplayName,actual.DisplayName,StringComparison.Ordinal) ||
+                   !CompilerTypes.IsEquivalent(expected,actual))
+                    throw new CompilationFailure(Diagnostic.Error(file,merged.Name,"TS2403",
+                        $"Subsequent variable declarations must have the same type. Variable '{merged.Name.Text}' must be of type '{expected.DisplayName}', but here has type '{actual.DisplayName}'."));
+            }
+        }
         // A function declaration is hoisted, including within a later
         // const-literal value. Its signature must be known before a preceding
         // variable's initializer tries to inspect that function value.
@@ -436,8 +456,15 @@ internal static class Binder
             ParameterDeclaration p => p.Name,
             _ => throw new ArgumentOutOfRangeException(nameof(declaration))
         };
-        if(!scope.Symbols.TryAdd(name.Text,new Symbol(file,declaration,scope)))
-            throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
-                "Redeclaration diagnostics and declaration merging are not supported yet."));
+        if(scope.Symbols.TryAdd(name.Text,new Symbol(file,declaration,scope)))return;
+        var previous=scope.Symbols[name.Text];
+        if(previous.Declaration is Variable { Ambient:true,AmbientVar:true,Annotation:not null,Initializer:null,Exported:false } &&
+           declaration is Variable { Ambient:true,AmbientVar:true,Annotation:not null,Initializer:null,Exported:false } merged)
+        {
+            previous.AmbientVarMerges.Add((file,merged));
+            return;
+        }
+        throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
+            "Redeclaration diagnostics and declaration merging are not supported yet."));
     }
 }

@@ -175,8 +175,10 @@ The noLib CLI accepts bounded, non-overloaded typed `declare var/let/const/funct
 value signatures and non-generic named `type` aliases/`interface` shapes
 from separate `.d.ts` inputs. These share the real parser, binder and checker
 with `.ts` consumers, including cross-file structural typing and negative
-diagnostics; no declaration file emits JavaScript. Single typed ambient `var`
-bindings are writable, while var redeclaration/merging remains unsupported.
+diagnostics; no declaration file emits JavaScript. Typed ambient `var` bindings are writable. Identically typed repeated ambient
+`var` declarations may merge across declaration files; conflicting types
+report TS2403 and mixed `var`/`let`/`const` redeclarations remain unsupported.
+This bounded value merge does not implement library-wide declaration merging.
 Generic aliases/interfaces,
 ambient classes and library-wide declaration merging remain unsupported.
 This is an A2.3 prerequisite, **not** default-library loading, general ambient
