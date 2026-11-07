@@ -172,10 +172,12 @@ is executed by the `tools/verify-*-emit.ts` checks.
 ### Standard library
 
 The noLib CLI accepts bounded, non-overloaded typed `declare let/const/function`
-value signatures from separate `.d.ts` inputs. They share the ordinary
-program binder and checker with `.ts` consumers, including negative argument
-and assignment diagnostics, and emit no JavaScript of their own. This is a
-checked A2.3 prerequisite, **not** default-library loading, general ambient
+value signatures and non-generic named `type` aliases/`interface` shapes
+from separate `.d.ts` inputs. These share the real parser, binder and checker
+with `.ts` consumers, including cross-file structural typing and negative
+diagnostics; no declaration file emits JavaScript. Generic aliases/interfaces,
+ambient classes and library-wide declaration merging remain unsupported.
+This is an A2.3 prerequisite, **not** default-library loading, general ambient
 declaration support or an original upstream PASS.
 
 `lib.*.d.ts` files cannot be loaded yet. `DeclarationParser` (A2.1) parses
@@ -229,7 +231,7 @@ misplaced `infer` (TS1338) and unknown `intrinsic` aliases (TS2795) are not
 reported. Module-local declarations are not resolved (the pinned libs have
 none). Syntax trees are not yet compared with
 the reference parser, types are not computed, and nothing is checked: the
-CLI still accepts only the bounded globals below.
+CLI still accepts only the bounded globals and non-generic declaration shapes described above.
 
 Programs use `--noLib` with
 [`fixtures/minimal.d.ts`](../fixtures/minimal.d.ts) (empty global
