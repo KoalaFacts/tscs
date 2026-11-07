@@ -23,14 +23,20 @@ baseline) are SKIP, and each source must match its registered SHA-256.
 `.types`/`.symbols` contents are not compared yet.
 
 Why targets are skipped (each target counts under every capability it
-lacks; "only" = targets blocked by that capability alone):
+lacks; "only" = targets blocked by that capability alone). These branch counts
+were measured from runner source `3ee09e65` by the
+[original reference run](https://github.com/KoalaFacts/tscs/actions/runs/42336784587/job/128295378913).
+The full 15,523-target report is unchanged by its prefix-collision fix;
+a local real-compiler acceptance and standard-library run produced byte-identical
+reports. The complete local test gate is still blocked by MTP IPC permissions:
 
 | Missing capability | Targets | Only this |
 |---|---|---|
-| Standard library (`lib.*.d.ts`) | 15,464 | 5,583 |
-| `@module` option | 3,453 | 0 |
+| Standard library (`lib.*.d.ts`) | 15,464 | 5,667 |
+| Unsupported `@module` transforms | 3,346 | 0 |
+| Unsafe or conflicting virtual file paths | 859 | 0 |
+| Virtual symlinks | 23 | 0 |
 | `@target` other than es2015 | 3,172 | 2 |
-| Multi-file tests | 2,830 | 0 |
 | `@strict: false` | 2,825 | 0 |
 | `@declaration` | 2,058 | 0 |
 | JavaScript inputs / `allowJs` | 1,211 / 1,114 | 0 |
@@ -261,10 +267,11 @@ and no `var`.
 
 ## Known gaps
 
-- 15,464 of 15,523 original targets need the standard library; 5,583 need
+- 15,464 of 15,523 original targets need the standard library; 5,667 need
   nothing else that the runner checks for (roadmap A2).
-- The acceptance runner does not yet support multi-file tests, other
-  targets or `@module`, and does not compare `.types`/`.symbols`.
+- The acceptance runner now permits safe multi-source `.ts` inputs and
+  explicit `@module: es2015`/`es6`; virtual symlinks, other module transforms,
+  other targets, and `.types`/`.symbols` comparison remain unsupported.
 - Emit parity gaps found in review of A3.1: arrow and function-expression
   block bodies restart indentation at column 0 instead of the enclosing
   depth, and conditional, `as` and `!` operands keep extra grouping
@@ -283,7 +290,8 @@ records the original case IDs it moves.
 |---|---|---|---|---|
 | D1 | Short README, current-state STATUS, `tools/check-docs.ts` in CI | Docs that are true and findable | done (PR #210, 355c914) | at merge: README 30,505 → 4,906 bytes, STATUS 123,542 → 8,980 bytes; docs 78 → 77 files; 16 checker tests |
 | A1.1 | Acceptance runner over the 15,523 registered targets: SKIP with missing capabilities, run supported targets through tscs, compare diagnostics and `.js` emit with the pinned baselines, histogram, CI rerun with headline check | Turns the headline into a measured number | done (PR #211, df43af6) | 1 PASS (`parser509698`, since #214) / 1 FAIL (`noCrashOnNoLib`, PASS since A3.1) / 15,521 SKIP; 6 runner tests |
-| A1.2 | Runner support for multi-file tests and `@module`, and `.types`/`.symbols` comparison | Larger runnable set once the library loads | todo | — |
+| A1.2 | Runner support for multi-file tests and `@module`, and `.types`/`.symbols` comparison | Larger runnable set once the library loads | in progress; A1.2a branch | `.types`/`.symbols` still not compared |
+| A1.2a | Run safe multi-source original inputs as one program, support explicit ES2015 module configurations, and refuse unmodelled symlinks and unsafe paths | Allows real multi-file and module baseline comparison without silently dropping inputs | implemented on branch; local test gate blocked | Local and hosted original acceptance: 3 PASS / 0 FAIL / 15,520 SKIP (`3ee09e65`); local Release build, Go reference and standard-library checks passed. 15 runner regressions include both prefix-collision orders. Full local `verify.sh` is BLOCKED by MTP IPC permission denial before xUnit execution; no new original PASS credit or merge claimed |
 | A2.1 | Parse the pinned libs with zero syntax errors (`DeclarationParser`, `tools/check-standard-library.ts` in CI) | First step to loading the standard library | done (PR #215, 68110ff) | at merge: 109/116 pinned libs clean, es5+es2015 closure 13/13; 63 xUnit + 4 node tests |
 | A2.1b | Template literal types and ambient classes; require the default libs (`lib.d.ts`, `lib.es6.d.ts`) and everything they reference | The es2015 default lib includes `dom` and `scripthost` | done (PR #216, 8e8a68d) | 115/116 pinned libs clean at merge, default-lib closure 20/20 |
 | A2.2a | Bind the parsed declarations into one global symbol table (cross-file merging, TS2300/TS2451 exclusions); the library check binds the default-lib closure | Library symbols become available | done (PR #220, 7b34604; review fixes PR #221, b5bd8e9) | pinned closure: 20 files, 2,250 global symbols (791 with more than one declaration), 0 diagnostics; 14 xUnit + 1 node test at merge, 16 with the review fixes |

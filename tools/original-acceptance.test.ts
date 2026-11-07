@@ -32,7 +32,19 @@ test('missing capabilities are all recorded, and supported targets have none', (
   assert.deepEqual(missingCapabilities(target('a.ts', {target: 'es2015', nolib: 'false', lib: 'es5'}), units), ['standard-library']);
   assert.deepEqual(missingCapabilities(target('a.ts', {target: 'es5', module: 'commonjs', strict: 'false', nolib: 'true'}),
     [{name: 'a.tsx', content: ''}, {name: 'b.d.ts', content: ''}]),
-  ['option:target=es5', 'option:module', 'option:strict=false', 'input:.tsx', 'multi-file']);
+  ['option:target=es5', 'option:module=commonjs', 'option:strict=false', 'input:.tsx']);
+  assert.deepEqual(missingCapabilities(target('multi.ts', {target: 'es2015', nolib: 'true', module: 'ES6'}),
+    [{name: 'src/a.ts', content: ''}, {name: 'src/b.ts', content: ''}]), [],
+    'multi-file ES modules are supported at the runner boundary');
+  assert.deepEqual(missingCapabilities(target('a.ts', {nolib: 'true', module: 'commonjs'}), units),
+    ['option:module=commonjs'], 'unsupported module transformations remain explicitly skipped');
+  assert.deepEqual(missingCapabilities(target('a.ts', {nolib: 'true'}),
+    [{name: '../escape.ts', content: ''}]), ['virtual-file-path']);
+  assert.deepEqual(missingCapabilities(target('a.ts', {nolib: 'true'}),
+    [{name: '--noEmit.ts', content: ''}]), ['virtual-file-path'],
+    'a filename must not inject a CLI option');
+  assert.deepEqual(missingCapabilities(target('a.ts', {nolib: 'true'}),
+    [{name: 'src/a.ts', content: ''}, {name: 'src/a.ts', content: ''}]), ['virtual-file-path']);
   assert.deepEqual(missingCapabilities(target('a.ts', null), null), ['reference-fatal-source']);
   assert.deepEqual(missingCapabilities(target('a.ts', {}, '', 'transpile'), null), ['transpile-runner']);
 });
@@ -102,12 +114,15 @@ test('an executed target passes only when diagnostics and emit match the referen
     'silent.ts': '// @noLib: true\n// @noEmit: true\n// silent2\n',
     'stray.ts': '// @noLib: true\n// @noEmit: true\n// stray\n',
     'withlib.ts': '// @lib: es5\n// @noLib: true\n// emit: "use strict";\n',
+    'paired.ts': '// @target: es2015\n// @noLib: true\n// @module: es2015\n// @filename: a.ts\n// emit: let a = 1;\n// @filename: b.ts\n// emit: let b = 2;\n',
+    'linked.ts': '// @noLib: true\n// @filename: a.ts\n// @Link: b.ts -> a.ts\n// emit: let a = 1;\n',
   }, {
-    ...Object.fromEntries(['ok', 'bad', 'emit', 'unsupported', 'crash', 'extra', 'lib', 'silent', 'stray', 'withlib'].map((n) => [`${n}.types`, ''])),
+    ...Object.fromEntries(['ok', 'bad', 'emit', 'unsupported', 'crash', 'extra', 'lib', 'silent', 'stray', 'withlib', 'paired'].map((n) => [`${n}.types`, ''])),
     'ok.js': `${header('ok')}//// [ok.js]\r\n"use strict";\r\n`,
     'bad.js': `${header('bad')}//// [bad.js]\r\n"use strict";\r\n`,
     'emit.js': `${header('emit')}//// [emit.js]\r\n"use strict";\r\n`,
     'withlib.js': `${header('withlib')}//// [withlib.js]\r\n"use strict";\r\n`,
+    'paired.js': '//// [tests/cases/compiler/paired.ts] ////\r\n\r\n//// [a.ts]\r\n// emit: let a = 1;\r\n\r\n//// [b.ts]\r\n// emit: let b = 2;\r\n\r\n//// [a.js]\r\nlet a = 1;\r\n\r\n//// [b.js]\r\nlet b = 2;\r\n',
   });
   try {
     const path = (n: string) => `tsc/testdata/tests/cases/compiler/${n}`;
@@ -132,9 +147,16 @@ test('an executed target passes only when diagnostics and emit match the referen
     const skipped = run('lib.ts', {target: 'es2015'});
     assert.deepEqual([skipped.status, skipped.reasons], ['SKIP', ['standard-library']]);
     assert.equal(run('withlib.ts', {lib: 'es5', nolib: 'true'}).status, 'PASS');
+    assert.deepEqual(run('paired.ts', {target: 'es2015', nolib: 'true', module: 'es2015'}),
+      {id: `configuration:${path('paired.ts')}:`, upstreamPath: path('paired.ts'),
+        configuration: '', status: 'PASS', reasons: []},
+      'both emitted JavaScript files must agree with their distinct baseline sections');
+    assert.deepEqual(run('linked.ts', {nolib: 'true'}).reasons, ['virtual-symlink'],
+      'upstream symlinks cannot silently disappear from multi-file targets');
     const invocations = readFileSync(log, 'utf8').trim().split('\n');
-    assert.equal(invocations.length, 9, 'a SKIP target never runs the compiler');
+    assert.equal(invocations.length, 10, 'a SKIP target never runs the compiler');
     assert.ok(invocations[8].includes('--emitJs --noLib --lib es5 --target es2015'), 'the @lib list is passed through');
+    assert.ok(invocations[9].includes('--module es2015 a.ts b.ts'), 'both modules are passed to one compiler program');
     assert.ok(invocations.slice(0, 4).every((l) => l.includes('--emitJs --noLib --target es2015')));
     assert.ok(invocations[4].includes('--noEmit --noLib --target es2015'));
     assert.ok(invocations[5].includes('--emitJs'));
@@ -156,3 +178,28 @@ test('the report counts every status and both capability histograms', () => {
   assert.deepEqual(report.failures, {'diagnostics differ': 1, 'tscs TSCS1001': 1});
   assert.equal(headline({PASS: 0, FAIL: 2, SKIP: 15521}), '0 PASS / 2 FAIL / 15,521 SKIP');
 });
+
+// A file cannot also supply a directory, regardless of virtual input order.
+for (const [name, paths, collision] of [
+  ['file-first', ['src.ts', 'src.ts/b.ts'], true],
+  ['child-first', ['src.ts/b.ts', 'src.ts'], true],
+  ['declaration-file-first', ['types.d.ts', 'types.d.ts/a.ts'], true],
+  ['declaration-child-first', ['types.d.ts/a.ts', 'types.d.ts'], true],
+  ['deep-file-first', ['src/a.ts', 'src/a.ts/nested/b.ts'], true],
+  ['deep-child-first', ['src/a.ts/nested/b.ts', 'src/a.ts'], true],
+  ['siblings', ['src/a.ts', 'src/b.ts'], false],
+  ['extension-prefix', ['src.ts', 'src.tsx/b.ts'], false],
+  ['text-prefix', ['a.ts', 'a.ts-more/b.ts'], false],
+] as const) {
+  test(`virtual file/directory prefix boundary: ${name}`, () => {
+    const source = '// @noLib: true\n' + paths.map((path) => `// @filename: ${path}\n// empty\n`).join('');
+    const {root, options, log} = upstream({[`${name}.ts`]: source}, {[`${name}.types`]: ''});
+    try {
+      const path = `tsc/testdata/tests/cases/compiler/${name}.ts`;
+      const input = {...target(path, {nolib: 'true'}), rawSha256: createHash('sha256').update(source).digest('hex')};
+      const result = runTarget(input, options);
+      assert.deepEqual([result.status, result.reasons], collision ? ['SKIP', ['virtual-file-path']] : ['PASS', []]);
+      assert.equal(existsSync(log), !collision, 'unsupported layouts must be rejected before compiler invocation');
+    } finally { rmSync(root, {recursive: true, force: true}); }
+  });
+}
