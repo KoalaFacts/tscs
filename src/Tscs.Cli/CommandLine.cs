@@ -184,7 +184,8 @@ public static class CommandLine
     {
         AmbientFunction {Exported:false} => true,
         AmbientVariable {Exported:false,Keyword.Text:"let" or "const"} => true,
-        AmbientTypeAlias {Exported:false,TypeParameters.Count:0} => true,
+        AmbientTypeAlias {Exported:false,TypeParameters.Count:0} alias
+            when !GlobalTypes.Contains(alias.Name.Text,StringComparer.Ordinal) => true,
         AmbientInterface {Exported:false,TypeParameters.Count:0} iface
             when !GlobalTypes.Contains(iface.Name.Text,StringComparer.Ordinal) => true,
         _ => false
