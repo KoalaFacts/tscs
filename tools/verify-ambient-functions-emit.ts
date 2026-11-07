@@ -56,6 +56,27 @@ try {
    assert.equal(existsSync(join(folder,name+'.js')),false);
    assert.equal(existsSync(join(folder,'globals.d.js')),false);
  }
+ // A single .d.ts can contribute a non-generic structural interface,
+ // a named alias and a typed ambient value to the ordinary compiler program.
+ writeFileSync(join(folder,'models.d.ts'),
+   'type Amount = number; interface Basket { amount: Amount; label: string; } declare const basket: Basket;');
+ writeFileSync(join(folder,'named.ts'),
+   'let total: Amount = basket.amount + 1; let caption: string = basket.label;');
+ const named=compile('named.ts','models.d.ts');
+ assert.equal(named.status,0,named.stdout+named.stderr);
+ assert.equal(existsSync(join(folder,'models.d.js')),false);
+ const namedJs=readFileSync(join(folder,'named.js'),'utf8');
+ const namedResult=runInNewContext(namedJs+'[total,caption]',
+   {basket:{amount:7,label:'ready'}},{timeout:1500});
+ assert.equal(namedResult[0],8);
+ assert.equal(namedResult[1],'ready');
+ writeFileSync(join(folder,'bad-named.ts'),'let total: Amount = "wrong";');
+ const badNamed=compile('bad-named.ts','models.d.ts');
+ assert.equal(badNamed.status,2,badNamed.stdout+badNamed.stderr);
+ assert.match(badNamed.stdout+badNamed.stderr,/TS2322/);
+ assert.equal(existsSync(join(folder,'bad-named.js')),false);
+ assert.equal(existsSync(join(folder,'models.d.js')),false);
+ console.log('Ambient types: linked type alias, interface and value execute 8; bad assignment emits no JS.');
  console.log('Ambient declarations: checked .d.ts values link across files, execute 21, invalid calls emit no JS.');
  console.log('Ambient declarations: 2 source units execute 42, invalid programs emit no JS.');
 } finally {rmSync(folder,{recursive:true,force:true});}
