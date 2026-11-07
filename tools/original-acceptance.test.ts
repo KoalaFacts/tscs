@@ -166,6 +166,53 @@ test('an executed target passes only when diagnostics and emit match the referen
   }
 });
 
+test('skipped original targets still verify their registered source hash', () => {
+  const {root, options, log} = upstream({
+    'fatal.ts': '// @target: es2015\n',
+    'transpile.ts': '// @target: es2015\n',
+  }, {});
+  try {
+    for (const [name, config, group, reason] of [
+      ['fatal.ts', null, 'compiler', 'reference-fatal-source'],
+      ['transpile.ts', {}, 'transpile', 'transpile-runner'],
+    ] as const) {
+      const path = `tsc/testdata/tests/cases/compiler/${name}`;
+      const bytes = readFileSync(join(root, path));
+      const valid = {...target(path, config, '', group),
+        rawSha256: createHash('sha256').update(bytes).digest('hex')};
+      assert.deepEqual(runTarget(valid, options).reasons, [reason]);
+      assert.throws(() => runTarget({...valid, rawSha256: '0'.repeat(64)}, options),
+        /does not match the registered pinned source/,
+        'SKIP must not hide changed upstream bytes');
+    }
+    assert.equal(existsSync(log), false, 'unsupported targets never invoke the compiler');
+  } finally { rmSync(root, {recursive: true, force: true}); }
+});
+
+test('mixed-case option keys drive noEmit and lib invocation faithfully', () => {
+  const {root, options, log} = upstream({
+    'noemit.ts': '// @noLib: true\n// @noEmit: true\n// emit: let x = 1;\n',
+    'libcase.ts': '// @noLib: true\n// @lib: es5\n// emit: let y = 2;\n',
+  }, {
+    'noemit.types': '',
+    'libcase.types': '',
+    'libcase.js': '//// [tests/cases/compiler/libcase.ts] ////\r\n\r\n//// [libcase.ts]\r\n// emit: let y = 2;\r\n\r\n//// [libcase.js]\r\nlet y = 2;\r\n',
+  });
+  try {
+    const run = (name: string, config: Record<string, string>) => {
+      const path = `tsc/testdata/tests/cases/compiler/${name}`;
+      return runTarget({...target(path, config),
+        rawSha256: createHash('sha256').update(readFileSync(join(root, path))).digest('hex')}, options);
+    };
+    assert.equal(run('noemit.ts', {NoEmit: 'TRUE', NoLib: 'true', TARGET: 'es2015'}).status, 'PASS');
+    assert.equal(run('libcase.ts', {LIB: 'es5', NOLIB: 'true', MODULE: 'ES6'}).status, 'PASS');
+    const invocations = readFileSync(log, 'utf8').trim().split('\n');
+    assert.equal(invocations.length, 2);
+    assert.match(invocations[0], /--noEmit --noLib --target es2015/);
+    assert.match(invocations[1], /--emitJs --noLib --lib es5 --target es2015 --module es2015/);
+  } finally { rmSync(root, {recursive: true, force: true}); }
+});
+
 test('the report counts every status and both capability histograms', () => {
   const r = (status: TargetResult['status'], reasons: string[]): TargetResult => ({id: 'x', upstreamPath: 'p', configuration: '', status, reasons});
   const report = summarize('abc', [
