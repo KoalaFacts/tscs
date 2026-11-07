@@ -724,6 +724,12 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     Unsupported(Current,"Only exported variables, functions, type aliases and interfaces are supported yet.");
             }
             bool ambient=Eat(TokenKind.Declare);
+            // A non-emitting var declaration is checked only as a declaration-file
+            // input; ordinary .ts var semantics (hoisting and redeclaration)
+            // remain unsupported rather than being silently modelled as let.
+            if(ambient && Current.Kind==TokenKind.Var &&
+               !file.EndsWith(".d.ts",StringComparison.OrdinalIgnoreCase))
+                Unsupported(Current,"Ambient var is supported only in declaration files.");
             if(ambient && (depth!=0 || Current.Kind is not (TokenKind.Function or TokenKind.Let or TokenKind.Const or TokenKind.Var)))
                 Unsupported(Current,"Only source-level ambient function signatures and typed var/let/const declarations are supported.");
             if(ambient && Current.Kind is TokenKind.Let or TokenKind.Const or TokenKind.Var)
