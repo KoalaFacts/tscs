@@ -33,7 +33,7 @@ internal static class TypeResolver
                 throw new CompilationFailure(Diagnostic.Error(binding.File,binding.Name,"TSCS1001",
                     "Only finite structural interfaces can be merged."));
 
-            var members=new Dictionary<string,TypeSymbol>(original.Members,StringComparer.Ordinal);
+            var members=original.Members.ToDictionary(pair=>pair.Key,pair=>pair.Value,StringComparer.Ordinal);
             var readonlyKeys=new HashSet<string>(original.ReadonlyMembers,StringComparer.Ordinal);
             var numericKeys=new HashSet<string>(original.NumericMembers,StringComparer.Ordinal);
             var optionalKeys=new HashSet<string>(original.OptionalMembers,StringComparer.Ordinal);
