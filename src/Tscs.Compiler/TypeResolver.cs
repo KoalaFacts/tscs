@@ -10,6 +10,10 @@ internal sealed class TypeBinding(string file,Token name,TypeSyntax syntax,Scope
     public Scope Owner { get; }=owner;
     public TypeSymbol? Resolved { get; set; }
     public bool Resolving { get; set; }
+    public bool IsInterface { get; init; }
+    // Reopened interfaces retain source positions and declaring scopes.
+    // No type alias or imported binding is silently merged with an interface.
+    public List<(string File,Token Name,TypeSyntax Syntax,Scope Owner)> MergedInterfaces { get; }=[];
 }
 
 internal static class TypeResolver
@@ -21,7 +25,52 @@ internal static class TypeResolver
             throw new CompilationFailure(Diagnostic.Error(binding.File,binding.Name,"TS2456",
                 $"Type alias '{binding.Name.Text}' circularly references itself or exceeds the supported depth."));
         binding.Resolving=true;
-        try {return binding.Resolved=Resolve(binding.Syntax,binding.Owner,binding.File,depth+1);}
+        try
+        {
+            var first=Resolve(binding.Syntax,binding.Owner,binding.File,depth+1);
+            if(binding.MergedInterfaces.Count==0)return binding.Resolved=first;
+            if(first is not ObjectTypeSymbol original)
+                throw new CompilationFailure(Diagnostic.Error(binding.File,binding.Name,"TSCS1001",
+                    "Only finite structural interfaces can be merged."));
+
+            var members=new Dictionary<string,TypeSymbol>(original.Members,StringComparer.Ordinal);
+            var readonlyKeys=new HashSet<string>(original.ReadonlyMembers,StringComparer.Ordinal);
+            var numericKeys=new HashSet<string>(original.NumericMembers,StringComparer.Ordinal);
+            var optionalKeys=new HashSet<string>(original.OptionalMembers,StringComparer.Ordinal);
+            foreach(var (file,name,syntax,owner) in binding.MergedInterfaces)
+            {
+                if(Resolve(syntax,owner,file,depth+1) is not ObjectTypeSymbol next)
+                    throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
+                        "Only finite structural interfaces can be merged."));
+                foreach(var (key,type) in next.Members)
+                {
+                    bool incomingReadonly=next.ReadonlyMembers.Contains(key);
+                    bool incomingNumeric=next.NumericMembers.Contains(key);
+                    bool incomingOptional=next.OptionalMembers.Contains(key);
+                    if(members.TryGetValue(key,out var previous))
+                    {
+                        if(readonlyKeys.Contains(key)!=incomingReadonly ||
+                           numericKeys.Contains(key)!=incomingNumeric ||
+                           optionalKeys.Contains(key)!=incomingOptional)
+                            throw new CompilationFailure(Diagnostic.Error(file,name,"TS2687",
+                                $"All declarations of '{key}' must have identical modifiers."));
+                        if(!CompilerTypes.IsEquivalent(previous,type) ||
+                           !string.Equals(previous.DisplayName,type.DisplayName,StringComparison.Ordinal))
+                            throw new CompilationFailure(Diagnostic.Error(file,name,"TS2717",
+                                $"Subsequent property declarations must have the same type. Property '{key}' must be of type '{previous.DisplayName}', but here has type '{type.DisplayName}'."));
+                        continue;
+                    }
+                    if(members.Count>=128)
+                        throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
+                            "Merged interface exceeds the finite 128-member limit."));
+                    members.Add(key,type);
+                    if(incomingReadonly)readonlyKeys.Add(key);
+                    if(incomingNumeric)numericKeys.Add(key);
+                    if(incomingOptional)optionalKeys.Add(key);
+                }
+            }
+            return binding.Resolved=new ObjectTypeSymbol(members,readonlyKeys,numericKeys,optionalKeys);
+        }
         finally {binding.Resolving=false;}
     }
 

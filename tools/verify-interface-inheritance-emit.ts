@@ -25,6 +25,31 @@ try {
     {cwd:dir,encoding:'utf8',timeout:15000});
   assert.equal(executed.error,undefined,String(executed.error));
   assert.equal(executed.status,0,executed.stdout+executed.stderr);
+
+  // A2.3: separate checked .d.ts interface declarations merge before the
+  // consumer is checked; declarations erase while real ES module JS runs.
+  writeFileSync(join(dir,'ambient-part-one.d.ts'),'interface MergedReading {value:number;}');
+  writeFileSync(join(dir,'ambient-part-two.d.ts'),'interface MergedReading {label:string;}');
+  writeFileSync(join(dir,'merged-entry.ts'),
+    'const reading:MergedReading={value:21,label:"a"};export const mergedResult:number=reading.value*2;');
+  const merged=compile(['--emitJs','--noLib','--target','es2015','--module','es2015',
+    'merged-entry.ts','ambient-part-one.d.ts','ambient-part-two.d.ts','minimal.d.ts']);
+  assert.equal(merged.status,0,merged.stdout+merged.stderr);
+  assert.ok(existsSync(join(dir,'merged-entry.js')));
+  assert.equal(existsSync(join(dir,'ambient-part-one.d.js')),false);
+  assert.equal(existsSync(join(dir,'ambient-part-two.d.js')),false);
+  const mergedRuntime=spawnSync(process.execPath,['--input-type=module','--eval',
+    'import {mergedResult} from "./merged-entry.js"; if(mergedResult!==42)throw Error("merged result "+mergedResult);'],
+    {cwd:dir,encoding:'utf8',timeout:15000});
+  assert.equal(mergedRuntime.error,undefined,String(mergedRuntime.error));
+  assert.equal(mergedRuntime.status,0,mergedRuntime.stdout+mergedRuntime.stderr);
+  writeFileSync(join(dir,'ambient-conflict.d.ts'),'interface MergedReading {value:string;}');
+  writeFileSync(join(dir,'bad-merged-entry.ts'),'let x:number=1;');
+  const conflict=compile(['--emitJs','--noLib','--target','es2015',
+    'bad-merged-entry.ts','ambient-part-one.d.ts','ambient-conflict.d.ts','minimal.d.ts']);
+  assert.equal(conflict.status,2,conflict.stdout+conflict.stderr);
+  assert.match(conflict.stdout+conflict.stderr,/TS2717/);
+  assert.equal(existsSync(join(dir,'bad-merged-entry.js')),false);
   const invalid:[string,string,string,number][]=[
     ['wrong-value','interface A{value:number}interface B extends A{}let b:B={value:"bad"};','TS2322',2],
     ['readonly-parent','interface A{readonly value:number}interface B extends A{}let b:B={value:1};b.value=2;','TS2540',2],

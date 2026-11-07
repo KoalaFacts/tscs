@@ -39,6 +39,47 @@ public sealed class InterfaceInheritanceTests
     public void InvalidHeritageFailsClosed(string source,string code)=>
         Assert.Contains(Compilation.Check("heritage-bad.ts",source),d=>d.Code==code);
 
+
+    [Theory]
+    [InlineData("interface Record { value:number } interface Record { label:string } let data:Record={value:21,label:\"ok\"}; let answer:number=data.value;")]
+    [InlineData("interface Record { readonly value:number } interface Record { readonly value:number; label:string } let data:Record={value:21,label:\"ok\"};")]
+    [InlineData("interface Record { value:number } interface Record { extra:number } type Keys=keyof Record; let k:Keys=\"extra\";")]
+    public void ReopenedFiniteInterfacesContributeAllProperties(string source)=>
+        Assert.Empty(Compilation.Check("merged.ts",source));
+
+    [Fact]
+    public void ReopenedInterfacesBindAcrossDeclarationFilesBeforeConsumer()
+    {
+        var diagnostics=Compilation.CheckFiles([
+            new SourceInput("first.d.ts","interface Reading { value:number; }"),
+            new SourceInput("second.d.ts","interface Reading { label:string; }"),
+            new SourceInput("entry.ts","let r:Reading={value:21,label:\"yes\"}; let total:number=r.value;")
+        ]);
+        Assert.Empty(diagnostics);
+    }
+
+    [Theory]
+    [InlineData("interface R { value:number } interface R { value:string }","TS2717")]
+    [InlineData("interface R { readonly value:number } interface R { value:number }","TS2687")]
+    [InlineData("interface R { value?:number } interface R { value:number }","TS2687")]
+    [InlineData("type R={value:number};interface R{extra:number}","TS2300")]
+    [InlineData("interface R{value:number};type R={extra:number}","TS2300")]
+    [InlineData("interface R { value:number } interface R { extra:number } let r:R={value:21};","TS2322")]
+    [InlineData("interface R { value:number } interface R { extra:number } let r:R={value:21,extra:\"bad\"};","TS2322")]
+    public void IncompatibleInterfaceMergesAndConsumersFailClosed(string source,string code)=>
+        Assert.Contains(Compilation.Check("merged-bad.ts",source),d=>d.Code==code);
+
+    [Fact]
+    public void ConflictingDeclarationFilesReportTheLaterFile()
+    {
+        var errors=Compilation.CheckFiles([
+            new SourceInput("first.d.ts","interface R { value:number; }"),
+            new SourceInput("second.d.ts","interface R { value:string; }"),
+            new SourceInput("entry.ts","let x:number=1;")
+        ]);
+        Assert.Contains(errors,e=>e.Code=="TS2717" && e.File=="second.d.ts");
+    }
+
     private sealed class Host:ICompilerHost
     {
         public StringComparer FileNameComparer=>StringComparer.Ordinal;

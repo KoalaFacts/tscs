@@ -95,9 +95,23 @@ internal static class Binder
                 :iface.Body),
             _=>throw new InvalidOperationException("Not a type declaration.")
         };
-        if(!scope.Types.TryAdd(name.Text,new TypeBinding(file,name,syntax,scope)))
+        if(scope.Types.TryGetValue(name.Text,out var previous))
+        {
+            // Non-generic interfaces may reopen a single global/module type.
+            // Imported types and aliases remain separate, non-mergeable symbols.
+            if(declaration is InterfaceDeclaration && previous.IsInterface &&
+               ReferenceEquals(previous.Owner,scope))
+            {
+                previous.MergedInterfaces.Add((file,name,syntax,scope));
+                return;
+            }
             throw new CompilationFailure(Diagnostic.Error(file,name,"TS2300",
                 $"Duplicate identifier '{name.Text}'."));
+        }
+        scope.Types.Add(name.Text,new TypeBinding(file,name,syntax,scope)
+        {
+            IsInterface=declaration is InterfaceDeclaration
+        });
     }
 
     public static void DeclareParameter(string file,Scope scope,ParameterDeclaration parameter)

@@ -181,6 +181,10 @@ report TS2403 and mixed `var`/`let`/`const` redeclarations remain unsupported.
 This bounded value merge does not implement library-wide declaration merging.
 Generic aliases/interfaces,
 ambient classes and library-wide declaration merging remain unsupported.
+Non-generic finite interface declarations can now merge across source and
+declaration files: disjoint members accumulate, matching repeated members
+remain valid, and incompatible types or modifiers fail with TS2717/TS2687.
+This is not generic or library-wide declaration merging.
 This is an A2.3 prerequisite, **not** default-library loading, general ambient
 declaration support or an original upstream PASS.
 
