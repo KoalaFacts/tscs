@@ -91,6 +91,81 @@ try {
       assert.equal(existsSync(join(dir,prefix+'-first.d.js')),false,prefix);
       assert.equal(existsSync(join(dir,prefix+'-second.d.js')),false,prefix);
     }
+  // The retained #237 26-case oracle counterexample contract: 11 paired
+  // declaration inputs in both file orders and two callable-union neighbours
+  // in both type orders. Pinned Go outcomes were captured before this fix.
+  // Execute actual compiler JS for positives and assert no JS for conflicts.
+  const {runInNewContext}=await import('node:vm');
+  const typeFile='identity-common.d.ts';
+  writeFileSync(join(dir,typeFile),
+    'type A={a:number};type B={b:string};type P=A&B;type Q={a:number;b:string};');
+  const varCases:{id:string;a:string;b:string;valid:boolean;read:string;value:unknown}[]=[
+    {id:'var-object-reorder',a:'{a:number;b:string}',b:'{b:string;a:number}',
+      valid:true,read:'item.a',value:{a:7,b:'ok'}},
+    {id:'var-union-reorder',a:'number|string',b:'string|number',
+      valid:true,read:'typeof item==="number"?item:0',value:7},
+    {id:'var-alias-intersection-union',a:'(A&B)|Q',b:'Q|(A&B)',
+      valid:true,read:'item.a',value:{a:7,b:'ok'}},
+    {id:'var-inline-intersection-union',
+      a:'({a:number}&{b:string})|{a:number;b:string}',
+      b:'{a:number;b:string}|({a:number}&{b:string})',
+      valid:true,read:'item.a',value:{a:7,b:'ok'}},
+    {id:'var-nested-intersection-union',a:'{value:(A&B)|Q}',b:'{value:Q|(A&B)}',
+      valid:true,read:'item.value.a',value:{value:{a:7,b:'ok'}}},
+    {id:'var-any-conflict',a:'any',b:'number',valid:false,read:'7',value:7},
+    {id:'var-primitive-conflict',a:'number',b:'string',valid:false,read:'7',value:7},
+    {id:'var-intersection-object',a:'{a:number}&{b:string}',
+      b:'{b:string;a:number}',valid:false,read:'7',value:{a:7,b:'ok'}},
+    {id:'var-nested-intersection-object',a:'{value:{a:number}&{b:string}}',
+      b:'{value:{b:string;a:number}}',valid:false,read:'7',value:{value:{a:7,b:'ok'}}},
+    {id:'var-function-intersection',
+      a:'(x:{a:number}&{b:string})=>number',
+      b:'(x:{b:string;a:number})=>number',valid:false,read:'7',value:()=>7},
+    {id:'var-array-intersection',a:'({a:number}&{b:string})[]',
+      b:'{b:string;a:number}[]',valid:false,read:'7',value:[{a:7,b:'ok'}]}
+  ];
+  for(const identity of varCases)
+    for(const reverse of [false,true]){
+      const id=identity.id+(reverse?'-reverse':'');
+      const one=id+'-first.d.ts',two=id+'-second.d.ts',entry=id+'-entry.ts';
+      writeFileSync(join(dir,one),'declare var item:'+(reverse?identity.b:identity.a)+';');
+      writeFileSync(join(dir,two),'declare var item:'+(reverse?identity.a:identity.b)+';');
+      writeFileSync(join(dir,entry),'let answer:number='+identity.read+';');
+      const checked=compile(['--emitJs','--noLib','--target','es2015',
+        entry,typeFile,one,two,'minimal.d.ts']);
+      assert.equal(checked.status,identity.valid?0:2,id+': '+checked.stdout+checked.stderr);
+      const output=join(dir,entry.replace(/\.ts$/,'.js'));
+      if(identity.valid){
+        assert.equal(existsSync(output),true,id+' missing emitted JS');
+        assert.equal(runInNewContext(readFileSync(output,'utf8')+'\nanswer;',
+          {item:identity.value}),7,id+' result');
+      }else{
+        assert.match(checked.stdout+checked.stderr,/TS2403/,id);
+        assert.equal(existsSync(output),false,id+' must reject emit');
+      }
+      assert.equal(existsSync(join(dir,one.replace(/\.d\.ts$/,'.d.js'))),false,id);
+      assert.equal(existsSync(join(dir,two.replace(/\.d\.ts$/,'.d.js'))),false,id);
+    }
+  for(const member of [false,true])
+    for(const reversed of [false,true]){
+      const id='ordinary-union-call-'+(member?'member-':'direct-')+(reversed?'reverse':'forward');
+      const entry=id+'.ts',ambient=id+'.d.ts';
+      const sigs=reversed?'((v:Q)=>number)|((v:P)=>number)':
+        '((v:P)=>number)|((v:Q)=>number)';
+      const declaration=member?'declare const obj:{run:'+sigs+'};':
+        'declare const call:'+sigs+';';
+      writeFileSync(join(dir,ambient),declaration);
+      writeFileSync(join(dir,entry),
+        'let answer:number='+(member?'obj.run':'call')+'({a:7,b:"ok"});');
+      const compiled=compile(['--emitJs','--noLib','--target','es2015',
+        entry,typeFile,ambient,'minimal.d.ts']);
+      assert.equal(compiled.status,0,id+': '+compiled.stdout+compiled.stderr);
+      const output=join(dir,entry.replace(/\.ts$/,'.js'));
+      assert.equal(runInNewContext(readFileSync(output,'utf8')+'\nanswer;',
+        member?{obj:{run:(value:{a:number})=>value.a}}:
+          {call:(value:{a:number})=>value.a}),7,id);
+      assert.equal(existsSync(join(dir,ambient.replace(/\.d\.ts$/,'.d.js'))),false,id);
+    }
   const invalid:[string,string,string,number][]=[
     ['wrong-value','interface A{value:number}interface B extends A{}let b:B={value:"bad"};','TS2322',2],
     ['readonly-parent','interface A{readonly value:number}interface B extends A{}let b:B={value:1};b.value=2;','TS2540',2],
