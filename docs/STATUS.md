@@ -93,7 +93,7 @@ diagnostic and exit 1; they are intended never to be compiled silently.
   diagnostics in reference order) is tested against reference vectors but
   not wired into tsconfig loading.
 - CompilerHost with real and virtual file systems; triple-slash path
-  references; multi-file global scripts. A port of the pinned source decoder
+  references; multi-file global scripts. A tested port of the pinned source decoder
   decodes filesystem sources with UTF-8 or UTF-16 LE/BE BOMs; malformed UTF-8
   fails closed instead of being replaced; the full byte/VFS profile is incomplete.
 - Named ES module imports/exports/re-exports, `import type` and type-only
@@ -188,8 +188,9 @@ source shape, and `typeof x`, `keyof T` and literal-key `T["k"]` compare by
 the type they denote (a `typeof` root needs an annotation, a function
 signature or a literal-only initializer; other inferred roots are rejected
 conservatively). Generic aliases/interfaces, ambient classes and library-wide
-declaration merging remain unsupported: these are A2.3 prerequisites,
-**not** default-library loading or an original upstream PASS.
+declaration merging remain unsupported. These merges are A2.3 prerequisites,
+**not** default-library loading, general ambient declaration support or an
+original upstream PASS.
 
 `lib.*.d.ts` files cannot be loaded yet. `DeclarationParser` (A2.1) parses
 ambient declaration syntax into a syntax tree: interfaces, type aliases,
