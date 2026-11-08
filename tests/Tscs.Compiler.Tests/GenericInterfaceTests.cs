@@ -7,7 +7,7 @@ namespace Tscs.Tests;
 // parameters, instantiated by substitution like generic type aliases.
 // Reopening with an identical parameter list merges per instantiation;
 // heritage instantiates its bases. Different lists, members shared with a
-// base, constraints and defaults fail closed.
+// base and constraints fail closed; trailing defaults are supported.
 public sealed class GenericInterfaceTests
 {
     [Theory]
@@ -45,7 +45,6 @@ public sealed class GenericInterfaceTests
 
     [Theory]
     [InlineData("interface Box<T extends string>{value:T}")]
-    [InlineData("interface Box<T=number>{value:T}")]
     [InlineData("interface Box<out T>{value:T}")]
     [InlineData("interface Box<T,T>{value:T}")]
     [InlineData("interface Box<>{value:number}")]

@@ -196,6 +196,50 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "interface-inheritance:positive-26",
+      "source": "type Box<T=number>={value:T};let b:Box={value:8};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-27",
+      "source": "interface Box<T=number>{value:T}let b:Box={value:8};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-28",
+      "source": "type Pair<T,U=T[]>={left:T;right:U};let b:Pair<number>={left:2,right:[8]};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-29",
+      "source": "interface Base<T=number>{value:T}interface Child extends Base{other:number}let b:Child={value:2,other:8};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-30",
+      "source": "type Named=string;type Box<T=Named>={value:T};let b:Box={value:\"ok\"};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-31",
+      "source": "interface Pair<T,U=T>{first:T;second:U}let p:Pair<string>={first:\"a\",second:\"b\"};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:negative-09",
+      "source": "type Box<T=number>={value:T};let b:Box={value:\"no\"};",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "interface-inheritance:negative-10",
+      "source": "interface Box<T=string>{value:T}let b:Box={value:8};",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }
