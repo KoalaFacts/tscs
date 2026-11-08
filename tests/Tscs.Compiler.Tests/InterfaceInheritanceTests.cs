@@ -319,4 +319,29 @@ public sealed class InterfaceInheritanceTests
         var reversed=string.Join(",",order.Split(',').Reverse());
         Assert.Empty(Compilation.Check("shared-no-intersection.ts",$"{prelude}interface N extends {reversed}{{}}"));
     }
+
+    // Mutual assignability is not identity: `any` against a concrete shared
+    // member type is TS2320 in the reference; fail closed (review on #246).
+    [Theory]
+    [InlineData("type I={a:number}&{b:string};type Q={a:number;b:string};interface C{x:I}interface A extends C{x:any}interface B{x:Q}")]
+    [InlineData("type Q={a:number;b:string};interface A{x:any[]}interface B{x:Q[]}")]
+    [InlineData("type Q={a:number;b:string};interface A{x:{v:any}}interface B{x:{v:Q}}")]
+    [InlineData("type Q={a:number;b:string};interface A{x:(v:any)=>number}interface B{x:(v:Q)=>number}")]
+    [InlineData("interface A{x:any}interface B{x:number}")]
+    public void SharedMemberAnyAgainstConcreteFailsClosed(string prelude)
+    {
+        foreach(var order in new[]{"A,B","B,A"})
+            Assert.Contains(Compilation.Check("shared-any.ts",$"{prelude}interface N extends {order}{{}}let result=7;"),
+                d=>d.Code=="TSCS1001");
+    }
+
+    [Theory]
+    [InlineData("interface A{x:any}interface B{x:any}")]
+    [InlineData("interface A{x:any[]}interface B{x:any[]}")]
+    [InlineData("interface A{x:(v:any)=>number}interface B{x:(v:any)=>number}")]
+    public void SharedMemberAnyAtSamePositionsStaysValid(string prelude)
+    {
+        foreach(var order in new[]{"A,B","B,A"})
+            Assert.Empty(Compilation.Check("shared-any-ok.ts",$"{prelude}interface N extends {order}{{}}let result=7;"));
+    }
 }

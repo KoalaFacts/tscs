@@ -532,7 +532,8 @@ internal static class TypeResolver
                             else if(numericKeys.Contains(member.Key)!=numeric ||
                                     readonlyKeys.Contains(member.Key)!=isReadonly ||
                                     optionalKeys.Contains(member.Key)!=isOptional ||
-                                    !CompilerTypes.IsEquivalent(previous,member.Value))
+                                    !CompilerTypes.IsEquivalent(previous,member.Value) ||
+                                    !CompilerTypes.AnyPositionsAgree(previous,member.Value))
                                 throw new CompilationFailure(Diagnostic.Error(file,named.Name,"TSCS1001",
                                     $"Inherited member '{member.Key}' has incompatible base declarations."));
                         }
