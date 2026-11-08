@@ -84,4 +84,18 @@ public sealed class GenericTypeAliasTests
                 new SourceInput("entry.ts","let result=7;")
             ]),d=>d.Code=="TS2403");
     }
+
+    // Exhausting the bounded identity depth is unsupported, not a type
+    // difference: the reference accepts these equal 13-level instantiations.
+    [Fact]
+    public void DeepInstantiationIdentityFailsClosedInsteadOfReportingTs2403()
+    {
+        var diagnostics=Compilation.CheckFiles([
+            new SourceInput("x.d.ts","type Pair<A,B>={first:A;second:B};type D<T>=Pair<T,T>;declare var v:D<D<D<D<D<D<D<D<D<D<D<D<D<number>>>>>>>>>>>>>;"),
+            new SourceInput("y.d.ts","type Pair2<A,B>={first:A;second:B};type D2<T>=Pair2<T,T>;declare var v:D2<D2<D2<D2<D2<D2<D2<D2<D2<D2<D2<D2<D2<number>>>>>>>>>>>>>;"),
+            new SourceInput("entry.ts","let result=7;")
+        ]);
+        Assert.DoesNotContain(diagnostics,d=>d.Code=="TS2403");
+        Assert.Contains(diagnostics,d=>d.Code=="TSCS1001");
+    }
 }

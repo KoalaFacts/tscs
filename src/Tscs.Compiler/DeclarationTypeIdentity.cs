@@ -92,7 +92,11 @@ internal static class DeclarationTypeIdentity
     private static bool SameSyntax(TypeSyntax left,Scope leftScope,string leftFile,
         TypeSyntax right,Scope rightScope,string rightFile,int depth)
     {
-        if(depth>64)return false;
+        // Running out of the bounded depth proves neither identity nor a
+        // difference: fail closed as unsupported, never as a TS2403/TS2717.
+        if(depth>64)
+            throw new CompilationFailure(Diagnostic.Error(rightFile,TypeResolver.Location(right),"TSCS1001",
+                "Declaration type identity exceeds the bounded compiler subset."));
         // Compare what derived syntax denotes, not the derived node itself:
         // 'typeof x' is x's declared type and P["k"] is P's property type.
         if(Unwrap(left,leftScope,leftFile,depth) is { } l)
@@ -323,7 +327,7 @@ internal static class DeclarationTypeIdentity
         IReadOnlyList<T> right,Scope rightScope,string rightFile,int depth)
         where T:TypeSyntax
     {
-        if(left.Count!=right.Count || depth>64)return false;
+        if(left.Count!=right.Count)return false;
         var used=new bool[right.Count];
         foreach(var item in left)
         {

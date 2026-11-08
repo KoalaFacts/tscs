@@ -556,7 +556,7 @@ internal static class TypeResolver
         }
     }
 
-    private static Token Location(TypeSyntax syntax)=>syntax switch
+    internal static Token Location(TypeSyntax syntax)=>syntax switch
     {
         PrimitiveTypeSyntax value=>value.Name,
         LiteralTypeSyntax value=>value.Literal,
