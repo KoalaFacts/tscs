@@ -54,6 +54,10 @@ public sealed class GenericInterfaceTests
     // 'Array<T>' always denotes the built-in array; a declaration would be ignored.
     [InlineData("interface Array<T>{length:string}")]
     [InlineData("interface ReadonlyArray<T>{length:number}")]
+    // Bootstrap globals come from the validated library contract (TS2428/TS2317).
+    [InlineData("interface Number<T>{v:T}let o:Number<string>={v:\"x\"};")]
+    [InlineData("interface Object<T>{v:T}")]
+    [InlineData("interface String<T>{v:T}")]
     public void UnsupportedGenericInterfaceFormsFailClosed(string source)=>
         Assert.Contains(Compilation.Check("generic-interface-unsupported.ts",source),d=>d.Code=="TSCS1001");
 

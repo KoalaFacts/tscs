@@ -186,7 +186,8 @@ public static class CommandLine
         AmbientVariable {Exported:false,Keyword.Text:"var" or "let" or "const"} => true,
         AmbientTypeAlias {Exported:false} alias
             when !GlobalTypes.Contains(alias.Name.Text,StringComparer.Ordinal) => true,
-        // Generic array and iterator protocol contracts are validated by ReadGlobals.
+        // Generic array and iterator protocol names stay on the ReadGlobals path,
+        // which validates or rejects them; they never reach the checker.
         AmbientInterface {Exported:false} iface
             when !GlobalTypes.Contains(iface.Name.Text,StringComparer.Ordinal) &&
                  (iface.TypeParameters.Count==0 || iface.Name.Text is not ("ReadonlyArray" or "Iterable" or "Iterator" or "IterableIterator" or "IteratorResult")) => true,

@@ -101,13 +101,16 @@ internal static class Binder
             InterfaceDeclaration iface=>iface.TypeParameters,
             _=>null
         }??[];
-        // The compiler models these library generics intrinsically ('Array<T>'
-        // always means the built-in array type), so a user declaration would
-        // be silently ignored instead of merged with the library one.
+        // The compiler models these library types intrinsically ('Array<T>'
+        // always means the built-in array type, bootstrap globals come from
+        // the validated library contract), so a generic user declaration
+        // would be silently ignored instead of merged (TS2428/TS2317).
         if(declaration is InterfaceDeclaration && typeParameters.Count!=0 &&
-           name.Text is "Array" or "ReadonlyArray" or "Iterable" or "Iterator" or "IterableIterator" or "IteratorResult")
+           name.Text is "Array" or "ReadonlyArray" or "Iterable" or "Iterator" or "IterableIterator" or "IteratorResult" or
+               "Boolean" or "CallableFunction" or "Function" or "IArguments" or "NewableFunction" or
+               "Number" or "Object" or "RegExp" or "String")
             throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
-                $"Declaring the library generic interface '{name.Text}' is not supported yet."));
+                $"A generic interface named after the library type '{name.Text}' is not supported yet."));
         // Predefined type names are not valid type parameter names (TS2368).
         foreach(var parameter in typeParameters)
             if(parameter.Text is "number" or "string" or "boolean" or "any" or "unknown" or
