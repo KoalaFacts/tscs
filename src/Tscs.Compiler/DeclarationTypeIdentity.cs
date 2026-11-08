@@ -210,6 +210,99 @@ internal static class DeclarationTypeIdentity
         }
     }
 
+    // One declared member of a generic interface or of one of its bases.
+    // 'Substitution' maps the base's type parameter names to the heritage
+    // arguments, which are read in 'ArgumentScope' (the declaring generic
+    // interface's scope, where its own type parameters stay opaque).
+    internal readonly record struct MemberSide(ObjectTypeProperty Property,Scope Scope,
+        IReadOnlyDictionary<string,TypeSyntax>? Substitution=null,Scope? ArgumentScope=null);
+
+    private readonly record struct Context(Scope Scope,
+        IReadOnlyDictionary<string,TypeSyntax>? Substitution,Scope? ArgumentScope);
+
+    // The member 'key' as directly declared by the single-declaration
+    // interface that 'named' references (read in 'scope'), with its type
+    // parameters bound to the heritage arguments; null when the member is
+    // inherited or merged, or the base is not a plain interface.
+    internal static MemberSide? BaseMember(NamedTypeSyntax named,Scope scope,string key)
+    {
+        if(scope.FindType(named.Name.Text) is not { IsInterface: true } binding ||
+           binding.MergedInterfaces.Count!=0)return null;
+        var arguments=named.TypeArguments??[];
+        if(arguments.Count!=binding.TypeParameters.Count)return null;
+        if(DirectProperty(binding.Syntax,key) is not { } property)return null;
+        var substitution=new Dictionary<string,TypeSyntax>(StringComparer.Ordinal);
+        for(int i=0;i<arguments.Count;i++)
+            if(!substitution.TryAdd(binding.TypeParameters[i].Text,arguments[i]))return null;
+        return new MemberSide(property,binding.Owner,substitution,scope);
+    }
+
+    // Whether two member declarations are the same type by syntax alone:
+    // identical modifiers, and type syntax that matches node for node, with
+    // named references denoting the same binding. 'x:T' matches a base
+    // 'x:U' only through 'extends B<T>'. No match proves nothing: callers
+    // fail closed, never report.
+    internal static bool SameMember(MemberSide left,MemberSide right)=>
+        left.Property.Readonly==right.Property.Readonly &&
+        left.Property.Optional==right.Property.Optional &&
+        left.Property.Name.Kind==right.Property.Name.Kind &&
+        SameDeclared(left.Property.Type,new(left.Scope,left.Substitution,left.ArgumentScope),
+            right.Property.Type,new(right.Scope,right.Substitution,right.ArgumentScope),0);
+
+    private static bool SameDeclared(TypeSyntax left,Context l,TypeSyntax right,Context r,int depth)
+    {
+        if(depth>64)return false;
+        // A substituted argument is read in the declaring interface's scope,
+        // where no further substitution applies.
+        if(Substituted(left,l) is { } ls)
+            return SameDeclared(ls,new(l.ArgumentScope!,null,null),right,r,depth+1);
+        if(Substituted(right,r) is { } rs)
+            return SameDeclared(left,l,rs,new(r.ArgumentScope!,null,null),depth+1);
+        bool Each(IReadOnlyList<TypeSyntax> a,IReadOnlyList<TypeSyntax> b)=>
+            a.Count==b.Count && a.Zip(b).All(pair=>SameDeclared(pair.First,l,pair.Second,r,depth+1));
+        switch((left,right))
+        {
+            case (PrimitiveTypeSyntax a,PrimitiveTypeSyntax b):
+                return a.Name.Text==b.Name.Text;
+            case (LiteralTypeSyntax a,LiteralTypeSyntax b):
+                return a.Negative==b.Negative && a.Literal.Kind==b.Literal.Kind &&
+                    (a.Literal.Value??a.Literal.Text)==(b.Literal.Value??b.Literal.Text);
+            case (NamedTypeSyntax a,NamedTypeSyntax b):
+                return l.Scope.FindType(a.Name.Text) is { } binding &&
+                    ReferenceEquals(binding,r.Scope.FindType(b.Name.Text)) &&
+                    Each(a.TypeArguments??[],b.TypeArguments??[]);
+            case (ArrayTypeSyntax a,ArrayTypeSyntax b):
+                return a.Readonly==b.Readonly && SameDeclared(a.Element,l,b.Element,r,depth+1);
+            case (TupleTypeSyntax a,TupleTypeSyntax b):
+                return a.Readonly==b.Readonly && a.OptionalStart==b.OptionalStart && Each(a.Elements,b.Elements);
+            case (TupleRestTypeSyntax a,TupleRestTypeSyntax b):
+                return SameDeclared(a.Target,l,b.Target,r,depth+1);
+            case (UnionTypeSyntax a,UnionTypeSyntax b):
+                return Each(a.Members,b.Members);
+            case (IntersectionTypeSyntax a,IntersectionTypeSyntax b):
+                return Each(a.Members,b.Members);
+            case (ObjectTypeSyntax a,ObjectTypeSyntax b):
+                return a.Properties.Count==b.Properties.Count && a.Properties.Zip(b.Properties).All(pair=>
+                    Parser.PropertyName(pair.First.Name)==Parser.PropertyName(pair.Second.Name) &&
+                    pair.First.Name.Kind==pair.Second.Name.Kind &&
+                    pair.First.Readonly==pair.Second.Readonly && pair.First.Optional==pair.Second.Optional &&
+                    SameDeclared(pair.First.Type,l,pair.Second.Type,r,depth+1));
+            case (FunctionTypeSyntax a,FunctionTypeSyntax b):
+                return a.Parameters.Count==b.Parameters.Count && a.Parameters.Zip(b.Parameters).All(pair=>
+                        pair.First.Optional==pair.Second.Optional && pair.First.Rest==pair.Second.Rest &&
+                        SameDeclared(pair.First.Type,l,pair.Second.Type,r,depth+1)) &&
+                    SameDeclared(a.ReturnType,l,b.ReturnType,r,depth+1);
+            default:
+                // keyof, indexed access, typeof queries and anything else:
+                // no syntactic proof of identity here.
+                return false;
+        }
+    }
+
+    private static TypeSyntax? Substituted(TypeSyntax syntax,Context context)=>
+        context.Substitution is { } map && syntax is NamedTypeSyntax { TypeArguments: null } named &&
+        map.TryGetValue(named.Name.Text,out var argument) ? argument : null;
+
     // Comparing only the first declaration's body would ignore the
     // intersection provenance of later declarations: fail closed.
     private static void MergedGenericIdentity(TypeBinding binding,NamedTypeSyntax reference,string file)
