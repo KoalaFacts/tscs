@@ -390,4 +390,65 @@ public sealed class InterfaceInheritanceTests
             Assert.Contains(Compilation.Check("shared-optional-bad.ts",$"{prelude}interface N extends {order}{{}}let result=7;"),
                 d=>d.Code=="TSCS1001");
     }
+
+    // The Go checker regards unions and object member sets as order-free.
+    // Generic members must still refer to the same opaque type parameter
+    // binding after the heritage substitution; mere 'unknown' equivalence
+    // is not a proof of declaration identity.
+    [Theory]
+    [InlineData("T|undefined","undefined|U")]
+    [InlineData("T|string|number","number|U|string")]
+    [InlineData("T[]|undefined","undefined|U[]")]
+    [InlineData("{a:T;b:number}","{b:number;a:U}")]
+    [InlineData("()=>{a:T;b:number}","()=>{b:number;a:U}")]
+    [InlineData("(x:T|number)=>string","(x:number|U)=>string")]
+    [InlineData("{value:T|undefined;tag:\"x\"}","{tag:\"x\";value:undefined|U}")]
+    public void ReorderedGenericSharedMembersRemainIdentical(string left,string right)
+    {
+        var source=$"interface A<T>{{item:{left}}}interface B<U>{{item:{right}}}interface N<V> extends A<V>,B<V>{{}}";
+        Assert.Empty(Compilation.Check("reordered-generic-shared.ts",source));
+        Assert.Empty(Compilation.Check("reordered-generic-shared.ts",
+            $"interface A<T>{{item:{left}}}interface B<U>{{item:{right}}}interface N<V> extends B<V>,A<V>{{}}"));
+    }
+
+    [Theory]
+    [InlineData("T|number","string|U")]
+    [InlineData("{a:T;b:number}","{b:string;a:U}")]
+    [InlineData("{a:T}","{readonly a:U}")]
+    [InlineData("T|string","string|any")]
+    public void ReorderedGenericSharedMembersNeverHideConflicts(string left,string right)
+    {
+        var source=$"interface A<T>{{item:{left}}}interface B<U>{{item:{right}}}interface N<V> extends A<V>,B<V>{{}}";
+        Assert.Contains(Compilation.Check("reordered-generic-bad.ts",source),d=>d.Code=="TSCS1001");
+        Assert.Contains(Compilation.Check("reordered-generic-bad.ts",
+            $"interface A<T>{{item:{left}}}interface B<U>{{item:{right}}}interface N<V> extends B<V>,A<V>{{}}"),
+            d=>d.Code=="TSCS1001");
+    }
+
+    [Fact]
+    public void ReorderedGenericSharedMembersCheckAndEmitAcrossModules()
+    {
+        const string root="/virtual/generic-member-order";
+        var host=new Host();
+        host.Files[root+"/bases.ts"]=
+            "export interface Left<T>{value:T|undefined;meta:{x:T;y:number}}" +
+            "export interface Right<U>{value:undefined|U;meta:{y:number;x:U}}";
+        host.Files[root+"/model.ts"]=
+            "import type {Left,Right} from \"./bases.js\";" +
+            "export interface Model<V> extends Left<V>,Right<V>{total:number}" +
+            "export const item:Model<number>={value:2,meta:{x:2,y:4},total:6};";
+        host.Files[root+"/logic.ts"]=
+            "import type {Model} from \"./model.js\";" +
+            "export function sum(m:Model<number>):number{return m.meta.x+m.total;}";
+        host.Files[root+"/entry.ts"]=
+            "import {item} from \"./model.js\";import {sum} from \"./logic.js\";" +
+            "export const result:number=sum(item);";
+        var program=CompilerProgram.Load(host,[root+"/entry.ts"],new CompilerOptions{
+            NoLib=true,Target=CompilerTarget.Es2015,Module=CompilerModule.Es2015
+        });
+        Assert.Empty(program.Analyze().Diagnostics);
+        var emitted=program.EmitJavaScript();
+        Assert.Equal(4,emitted.Count);
+        Assert.All(emitted,output=>Assert.DoesNotContain("interface ",output.Text,StringComparison.Ordinal));
+    }
 }

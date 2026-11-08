@@ -260,6 +260,60 @@ internal static class DeclarationTypeIdentity
             return SameDeclared(left,l,rs,new(r.ArgumentScope!,null,null),depth+1);
         bool Each(IReadOnlyList<TypeSyntax> a,IReadOnlyList<TypeSyntax> b)=>
             a.Count==b.Count && a.Zip(b).All(pair=>SameDeclared(pair.First,l,pair.Second,r,depth+1));
+        // Unions are unordered. Match every source arm to a distinct target
+        // arm instead of assuming syntax order; preserve opaque type-parameter
+        // binding identity and never infer equality from placeholder 'unknown'.
+        bool UnorderedMembers(IReadOnlyList<TypeSyntax> a,IReadOnlyList<TypeSyntax> b)
+        {
+            if(a.Count!=b.Count)return false;
+            var used=new bool[b.Count];
+            foreach(var item in a)
+            {
+                var matched=false;
+                for(var i=0;i<b.Count;i++)
+                {
+                    if(used[i] || !SameDeclared(item,l,b[i],r,depth+1))continue;
+                    used[i]=true;
+                    matched=true;
+                    break;
+                }
+                if(!matched)return false;
+            }
+            return true;
+        }
+        // Keep the already-registered, conservative behavior for unions
+        // with no opaque generic parameter. This A2.3 step proves only
+        // reordered declarations involving a generic parameter; it does not
+        // silently upgrade unrelated fail-closed cases in the checker.
+        bool ContainsOpaqueParameter(TypeSyntax syntax,Context context,int level)
+        {
+            if(level>64)return false;
+            if(syntax is NamedTypeSyntax named)
+            {
+                if(named.TypeArguments is null &&
+                   context.Substitution?.ContainsKey(named.Name.Text)==true)
+                    return true;
+                if(context.Scope.FindType(named.Name.Text) is { } binding &&
+                   ReferenceEquals(binding.Resolved,CompilerTypes.Unknown) &&
+                   binding.Syntax is PrimitiveTypeSyntax { Name.Text:"unknown" })
+                    return true;
+                return (named.TypeArguments??[]).Any(arg=>
+                    ContainsOpaqueParameter(arg,context,level+1));
+            }
+            return syntax switch
+            {
+                ArrayTypeSyntax a=>ContainsOpaqueParameter(a.Element,context,level+1),
+                TupleTypeSyntax t=>t.Elements.Any(e=>ContainsOpaqueParameter(e,context,level+1)),
+                TupleRestTypeSyntax t=>ContainsOpaqueParameter(t.Target,context,level+1),
+                UnionTypeSyntax u=>u.Members.Any(e=>ContainsOpaqueParameter(e,context,level+1)),
+                IntersectionTypeSyntax i=>i.Members.Any(e=>ContainsOpaqueParameter(e,context,level+1)),
+                ObjectTypeSyntax o=>o.Properties.Any(p=>ContainsOpaqueParameter(p.Type,context,level+1)),
+                FunctionTypeSyntax f=>
+                    f.Parameters.Any(p=>ContainsOpaqueParameter(p.Type,context,level+1)) ||
+                    ContainsOpaqueParameter(f.ReturnType,context,level+1),
+                _=>false
+            };
+        }
         switch((left,right))
         {
             case (PrimitiveTypeSyntax a,PrimitiveTypeSyntax b):
@@ -278,15 +332,30 @@ internal static class DeclarationTypeIdentity
             case (TupleRestTypeSyntax a,TupleRestTypeSyntax b):
                 return SameDeclared(a.Target,l,b.Target,r,depth+1);
             case (UnionTypeSyntax a,UnionTypeSyntax b):
-                return Each(a.Members,b.Members);
+                return ContainsOpaqueParameter(a,l,depth+1) ||
+                       ContainsOpaqueParameter(b,r,depth+1)
+                    ?UnorderedMembers(a.Members,b.Members)
+                    :Each(a.Members,b.Members);
             case (IntersectionTypeSyntax a,IntersectionTypeSyntax b):
+                // Intersection provenance has separate declaration-identity
+                // rules; do not broaden it with union normalization.
                 return Each(a.Members,b.Members);
             case (ObjectTypeSyntax a,ObjectTypeSyntax b):
-                return a.Properties.Count==b.Properties.Count && a.Properties.Zip(b.Properties).All(pair=>
-                    Parser.PropertyName(pair.First.Name)==Parser.PropertyName(pair.Second.Name) &&
-                    pair.First.Name.Kind==pair.Second.Name.Kind &&
-                    pair.First.Readonly==pair.Second.Readonly && pair.First.Optional==pair.Second.Optional &&
-                    SameDeclared(pair.First.Type,l,pair.Second.Type,r,depth+1));
+            {
+                if(a.Properties.Count!=b.Properties.Count)return false;
+                var remaining=b.Properties.ToList();
+                foreach(var property in a.Properties)
+                {
+                    var index=remaining.FindIndex(candidate=>
+                        Parser.PropertyName(property.Name)==Parser.PropertyName(candidate.Name) &&
+                        property.Name.Kind==candidate.Name.Kind &&
+                        property.Readonly==candidate.Readonly && property.Optional==candidate.Optional &&
+                        SameDeclared(property.Type,l,candidate.Type,r,depth+1));
+                    if(index<0)return false;
+                    remaining.RemoveAt(index);
+                }
+                return true;
+            }
             case (FunctionTypeSyntax a,FunctionTypeSyntax b):
                 return a.Parameters.Count==b.Parameters.Count && a.Parameters.Zip(b.Parameters).All(pair=>
                         pair.First.Optional==pair.Second.Optional && pair.First.Rest==pair.Second.Rest &&
