@@ -281,6 +281,22 @@ internal static class DeclarationTypeIdentity
             }
             return true;
         }
+        // Unfold only concrete *declared aliases* in their owner scope.
+        // Opaque generic parameters are not aliases: their 'unknown' placeholder
+        // cannot establish declaration identity. Keep the existing fast path
+        // for two references to exactly the same binding and type arguments.
+        if(left is NamedTypeSyntax leftName && right is NamedTypeSyntax rightName &&
+           l.Scope.FindType(leftName.Name.Text) is { } sameBinding &&
+           ReferenceEquals(sameBinding,r.Scope.FindType(rightName.Name.Text)))
+            return Each(leftName.TypeArguments??[],rightName.TypeArguments??[]);
+        if(left is NamedTypeSyntax {TypeArguments:null} leftAlias &&
+           l.Scope.FindType(leftAlias.Name.Text) is {IsTypeAlias:true,TypeParameters.Count:0} leftBinding)
+            return SameDeclared(leftBinding.Syntax,new(leftBinding.Owner,null,null),
+                right,r,depth+1);
+        if(right is NamedTypeSyntax {TypeArguments:null} rightAlias &&
+           r.Scope.FindType(rightAlias.Name.Text) is {IsTypeAlias:true,TypeParameters.Count:0} rightBinding)
+            return SameDeclared(left,l,rightBinding.Syntax,
+                new(rightBinding.Owner,null,null),depth+1);
         // The pinned checker treats concrete union members as an unordered set,
         // just like unions involving substituted generic parameters.
         switch((left,right))
