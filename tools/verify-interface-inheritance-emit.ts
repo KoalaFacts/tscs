@@ -413,6 +413,45 @@ try {
       }
     }
   console.log('shared optional identity: 18 valid emits execute to 7; 8 conflicting emits rejected.');
+  // Primitive union identity must flow through four real ES modules and Node.
+  // A wrong shared property must still reject and emit no JavaScript.
+  for(const [name,source] of Object.entries({
+    'union-base.ts':'export interface Base<T>{flag:true|false;value:T}',
+    'union-model.ts':'import type {Base} from "./union-base.js";' +
+      'export interface Box<U> extends Base<U>{flag:boolean}' +
+      'export const item:Box<number>={flag:true,value:8};',
+    'union-logic.ts':'import type {Box} from "./union-model.js";' +
+      'export function read(item:Box<number>):number{return item.value;}',
+    'union-entry.ts':'import {item} from "./union-model.js";' +
+      'import {read} from "./union-logic.js";' +
+      'export const primitiveUnionResult:number=read(item);'
+  }))writeFileSync(join(dir,name),source);
+  writeFileSync(join(dir,'union-project.json'),JSON.stringify({
+    files:['union-entry.ts','minimal.d.ts'],
+    compilerOptions:{module:'es2015',target:'es2015',noLib:true}
+  }));
+  const primitiveUnion=compile(['--emitJs','-p',join(dir,'union-project.json')]);
+  assert.equal(primitiveUnion.status,0,primitiveUnion.stdout+primitiveUnion.stderr);
+  for(const name of ['union-base','union-model','union-logic','union-entry'])
+    assert.ok(existsSync(join(dir,name+'.js')),name+' missing emitted JS');
+  const primitiveUnionRuntime=spawnSync(process.execPath,['--input-type=module','--eval',
+    'import {primitiveUnionResult} from "./union-entry.js";' +
+    'if(primitiveUnionResult!==8)throw Error("primitive union result "+primitiveUnionResult);'],
+    {cwd:dir,encoding:'utf8',timeout:15000});
+  assert.equal(primitiveUnionRuntime.error,undefined,String(primitiveUnionRuntime.error));
+  assert.equal(primitiveUnionRuntime.status,0,
+    primitiveUnionRuntime.stdout+primitiveUnionRuntime.stderr);
+  writeFileSync(join(dir,'union-conflict.ts'),
+    'interface Base<T>{flag:boolean;value:T}' +
+    'interface Bad<U> extends Base<U>{flag:number}' +
+    'let answer:number=8;');
+  const primitiveUnionBad=compile(['--emitJs','--noLib','--target','es2015',
+    'union-conflict.ts','minimal.d.ts']);
+  assert.equal(primitiveUnionBad.status,1,
+    primitiveUnionBad.stdout+primitiveUnionBad.stderr);
+  assert.match(primitiveUnionBad.stdout+primitiveUnionBad.stderr,/TSCS1001/);
+  assert.equal(existsSync(join(dir,'union-conflict.js')),false);
+
   const invalid:[string,string,string,number][]=[
     ['wrong-value','interface A{value:number}interface B extends A{}let b:B={value:"bad"};','TS2322',2],
     ['readonly-parent','interface A{readonly value:number}interface B extends A{}let b:B={value:1};b.value=2;','TS2540',2],
