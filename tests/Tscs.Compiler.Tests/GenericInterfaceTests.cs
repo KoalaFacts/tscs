@@ -5,7 +5,8 @@ namespace Tscs.Tests;
 
 // A2.3 prerequisite: single-declaration generic interfaces with plain type
 // parameters, instantiated by substitution like generic type aliases.
-// Merging, heritage, constraints and defaults stay out and fail closed.
+// Reopening with an identical parameter list merges per instantiation;
+// different lists, heritage, constraints and defaults fail closed.
 public sealed class GenericInterfaceTests
 {
     [Theory]
@@ -48,8 +49,17 @@ public sealed class GenericInterfaceTests
     [InlineData("interface Box<T,T>{value:T}")]
     [InlineData("interface Box<>{value:number}")]
     [InlineData("interface Base{a:number}interface Box<T> extends Base{value:T}")]
-    // Reopening a generic interface needs identical parameter lists (TS2428).
-    [InlineData("interface Box<T>{value:T}interface Box<T>{other:T}")]
+    // Reopening with a different parameter list is TS2428 (not modelled yet).
+    [InlineData("interface Box<T>{value:T}interface Box<U>{other:U}")]
+    // Exported and local declarations of one name are TS2395 (not modelled yet).
+    [InlineData("export interface B<T>{a:T} interface B<T>{b:T} let x:B<string>={a:\"\",b:\"\"};")]
+    [InlineData("interface B<T>{a:T} export interface B<T>{b:T} let x:B<string>={a:\"\",b:\"\"};")]
+    [InlineData("export interface B{a:number} interface B{b:number}")]
+    // Redeclared members need opaque type parameters to compare (TS2717/TS2687).
+    [InlineData("interface Box<T>{value:T}interface Box<T>{value:string}let b:Box<string>={value:\"x\"};")]
+    [InlineData("interface Box<T>{value:T}interface Box<T>{readonly value:T}")]
+    [InlineData("interface Box<T>{value:T}interface Box<T>{value:T}")]
+    [InlineData("interface Box<T>{value:T}interface Box<T,U>{other:U}")]
     [InlineData("interface Box<T>{value:T}interface Box{other:number}")]
     [InlineData("interface Box{other:number}interface Box<T>{value:T}")]
     [InlineData("interface List<T>{value:T;next:List<T>|undefined}")]
@@ -63,6 +73,93 @@ public sealed class GenericInterfaceTests
     [InlineData("interface String<T>{v:T}")]
     public void UnsupportedGenericInterfaceFormsFailClosed(string source)=>
         Assert.Contains(Compilation.Check("generic-interface-unsupported.ts",source),d=>d.Code=="TSCS1001");
+
+    // Reopened generic interfaces with identical parameter lists merge per
+    // instantiation, in either file order.
+    [Theory]
+    [InlineData("interface Box<T>{value:T}interface Box<T>{other:T}let b:Box<number>={value:1,other:2};let n:number=b.other;")]
+    [InlineData("interface Pair<A,B>{first:A}interface Pair<A,B>{second:B}let p:Pair<number,string>={first:1,second:\"x\"};let s:string=p.second;")]
+    [InlineData("interface Box<T>{value:number}interface Box<T>{other:T}let b:Box<string>={value:1,other:\"x\"};")]
+    [InlineData("let b:Box<boolean>={value:true,other:false};interface Box<T>{value:T}interface Box<T>{other:T}")]
+    public void ReopenedGenericInterfacesMerge(string source)=>
+        Assert.Empty(Compilation.Check("generic-interface-merge.ts",source));
+
+    [Theory]
+    [InlineData("interface Box<T>{value:T}interface Box<T>{other:T}let b:Box<number>={value:1};","TS2741")]
+    [InlineData("interface Box<T>{value:T}interface Box<T>{other:T}let b:Box<number>={value:1,other:\"x\"};","TS2322")]
+    [InlineData("interface Box<T>{value:T}interface Box<T>{other:Missing}","TS2304")]
+    [InlineData("interface Box<T>{value:T}interface Box<T>{other:T}let b:Box={value:1,other:2};","TS2314")]
+    public void ReopenedGenericInterfaceErrorsAreReported(string source,string code)=>
+        Assert.Contains(Compilation.Check("generic-interface-merge-bad.ts",source),d=>d.Code==code);
+
+    [Fact]
+    public void ReopenedGenericInterfaceMergesAcrossFiles()
+    {
+        foreach(var (first,second) in new[]{("a.d.ts","b.d.ts"),("b.d.ts","a.d.ts")})
+        {
+            var files=new Dictionary<string,string>
+            {
+                ["a.d.ts"]="interface Box<T>{value:T}",
+                ["b.d.ts"]="interface Box<T>{other:T}"
+            };
+            Assert.Empty(Compilation.CheckFiles([
+                new SourceInput(first,files[first]),
+                new SourceInput(second,files[second]),
+                new SourceInput("entry.ts","let b:Box<number>={value:1,other:2};let n:number=b.other;")
+            ]));
+        }
+    }
+
+    // Merged declarations still compare instantiations for repeated ambient var.
+    [Theory]
+    [InlineData("Box2<number>","{value:number;other:number}",false)]
+    [InlineData("Box2<number>","Box2<number>",false)]
+    [InlineData("Box2<number>","Box2<string>",true)]
+    [InlineData("Box2<number>","{value:number}",true)]
+    public void RepeatedAmbientVarComparesMergedInstantiations(string left,string right,bool differs)
+    {
+        foreach(var (first,second) in new[]{(left,right),(right,left)})
+        {
+            var diagnostics=Compilation.CheckFiles([
+                new SourceInput("types.d.ts","interface Box2<T>{value:T}interface Box2<T>{other:T}"),
+                new SourceInput("a.d.ts",$"declare var item:{first};"),
+                new SourceInput("b.d.ts",$"declare var item:{second};"),
+                new SourceInput("entry.ts","let result=7;")
+            ]);
+            if(differs)Assert.Contains(diagnostics,d=>d.Code=="TS2403");
+            else Assert.Empty(diagnostics);
+        }
+    }
+
+    // A projection of a merged generic instantiation fails closed (review finding):
+    // never an invented TS2403 for equal types, in either declaration order.
+    [Theory]
+    [InlineData("Box2<A&B>[\"value\"]","number")]
+    [InlineData("number","Box2<A&B>[\"value\"]")]
+    public void MergedGenericProjectionIdentityFailsClosed(string first,string second)
+    {
+        var diagnostics=Compilation.CheckFiles([
+            new SourceInput("types.d.ts","type A={a:number};type B={b:string};interface Box2<T>{value:number}interface Box2<T>{other:T}"),
+            new SourceInput("a.d.ts",$"declare var item:{first};"),
+            new SourceInput("b.d.ts",$"declare var item:{second};"),
+            new SourceInput("entry.ts","let result=7;")
+        ]);
+        Assert.Contains(diagnostics,d=>d.Code=="TSCS1001");
+        Assert.DoesNotContain(diagnostics,d=>d.Code=="TS2403");
+    }
+
+    // Intersection provenance in a later declaration is not compared yet.
+    [Fact]
+    public void MergedGenericIntersectionIdentityFailsClosed()
+    {
+        var diagnostics=Compilation.CheckFiles([
+            new SourceInput("types.d.ts","type A={a:number};type B={b:string};interface Box2<T>{value:number}interface Box2<T>{other:T}"),
+            new SourceInput("a.d.ts","declare var item:Box2<A&B>;"),
+            new SourceInput("b.d.ts","declare var item:Box2<{a:number;b:string}>;"),
+            new SourceInput("entry.ts","let result=7;")
+        ]);
+        Assert.Contains(diagnostics,d=>d.Code=="TSCS1001");
+    }
 
     private const string Prelude="type A={a:number};type B={b:string};type P=A&B;interface Box<T>{value:T}";
 

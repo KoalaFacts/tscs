@@ -129,11 +129,18 @@ internal static class Binder
             if(declaration is InterfaceDeclaration && previous.IsInterface &&
                ReferenceEquals(previous.Owner,scope))
             {
-                // Reopening a generic interface needs identical type
-                // parameter lists (TS2428) and merged instantiation.
-                if(typeParameters.Count!=0 || previous.TypeParameters.Count!=0)
+                // Reopening a generic interface with an identical plain type
+                // parameter list merges per instantiation. Different lists
+                // are TS2428 (reported on every declaration): not modelled yet.
+                if(!typeParameters.Select(p=>p.Text).SequenceEqual(
+                       previous.TypeParameters.Select(p=>p.Text),StringComparer.Ordinal))
                     throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
-                        "Merging generic interface declarations is not supported yet."));
+                        "Merging interface declarations with different type parameter lists is not supported yet."));
+                // Exported and local declarations of one name are TS2395 on
+                // every declaration in the reference: not modelled yet.
+                if(((InterfaceDeclaration)declaration).Exported!=previous.ExportedDeclaration)
+                    throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
+                        "Merging exported and local declarations is not supported yet."));
                 previous.MergedInterfaces.Add((file,name,syntax,scope));
                 return;
             }
@@ -143,6 +150,7 @@ internal static class Binder
         scope.Types.Add(name.Text,new TypeBinding(file,name,syntax,scope)
         {
             IsInterface=declaration is InterfaceDeclaration,
+            ExportedDeclaration=declaration is InterfaceDeclaration { Exported:true },
             TypeParameters=typeParameters
         });
     }

@@ -62,8 +62,7 @@ internal static class DeclarationTypeIdentity
         {
             IntersectionTypeSyntax=>true,
             NamedTypeSyntax named when scope.FindType(named.Name.Text) is { } binding=>
-                HasIntersection(binding.Syntax,BodyScope(binding,named,scope,""),depth+1) ||
-                binding.MergedInterfaces.Any(item=>HasIntersection(item.Syntax,item.Owner,depth+1)),
+                HasIntersection(binding,named,scope,depth),
             ObjectTypeSyntax obj=>obj.Properties.Any(p=>HasIntersection(p.Type,scope,depth+1)),
             InterfaceExtensionTypeSyntax inherited=>
                 HasIntersection(inherited.Body,scope,depth+1) ||
@@ -89,6 +88,17 @@ internal static class DeclarationTypeIdentity
         };
     }
 
+    // Every declaration of a merged generic interface is read in the same
+    // instantiation scope, so intersections reached through a type parameter
+    // used only by a later declaration still count.
+    private static bool HasIntersection(TypeBinding binding,NamedTypeSyntax named,Scope scope,int depth)
+    {
+        var body=BodyScope(binding,named,scope,"");
+        return HasIntersection(binding.Syntax,body,depth+1) ||
+            binding.MergedInterfaces.Any(item=>HasIntersection(item.Syntax,
+                binding.TypeParameters.Count==0?item.Owner:body,depth+1));
+    }
+
     private static bool SameSyntax(TypeSyntax left,Scope leftScope,string leftFile,
         TypeSyntax right,Scope rightScope,string rightFile,int depth)
     {
@@ -110,10 +120,14 @@ internal static class DeclarationTypeIdentity
             // their bodies denote with the given arguments.
             if(lb.TypeParameters.Count==0 && right is NamedTypeSyntax rn &&
                ReferenceEquals(lb,rightScope.FindType(rn.Name.Text)))return true;
+            MergedGenericIdentity(lb,ln,leftFile);
             return SameSyntax(lb.Syntax,BodyScope(lb,ln,leftScope,leftFile),lb.File,right,rightScope,rightFile,depth+1);
         }
         if(right is NamedTypeSyntax rn2 && rightScope.FindType(rn2.Name.Text) is { } rb)
+        {
+            MergedGenericIdentity(rb,rn2,rightFile);
             return SameSyntax(left,leftScope,leftFile,rb.Syntax,BodyScope(rb,rn2,rightScope,rightFile),rb.File,depth+1);
+        }
 
         if(!HasIntersection(left,leftScope,depth) &&
            !HasIntersection(right,rightScope,depth))
@@ -190,6 +204,15 @@ internal static class DeclarationTypeIdentity
         }
     }
 
+    // Comparing only the first declaration's body would ignore the
+    // intersection provenance of later declarations: fail closed.
+    private static void MergedGenericIdentity(TypeBinding binding,NamedTypeSyntax reference,string file)
+    {
+        if(binding.TypeParameters.Count!=0 && binding.MergedInterfaces.Count!=0)
+            throw new CompilationFailure(Diagnostic.Error(file,reference.Name,"TSCS1001",
+                "Declaration identity of merged generic interface instantiations with intersections is not supported yet."));
+    }
+
     // A generic alias body denotes a type only in an instantiation scope.
     // Arity errors were already reported when the types were resolved.
     private static Scope BodyScope(TypeBinding binding,NamedTypeSyntax reference,Scope scope,string file)=>
@@ -247,6 +270,9 @@ internal static class DeclarationTypeIdentity
         switch(syntax)
         {
             case NamedTypeSyntax named when scope.FindType(named.Name.Text) is { } binding:
+                // A projection of a merged generic instantiation cannot be
+                // proved identical or different yet: fail closed, never TS2403.
+                MergedGenericIdentity(binding,named,file);
                 return binding.MergedInterfaces.Count!=0
                     ? Selection.Unknown
                     : Select(binding.Syntax,BodyScope(binding,named,scope,file),binding.File,key,depth+1);

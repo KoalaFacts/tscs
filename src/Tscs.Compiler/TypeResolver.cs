@@ -11,6 +11,8 @@ internal sealed class TypeBinding(string file,Token name,TypeSyntax syntax,Scope
     public TypeSymbol? Resolved { get; set; }
     public bool Resolving { get; set; }
     public bool IsInterface { get; init; }
+    // Whether the first declaration carries 'export' (merging requires agreement, TS2395).
+    public bool ExportedDeclaration { get; init; }
     // Plain type parameters of a generic alias or interface. Each reference instantiates
     // the alias body in a fresh scope; generic bindings are never cached.
     public IReadOnlyList<Token> TypeParameters { get; init; }=[];
@@ -35,65 +37,76 @@ internal static class TypeResolver
         binding.Resolving=true;
         try
         {
-            var first=Resolve(binding.Syntax,binding.Owner,binding.File,depth+1);
-            if(binding.MergedInterfaces.Count==0)return binding.Resolved=first;
-            if(first is not ObjectTypeSymbol original)
-                throw new CompilationFailure(Diagnostic.Error(binding.File,binding.Name,"TSCS1001",
-                    "Only finite structural interfaces can be merged."));
-
-            var members=original.Members.ToDictionary(pair=>pair.Key,pair=>pair.Value,StringComparer.Ordinal);
-            var readonlyKeys=new HashSet<string>(original.ReadonlyMembers,StringComparer.Ordinal);
-            var numericKeys=new HashSet<string>(original.NumericMembers,StringComparer.Ordinal);
-            var optionalKeys=new HashSet<string>(original.OptionalMembers,StringComparer.Ordinal);
-            // Keep original member annotation and scope for source-identity
-            // checks; Resolve(IntersectionTypeSyntax) flattens this information.
-            var origins=new Dictionary<string,(TypeSyntax Syntax,Scope Owner,string File)>(StringComparer.Ordinal);
-            foreach(var key in original.Members.Keys)
-                if(DeclarationTypeIdentity.DirectProperty(binding.Syntax,key) is { } property)
-                    origins.Add(key,(property.Type,binding.Owner,binding.File));
-            foreach(var (file,name,syntax,owner) in binding.MergedInterfaces)
-            {
-                if(Resolve(syntax,owner,file,depth+1) is not ObjectTypeSymbol next)
-                    throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
-                        "Only finite structural interfaces can be merged."));
-                foreach(var (key,type) in next.Members)
-                {
-                    bool incomingReadonly=next.ReadonlyMembers.Contains(key);
-                    bool incomingNumeric=next.NumericMembers.Contains(key);
-                    bool incomingOptional=next.OptionalMembers.Contains(key);
-                    if(members.TryGetValue(key,out var previous))
-                    {
-                        if(readonlyKeys.Contains(key)!=incomingReadonly ||
-                           numericKeys.Contains(key)!=incomingNumeric ||
-                           optionalKeys.Contains(key)!=incomingOptional)
-                            throw new CompilationFailure(Diagnostic.Error(file,name,"TS2687",
-                                $"All declarations of '{key}' must have identical modifiers."));
-                        var incoming=DeclarationTypeIdentity.DirectProperty(syntax,key);
-                        bool same=origins.TryGetValue(key,out var prior) && incoming is not null
-                            ?DeclarationTypeIdentity.Same(prior.Syntax,prior.Owner,prior.File,
-                                incoming.Type,owner,file)
-                            :CompilerTypes.SameStructuralInput(previous,type) &&
-                                !DeclarationTypeIdentity.HasIntersection(binding.Syntax,binding.Owner) &&
-                                !DeclarationTypeIdentity.HasIntersection(syntax,owner);
-                        if(!same)
-                            throw new CompilationFailure(Diagnostic.Error(file,name,"TS2717",
-                                $"Subsequent property declarations must have the same type. Property '{key}' must be of type '{previous.DisplayName}', but here has type '{type.DisplayName}'."));
-                        continue;
-                    }
-                    if(members.Count>=128)
-                        throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
-                            "Merged interface exceeds the finite 128-member limit."));
-                    members.Add(key,type);
-                    if(DeclarationTypeIdentity.DirectProperty(syntax,key) is { } declaredProperty)
-                        origins.Add(key,(declaredProperty.Type,owner,file));
-                    if(incomingReadonly)readonlyKeys.Add(key);
-                    if(incomingNumeric)numericKeys.Add(key);
-                    if(incomingOptional)optionalKeys.Add(key);
-                }
-            }
-            return binding.Resolved=new ObjectTypeSymbol(members,readonlyKeys,numericKeys,optionalKeys);
+            return binding.Resolved=Merge(binding,null,depth);
         }
         finally {binding.Resolving=false;}
+    }
+
+    // Merges reopened interface declarations. 'instance' is the scope of one
+    // generic instantiation (all declarations share identical parameter
+    // lists), or null for a non-generic interface.
+    private static TypeSymbol Merge(TypeBinding binding,Scope? instance,int depth)
+    {
+        var first=Resolve(binding.Syntax,instance??binding.Owner,binding.File,depth+1);
+        if(binding.MergedInterfaces.Count==0)return first;
+        if(first is not ObjectTypeSymbol original)
+            throw new CompilationFailure(Diagnostic.Error(binding.File,binding.Name,"TSCS1001",
+                "Only finite structural interfaces can be merged."));
+
+        var members=original.Members.ToDictionary(pair=>pair.Key,pair=>pair.Value,StringComparer.Ordinal);
+        var readonlyKeys=new HashSet<string>(original.ReadonlyMembers,StringComparer.Ordinal);
+        var numericKeys=new HashSet<string>(original.NumericMembers,StringComparer.Ordinal);
+        var optionalKeys=new HashSet<string>(original.OptionalMembers,StringComparer.Ordinal);
+        // Keep original member annotation and scope for source-identity
+        // checks; Resolve(IntersectionTypeSyntax) flattens this information.
+        var origins=new Dictionary<string,(TypeSyntax Syntax,Scope Owner,string File)>(StringComparer.Ordinal);
+        foreach(var key in original.Members.Keys)
+            if(DeclarationTypeIdentity.DirectProperty(binding.Syntax,key) is { } property)
+                origins.Add(key,(property.Type,instance??binding.Owner,binding.File));
+        foreach(var (file,name,syntax,declaredOwner) in binding.MergedInterfaces)
+        {
+            // Identical type parameter lists: every declaration's body is
+            // read in the same instantiation scope.
+            var owner=instance??declaredOwner;
+            if(Resolve(syntax,owner,file,depth+1) is not ObjectTypeSymbol next)
+                throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
+                    "Only finite structural interfaces can be merged."));
+            foreach(var (key,type) in next.Members)
+            {
+                bool incomingReadonly=next.ReadonlyMembers.Contains(key);
+                bool incomingNumeric=next.NumericMembers.Contains(key);
+                bool incomingOptional=next.OptionalMembers.Contains(key);
+                if(members.TryGetValue(key,out var previous))
+                {
+                    if(readonlyKeys.Contains(key)!=incomingReadonly ||
+                       numericKeys.Contains(key)!=incomingNumeric ||
+                       optionalKeys.Contains(key)!=incomingOptional)
+                        throw new CompilationFailure(Diagnostic.Error(file,name,"TS2687",
+                            $"All declarations of '{key}' must have identical modifiers."));
+                    var incoming=DeclarationTypeIdentity.DirectProperty(syntax,key);
+                    bool same=origins.TryGetValue(key,out var prior) && incoming is not null
+                        ?DeclarationTypeIdentity.Same(prior.Syntax,prior.Owner,prior.File,
+                            incoming.Type,owner,file)
+                        :CompilerTypes.SameStructuralInput(previous,type) &&
+                            !DeclarationTypeIdentity.HasIntersection(binding.Syntax,instance??binding.Owner) &&
+                            !DeclarationTypeIdentity.HasIntersection(syntax,owner);
+                    if(!same)
+                        throw new CompilationFailure(Diagnostic.Error(file,name,"TS2717",
+                            $"Subsequent property declarations must have the same type. Property '{key}' must be of type '{previous.DisplayName}', but here has type '{type.DisplayName}'."));
+                    continue;
+                }
+                if(members.Count>=128)
+                    throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
+                        "Merged interface exceeds the finite 128-member limit."));
+                members.Add(key,type);
+                if(DeclarationTypeIdentity.DirectProperty(syntax,key) is { } declaredProperty)
+                    origins.Add(key,(declaredProperty.Type,owner,file));
+                if(incomingReadonly)readonlyKeys.Add(key);
+                if(incomingNumeric)numericKeys.Add(key);
+                if(incomingOptional)optionalKeys.Add(key);
+            }
+        }
+        return new ObjectTypeSymbol(members,readonlyKeys,numericKeys,optionalKeys);
     }
 
     // An unreferenced generic alias body is still checked: every name must
@@ -116,6 +129,22 @@ internal static class TypeResolver
                     Resolved=CompilerTypes.Unknown
                 });
             _=Resolve(binding.Syntax,placeholder,binding.File,depth+1);
+            // A member redeclared by a reopened generic interface must have the
+            // same type for every instantiation (TS2717 / TS2687 otherwise);
+            // that needs opaque type parameters, so fail closed instead of
+            // comparing only the instantiations that happen to be referenced.
+            if(binding.MergedInterfaces.Count!=0)
+            {
+                var seen=new HashSet<string>(StringComparer.Ordinal);
+                foreach(var (file,name,syntax,_) in binding.MergedInterfaces.Prepend(
+                            (binding.File,binding.Name,binding.Syntax,binding.Owner)))
+                    if(syntax is not ObjectTypeSyntax body ||
+                       body.Properties.Any(p=>!seen.Add(Parser.PropertyName(p.Name))))
+                        throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
+                            "Redeclaring a member of a merged generic interface is not supported yet."));
+            }
+            foreach(var merged in binding.MergedInterfaces)
+                _=Resolve(merged.Syntax,placeholder,merged.File,depth+1);
         }
         catch(CompilationFailure failure) when (failure.Diagnostic.Code!="TS2304")
         {
@@ -175,7 +204,9 @@ internal static class TypeResolver
                 if(binding.TypeParameters.Count==0 && named.TypeArguments is null)
                     return ResolveBinding(binding,depth+1);
                 var instance=Instantiate(binding,named,scope,file,depth+1);
-                return Resolve(binding.Syntax,instance,binding.File,depth+1);
+                return binding.MergedInterfaces.Count==0
+                    ? Resolve(binding.Syntax,instance,binding.File,depth+1)
+                    : Merge(binding,instance,depth+1);
             }
             case TypeQuerySyntax query:
             {
