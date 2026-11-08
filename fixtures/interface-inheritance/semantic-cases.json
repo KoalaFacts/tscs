@@ -85,6 +85,32 @@
       "id": "interface-inheritance:positive-10",
       "source": "interface A{value:number}interface B{value:42}interface C extends B,A{value:42}let c:C={value:42};",
       "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-11",
+      "source": "type Tag=string|1;interface Base<T>{value:T;tag:Tag}interface Box<T> extends Base<T>{tag:1|string}let b:Box<number>={value:8,tag:1};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-12",
+      "source": "type Shape={x:number;y:string};interface Base<T>{value:T;meta:Shape}interface Box<T> extends Base<T>{meta:{y:string;x:number}}let b:Box<number>={value:8,meta:{x:1,y:\"ok\"}};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-13",
+      "source": "import type {Box} from \"./box.js\";let b:Box<number>={value:8,tag:1};",
+      "files": {
+        "base.ts": "export type Tag=string|1;export interface Base<T>{value:T;tag:Tag}",
+        "box.ts": "import type {Base} from \"./base.js\";export interface Box<T> extends Base<T>{tag:1|string}"
+      },
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:negative-05",
+      "source": "type Tag=string|1;interface Base<T>{value:T;tag:Tag}interface Box<T> extends Base<T>{tag:1|string}let b:Box<number>={value:8,tag:true};",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }
