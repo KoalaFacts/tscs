@@ -281,6 +281,39 @@ internal static class DeclarationTypeIdentity
             }
             return true;
         }
+        // Keep the already-registered, conservative behavior for unions
+        // with no opaque generic parameter. This A2.3 step proves only
+        // reordered declarations involving a generic parameter; it does not
+        // silently upgrade unrelated fail-closed cases in the checker.
+        bool ContainsOpaqueParameter(TypeSyntax syntax,Context context,int level)
+        {
+            if(level>64)return false;
+            if(syntax is NamedTypeSyntax named)
+            {
+                if(named.TypeArguments is null &&
+                   context.Substitution?.ContainsKey(named.Name.Text)==true)
+                    return true;
+                if(context.Scope.FindType(named.Name.Text) is { } binding &&
+                   ReferenceEquals(binding.Resolved,CompilerTypes.Unknown) &&
+                   binding.Syntax is PrimitiveTypeSyntax { Name.Text:"unknown" })
+                    return true;
+                return (named.TypeArguments??[]).Any(arg=>
+                    ContainsOpaqueParameter(arg,context,level+1));
+            }
+            return syntax switch
+            {
+                ArrayTypeSyntax a=>ContainsOpaqueParameter(a.Element,context,level+1),
+                TupleTypeSyntax t=>t.Elements.Any(e=>ContainsOpaqueParameter(e,context,level+1)),
+                TupleRestTypeSyntax t=>ContainsOpaqueParameter(t.Target,context,level+1),
+                UnionTypeSyntax u=>u.Members.Any(e=>ContainsOpaqueParameter(e,context,level+1)),
+                IntersectionTypeSyntax i=>i.Members.Any(e=>ContainsOpaqueParameter(e,context,level+1)),
+                ObjectTypeSyntax o=>o.Properties.Any(p=>ContainsOpaqueParameter(p.Type,context,level+1)),
+                FunctionTypeSyntax f=>
+                    f.Parameters.Any(p=>ContainsOpaqueParameter(p.Type,context,level+1)) ||
+                    ContainsOpaqueParameter(f.ReturnType,context,level+1),
+                _=>false
+            };
+        }
         switch((left,right))
         {
             case (PrimitiveTypeSyntax a,PrimitiveTypeSyntax b):
@@ -299,7 +332,10 @@ internal static class DeclarationTypeIdentity
             case (TupleRestTypeSyntax a,TupleRestTypeSyntax b):
                 return SameDeclared(a.Target,l,b.Target,r,depth+1);
             case (UnionTypeSyntax a,UnionTypeSyntax b):
-                return UnorderedMembers(a.Members,b.Members);
+                return ContainsOpaqueParameter(a,l,depth+1) ||
+                       ContainsOpaqueParameter(b,r,depth+1)
+                    ?UnorderedMembers(a.Members,b.Members)
+                    :Each(a.Members,b.Members);
             case (IntersectionTypeSyntax a,IntersectionTypeSyntax b):
                 // Intersection provenance has separate declaration-identity
                 // rules; do not broaden it with union normalization.
