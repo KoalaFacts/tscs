@@ -136,6 +136,11 @@ internal static class Binder
                        previous.TypeParameters.Select(p=>p.Text),StringComparer.Ordinal))
                     throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
                         "Merging interface declarations with different type parameter lists is not supported yet."));
+                // Exported and local declarations of one name are TS2395 on
+                // every declaration in the reference: not modelled yet.
+                if(((InterfaceDeclaration)declaration).Exported!=previous.ExportedDeclaration)
+                    throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
+                        "Merging exported and local declarations is not supported yet."));
                 previous.MergedInterfaces.Add((file,name,syntax,scope));
                 return;
             }
@@ -145,6 +150,7 @@ internal static class Binder
         scope.Types.Add(name.Text,new TypeBinding(file,name,syntax,scope)
         {
             IsInterface=declaration is InterfaceDeclaration,
+            ExportedDeclaration=declaration is InterfaceDeclaration { Exported:true },
             TypeParameters=typeParameters
         });
     }

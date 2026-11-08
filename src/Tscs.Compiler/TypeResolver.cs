@@ -11,6 +11,8 @@ internal sealed class TypeBinding(string file,Token name,TypeSyntax syntax,Scope
     public TypeSymbol? Resolved { get; set; }
     public bool Resolving { get; set; }
     public bool IsInterface { get; init; }
+    // Whether the first declaration carries 'export' (merging requires agreement, TS2395).
+    public bool ExportedDeclaration { get; init; }
     // Plain type parameters of a generic alias or interface. Each reference instantiates
     // the alias body in a fresh scope; generic bindings are never cached.
     public IReadOnlyList<Token> TypeParameters { get; init; }=[];

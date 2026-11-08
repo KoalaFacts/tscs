@@ -51,6 +51,10 @@ public sealed class GenericInterfaceTests
     [InlineData("interface Base{a:number}interface Box<T> extends Base{value:T}")]
     // Reopening with a different parameter list is TS2428 (not modelled yet).
     [InlineData("interface Box<T>{value:T}interface Box<U>{other:U}")]
+    // Exported and local declarations of one name are TS2395 (not modelled yet).
+    [InlineData("export interface B<T>{a:T} interface B<T>{b:T} let x:B<string>={a:\"\",b:\"\"};")]
+    [InlineData("interface B<T>{a:T} export interface B<T>{b:T} let x:B<string>={a:\"\",b:\"\"};")]
+    [InlineData("export interface B{a:number} interface B{b:number}")]
     // Redeclared members need opaque type parameters to compare (TS2717/TS2687).
     [InlineData("interface Box<T>{value:T}interface Box<T>{value:string}let b:Box<string>={value:\"x\"};")]
     [InlineData("interface Box<T>{value:T}interface Box<T>{readonly value:T}")]
