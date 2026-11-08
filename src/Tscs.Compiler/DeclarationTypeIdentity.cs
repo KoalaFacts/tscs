@@ -252,21 +252,34 @@ internal static class DeclarationTypeIdentity
     };
 
     // Whether the member 'key' of a heritage base can carry intersection
-    // provenance. A selectable member is inspected alone; an absent one
-    // carries none. When the member cannot be selected (optional, reopened
-    // or multiply inherited), fall back to the whole base: conservative
-    // only when an intersection exists somewhere in it.
-    internal static bool MemberHasIntersection(TypeSyntax syntax,Scope scope,string file,string key)
+    // provenance. Only the declarations of that member are inspected:
+    // optional ones, every reopened declaration and every inherited path
+    // count, and an unrelated member never does. Shapes this walk does not
+    // model (aliases of intersections, unions, queries) stay conservative.
+    internal static bool MemberHasIntersection(TypeSyntax syntax,Scope scope,string file,string key,int depth=0)
     {
-        var found=Select(syntax,scope,file,key,0);
-        if(!found.Known)return HasIntersection(syntax,scope);
-        return found.Value is { } value && HasIntersection(value.Syntax,value.Scope);
+        if(depth>64)return true;
+        switch(syntax)
+        {
+            case NamedTypeSyntax named when scope.FindType(named.Name.Text) is { } binding:
+            {
+                var body=BodyScope(binding,named,scope,file);
+                return MemberHasIntersection(binding.Syntax,body,binding.File,key,depth+1) ||
+                    binding.MergedInterfaces.Any(item=>MemberHasIntersection(item.Syntax,
+                        binding.TypeParameters.Count==0?item.Owner:body,item.File,key,depth+1));
+            }
+            case ObjectTypeSyntax shape:
+                return shape.Properties.Any(p=>
+                    string.Equals(Parser.PropertyName(p.Name),key,StringComparison.Ordinal) &&
+                    HasIntersection(p.Type,scope));
+            case InterfaceExtensionTypeSyntax inherited:
+                return MemberHasIntersection(inherited.Body,scope,file,key,depth+1) ||
+                    inherited.Bases.Any(b=>MemberHasIntersection(b,scope,file,key,depth+1));
+            default:
+                return HasIntersection(syntax,scope);
+        }
     }
 
-    // Selects the declared syntax of one required property named by a string
-    // literal key. Optional members, index signatures, merged interfaces,
-    // unknown forms and properties declared by several intersection members
-    // return null, so the caller keeps its conservative comparison.
     private static Denoted? Project(IndexedAccessTypeSyntax indexed,Scope scope,string file,int depth)
     {
         if(indexed.Index is not LiteralTypeSyntax { Negative:false } literal ||

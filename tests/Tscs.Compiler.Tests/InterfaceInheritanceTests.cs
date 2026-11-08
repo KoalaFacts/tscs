@@ -303,6 +303,10 @@ public sealed class InterfaceInheritanceTests
     [InlineData("interface C{x:number}interface E{x:number}interface A extends C,E{}interface B{x:number}","A,B")]
     [InlineData("interface A{x:number}interface B{x:number}interface C{other:number}interface C{extra:string}","A,B,C")]
     [InlineData("interface A{x:number}interface B{x:number}interface C{other:number}interface C{extra:string}","C,B,A")]
+    // Optional shared member next to an unrelated intersection member.
+    [InlineData("type I={a:number}&{b:string};interface A{x?:number;extra:I}interface B{x?:number}","A,B")]
+    [InlineData("type I={a:number}&{b:string};interface A{x:number}interface A{extra:I}interface B{x:number}","A,B")]
+    [InlineData("type I={a:number}&{b:string};interface C{x:number;extra:I}interface E{x:number}interface A extends C,E{}interface B{x:number}","A,B")]
     public void SharedMembersWithoutIntersectionsStayValid(string prelude,string order)
     {
         Assert.Empty(Compilation.Check("shared-no-intersection.ts",$"{prelude}interface N extends {order}{{}}"));
