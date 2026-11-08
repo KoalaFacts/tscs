@@ -217,8 +217,13 @@ internal static class DeclarationTypeIdentity
     internal readonly record struct MemberSide(ObjectTypeProperty Property,Scope Scope,
         IReadOnlyDictionary<string,TypeSyntax>? Substitution=null,Scope? ArgumentScope=null);
 
-    private readonly record struct Context(Scope Scope,
-        IReadOnlyDictionary<string,TypeSyntax>? Substitution,Scope? ArgumentScope);
+    // A chain of substitutions keeps each argument in the environment where
+    // it was spelled: a generic alias body may refer to an argument that
+    // itself came from a generic heritage substitution. A reference context
+    // (not a record struct) allows bounded, nested chains without erasing
+    // declaration identity into the placeholder 'unknown' type.
+    private sealed record Context(Scope Scope,
+        IReadOnlyDictionary<string,TypeSyntax>? Substitution,Context? ArgumentContext);
 
     // The member 'key' as directly declared by the single-declaration
     // interface that 'named' references (read in 'scope'), with its type
@@ -246,8 +251,10 @@ internal static class DeclarationTypeIdentity
         left.Property.Readonly==right.Property.Readonly &&
         left.Property.Optional==right.Property.Optional &&
         left.Property.Name.Kind==right.Property.Name.Kind &&
-        SameDeclared(left.Property.Type,new(left.Scope,left.Substitution,left.ArgumentScope),
-            right.Property.Type,new(right.Scope,right.Substitution,right.ArgumentScope),0);
+        SameDeclared(left.Property.Type,new(left.Scope,left.Substitution,
+                left.ArgumentScope is { } ls?new Context(ls,null,null):null),
+            right.Property.Type,new(right.Scope,right.Substitution,
+                right.ArgumentScope is { } rs?new Context(rs,null,null):null),0);
 
     private static bool SameDeclared(TypeSyntax left,Context l,TypeSyntax right,Context r,int depth)
     {
@@ -255,9 +262,9 @@ internal static class DeclarationTypeIdentity
         // A substituted argument is read in the declaring interface's scope,
         // where no further substitution applies.
         if(Substituted(left,l) is { } ls)
-            return SameDeclared(ls,new(l.ArgumentScope!,null,null),right,r,depth+1);
+            return SameDeclared(ls,l.ArgumentContext!,right,r,depth+1);
         if(Substituted(right,r) is { } rs)
-            return SameDeclared(left,l,rs,new(r.ArgumentScope!,null,null),depth+1);
+            return SameDeclared(left,l,rs,r.ArgumentContext!,depth+1);
         bool Each(IReadOnlyList<TypeSyntax> a,IReadOnlyList<TypeSyntax> b)=>
             a.Count==b.Count && a.Zip(b).All(pair=>SameDeclared(pair.First,l,pair.Second,r,depth+1));
         // Unions are unordered. Match every source arm to a distinct target
@@ -297,6 +304,16 @@ internal static class DeclarationTypeIdentity
            r.Scope.FindType(rightAlias.Name.Text) is {IsTypeAlias:true,TypeParameters.Count:0} rightBinding)
             return SameDeclared(left,l,rightBinding.Syntax,
                 new(rightBinding.Owner,null,null),depth+1);
+        // An instantiated declared alias denotes its body after substituting
+        // its formal parameters with source syntax from the referencing
+        // context. The argument context may itself carry a heritage
+        // substitution; resolve that next rather than using the 'unknown'
+        // placeholder as an equality shortcut. Only aliases (not interfaces
+        // or opaque type parameter bindings) are eligible.
+        if(GenericAlias(left,l) is { } unfoldedLeft)
+            return SameDeclared(unfoldedLeft.Syntax,unfoldedLeft.Body,right,r,depth+1);
+        if(GenericAlias(right,r) is { } unfoldedRight)
+            return SameDeclared(left,l,unfoldedRight.Syntax,unfoldedRight.Body,depth+1);
         // The pinned checker treats concrete union members as an unordered set,
         // just like unions involving substituted generic parameters.
         switch((left,right))
@@ -348,6 +365,20 @@ internal static class DeclarationTypeIdentity
                 // no syntactic proof of identity here.
                 return false;
         }
+    }
+
+    private static (TypeSyntax Syntax,Context Body)? GenericAlias(TypeSyntax syntax,Context context)
+    {
+        if(syntax is not NamedTypeSyntax {TypeArguments: { } arguments} named ||
+           context.Scope.FindType(named.Name.Text) is not
+               {IsTypeAlias:true,TypeParameters.Count:>0} binding ||
+           arguments.Count!=binding.TypeParameters.Count)
+            return null;
+        var substitutions=new Dictionary<string,TypeSyntax>(StringComparer.Ordinal);
+        for(int i=0;i<arguments.Count;i++)
+            if(!substitutions.TryAdd(binding.TypeParameters[i].Text,arguments[i]))
+                return null;
+        return (binding.Syntax,new Context(binding.Owner,substitutions,context));
     }
 
     private static TypeSyntax? Substituted(TypeSyntax syntax,Context context)=>

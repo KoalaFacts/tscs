@@ -111,6 +111,37 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "interface-inheritance:positive-14",
+      "source": "type Carrier<U>={payload:U;flag:number};interface Base<T>{meta:Carrier<T>}interface Box<V> extends Base<V>{meta:{flag:number;payload:V}}let b:Box<number>={meta:{payload:5,flag:3}};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-15",
+      "source": "type Carrier<U>={payload:U;flag:number};interface Base<T>{meta:{flag:number;payload:T}}interface Box<V> extends Base<V>{meta:Carrier<V>}let b:Box<number>={meta:{payload:5,flag:3}};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-16",
+      "source": "type Leaf<X>={payload:X;flag:number};type Carrier<U>=Leaf<U>;interface Base<T>{meta:Carrier<T>}interface Box<V> extends Base<V>{meta:{flag:number;payload:V}}let b:Box<number>={meta:{payload:5,flag:3}};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-17",
+      "source": "import type {Box} from \"./box.js\";let b:Box<number>={value:5,meta:{payload:5,flag:3}};",
+      "files": {
+        "base.ts": "export type Carrier<U>={payload:U;flag:number};export interface Base<T>{value:T;meta:Carrier<T>}",
+        "box.ts": "import type {Base} from \"./base.js\";export interface Box<V> extends Base<V>{meta:{flag:number;payload:V}}"
+      },
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:negative-06",
+      "source": "type Carrier<U>={payload:U;flag:number};interface Base<T>{meta:Carrier<T>}interface Box<V> extends Base<V>{meta:{flag:number;payload:V}}let b:Box<number>={meta:{flag:3,payload:\"bad\"}};",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }

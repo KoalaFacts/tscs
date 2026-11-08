@@ -150,6 +150,48 @@ try {
   assert.match(aliasBad.stdout+aliasBad.stderr,/TSCS1001/);
   assert.equal(existsSync(join(dir,'alias-conflict.js')),false);
 
+  // A2.3: instantiated *declared generic aliases* in shared heritage
+  // compare by their substituted source type, including imported aliases.
+  for(const [name,source] of Object.entries({
+    'generic-alias-base.ts':
+      'export type Carrier<U>={payload:U;flag:number};' +
+      'export interface Base<T>{value:T;meta:Carrier<T>}',
+    'generic-alias-model.ts':
+      'import type {Base} from "./generic-alias-base.js";' +
+      'export interface Box<V> extends Base<V>{meta:{flag:number;payload:V}}' +
+      'export const item:Box<number>={value:5,meta:{payload:5,flag:3}};',
+    'generic-alias-logic.ts':
+      'import type {Box} from "./generic-alias-model.js";' +
+      'export function read(box:Box<number>):number{return box.value+box.meta.flag;}',
+    'generic-alias-entry.ts':
+      'import {item} from "./generic-alias-model.js";' +
+      'import {read} from "./generic-alias-logic.js";' +
+      'export const genericAliasResult:number=read(item);'
+  }))writeFileSync(join(dir,name),source);
+  writeFileSync(join(dir,'generic-alias-project.json'),JSON.stringify({
+    files:['generic-alias-entry.ts','minimal.d.ts'],
+    compilerOptions:{module:'es2015',target:'es2015',noLib:true}
+  }));
+  const genericAliasCompiled=compile(['--emitJs','-p',join(dir,'generic-alias-project.json')]);
+  assert.equal(genericAliasCompiled.status,0,genericAliasCompiled.stdout+genericAliasCompiled.stderr);
+  for(const name of ['generic-alias-base','generic-alias-model','generic-alias-logic','generic-alias-entry'])
+    assert.ok(existsSync(join(dir,name+'.js')),name+' missing emitted JS');
+  const genericAliasRan=spawnSync(process.execPath,['--input-type=module','--eval',
+    'import {genericAliasResult} from "./generic-alias-entry.js";' +
+    'if(genericAliasResult!==8)throw Error("generic alias result "+genericAliasResult);'],
+    {cwd:dir,encoding:'utf8',timeout:15000});
+  assert.equal(genericAliasRan.error,undefined,String(genericAliasRan.error));
+  assert.equal(genericAliasRan.status,0,genericAliasRan.stdout+genericAliasRan.stderr);
+  writeFileSync(join(dir,'generic-alias-conflict.ts'),
+    'type Carrier<U>={payload:U;flag:number};interface Base<T>{meta:Carrier<T>}' +
+    'interface Box<V> extends Base<V>{meta:{payload:string;flag:number}}' +
+    'let answer:number=8;');
+  const genericAliasBad=compile(['--emitJs','--noLib','--target','es2015',
+    'generic-alias-conflict.ts','minimal.d.ts']);
+  assert.equal(genericAliasBad.status,1,genericAliasBad.stdout+genericAliasBad.stderr);
+  assert.match(genericAliasBad.stdout+genericAliasBad.stderr,/TSCS1001/);
+  assert.equal(existsSync(join(dir,'generic-alias-conflict.js')),false);
+
   // A2.3: separate checked .d.ts interface declarations merge before the
   // consumer is checked; declarations erase while real ES module JS runs.
   writeFileSync(join(dir,'ambient-part-one.d.ts'),'interface MergedReading {value:number;}');
