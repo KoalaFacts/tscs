@@ -316,6 +316,12 @@ internal static class DeclarationTypeIdentity
             return SameDeclared(left,l,unfoldedRight.Syntax,unfoldedRight.Body,depth+1);
         // The pinned checker treats concrete union members as an unordered set,
         // just like unions involving substituted generic parameters.
+        // Canonicalize only concrete primitive/literal unions. A primitive
+        // absorbs its own literal subtypes, true|false is boolean, and never
+        // contributes no arm. Opaque parameters, any/unknown, objects and
+        // intersections retain the existing binding-aware identity rules.
+        if(ConcretePrimitiveIdentity(left,right) is { } concreteIdentity)
+            return concreteIdentity;
         switch((left,right))
         {
             case (PrimitiveTypeSyntax a,PrimitiveTypeSyntax b):
@@ -365,6 +371,53 @@ internal static class DeclarationTypeIdentity
                 // no syntactic proof of identity here.
                 return false;
         }
+    }
+
+    // Null means this comparison was not proven to be purely concrete;
+    // it must use the normal conservative declaration-identity algorithm.
+    private static bool? ConcretePrimitiveIdentity(TypeSyntax left,TypeSyntax right)
+    {
+        var a=ConcretePrimitiveMembers(left);
+        var b=ConcretePrimitiveMembers(right);
+        return a is null || b is null?null:a.SetEquals(b);
+    }
+
+    private static HashSet<string>? ConcretePrimitiveMembers(TypeSyntax syntax)
+    {
+        IReadOnlyList<TypeSyntax> items=syntax is UnionTypeSyntax union
+            ?union.Members:new TypeSyntax[]{syntax};
+        var members=new HashSet<string>(StringComparer.Ordinal);
+        foreach(var item in items)
+        {
+            string? key=item switch
+            {
+                PrimitiveTypeSyntax p when p.Name.Text is
+                    "string" or "number" or "boolean" or "null" or "undefined" or "never"=>
+                    "primitive:"+p.Name.Text,
+                LiteralTypeSyntax l when l.Literal.Kind==TokenKind.String=>
+                    "string:"+(l.Literal.Value??l.Literal.Text),
+                LiteralTypeSyntax l when l.Literal.Kind==TokenKind.Number=>
+                    "number:"+(l.Literal.Value??l.Literal.Text),
+                LiteralTypeSyntax l when l.Literal.Kind==TokenKind.True=>"literal:true",
+                LiteralTypeSyntax l when l.Literal.Kind==TokenKind.False=>"literal:false",
+                _=>null
+            };
+            if(key is null)return null;
+            members.Add(key);
+        }
+        if(members.Count>1)members.Remove("primitive:never");
+        if(members.Contains("primitive:string"))
+            members.RemoveWhere(k=>k.StartsWith("string:",StringComparison.Ordinal));
+        if(members.Contains("primitive:number"))
+            members.RemoveWhere(k=>k.StartsWith("number:",StringComparison.Ordinal));
+        if(members.Contains("primitive:boolean") ||
+           (members.Contains("literal:true") && members.Contains("literal:false")))
+        {
+            members.Remove("literal:true");
+            members.Remove("literal:false");
+            members.Add("primitive:boolean");
+        }
+        return members;
     }
 
     private static (TypeSyntax Syntax,Context Body)? GenericAlias(TypeSyntax syntax,Context context)

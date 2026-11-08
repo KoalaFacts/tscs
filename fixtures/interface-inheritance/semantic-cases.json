@@ -142,6 +142,60 @@
       "expectedCodes": [
         "TS2322"
       ]
+    },
+    {
+      "id": "interface-inheritance:positive-18",
+      "source": "interface Base<T>{tag:true|false;value:T}interface Box<U> extends Base<U>{tag:boolean}let b:Box<number>={tag:true,value:8};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-19",
+      "source": "interface Base<T>{tag:boolean;value:T}interface Box<U> extends Base<U>{tag:false|true}let b:Box<number>={tag:false,value:8};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-20",
+      "source": "interface Base<T>{tag:number|1;value:T}interface Box<U> extends Base<U>{tag:number}let b:Box<number>={tag:1,value:8};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-21",
+      "source": "interface Base<T>{tag:string|\"ready\";value:T}interface Box<U> extends Base<U>{tag:string}let b:Box<number>={tag:\"ready\",value:8};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-22",
+      "source": "interface Base<T>{tag:never|string;value:T}interface Box<U> extends Base<U>{tag:string}let b:Box<number>={tag:\"ok\",value:8};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-23",
+      "source": "interface Base<T>{meta:{flag:true|false;value:T}}interface Box<U> extends Base<U>{meta:{value:U;flag:boolean}}let b:Box<number>={meta:{value:8,flag:true}};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-24",
+      "source": "interface Base<T>{tag:string|\"ok\"|string;value:T}interface Box<U> extends Base<U>{tag:string}let b:Box<number>={tag:\"ok\",value:8};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-25",
+      "source": "type Tag=true|false;interface Base<T>{tag:Tag;value:T}interface Box<U> extends Base<U>{tag:boolean}let b:Box<number>={tag:true,value:8};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:negative-07",
+      "source": "interface Base<T>{tag:true|false;value:T}interface Box<U> extends Base<U>{tag:boolean}let b:Box<number>={tag:1,value:8};",
+      "expectedCodes": [
+        "TS2322"
+      ]
+    },
+    {
+      "id": "interface-inheritance:negative-08",
+      "source": "interface Base<T>{tag:string|\"ready\";value:T}interface Box<U> extends Base<U>{tag:string}let b:Box<number>={tag:true,value:8};",
+      "expectedCodes": [
+        "TS2322"
+      ]
     }
   ]
 }
