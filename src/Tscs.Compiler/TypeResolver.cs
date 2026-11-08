@@ -13,6 +13,8 @@ internal sealed class TypeBinding(string file,Token name,TypeSyntax syntax,Scope
     // Whether the generic declaration body has been checked once (ValidateGeneric).
     public bool Validated { get; set; }
     public bool IsInterface { get; init; }
+    // A declared alias is not an opaque instantiated type parameter.
+    public bool IsTypeAlias { get; init; }
     // Whether the first declaration carries 'export' (merging requires agreement, TS2395).
     public bool ExportedDeclaration { get; init; }
     // Plain type parameters of a generic alias or interface. Each reference instantiates
