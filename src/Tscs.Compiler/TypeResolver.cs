@@ -11,7 +11,7 @@ internal sealed class TypeBinding(string file,Token name,TypeSyntax syntax,Scope
     public TypeSymbol? Resolved { get; set; }
     public bool Resolving { get; set; }
     public bool IsInterface { get; init; }
-    // Plain type parameters of a generic alias. Each reference instantiates
+    // Plain type parameters of a generic alias or interface. Each reference instantiates
     // the alias body in a fresh scope; generic bindings are never cached.
     public IReadOnlyList<Token> TypeParameters { get; init; }=[];
     // Reopened interfaces retain source positions and declaring scopes.
@@ -120,7 +120,7 @@ internal static class TypeResolver
         catch(CompilationFailure failure) when (failure.Diagnostic.Code!="TS2304")
         {
             throw new CompilationFailure(Diagnostic.Error(binding.File,binding.Name,"TSCS1001",
-                "This generic type alias body is not supported without known type arguments yet."));
+                "This generic declaration body is not supported without known type arguments yet."));
         }
         finally {binding.Resolving=false;}
     }

@@ -95,8 +95,29 @@ internal static class Binder
                 :iface.Body),
             _=>throw new InvalidOperationException("Not a type declaration.")
         };
+        var typeParameters=declaration switch
+        {
+            TypeAliasDeclaration alias=>alias.TypeParameters,
+            InterfaceDeclaration iface=>iface.TypeParameters,
+            _=>null
+        }??[];
+        // Predefined type names are not valid interface names (TS2427).
+        if(declaration is InterfaceDeclaration && name.Text is "any" or "unknown" or "never" or "number" or
+               "bigint" or "boolean" or "string" or "symbol" or "void" or "object" or "undefined")
+            throw new CompilationFailure(Diagnostic.Error(file,name,"TS2427",
+                $"Interface name cannot be '{name.Text}'."));
+        // The compiler models these library types intrinsically ('Array<T>'
+        // always means the built-in array type, bootstrap globals come from
+        // the validated library contract), so a generic user declaration
+        // would be silently ignored instead of merged (TS2428/TS2317).
+        if(declaration is InterfaceDeclaration && typeParameters.Count!=0 &&
+           name.Text is "Array" or "ReadonlyArray" or "Iterable" or "Iterator" or "IterableIterator" or "IteratorResult" or
+               "Boolean" or "CallableFunction" or "Function" or "IArguments" or "NewableFunction" or
+               "Number" or "Object" or "RegExp" or "String")
+            throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
+                $"A generic interface named after the library type '{name.Text}' is not supported yet."));
         // Predefined type names are not valid type parameter names (TS2368).
-        foreach(var parameter in (declaration as TypeAliasDeclaration)?.TypeParameters??[])
+        foreach(var parameter in typeParameters)
             if(parameter.Text is "number" or "string" or "boolean" or "any" or "unknown" or
                "undefined" or "never" or "object" or "bigint" or "symbol")
                 throw new CompilationFailure(Diagnostic.Error(file,parameter,"TS2368",
@@ -108,6 +129,11 @@ internal static class Binder
             if(declaration is InterfaceDeclaration && previous.IsInterface &&
                ReferenceEquals(previous.Owner,scope))
             {
+                // Reopening a generic interface needs identical type
+                // parameter lists (TS2428) and merged instantiation.
+                if(typeParameters.Count!=0 || previous.TypeParameters.Count!=0)
+                    throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
+                        "Merging generic interface declarations is not supported yet."));
                 previous.MergedInterfaces.Add((file,name,syntax,scope));
                 return;
             }
@@ -117,7 +143,7 @@ internal static class Binder
         scope.Types.Add(name.Text,new TypeBinding(file,name,syntax,scope)
         {
             IsInterface=declaration is InterfaceDeclaration,
-            TypeParameters=(declaration as TypeAliasDeclaration)?.TypeParameters??[]
+            TypeParameters=typeParameters
         });
     }
 

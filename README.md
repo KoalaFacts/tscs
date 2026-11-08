@@ -63,7 +63,7 @@ Run the full development gate (what CI runs):
 |---|---|---|
 | Project and host | Bounded `tsconfig.json` (`files`, explicit `include`/`exclude`, `noEmit`, `noLib`, `target`, `module`), CompilerHost/VFS, triple-slash path references | [STATUS](docs/STATUS.md#project-host-and-modules) |
 | Scanner and parser | Most expression, statement and type syntax used by the supported subset; JSON config parsing checked against vectors generated from the pinned reference | [STATUS](docs/STATUS.md#syntax) |
-| Types and checking | Primitives, literals, unions, named/structural objects, arrays, tuples, functions, bounded `keyof`/indexed access/`typeof`, plain generic type aliases; no other generics or classes | [STATUS](docs/STATUS.md#types-and-checking) |
+| Types and checking | Primitives, literals, unions, named/structural objects, arrays, tuples, functions, bounded `keyof`/indexed access/`typeof`, plain generic type aliases and interfaces; no other generics or classes | [STATUS](docs/STATUS.md#types-and-checking) |
 | Control flow | `if`, loops, `switch`, `try`, narrowing guards, definite assignment for the supported subset | [STATUS](docs/STATUS.md#control-flow-and-narrowing) |
 | Emit | ES2015 scripts and named ES modules from the checked AST | [STATUS](docs/STATUS.md#emit) |
 | Standard library | Not loadable; bounded ambient `.d.ts` inputs are checked, and a fixed set of native array/string/object members is modelled directly | [STATUS](docs/STATUS.md#standard-library) |
