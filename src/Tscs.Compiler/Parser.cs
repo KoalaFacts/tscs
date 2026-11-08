@@ -1599,7 +1599,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 type=new ArrayTypeSyntax(element,open,close,name.Text=="ReadonlyArray",name);
             }
             else if(name.Kind==TokenKind.Identifier && Current.Kind==TokenKind.LessThan &&
-                    name.Text is not ("number" or "string" or "boolean" or "any" or "unknown" or "undefined"))
+                    name.Text is not ("number" or "string" or "boolean" or "any" or "unknown" or "never" or "undefined"))
             {
                 // A generic type reference; the resolver checks the arity.
                 Take();
@@ -1616,7 +1616,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 type=new NamedTypeSyntax(name,arguments);
             }
             else
-                type=name.Text is "number" or "string" or "boolean" or "any" or "unknown" or "void" or "undefined" or "null"
+                type=name.Text is "number" or "string" or "boolean" or "any" or "unknown" or "never" or "void" or "undefined" or "null"
                     ?new PrimitiveTypeSyntax(name):new NamedTypeSyntax(name);
         }
         else if(Current.Kind is TokenKind.String or TokenKind.Number or TokenKind.True or TokenKind.False)
