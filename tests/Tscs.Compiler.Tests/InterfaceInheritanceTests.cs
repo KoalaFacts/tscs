@@ -14,6 +14,13 @@ public sealed class InterfaceInheritanceTests
     [InlineData("interface Child extends Parent{extra:number}interface Parent{value:number}let c:Child={value:20,extra:22};")]
     [InlineData("interface Parent{0:number}interface Child extends Parent{label:string}let c:Child={0:42,label:\"ok\"};let n:number=c[0];")]
     [InlineData("type Shape={value:number};interface Child extends Shape{extra:number}let c:Child={value:20,extra:22};")]
+    // 'unknown' flows into a union that admits it (the reference reduces
+    // 'unknown|T' to unknown), including tuple and array element unions.
+    [InlineData("interface A{x:unknown|undefined}interface B extends A{x:unknown|undefined}")]
+    [InlineData("interface A{x:[unknown,number]}interface B extends A{x:[unknown,number]}")]
+    [InlineData("interface A<T>{x:T|undefined}interface B<T> extends A<T>{x:T|undefined}")]
+    [InlineData("interface A<T>{x:[T,number]}interface B<U> extends A<U>{x:[U,number]}")]
+    [InlineData("declare let u:unknown;let x:unknown|undefined=u;let y:any|string=u;")]
     public void NamedStructuralInheritanceCompiles(string source)=>
         Assert.Empty(Compilation.Check("heritage.ts",source));
 
