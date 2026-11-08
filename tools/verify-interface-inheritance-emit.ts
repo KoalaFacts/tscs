@@ -26,6 +26,47 @@ try {
   assert.equal(executed.error,undefined,String(executed.error));
   assert.equal(executed.status,0,executed.stdout+executed.stderr);
 
+  // A2.3: shared members whose generic union arms or object fields appear
+  // in a different order must survive checking, multi-module emit and Node
+  // execution. These are real ES2015 modules, not just declaration tests.
+  for(const [name,source] of Object.entries({
+    'generic-bases.ts':
+      'export interface Left<T>{value:T|undefined;meta:{x:T;y:number}}' +
+      'export interface Right<U>{value:undefined|U;meta:{y:number;x:U}}',
+    'generic-model.ts':
+      'import type {Left,Right} from "./generic-bases.js";' +
+      'export interface Model<V> extends Left<V>,Right<V>{total:number}' +
+      'export const item:Model<number>={value:2,meta:{x:2,y:4},total:6};',
+    'generic-logic.ts':
+      'import type {Model} from "./generic-model.js";' +
+      'export function sum(m:Model<number>):number{return m.meta.x+m.total;}',
+    'generic-entry.ts':
+      'import {item} from "./generic-model.js";import {sum} from "./generic-logic.js";' +
+      'export const result:number=sum(item);'
+  }))writeFileSync(join(dir,name),source);
+  writeFileSync(join(dir,'generic-project.json'),JSON.stringify({
+    files:['generic-entry.ts','minimal.d.ts'],
+    compilerOptions:{module:'es2015',target:'es2015',noLib:true}
+  }));
+  const generic=compile(['--emitJs','-p',join(dir,'generic-project.json')]);
+  assert.equal(generic.status,0,generic.stdout+generic.stderr);
+  for(const name of ['generic-bases','generic-model','generic-logic','generic-entry'])
+    assert.ok(existsSync(join(dir,name+'.js')),name+' missing emitted JS');
+  const genericRuntime=spawnSync(process.execPath,['--input-type=module','--eval',
+    'import {result} from "./generic-entry.js";if(result!==8)throw Error("expected 8, got "+result);'],
+    {cwd:dir,encoding:'utf8',timeout:15000});
+  assert.equal(genericRuntime.error,undefined,String(genericRuntime.error));
+  assert.equal(genericRuntime.status,0,genericRuntime.stdout+genericRuntime.stderr);
+
+  writeFileSync(join(dir,'generic-bad.ts'),
+    'interface A<T>{item:T|number}interface B<U>{item:U|string}' +
+    'interface N<V> extends A<V>,B<V>{}let answer:number=7;');
+  const genericBad=compile(['--emitJs','--noLib','--target','es2015',
+    'generic-bad.ts','minimal.d.ts']);
+  assert.equal(genericBad.status,1,genericBad.stdout+genericBad.stderr);
+  assert.match(genericBad.stdout+genericBad.stderr,/TSCS1001/);
+  assert.equal(existsSync(join(dir,'generic-bad.js')),false);
+
   // A2.3: separate checked .d.ts interface declarations merge before the
   // consumer is checked; declarations erase while real ES module JS runs.
   writeFileSync(join(dir,'ambient-part-one.d.ts'),'interface MergedReading {value:number;}');
