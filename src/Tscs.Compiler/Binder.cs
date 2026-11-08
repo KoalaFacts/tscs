@@ -150,6 +150,7 @@ internal static class Binder
         scope.Types.Add(name.Text,new TypeBinding(file,name,syntax,scope)
         {
             IsInterface=declaration is InterfaceDeclaration,
+            IsTypeAlias=declaration is TypeAliasDeclaration,
             ExportedDeclaration=declaration is InterfaceDeclaration { Exported:true },
             TypeParameters=typeParameters
         });
