@@ -798,27 +798,43 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 }
                 else
                 {
-                    // Named, non-generic finite-object interface bases only.
+                    // Named finite-object interface bases, optionally with
+                    // type arguments ('extends Box<T>' instantiates Box).
                     // 'extends' is contextual, not a reserved value token.
                     var bases=new List<NamedTypeSyntax>();
                     if(Current.Kind==TokenKind.Extends)
                     {
-                        // Heritage of a generic interface needs instantiated
-                        // bases; it fails closed until that is modelled.
-                        if(typeParameters.Count!=0)
-                            Unsupported(Current,"Heritage clauses on generic interfaces are not supported yet.");
                         Take();
                         while(true)
                         {
                             if(bases.Count>=16)Unsupported(Current,"Interface heritage exceeds the 16-base limit.");
                             if(Current.Kind!=TokenKind.Identifier)
                                 Unsupported(Current,"Interface heritage requires named structural types.");
-                            bases.Add(new NamedTypeSyntax(Take()));
+                            var baseName=Take();
+                            if(Current.Kind==TokenKind.LessThan)
+                            {
+                                // Array<T> is intrinsic, not a structural base.
+                                if(baseName.Text is "Array" or "ReadonlyArray")
+                                    Unsupported(baseName,"Extending Array<T> or ReadonlyArray<T> is not supported yet.");
+                                Take();
+                                var arguments=new List<TypeSyntax>();
+                                while(true)
+                                {
+                                    if(arguments.Count>=16)Unsupported(Current,"Type argument lists exceed the 16-argument limit.");
+                                    if(Current.Kind is TokenKind.GreaterThan or TokenKind.Comma)
+                                        Unsupported(Current,"Expected a type argument.");
+                                    arguments.Add(ReadTypeAnnotation());
+                                    if(!Eat(TokenKind.Comma))break;
+                                }
+                                TakeArrayTypeClose();
+                                bases.Add(new NamedTypeSyntax(baseName,arguments));
+                            }
+                            else bases.Add(new NamedTypeSyntax(baseName));
                             if(!Eat(TokenKind.Comma))break;
                         }
                     }
                     if(Current.Kind!=TokenKind.Open)
-                        Unsupported(Current,"Only named, non-generic interface heritage and required properties are supported.");
+                        Unsupported(Current,"Only named interface heritage and required properties are supported.");
                     var body=ReadTypeAnnotation();
                     if(body is not ObjectTypeSyntax)
                         Unsupported(Current,"Interfaces require a required-member object body.");
