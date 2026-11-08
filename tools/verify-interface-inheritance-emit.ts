@@ -67,6 +67,53 @@ try {
   assert.match(genericBad.stdout+genericBad.stderr,/TSCS1001/);
   assert.equal(existsSync(join(dir,'generic-bad.js')),false);
 
+
+  // Pinned Go accepts the reordered *concrete* tag union (reviewed in #249).
+  // Exercise four actual ES2015 modules and the neighbouring bad case.
+  for(const [suffix,baseTag,derivedTag] of [
+    ['forward','string|1','1|string'],
+    ['reverse','1|string','string|1']
+  ]){
+    const prefix='concrete-'+suffix;
+    for(const [name,source] of Object.entries({
+      [prefix+'-base.ts']:
+        'export interface Base<T>{value:T;tag:'+baseTag+'}',
+      [prefix+'-model.ts']:
+        'import type {Base} from "./'+prefix+'-base.js";' +
+        'export interface Box<T> extends Base<T>{tag:'+derivedTag+'}' +
+        'export const item:Box<number>={value:8,tag:1};',
+      [prefix+'-logic.ts']:
+        'import type {Box} from "./'+prefix+'-model.js";' +
+        'export function read(box:Box<number>):number{return box.value;}',
+      [prefix+'-entry.ts']:
+        'import {item} from "./'+prefix+'-model.js";' +
+        'import {read} from "./'+prefix+'-logic.js";' +
+        'export const result:number=read(item);'
+    }))writeFileSync(join(dir,name),source);
+    writeFileSync(join(dir,prefix+'-project.json'),JSON.stringify({
+      files:[prefix+'-entry.ts','minimal.d.ts'],
+      compilerOptions:{module:'es2015',target:'es2015',noLib:true}
+    }));
+    const checked=compile(['--emitJs','-p',join(dir,prefix+'-project.json')]);
+    assert.equal(checked.status,0,prefix+': '+checked.stdout+checked.stderr);
+    for(const name of ['base','model','logic','entry'])
+      assert.ok(existsSync(join(dir,prefix+'-'+name+'.js')),prefix+' '+name+' output');
+    const runtime=spawnSync(process.execPath,['--input-type=module','--eval',
+      'import {result} from "./'+prefix+'-entry.js";if(result!==8)throw Error("result "+result);'],
+      {cwd:dir,encoding:'utf8',timeout:15000});
+    assert.equal(runtime.error,undefined,String(runtime.error));
+    assert.equal(runtime.status,0,prefix+': '+runtime.stdout+runtime.stderr);
+  }
+  writeFileSync(join(dir,'concrete-conflict.ts'),
+    'interface Base<T>{value:T;tag:string|1}' +
+    'interface Box<T> extends Base<T>{tag:number|string}' +
+    'let answer:number=8;');
+  const concreteBad=compile(['--emitJs','--noLib','--target','es2015',
+    'concrete-conflict.ts','minimal.d.ts']);
+  assert.equal(concreteBad.status,1,concreteBad.stdout+concreteBad.stderr);
+  assert.match(concreteBad.stdout+concreteBad.stderr,/TSCS1001/);
+  assert.equal(existsSync(join(dir,'concrete-conflict.js')),false);
+
   // A2.3: separate checked .d.ts interface declarations merge before the
   // consumer is checked; declarations erase while real ES module JS runs.
   writeFileSync(join(dir,'ambient-part-one.d.ts'),'interface MergedReading {value:number;}');

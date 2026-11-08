@@ -264,7 +264,6 @@ public sealed class GenericInterfaceTests
     // Not syntactically identical after substitution: no proof either way.
     [InlineData("interface Base<T>{value:T}interface Box<T> extends Base<T[]>{value:T}")]
     [InlineData("interface Base<T>{value:T}interface Box<T,U> extends Base<U>{value:T}")]
-    [InlineData("interface Base<U>{value:U;tag:string|1}interface Box<T> extends Base<T>{tag:1|string}")]
     [InlineData("interface Base<T>{value:T}interface Box<T> extends Base<T>{readonly value:T}")]
     [InlineData("interface Base<T>{value?:T}interface Box<T> extends Base<T>{value:T}")]
     [InlineData("interface A<T>{x:T}interface B<T>{x:T}interface C<T,U> extends A<T>,B<U>{}")]
@@ -279,6 +278,35 @@ public sealed class GenericInterfaceTests
     [InlineData("interface Base<T>{value:T}interface Box<T>{a:T}interface Box<T> extends Base<T>{b:T}")]
     public void UnsupportedGenericInterfaceHeritageFailsClosed(string source)=>
         Assert.Contains(Compilation.Check("generic-interface-heritage-unsupported.ts",source),d=>d.Code=="TSCS1001");
+
+
+    // Pinned Go accepts this exact concrete-union reordered member, in both
+    // syntactic orders (see PR #249 independent reference review). It used to
+    // be misregistered as an unsupported negative case.
+    [Theory]
+    [InlineData("string|1","1|string")]
+    [InlineData("1|string","string|1")]
+    public void ConcreteUnionSharedByGenericHeritageIsIdentical(string baseType,string derivedType)
+    {
+        var source=$"interface Base<U>{{value:U;tag:{baseType}}}" +
+            $"interface Box<T> extends Base<T>{{tag:{derivedType}}}" +
+            "const item:Box<number>={value:8,tag:1};let answer:number=item.value;";
+        Assert.Empty(Compilation.Check("generic-concrete-shared-union.ts",source));
+    }
+
+    // Different members remain rejected; changing comparison order cannot
+    // manufacture identity or allow emit of an invalid derived interface.
+    [Theory]
+    [InlineData("string|1","number|string")]
+    [InlineData("1|string","string|number")]
+    public void ConcreteUnionSharedByGenericHeritageRejectsConflicts(string baseType,string derivedType)
+    {
+        var source=$"interface Base<U>{{value:U;tag:{baseType}}}" +
+            $"interface Box<T> extends Base<T>{{tag:{derivedType}}}" +
+            "let result:number=7;";
+        Assert.Contains(Compilation.Check("generic-concrete-conflict.ts",source),
+            d=>d.Code=="TSCS1001");
+    }
 
     [Theory]
     [InlineData("Box<number>","{value:number;other:number}",false)]
