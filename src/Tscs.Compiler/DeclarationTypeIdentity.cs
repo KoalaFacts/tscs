@@ -198,6 +198,12 @@ internal static class DeclarationTypeIdentity
             case (TypeQuerySyntax a,TypeQuerySyntax b):
                 return ReferenceEquals(leftScope.Find(a.Root.Text),rightScope.Find(b.Root.Text)) &&
                     a.Members.Select(x=>x.Text).SequenceEqual(b.Members.Select(x=>x.Text));
+            // An inherited member's provenance is spread over its bases; the
+            // reference compares the merged members, which is not modelled
+            // against another shape here.
+            case (InterfaceExtensionTypeSyntax,_) or (_,InterfaceExtensionTypeSyntax):
+                throw new CompilationFailure(Diagnostic.Error(rightFile,TypeResolver.Location(right),"TSCS1001",
+                    "Declaration identity of an extended interface with intersections is not supported yet."));
             default:
                 // No proof of source identity: fail closed, not a compatibility PASS.
                 return false;

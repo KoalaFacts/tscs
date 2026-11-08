@@ -123,9 +123,9 @@ diagnostic and exit 1; they are intended never to be compiled silently.
 - `type` aliases and interfaces, including generic ones with plain type
   parameters (instantiated by substitution; arity errors TS2314/TS2315;
   constraints, defaults, bodies that need known arguments such as `keyof T`,
-  heritage, and generic reopening with a different parameter list or a
-  redeclared member fail closed); non-generic
-  interfaces take named, non-generic `extends`,
+  generic reopening with a different parameter list or a redeclared member,
+  and generic heritage that shares a member with a base fail closed);
+  interfaces take named `extends` bases, instantiated when generic,
   structural object types with optional and `readonly` members, finite
   intersections, excess-property checks on fresh literals; circular aliases
   report TS2456.
@@ -283,7 +283,7 @@ arguments only; newer methods such as `padStart` are emitted unpolyfilled);
 ## What does not work
 
 Generics beyond the `Array<T>` spelling and plain generic aliases and
-interfaces (extending generic interfaces, TS2428,
+interfaces (heritage on reopened generic interfaces, TS2428,
 generic functions and classes, constraints, defaults), classes, enums, namespaces,
 declaration-file inputs beyond the bounded ambient shapes above, declaration emit, source
 maps, JSX/TSX, JavaScript inputs, regular expression literals, decorators,
@@ -325,7 +325,7 @@ records the original case IDs it moves.
 | A2.2a | Bind the parsed declarations into one global symbol table (cross-file merging, TS2300/TS2451 exclusions); the library check binds the default-lib closure | Library symbols become available | done (PR #220, 7b34604; review fixes PR #221, b5bd8e9) | pinned closure: 20 files, 2,250 global symbols (791 with more than one declaration), 0 diagnostics; 14 xUnit + 1 node test at merge, 16 with the review fixes |
 | A2.2b | Resolve every name the bound library uses (type, value and namespace meanings, scoped type parameters and `infer`); the library check fails on any unresolved name | Every library reference has a target, the input to computing library types | done (PR #222, 61dfa09) | pinned closure: 0 unresolved names (6 `globalThis` references before modelling it); 18 resolver xUnit + 1 node test; review fixes: postfix/operator type nesting limit, parameters do not shadow namespaces |
 | A2.2c | Compare the library syntax trees with the reference parser | Parser fidelity on the real libs, not only zero diagnostics | todo | — |
-| A2.3 | Check enough of es5/es2015 to load them as the default lib instead of `fixtures/minimal.d.ts` | Unblocks the 5,667 targets that need only the library | in progress | prerequisites merged: non-generic ambient aliases/interfaces (#235), typed and repeated ambient `var` (#236, #237), merged non-generic interfaces with declaration identity (#238), plain generic type aliases (#241), single-declaration generic interfaces (#242), the `never` type (#243), generic interface merging with identical parameter lists (this PR). Next: generic interface heritage. Original headline unchanged (3 PASS / 0 FAIL / 15,520 SKIP) |
+| A2.3 | Check enough of es5/es2015 to load them as the default lib instead of `fixtures/minimal.d.ts` | Unblocks the 5,667 targets that need only the library | in progress | prerequisites merged: non-generic ambient aliases/interfaces (#235), typed and repeated ambient `var` (#236, #237), merged non-generic interfaces with declaration identity (#238), plain generic type aliases (#241), single-declaration generic interfaces (#242), the `never` type (#243), generic interface merging with identical parameter lists (#244), generic interface heritage (this PR). Next: members shared with bases (generic) and TS2320/TS2430 positions on merged interfaces with heritage. Original headline unchanged (3 PASS / 0 FAIL / 15,520 SKIP) |
 | A3.1 | `compiler/noCrashOnNoLib.ts` to PASS: four-space block indentation and no added grouping around spread operands in emit | The only executed original FAIL; every original `.js` baseline with a block depends on the indentation | done (PR #219, 28053fa) | 1 PASS / 1 FAIL → 2 PASS / 0 FAIL / 15,521 SKIP (CI original-acceptance on main); `JavaScriptEmitTests` 22 (+1) |
 | A3.2 | `compiler/arrayIterationLibES5TargetDifferent.ts` (`nolib=true,target=es2015`) to PASS: runner passes `@lib`; CLI `--lib` with `--noLib` reports TS5053; ambient `declare let/const`; TS2495 for non-iterable `for..of` sources; script `"use strict";` prologue and strict script parameters; emit when only TS5053/TS2318 are printed | The only target whose sole gap was `@lib`; the prologue applies to every original script `.js` baseline | done (PR #224, cd1dea6) | 2 PASS / 0 FAIL / 15,521 SKIP → 3 PASS / 0 FAIL / 15,520 SKIP; standard-library-only 5,459 → 5,583 (the `@lib` targets now need only the library) |
 | A3 | Close the cheapest family of failing original cases from A1's histogram, one family per PR | Moves original cases to PASS | todo | — |

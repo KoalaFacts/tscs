@@ -10,6 +10,8 @@ internal sealed class TypeBinding(string file,Token name,TypeSyntax syntax,Scope
     public Scope Owner { get; }=owner;
     public TypeSymbol? Resolved { get; set; }
     public bool Resolving { get; set; }
+    // Whether the generic declaration body has been checked once (ValidateGeneric).
+    public bool Validated { get; set; }
     public bool IsInterface { get; init; }
     // Whether the first declaration carries 'export' (merging requires agreement, TS2395).
     public bool ExportedDeclaration { get; init; }
@@ -119,6 +121,7 @@ internal static class TypeResolver
             throw new CompilationFailure(Diagnostic.Error(binding.File,binding.Name,"TS2456",
                 $"Type alias '{binding.Name.Text}' circularly references itself or exceeds the supported depth."));
         binding.Resolving=true;
+        binding.Validated=true;
         try
         {
             var placeholder=new Scope(binding.Owner);
@@ -129,6 +132,21 @@ internal static class TypeResolver
                     Resolved=CompilerTypes.Unknown
                 });
             _=Resolve(binding.Syntax,placeholder,binding.File,depth+1);
+            // A generic interface's heritage is checked with opaque type
+            // parameters in the reference (TS2430 / TS2320): 'x:string' does
+            // not satisfy a base 'x:T', yet it does for the 'unknown'
+            // placeholder. Members the declaration and its bases share, or two
+            // bases share, would need that comparison; fail closed instead.
+            if(binding.Syntax is InterfaceExtensionTypeSyntax inherited)
+            {
+                var keys=new HashSet<string>(inherited.Body.Properties.Select(p=>Parser.PropertyName(p.Name)),
+                    StringComparer.Ordinal);
+                foreach(var named in inherited.Bases)
+                    if(Resolve(named,placeholder,binding.File,depth+1) is ObjectTypeSymbol parent &&
+                       parent.Members.Keys.Any(key=>!keys.Add(key)))
+                        throw new CompilationFailure(Diagnostic.Error(binding.File,named.Name,"TSCS1001",
+                            "A member shared by a generic interface and its bases is not supported yet."));
+            }
             // A member redeclared by a reopened generic interface must have the
             // same type for every instantiation (TS2717 / TS2687 otherwise);
             // that needs opaque type parameters, so fail closed instead of
@@ -203,6 +221,12 @@ internal static class TypeResolver
                         $"Cannot find name '{named.Name.Text}'."));
                 if(binding.TypeParameters.Count==0 && named.TypeArguments is null)
                     return ResolveBinding(binding,depth+1);
+                // Heritage diagnostics belong to the declaration, so check it
+                // before any instantiation can report them at a use site.
+                if(!binding.Validated && !binding.Resolving && binding.TypeParameters.Count!=0 &&
+                   (binding.Syntax is InterfaceExtensionTypeSyntax ||
+                    binding.MergedInterfaces.Any(merged=>merged.Syntax is InterfaceExtensionTypeSyntax)))
+                    ValidateGeneric(binding,depth+1);
                 var instance=Instantiate(binding,named,scope,file,depth+1);
                 return binding.MergedInterfaces.Count==0
                     ? Resolve(binding.Syntax,instance,binding.File,depth+1)
@@ -462,6 +486,10 @@ internal static class TypeResolver
                         throw new CompilationFailure(Diagnostic.Error(file,property.Name,"TSCS1001",
                             "Extended interface exceeds the finite 128-member limit."));
                 }
+                // Two bases sharing a member must agree on its declared type
+                // (TS2320); flattened intersections cannot show that.
+                bool provenance=inherited.Bases.Count>1 &&
+                    inherited.Bases.Any(b=>DeclarationTypeIdentity.HasIntersection(b,scope));
                 foreach(var named in inherited.Bases)
                 {
                     if(Resolve(named,scope,file,depth+1) is not ObjectTypeSymbol parent)
@@ -482,6 +510,9 @@ internal static class TypeResolver
                                     throw new CompilationFailure(Diagnostic.Error(file,inherited.Name,"TS2430",
                                         $"Interface '{inherited.Name.Text}' incorrectly extends its base interface at '{member.Key}'."));
                             }
+                            else if(provenance)
+                                throw new CompilationFailure(Diagnostic.Error(file,named.Name,"TSCS1001",
+                                    $"Inherited member '{member.Key}' with intersection provenance is not supported yet."));
                             else if(numericKeys.Contains(member.Key)!=numeric ||
                                     readonlyKeys.Contains(member.Key)!=isReadonly ||
                                     optionalKeys.Contains(member.Key)!=isOptional ||
