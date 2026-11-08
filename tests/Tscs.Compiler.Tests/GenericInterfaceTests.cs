@@ -131,6 +131,23 @@ public sealed class GenericInterfaceTests
         }
     }
 
+    // A projection of a merged generic instantiation fails closed (review finding):
+    // never an invented TS2403 for equal types, in either declaration order.
+    [Theory]
+    [InlineData("Box2<A&B>[\"value\"]","number")]
+    [InlineData("number","Box2<A&B>[\"value\"]")]
+    public void MergedGenericProjectionIdentityFailsClosed(string first,string second)
+    {
+        var diagnostics=Compilation.CheckFiles([
+            new SourceInput("types.d.ts","type A={a:number};type B={b:string};interface Box2<T>{value:number}interface Box2<T>{other:T}"),
+            new SourceInput("a.d.ts",$"declare var item:{first};"),
+            new SourceInput("b.d.ts",$"declare var item:{second};"),
+            new SourceInput("entry.ts","let result=7;")
+        ]);
+        Assert.Contains(diagnostics,d=>d.Code=="TSCS1001");
+        Assert.DoesNotContain(diagnostics,d=>d.Code=="TS2403");
+    }
+
     // Intersection provenance in a later declaration is not compared yet.
     [Fact]
     public void MergedGenericIntersectionIdentityFailsClosed()

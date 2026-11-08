@@ -270,6 +270,9 @@ internal static class DeclarationTypeIdentity
         switch(syntax)
         {
             case NamedTypeSyntax named when scope.FindType(named.Name.Text) is { } binding:
+                // A projection of a merged generic instantiation cannot be
+                // proved identical or different yet: fail closed, never TS2403.
+                MergedGenericIdentity(binding,named,file);
                 return binding.MergedInterfaces.Count!=0
                     ? Selection.Unknown
                     : Select(binding.Syntax,BodyScope(binding,named,scope,file),binding.File,key,depth+1);
