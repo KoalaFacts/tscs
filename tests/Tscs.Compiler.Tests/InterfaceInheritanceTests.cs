@@ -280,4 +280,18 @@ public sealed class InterfaceInheritanceTests
     [InlineData("interface Base{a:string}interface Other{a:string}interface N extends Base{}interface N extends Other{}")]
     public void MergedInterfaceHeritageAgreesWithReference(string source)=>
         Assert.Empty(Compilation.Check("merged-heritage.ts",source));
+
+    // An intersection in an unshared member does not affect a shared one
+    // (pinned Go accepts all; regression from the base-wide check in #245).
+    [Theory]
+    [InlineData("I")]
+    [InlineData("I[]")]
+    [InlineData("{inner:I}")]
+    [InlineData("(v:I)=>number")]
+    public void IntersectionInUnsharedMemberKeepsSharedMemberValid(string extra)
+    {
+        foreach(var order in new[]{"A,B","B,A"})
+            Assert.Empty(Compilation.Check("unshared-intersection.ts",
+                $"type I={{a:number}}&{{b:string}};interface A{{x:number;extra:{extra}}}interface B{{x:number}}interface N extends {order}{{}}let result=7;"));
+    }
 }

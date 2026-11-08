@@ -255,6 +255,16 @@ internal static class DeclarationTypeIdentity
     // literal key. Optional members, index signatures, merged interfaces,
     // unknown forms and properties declared by several intersection members
     // return null, so the caller keeps its conservative comparison.
+    // Whether the member 'key' of a heritage base can carry intersection
+    // provenance: only that member's declared syntax is inspected; a base
+    // whose member cannot be selected stays conservative.
+    internal static bool MemberHasIntersection(TypeSyntax syntax,Scope scope,string file,string key)
+    {
+        var found=Select(syntax,scope,file,key,0);
+        if(!found.Known)return true;
+        return found.Value is { } value && HasIntersection(value.Syntax,value.Scope);
+    }
+
     private static Denoted? Project(IndexedAccessTypeSyntax indexed,Scope scope,string file,int depth)
     {
         if(indexed.Index is not LiteralTypeSyntax { Negative:false } literal ||

@@ -502,10 +502,6 @@ internal static class TypeResolver
                         throw new CompilationFailure(Diagnostic.Error(file,property.Name,"TSCS1001",
                             "Extended interface exceeds the finite 128-member limit."));
                 }
-                // Two bases sharing a member must agree on its declared type
-                // (TS2320); flattened intersections cannot show that.
-                bool provenance=inherited.Bases.Count>1 &&
-                    inherited.Bases.Any(b=>DeclarationTypeIdentity.HasIntersection(b,scope));
                 foreach(var named in inherited.Bases)
                 {
                     if(Resolve(named,scope,file,depth+1) is not ObjectTypeSymbol parent)
@@ -526,7 +522,11 @@ internal static class TypeResolver
                                     throw new CompilationFailure(Diagnostic.Error(file,inherited.Name,"TS2430",
                                         $"Interface '{inherited.Name.Text}' incorrectly extends its base interface at '{member.Key}'."));
                             }
-                            else if(provenance)
+                            // Two bases sharing a member must agree on its
+                            // declared type (TS2320); flattened intersections
+                            // in that member cannot show that.
+                            else if(inherited.Bases.Any(b=>
+                                        DeclarationTypeIdentity.MemberHasIntersection(b,scope,file,member.Key)))
                                 throw new CompilationFailure(Diagnostic.Error(file,named.Name,"TSCS1001",
                                     $"Inherited member '{member.Key}' with intersection provenance is not supported yet."));
                             else if(numericKeys.Contains(member.Key)!=numeric ||
