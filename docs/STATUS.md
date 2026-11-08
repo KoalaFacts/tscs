@@ -122,7 +122,7 @@ diagnostic and exit 1; they are intended never to be compiled silently.
   numeric/string/boolean literal types and unions, `void`.
 - `type` aliases and interfaces, including generic ones with plain type
   parameters (instantiated by substitution; arity errors TS2314/TS2315;
-  constraints, defaults, bodies that need known arguments such as `keyof T`,
+  constraints, bodies that need known arguments such as `keyof T`,
   generic reopening with a different parameter list or a redeclared member,
   and generic heritage that shares a member with a base fail closed unless
   both declare it identically after substituting the heritage arguments);
@@ -130,6 +130,7 @@ diagnostic and exit 1; they are intended never to be compiled silently.
   structural object types with optional and `readonly` members, finite
   intersections, excess-property checks on fresh literals; circular aliases
   report TS2456.
+- Generic aliases and interfaces support trailing type defaults, including defaults referring to preceding parameters; reopening a defaulted generic interface still fails closed.
 - Arrays (`T[]`, `Array<T>`, `readonly T[]`, `ReadonlyArray<T>`), fixed,
   labelled and optional tuples, tuple rest expansion.
 - Bounded `keyof`, indexed access (`T["k"]`, `T[number]`), `typeof` queries,
@@ -285,7 +286,7 @@ arguments only; newer methods such as `padStart` are emitted unpolyfilled);
 
 Generics beyond the `Array<T>` spelling and plain generic aliases and
 interfaces (heritage on reopened generic interfaces, TS2428,
-generic functions and classes, constraints, defaults), classes, enums, namespaces,
+generic functions and classes, constraints), classes, enums, namespaces,
 declaration-file inputs beyond the bounded ambient shapes above, declaration emit, source
 maps, JSX/TSX, JavaScript inputs, regular expression literals, decorators,
 async/await, generators,

@@ -51,7 +51,6 @@ public sealed class GenericTypeAliasTests
 
     [Theory]
     [InlineData("type Box<T extends string>={value:T};")]
-    [InlineData("type Box<T=number>={value:T};")]
     [InlineData("type Box<in T>={value:T};")]
     [InlineData("type Box<T,T>={value:T};")]
     [InlineData("type Box<>={value:number};")]

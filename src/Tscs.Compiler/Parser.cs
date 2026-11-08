@@ -19,10 +19,12 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     private Token Take() => tokens[position++];
     // Plain type parameters of a generic type alias or interface, or an
     // empty list when the declaration is not generic.
-    private List<Token> ReadPlainTypeParameters(string declaration)
+    private (List<Token> Names,List<TypeSyntax?> Defaults) ReadPlainTypeParameters(string declaration)
     {
         var typeParameters=new List<Token>();
-        if(Current.Kind!=TokenKind.LessThan)return typeParameters;
+        var defaults=new List<TypeSyntax?>();
+        if(Current.Kind!=TokenKind.LessThan)return (typeParameters,defaults);
+        bool defaultSeen=false;
         Take();
         while(true)
         {
@@ -32,15 +34,24 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             var parameter=Take();
             if(typeParameters.Any(p=>p.Text==parameter.Text))
                 Unsupported(parameter,$"Duplicate {declaration} type parameters are not supported.");
+            if(Current.Kind==TokenKind.Extends)
+                Unsupported(Current,"Type parameter constraints are not supported yet.");
+            TypeSyntax? defaultType=null;
+            if(Eat(TokenKind.Equal))
+            {
+                defaultSeen=true;
+                defaultType=ReadTypeAnnotation();
+            }
+            else if(defaultSeen)
+                Unsupported(parameter,"A required type parameter may not follow a default.");
             typeParameters.Add(parameter);
-            if(Current.Kind is TokenKind.Extends or TokenKind.Equal)
-                Unsupported(Current,"Type parameter constraints and defaults are not supported yet.");
+            defaults.Add(defaultType);
             if(!Eat(TokenKind.Comma))break;
             if(Current.Kind is TokenKind.GreaterThan or TokenKind.GreaterEqual)
                 Unsupported(Current,$"Only plain {declaration} type parameters are supported.");
         }
         TakeArrayTypeClose();
-        return typeParameters;
+        return (typeParameters,defaults);
     }
 
     // Split shift/punctuation only while closing a type argument, retaining
@@ -786,14 +797,14 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 var name=Current;
                 if(name.Kind!=TokenKind.Identifier)Unsupported(name,"Expected a named type declaration.");
                 Take();
-                // Generic declarations take plain type parameters only:
-                // constraints, defaults and variance modifiers fail closed.
-                var typeParameters=ReadPlainTypeParameters(alias?"type alias":"interface");
+                // Trailing defaults are supported; constraints and variance fail closed.
+                var (typeParameters,typeDefaults)=ReadPlainTypeParameters(alias?"type alias":"interface");
                 if(alias)
                 {
                     if(!Eat(TokenKind.Equal))Unsupported(Current,"Expected '=' in a type alias.");
                     statements.Add(new TypeAliasDeclaration(name,ReadTypeAnnotation(),exported,
-                        typeParameters.Count==0?null:typeParameters));
+                        typeParameters.Count==0?null:typeParameters,
+                        typeDefaults.Any(d=>d is not null)?typeDefaults:null));
                     EndStatement();
                 }
                 else
@@ -839,7 +850,8 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     if(body is not ObjectTypeSyntax)
                         Unsupported(Current,"Interfaces require a required-member object body.");
                     statements.Add(new InterfaceDeclaration(name,(ObjectTypeSyntax)body,exported,bases,
-                        typeParameters.Count==0?null:typeParameters));
+                        typeParameters.Count==0?null:typeParameters,
+                        typeDefaults.Any(d=>d is not null)?typeDefaults:null));
                     Eat(TokenKind.Semi);
                 }
                 continue;

@@ -452,6 +452,73 @@ try {
   assert.match(primitiveUnionBad.stdout+primitiveUnionBad.stderr,/TSCS1001/);
   assert.equal(existsSync(join(dir,'union-conflict.js')),false);
 
+
+  // A defaulted generic alias and interface flow through real ES2015
+  // imports, checked JS output and Node execution.
+  for(const [name,source] of Object.entries({
+    'defaults-types.ts':'type Local=number;export type Payload<T=Local>={value:T};' +
+      'export interface Holder<T=Local>{payload:Payload<T>}',
+    'defaults-data.ts':'import type {Holder} from "./defaults-types.js";' +
+      'export const item:Holder={payload:{value:8}};',
+    'defaults-logic.ts':'import type {Holder} from "./defaults-types.js";' +
+      'export function read(item:Holder):number{return item.payload.value;}',
+    'defaults-entry.ts':'import {item} from "./defaults-data.js";' +
+      'import {read} from "./defaults-logic.js";' +
+      'export const genericDefaultResult:number=read(item);'
+  }))writeFileSync(join(dir,name),source);
+  writeFileSync(join(dir,'defaults-project.json'),JSON.stringify({
+    files:['defaults-entry.ts','minimal.d.ts'],
+    compilerOptions:{module:'es2015',target:'es2015',noLib:true}
+  }));
+  const defaultsCompiled=compile(['--emitJs','-p',join(dir,'defaults-project.json')]);
+  assert.equal(defaultsCompiled.status,0,defaultsCompiled.stdout+defaultsCompiled.stderr);
+  for(const name of ['defaults-types','defaults-data','defaults-logic','defaults-entry'])
+    assert.ok(existsSync(join(dir,name+'.js')),name+' missing emitted JS');
+  const defaultsRun=spawnSync(process.execPath,['--input-type=module','--eval',
+    'import {genericDefaultResult} from "./defaults-entry.js";' +
+    'if(genericDefaultResult!==8)throw Error("generic default result "+genericDefaultResult);'],
+    {cwd:dir,encoding:'utf8',timeout:15000});
+  assert.equal(defaultsRun.error,undefined,String(defaultsRun.error));
+  assert.equal(defaultsRun.status,0,defaultsRun.stdout+defaultsRun.stderr);
+  writeFileSync(join(dir,'defaults-invalid.ts'),
+    'interface Holder<T=number>{value:T}let bad:Holder={value:"wrong"};');
+  const defaultsBad=compile(['--emitJs','--noLib','--target','es2015',
+    'defaults-invalid.ts','minimal.d.ts']);
+  assert.equal(defaultsBad.status,2,defaultsBad.stdout+defaultsBad.stderr);
+  assert.match(defaultsBad.stdout+defaultsBad.stderr,/TS2322/);
+  assert.equal(existsSync(join(dir,'defaults-invalid.js')),false);
+
+  // A defaulted base with a redeclared member must pass the actual checked
+  // CLI and Node; incompatible shared members must never emit JavaScript.
+  writeFileSync(join(dir,'defaults-heritage-valid.ts'),
+    'interface Base<T=number,U=T[]>{value:T;items:U}' +
+    'interface Child<Z=string> extends Base{value:number;items:number[];tag:Z}' +
+    'const item:Child={value:8,items:[8],tag:"ok"};' +
+    'export const defaultHeritageResult:number=item.value;');
+  const defaultHeritageValid=compile(['--emitJs','--noLib','--target','es2015',
+    '--module','es2015','defaults-heritage-valid.ts','minimal.d.ts']);
+  assert.equal(defaultHeritageValid.status,0,
+    defaultHeritageValid.stdout+defaultHeritageValid.stderr);
+  assert.ok(existsSync(join(dir,'defaults-heritage-valid.js')));
+  const defaultHeritageRuntime=spawnSync(process.execPath,['--input-type=module','--eval',
+    'import {defaultHeritageResult} from "./defaults-heritage-valid.js";' +
+    'if(defaultHeritageResult!==8)throw Error("default heritage");'],
+    {cwd:dir,encoding:'utf8',timeout:15000});
+  assert.equal(defaultHeritageRuntime.error,undefined,String(defaultHeritageRuntime.error));
+  assert.equal(defaultHeritageRuntime.status,0,
+    defaultHeritageRuntime.stdout+defaultHeritageRuntime.stderr);
+  writeFileSync(join(dir,'defaults-heritage-invalid.ts'),
+    'interface Base<T=number>{value:T}' +
+    'interface Child<U=string> extends Base{value:string;other:U}' +
+    'const item:Child={value:"bad",other:"ok"};' +
+    'export const defaultHeritageResult:number=8;');
+  const defaultHeritageBad=compile(['--emitJs','--noLib','--target','es2015',
+    '--module','es2015','defaults-heritage-invalid.ts','minimal.d.ts']);
+  assert.notEqual(defaultHeritageBad.status,0,
+    defaultHeritageBad.stdout+defaultHeritageBad.stderr);
+  assert.match(defaultHeritageBad.stdout+defaultHeritageBad.stderr,/TS(?:CS1001|2430)/);
+  assert.equal(existsSync(join(dir,'defaults-heritage-invalid.js')),false);
+
   const invalid:[string,string,string,number][]=[
     ['wrong-value','interface A{value:number}interface B extends A{}let b:B={value:"bad"};','TS2322',2],
     ['readonly-parent','interface A{readonly value:number}interface B extends A{}let b:B={value:1};b.value=2;','TS2540',2],
