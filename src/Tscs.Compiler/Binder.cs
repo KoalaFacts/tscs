@@ -101,6 +101,11 @@ internal static class Binder
             InterfaceDeclaration iface=>iface.TypeParameters,
             _=>null
         }??[];
+        // Predefined type names are not valid interface names (TS2427).
+        if(declaration is InterfaceDeclaration && name.Text is "any" or "unknown" or "never" or "number" or
+               "bigint" or "boolean" or "string" or "symbol" or "void" or "object" or "undefined")
+            throw new CompilationFailure(Diagnostic.Error(file,name,"TS2427",
+                $"Interface name cannot be '{name.Text}'."));
         // The compiler models these library types intrinsically ('Array<T>'
         // always means the built-in array type, bootstrap globals come from
         // the validated library contract), so a generic user declaration

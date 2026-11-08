@@ -35,6 +35,9 @@ public sealed class GenericInterfaceTests
     [InlineData("type Box<T>={value:T};interface Box<T>{value:T}","TS2300")]
     [InlineData("interface Box<number>{value:number}","TS2368")]
     [InlineData("interface Box<T,string>{value:T}","TS2368")]
+    [InlineData("interface number<T>{value:T}","TS2427")]
+    [InlineData("interface string<T>{value:T}let r=7;","TS2427")]
+    [InlineData("interface symbol{value:number}","TS2427")]
     public void GenericInterfaceErrorsAreReported(string source,string code)=>
         Assert.Contains(Compilation.Check("generic-interface-bad.ts",source),d=>d.Code==code);
 

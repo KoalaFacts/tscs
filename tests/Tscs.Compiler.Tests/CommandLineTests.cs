@@ -584,6 +584,19 @@ public class CommandLineTests : IDisposable
         Assert.False(File.Exists(Path.ChangeExtension(consumer,".js")));
     }
 
+    [Theory]
+    [InlineData("types.ts")]
+    [InlineData("types.d.ts")]
+    public void PredefinedInterfaceNamesReportTs2427WithoutEmitting(string name)
+    {
+        var types=Write(name,"interface number<T> { value: T }");
+        var entry=Write("entry.ts","let result = 7;");
+        var result=Run("--emitJs","--noLib","--target","es2015",types,entry,Lib());
+        Assert.Equal(2,result.Code);
+        Assert.Contains("TS2427",result.Out);
+        Assert.False(File.Exists(Path.ChangeExtension(entry,".js")));
+    }
+
     [Fact]
     public void AmbientDtsDoesNotAcceptGenericTypesOrBootstrapGlobalInterfacesAsCheckedAliases()
     {
