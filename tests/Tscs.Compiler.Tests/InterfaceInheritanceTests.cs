@@ -391,6 +391,20 @@ public sealed class InterfaceInheritanceTests
                 d=>d.Code=="TSCS1001");
     }
 
+
+    [Fact]
+    public void ConcreteUnionReorderInSharedGenericHeritageDoesNotChangeObjectIdentity()
+    {
+        Assert.Empty(Compilation.Check("shared-concrete.ts",
+            "interface Base<U>{value:U;tag:string|1}" +
+            "interface Box<T> extends Base<T>{tag:1|string}" +
+            "let box:Box<number>={value:8,tag:1};"));
+        Assert.Contains(Compilation.Check("shared-concrete-bad.ts",
+            "interface Base<U>{value:U;tag:string|1}" +
+            "interface Box<T> extends Base<T>{tag:number|string}" +
+            "let box:Box<number>={value:8,tag:1};"),d=>d.Code=="TSCS1001");
+    }
+
     // The Go checker regards unions and object member sets as order-free.
     // Generic members must still refer to the same opaque type parameter
     // binding after the heritage substitution; mere 'unknown' equivalence
