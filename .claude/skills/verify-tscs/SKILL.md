@@ -70,6 +70,12 @@ runs `verify-upstream-lock-probe.sh` and `verify-upstream-full-discovery.sh`.
 - The Codex usage-limit comment on a PR is not a review.
 - The acceptance runner is fast (about 1 s) because almost every target is
   SKIP; a quick green run is expected, not suspicious.
+- `.artifacts/tsgo` (the pinned Go CLI for side-by-side probes) is not made
+  by any script: after `verify-original-emptyfile-go.sh`, run
+  `cd .artifacts/original-empty-go/TypeScript/tsc && GOWORK=off GOTOOLCHAIN=local go build -o ../../../tsgo ./cmd/tsc`.
+- A keyword type the parser does not list as primitive resolves as a name and
+  reports an invented TS2304 (`never` did until it was modelled); probe new
+  keyword spellings against `tsgo` rather than trusting a TS code.
 
 ## Last verified
 

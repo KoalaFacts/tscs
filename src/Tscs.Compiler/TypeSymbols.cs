@@ -225,6 +225,7 @@ internal static class CompilerTypes
         "boolean" => Boolean,
         "any" => Any,
         "unknown" => Unknown,
+        "never" => Never,
         "void" => Void,
         "undefined" => Undefined,
         "null" => Null,
@@ -1265,8 +1266,10 @@ internal static class CompilerTypes
         bool Check(TypeSymbol actual,TypeSymbol required)
         {
             if(--budget<0)return false; // fail closed on combinatorial input
-            if(ReferenceEquals(actual,required) || actual.Equals(Never) ||
-               actual.Equals(Any) || required.Equals(Any))return true;
+            if(ReferenceEquals(actual,required) || actual.Equals(Never) || required.Equals(Any))return true;
+            // any flows into every type except never (TS2322 in the reference).
+            if(required.Equals(Never))return false;
+            if(actual.Equals(Any))return true;
             // Every value can enter unknown; unknown cannot flow into a
             // number/object/string until a real narrowing proves it safe.
             if(required.Equals(Unknown))return true;
