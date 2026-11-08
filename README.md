@@ -20,7 +20,7 @@ skipped, 15,464 of them because they need the standard library. The standard lib
 `--noLib` against the empty interfaces in
 [`fixtures/minimal.d.ts`](fixtures/minimal.d.ts). What does work is a
 checked, bounded subset of the language with ES2015 output, covered by about
-19,600 internal xUnit regressions and executed-output checks. Internal
+19,800 internal xUnit regressions and executed-output checks. Internal
 regressions are not original acceptance. Details, gaps and the roadmap:
 [docs/STATUS.md](docs/STATUS.md).
 
@@ -66,7 +66,7 @@ Run the full development gate (what CI runs):
 | Types and checking | Primitives, literals, unions, named/structural objects, arrays, tuples, functions, bounded `keyof`/indexed access/`typeof`; no generics or classes | [STATUS](docs/STATUS.md#types-and-checking) |
 | Control flow | `if`, loops, `switch`, `try`, narrowing guards, definite assignment for the supported subset | [STATUS](docs/STATUS.md#control-flow-and-narrowing) |
 | Emit | ES2015 scripts and named ES modules from the checked AST | [STATUS](docs/STATUS.md#emit) |
-| Standard library | Not loadable; a fixed set of native array/string/object members is modelled directly | [STATUS](docs/STATUS.md#standard-library) |
+| Standard library | Not loadable; bounded non-generic ambient `.d.ts` inputs are checked, and a fixed set of native array/string/object members is modelled directly | [STATUS](docs/STATUS.md#standard-library) |
 | Conformance harness | Pinned Go reference oracle, 15,523-target original inventory, frozen 29-case isolated cohort | [STATUS](docs/STATUS.md#conformance-harness) |
 
 ## Documentation

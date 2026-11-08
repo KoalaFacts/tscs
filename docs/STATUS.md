@@ -28,7 +28,7 @@ were measured from runner source `3ee09e65` by the
 [original reference run](https://github.com/KoalaFacts/tscs/actions/runs/42336784587/job/128295378913).
 The full 15,523-target report is unchanged by its prefix-collision fix;
 a local real-compiler acceptance and standard-library run produced byte-identical
-reports. The complete local test gate is still blocked by MTP IPC permissions:
+reports:
 
 | Missing capability | Targets | Only this |
 |---|---|---|
@@ -59,8 +59,8 @@ full case denominator is unknown. No release is claimed.
 
 Separate from that headline:
 
-- Internal regressions: 19,586 xUnit tests on `7edd7f5` (`./scripts/verify.sh`) (Microsoft Testing Platform,
-  `--fail-skips on`) plus about 170 Node tool tests and 76 executed-output
+- Internal regressions: 19,837 xUnit tests on `8a9bd2b` (`./scripts/verify.sh`, Microsoft Testing Platform,
+  `--fail-skips on`) plus about 170 Node tool tests and 78 executed-output
   checks (`tools/verify-*-emit.ts`) that run the emitted ES2015 modules.
 - A frozen, separate 29-case isolated cohort (`tests/conformance`) is
   compared against the pinned Go oracle (`tools/verify-conformance.ts`). It
@@ -93,8 +93,9 @@ diagnostic and exit 1; they are intended never to be compiled silently.
   diagnostics in reference order) is tested against reference vectors but
   not wired into tsconfig loading.
 - CompilerHost with real and virtual file systems; triple-slash path
-  references; multi-file global scripts. A port of the pinned source decoder
-  (UTF-8/UTF-16 BOMs) is tested but now wired into filesystem source loading for UTF-8 BOM and UTF-16 LE/BE BOM inputs. Malformed UTF-8 fails closed instead of being accepted by replacement decoding; the full byte/VFS profile is still incomplete.
+  references; multi-file global scripts. A tested port of the pinned source decoder
+  decodes filesystem sources with UTF-8 or UTF-16 LE/BE BOMs; malformed UTF-8
+  fails closed instead of being replaced; the full byte/VFS profile is incomplete.
 - Named ES module imports/exports/re-exports, `import type` and type-only
   re-exports, with a deferred module linker and host-canonical diagnostics.
 
@@ -175,25 +176,23 @@ The noLib CLI accepts bounded, non-overloaded typed `declare var/let/const/funct
 value signatures and non-generic named `type` aliases/`interface` shapes
 from separate `.d.ts` inputs. These share the real parser, binder and checker
 with `.ts` consumers, including cross-file structural typing and negative
-diagnostics; no declaration file emits JavaScript. Typed ambient `var` bindings are writable. Identically typed repeated ambient
-`var` declarations may merge across declaration files; conflicting types
-report TS2403 and mixed `var`/`let`/`const` redeclarations remain unsupported.
-This bounded value merge does not implement library-wide declaration merging.
-Generic aliases/interfaces,
-ambient classes and library-wide declaration merging remain unsupported.
-Non-generic finite interface declarations can now merge across source and
-declaration files: disjoint members accumulate, matching repeated members
-remain valid, and incompatible types or modifiers fail with TS2717/TS2687.
-Repeated declaration types compare by identity: object members and union
-arms ignore order, intersections keep their source shape, and `typeof x`,
-`keyof T` and literal-key `T["k"]` compare by the type they denote (a
-`typeof` root needs an annotation, a function signature, an `as T`
-assertion or a literal-only initializer, where only a `const` may be bare
-`null`; other inferred roots, `satisfies`, and a rest signature against a
-structurally equal but differently spelled one are rejected conservatively).
-This is not generic or library-wide declaration merging.
-This is an A2.3 prerequisite, **not** default-library loading, general ambient
-declaration support or an original upstream PASS.
+diagnostics; no declaration file emits JavaScript. Typed ambient `var`
+bindings are writable; identically typed repeated ambient `var` declarations
+merge across declaration files (conflicting types report TS2403; mixed
+`var`/`let`/`const` redeclarations are unsupported). Non-generic finite
+interfaces merge across source and declaration files: disjoint members
+accumulate, matching repeated members remain valid, and incompatible types or
+modifiers fail with TS2717/TS2687. Repeated declaration types compare by
+identity: object members and union arms ignore order, intersections keep their
+source shape, and `typeof x`, `keyof T` and literal-key `T["k"]` compare by
+the type they denote (a `typeof` root needs an annotation, a function
+signature, an `as T` assertion or a literal-only initializer, where only a
+`const` may be bare `null`; other inferred roots, `satisfies`, and a rest
+signature against a structurally equal but differently spelled one are
+rejected conservatively). Generic aliases/interfaces, ambient classes and
+library-wide declaration merging remain unsupported. These merges are A2.3
+prerequisites, **not** default-library loading, general ambient declaration
+support or an original upstream PASS.
 
 `lib.*.d.ts` files cannot be loaded yet. `DeclarationParser` (A2.1) parses
 ambient declaration syntax into a syntax tree: interfaces, type aliases,
@@ -277,7 +276,7 @@ arguments only; newer methods such as `padStart` are emitted unpolyfilled);
 ## What does not work
 
 Generics (beyond the `Array<T>` spelling), classes, enums, namespaces,
-declaration files as input beyond `minimal.d.ts`, declaration emit, source
+declaration-file inputs beyond the bounded ambient shapes above, declaration emit, source
 maps, JSX/TSX, JavaScript inputs, regular expression literals, decorators,
 async/await, generators,
 iterators beyond arrays and strings, `this` typing, overloads, mapped and
@@ -293,7 +292,7 @@ and no `var`.
 
 - 15,464 of 15,523 original targets need the standard library; 5,667 need
   nothing else that the runner checks for (roadmap A2).
-- The acceptance runner now permits safe multi-source `.ts` inputs and
+- The acceptance runner permits safe multi-source `.ts` inputs and
   explicit `@module: es2015`/`es6`; virtual symlinks, other module transforms,
   other targets, and `.types`/`.symbols` comparison remain unsupported.
 - Many constructs were added as narrow, separately verified slices; the
@@ -317,7 +316,7 @@ records the original case IDs it moves.
 | A2.2a | Bind the parsed declarations into one global symbol table (cross-file merging, TS2300/TS2451 exclusions); the library check binds the default-lib closure | Library symbols become available | done (PR #220, 7b34604; review fixes PR #221, b5bd8e9) | pinned closure: 20 files, 2,250 global symbols (791 with more than one declaration), 0 diagnostics; 14 xUnit + 1 node test at merge, 16 with the review fixes |
 | A2.2b | Resolve every name the bound library uses (type, value and namespace meanings, scoped type parameters and `infer`); the library check fails on any unresolved name | Every library reference has a target, the input to computing library types | done (PR #222, 61dfa09) | pinned closure: 0 unresolved names (6 `globalThis` references before modelling it); 18 resolver xUnit + 1 node test; review fixes: postfix/operator type nesting limit, parameters do not shadow namespaces |
 | A2.2c | Compare the library syntax trees with the reference parser | Parser fidelity on the real libs, not only zero diagnostics | todo | — |
-| A2.3 | Check enough of es5/es2015 to load them as the default lib instead of `fixtures/minimal.d.ts` | Unblocks 5,583 targets that need only the library | in progress (PR #238) | prerequisites merged: non-generic ambient aliases/interfaces (#235), typed and repeated ambient `var` (#236, #237); #238 merges non-generic interfaces with declaration identity. Original headline unchanged (3 PASS / 0 FAIL / 15,520 SKIP) |
+| A2.3 | Check enough of es5/es2015 to load them as the default lib instead of `fixtures/minimal.d.ts` | Unblocks the 5,667 targets that need only the library | in progress | prerequisites merged: non-generic ambient aliases/interfaces (#235), typed and repeated ambient `var` (#236, #237), merged non-generic interfaces with declaration identity (#238). Next: generic declarations. Original headline unchanged (3 PASS / 0 FAIL / 15,520 SKIP) |
 | A3.1 | `compiler/noCrashOnNoLib.ts` to PASS: four-space block indentation and no added grouping around spread operands in emit | The only executed original FAIL; every original `.js` baseline with a block depends on the indentation | done (PR #219, 28053fa) | 1 PASS / 1 FAIL → 2 PASS / 0 FAIL / 15,521 SKIP (CI original-acceptance on main); `JavaScriptEmitTests` 22 (+1) |
 | A3.2 | `compiler/arrayIterationLibES5TargetDifferent.ts` (`nolib=true,target=es2015`) to PASS: runner passes `@lib`; CLI `--lib` with `--noLib` reports TS5053; ambient `declare let/const`; TS2495 for non-iterable `for..of` sources; script `"use strict";` prologue and strict script parameters; emit when only TS5053/TS2318 are printed | The only target whose sole gap was `@lib`; the prologue applies to every original script `.js` baseline | done (PR #224, cd1dea6) | 2 PASS / 0 FAIL / 15,521 SKIP → 3 PASS / 0 FAIL / 15,520 SKIP; standard-library-only 5,459 → 5,583 (the `@lib` targets now need only the library) |
 | A3 | Close the cheapest family of failing original cases from A1's histogram, one family per PR | Moves original cases to PASS | todo | — |
@@ -327,4 +326,4 @@ records the original case IDs it moves.
 | C1.2 | Move remaining emitted-output verification to the checked compiler process helper, retaining actual JS execution, diagnostic and no-output assertions | One shared invocation path without a coverage reduction | done | #231: 39/78; #232: 49/78; this integration: 78/78. Original acceptance unchanged (3 PASS / 0 FAIL / 15,520 SKIP) |
 | H1 | Agent verification skills (`.claude/skills/verification-first`, `.claude/skills/verify-tscs`) with a feature map run against the pinned reference | Every later PR is checked at the real boundary, not only by unit tests | done (PR #223, 2cfd095) | feature map rows run on 61dfa09: 2 PASS / 0 FAIL / 15,521 SKIP, library 0 unresolved names |
 
-Last docs housekeeping: 2026-11-07 (Sydney date), the 2026-11-07 housekeeping PR.
+Last docs housekeeping: 2026-11-08 (Sydney date).
