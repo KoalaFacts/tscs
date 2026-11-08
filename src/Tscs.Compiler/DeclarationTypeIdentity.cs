@@ -397,7 +397,7 @@ internal static class DeclarationTypeIdentity
                 LiteralTypeSyntax l when l.Literal.Kind==TokenKind.String=>
                     "string:"+(l.Literal.Value??l.Literal.Text),
                 LiteralTypeSyntax l when l.Literal.Kind==TokenKind.Number=>
-                    "number:"+(l.Literal.Value??l.Literal.Text),
+                    "number:"+(l.Negative?"-":"")+(l.Literal.Value??l.Literal.Text),
                 LiteralTypeSyntax l when l.Literal.Kind==TokenKind.True=>"literal:true",
                 LiteralTypeSyntax l when l.Literal.Kind==TokenKind.False=>"literal:false",
                 _=>null

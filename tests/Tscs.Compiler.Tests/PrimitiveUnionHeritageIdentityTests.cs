@@ -29,6 +29,7 @@ public sealed class PrimitiveUnionHeritageIdentityTests
     [Theory]
     [InlineData("interface Base<T>{flag:boolean;value:T}interface Bad<U> extends Base<U>{flag:number}")]
     [InlineData("interface Base<T>{flag:number;value:T}interface Bad<U> extends Base<U>{flag:string}")]
+    [InlineData("interface Base<T>{flag:-1;value:T}interface Bad<U> extends Base<U>{flag:1}")]
     public void UnequalSharedPropertiesFailClosed(string source)=>
         Assert.Contains(Compilation.Check("primitive-union-incorrect-heritage.ts",source),
             d=>d.Code=="TSCS1001");
