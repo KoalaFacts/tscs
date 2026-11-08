@@ -1394,7 +1394,11 @@ internal static class CompilerTypes
             // Every value can enter unknown; unknown cannot flow into a
             // number/object/string until a real narrowing proves it safe.
             if(required.Equals(Unknown))return true;
-            if(actual.Equals(Unknown))return false;
+            // ... except into a union that itself admits unknown ('unknown|T'
+            // is unknown in the reference).
+            if(actual.Equals(Unknown))
+                return required is UnionTypeSymbol admits &&
+                    admits.Alternatives.Any(variant=>variant.Equals(Unknown) || variant.Equals(Any));
             // Unary void returns semantic undefined, assignable to void but
             // still distinct from a void function's return annotation.
             if(actual.Equals(Undefined) && required.Equals(Void))return true;
