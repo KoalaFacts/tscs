@@ -294,4 +294,19 @@ public sealed class InterfaceInheritanceTests
             Assert.Empty(Compilation.Check("unshared-intersection.ts",
                 $"type I={{a:number}}&{{b:string}};interface A{{x:number;extra:{extra}}}interface B{{x:number}}interface N extends {order}{{}}let result=7;"));
     }
+
+    // Shared members of optional, reopened, diamond and unrelated bases
+    // without any intersection stay valid (pinned Go accepts all).
+    [Theory]
+    [InlineData("interface A{x?:number}interface B{x?:number}","A,B")]
+    [InlineData("interface A{x:number}interface A{extra:string}interface B{x:number}","A,B")]
+    [InlineData("interface C{x:number}interface E{x:number}interface A extends C,E{}interface B{x:number}","A,B")]
+    [InlineData("interface A{x:number}interface B{x:number}interface C{other:number}interface C{extra:string}","A,B,C")]
+    [InlineData("interface A{x:number}interface B{x:number}interface C{other:number}interface C{extra:string}","C,B,A")]
+    public void SharedMembersWithoutIntersectionsStayValid(string prelude,string order)
+    {
+        Assert.Empty(Compilation.Check("shared-no-intersection.ts",$"{prelude}interface N extends {order}{{}}"));
+        var reversed=string.Join(",",order.Split(',').Reverse());
+        Assert.Empty(Compilation.Check("shared-no-intersection.ts",$"{prelude}interface N extends {reversed}{{}}"));
+    }
 }

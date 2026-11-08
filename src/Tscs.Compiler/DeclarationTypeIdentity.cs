@@ -252,12 +252,14 @@ internal static class DeclarationTypeIdentity
     };
 
     // Whether the member 'key' of a heritage base can carry intersection
-    // provenance: only that member's declared syntax is inspected; a base
-    // whose member cannot be selected stays conservative.
+    // provenance. A selectable member is inspected alone; an absent one
+    // carries none. When the member cannot be selected (optional, reopened
+    // or multiply inherited), fall back to the whole base: conservative
+    // only when an intersection exists somewhere in it.
     internal static bool MemberHasIntersection(TypeSyntax syntax,Scope scope,string file,string key)
     {
         var found=Select(syntax,scope,file,key,0);
-        if(!found.Known)return true;
+        if(!found.Known)return HasIntersection(syntax,scope);
         return found.Value is { } value && HasIntersection(value.Syntax,value.Scope);
     }
 
