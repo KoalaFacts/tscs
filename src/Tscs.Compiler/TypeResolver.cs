@@ -151,17 +151,27 @@ internal static class TypeResolver
             // A generic interface's heritage is checked with opaque type
             // parameters in the reference (TS2430 / TS2320): 'x:string' does
             // not satisfy a base 'x:T', yet it does for the 'unknown'
-            // placeholder. Members the declaration and its bases share, or two
-            // bases share, would need that comparison; fail closed instead.
+            // placeholder. A member the declaration and a base share, or two
+            // bases share, is accepted only when both declarations are
+            // syntactically identical once the base's type parameters are
+            // replaced by the heritage arguments (identity implies both
+            // assignability and TS2320 identity); anything else fails closed.
             if(binding.Syntax is InterfaceExtensionTypeSyntax inherited)
             {
-                var keys=new HashSet<string>(inherited.Body.Properties.Select(p=>Parser.PropertyName(p.Name)),
-                    StringComparer.Ordinal);
+                var shared=new Dictionary<string,DeclarationTypeIdentity.MemberSide?>(StringComparer.Ordinal);
+                foreach(var property in inherited.Body.Properties)
+                    shared[Parser.PropertyName(property.Name)]=new(property,placeholder);
                 foreach(var named in inherited.Bases)
-                    if(Resolve(named,placeholder,binding.File,depth+1) is ObjectTypeSymbol parent &&
-                       parent.Members.Keys.Any(key=>!keys.Add(key)))
-                        throw new CompilationFailure(Diagnostic.Error(binding.File,named.Name,"TSCS1001",
-                            "A member shared by a generic interface and its bases is not supported yet."));
+                    if(Resolve(named,placeholder,binding.File,depth+1) is ObjectTypeSymbol parent)
+                        foreach(var key in parent.Members.Keys)
+                        {
+                            var incoming=DeclarationTypeIdentity.BaseMember(named,placeholder,key);
+                            if(!shared.TryGetValue(key,out var existing)){shared[key]=incoming;continue;}
+                            if(existing is null || incoming is null ||
+                               !DeclarationTypeIdentity.SameMember(existing.Value,incoming.Value))
+                                throw new CompilationFailure(Diagnostic.Error(binding.File,named.Name,"TSCS1001",
+                                    "A member shared by a generic interface and its bases is not supported yet."));
+                        }
             }
             // A member redeclared by a reopened generic interface must have the
             // same type for every instantiation (TS2717 / TS2687 otherwise);
