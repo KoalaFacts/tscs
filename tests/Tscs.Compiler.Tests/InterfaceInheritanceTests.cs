@@ -354,4 +354,33 @@ public sealed class InterfaceInheritanceTests
         foreach(var order in new[]{"A,B","B,A"})
             Assert.Empty(Compilation.Check("shared-any-ok.ts",$"{prelude}interface N extends {order}{{}}let result=7;"));
     }
+
+    // Optional properties include undefined in the supported non-exact mode.
+    [Theory]
+    [InlineData("interface A{x:{v?:number}}interface B{x:{v?:number|undefined}}")]
+    [InlineData("interface A{x:{readonly v?:number}}interface B{x:{readonly v?:number|undefined}}")]
+    [InlineData("type L={v?:number};type R={v?:number|undefined};interface A{x:L}interface B{x:R}")]
+    [InlineData("interface A{x:{inner:{v?:number}}}interface B{x:{inner:{v?:number|undefined}}}")]
+    [InlineData("interface A{x:{v?:number}[]}interface B{x:{v?:number|undefined}[]}")]
+    [InlineData("interface A{x:()=>{v?:number}}interface B{x:()=>{v?:number|undefined}}")]
+    [InlineData("interface A{x:(item:{v?:number})=>number}interface B{x:(item:{v?:number|undefined})=>number}")]
+    [InlineData("interface A{x:{v?:number}|string}interface B{x:string|{v?:undefined|number}}")]
+    [InlineData("interface A{x:{inner?:{v?:number}}}interface B{x:{inner?:{v?:number|undefined}|undefined}}")]
+    public void SharedOptionalMemberIncludesImplicitUndefined(string prelude)
+    {
+        foreach(var order in new[]{"A,B","B,A"})
+            Assert.Empty(Compilation.Check("shared-optional-ok.ts",$"{prelude}interface N extends {order}{{}}let result=7;"));
+    }
+
+    [Theory]
+    [InlineData("interface A{x:{v?:number}}interface B{x:{v?:string}}")]
+    [InlineData("interface A{x:{v:number}}interface B{x:{v:number|undefined}}")]
+    [InlineData("interface A{x:{v?:any}}interface B{x:{v?:number}}")]
+    [InlineData("interface A{x:{readonly v?:number}}interface B{x:{v?:number|undefined}}")]
+    public void SharedOptionalMemberNormalizationKeepsConflicts(string prelude)
+    {
+        foreach(var order in new[]{"A,B","B,A"})
+            Assert.Contains(Compilation.Check("shared-optional-bad.ts",$"{prelude}interface N extends {order}{{}}let result=7;"),
+                d=>d.Code=="TSCS1001");
+    }
 }

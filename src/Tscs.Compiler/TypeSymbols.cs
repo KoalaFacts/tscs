@@ -742,7 +742,12 @@ internal static class CompilerTypes
                     foreach(var member in l.Members)
                     {
                         if(!r.Members.TryGetValue(member.Key,out var other))return false;
-                        pending.Push((member.Value,other));
+                        // In the supported non-exact mode, both optional
+                        // properties include undefined regardless of spelling.
+                        // Required members keep their declared identity.
+                        pending.Push(l.OptionalMembers.Contains(member.Key)
+                            ? (Union([member.Value,Undefined]),Union([other,Undefined]))
+                            : (member.Value,other));
                     }
                     break;
                 case (ArrayTypeSymbol l,ArrayTypeSymbol r):
