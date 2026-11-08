@@ -220,13 +220,14 @@ public sealed class GenericInterfaceTests
     [InlineData("interface A<T>{x:T}interface B<U>{x:U}interface C<T> extends A<T>,B<T>{}let c:C<number>={x:1};")]
     [InlineData("interface A<T>{readonly x?:T[]}interface B<U>{readonly x?:U[]}interface C<T> extends A<T>,B<T>{}")]
     [InlineData("let b:Box<number>={value:1};interface Box<T> extends Base<T>{value:T}interface Base<U>{value:U}")]
+    [InlineData("interface Base<U>{value:U;tag:string|1}interface Box<T> extends Base<T>{tag:string|1}")]
     public void GenericInterfaceSharedMembersDeclaredIdenticallyCompile(string source)=>
         Assert.Empty(Compilation.Check("generic-interface-shared-members.ts",source));
 
     // Instantiations of an accepted declaration are still checked.
     [Theory]
-    [InlineData("interface Base<U>{value:U}interface Box<T> extends Base<T>{value:T}let b:Box<number>={value:\"x\"};","TS2322",76)]
-    [InlineData("interface A<T>{x:T}interface B<U>{x:U}interface C<T> extends A<T>,B<T>{}let c:C<number>={x:\"s\"};let s:string=c.x;","TS2322",68)]
+    [InlineData("interface Base<U>{value:U}interface Box<T> extends Base<T>{value:T}let b:Box<number>={value:\"x\"};","TS2322",87)]
+    [InlineData("interface A<T>{x:T}interface B<U>{x:U}interface C<T> extends A<T>,B<T>{}let c:C<number>={x:\"s\"};let s:string=c.x;","TS2322",90)]
     public void GenericInterfaceSharedMemberInstantiationsAreChecked(string source,string code,int column)
     {
         var diagnostic=Compilation.Check("generic-interface-shared-members-bad.ts",source).First();
@@ -263,7 +264,7 @@ public sealed class GenericInterfaceTests
     // Not syntactically identical after substitution: no proof either way.
     [InlineData("interface Base<T>{value:T}interface Box<T> extends Base<T[]>{value:T}")]
     [InlineData("interface Base<T>{value:T}interface Box<T,U> extends Base<U>{value:T}")]
-    [InlineData("interface Base<T>{value:T|number}interface Box<T> extends Base<T>{value:number|T}")]
+    [InlineData("interface Base<U>{value:U;tag:string|1}interface Box<T> extends Base<T>{tag:1|string}")]
     [InlineData("interface Base<T>{value:T}interface Box<T> extends Base<T>{readonly value:T}")]
     [InlineData("interface Base<T>{value?:T}interface Box<T> extends Base<T>{value:T}")]
     [InlineData("interface A<T>{x:T}interface B<T>{x:T}interface C<T,U> extends A<T>,B<U>{}")]
