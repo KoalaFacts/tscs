@@ -492,8 +492,9 @@ try {
   // CLI and Node; incompatible shared members must never emit JavaScript.
   writeFileSync(join(dir,'defaults-heritage-valid.ts'),
     'interface Base<T=number,U=T[]>{value:T;items:U}' +
-    'interface Child extends Base{value:number;items:number[]}' +
-    'export const defaultHeritageResult:number=8;');
+    'interface Child<Z=string> extends Base{value:number;items:number[];tag:Z}' +
+    'const item:Child={value:8,items:[8],tag:"ok"};' +
+    'export const defaultHeritageResult:number=item.value;');
   const defaultHeritageValid=compile(['--emitJs','--noLib','--target','es2015',
     '--module','es2015','defaults-heritage-valid.ts','minimal.d.ts']);
   assert.equal(defaultHeritageValid.status,0,
@@ -508,7 +509,8 @@ try {
     defaultHeritageRuntime.stdout+defaultHeritageRuntime.stderr);
   writeFileSync(join(dir,'defaults-heritage-invalid.ts'),
     'interface Base<T=number>{value:T}' +
-    'interface Child extends Base{value:string}' +
+    'interface Child<U=string> extends Base{value:string;other:U}' +
+    'const item:Child={value:"bad",other:"ok"};' +
     'export const defaultHeritageResult:number=8;');
   const defaultHeritageBad=compile(['--emitJs','--noLib','--target','es2015',
     '--module','es2015','defaults-heritage-invalid.ts','minimal.d.ts']);
