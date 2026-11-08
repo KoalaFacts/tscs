@@ -20,7 +20,7 @@ internal sealed record ArrayTypeSyntax(TypeSyntax Element,Token Open,Token Close
 internal sealed record TupleTypeSyntax(Token Open,IReadOnlyList<TypeSyntax> Elements,Token Close,bool Readonly=false,int OptionalStart=-1) : TypeSyntax;
 // A trailing rest expands a separately resolved finite tuple, never an unbounded array.
 internal sealed record TupleRestTypeSyntax(Token Ellipsis,TypeSyntax Target) : TypeSyntax;
-internal sealed record NamedTypeSyntax(Token Name) : TypeSyntax;
+internal sealed record NamedTypeSyntax(Token Name,IReadOnlyList<TypeSyntax>? TypeArguments=null) : TypeSyntax;
 // Named callback signatures are type-only; typed expression arrows are checked value expressions.
 internal sealed record FunctionTypeParameter(Token Name,TypeSyntax Type,bool Optional=false,bool Rest=false);
 internal sealed record FunctionTypeSyntax(Token Open,IReadOnlyList<FunctionTypeParameter> Parameters,TypeSyntax ReturnType) : TypeSyntax;
@@ -33,7 +33,7 @@ internal sealed record IndexedAccessTypeSyntax(TypeSyntax Target,Token Open,Type
 // An intersection is resolved into one finite structural object; no runtime syntax remains.
 internal sealed record IntersectionTypeSyntax(IReadOnlyList<TypeSyntax> Members) : TypeSyntax;
 internal sealed record UnionTypeSyntax(IReadOnlyList<TypeSyntax> Members) : TypeSyntax;
-internal sealed record TypeAliasDeclaration(Token Name,TypeSyntax Target,bool Exported=false) : Statement;
+internal sealed record TypeAliasDeclaration(Token Name,TypeSyntax Target,bool Exported=false,IReadOnlyList<Token>? TypeParameters=null) : Statement;
 // Interface heritage is type-only and retains its declaring type namespace.
 internal sealed record InterfaceExtensionTypeSyntax(Token Name,IReadOnlyList<NamedTypeSyntax> Bases,ObjectTypeSyntax Body) : TypeSyntax;
 internal sealed record InterfaceDeclaration(Token Name,ObjectTypeSyntax Body,bool Exported=false,IReadOnlyList<NamedTypeSyntax>? Bases=null) : Statement;

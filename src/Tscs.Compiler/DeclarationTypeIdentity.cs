@@ -62,7 +62,7 @@ internal static class DeclarationTypeIdentity
         {
             IntersectionTypeSyntax=>true,
             NamedTypeSyntax named when scope.FindType(named.Name.Text) is { } binding=>
-                HasIntersection(binding.Syntax,binding.Owner,depth+1) ||
+                HasIntersection(binding.Syntax,BodyScope(binding,named,scope,""),depth+1) ||
                 binding.MergedInterfaces.Any(item=>HasIntersection(item.Syntax,item.Owner,depth+1)),
             ObjectTypeSyntax obj=>obj.Properties.Any(p=>HasIntersection(p.Type,scope,depth+1)),
             InterfaceExtensionTypeSyntax inherited=>
@@ -101,12 +101,15 @@ internal static class DeclarationTypeIdentity
             return SameSyntax(left,leftScope,leftFile,r.Syntax,r.Scope,r.File,depth+1);
         if(left is NamedTypeSyntax ln && leftScope.FindType(ln.Name.Text) is { } lb)
         {
-            if(right is NamedTypeSyntax rn &&
+            // The same non-generic binding is the same type; two
+            // instantiations of one generic alias are compared by what
+            // their bodies denote with the given arguments.
+            if(lb.TypeParameters.Count==0 && right is NamedTypeSyntax rn &&
                ReferenceEquals(lb,rightScope.FindType(rn.Name.Text)))return true;
-            return SameSyntax(lb.Syntax,lb.Owner,lb.File,right,rightScope,rightFile,depth+1);
+            return SameSyntax(lb.Syntax,BodyScope(lb,ln,leftScope,leftFile),lb.File,right,rightScope,rightFile,depth+1);
         }
         if(right is NamedTypeSyntax rn2 && rightScope.FindType(rn2.Name.Text) is { } rb)
-            return SameSyntax(left,leftScope,leftFile,rb.Syntax,rb.Owner,rb.File,depth+1);
+            return SameSyntax(left,leftScope,leftFile,rb.Syntax,BodyScope(rb,rn2,rightScope,rightFile),rb.File,depth+1);
 
         if(!HasIntersection(left,leftScope,depth) &&
            !HasIntersection(right,rightScope,depth))
@@ -183,6 +186,13 @@ internal static class DeclarationTypeIdentity
         }
     }
 
+    // A generic alias body denotes a type only in an instantiation scope.
+    // Arity errors were already reported when the types were resolved.
+    private static Scope BodyScope(TypeBinding binding,NamedTypeSyntax reference,Scope scope,string file)=>
+        binding.TypeParameters.Count==0
+            ? binding.Owner
+            : TypeResolver.Instantiate(binding,reference,scope,file);
+
     private readonly record struct Denoted(TypeSyntax Syntax,Scope Scope,string File);
 
     private static Denoted? Unwrap(TypeSyntax syntax,Scope scope,string file,int depth)=>syntax switch
@@ -235,7 +245,7 @@ internal static class DeclarationTypeIdentity
             case NamedTypeSyntax named when scope.FindType(named.Name.Text) is { } binding:
                 return binding.MergedInterfaces.Count!=0
                     ? Selection.Unknown
-                    : Select(binding.Syntax,binding.Owner,binding.File,key,depth+1);
+                    : Select(binding.Syntax,BodyScope(binding,named,scope,file),binding.File,key,depth+1);
             case TypeQuerySyntax when Unwrap(syntax,scope,file,depth) is { } denoted:
                 return Select(denoted.Syntax,denoted.Scope,denoted.File,key,depth+1);
             case ObjectTypeSyntax shape:

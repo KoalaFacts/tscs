@@ -11,6 +11,9 @@ internal sealed class TypeBinding(string file,Token name,TypeSyntax syntax,Scope
     public TypeSymbol? Resolved { get; set; }
     public bool Resolving { get; set; }
     public bool IsInterface { get; init; }
+    // Plain type parameters of a generic alias. Each reference instantiates
+    // the alias body in a fresh scope; generic bindings are never cached.
+    public IReadOnlyList<Token> TypeParameters { get; init; }=[];
     // Reopened interfaces retain source positions and declaring scopes.
     // No type alias or imported binding is silently merged with an interface.
     public List<(string File,Token Name,TypeSyntax Syntax,Scope Owner)> MergedInterfaces { get; }=[];
@@ -21,6 +24,11 @@ internal static class TypeResolver
     public static TypeSymbol ResolveBinding(TypeBinding binding,int depth=0)
     {
         if(binding.Resolved is { } cached)return cached;
+        if(binding.TypeParameters.Count!=0)
+        {
+            ValidateGeneric(binding,depth);
+            return CompilerTypes.Unknown;
+        }
         if(binding.Resolving || depth>64)
             throw new CompilationFailure(Diagnostic.Error(binding.File,binding.Name,"TS2456",
                 $"Type alias '{binding.Name.Text}' circularly references itself or exceeds the supported depth."));
@@ -88,6 +96,58 @@ internal static class TypeResolver
         finally {binding.Resolving=false;}
     }
 
+    // An unreferenced generic alias body is still checked: every name must
+    // resolve. Its parameters stand for 'unknown' here, so a body that needs
+    // known arguments (keyof T, T["k"]) fails closed as unsupported rather
+    // than reporting a diagnostic the reference would not report.
+    private static void ValidateGeneric(TypeBinding binding,int depth)
+    {
+        if(binding.Resolving || depth>64)
+            throw new CompilationFailure(Diagnostic.Error(binding.File,binding.Name,"TS2456",
+                $"Type alias '{binding.Name.Text}' circularly references itself or exceeds the supported depth."));
+        binding.Resolving=true;
+        try
+        {
+            var placeholder=new Scope(binding.Owner);
+            foreach(var parameter in binding.TypeParameters)
+                placeholder.Types.Add(parameter.Text,new TypeBinding(binding.File,parameter,
+                    new PrimitiveTypeSyntax(parameter with {Text="unknown"}),binding.Owner)
+                {
+                    Resolved=CompilerTypes.Unknown
+                });
+            _=Resolve(binding.Syntax,placeholder,binding.File,depth+1);
+        }
+        catch(CompilationFailure failure) when (failure.Diagnostic.Code!="TS2304")
+        {
+            throw new CompilationFailure(Diagnostic.Error(binding.File,binding.Name,"TSCS1001",
+                "This generic type alias body is not supported without known type arguments yet."));
+        }
+        finally {binding.Resolving=false;}
+    }
+
+    // The scope in which a generic alias body denotes one instantiation: each
+    // type parameter is bound to its argument's syntax in the referencing
+    // scope, so declaration identity can follow argument provenance too.
+    // Arguments are resolved eagerly, so an unused argument is still checked.
+    public static Scope Instantiate(TypeBinding binding,NamedTypeSyntax reference,Scope scope,string file,int depth=0)
+    {
+        var arguments=reference.TypeArguments??[];
+        if(binding.TypeParameters.Count==0)
+            throw new CompilationFailure(Diagnostic.Error(file,reference.Name,"TS2315",
+                $"Type '{reference.Name.Text}' is not generic."));
+        if(arguments.Count!=binding.TypeParameters.Count)
+            throw new CompilationFailure(Diagnostic.Error(file,reference.Name,"TS2314",
+                $"Generic type '{binding.Name.Text}' requires {binding.TypeParameters.Count} type argument(s)."));
+        var instance=new Scope(binding.Owner);
+        for(var i=0;i<arguments.Count;i++)
+            instance.Types.Add(binding.TypeParameters[i].Text,
+                new TypeBinding(file,binding.TypeParameters[i],arguments[i],scope)
+                {
+                    Resolved=Resolve(arguments[i],scope,file,depth+1)
+                });
+        return instance;
+    }
+
     public static TypeSymbol Resolve(TypeSyntax syntax,Scope scope,string file,int depth=0)
     {
         if(depth>64)
@@ -108,10 +168,15 @@ internal static class TypeResolver
                         ?Resolve(array.Element,scope,file,depth+1):null);
             }
             case NamedTypeSyntax named:
+            {
                 if(scope.FindType(named.Name.Text) is not { } binding)
                     throw new CompilationFailure(Diagnostic.Error(file,named.Name,"TS2304",
                         $"Cannot find name '{named.Name.Text}'."));
-                return ResolveBinding(binding,depth+1);
+                if(binding.TypeParameters.Count==0 && named.TypeArguments is null)
+                    return ResolveBinding(binding,depth+1);
+                var instance=Instantiate(binding,named,scope,file,depth+1);
+                return Resolve(binding.Syntax,instance,binding.File,depth+1);
+            }
             case TypeQuerySyntax query:
             {
                 if(scope.Find(query.Root.Text) is not { } symbol)
