@@ -704,6 +704,127 @@ internal static class CompilerTypes
             first.NumericMembers,mergedOptional,computed,mixedMembers);
     }
 
+    // Mutual assignability treats `any` as equal to every type, whereas the
+    // reference requires identical declared types for members shared by two
+    // bases (TS2320). True only when `any` sits at the same positions on both
+    // sides and object members agree on modifiers; forms containing `any` that
+    // cannot be paired (including rest parameters) are not proven.
+    public static bool AnyPositionsAgree(TypeSymbol a,TypeSymbol b)
+    {
+        var pending=new Stack<(TypeSymbol Left,TypeSymbol Right)>();
+        pending.Push((a,b));
+        int budget=4096;
+        while(pending.Count>0)
+        {
+            if(--budget<0)return false;
+            var (left,right)=pending.Pop();
+            bool leftAny=left is PrimitiveTypeSymbol{Kind:PrimitiveKind.Any};
+            bool rightAny=right is PrimitiveTypeSymbol{Kind:PrimitiveKind.Any};
+            if(leftAny || rightAny)
+            {
+                if(leftAny!=rightAny)return false;
+                continue;
+            }
+            switch(left,right)
+            {
+                case (PrimitiveTypeSymbol,_):
+                case (LiteralTypeSymbol,_):
+                    if(!left.Equals(right))return false;
+                    break;
+                case (ObjectTypeSymbol l,ObjectTypeSymbol r):
+                    // Mutual assignability ignores readonly; identity does not.
+                    if(l.Members.Count!=r.Members.Count ||
+                       !l.ReadonlyMembers.SetEquals(r.ReadonlyMembers) ||
+                       !l.OptionalMembers.SetEquals(r.OptionalMembers) ||
+                       !l.NumericMembers.SetEquals(r.NumericMembers) ||
+                       !l.MixedRequiredOptionalMembers.SetEquals(r.MixedRequiredOptionalMembers))
+                        return false;
+                    foreach(var member in l.Members)
+                    {
+                        if(!r.Members.TryGetValue(member.Key,out var other))return false;
+                        // In the supported non-exact mode, both optional
+                        // properties include undefined regardless of spelling.
+                        // Required members keep their declared identity.
+                        pending.Push(l.OptionalMembers.Contains(member.Key)
+                            ? (Union([member.Value,Undefined]),Union([other,Undefined]))
+                            : (member.Value,other));
+                    }
+                    break;
+                case (ArrayTypeSymbol l,ArrayTypeSymbol r):
+                    if((l.TupleElements is null)!=(r.TupleElements is null))return false;
+                    pending.Push((l.ElementType,r.ElementType));
+                    if(l.TupleElements is {} lt && r.TupleElements is {} rt)
+                    {
+                        if(lt.Count!=rt.Count)return false;
+                        for(int i=0;i<lt.Count;i++)pending.Push((lt[i],rt[i]));
+                    }
+                    break;
+                case (FunctionTypeSymbol l,FunctionTypeSymbol r):
+                    if(l.Parameters.Count!=r.Parameters.Count ||
+                       (l.RestElementType is null)!=(r.RestElementType is null))return false;
+                    for(int i=0;i<l.Parameters.Count;i++)pending.Push((l.Parameters[i],r.Parameters[i]));
+                    pending.Push((l.ReturnType,r.ReturnType));
+                    if(l.RestElementType is {} lr && r.RestElementType is {} rr)pending.Push((lr,rr));
+                    break;
+                case (UnionTypeSymbol l,UnionTypeSymbol r) when l.Alternatives.Count==r.Alternatives.Count:
+                {
+                    // Union alternatives keep encounter order, so match each
+                    // left alternative with a distinct identical right one.
+                    var unmatched=new List<TypeSymbol>(r.Alternatives);
+                    foreach(var alternative in l.Alternatives)
+                    {
+                        int match=unmatched.FindIndex(candidate=>
+                            IsEquivalent(alternative,candidate) && AnyPositionsAgree(alternative,candidate));
+                        if(match<0)return false;
+                        unmatched.RemoveAt(match);
+                    }
+                    break;
+                }
+                default:
+                    // Different forms (a union against a single type, unions
+                    // of different sizes, or alternatives paired across kinds)
+                    // are only mutually assignable, not proven identical.
+                    if(left.GetType()!=right.GetType() || left is UnionTypeSymbol ||
+                       ContainsAny(left) || ContainsAny(right))return false;
+                    break;
+            }
+        }
+        return true;
+    }
+
+    private static bool ContainsAny(TypeSymbol type)
+    {
+        var pending=new Stack<TypeSymbol>();
+        var visited=new HashSet<TypeSymbol>(ReferenceEqualityComparer.Instance);
+        pending.Push(type);
+        int budget=4096;
+        while(pending.Count>0)
+        {
+            if(--budget<0)return true; // unproven: treat as containing any
+            var current=pending.Pop();
+            if(!visited.Add(current))continue;
+            switch(current)
+            {
+                case PrimitiveTypeSymbol{Kind:PrimitiveKind.Any}:return true;
+                case PrimitiveTypeSymbol:
+                case LiteralTypeSymbol:break;
+                case ObjectTypeSymbol o:foreach(var m in o.Members.Values)pending.Push(m);break;
+                case ArrayTypeSymbol a:
+                    pending.Push(a.ElementType);
+                    if(a.TupleElements is {} t)foreach(var e in t)pending.Push(e);
+                    break;
+                case UnionTypeSymbol u:foreach(var e in u.Alternatives)pending.Push(e);break;
+                case FunctionTypeSymbol f:
+                    foreach(var e in f.Parameters)pending.Push(e);
+                    pending.Push(f.ReturnType);
+                    if(f.RestElementType is {} r)pending.Push(r);
+                    break;
+                default:return true; // unmodelled form: not proven free of any
+            }
+        }
+        return false;
+    }
+
     public static bool IsEquivalent(TypeSymbol a,TypeSymbol b)=>
         // Assignment may treat runtime property 0 and "0" alike, whereas
         // keyof distinguishes their *source* identity at every nested level.

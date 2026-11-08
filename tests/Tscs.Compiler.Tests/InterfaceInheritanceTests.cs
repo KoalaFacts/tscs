@@ -36,6 +36,8 @@ public sealed class InterfaceInheritanceTests
     // Shared inherited members with intersection provenance (Go: TS2320).
     [InlineData("interface A<T>{x:T}interface B<T>{x:T}interface N extends A<{a:1}&{b:2}>,B<{a:1;b:2}>{}","TSCS1001")]
     [InlineData("type I={a:1}&{b:2};interface A{x:I}interface B{x:{a:1;b:2}}interface N extends A,B{}","TSCS1001")]
+    // No override: the inherited intersection still conflicts (Go TS2320).
+    [InlineData("type I={a:number}&{b:string};interface C{x:I}interface A extends C{}interface B{x:{a:number;b:string}}interface N extends A,B{}","TSCS1001")]
     [InlineData("interface A{value:number}interface B{value:string}interface C extends A,B{value:42}","TS2430")]
     [InlineData("interface A{value:number}interface B{value:42}interface C extends A,B{value:string}","TS2430")]
     public void InvalidHeritageFailsClosed(string source,string code)=>
@@ -245,5 +247,140 @@ public sealed class InterfaceInheritanceTests
         var emitted=program.EmitJavaScript();
         Assert.Equal(4,emitted.Count);
         Assert.All(emitted,output=>Assert.DoesNotContain("interface Child",output.Text,StringComparison.Ordinal));
+    }
+
+    // A merged interface's heritage is checked once, against the merged
+    // type, at the first declaration's name (pinned Go, TS2430).
+    [Theory]
+    [InlineData("interface Base<T>{a:T}interface N{x:number}interface N extends Base<string>{a:number}",32)]
+    [InlineData("interface Base{a:string}interface N{b:number}interface N extends Base{a:number}",34)]
+    public void MergedInterfaceHeritageReportsAtFirstDeclaration(string source,int start)
+    {
+        var diagnostic=Assert.Single(Compilation.Check("merged-heritage-bad.ts",source));
+        Assert.Equal("TS2430",diagnostic.Code);
+        Assert.Equal(start,diagnostic.Start);
+    }
+
+    // A member one declaration inherits and another declares or inherits
+    // differently is TS2430 / TS2320 against the merged type in the
+    // reference, not a TS2717 redeclaration: fail closed.
+    [Theory]
+    [InlineData("interface Base<T>{a:T}interface N extends Base<string>{x:number}interface N extends Base<number>{y:number}")]
+    [InlineData("interface Base{a:string}interface N{a:number}interface N extends Base{}")]
+    [InlineData("interface Base{a:string}interface N extends Base{}interface N{a:number}")]
+    public void MergedInheritedMemberConflictsFailClosed(string source)
+    {
+        var diagnostics=Compilation.Check("merged-heritage-unsupported.ts",source);
+        Assert.Contains(diagnostics,d=>d.Code=="TSCS1001");
+        Assert.DoesNotContain(diagnostics,d=>d.Code=="TS2717");
+    }
+
+    [Theory]
+    [InlineData("interface Base{a:string}interface N extends Base{x:number}interface N{y:number}let n:N={a:\"\",x:1,y:2};")]
+    [InlineData("interface Base{a:string}interface N extends Base{}interface N{a:string}")]
+    [InlineData("interface Base{a:string}interface N extends Base{a:\"k\"}interface N{b:number}")]
+    [InlineData("interface Base{a:string}interface Other{a:string}interface N extends Base{}interface N extends Other{}")]
+    public void MergedInterfaceHeritageAgreesWithReference(string source)=>
+        Assert.Empty(Compilation.Check("merged-heritage.ts",source));
+
+    // An intersection in an unshared member does not affect a shared one
+    // (pinned Go accepts all; regression from the base-wide check in #245).
+    [Theory]
+    [InlineData("I")]
+    [InlineData("I[]")]
+    [InlineData("{inner:I}")]
+    [InlineData("(v:I)=>number")]
+    public void IntersectionInUnsharedMemberKeepsSharedMemberValid(string extra)
+    {
+        foreach(var order in new[]{"A,B","B,A"})
+            Assert.Empty(Compilation.Check("unshared-intersection.ts",
+                $"type I={{a:number}}&{{b:string}};interface A{{x:number;extra:{extra}}}interface B{{x:number}}interface N extends {order}{{}}let result=7;"));
+    }
+
+    // Shared members of optional, reopened, diamond and unrelated bases
+    // without any intersection stay valid (pinned Go accepts all).
+    [Theory]
+    [InlineData("interface A{x?:number}interface B{x?:number}","A,B")]
+    [InlineData("interface A{x:number}interface A{extra:string}interface B{x:number}","A,B")]
+    [InlineData("interface C{x:number}interface E{x:number}interface A extends C,E{}interface B{x:number}","A,B")]
+    [InlineData("interface A{x:number}interface B{x:number}interface C{other:number}interface C{extra:string}","A,B,C")]
+    [InlineData("interface A{x:number}interface B{x:number}interface C{other:number}interface C{extra:string}","C,B,A")]
+    // An own member overrides (shadows) an inherited intersection member.
+    [InlineData("type I={a:number}&{b:string};interface C{x:I}interface A extends C{x:{a:number;b:string}}interface B{x:{a:number;b:string}}","A,B")]
+    [InlineData("type I={a:number}&{b:string};interface C{x:I}interface X extends C{}interface A extends X{x:{a:number;b:string}}interface B{x:{a:number;b:string}}","A,B")]
+    [InlineData("type I={a:number}&{b:string};type F={a:number;b:string};interface C{x:I[]}interface A extends C{x:F[]}interface B{x:F[]}","A,B")]
+    // Optional shared member next to an unrelated intersection member.
+    [InlineData("type I={a:number}&{b:string};interface A{x?:number;extra:I}interface B{x?:number}","A,B")]
+    [InlineData("type I={a:number}&{b:string};interface A{x:number}interface A{extra:I}interface B{x:number}","A,B")]
+    [InlineData("type I={a:number}&{b:string};interface C{x:number;extra:I}interface E{x:number}interface A extends C,E{}interface B{x:number}","A,B")]
+    public void SharedMembersWithoutIntersectionsStayValid(string prelude,string order)
+    {
+        Assert.Empty(Compilation.Check("shared-no-intersection.ts",$"{prelude}interface N extends {order}{{}}"));
+        var reversed=string.Join(",",order.Split(',').Reverse());
+        Assert.Empty(Compilation.Check("shared-no-intersection.ts",$"{prelude}interface N extends {reversed}{{}}"));
+    }
+
+    // Mutual assignability is not identity: `any` against a concrete shared
+    // member type is TS2320 in the reference; fail closed (review on #246).
+    [Theory]
+    [InlineData("type I={a:number}&{b:string};type Q={a:number;b:string};interface C{x:I}interface A extends C{x:any}interface B{x:Q}")]
+    [InlineData("type Q={a:number;b:string};interface A{x:any[]}interface B{x:Q[]}")]
+    [InlineData("type Q={a:number;b:string};interface A{x:{v:any}}interface B{x:{v:Q}}")]
+    [InlineData("type Q={a:number;b:string};interface A{x:(v:any)=>number}interface B{x:(v:Q)=>number}")]
+    [InlineData("interface A{x:any}interface B{x:number}")]
+    [InlineData("interface A{x:{readonly a:number}}interface B{x:{a:number}}")]
+    [InlineData("interface A{x:{a:any}|string}interface B{x:{a:number}|string}")]
+    [InlineData("interface A{x:string|{readonly a:number}}interface B{x:{a:number}|string}")]
+    [InlineData("interface A{x:{a:1}|{a:number}}interface B{x:{a:number}}")]
+    public void SharedMemberAnyAgainstConcreteFailsClosed(string prelude)
+    {
+        foreach(var order in new[]{"A,B","B,A"})
+            Assert.Contains(Compilation.Check("shared-any.ts",$"{prelude}interface N extends {order}{{}}let result=7;"),
+                d=>d.Code=="TSCS1001");
+    }
+
+    [Theory]
+    [InlineData("interface A{x:any}interface B{x:any}")]
+    [InlineData("interface A{x:any[]}interface B{x:any[]}")]
+    [InlineData("interface A{x:(v:any)=>number}interface B{x:(v:any)=>number}")]
+    [InlineData("interface A{x:{a:any}|string}interface B{x:{a:any}|string}")]
+    [InlineData("interface A{x:any[]|string}interface B{x:any[]|string}")]
+    [InlineData("interface A{x:{readonly a:any}}interface B{x:{readonly a:any}}")]
+    [InlineData("interface A{x:number|string}interface B{x:string|number}")]
+    [InlineData("interface A{x:{v:string}|number}interface B{x:number|{v:string}}")]
+    [InlineData("interface A{x:{v:any}|number}interface B{x:number|{v:any}}")]
+    public void SharedMemberAnyAtSamePositionsStaysValid(string prelude)
+    {
+        foreach(var order in new[]{"A,B","B,A"})
+            Assert.Empty(Compilation.Check("shared-any-ok.ts",$"{prelude}interface N extends {order}{{}}let result=7;"));
+    }
+
+    // Optional properties include undefined in the supported non-exact mode.
+    [Theory]
+    [InlineData("interface A{x:{v?:number}}interface B{x:{v?:number|undefined}}")]
+    [InlineData("interface A{x:{readonly v?:number}}interface B{x:{readonly v?:number|undefined}}")]
+    [InlineData("type L={v?:number};type R={v?:number|undefined};interface A{x:L}interface B{x:R}")]
+    [InlineData("interface A{x:{inner:{v?:number}}}interface B{x:{inner:{v?:number|undefined}}}")]
+    [InlineData("interface A{x:{v?:number}[]}interface B{x:{v?:number|undefined}[]}")]
+    [InlineData("interface A{x:()=>{v?:number}}interface B{x:()=>{v?:number|undefined}}")]
+    [InlineData("interface A{x:(item:{v?:number})=>number}interface B{x:(item:{v?:number|undefined})=>number}")]
+    [InlineData("interface A{x:{v?:number}|string}interface B{x:string|{v?:undefined|number}}")]
+    [InlineData("interface A{x:{inner?:{v?:number}}}interface B{x:{inner?:{v?:number|undefined}|undefined}}")]
+    public void SharedOptionalMemberIncludesImplicitUndefined(string prelude)
+    {
+        foreach(var order in new[]{"A,B","B,A"})
+            Assert.Empty(Compilation.Check("shared-optional-ok.ts",$"{prelude}interface N extends {order}{{}}let result=7;"));
+    }
+
+    [Theory]
+    [InlineData("interface A{x:{v?:number}}interface B{x:{v?:string}}")]
+    [InlineData("interface A{x:{v:number}}interface B{x:{v:number|undefined}}")]
+    [InlineData("interface A{x:{v?:any}}interface B{x:{v?:number}}")]
+    [InlineData("interface A{x:{readonly v?:number}}interface B{x:{v?:number|undefined}}")]
+    public void SharedOptionalMemberNormalizationKeepsConflicts(string prelude)
+    {
+        foreach(var order in new[]{"A,B","B,A"})
+            Assert.Contains(Compilation.Check("shared-optional-bad.ts",$"{prelude}interface N extends {order}{{}}let result=7;"),
+                d=>d.Code=="TSCS1001");
     }
 }

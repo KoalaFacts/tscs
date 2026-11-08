@@ -214,6 +214,39 @@ try {
           {call:(value:{a:number})=>value.a}),7,id);
       assert.equal(existsSync(join(dir,ambient.replace(/\.d\.ts$/,'.d.js'))),false,id);
     }
+  // Shared optional member identity includes implicit undefined at nested positions.
+  // Recheck actual emit/runtime in both base orders; conflicts must not emit.
+  const optionalShared:[string,string,boolean][]=[
+    ["direct","interface A{x:{v?:number}}interface B{x:{v?:number|undefined}}",true],
+    ["readonly","interface A{x:{readonly v?:number}}interface B{x:{readonly v?:number|undefined}}",true],
+    ["alias","type L={v?:number};type R={v?:number|undefined};interface A{x:L}interface B{x:R}",true],
+    ["deep","interface A{x:{inner:{v?:number}}}interface B{x:{inner:{v?:number|undefined}}}",true],
+    ["array","interface A{x:{v?:number}[]}interface B{x:{v?:number|undefined}[]}",true],
+    ["callback_return","interface A{x:()=>{v?:number}}interface B{x:()=>{v?:number|undefined}}",true],
+    ["callback_parameter","interface A{x:(item:{v?:number})=>number}interface B{x:(item:{v?:number|undefined})=>number}",true],
+    ["union_order","interface A{x:{v?:number}|string}interface B{x:string|{v?:undefined|number}}",true],
+    ["nested_two_optional","interface A{x:{inner?:{v?:number}}}interface B{x:{inner?:{v?:number|undefined}|undefined}}",true],
+    ["bad_type","interface A{x:{v?:number}}interface B{x:{v?:string}}",false],
+    ["required_undefined","interface A{x:{v:number}}interface B{x:{v:number|undefined}}",false],
+    ["optional_any","interface A{x:{v?:any}}interface B{x:{v?:number}}",false],
+    ["readonly_mismatch","interface A{x:{readonly v?:number}}interface B{x:{v?:number|undefined}}",false],
+  ];
+  for(const [name,prelude,allowed] of optionalShared)
+    for(const order of ['A,B','B,A']){
+      const path=join(dir,'optional-shared-'+name+'-'+order.replace(',','-')+'.ts');
+      writeFileSync(path,prelude+'interface N extends '+order+'{}let answer:number=7;');
+      const result=compile(['--emitJs','--noLib','--target','es2015',path,join(dir,'minimal.d.ts')]);
+      assert.equal(result.status,allowed?0:1,name+' '+order+': '+result.stdout+result.stderr);
+      const output=path.replace(/\.ts$/,'.js');
+      if(allowed){
+        assert.equal(existsSync(output),true,name+' missing emitted JS');
+        assert.equal(runInNewContext(readFileSync(output,'utf8')+'\nanswer;'),7,name);
+      }else{
+        assert.match(result.stdout+result.stderr,/TSCS1001/,name);
+        assert.equal(existsSync(output),false,name+' must reject emit');
+      }
+    }
+  console.log('shared optional identity: 18 valid emits execute to 7; 8 conflicting emits rejected.');
   const invalid:[string,string,string,number][]=[
     ['wrong-value','interface A{value:number}interface B extends A{}let b:B={value:"bad"};','TS2322',2],
     ['readonly-parent','interface A{readonly value:number}interface B extends A{}let b:B={value:1};b.value=2;','TS2540',2],

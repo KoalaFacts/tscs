@@ -71,8 +71,12 @@ runs `verify-upstream-lock-probe.sh` and `verify-upstream-full-discovery.sh`.
 - The acceptance runner is fast (about 1 s) because almost every target is
   SKIP; a quick green run is expected, not suspicious.
 - `.artifacts/tsgo` (the pinned Go CLI for side-by-side probes) is not made
-  by any script: after `verify-original-emptyfile-go.sh`, run
-  `cd .artifacts/original-empty-go/TypeScript/tsc && GOWORK=off GOTOOLCHAIN=local go build -o ../../../tsgo ./cmd/tsc`.
+  by any script: after `verify-original-emptyfile-go.sh` with
+  `TSCS_ORIGINAL_GO_RESULTS="$ACC/oracle-go"`, run
+  `(cd "$U/tsc" && GOWORK=off GOTOOLCHAIN=local go build -o "$OLDPWD/.artifacts/tsgo" ./cmd/tsc)`
+  from the repo root (the checkout lives under `$U`, not `.artifacts`).
+  Probes must run in a shell that sourced `env.sh`, or `dotnet` is missing
+  and every tscs result looks clean.
 - A keyword type the parser does not list as primitive resolves as a name and
   reports an invented TS2304 (`never` did until it was modelled); probe new
   keyword spellings against `tsgo` rather than trusting a TS code.

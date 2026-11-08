@@ -251,10 +251,52 @@ internal static class DeclarationTypeIdentity
         _=>null
     };
 
-    // Selects the declared syntax of one required property named by a string
-    // literal key. Optional members, index signatures, merged interfaces,
-    // unknown forms and properties declared by several intersection members
-    // return null, so the caller keeps its conservative comparison.
+    // Whether the member 'key' of a heritage base can carry intersection
+    // provenance. Only the declarations of that member are inspected:
+    // optional ones and every reopened declaration count; an own
+    // declaration shadows every inherited one; otherwise every inherited
+    // path counts. An unrelated member never does. Shapes this walk does not
+    // model (aliases of intersections, unions, queries) stay conservative.
+    internal static bool MemberHasIntersection(TypeSyntax syntax,Scope scope,string file,string key,int depth=0)
+    {
+        if(depth>64)return true;
+        switch(syntax)
+        {
+            case NamedTypeSyntax named when scope.FindType(named.Name.Text) is { } binding:
+            {
+                var body=BodyScope(binding,named,scope,file);
+                var declarations=binding.MergedInterfaces
+                    .Select(item=>(item.Syntax,Scope:binding.TypeParameters.Count==0?item.Owner:body,item.File))
+                    .Prepend((binding.Syntax,Scope:body,binding.File)).ToList();
+                // Own members of every merged declaration shadow all bases.
+                var own=declarations.Where(d=>OwnBody(d.Syntax) is { } shape && Declares(shape,key)).ToList();
+                if(own.Count!=0)
+                    return own.Any(d=>MemberHasIntersection(OwnBody(d.Syntax)!,d.Scope,d.File,key,depth+1));
+                return declarations.Any(d=>MemberHasIntersection(d.Syntax,d.Scope,d.File,key,depth+1));
+            }
+            case ObjectTypeSyntax shape:
+                return shape.Properties.Any(p=>
+                    string.Equals(Parser.PropertyName(p.Name),key,StringComparison.Ordinal) &&
+                    HasIntersection(p.Type,scope));
+            case InterfaceExtensionTypeSyntax inherited:
+                return Declares(inherited.Body,key)
+                    ? MemberHasIntersection(inherited.Body,scope,file,key,depth+1)
+                    : inherited.Bases.Any(b=>MemberHasIntersection(b,scope,file,key,depth+1));
+            default:
+                return HasIntersection(syntax,scope);
+        }
+    }
+
+    private static ObjectTypeSyntax? OwnBody(TypeSyntax syntax)=>syntax switch
+    {
+        ObjectTypeSyntax shape=>shape,
+        InterfaceExtensionTypeSyntax inherited=>inherited.Body,
+        _=>null
+    };
+
+    private static bool Declares(ObjectTypeSyntax shape,string key)=>
+        shape.Properties.Any(p=>string.Equals(Parser.PropertyName(p.Name),key,StringComparison.Ordinal));
+
     private static Denoted? Project(IndexedAccessTypeSyntax indexed,Scope scope,string file,int depth)
     {
         if(indexed.Index is not LiteralTypeSyntax { Negative:false } literal ||
