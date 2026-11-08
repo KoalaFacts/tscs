@@ -90,22 +90,25 @@ internal static class TypeResolver
                 bool incomingOptional=next.OptionalMembers.Contains(key);
                 if(members.TryGetValue(key,out var previous))
                 {
+                    var incoming=DeclarationTypeIdentity.DirectProperty(syntax,key);
+                    // Either side reached through heritage: the reference
+                    // checks the merged type (TS2430 / TS2320), not TS2717 / TS2687.
+                    bool inherited=incoming is null || !origins.ContainsKey(key);
                     if(readonlyKeys.Contains(key)!=incomingReadonly ||
                        numericKeys.Contains(key)!=incomingNumeric ||
                        optionalKeys.Contains(key)!=incomingOptional)
-                        throw new CompilationFailure(Diagnostic.Error(file,name,"TS2687",
-                            $"All declarations of '{key}' must have identical modifiers."));
-                    var incoming=DeclarationTypeIdentity.DirectProperty(syntax,key);
+                        throw new CompilationFailure(inherited
+                            ?Diagnostic.Error(file,name,"TSCS1001",
+                                $"Merging inherited member '{key}' with different modifiers is not supported yet.")
+                            :Diagnostic.Error(file,name,"TS2687",
+                                $"All declarations of '{key}' must have identical modifiers."));
                     bool same=origins.TryGetValue(key,out var prior) && incoming is not null
                         ?DeclarationTypeIdentity.Same(prior.Syntax,prior.Owner,prior.File,
                             incoming.Type,owner,file)
                         :CompilerTypes.SameStructuralInput(previous,type) &&
                             !DeclarationTypeIdentity.HasIntersection(binding.Syntax,instance??binding.Owner) &&
                             !DeclarationTypeIdentity.HasIntersection(syntax,owner);
-                    // A member reached through heritage is compared with
-                    // the merged type in the reference (TS2430 / TS2320 at
-                    // the first declaration), not as a redeclaration.
-                    if(!same && (incoming is null || !origins.ContainsKey(key)))
+                    if(!same && inherited)
                         throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
                             $"Merging inherited member '{key}' with a different declaration is not supported yet."));
                     if(!same)

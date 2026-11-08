@@ -273,6 +273,26 @@ public sealed class InterfaceInheritanceTests
         Assert.DoesNotContain(diagnostics,d=>d.Code=="TS2717");
     }
 
+    // Modifier differences on a member reached through heritage are TS2320
+    // or accepted in the reference, never TS2687: fail closed.
+    [Theory]
+    [InlineData("interface A{x:number}interface B{readonly x:number}interface N extends A{}interface N extends B{}")]
+    [InlineData("interface A{x:number}interface B{x?:number}interface N extends A{}interface N extends B{}")]
+    [InlineData("interface Base{x:number}interface N{readonly x:number}interface N extends Base{}")]
+    [InlineData("interface Base{a?:number}interface N{a:number}interface N extends Base{}")]
+    [InlineData("interface Base{a?:number}interface N extends Base{}interface N{a:number}")]
+    public void MergedInheritedModifierMismatchFailsClosed(string source)
+    {
+        var diagnostic=Assert.Single(Compilation.Check("merged-heritage-modifiers.ts",source));
+        Assert.Equal("TSCS1001",diagnostic.Code);
+    }
+
+    [Theory]
+    [InlineData("interface N{x:number}interface N{readonly x:number}")]
+    [InlineData("interface N{x:number}interface N{x?:number}")]
+    public void DirectModifierMismatchStaysTs2687(string source)=>
+        Assert.Equal("TS2687",Assert.Single(Compilation.Check("merged-modifiers.ts",source)).Code);
+
     [Theory]
     [InlineData("interface Base{a:string}interface N extends Base{x:number}interface N{y:number}let n:N={a:\"\",x:1,y:2};")]
     [InlineData("interface Base{a:string}interface N extends Base{}interface N{a:string}")]
