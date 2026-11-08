@@ -95,6 +95,12 @@ internal static class Binder
                 :iface.Body),
             _=>throw new InvalidOperationException("Not a type declaration.")
         };
+        // Predefined type names are not valid type parameter names (TS2368).
+        foreach(var parameter in (declaration as TypeAliasDeclaration)?.TypeParameters??[])
+            if(parameter.Text is "number" or "string" or "boolean" or "any" or "unknown" or
+               "undefined" or "never" or "object" or "bigint" or "symbol")
+                throw new CompilationFailure(Diagnostic.Error(file,parameter,"TS2368",
+                    $"Type parameter name cannot be '{parameter.Text}'."));
         if(scope.Types.TryGetValue(name.Text,out var previous))
         {
             // Non-generic interfaces may reopen a single global/module type.

@@ -33,6 +33,16 @@ public sealed class GenericTypeAliasTests
     [InlineData("type Box<T>={value:Missing};","TS2304")]
     [InlineData("type Box<T>={value:T};let b:Box<Missing>={value:1};","TS2304")]
     [InlineData("type Box<T>={value:T};type Box<U>={other:U};","TS2300")]
+    [InlineData("type Box<number>={value:number};","TS2368")]
+    [InlineData("type Box<string>={value:string};","TS2368")]
+    [InlineData("type Box<boolean>={value:number};","TS2368")]
+    [InlineData("type Box<any>={value:number};","TS2368")]
+    [InlineData("type Box<unknown>={value:number};","TS2368")]
+    [InlineData("type Box<undefined>={value:number};","TS2368")]
+    [InlineData("type Box<never>={value:number};","TS2368")]
+    [InlineData("type Box<object>={value:number};","TS2368")]
+    [InlineData("type Box<bigint>={value:number};","TS2368")]
+    [InlineData("type Box<T,symbol>={value:T};","TS2368")]
     public void GenericAliasErrorsAreReported(string source,string code)
     {
         var diagnostics=Compilation.Check("generic-alias-bad.ts",source);
