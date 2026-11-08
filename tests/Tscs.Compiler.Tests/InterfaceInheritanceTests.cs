@@ -246,4 +246,38 @@ public sealed class InterfaceInheritanceTests
         Assert.Equal(4,emitted.Count);
         Assert.All(emitted,output=>Assert.DoesNotContain("interface Child",output.Text,StringComparison.Ordinal));
     }
+
+    // A merged interface's heritage is checked once, against the merged
+    // type, at the first declaration's name (pinned Go, TS2430).
+    [Theory]
+    [InlineData("interface Base<T>{a:T}interface N{x:number}interface N extends Base<string>{a:number}",32)]
+    [InlineData("interface Base{a:string}interface N{b:number}interface N extends Base{a:number}",34)]
+    public void MergedInterfaceHeritageReportsAtFirstDeclaration(string source,int start)
+    {
+        var diagnostic=Assert.Single(Compilation.Check("merged-heritage-bad.ts",source));
+        Assert.Equal("TS2430",diagnostic.Code);
+        Assert.Equal(start,diagnostic.Start);
+    }
+
+    // A member one declaration inherits and another declares or inherits
+    // differently is TS2430 / TS2320 against the merged type in the
+    // reference, not a TS2717 redeclaration: fail closed.
+    [Theory]
+    [InlineData("interface Base<T>{a:T}interface N extends Base<string>{x:number}interface N extends Base<number>{y:number}")]
+    [InlineData("interface Base{a:string}interface N{a:number}interface N extends Base{}")]
+    [InlineData("interface Base{a:string}interface N extends Base{}interface N{a:number}")]
+    public void MergedInheritedMemberConflictsFailClosed(string source)
+    {
+        var diagnostics=Compilation.Check("merged-heritage-unsupported.ts",source);
+        Assert.Contains(diagnostics,d=>d.Code=="TSCS1001");
+        Assert.DoesNotContain(diagnostics,d=>d.Code=="TS2717");
+    }
+
+    [Theory]
+    [InlineData("interface Base{a:string}interface N extends Base{x:number}interface N{y:number}let n:N={a:\"\",x:1,y:2};")]
+    [InlineData("interface Base{a:string}interface N extends Base{}interface N{a:string}")]
+    [InlineData("interface Base{a:string}interface N extends Base{a:\"k\"}interface N{b:number}")]
+    [InlineData("interface Base{a:string}interface Other{a:string}interface N extends Base{}interface N extends Other{}")]
+    public void MergedInterfaceHeritageAgreesWithReference(string source)=>
+        Assert.Empty(Compilation.Check("merged-heritage.ts",source));
 }

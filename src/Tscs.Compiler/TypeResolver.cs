@@ -70,7 +70,17 @@ internal static class TypeResolver
             // Identical type parameter lists: every declaration's body is
             // read in the same instantiation scope.
             var owner=instance??declaredOwner;
-            if(Resolve(syntax,owner,file,depth+1) is not ObjectTypeSymbol next)
+            TypeSymbol resolved;
+            try {resolved=Resolve(syntax,owner,file,depth+1);}
+            catch(CompilationFailure failure) when (failure.Diagnostic.Code=="TS2430" &&
+                string.Equals(failure.Diagnostic.File,file,StringComparison.Ordinal) && failure.Diagnostic.Start==name.Start)
+            {
+                // The reference checks a merged interface's heritage once,
+                // against the merged type, at the first declaration's name.
+                throw new CompilationFailure(Diagnostic.Error(binding.File,binding.Name,"TS2430",
+                    failure.Diagnostic.Message));
+            }
+            if(resolved is not ObjectTypeSymbol next)
                 throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
                     "Only finite structural interfaces can be merged."));
             foreach(var (key,type) in next.Members)
@@ -92,6 +102,12 @@ internal static class TypeResolver
                         :CompilerTypes.SameStructuralInput(previous,type) &&
                             !DeclarationTypeIdentity.HasIntersection(binding.Syntax,instance??binding.Owner) &&
                             !DeclarationTypeIdentity.HasIntersection(syntax,owner);
+                    // A member reached through heritage is compared with
+                    // the merged type in the reference (TS2430 / TS2320 at
+                    // the first declaration), not as a redeclaration.
+                    if(!same && (incoming is null || !origins.ContainsKey(key)))
+                        throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
+                            $"Merging inherited member '{key}' with a different declaration is not supported yet."));
                     if(!same)
                         throw new CompilationFailure(Diagnostic.Error(file,name,"TS2717",
                             $"Subsequent property declarations must have the same type. Property '{key}' must be of type '{previous.DisplayName}', but here has type '{type.DisplayName}'."));
