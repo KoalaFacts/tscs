@@ -36,6 +36,8 @@ public sealed class InterfaceInheritanceTests
     // Shared inherited members with intersection provenance (Go: TS2320).
     [InlineData("interface A<T>{x:T}interface B<T>{x:T}interface N extends A<{a:1}&{b:2}>,B<{a:1;b:2}>{}","TSCS1001")]
     [InlineData("type I={a:1}&{b:2};interface A{x:I}interface B{x:{a:1;b:2}}interface N extends A,B{}","TSCS1001")]
+    // No override: the inherited intersection still conflicts (Go TS2320).
+    [InlineData("type I={a:number}&{b:string};interface C{x:I}interface A extends C{}interface B{x:{a:number;b:string}}interface N extends A,B{}","TSCS1001")]
     [InlineData("interface A{value:number}interface B{value:string}interface C extends A,B{value:42}","TS2430")]
     [InlineData("interface A{value:number}interface B{value:42}interface C extends A,B{value:string}","TS2430")]
     public void InvalidHeritageFailsClosed(string source,string code)=>
@@ -303,6 +305,10 @@ public sealed class InterfaceInheritanceTests
     [InlineData("interface C{x:number}interface E{x:number}interface A extends C,E{}interface B{x:number}","A,B")]
     [InlineData("interface A{x:number}interface B{x:number}interface C{other:number}interface C{extra:string}","A,B,C")]
     [InlineData("interface A{x:number}interface B{x:number}interface C{other:number}interface C{extra:string}","C,B,A")]
+    // An own member overrides (shadows) an inherited intersection member.
+    [InlineData("type I={a:number}&{b:string};interface C{x:I}interface A extends C{x:{a:number;b:string}}interface B{x:{a:number;b:string}}","A,B")]
+    [InlineData("type I={a:number}&{b:string};interface C{x:I}interface X extends C{}interface A extends X{x:{a:number;b:string}}interface B{x:{a:number;b:string}}","A,B")]
+    [InlineData("type I={a:number}&{b:string};type F={a:number;b:string};interface C{x:I[]}interface A extends C{x:F[]}interface B{x:F[]}","A,B")]
     // Optional shared member next to an unrelated intersection member.
     [InlineData("type I={a:number}&{b:string};interface A{x?:number;extra:I}interface B{x?:number}","A,B")]
     [InlineData("type I={a:number}&{b:string};interface A{x:number}interface A{extra:I}interface B{x:number}","A,B")]
