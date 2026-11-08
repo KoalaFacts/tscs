@@ -7,6 +7,16 @@ namespace Tscs.Tests;
 // denotes its substituted body. An opaque type parameter remains opaque.
 public sealed class GenericAliasHeritageIdentityTests
 {
+    private sealed class Host : ICompilerHost
+    {
+        public StringComparer FileNameComparer => StringComparer.Ordinal;
+        public Dictionary<string,string> Files { get; }=new(StringComparer.Ordinal);
+        public string GetCanonicalFileName(string path) =>
+            Path.GetFullPath(Path.IsPathRooted(path)?path:Path.Combine("/virtual",path));
+        public string ReadFile(string path) => Files.TryGetValue(path,out var text)
+            ?text:throw new FileNotFoundException(path);
+    }
+
     [Theory]
     [InlineData("type Carrier<U>={payload:U;flag:number};interface Base<T>{meta:Carrier<T>}interface Box<V> extends Base<V>{meta:{flag:number;payload:V}}let b:Box<number>={meta:{payload:5,flag:3}};")]
     [InlineData("type Carrier<U>={payload:U;flag:number};interface Base<T>{meta:{flag:number;payload:T}}interface Box<V> extends Base<V>{meta:Carrier<V>}let b:Box<number>={meta:{payload:5,flag:3}};")]
@@ -29,33 +39,31 @@ public sealed class GenericAliasHeritageIdentityTests
     [Fact]
     public void ImportedBaseAndInstantiatedAliasMatchAcrossFiles()
     {
-        var inputs=new[]
-        {
-            new SourceInput("base.ts",
-                "export type Carrier<U>={payload:U;flag:number};"+
-                "export interface Base<T>{value:T;meta:Carrier<T>}"),
-            new SourceInput("box.ts",
-                "import type {Base} from \"./base.js\";"+
-                "export interface Box<V> extends Base<V>{meta:{flag:number;payload:V}}"),
-            new SourceInput("entry.ts",
-                "import type {Box} from \"./box.js\";"+
-                "let result:Box<number>={value:5,meta:{payload:5,flag:3}};"+
-                "let n:number=result.value+result.meta.flag;")
-        };
-        Assert.Empty(Compilation.CheckFiles(inputs));
+        var host=new Host();
+        host.Files["/virtual/base.ts"]=
+            "export type Carrier<U>={payload:U;flag:number};"+
+            "export interface Base<T>{value:T;meta:Carrier<T>}";
+        host.Files["/virtual/box.ts"]=
+            "import type {Base} from \"./base.js\";"+
+            "export interface Box<V> extends Base<V>{meta:{flag:number;payload:V}}";
+        host.Files["/virtual/entry.ts"]=
+            "import type {Box} from \"./box.js\";"+
+            "let result:Box<number>={value:5,meta:{payload:5,flag:3}};"+
+            "let n:number=result.value+result.meta.flag;";
+        Assert.Empty(CompilerProgram.Load(host,["entry.ts"]).Analyze().Diagnostics);
     }
 
     [Fact]
     public void ImportedGenericAliasMismatchIsRejected()
     {
-        var diagnostics=Compilation.CheckFiles([
-            new SourceInput("base.ts",
-                "export type Carrier<U>={payload:U;flag:number};"+
-                "export interface Base<T>{meta:Carrier<T>}"),
-            new SourceInput("box.ts",
-                "import type {Base} from \"./base.js\";"+
-                "export interface Box<V> extends Base<V>{meta:{flag:number;payload:string}}")
-        ]);
+        var host=new Host();
+        host.Files["/virtual/base.ts"]=
+            "export type Carrier<U>={payload:U;flag:number};"+
+            "export interface Base<T>{meta:Carrier<T>}";
+        host.Files["/virtual/box.ts"]=
+            "import type {Base} from \"./base.js\";"+
+            "export interface Box<V> extends Base<V>{meta:{flag:number;payload:string}}";
+        var diagnostics=CompilerProgram.Load(host,["box.ts"]).Analyze().Diagnostics;
         Assert.Contains(diagnostics,d=>d.Code=="TSCS1001");
     }
 }
