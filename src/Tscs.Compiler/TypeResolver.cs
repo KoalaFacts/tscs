@@ -21,6 +21,9 @@ internal sealed class TypeBinding(string file,Token name,TypeSyntax syntax,Scope
     // the alias body in a fresh scope; generic bindings are never cached.
     public IReadOnlyList<Token> TypeParameters { get; init; }=[];
     public IReadOnlyList<TypeSyntax?> TypeParameterDefaults { get; init; }=[];
+    // A parameter shadows an outer homonym even before its own default is
+    // validated. Only earlier parameters may be read by that default.
+    public bool PendingDefaultParameter { get; init; }
     // Reopened interfaces retain source positions and declaring scopes.
     // No type alias or imported binding is silently merged with an interface.
     public List<(string File,Token Name,TypeSyntax Syntax,Scope Owner)> MergedInterfaces { get; }=[];
@@ -144,6 +147,12 @@ internal static class TypeResolver
         try
         {
             var placeholder=new Scope(binding.Owner);
+            foreach(var parameter in binding.TypeParameters)
+                placeholder.Types.Add(parameter.Text,new TypeBinding(binding.File,parameter,
+                    new PrimitiveTypeSyntax(parameter with {Text="unknown"}),placeholder)
+                {
+                    PendingDefaultParameter=true
+                });
             for(int i=0;i<binding.TypeParameters.Count;i++)
             {
                 // A default may refer to earlier parameters, never to itself
@@ -152,11 +161,11 @@ internal static class TypeResolver
                    binding.TypeParameterDefaults[i] is { } fallback)
                     _=Resolve(fallback,placeholder,binding.File,depth+1);
                 var parameter=binding.TypeParameters[i];
-                placeholder.Types.Add(parameter.Text,new TypeBinding(binding.File,parameter,
+                placeholder.Types[parameter.Text]=new TypeBinding(binding.File,parameter,
                     new PrimitiveTypeSyntax(parameter with {Text="unknown"}),binding.Owner)
                 {
                     Resolved=CompilerTypes.Unknown
-                });
+                };
             }
             _=Resolve(binding.Syntax,placeholder,binding.File,depth+1);
             // A generic interface's heritage is checked with opaque type
@@ -201,7 +210,7 @@ internal static class TypeResolver
             foreach(var merged in binding.MergedInterfaces)
                 _=Resolve(merged.Syntax,placeholder,merged.File,depth+1);
         }
-        catch(CompilationFailure failure) when (failure.Diagnostic.Code!="TS2304")
+        catch(CompilationFailure failure) when (failure.Diagnostic.Code is not ("TS2304" or "TS2744"))
         {
             throw new CompilationFailure(Diagnostic.Error(binding.File,binding.Name,"TSCS1001",
                 "This generic declaration body is not supported without known type arguments yet."));
@@ -266,6 +275,9 @@ internal static class TypeResolver
                 if(scope.FindType(named.Name.Text) is not { } binding)
                     throw new CompilationFailure(Diagnostic.Error(file,named.Name,"TS2304",
                         $"Cannot find name '{named.Name.Text}'."));
+                if(binding.PendingDefaultParameter)
+                    throw new CompilationFailure(Diagnostic.Error(file,named.Name,"TS2744",
+                        "Type parameter defaults can only reference previously declared type parameters."));
                 if(binding.TypeParameters.Count==0 && named.TypeArguments is null)
                     return ResolveBinding(binding,depth+1);
                 // Heritage diagnostics belong to the declaration, so check it

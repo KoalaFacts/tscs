@@ -211,19 +211,17 @@ internal static class DeclarationTypeIdentity
     }
 
     // One declared member of a generic interface or of one of its bases.
-    // 'Substitution' maps the base's type parameter names to the heritage
-    // arguments, which are read in 'ArgumentScope' (the declaring generic
-    // interface's scope, where its own type parameters stay opaque).
+    // Explicit heritage arguments belong to their use site. Omitted generic
+    // defaults belong to the defining declaration and see earlier parameters.
     internal readonly record struct MemberSide(ObjectTypeProperty Property,Scope Scope,
-        IReadOnlyDictionary<string,TypeSyntax>? Substitution=null,Scope? ArgumentScope=null);
+        Context? IdentityContext=null);
 
-    // A chain of substitutions keeps each argument in the environment where
-    // it was spelled: a generic alias body may refer to an argument that
-    // itself came from a generic heritage substitution. A reference context
-    // (not a record struct) allows bounded, nested chains without erasing
-    // declaration identity into the placeholder 'unknown' type.
-    private sealed record Context(Scope Scope,
-        IReadOnlyDictionary<string,TypeSyntax>? Substitution,Context? ArgumentContext);
+    // A source context per argument keeps binding identity through nested
+    // aliases and defaults, without equating opaque 'unknown' placeholders.
+    internal sealed record Context(Scope Scope,
+        IReadOnlyDictionary<string,TypeSyntax>? Substitution,
+        Context? ArgumentContext,
+        IReadOnlyDictionary<string,Context>? ParameterContexts=null);
 
     // The member 'key' as directly declared by the single-declaration
     // interface that 'named' references (read in 'scope'), with its type
@@ -233,13 +231,9 @@ internal static class DeclarationTypeIdentity
     {
         if(scope.FindType(named.Name.Text) is not { IsInterface: true } binding ||
            binding.MergedInterfaces.Count!=0)return null;
-        var arguments=named.TypeArguments??[];
-        if(arguments.Count!=binding.TypeParameters.Count)return null;
         if(DirectProperty(binding.Syntax,key) is not { } property)return null;
-        var substitution=new Dictionary<string,TypeSyntax>(StringComparer.Ordinal);
-        for(int i=0;i<arguments.Count;i++)
-            if(!substitution.TryAdd(binding.TypeParameters[i].Text,arguments[i]))return null;
-        return new MemberSide(property,binding.Owner,substitution,scope);
+        var instantiated=TypeArgumentsContext(binding,named,new Context(scope,null,null));
+        return instantiated is null?null:new MemberSide(property,binding.Owner,instantiated);
     }
 
     // Whether two member declarations are the same type by syntax alone:
@@ -251,10 +245,8 @@ internal static class DeclarationTypeIdentity
         left.Property.Readonly==right.Property.Readonly &&
         left.Property.Optional==right.Property.Optional &&
         left.Property.Name.Kind==right.Property.Name.Kind &&
-        SameDeclared(left.Property.Type,new(left.Scope,left.Substitution,
-                left.ArgumentScope is { } ls?new Context(ls,null,null):null),
-            right.Property.Type,new(right.Scope,right.Substitution,
-                right.ArgumentScope is { } rs?new Context(rs,null,null):null),0);
+        SameDeclared(left.Property.Type,left.IdentityContext??new(left.Scope,null,null),
+            right.Property.Type,right.IdentityContext??new(right.Scope,null,null),0);
 
     private static bool SameDeclared(TypeSyntax left,Context l,TypeSyntax right,Context r,int depth)
     {
@@ -262,9 +254,9 @@ internal static class DeclarationTypeIdentity
         // A substituted argument is read in the declaring interface's scope,
         // where no further substitution applies.
         if(Substituted(left,l) is { } ls)
-            return SameDeclared(ls,l.ArgumentContext!,right,r,depth+1);
+            return SameDeclared(ls.Syntax,ls.Source,right,r,depth+1);
         if(Substituted(right,r) is { } rs)
-            return SameDeclared(left,l,rs,r.ArgumentContext!,depth+1);
+            return SameDeclared(left,l,rs.Syntax,rs.Source,depth+1);
         bool Each(IReadOnlyList<TypeSyntax> a,IReadOnlyList<TypeSyntax> b)=>
             a.Count==b.Count && a.Zip(b).All(pair=>SameDeclared(pair.First,l,pair.Second,r,depth+1));
         // Unions are unordered. Match every source arm to a distinct target
@@ -295,7 +287,7 @@ internal static class DeclarationTypeIdentity
         if(left is NamedTypeSyntax leftName && right is NamedTypeSyntax rightName &&
            l.Scope.FindType(leftName.Name.Text) is { } sameBinding &&
            ReferenceEquals(sameBinding,r.Scope.FindType(rightName.Name.Text)))
-            return Each(leftName.TypeArguments??[],rightName.TypeArguments??[]);
+            return SameBindingArguments(sameBinding,leftName,l,rightName,r,depth+1);
         if(left is NamedTypeSyntax {TypeArguments:null} leftAlias &&
            l.Scope.FindType(leftAlias.Name.Text) is {IsTypeAlias:true,TypeParameters.Count:0} leftBinding)
             return SameDeclared(leftBinding.Syntax,new(leftBinding.Owner,null,null),
@@ -332,7 +324,7 @@ internal static class DeclarationTypeIdentity
             case (NamedTypeSyntax a,NamedTypeSyntax b):
                 return l.Scope.FindType(a.Name.Text) is { } binding &&
                     ReferenceEquals(binding,r.Scope.FindType(b.Name.Text)) &&
-                    Each(a.TypeArguments??[],b.TypeArguments??[]);
+                    SameBindingArguments(binding,a,l,b,r,depth+1);
             case (ArrayTypeSyntax a,ArrayTypeSyntax b):
                 return a.Readonly==b.Readonly && SameDeclared(a.Element,l,b.Element,r,depth+1);
             case (TupleTypeSyntax a,TupleTypeSyntax b):
@@ -420,23 +412,77 @@ internal static class DeclarationTypeIdentity
         return members;
     }
 
-    private static (TypeSyntax Syntax,Context Body)? GenericAlias(TypeSyntax syntax,Context context)
+    // Bind explicit arguments at the use site and missing defaults in the
+    // declaration scope with a snapshot of preceding type parameters.
+    private static Context? TypeArgumentsContext(TypeBinding binding,
+        NamedTypeSyntax reference,Context referenceContext)
     {
-        if(syntax is not NamedTypeSyntax {TypeArguments: { } arguments} named ||
-           context.Scope.FindType(named.Name.Text) is not
-               {IsTypeAlias:true,TypeParameters.Count:>0} binding ||
-           arguments.Count!=binding.TypeParameters.Count)
-            return null;
+        var supplied=reference.TypeArguments??[];
+        if(supplied.Count>binding.TypeParameters.Count)return null;
         var substitutions=new Dictionary<string,TypeSyntax>(StringComparer.Ordinal);
-        for(int i=0;i<arguments.Count;i++)
-            if(!substitutions.TryAdd(binding.TypeParameters[i].Text,arguments[i]))
-                return null;
-        return (binding.Syntax,new Context(binding.Owner,substitutions,context));
+        var sources=new Dictionary<string,Context>(StringComparer.Ordinal);
+        for(int i=0;i<binding.TypeParameters.Count;i++)
+        {
+            TypeSyntax argument;
+            Context source;
+            if(i<supplied.Count)
+            {
+                argument=supplied[i];
+                source=referenceContext;
+            }
+            else
+            {
+                if(binding.TypeParameterDefaults.Count<=i ||
+                   binding.TypeParameterDefaults[i] is not { } fallback)return null;
+                argument=fallback;
+                source=new Context(binding.Owner,
+                    new Dictionary<string,TypeSyntax>(substitutions,StringComparer.Ordinal),
+                    null,new Dictionary<string,Context>(sources,StringComparer.Ordinal));
+            }
+            var name=binding.TypeParameters[i].Text;
+            if(!substitutions.TryAdd(name,argument))return null;
+            sources.Add(name,source);
+        }
+        return new Context(binding.Owner,substitutions,null,sources);
     }
 
-    private static TypeSyntax? Substituted(TypeSyntax syntax,Context context)=>
-        context.Substitution is { } map && syntax is NamedTypeSyntax { TypeArguments: null } named &&
-        map.TryGetValue(named.Name.Text,out var argument) ? argument : null;
+    private static bool SameBindingArguments(TypeBinding binding,NamedTypeSyntax left,Context l,
+        NamedTypeSyntax right,Context r,int depth)
+    {
+        if(binding.TypeParameters.Count==0)
+            return left.TypeArguments is null && right.TypeArguments is null;
+        var a=TypeArgumentsContext(binding,left,l);
+        var b=TypeArgumentsContext(binding,right,r);
+        if(a?.Substitution is not { } aa || b?.Substitution is not { } bb ||
+           a.ParameterContexts is not { } ac || b.ParameterContexts is not { } bc)return false;
+        foreach(var parameter in binding.TypeParameters)
+        {
+            var name=parameter.Text;
+            if(!SameDeclared(aa[name],ac[name],bb[name],bc[name],depth+1))return false;
+        }
+        return true;
+    }
+
+    private static (TypeSyntax Syntax,Context Body)? GenericAlias(TypeSyntax syntax,Context context)
+    {
+        if(syntax is not NamedTypeSyntax named ||
+           context.Scope.FindType(named.Name.Text) is not
+               {IsTypeAlias:true,TypeParameters.Count:>0} binding ||
+           TypeArgumentsContext(binding,named,context) is not { } instance)
+            return null;
+        return (binding.Syntax,instance);
+    }
+
+    private static (TypeSyntax Syntax,Context Source)? Substituted(TypeSyntax syntax,Context context)
+    {
+        if(context.Substitution is not { } map ||
+           syntax is not NamedTypeSyntax {TypeArguments:null} named ||
+           !map.TryGetValue(named.Name.Text,out var argument))return null;
+        var source=context.ParameterContexts is { } contexts &&
+            contexts.TryGetValue(named.Name.Text,out var captured)
+                ?captured:context.ArgumentContext;
+        return source is null?null:(argument,source);
+    }
 
     // Comparing only the first declaration's body would ignore the
     // intersection provenance of later declarations: fail closed.

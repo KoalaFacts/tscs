@@ -27,9 +27,22 @@ public sealed class GenericDeclarationDefaultsTests
     [InlineData("type Box<T=number>={value:T};let b:Box<number,string>={value:1};","TS2314")]
     [InlineData("type Box<T=Missing>={value:T};","TS2304")]
     [InlineData("interface Box<T=Missing>{value:T}","TS2304")]
-    [InlineData("type Box<T=Later,Later=string>={value:T};","TS2304")]
+    [InlineData("type Box<T=Later,Later=string>={value:T};","TS2744")]
     public void DefaultedDeclarationsReportErrors(string source,string code)=>
         Assert.Contains(Compilation.Check("generic-default-error.ts",source),d=>d.Code==code);
+
+    [Theory]
+    [InlineData("interface Base<T=number>{value:T}interface Child<U=string> extends Base{value:number;other:U}let x:Child={value:8,other:\"ok\"};")]
+    [InlineData("interface Base<T=number,U=T[]>{first:T;second:U}interface Child extends Base{first:number;second:number[]}let x:Child={first:8,second:[8]};")]
+    [InlineData("type Payload<T=number>={value:T};interface Base<T=number>{payload:Payload<T>}interface Child extends Base{payload:Payload}let x:Child={payload:{value:8}};")]
+    public void DefaultedSharedHeritageMembersAreIdentical(string source)=>
+        Assert.Empty(Compilation.Check("default-heritage-identity.ts",source));
+
+    [Theory]
+    [InlineData("interface Base<T=number>{value:T}interface Child<U=string> extends Base{value:string;other:U}")]
+    [InlineData("interface Base<T=number,U=T[]>{first:T;second:U}interface Child extends Base{first:number;second:string[]}")]
+    public void ConflictingDefaultedHeritageMembersFailClosed(string source)=>
+        Assert.NotEmpty(Compilation.Check("bad-default-heritage-identity.ts",source));
 
     [Theory]
     [InlineData("type Box<T=number,U>={left:T;right:U};")]

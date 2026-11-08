@@ -488,6 +488,35 @@ try {
   assert.match(defaultsBad.stdout+defaultsBad.stderr,/TS2322/);
   assert.equal(existsSync(join(dir,'defaults-invalid.js')),false);
 
+  // A defaulted base with a redeclared member must pass the actual checked
+  // CLI and Node; incompatible shared members must never emit JavaScript.
+  writeFileSync(join(dir,'defaults-heritage-valid.ts'),
+    'interface Base<T=number,U=T[]>{value:T;items:U}' +
+    'interface Child extends Base{value:number;items:number[]}' +
+    'export const defaultHeritageResult:number=8;');
+  const defaultHeritageValid=compile(['--emitJs','--noLib','--target','es2015',
+    '--module','es2015','defaults-heritage-valid.ts','minimal.d.ts']);
+  assert.equal(defaultHeritageValid.status,0,
+    defaultHeritageValid.stdout+defaultHeritageValid.stderr);
+  assert.ok(existsSync(join(dir,'defaults-heritage-valid.js')));
+  const defaultHeritageRuntime=spawnSync(process.execPath,['--input-type=module','--eval',
+    'import {defaultHeritageResult} from "./defaults-heritage-valid.js";' +
+    'if(defaultHeritageResult!==8)throw Error("default heritage");'],
+    {cwd:dir,encoding:'utf8',timeout:15000});
+  assert.equal(defaultHeritageRuntime.error,undefined,String(defaultHeritageRuntime.error));
+  assert.equal(defaultHeritageRuntime.status,0,
+    defaultHeritageRuntime.stdout+defaultHeritageRuntime.stderr);
+  writeFileSync(join(dir,'defaults-heritage-invalid.ts'),
+    'interface Base<T=number>{value:T}' +
+    'interface Child extends Base{value:string}' +
+    'export const defaultHeritageResult:number=8;');
+  const defaultHeritageBad=compile(['--emitJs','--noLib','--target','es2015',
+    '--module','es2015','defaults-heritage-invalid.ts','minimal.d.ts']);
+  assert.notEqual(defaultHeritageBad.status,0,
+    defaultHeritageBad.stdout+defaultHeritageBad.stderr);
+  assert.match(defaultHeritageBad.stdout+defaultHeritageBad.stderr,/TS(?:CS1001|2430)/);
+  assert.equal(existsSync(join(dir,'defaults-heritage-invalid.js')),false);
+
   const invalid:[string,string,string,number][]=[
     ['wrong-value','interface A{value:number}interface B extends A{}let b:B={value:"bad"};','TS2322',2],
     ['readonly-parent','interface A{readonly value:number}interface B extends A{}let b:B={value:1};b.value=2;','TS2540',2],
