@@ -280,6 +280,23 @@ public sealed class GenericInterfaceTests
         Assert.Contains(Compilation.Check("generic-interface-heritage-unsupported.ts",source),d=>d.Code=="TSCS1001");
 
 
+    // A2.3: concrete aliases denote their checked types when shared by
+    // generic heritage. Mismatches and modifier changes still fail closed.
+    [Theory]
+    [InlineData("type Tag=string|1;interface Base<T>{value:T;tag:Tag}interface Box<T> extends Base<T>{tag:1|string}let b:Box<number>={value:8,tag:1};")]
+    [InlineData("type A=1|string;type B=string|1;interface Base<T>{value:T;tag:A}interface Box<T> extends Base<T>{tag:B}let b:Box<number>={value:8,tag:1};")]
+    [InlineData("type Shape={x:number;y:string};interface Base<T>{value:T;meta:Shape}interface Box<T> extends Base<T>{meta:{y:string;x:number}}let b:Box<number>={value:8,meta:{x:1,y:\"ok\"}};")]
+    public void ConcreteAliasSharedByGenericHeritageCompiles(string source)=>
+        Assert.Empty(Compilation.Check("generic-alias-shared-member.ts",source));
+
+    [Theory]
+    [InlineData("type Tag=string|1;interface Base<T>{tag:Tag}interface Box<T> extends Base<T>{tag:number|string}")]
+    [InlineData("type Shape={x:number;y:string};interface Base<T>{meta:Shape}interface Box<T> extends Base<T>{meta:{x:number;y:number}}")]
+    [InlineData("type Shape={x:number};interface Base<T>{readonly meta:Shape}interface Box<T> extends Base<T>{meta:{x:number}}")]
+    public void ConcreteAliasSharedByGenericHeritageRejectsConflicts(string source)=>
+        Assert.Contains(Compilation.Check("generic-alias-shared-conflict.ts",source),
+            d=>d.Code=="TSCS1001");
+
     // Pinned Go accepts this exact concrete-union reordered member, in both
     // syntactic orders (see PR #249 independent reference review). It used to
     // be misregistered as an unsupported negative case.
