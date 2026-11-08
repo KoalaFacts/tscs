@@ -114,6 +114,42 @@ try {
   assert.match(concreteBad.stdout+concreteBad.stderr,/TSCS1001/);
   assert.equal(existsSync(join(dir,'concrete-conflict.js')),false);
 
+  // A2.3: a concrete alias in an imported base and an equivalent
+  // union in generic heritage must compile, emit and execute.
+  for(const [name,source] of Object.entries({
+    'alias-base.ts':'export type Tag=string|1;export interface Base<T>{value:T;tag:Tag}',
+    'alias-model.ts':'import type {Base} from "./alias-base.js";' +
+      'export interface Box<T> extends Base<T>{tag:1|string}' +
+      'export const item:Box<number>={value:8,tag:1};',
+    'alias-logic.ts':'import type {Box} from "./alias-model.js";' +
+      'export function read(box:Box<number>):number{return box.value;}',
+    'alias-entry.ts':'import {item} from "./alias-model.js";' +
+      'import {read} from "./alias-logic.js";' +
+      'export const aliasResult:number=read(item);'
+  }))writeFileSync(join(dir,name),source);
+  writeFileSync(join(dir,'alias-project.json'),JSON.stringify({
+    files:['alias-entry.ts','minimal.d.ts'],
+    compilerOptions:{module:'es2015',target:'es2015',noLib:true}
+  }));
+  const aliasCompiled=compile(['--emitJs','-p',join(dir,'alias-project.json')]);
+  assert.equal(aliasCompiled.status,0,aliasCompiled.stdout+aliasCompiled.stderr);
+  for(const name of ['alias-base','alias-model','alias-logic','alias-entry'])
+    assert.ok(existsSync(join(dir,name+'.js')),name+' missing emitted JS');
+  const aliasRan=spawnSync(process.execPath,['--input-type=module','--eval',
+    'import {aliasResult} from "./alias-entry.js";if(aliasResult!==8)throw Error("alias result "+aliasResult);'],
+    {cwd:dir,encoding:'utf8',timeout:15000});
+  assert.equal(aliasRan.error,undefined,String(aliasRan.error));
+  assert.equal(aliasRan.status,0,aliasRan.stdout+aliasRan.stderr);
+  writeFileSync(join(dir,'alias-conflict.ts'),
+    'type Tag=string|1;interface Base<T>{tag:Tag}' +
+    'interface Box<T> extends Base<T>{tag:number|string}' +
+    'let answer:number=8;');
+  const aliasBad=compile(['--emitJs','--noLib','--target','es2015',
+    'alias-conflict.ts','minimal.d.ts']);
+  assert.equal(aliasBad.status,1,aliasBad.stdout+aliasBad.stderr);
+  assert.match(aliasBad.stdout+aliasBad.stderr,/TSCS1001/);
+  assert.equal(existsSync(join(dir,'alias-conflict.js')),false);
+
   // A2.3: separate checked .d.ts interface declarations merge before the
   // consumer is checked; declarations erase while real ES module JS runs.
   writeFileSync(join(dir,'ambient-part-one.d.ts'),'interface MergedReading {value:number;}');
