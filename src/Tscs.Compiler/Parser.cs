@@ -762,8 +762,32 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 Take();
                 if(alias)
                 {
+                    // Generic aliases take plain type parameters only:
+                    // constraints, defaults and variance modifiers fail closed.
+                    var typeParameters=new List<Token>();
+                    if(Current.Kind==TokenKind.LessThan)
+                    {
+                        Take();
+                        while(true)
+                        {
+                            if(typeParameters.Count>=16)Unsupported(Current,"Type alias type parameters exceed the 16-parameter limit.");
+                            if(Current.Kind!=TokenKind.Identifier || Current.Text is "in" or "out" or "const")
+                                Unsupported(Current,"Only plain type alias type parameters are supported.");
+                            var parameter=Take();
+                            if(typeParameters.Any(p=>p.Text==parameter.Text))
+                                Unsupported(parameter,"Duplicate type alias type parameters are not supported.");
+                            typeParameters.Add(parameter);
+                            if(Current.Kind is TokenKind.Extends or TokenKind.Equal)
+                                Unsupported(Current,"Type parameter constraints and defaults are not supported yet.");
+                            if(!Eat(TokenKind.Comma))break;
+                            if(Current.Kind is TokenKind.GreaterThan or TokenKind.GreaterEqual)
+                                Unsupported(Current,"Only plain type alias type parameters are supported.");
+                        }
+                        TakeArrayTypeClose();
+                    }
                     if(!Eat(TokenKind.Equal))Unsupported(Current,"Expected '=' in a type alias.");
-                    statements.Add(new TypeAliasDeclaration(name,ReadTypeAnnotation(),exported));
+                    statements.Add(new TypeAliasDeclaration(name,ReadTypeAnnotation(),exported,
+                        typeParameters.Count==0?null:typeParameters));
                     EndStatement();
                 }
                 else
@@ -1562,6 +1586,23 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 var element=ReadTypeAnnotation(depth+1);
                 var close=TakeArrayTypeClose();
                 type=new ArrayTypeSyntax(element,open,close,name.Text=="ReadonlyArray",name);
+            }
+            else if(name.Kind==TokenKind.Identifier && Current.Kind==TokenKind.LessThan &&
+                    name.Text is not ("number" or "string" or "boolean" or "any" or "unknown" or "undefined"))
+            {
+                // A generic type reference; the resolver checks the arity.
+                Take();
+                var arguments=new List<TypeSyntax>();
+                while(true)
+                {
+                    if(arguments.Count>=16)Unsupported(Current,"Type argument lists exceed the 16-argument limit.");
+                    if(Current.Kind is TokenKind.GreaterThan or TokenKind.Comma)
+                        Unsupported(Current,"Expected a type argument.");
+                    arguments.Add(ReadTypeAnnotation(depth+1));
+                    if(!Eat(TokenKind.Comma))break;
+                }
+                TakeArrayTypeClose();
+                type=new NamedTypeSyntax(name,arguments);
             }
             else
                 type=name.Text is "number" or "string" or "boolean" or "any" or "unknown" or "void" or "undefined" or "null"

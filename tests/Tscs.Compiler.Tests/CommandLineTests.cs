@@ -566,10 +566,27 @@ public class CommandLineTests : IDisposable
     }
 
     [Fact]
+    public void AmbientDtsChecksPlainGenericAliasesAndEmitsOnlyTheConsumer()
+    {
+        var types=Write("generic-types.d.ts","type Box<T> = { value: T }; declare var boxed: Box<number>;");
+        var consumer=Write("generic-use.ts","let total: number = boxed.value + 1;");
+        var result=Run("--emitJs","--noLib","--target","es2015",consumer,types,Lib());
+        Assert.Equal(0,result.Code);
+        Assert.Contains("let total = boxed.value + 1;",File.ReadAllText(Path.ChangeExtension(consumer,".js")));
+        Assert.False(File.Exists(Path.ChangeExtension(types,".js")));
+        File.WriteAllText(types,"type Box<T> = { value: T }; declare var boxed: Box<string>;");
+        File.Delete(Path.ChangeExtension(consumer,".js"));
+        var mismatch=Run("--emitJs","--noLib","--target","es2015",consumer,types,Lib());
+        Assert.Equal(2,mismatch.Code);
+        Assert.Contains("TS2322",mismatch.Out);
+        Assert.False(File.Exists(Path.ChangeExtension(consumer,".js")));
+    }
+
+    [Fact]
     public void AmbientDtsDoesNotAcceptGenericTypesOrBootstrapGlobalInterfacesAsCheckedAliases()
     {
         var consumer=Write("consumer.ts","let value = 1;");
-        var declarations=Write("types.d.ts","type Box<T> = { value: T };");
+        var declarations=Write("types.d.ts","interface Box<T> { value: T }");
         var generic=Run("--noEmit","--noLib",consumer,declarations,Lib());
         Assert.Equal(1,generic.Code);
         Assert.Contains("TSCS1002",generic.Out);
