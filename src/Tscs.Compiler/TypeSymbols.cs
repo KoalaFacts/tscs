@@ -707,7 +707,8 @@ internal static class CompilerTypes
     // Mutual assignability treats `any` as equal to every type, whereas the
     // reference requires identical declared types for members shared by two
     // bases (TS2320). True only when `any` sits at the same positions on both
-    // sides; unions and other forms containing `any` are not proven.
+    // sides and object members agree on modifiers; forms containing `any` that
+    // cannot be paired (including rest parameters) are not proven.
     public static bool AnyPositionsAgree(TypeSymbol a,TypeSymbol b)
     {
         var pending=new Stack<(TypeSymbol Left,TypeSymbol Right)>();
@@ -731,7 +732,13 @@ internal static class CompilerTypes
                     if(ContainsAny(right))return false;
                     break;
                 case (ObjectTypeSymbol l,ObjectTypeSymbol r):
-                    if(l.Members.Count!=r.Members.Count)return false;
+                    // Mutual assignability ignores readonly; identity does not.
+                    if(l.Members.Count!=r.Members.Count ||
+                       !l.ReadonlyMembers.SetEquals(r.ReadonlyMembers) ||
+                       !l.OptionalMembers.SetEquals(r.OptionalMembers) ||
+                       !l.NumericMembers.SetEquals(r.NumericMembers) ||
+                       !l.MixedRequiredOptionalMembers.SetEquals(r.MixedRequiredOptionalMembers))
+                        return false;
                     foreach(var member in l.Members)
                     {
                         if(!r.Members.TryGetValue(member.Key,out var other))return false;
@@ -753,6 +760,11 @@ internal static class CompilerTypes
                     for(int i=0;i<l.Parameters.Count;i++)pending.Push((l.Parameters[i],r.Parameters[i]));
                     pending.Push((l.ReturnType,r.ReturnType));
                     if(l.RestElementType is {} lr && r.RestElementType is {} rr)pending.Push((lr,rr));
+                    break;
+                case (UnionTypeSymbol l,UnionTypeSymbol r) when l.Alternatives.Count==r.Alternatives.Count:
+                    // Identical source unions normalize to the same order;
+                    // any other pairing is not proven and fails closed.
+                    for(int i=0;i<l.Alternatives.Count;i++)pending.Push((l.Alternatives[i],r.Alternatives[i]));
                     break;
                 default:
                     if(ContainsAny(left) || ContainsAny(right))return false;

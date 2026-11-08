@@ -328,6 +328,8 @@ public sealed class InterfaceInheritanceTests
     [InlineData("type Q={a:number;b:string};interface A{x:{v:any}}interface B{x:{v:Q}}")]
     [InlineData("type Q={a:number;b:string};interface A{x:(v:any)=>number}interface B{x:(v:Q)=>number}")]
     [InlineData("interface A{x:any}interface B{x:number}")]
+    [InlineData("interface A{x:{readonly a:number}}interface B{x:{a:number}}")]
+    [InlineData("interface A{x:{a:any}|string}interface B{x:{a:number}|string}")]
     public void SharedMemberAnyAgainstConcreteFailsClosed(string prelude)
     {
         foreach(var order in new[]{"A,B","B,A"})
@@ -339,6 +341,9 @@ public sealed class InterfaceInheritanceTests
     [InlineData("interface A{x:any}interface B{x:any}")]
     [InlineData("interface A{x:any[]}interface B{x:any[]}")]
     [InlineData("interface A{x:(v:any)=>number}interface B{x:(v:any)=>number}")]
+    [InlineData("interface A{x:{a:any}|string}interface B{x:{a:any}|string}")]
+    [InlineData("interface A{x:any[]|string}interface B{x:any[]|string}")]
+    [InlineData("interface A{x:{readonly a:any}}interface B{x:{readonly a:any}}")]
     public void SharedMemberAnyAtSamePositionsStaysValid(string prelude)
     {
         foreach(var order in new[]{"A,B","B,A"})
