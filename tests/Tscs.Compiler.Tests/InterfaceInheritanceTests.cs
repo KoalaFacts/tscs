@@ -346,6 +346,9 @@ public sealed class InterfaceInheritanceTests
     [InlineData("interface A{x:{a:any}|string}interface B{x:{a:any}|string}")]
     [InlineData("interface A{x:any[]|string}interface B{x:any[]|string}")]
     [InlineData("interface A{x:{readonly a:any}}interface B{x:{readonly a:any}}")]
+    [InlineData("interface A{x:number|string}interface B{x:string|number}")]
+    [InlineData("interface A{x:{v:string}|number}interface B{x:number|{v:string}}")]
+    [InlineData("interface A{x:{v:any}|number}interface B{x:number|{v:any}}")]
     public void SharedMemberAnyAtSamePositionsStaysValid(string prelude)
     {
         foreach(var order in new[]{"A,B","B,A"})

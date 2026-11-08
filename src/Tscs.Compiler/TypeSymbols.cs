@@ -762,10 +762,19 @@ internal static class CompilerTypes
                     if(l.RestElementType is {} lr && r.RestElementType is {} rr)pending.Push((lr,rr));
                     break;
                 case (UnionTypeSymbol l,UnionTypeSymbol r) when l.Alternatives.Count==r.Alternatives.Count:
-                    // Identical source unions normalize to the same order;
-                    // any other pairing is not proven and fails closed.
-                    for(int i=0;i<l.Alternatives.Count;i++)pending.Push((l.Alternatives[i],r.Alternatives[i]));
+                {
+                    // Union alternatives keep encounter order, so match each
+                    // left alternative with a distinct identical right one.
+                    var unmatched=new List<TypeSymbol>(r.Alternatives);
+                    foreach(var alternative in l.Alternatives)
+                    {
+                        int match=unmatched.FindIndex(candidate=>
+                            IsEquivalent(alternative,candidate) && AnyPositionsAgree(alternative,candidate));
+                        if(match<0)return false;
+                        unmatched.RemoveAt(match);
+                    }
                     break;
+                }
                 default:
                     // Different forms (a union against a single type, unions
                     // of different sizes, or alternatives paired across kinds)
