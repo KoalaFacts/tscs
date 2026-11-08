@@ -120,10 +120,11 @@ diagnostic and exit 1; they are intended never to be compiled silently.
 
 - Primitives, `any`, `unknown` (catch variables), `null`/`undefined`,
   numeric/string/boolean literal types and unions, `void`.
-- `type` aliases, including generic aliases with plain type parameters
-  (instantiated by substitution; arity errors TS2314/TS2315; constraints,
-  defaults and bodies that need known arguments such as `keyof T` fail
-  closed), non-generic interfaces (named, non-generic `extends`),
+- `type` aliases and interfaces, including generic ones with plain type
+  parameters (instantiated by substitution; arity errors TS2314/TS2315;
+  constraints, defaults, bodies that need known arguments such as `keyof T`,
+  and heritage or reopening of generic interfaces fail closed); non-generic
+  interfaces take named, non-generic `extends`,
   structural object types with optional and `readonly` members, finite
   intersections, excess-property checks on fresh literals; circular aliases
   report TS2456.
@@ -176,8 +177,8 @@ is executed by the `tools/verify-*-emit.ts` checks.
 ### Standard library
 
 The noLib CLI accepts bounded, non-overloaded typed `declare var/let/const/function`
-value signatures, named `type` aliases (generic ones as above) and
-non-generic `interface` shapes from separate `.d.ts` inputs. These share the real parser, binder and checker
+value signatures, named `type` aliases and `interface` shapes (generic ones
+as above) from separate `.d.ts` inputs. These share the real parser, binder and checker
 with `.ts` consumers, including cross-file structural typing and negative
 diagnostics; no declaration file emits JavaScript. Typed ambient `var`
 bindings are writable; identically typed repeated ambient `var` declarations
@@ -192,8 +193,8 @@ the type they denote (a `typeof` root needs an annotation, a function
 signature, an `as T` assertion or a literal-only initializer, where only a
 `const` may be bare `null`; other inferred roots, `satisfies`, and a rest
 signature against a structurally equal but differently spelled one are
-rejected conservatively); instantiations of one generic alias compare by
-what their bodies denote. Generic interfaces, ambient classes and
+rejected conservatively); instantiations of one generic alias or interface
+compare by what their bodies denote. Merged generic interfaces, ambient classes and
 library-wide declaration merging remain unsupported. These merges are A2.3
 prerequisites, **not** default-library loading, general ambient declaration
 support or an original upstream PASS.
@@ -279,8 +280,9 @@ arguments only; newer methods such as `padStart` are emitted unpolyfilled);
 
 ## What does not work
 
-Generics beyond the `Array<T>` spelling and plain generic type aliases
-(generic interfaces, functions and classes, constraints, defaults), classes, enums, namespaces,
+Generics beyond the `Array<T>` spelling and plain generic aliases and
+single-declaration interfaces (merged or extending generic interfaces,
+generic functions and classes, constraints, defaults), classes, enums, namespaces,
 declaration-file inputs beyond the bounded ambient shapes above, declaration emit, source
 maps, JSX/TSX, JavaScript inputs, regular expression literals, decorators,
 async/await, generators,
@@ -321,7 +323,7 @@ records the original case IDs it moves.
 | A2.2a | Bind the parsed declarations into one global symbol table (cross-file merging, TS2300/TS2451 exclusions); the library check binds the default-lib closure | Library symbols become available | done (PR #220, 7b34604; review fixes PR #221, b5bd8e9) | pinned closure: 20 files, 2,250 global symbols (791 with more than one declaration), 0 diagnostics; 14 xUnit + 1 node test at merge, 16 with the review fixes |
 | A2.2b | Resolve every name the bound library uses (type, value and namespace meanings, scoped type parameters and `infer`); the library check fails on any unresolved name | Every library reference has a target, the input to computing library types | done (PR #222, 61dfa09) | pinned closure: 0 unresolved names (6 `globalThis` references before modelling it); 18 resolver xUnit + 1 node test; review fixes: postfix/operator type nesting limit, parameters do not shadow namespaces |
 | A2.2c | Compare the library syntax trees with the reference parser | Parser fidelity on the real libs, not only zero diagnostics | todo | — |
-| A2.3 | Check enough of es5/es2015 to load them as the default lib instead of `fixtures/minimal.d.ts` | Unblocks the 5,667 targets that need only the library | in progress | prerequisites merged: non-generic ambient aliases/interfaces (#235), typed and repeated ambient `var` (#236, #237), merged non-generic interfaces with declaration identity (#238), plain generic type aliases (this PR). Next: generic interfaces. Original headline unchanged (3 PASS / 0 FAIL / 15,520 SKIP) |
+| A2.3 | Check enough of es5/es2015 to load them as the default lib instead of `fixtures/minimal.d.ts` | Unblocks the 5,667 targets that need only the library | in progress | prerequisites merged: non-generic ambient aliases/interfaces (#235), typed and repeated ambient `var` (#236, #237), merged non-generic interfaces with declaration identity (#238), plain generic type aliases (#241), single-declaration generic interfaces (this PR). Next: merging generic interfaces with identical parameter lists. Original headline unchanged (3 PASS / 0 FAIL / 15,520 SKIP) |
 | A3.1 | `compiler/noCrashOnNoLib.ts` to PASS: four-space block indentation and no added grouping around spread operands in emit | The only executed original FAIL; every original `.js` baseline with a block depends on the indentation | done (PR #219, 28053fa) | 1 PASS / 1 FAIL → 2 PASS / 0 FAIL / 15,521 SKIP (CI original-acceptance on main); `JavaScriptEmitTests` 22 (+1) |
 | A3.2 | `compiler/arrayIterationLibES5TargetDifferent.ts` (`nolib=true,target=es2015`) to PASS: runner passes `@lib`; CLI `--lib` with `--noLib` reports TS5053; ambient `declare let/const`; TS2495 for non-iterable `for..of` sources; script `"use strict";` prologue and strict script parameters; emit when only TS5053/TS2318 are printed | The only target whose sole gap was `@lib`; the prologue applies to every original script `.js` baseline | done (PR #224, cd1dea6) | 2 PASS / 0 FAIL / 15,521 SKIP → 3 PASS / 0 FAIL / 15,520 SKIP; standard-library-only 5,459 → 5,583 (the `@lib` targets now need only the library) |
 | A3 | Close the cheapest family of failing original cases from A1's histogram, one family per PR | Moves original cases to PASS | todo | — |

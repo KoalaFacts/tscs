@@ -33,7 +33,7 @@ public sealed class InterfaceInheritanceTests
     [InlineData("type Scalar=number;interface B extends Scalar{value:number}","TSCS1001")]
     [InlineData("interface A{value:number}interface B{value:string}interface C extends A,B{}","TSCS1001")]
     [InlineData("interface A extends B{}interface B extends A{}","TS2456")]
-    [InlineData("interface A<T>{value:T}","TSCS1001")]
+    [InlineData("interface A{value:number}interface B<T> extends A{other:T}","TSCS1001")]
     [InlineData("interface A{value:number}interface B{value:string}interface C extends A,B{value:42}","TS2430")]
     [InlineData("interface A{value:number}interface B{value:42}interface C extends A,B{value:string}","TS2430")]
     public void InvalidHeritageFailsClosed(string source,string code)=>

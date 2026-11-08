@@ -95,8 +95,21 @@ internal static class Binder
                 :iface.Body),
             _=>throw new InvalidOperationException("Not a type declaration.")
         };
+        var typeParameters=declaration switch
+        {
+            TypeAliasDeclaration alias=>alias.TypeParameters,
+            InterfaceDeclaration iface=>iface.TypeParameters,
+            _=>null
+        }??[];
+        // The compiler models these library generics intrinsically ('Array<T>'
+        // always means the built-in array type), so a user declaration would
+        // be silently ignored instead of merged with the library one.
+        if(declaration is InterfaceDeclaration && typeParameters.Count!=0 &&
+           name.Text is "Array" or "ReadonlyArray" or "Iterable" or "Iterator" or "IterableIterator" or "IteratorResult")
+            throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
+                $"Declaring the library generic interface '{name.Text}' is not supported yet."));
         // Predefined type names are not valid type parameter names (TS2368).
-        foreach(var parameter in (declaration as TypeAliasDeclaration)?.TypeParameters??[])
+        foreach(var parameter in typeParameters)
             if(parameter.Text is "number" or "string" or "boolean" or "any" or "unknown" or
                "undefined" or "never" or "object" or "bigint" or "symbol")
                 throw new CompilationFailure(Diagnostic.Error(file,parameter,"TS2368",
@@ -108,6 +121,11 @@ internal static class Binder
             if(declaration is InterfaceDeclaration && previous.IsInterface &&
                ReferenceEquals(previous.Owner,scope))
             {
+                // Reopening a generic interface needs identical type
+                // parameter lists (TS2428) and merged instantiation.
+                if(typeParameters.Count!=0 || previous.TypeParameters.Count!=0)
+                    throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
+                        "Merging generic interface declarations is not supported yet."));
                 previous.MergedInterfaces.Add((file,name,syntax,scope));
                 return;
             }
@@ -117,7 +135,7 @@ internal static class Binder
         scope.Types.Add(name.Text,new TypeBinding(file,name,syntax,scope)
         {
             IsInterface=declaration is InterfaceDeclaration,
-            TypeParameters=(declaration as TypeAliasDeclaration)?.TypeParameters??[]
+            TypeParameters=typeParameters
         });
     }
 

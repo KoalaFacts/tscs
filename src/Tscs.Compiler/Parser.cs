@@ -17,6 +17,32 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     private Token Current => tokens[position];
     public List<Diagnostic> Diagnostics { get; } = [];
     private Token Take() => tokens[position++];
+    // Plain type parameters of a generic type alias or interface, or an
+    // empty list when the declaration is not generic.
+    private List<Token> ReadPlainTypeParameters(string declaration)
+    {
+        var typeParameters=new List<Token>();
+        if(Current.Kind!=TokenKind.LessThan)return typeParameters;
+        Take();
+        while(true)
+        {
+            if(typeParameters.Count>=16)Unsupported(Current,$"The {declaration} type parameters exceed the 16-parameter limit.");
+            if(Current.Kind!=TokenKind.Identifier || Current.Text is "in" or "out" or "const")
+                Unsupported(Current,$"Only plain {declaration} type parameters are supported.");
+            var parameter=Take();
+            if(typeParameters.Any(p=>p.Text==parameter.Text))
+                Unsupported(parameter,$"Duplicate {declaration} type parameters are not supported.");
+            typeParameters.Add(parameter);
+            if(Current.Kind is TokenKind.Extends or TokenKind.Equal)
+                Unsupported(Current,"Type parameter constraints and defaults are not supported yet.");
+            if(!Eat(TokenKind.Comma))break;
+            if(Current.Kind is TokenKind.GreaterThan or TokenKind.GreaterEqual)
+                Unsupported(Current,$"Only plain {declaration} type parameters are supported.");
+        }
+        TakeArrayTypeClose();
+        return typeParameters;
+    }
+
     // Split shift/punctuation only while closing a type argument, retaining
     // the original source offsets and the JS scanner's expression tokens.
     private Token TakeArrayTypeClose()
@@ -760,31 +786,11 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 var name=Current;
                 if(name.Kind!=TokenKind.Identifier)Unsupported(name,"Expected a named type declaration.");
                 Take();
+                // Generic declarations take plain type parameters only:
+                // constraints, defaults and variance modifiers fail closed.
+                var typeParameters=ReadPlainTypeParameters(alias?"type alias":"interface");
                 if(alias)
                 {
-                    // Generic aliases take plain type parameters only:
-                    // constraints, defaults and variance modifiers fail closed.
-                    var typeParameters=new List<Token>();
-                    if(Current.Kind==TokenKind.LessThan)
-                    {
-                        Take();
-                        while(true)
-                        {
-                            if(typeParameters.Count>=16)Unsupported(Current,"Type alias type parameters exceed the 16-parameter limit.");
-                            if(Current.Kind!=TokenKind.Identifier || Current.Text is "in" or "out" or "const")
-                                Unsupported(Current,"Only plain type alias type parameters are supported.");
-                            var parameter=Take();
-                            if(typeParameters.Any(p=>p.Text==parameter.Text))
-                                Unsupported(parameter,"Duplicate type alias type parameters are not supported.");
-                            typeParameters.Add(parameter);
-                            if(Current.Kind is TokenKind.Extends or TokenKind.Equal)
-                                Unsupported(Current,"Type parameter constraints and defaults are not supported yet.");
-                            if(!Eat(TokenKind.Comma))break;
-                            if(Current.Kind is TokenKind.GreaterThan or TokenKind.GreaterEqual)
-                                Unsupported(Current,"Only plain type alias type parameters are supported.");
-                        }
-                        TakeArrayTypeClose();
-                    }
                     if(!Eat(TokenKind.Equal))Unsupported(Current,"Expected '=' in a type alias.");
                     statements.Add(new TypeAliasDeclaration(name,ReadTypeAnnotation(),exported,
                         typeParameters.Count==0?null:typeParameters));
@@ -797,6 +803,10 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     var bases=new List<NamedTypeSyntax>();
                     if(Current.Kind==TokenKind.Extends)
                     {
+                        // Heritage of a generic interface needs instantiated
+                        // bases; it fails closed until that is modelled.
+                        if(typeParameters.Count!=0)
+                            Unsupported(Current,"Heritage clauses on generic interfaces are not supported yet.");
                         Take();
                         while(true)
                         {
@@ -812,7 +822,8 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     var body=ReadTypeAnnotation();
                     if(body is not ObjectTypeSyntax)
                         Unsupported(Current,"Interfaces require a required-member object body.");
-                    statements.Add(new InterfaceDeclaration(name,(ObjectTypeSyntax)body,exported,bases));
+                    statements.Add(new InterfaceDeclaration(name,(ObjectTypeSyntax)body,exported,bases,
+                        typeParameters.Count==0?null:typeParameters));
                     Eat(TokenKind.Semi);
                 }
                 continue;
