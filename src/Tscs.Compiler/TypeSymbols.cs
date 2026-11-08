@@ -729,7 +729,7 @@ internal static class CompilerTypes
             {
                 case (PrimitiveTypeSymbol,_):
                 case (LiteralTypeSymbol,_):
-                    if(ContainsAny(right))return false;
+                    if(!left.Equals(right))return false;
                     break;
                 case (ObjectTypeSymbol l,ObjectTypeSymbol r):
                     // Mutual assignability ignores readonly; identity does not.
@@ -767,7 +767,11 @@ internal static class CompilerTypes
                     for(int i=0;i<l.Alternatives.Count;i++)pending.Push((l.Alternatives[i],r.Alternatives[i]));
                     break;
                 default:
-                    if(ContainsAny(left) || ContainsAny(right))return false;
+                    // Different forms (a union against a single type, unions
+                    // of different sizes, or alternatives paired across kinds)
+                    // are only mutually assignable, not proven identical.
+                    if(left.GetType()!=right.GetType() || left is UnionTypeSymbol ||
+                       ContainsAny(left) || ContainsAny(right))return false;
                     break;
             }
         }

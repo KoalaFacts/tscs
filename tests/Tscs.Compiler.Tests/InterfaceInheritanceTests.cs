@@ -330,6 +330,8 @@ public sealed class InterfaceInheritanceTests
     [InlineData("interface A{x:any}interface B{x:number}")]
     [InlineData("interface A{x:{readonly a:number}}interface B{x:{a:number}}")]
     [InlineData("interface A{x:{a:any}|string}interface B{x:{a:number}|string}")]
+    [InlineData("interface A{x:string|{readonly a:number}}interface B{x:{a:number}|string}")]
+    [InlineData("interface A{x:{a:1}|{a:number}}interface B{x:{a:number}}")]
     public void SharedMemberAnyAgainstConcreteFailsClosed(string prelude)
     {
         foreach(var order in new[]{"A,B","B,A"})
