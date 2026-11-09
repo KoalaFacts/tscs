@@ -607,7 +607,7 @@ public class CommandLineTests : IDisposable
         Assert.Equal(0,generic.Code);
         File.WriteAllText(declarations,
             "interface Box<T extends string> { value: T } declare var boxed:Box<number>;");
-        var boundMismatch=Run("--emitJs","--noLib",consumer,declarations,Lib());
+        var boundMismatch=Run("--emitJs","--noLib","--target","es2015",consumer,declarations,Lib());
         Assert.Equal(2,boundMismatch.Code);
         Assert.Contains("TS2344",boundMismatch.Out);
         Assert.False(File.Exists(Path.ChangeExtension(consumer,".js")));
