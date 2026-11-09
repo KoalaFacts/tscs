@@ -4,11 +4,12 @@ using Xunit;
 namespace Tscs.Tests;
 
 // A2.3 prerequisite: plain generic type aliases instantiated by substitution.
-// Constraints, defaults, generic interfaces and generic functions stay out.
+// Bounded constraints/defaults share the checked path; generic functions stay out.
 public sealed class GenericTypeAliasTests
 {
     [Theory]
     [InlineData("type Box<T>={value:T};let b:Box<number>={value:1};let n:number=b.value;")]
+    [InlineData("type Box<T extends string>={value:T};let b:Box<\"a\">={value:\"a\"};")]
     [InlineData("type Pair<A,B>={first:A;second:B};let p:Pair<number,string>={first:1,second:\"x\"};let s:string=p.second;")]
     [InlineData("type Box<T>={value:T};type Wrap<T>=Box<Box<T>>;let w:Wrap<number>={value:{value:40}};let n:number=w.value.value;")]
     [InlineData("type Fn<T>=(v:T)=>T;let f:Fn<number>=(v:number):number=>v+1;let n:number=f(1);")]
@@ -50,7 +51,6 @@ public sealed class GenericTypeAliasTests
     }
 
     [Theory]
-    [InlineData("type Box<T extends string>={value:T};")]
     [InlineData("type Box<in T>={value:T};")]
     [InlineData("type Box<T,T>={value:T};")]
     [InlineData("type Box<>={value:number};")]

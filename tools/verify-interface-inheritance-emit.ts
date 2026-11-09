@@ -26,6 +26,42 @@ try {
   assert.equal(executed.error,undefined,String(executed.error));
   assert.equal(executed.status,0,executed.stdout+executed.stderr);
 
+  // A2.3: real constrained types across four ES2015 modules; bad bounds
+  // fail without a JavaScript file being written.
+  for(const [name,source] of Object.entries({
+    'constraint-types.ts':'export type Limited<T extends number=number>={value:T};' +
+      'export interface Meter<T extends number=number>{value:T}' +
+      'export interface Extended<U extends number> extends Meter<U>{offset:number}',
+    'constraint-model.ts':'import type {Extended} from "./constraint-types.js";' +
+      'export const reading:Extended<5>={value:5,offset:3};',
+    'constraint-logic.ts':'import type {Extended} from "./constraint-types.js";' +
+      'export function add(r:Extended<5>):number{return r.value+r.offset;}',
+    'constraint-entry.ts':'import {reading} from "./constraint-model.js";' +
+      'import {add} from "./constraint-logic.js";' +
+      'export const constrainedResult:number=add(reading);'
+  }))writeFileSync(join(dir,name),source);
+  writeFileSync(join(dir,'constraint-project.json'),JSON.stringify({
+    files:['constraint-entry.ts','minimal.d.ts'],
+    compilerOptions:{module:'es2015',target:'es2015',noLib:true}
+  }));
+  const constrained=compile(['--emitJs','-p',join(dir,'constraint-project.json')]);
+  assert.equal(constrained.status,0,constrained.stdout+constrained.stderr);
+  for(const name of ['constraint-types','constraint-model','constraint-logic','constraint-entry'])
+    assert.ok(existsSync(join(dir,name+'.js')),name+' missing compiled JS');
+  const constrainedRun=spawnSync(process.execPath,['--input-type=module','--eval',
+    'import {constrainedResult} from "./constraint-entry.js";' +
+    'if(constrainedResult!==8)throw Error("constraint result "+constrainedResult);'],
+    {cwd:dir,encoding:'utf8',timeout:15000});
+  assert.equal(constrainedRun.error,undefined,String(constrainedRun.error));
+  assert.equal(constrainedRun.status,0,constrainedRun.stdout+constrainedRun.stderr);
+  writeFileSync(join(dir,'constraint-invalid.ts'),
+    'type Limited<T extends number>={value:T};let x:Limited<string>={value:"bad"};');
+  const invalidConstraint=compile(['--emitJs','--noLib','--target','es2015',
+    'constraint-invalid.ts','minimal.d.ts']);
+  assert.equal(invalidConstraint.status,2,invalidConstraint.stdout+invalidConstraint.stderr);
+  assert.match(invalidConstraint.stdout+invalidConstraint.stderr,/TS2344/);
+  assert.equal(existsSync(join(dir,'constraint-invalid.js')),false);
+
   // A2.3: shared members whose generic union arms or object fields appear
   // in a different order must survive checking, multi-module emit and Node
   // execution. These are real ES2015 modules, not just declaration tests.

@@ -7,6 +7,7 @@ public sealed class NamedTypesUnionTests
 {
     [Theory]
     [InlineData("type Value = number; let n: Value = 21;", "plain alias")]
+    [InlineData("type T<TItem extends string> = TItem;let v:T<\"yes\">=\"yes\";", "constrained alias")]
     [InlineData("interface Item { value: number; label: string } let x: Item = { value: 21, label: \"ok\" };", "interface")]
     [InlineData("type Item = { value: number }; interface Container { item: Item } let x: Container = { item: {value: 1} };", "nested alias")]
     [InlineData("type Item = { value: number }; type Extended = { value: number; name: string }; let a: Extended = {value: 1,name: \"n\"}; let b: Item = a;", "width assignment")]
@@ -32,7 +33,6 @@ public sealed class NamedTypesUnionTests
     [InlineData("type A = {value: number} | {other: number}; let a: A = {value: 1}; a.other;", "TS2339")]
     [InlineData("type A = {value: number} | {value: string}; let a: A = {value: 1}; a.value = 3;", "TSCS1001")]
     [InlineData("interface T extends Missing { value: number }", "TS2304")]
-    [InlineData("type T<TItem extends string> = TItem;", "TSCS1001")]
     [InlineData("type A = number |;", "TSCS1001")]
     [InlineData("type A = {value: number} | {other: number}; let a: A = {value: 1, wrong: true};", "TS2353")]
     public void MissingOrIncorrectSemanticsNeverTurnIntoSuccess(string source,string code) =>

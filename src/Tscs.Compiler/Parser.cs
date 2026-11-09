@@ -19,11 +19,12 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     private Token Take() => tokens[position++];
     // Plain type parameters of a generic type alias or interface, or an
     // empty list when the declaration is not generic.
-    private (List<Token> Names,List<TypeSyntax?> Defaults) ReadPlainTypeParameters(string declaration)
+    private (List<Token> Names,List<TypeSyntax?> Defaults,List<TypeSyntax?> Constraints) ReadPlainTypeParameters(string declaration)
     {
         var typeParameters=new List<Token>();
         var defaults=new List<TypeSyntax?>();
-        if(Current.Kind!=TokenKind.LessThan)return (typeParameters,defaults);
+        var constraints=new List<TypeSyntax?>();
+        if(Current.Kind!=TokenKind.LessThan)return (typeParameters,defaults,constraints);
         bool defaultSeen=false;
         Take();
         while(true)
@@ -34,8 +35,8 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             var parameter=Take();
             if(typeParameters.Any(p=>p.Text==parameter.Text))
                 Unsupported(parameter,$"Duplicate {declaration} type parameters are not supported.");
-            if(Current.Kind==TokenKind.Extends)
-                Unsupported(Current,"Type parameter constraints are not supported yet.");
+            TypeSyntax? constraint=null;
+            if(Eat(TokenKind.Extends))constraint=ReadTypeAnnotation();
             TypeSyntax? defaultType=null;
             if(Eat(TokenKind.Equal))
             {
@@ -46,12 +47,13 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 Unsupported(parameter,"A required type parameter may not follow a default.");
             typeParameters.Add(parameter);
             defaults.Add(defaultType);
+            constraints.Add(constraint);
             if(!Eat(TokenKind.Comma))break;
             if(Current.Kind is TokenKind.GreaterThan or TokenKind.GreaterEqual)
                 Unsupported(Current,$"Only plain {declaration} type parameters are supported.");
         }
         TakeArrayTypeClose();
-        return (typeParameters,defaults);
+        return (typeParameters,defaults,constraints);
     }
 
     // Split shift/punctuation only while closing a type argument, retaining
@@ -797,14 +799,15 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 var name=Current;
                 if(name.Kind!=TokenKind.Identifier)Unsupported(name,"Expected a named type declaration.");
                 Take();
-                // Trailing defaults are supported; constraints and variance fail closed.
-                var (typeParameters,typeDefaults)=ReadPlainTypeParameters(alias?"type alias":"interface");
+                // Bounded constraints and trailing defaults share the declaring scope; variance fails closed.
+                var (typeParameters,typeDefaults,typeConstraints)=ReadPlainTypeParameters(alias?"type alias":"interface");
                 if(alias)
                 {
                     if(!Eat(TokenKind.Equal))Unsupported(Current,"Expected '=' in a type alias.");
                     statements.Add(new TypeAliasDeclaration(name,ReadTypeAnnotation(),exported,
                         typeParameters.Count==0?null:typeParameters,
-                        typeDefaults.Any(d=>d is not null)?typeDefaults:null));
+                        typeDefaults.Any(d=>d is not null)?typeDefaults:null,
+                        typeConstraints.Any(c=>c is not null)?typeConstraints:null));
                     EndStatement();
                 }
                 else
@@ -851,7 +854,8 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                         Unsupported(Current,"Interfaces require a required-member object body.");
                     statements.Add(new InterfaceDeclaration(name,(ObjectTypeSyntax)body,exported,bases,
                         typeParameters.Count==0?null:typeParameters,
-                        typeDefaults.Any(d=>d is not null)?typeDefaults:null));
+                        typeDefaults.Any(d=>d is not null)?typeDefaults:null,
+                        typeConstraints.Any(c=>c is not null)?typeConstraints:null));
                     Eat(TokenKind.Semi);
                 }
                 continue;
