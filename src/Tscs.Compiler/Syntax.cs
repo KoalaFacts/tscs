@@ -33,10 +33,10 @@ internal sealed record IndexedAccessTypeSyntax(TypeSyntax Target,Token Open,Type
 // An intersection is resolved into one finite structural object; no runtime syntax remains.
 internal sealed record IntersectionTypeSyntax(IReadOnlyList<TypeSyntax> Members) : TypeSyntax;
 internal sealed record UnionTypeSyntax(IReadOnlyList<TypeSyntax> Members) : TypeSyntax;
-internal sealed record TypeAliasDeclaration(Token Name,TypeSyntax Target,bool Exported=false,IReadOnlyList<Token>? TypeParameters=null,IReadOnlyList<TypeSyntax?>? TypeParameterDefaults=null) : Statement;
+internal sealed record TypeAliasDeclaration(Token Name,TypeSyntax Target,bool Exported=false,IReadOnlyList<Token>? TypeParameters=null,IReadOnlyList<TypeSyntax?>? TypeParameterDefaults=null,IReadOnlyList<TypeSyntax?>? TypeParameterConstraints=null) : Statement;
 // Interface heritage is type-only and retains its declaring type namespace.
 internal sealed record InterfaceExtensionTypeSyntax(Token Name,IReadOnlyList<NamedTypeSyntax> Bases,ObjectTypeSyntax Body) : TypeSyntax;
-internal sealed record InterfaceDeclaration(Token Name,ObjectTypeSyntax Body,bool Exported=false,IReadOnlyList<NamedTypeSyntax>? Bases=null,IReadOnlyList<Token>? TypeParameters=null,IReadOnlyList<TypeSyntax?>? TypeParameterDefaults=null) : Statement;
+internal sealed record InterfaceDeclaration(Token Name,ObjectTypeSyntax Body,bool Exported=false,IReadOnlyList<NamedTypeSyntax>? Bases=null,IReadOnlyList<Token>? TypeParameters=null,IReadOnlyList<TypeSyntax?>? TypeParameterDefaults=null,IReadOnlyList<TypeSyntax?>? TypeParameterConstraints=null) : Statement;
 internal abstract record ValueNode;
 // Object shorthand needs its own missing-binding diagnostic.
 internal sealed record ValueAtom(Token Token,bool Shorthand=false) : ValueNode;

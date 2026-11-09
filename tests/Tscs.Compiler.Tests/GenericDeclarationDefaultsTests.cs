@@ -48,7 +48,6 @@ public sealed class GenericDeclarationDefaultsTests
     [InlineData("type Box<T=number,U>={left:T;right:U};")]
     [InlineData("interface Box<T=number,U>{left:T;right:U}")]
     [InlineData("interface Box<T=number>{value:T}interface Box<T>{other:T}")]
-    [InlineData("type Box<T extends string=string>={value:T};")]
     [InlineData("interface Box<out T=number>{value:T}")]
     public void UnsupportedDefaultFormsFailClosed(string source)=>
         Assert.Contains(Compilation.Check("generic-default-unsupported.ts",source),d=>d.Code=="TSCS1001");

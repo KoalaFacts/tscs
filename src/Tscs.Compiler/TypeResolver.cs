@@ -21,6 +21,8 @@ internal sealed class TypeBinding(string file,Token name,TypeSyntax syntax,Scope
     // the alias body in a fresh scope; generic bindings are never cached.
     public IReadOnlyList<Token> TypeParameters { get; init; }=[];
     public IReadOnlyList<TypeSyntax?> TypeParameterDefaults { get; init; }=[];
+    // Bound checks use the declaring scope and earlier instantiated arguments.
+    public IReadOnlyList<TypeSyntax?> TypeParameterConstraints { get; init; }=[];
     // A parameter shadows an outer homonym even before its own default is
     // validated. Only earlier parameters may be read by that default.
     public bool PendingDefaultParameter { get; init; }
@@ -157,9 +159,18 @@ internal static class TypeResolver
             {
                 // A default may refer to earlier parameters, never to itself
                 // or a later parameter that is not yet declared.
+                TypeSymbol? bound=null;
+                if(binding.TypeParameterConstraints.Count>i &&
+                   binding.TypeParameterConstraints[i] is { } constraint)
+                    bound=Resolve(constraint,placeholder,binding.File,depth+1);
                 if(binding.TypeParameterDefaults.Count>i &&
                    binding.TypeParameterDefaults[i] is { } fallback)
-                    _=Resolve(fallback,placeholder,binding.File,depth+1);
+                {
+                    var defaultType=Resolve(fallback,placeholder,binding.File,depth+1);
+                    if(bound is not null && !CompilerTypes.IsAssignable(defaultType,bound))
+                        throw new CompilationFailure(Diagnostic.Error(binding.File,Location(fallback),"TS2344",
+                            $"Type '{defaultType.DisplayName}' does not satisfy the constraint '{bound.DisplayName}'."));
+                }
                 var parameter=binding.TypeParameters[i];
                 placeholder.Types[parameter.Text]=new TypeBinding(binding.File,parameter,
                     new PrimitiveTypeSyntax(parameter with {Text="unknown"}),binding.Owner)
@@ -210,7 +221,7 @@ internal static class TypeResolver
             foreach(var merged in binding.MergedInterfaces)
                 _=Resolve(merged.Syntax,placeholder,merged.File,depth+1);
         }
-        catch(CompilationFailure failure) when (failure.Diagnostic.Code is not ("TS2304" or "TS2744"))
+        catch(CompilationFailure failure) when (failure.Diagnostic.Code is not ("TS2304" or "TS2744" or "TS2344"))
         {
             throw new CompilationFailure(Diagnostic.Error(binding.File,binding.Name,"TSCS1001",
                 "This generic declaration body is not supported without known type arguments yet."));
@@ -236,17 +247,34 @@ internal static class TypeResolver
             throw new CompilationFailure(Diagnostic.Error(file,reference.Name,"TS2314",
                 $"Generic type '{binding.Name.Text}' requires between {required} and {binding.TypeParameters.Count} type argument(s)."));
         var instance=new Scope(binding.Owner);
+        // Shadow every parameter before reading defaults or constraints, so
+        // self/forward references cannot capture an outer homonymous type.
+        foreach(var parameter in binding.TypeParameters)
+            instance.Types.Add(parameter.Text,new TypeBinding(binding.File,parameter,
+                new PrimitiveTypeSyntax(parameter with {Text="unknown"}),binding.Owner)
+            {
+                PendingDefaultParameter=true
+            });
         for(var i=0;i<binding.TypeParameters.Count;i++)
         {
             bool explicitArgument=i<arguments.Count;
             var argument=explicitArgument?arguments[i]:binding.TypeParameterDefaults[i]!;
             var argumentScope=explicitArgument?scope:instance;
             var argumentFile=explicitArgument?file:binding.File;
-            instance.Types.Add(binding.TypeParameters[i].Text,
+            var actual=Resolve(argument,argumentScope,argumentFile,depth+1);
+            if(binding.TypeParameterConstraints.Count>i &&
+               binding.TypeParameterConstraints[i] is { } constraint)
+            {
+                var bound=Resolve(constraint,instance,binding.File,depth+1);
+                if(!CompilerTypes.IsAssignable(actual,bound))
+                    throw new CompilationFailure(Diagnostic.Error(argumentFile,Location(argument),"TS2344",
+                        $"Type '{actual.DisplayName}' does not satisfy the constraint '{bound.DisplayName}'."));
+            }
+            instance.Types[binding.TypeParameters[i].Text]=
                 new TypeBinding(argumentFile,binding.TypeParameters[i],argument,argumentScope)
                 {
-                    Resolved=Resolve(argument,argumentScope,argumentFile,depth+1)
-                });
+                    Resolved=actual
+                };
         }
         return instance;
     }

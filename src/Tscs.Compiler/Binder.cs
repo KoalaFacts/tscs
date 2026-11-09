@@ -107,6 +107,12 @@ internal static class Binder
             InterfaceDeclaration iface=>iface.TypeParameterDefaults,
             _=>null
         }??[];
+        var typeConstraints=declaration switch
+        {
+            TypeAliasDeclaration alias=>alias.TypeParameterConstraints,
+            InterfaceDeclaration iface=>iface.TypeParameterConstraints,
+            _=>null
+        }??[];
         // Predefined type names are not valid interface names (TS2427).
         if(declaration is InterfaceDeclaration && name.Text is "any" or "unknown" or "never" or "number" or
                "bigint" or "boolean" or "string" or "symbol" or "void" or "object" or "undefined")
@@ -137,9 +143,10 @@ internal static class Binder
             {
                 // Defaults on reopened generic interfaces require their own
                 // cross-declaration equivalence proof. Fail closed for now.
-                if(typeDefaults.Count!=0 || previous.TypeParameterDefaults.Count!=0)
+                if(typeDefaults.Count!=0 || previous.TypeParameterDefaults.Count!=0 ||
+                   typeConstraints.Count!=0 || previous.TypeParameterConstraints.Count!=0)
                     throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
-                        "Merging generic interface declarations with defaults is not supported yet."));
+                        "Merging generic interface declarations with defaults or constraints is not supported yet."));
                 // Reopening a generic interface with an identical plain type
                 // parameter list merges per instantiation. Different lists
                 // are TS2428 (reported on every declaration): not modelled yet.
@@ -164,7 +171,8 @@ internal static class Binder
             IsTypeAlias=declaration is TypeAliasDeclaration,
             ExportedDeclaration=declaration is InterfaceDeclaration { Exported:true },
             TypeParameters=typeParameters,
-            TypeParameterDefaults=typeDefaults
+            TypeParameterDefaults=typeDefaults,
+            TypeParameterConstraints=typeConstraints
         });
     }
 
