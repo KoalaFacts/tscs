@@ -166,7 +166,8 @@ internal static class TypeResolver
         var required=OpaqueParameter(constraint,constraintScope);
         if(required is not null)
         {
-            for(var current=candidate,steps=0;current is not null && steps<64;steps++)
+            int steps=0;
+            for(var current=candidate;current is not null && steps<64;steps++)
             {
                 if(ReferenceEquals(current,required))return true;
                 current=current.ConstraintParameter;
