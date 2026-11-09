@@ -175,6 +175,11 @@ internal static class TypeResolver
             if(candidate is null && actual.Equals(CompilerTypes.Never))return true;
             if(candidate is null && actual.Equals(CompilerTypes.Any))
                 return !bound.Equals(CompilerTypes.Never);
+            // Preserve the original opaque parameter identities in a small
+            // source-level proof instead of treating resolved 'unknown'
+            // members as evidence that unrelated parameters are compatible.
+            if(ProvesNestedParameterConstraint(argument,argumentScope,constraint,constraintScope,0))
+                return true;
             return null;
         }
         if(required is not null)
@@ -191,6 +196,76 @@ internal static class TypeResolver
                 (actual.Equals(CompilerTypes.Any)||actual.Equals(CompilerTypes.Never));
         }
         return CompilerTypes.IsAssignable(candidate?.ConstraintBound??actual,bound);
+    }
+
+    // Prove only finite nested relationships; everything not proved stays
+    // TSCS1001, rather than using structural 'unknown' as a subtype witness.
+    // This supports a structural property forwarded from the same parameter
+    // (or one constrained by it), a transparent generic type alias, and a
+    // union with never. It does not equate independent same-bound parameters.
+    private static bool ProvesNestedParameterConstraint(TypeSyntax argument,Scope argumentScope,
+        TypeSyntax constraint,Scope constraintScope,int depth)
+    {
+        if(depth>32)return false;
+        if(constraint is NamedTypeSyntax { TypeArguments: not null } alias &&
+           constraintScope.FindType(alias.Name.Text) is { IsTypeAlias:true } declared)
+        {
+            var instance=Instantiate(declared,alias,constraintScope,declared.File,depth+1);
+            return ProvesNestedParameterConstraint(argument,argumentScope,
+                declared.Syntax,instance,depth+1);
+        }
+        if(constraint is UnionTypeSyntax union)
+        {
+            // T | never denotes precisely T. General unions remain unproved:
+            // merely matching one arm would not validate a structural member.
+            var nonNever=union.Members.Where(part=>
+                part is not PrimitiveTypeSyntax { Name.Text:"never" }).ToArray();
+            return nonNever.Length==1 &&
+                ProvesNestedParameterConstraint(argument,argumentScope,
+                    nonNever[0],constraintScope,depth+1);
+        }
+        if(OpaqueParameter(constraint,constraintScope) is { } required)
+        {
+            int steps=0;
+            for(var current=OpaqueParameter(argument,argumentScope);
+                current is not null && steps<64;steps++,current=current.ConstraintParameter)
+                if(ReferenceEquals(current,required))return true;
+            return false;
+        }
+        if(argument is ObjectTypeSyntax actualObject && constraint is ObjectTypeSyntax expectedObject)
+        {
+            // Extra members are fine; the required members have to retain
+            // their source type relationship and declaration modifiers.
+            foreach(var requiredProperty in expectedObject.Properties)
+            {
+                var supplied=actualObject.Properties.FirstOrDefault(property=>
+                    Parser.PropertyName(property.Name)==Parser.PropertyName(requiredProperty.Name) &&
+                    property.Name.Kind==requiredProperty.Name.Kind &&
+                    property.Readonly==requiredProperty.Readonly &&
+                    property.Optional==requiredProperty.Optional);
+                if(supplied is null ||
+                   !ProvesNestedParameterConstraint(supplied.Type,argumentScope,
+                       requiredProperty.Type,constraintScope,depth+1))return false;
+            }
+            return true;
+        }
+        if(argument is ArrayTypeSyntax actualArray && constraint is ArrayTypeSyntax expectedArray)
+            return actualArray.Readonly==expectedArray.Readonly &&
+                ProvesNestedParameterConstraint(actualArray.Element,argumentScope,
+                    expectedArray.Element,constraintScope,depth+1);
+        // Exact concrete leaves of a nested structural type have no opaque
+        // dependency and are safe to compare syntactically. This is
+        // deliberately narrower than general TypeScript assignability.
+        if(argument is PrimitiveTypeSyntax actualPrimitive &&
+           constraint is PrimitiveTypeSyntax expectedPrimitive)
+            return actualPrimitive.Name.Text==expectedPrimitive.Name.Text;
+        if(argument is LiteralTypeSyntax actualLiteral &&
+           constraint is LiteralTypeSyntax expectedLiteral)
+            return actualLiteral.Negative==expectedLiteral.Negative &&
+                actualLiteral.Literal.Kind==expectedLiteral.Literal.Kind &&
+                (actualLiteral.Literal.Value??actualLiteral.Literal.Text)==
+                (expectedLiteral.Literal.Value??expectedLiteral.Literal.Text);
+        return false;
     }
 
     // Conservative: an unrecognized type form counts as a mention.
