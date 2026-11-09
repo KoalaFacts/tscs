@@ -7,11 +7,12 @@ namespace Tscs.Tests;
 // parameters, instantiated by substitution like generic type aliases.
 // Reopening with an identical parameter list merges per instantiation;
 // heritage instantiates its bases. Different lists, members shared with a
-// base and constraints fail closed; trailing defaults are supported.
+// base and unproved declarations fail closed; bounded constraints/defaults work.
 public sealed class GenericInterfaceTests
 {
     [Theory]
     [InlineData("interface Box<T>{value:T}let b:Box<number>={value:1};let n:number=b.value;")]
+    [InlineData("interface Box<T extends string>{value:T}let b:Box<\"hi\">={value:\"hi\"};")]
     [InlineData("interface Pair<A,B>{first:A;second:B}let p:Pair<number,string>={first:1,second:\"x\"};let s:string=p.second;")]
     [InlineData("interface Getter<A,B>{get(a:A):B}let g:Getter<number,string>={get:(a:number):string=>\"x\"};let s:string=g.get(1);")]
     [InlineData("interface Box<T>{readonly value:T;extra?:T}let b:Box<string>={value:\"a\"};let s:string=b.value;")]
@@ -44,7 +45,6 @@ public sealed class GenericInterfaceTests
         Assert.Contains(Compilation.Check("generic-interface-bad.ts",source),d=>d.Code==code);
 
     [Theory]
-    [InlineData("interface Box<T extends string>{value:T}")]
     [InlineData("interface Box<out T>{value:T}")]
     [InlineData("interface Box<T,T>{value:T}")]
     [InlineData("interface Box<>{value:number}")]

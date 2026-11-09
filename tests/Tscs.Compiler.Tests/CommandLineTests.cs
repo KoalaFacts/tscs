@@ -598,14 +598,19 @@ public class CommandLineTests : IDisposable
     }
 
     [Fact]
-    public void AmbientDtsDoesNotAcceptGenericTypesOrBootstrapGlobalInterfacesAsCheckedAliases()
+    public void AmbientDtsChecksConstrainedTypesAndStillRejectsBootstrapGlobalAliases()
     {
         var consumer=Write("consumer.ts","let value = 1;");
-        // Constrained generics stay outside the checked subset.
-        var declarations=Write("types.d.ts","interface Box<T extends string> { value: T }");
+        // Bounded constrained generics now work through the real ambient path.
+        var declarations=Write("types.d.ts","interface Box<T extends string> { value: T } declare var boxed:Box<string>;");
         var generic=Run("--noEmit","--noLib",consumer,declarations,Lib());
-        Assert.Equal(1,generic.Code);
-        Assert.Contains("TSCS1001",generic.Out);
+        Assert.Equal(0,generic.Code);
+        File.WriteAllText(declarations,
+            "interface Box<T extends string> { value: T } declare var boxed:Box<number>;");
+        var boundMismatch=Run("--emitJs","--noLib",consumer,declarations,Lib());
+        Assert.Equal(2,boundMismatch.Code);
+        Assert.Contains("TS2344",boundMismatch.Out);
+        Assert.False(File.Exists(Path.ChangeExtension(consumer,".js")));
         File.WriteAllText(declarations,"interface Object {} type Amount = number;");
         var mixed=Run("--noEmit","--noLib",consumer,declarations,Path.Combine(directory,"minimal.d.ts"));
         Assert.Equal(1,mixed.Code);
