@@ -20,6 +20,11 @@ public sealed class NestedConstraintReviewRegressionTests
     [InlineData("bad-union-default","type Pair<T extends string,U extends T|never=string>={first:T;second:U};","TSCS1001")]
     [InlineData("good-union-default","type Pair<T extends string,U extends T|never=T>={first:T;second:U};","TSCS1001")]
     [InlineData("good-never-default","type Pair<T extends string,U extends T=never>={first:T;second:U};","")]
+    [InlineData("bad-any-against-never-default","type None<X>=never;type Bad<T,U extends None<T>=any>={value:U};","TS2344")]
+    [InlineData("bad-any-against-never-forwarded","type None<X>=never;type Box<T,U extends None<T>>={value:U};type Wrap<X>=Box<X,any>;","TS2344")]
+    [InlineData("good-never-against-never-default","type None<X>=never;type Bad<T,U extends None<T>=never>={value:U};","")]
+    [InlineData("good-never-against-never-forwarded","type None<X>=never;type Box<T,U extends None<T>>={value:U};type Wrap<X>=Box<X,never>;","")]
+    [InlineData("good-any-structural-default","type Pair<T extends string,U extends {value:T}=any>={first:T;second:U};","")]
     [InlineData("good-any-default","type Pair<T extends string,U extends T=any>={first:T;second:U};","")]
     public void NestedParameterRelationsMatchPinnedReference(string id,string source,string expected)
     {

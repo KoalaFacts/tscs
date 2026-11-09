@@ -169,10 +169,14 @@ internal static class TypeResolver
         // erased to unknown when the constraint was resolved, so ordinary
         // assignability would accept an invalid argument. Without a
         // relational proof, only any and never are known to satisfy it.
+        // any satisfies every bound except never, as in IsAssignable.
         if(required is null && MentionsOpaqueParameter(constraint,constraintScope,0))
-            return candidate is null &&
-                (actual.Equals(CompilerTypes.Any)||actual.Equals(CompilerTypes.Never))
-                ?true:null;
+        {
+            if(candidate is null && actual.Equals(CompilerTypes.Never))return true;
+            if(candidate is null && actual.Equals(CompilerTypes.Any))
+                return !bound.Equals(CompilerTypes.Never);
+            return null;
+        }
         if(required is not null)
         {
             int steps=0;
