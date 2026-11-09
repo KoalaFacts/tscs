@@ -30,11 +30,12 @@ try {
   // fail without a JavaScript file being written.
   for(const [name,source] of Object.entries({
     'constraint-types.ts':'export type Limited<T extends number=number>={value:T};' +
-      'export interface Meter<T extends number=number>{value:T}',
-    'constraint-model.ts':'import type {Meter} from "./constraint-types.js";' +
-      'export const reading:Meter<number>={value:5};',
-    'constraint-logic.ts':'import type {Meter} from "./constraint-types.js";' +
-      'export function add(r:Meter<number>):number{return r.value+3;}',
+      'export interface Meter<T extends number=number>{value:T}' +
+      'export interface Extended<U extends number> extends Meter<U>{offset:number}',
+    'constraint-model.ts':'import type {Extended} from "./constraint-types.js";' +
+      'export const reading:Extended<5>={value:5,offset:3};',
+    'constraint-logic.ts':'import type {Extended} from "./constraint-types.js";' +
+      'export function add(r:Extended<5>):number{return r.value+r.offset;}',
     'constraint-entry.ts':'import {reading} from "./constraint-model.js";' +
       'import {add} from "./constraint-logic.js";' +
       'export const constrainedResult:number=add(reading);'

@@ -293,6 +293,23 @@
       "expectedCodes": [
         "TS2304"
       ]
+    },
+    {
+      "id": "interface-inheritance:positive-37",
+      "source": "interface Base<T extends number>{value:T}interface Child<U extends number> extends Base<U>{other:U}let c:Child<1>={value:1,other:1};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:positive-38",
+      "source": "type Base<T extends string>={value:T};type Wrapped<U extends string>=Base<U>;let b:Wrapped<\"hi\">={value:\"hi\"};",
+      "expectedCodes": []
+    },
+    {
+      "id": "interface-inheritance:negative-15",
+      "source": "interface Base<T extends number>{value:T}interface Bad<U extends string> extends Base<U>{other:U}",
+      "expectedCodes": [
+        "TS2344"
+      ]
     }
   ]
 }

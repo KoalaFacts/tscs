@@ -23,6 +23,10 @@ internal sealed class TypeBinding(string file,Token name,TypeSyntax syntax,Scope
     public IReadOnlyList<TypeSyntax?> TypeParameterDefaults { get; init; }=[];
     // Bound checks use the declaring scope and earlier instantiated arguments.
     public IReadOnlyList<TypeSyntax?> TypeParameterConstraints { get; init; }=[];
+    // Only an opaque generic *parameter* placeholder carries its proved
+    // upper bound. Its semantic value stays unknown: e.g. keyof T cannot
+    // assume that keyof an instantiation equals keyof the constraint.
+    public TypeSymbol? ConstraintBound { get; init; }
     // A parameter shadows an outer homonym even before its own default is
     // validated. Only earlier parameters may be read by that default.
     public bool PendingDefaultParameter { get; init; }
@@ -175,7 +179,8 @@ internal static class TypeResolver
                 placeholder.Types[parameter.Text]=new TypeBinding(binding.File,parameter,
                     new PrimitiveTypeSyntax(parameter with {Text="unknown"}),binding.Owner)
                 {
-                    Resolved=CompilerTypes.Unknown
+                    Resolved=CompilerTypes.Unknown,
+                    ConstraintBound=bound
                 };
             }
             _=Resolve(binding.Syntax,placeholder,binding.File,depth+1);
@@ -266,7 +271,13 @@ internal static class TypeResolver
                binding.TypeParameterConstraints[i] is { } constraint)
             {
                 var bound=Resolve(constraint,instance,binding.File,depth+1);
-                if(!CompilerTypes.IsAssignable(actual,bound))
+                // A still-opaque parameter is admissible when its declared
+                // bound proves this constraint. Do not replace the argument's
+                // semantic type with the bound or admit keyof/inference shortcuts.
+                var provenActual=argument is NamedTypeSyntax { TypeArguments:null } named &&
+                    argumentScope.FindType(named.Name.Text) is { ConstraintBound:{ } candidate }
+                    ?candidate:actual;
+                if(!CompilerTypes.IsAssignable(provenActual,bound))
                     throw new CompilationFailure(Diagnostic.Error(argumentFile,Location(argument),"TS2344",
                         $"Type '{actual.DisplayName}' does not satisfy the constraint '{bound.DisplayName}'."));
             }

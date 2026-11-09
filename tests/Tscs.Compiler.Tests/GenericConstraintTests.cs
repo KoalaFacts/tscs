@@ -12,6 +12,8 @@ public sealed class GenericConstraintTests
     [InlineData("interface Shape{value:number}interface Holder<T extends Shape>{item:T}let h:Holder<Shape>={item:{value:8}};")]
     [InlineData("type Pair<T extends string,U extends T=T>={first:T;second:U};let p:Pair<\"hi\">={first:\"hi\",second:\"hi\"};")]
     [InlineData("interface Base<T extends number=number>{value:T}interface Child extends Base{other:number}let c:Child={value:8,other:2};")]
+    [InlineData("interface Base<T extends number>{value:T}interface Child<U extends number> extends Base<U>{other:U}let c:Child<1>={value:1,other:1};")]
+    [InlineData("type Base<T extends string>={value:T};type Wrapped<U extends string>=Base<U>;let b:Wrapped<\"hi\">={value:\"hi\"};")]
     public void ValidConstrainedTypesCheck(string source)=>
         Assert.Empty(Compilation.Check("constraint.ts",source));
 
@@ -20,6 +22,7 @@ public sealed class GenericConstraintTests
     [InlineData("type Box<T extends number=string>={value:T};","TS2344")]
     [InlineData("interface Shape{value:number}type Box<T extends Shape>={value:T};let b:Box<string>={value:\"no\"};","TS2344")]
     [InlineData("type Box<T extends Missing>={value:T};","TS2304")]
+    [InlineData("interface Base<T extends number>{value:T}interface Bad<U extends string> extends Base<U>{other:U}","TS2344")]
     public void InvalidConstrainedTypesReportErrors(string source,string expected)=>
         Assert.Contains(Compilation.Check("constraint-error.ts",source),d=>d.Code==expected);
 
