@@ -127,6 +127,8 @@ jobs:
           node tools/check-standard-library.ts --upstream .artifacts/original-empty-go/TypeScript \
             --harness tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.FixtureHarness.dll \
             --out "$out/standard-library.json"
+          node tools/check-library-statements.ts --upstream .artifacts/original-empty-go/TypeScript \
+            --tscs src/Tscs.Cli/bin/Release/net10.0/tscs.dll --out "$out/library-statements.json"
       - name: Preserve original upstream acceptance report
         if: always()
         uses: actions/upload-artifact@v4
@@ -135,6 +137,7 @@ jobs:
           path: |
             .artifacts/original-acceptance/report.json
             .artifacts/original-acceptance/standard-library.json
+            .artifacts/original-acceptance/library-statements.json
           if-no-files-found: warn
           retention-days: 30
       - name: Preserve finite variable binding pattern reference evidence
