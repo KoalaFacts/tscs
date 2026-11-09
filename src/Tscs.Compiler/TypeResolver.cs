@@ -159,11 +159,20 @@ internal static class TypeResolver
     // instantiation of another type parameter. For U extends T, require
     // U's identity to be T or to inherit a constraint from T. This also
     // keeps independent A/B parameters distinct when both extend string.
-    private static bool SatisfiesConstraint(TypeSyntax argument,Scope argumentScope,
+    // Null means the relation cannot be proven by this subset (fail closed).
+    private static bool? SatisfiesConstraint(TypeSyntax argument,Scope argumentScope,
         TypeSymbol actual,TypeSyntax constraint,Scope constraintScope,TypeSymbol bound)
     {
         var candidate=OpaqueParameter(argument,argumentScope);
         var required=OpaqueParameter(constraint,constraintScope);
+        // A dependency nested in an object, alias argument or union was
+        // erased to unknown when the constraint was resolved, so ordinary
+        // assignability would accept an invalid argument. Without a
+        // relational proof, only any and never are known to satisfy it.
+        if(required is null && MentionsOpaqueParameter(constraint,constraintScope,0))
+            return candidate is null &&
+                (actual.Equals(CompilerTypes.Any)||actual.Equals(CompilerTypes.Never))
+                ?true:null;
         if(required is not null)
         {
             int steps=0;
@@ -178,6 +187,29 @@ internal static class TypeResolver
                 (actual.Equals(CompilerTypes.Any)||actual.Equals(CompilerTypes.Never));
         }
         return CompilerTypes.IsAssignable(candidate?.ConstraintBound??actual,bound);
+    }
+
+    // Conservative: an unrecognized type form counts as a mention.
+    private static bool MentionsOpaqueParameter(TypeSyntax syntax,Scope scope,int depth)
+    {
+        if(depth>64)return true;
+        bool Any(IEnumerable<TypeSyntax> types)=>types.Any(t=>MentionsOpaqueParameter(t,scope,depth+1));
+        return syntax switch
+        {
+            PrimitiveTypeSyntax or LiteralTypeSyntax or TypeQuerySyntax=>false,
+            NamedTypeSyntax named=>scope.FindType(named.Name.Text) is { IsOpaqueParameter: true } ||
+                named.TypeArguments is { } arguments && Any(arguments),
+            ObjectTypeSyntax shape=>Any(shape.Properties.Select(p=>p.Type)),
+            ArrayTypeSyntax array=>MentionsOpaqueParameter(array.Element,scope,depth+1),
+            TupleTypeSyntax tuple=>Any(tuple.Elements),
+            TupleRestTypeSyntax rest=>MentionsOpaqueParameter(rest.Target,scope,depth+1),
+            FunctionTypeSyntax function=>Any(function.Parameters.Select(p=>p.Type).Append(function.ReturnType)),
+            KeyofTypeSyntax keyof=>MentionsOpaqueParameter(keyof.Target,scope,depth+1),
+            IndexedAccessTypeSyntax access=>Any([access.Target,access.Index]),
+            IntersectionTypeSyntax intersection=>Any(intersection.Members),
+            UnionTypeSyntax union=>Any(union.Members),
+            _=>true
+        };
     }
 
     // An unreferenced generic alias body is still checked: every name must
@@ -214,10 +246,14 @@ internal static class TypeResolver
                    binding.TypeParameterDefaults[i] is { } fallback)
                 {
                     var defaultType=Resolve(fallback,placeholder,binding.File,depth+1);
-                    if(bound is not null && !SatisfiesConstraint(fallback,placeholder,
-                        defaultType,constraintSyntax!,placeholder,bound))
+                    bool? satisfied=bound is null?true:SatisfiesConstraint(fallback,placeholder,
+                        defaultType,constraintSyntax!,placeholder,bound);
+                    if(satisfied is null)
+                        throw new CompilationFailure(Diagnostic.Error(binding.File,Location(fallback),"TSCS1001",
+                            "Checking a default against a constraint with a nested type parameter dependency is not supported yet."));
+                    if(satisfied==false)
                         throw new CompilationFailure(Diagnostic.Error(binding.File,Location(fallback),"TS2344",
-                            $"Type '{defaultType.DisplayName}' does not satisfy the constraint '{bound.DisplayName}'."));
+                            $"Type '{defaultType.DisplayName}' does not satisfy the constraint '{bound!.DisplayName}'."));
                 }
                 var parameter=binding.TypeParameters[i];
                 placeholder.Types[parameter.Text]=new TypeBinding(binding.File,parameter,
@@ -318,8 +354,12 @@ internal static class TypeResolver
                binding.TypeParameterConstraints[i] is { } constraint)
             {
                 var bound=Resolve(constraint,instance,binding.File,depth+1);
-                if(!SatisfiesConstraint(argument,argumentScope,actual,
-                    constraint,instance,bound))
+                bool? satisfied=SatisfiesConstraint(argument,argumentScope,actual,
+                    constraint,instance,bound);
+                if(satisfied is null)
+                    throw new CompilationFailure(Diagnostic.Error(argumentFile,Location(argument),"TSCS1001",
+                        "Checking a type argument against a constraint with a nested type parameter dependency is not supported yet."));
+                if(satisfied==false)
                     throw new CompilationFailure(Diagnostic.Error(argumentFile,Location(argument),"TS2344",
                         $"Type '{actual.DisplayName}' does not satisfy the constraint '{bound.DisplayName}'."));
             }
