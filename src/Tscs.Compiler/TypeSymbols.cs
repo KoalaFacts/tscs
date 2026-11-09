@@ -233,19 +233,6 @@ internal static class CompilerTypes
             "Only parser-validated primitive annotations may reach the semantic type model.")
     };
 
-    public static TypeSymbol FromAnnotation(TypeSyntax syntax)=>syntax switch
-    {
-        PrimitiveTypeSyntax primitive=>FromAnnotation(primitive.Name.Text),
-        ArrayTypeSyntax array=>new ArrayTypeSymbol(FromAnnotation(array.Element),array.Readonly),
-        TupleTypeSyntax tuple=>FromTupleAnnotation(tuple),
-        ObjectTypeSyntax shape=>new ObjectTypeSymbol(shape.Properties.Select(p=>
-            new KeyValuePair<string,TypeSymbol>(Parser.PropertyName(p.Name),FromAnnotation(p.Type))),
-            shape.Properties.Where(p=>p.Readonly).Select(p=>Parser.PropertyName(p.Name)),
-            shape.Properties.Where(p=>p.Name.Kind==TokenKind.Number).Select(p=>Parser.PropertyName(p.Name)),
-            shape.Properties.Where(p=>p.Optional).Select(p=>Parser.PropertyName(p.Name))),
-        _=>throw new ArgumentOutOfRangeException(nameof(syntax))
-    };
-
     public static ArrayTypeSymbol FiniteTuple(IReadOnlyList<TypeSymbol> slots,bool readonlyTuple,int optionalStart=-1)
     {
         if(optionalStart<-1 || optionalStart>=slots.Count)
@@ -268,36 +255,6 @@ internal static class CompilerTypes
         return Union(Enumerable.Range(minimum,slots.Count-minimum+1)
             .Select(length=>(TypeSymbol)new LiteralTypeSymbol(PrimitiveKind.Number,
                 length.ToString(System.Globalization.CultureInfo.InvariantCulture))));
-    }
-
-    private static ArrayTypeSymbol FromTupleAnnotation(TupleTypeSyntax tuple)
-    {
-        var slots=new List<TypeSymbol>();
-        int optionalStart=-1;
-        for(int i=0;i<tuple.Elements.Count;i++)
-        {
-            if(tuple.Elements[i] is TupleRestTypeSyntax spread)
-            {
-                // Scope-free conversion handles literal finite tails only.
-                // Named tails use TypeResolver and the declaring type scope.
-                var resolved=FromAnnotation(spread.Target);
-                if(resolved is not ArrayTypeSymbol { TupleElements: { } tail })
-                    throw new InvalidOperationException("An unbounded rest is not a finite tuple.");
-                if(optionalStart>=0 && tail.Count>0)
-                    throw new InvalidOperationException("Required tuple slots cannot follow optional slots.");
-                if(((ArrayTypeSymbol)resolved).TupleOptionalStart>=0)
-                    optionalStart=slots.Count+((ArrayTypeSymbol)resolved).TupleOptionalStart;
-                slots.AddRange(tail);
-            }
-            else
-            {
-                if(i==tuple.OptionalStart)optionalStart=slots.Count;
-                slots.Add(FromAnnotation(tuple.Elements[i]));
-            }
-            if(slots.Count>32)
-                throw new InvalidOperationException("Expanded finite tuple exceeds 32 elements.");
-        }
-        return FiniteTuple(slots,tuple.Readonly,optionalStart);
     }
 
     // Optional spread keys may be absent. A prior key's value and requiredness
