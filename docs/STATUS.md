@@ -123,7 +123,8 @@ diagnostic and exit 1; they are intended never to be compiled silently.
 - `type` aliases and interfaces, including generic ones with plain type
   parameters and trailing defaults, which may refer to earlier parameters
   and resolve in the declaring scope (instantiated by substitution; arity
-  errors TS2314/TS2315; reopening a defaulted generic interface, constraints, bodies that need known arguments such as `keyof T`,
+  errors TS2314/TS2315; reopening a defaulted generic interface,
+  constraints, bodies that need known arguments such as `keyof T`,
   generic reopening with a different parameter list or a redeclared member,
   and generic heritage that shares a member with a base fail closed unless
   both declare it identically after substituting the heritage arguments);
