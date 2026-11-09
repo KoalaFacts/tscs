@@ -24,6 +24,7 @@ import {fileURLToPath} from 'node:url';
 // Declarations whose body closes the statement at its top-level `}`. Every
 // other statement (var, function, type alias) ends at a top-level `;`.
 const BLOCK_DECLARATIONS = new Set(['interface', 'namespace', 'module', 'class', 'enum', 'global', 'abstract']);
+const STATEMENT_STARTS = /^\s*(?:export|declare|interface|type|namespace|module|var|let|const|function|class|enum|abstract|import)\b/;
 const MODIFIERS = new Set(['export', 'declare', 'default', 'const']);
 
 function head(statement: string): string | undefined {
@@ -70,6 +71,9 @@ export function splitTopLevelStatements(text: string): string[] {
       i = j + 1;
       continue;
     }
+    // A new declaration on a later line at depth 0 ends a statement written
+    // without its semicolon (automatic semicolon insertion).
+    if (c === '\n' && depth === 0 && current.trim() && STATEMENT_STARTS.test(text.slice(i + 1, i + 64))) flush();
     current += c;
     i++;
     if (c === '{' || c === '(' || c === '[') depth++;

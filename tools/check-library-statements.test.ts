@@ -31,6 +31,13 @@ test('ignores braces and semicolons inside comments and strings', () => {
   assert.deepEqual(splitTopLevelStatements(text), ['interface A { \n  s: "};";   t: `;}`; }', 'declare var a: A;']);
 });
 
+test('ends a statement written without a semicolon at the next declaration line', () => {
+  assert.deepEqual(splitTopLevelStatements('declare var X: {\n a: number;\n}\ndeclare var Y: number;'),
+    ['declare var X: {\n a: number;\n}', 'declare var Y: number;']);
+  assert.deepEqual(splitTopLevelStatements('type T = { a: 1 }\ninterface I {}'), ['type T = { a: 1 }', 'interface I {}']);
+  assert.deepEqual(splitTopLevelStatements('type U =\n  | A\n  | B;'), ['type U =\n  | A\n  | B;']);
+});
+
 test('fails on malformed input instead of miscounting', () => {
   assert.throws(() => splitTopLevelStatements('interface A {'), /unterminated bracket/);
   assert.throws(() => splitTopLevelStatements('declare var a: "x;'), /unterminated string/);
