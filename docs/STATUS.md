@@ -59,8 +59,8 @@ full case denominator is unknown. No release is claimed.
 
 Separate from that headline:
 
-- Internal regressions: 19,837 xUnit tests on `8a9bd2b` (`./scripts/verify.sh`, Microsoft Testing Platform,
-  `--fail-skips on`) plus about 170 Node tool tests and 78 executed-output
+- Internal regressions: 20,176 xUnit tests on `00b2c6c` (`./scripts/verify.sh`, Microsoft Testing Platform,
+  `--fail-skips on`) plus about 200 Node tool tests and 78 executed-output
   checks (`tools/verify-*-emit.ts`) that run the emitted ES2015 modules.
 - A frozen, separate 29-case isolated cohort (`tests/conformance`) is
   compared against the pinned Go oracle (`tools/verify-conformance.ts`). It
@@ -121,7 +121,9 @@ diagnostic and exit 1; they are intended never to be compiled silently.
 - Primitives, `any`, `unknown` (catch variables), `never`, `null`/`undefined`,
   numeric/string/boolean literal types and unions, `void`.
 - `type` aliases and interfaces, including generic ones with plain type
-  parameters (instantiated by substitution; arity errors TS2314/TS2315;
+  parameters and trailing defaults, which may refer to earlier parameters
+  and resolve in the declaring scope (instantiated by substitution; arity
+  errors TS2314/TS2315; reopening a defaulted generic interface,
   constraints, bodies that need known arguments such as `keyof T`,
   generic reopening with a different parameter list or a redeclared member,
   and generic heritage that shares a member with a base fail closed unless
@@ -130,7 +132,6 @@ diagnostic and exit 1; they are intended never to be compiled silently.
   structural object types with optional and `readonly` members, finite
   intersections, excess-property checks on fresh literals; circular aliases
   report TS2456.
-- Generic aliases and interfaces support trailing type defaults, including defaults referring to preceding parameters; reopening a defaulted generic interface still fails closed.
 - Arrays (`T[]`, `Array<T>`, `readonly T[]`, `ReadonlyArray<T>`), fixed,
   labelled and optional tuples, tuple rest expansion.
 - Bounded `keyof`, indexed access (`T["k"]`, `T[number]`), `typeof` queries,
@@ -327,8 +328,7 @@ records the original case IDs it moves.
 | A2.2a | Bind the parsed declarations into one global symbol table (cross-file merging, TS2300/TS2451 exclusions); the library check binds the default-lib closure | Library symbols become available | done (PR #220, 7b34604; review fixes PR #221, b5bd8e9) | pinned closure: 20 files, 2,250 global symbols (791 with more than one declaration), 0 diagnostics; 14 xUnit + 1 node test at merge, 16 with the review fixes |
 | A2.2b | Resolve every name the bound library uses (type, value and namespace meanings, scoped type parameters and `infer`); the library check fails on any unresolved name | Every library reference has a target, the input to computing library types | done (PR #222, 61dfa09) | pinned closure: 0 unresolved names (6 `globalThis` references before modelling it); 18 resolver xUnit + 1 node test; review fixes: postfix/operator type nesting limit, parameters do not shadow namespaces |
 | A2.2c | Compare the library syntax trees with the reference parser | Parser fidelity on the real libs, not only zero diagnostics | todo | — |
-| A2.3 | Check enough of es5/es2015 to load default libs | Unblocks 5,667 library-only targets | in progress | Prerequisites merged: ambient declarations (#235–#238), generic aliases/interfaces (#241–#247), shared-type identity (#248–#251). #252 instantiated generic aliases merged; primitive union identity under verification. Default libs still cannot load; original acceptance remains 3 PASS / 0 FAIL / 15,520 SKIP |
-| A2.3a | False TS2430 when an extending interface redeclares a member with `unknown` in a union or tuple | Wrong diagnostic on valid code; blocked shared generic members | done (PR #248) | `unknown` flows into unions with `unknown`/`any`; 5 xUnit cases match tsgo|
+| A2.3 | Check enough of es5/es2015 to load default libs | Unblocks 5,667 library-only targets | in progress | Prerequisites merged: ambient declarations (#235–#238), generic aliases/interfaces (#241–#247), shared-type identity (#248–#253, incl. a false TS2430 for `unknown` in redeclared union/tuple members), trailing type defaults (#254). Default libs still cannot load; of 147 top-level es5 statements checked alone (TS 6.0.3 copy, unpinned) 20 pass, first blockers: construct signatures 29 (+26 TS2304 on `*Constructor`), `this` 11, constraints 11; original acceptance remains 3 PASS / 0 FAIL / 15,520 SKIP |
 | A3.1 | `compiler/noCrashOnNoLib.ts` to PASS: four-space block indentation and no added grouping around spread operands in emit | The only executed original FAIL; every original `.js` baseline with a block depends on the indentation | done (PR #219, 28053fa) | 1 PASS / 1 FAIL → 2 PASS / 0 FAIL / 15,521 SKIP (CI original-acceptance on main); `JavaScriptEmitTests` 22 (+1) |
 | A3.2 | `compiler/arrayIterationLibES5TargetDifferent.ts` (`nolib=true,target=es2015`) to PASS: runner passes `@lib`; CLI `--lib` with `--noLib` reports TS5053; ambient `declare let/const`; TS2495 for non-iterable `for..of` sources; script `"use strict";` prologue and strict script parameters; emit when only TS5053/TS2318 are printed | The only target whose sole gap was `@lib`; the prologue applies to every original script `.js` baseline | done (PR #224, cd1dea6) | 2 PASS / 0 FAIL / 15,521 SKIP → 3 PASS / 0 FAIL / 15,520 SKIP; standard-library-only 5,459 → 5,583 (the `@lib` targets now need only the library) |
 | A3 | Close the cheapest family of failing original cases from A1's histogram, one family per PR | Moves original cases to PASS | todo | — |
@@ -338,4 +338,4 @@ records the original case IDs it moves.
 | C1.2 | Move remaining emitted-output verification to the checked compiler process helper, retaining actual JS execution, diagnostic and no-output assertions | One shared invocation path without a coverage reduction | done | #231: 39/78; #232: 49/78; this integration: 78/78. Original acceptance unchanged (3 PASS / 0 FAIL / 15,520 SKIP) |
 | H1 | Agent verification skills (`.claude/skills/verification-first`, `.claude/skills/verify-tscs`) with a feature map run against the pinned reference | Every later PR is checked at the real boundary, not only by unit tests | done (PR #223, 2cfd095) | feature map rows run on 61dfa09: 2 PASS / 0 FAIL / 15,521 SKIP, library 0 unresolved names |
 
-Last docs housekeeping: 2026-11-08 (Sydney date).
+Last docs housekeeping: 2026-11-09 (Sydney date).

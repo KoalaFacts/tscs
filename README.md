@@ -20,7 +20,7 @@ skipped, 15,464 of them because they need the standard library. The standard lib
 `--noLib` against the empty interfaces in
 [`fixtures/minimal.d.ts`](fixtures/minimal.d.ts). What does work is a
 checked, bounded subset of the language with ES2015 output, covered by about
-19,800 internal xUnit regressions and executed-output checks. Internal
+20,100 internal xUnit regressions and executed-output checks. Internal
 regressions are not original acceptance. Details, gaps and the roadmap:
 [docs/STATUS.md](docs/STATUS.md).
 
