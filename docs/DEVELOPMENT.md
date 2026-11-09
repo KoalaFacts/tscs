@@ -75,3 +75,12 @@ node tools/check-standard-library.ts --upstream .artifacts/original-empty-go/Typ
   --harness tools/Tscs.FixtureHarness/bin/Release/net10.0/Tscs.FixtureHarness.dll \
   --out /tmp/standard-library.json
 ```
+
+A2.3 progress: each top-level statement of the pinned `lib.es5.d.ts` checked
+alone through the CLI, with a histogram of first diagnostics (a measure, not
+library loading; `--lib` picks another pinned lib):
+
+```sh
+node tools/check-library-statements.ts --upstream .artifacts/original-empty-go/TypeScript \
+  --tscs src/Tscs.Cli/bin/Release/net10.0/tscs.dll --out /tmp/library-statements.json
+```
