@@ -62,6 +62,57 @@ try {
   assert.match(invalidConstraint.stdout+invalidConstraint.stderr,/TS2344/);
   assert.equal(existsSync(join(dir,'constraint-invalid.js')),false);
 
+  // A2.3: source-level proofs keep nested generic parameter identity
+  // through four checked modules, actual ES2015 emit and Node execution.
+  for(const [name,source] of Object.entries({
+    'proof-types.ts':
+      'export type Id<X>=X;' +
+      'export type Struct<T extends number,U extends {value:T}={value:T}>={first:T;second:U};' +
+      'export type Alias<T extends number,U extends Id<T>=T>={first:T;second:U};' +
+      'export type ZeroUnion<T extends number,U extends T|never=T>={first:T;second:U};',
+    'proof-model.ts':
+      'import type {Struct,Alias,ZeroUnion} from "./proof-types.js";' +
+      'export const structure:Struct<5>={first:5,second:{value:5}};' +
+      'export const aliased:Alias<5>={first:5,second:5};' +
+      'export const unioned:ZeroUnion<5>={first:5,second:5};',
+    'proof-logic.ts':
+      'import type {Struct} from "./proof-types.js";' +
+      'export function score(item:Struct<5>):number{return item.first+item.second.value;}',
+    'proof-entry.ts':
+      'import {structure,aliased,unioned} from "./proof-model.js";' +
+      'import {score} from "./proof-logic.js";' +
+      'export const proofResult:number=score(structure)+aliased.second+unioned.second;'
+  }))writeFileSync(join(dir,name),source);
+  writeFileSync(join(dir,'proof-project.json'),JSON.stringify({
+    files:['proof-entry.ts','minimal.d.ts'],
+    compilerOptions:{module:'es2015',target:'es2015',noLib:true}
+  }));
+  const proof=compile(['--emitJs','-p',join(dir,'proof-project.json')]);
+  assert.equal(proof.status,0,proof.stdout+proof.stderr);
+  for(const name of ['proof-types','proof-model','proof-logic','proof-entry'])
+    assert.ok(existsSync(join(dir,name+'.js')),name+' missing checked output');
+  const proofRuntime=spawnSync(process.execPath,['--input-type=module','--eval',
+    'import {proofResult} from "./proof-entry.js";' +
+    'if(proofResult!==20)throw Error("nested constraint result "+proofResult);'],
+    {cwd:dir,encoding:'utf8',timeout:15000});
+  assert.equal(proofRuntime.error,undefined,String(proofRuntime.error));
+  assert.equal(proofRuntime.status,0,proofRuntime.stdout+proofRuntime.stderr);
+  // Invalid nested defaults and independent same-bound parameters must not
+  // be turned into JavaScript by treating erased unknown as a proof.
+  for(const [id,source] of [
+    ['proof-bad-default',
+      'type Pair<T extends number,U extends {value:T}={value:number}>={first:T;second:U};'],
+    ['proof-bad-unrelated',
+      'type Box<T,U extends {value:T}>={item:U};' +
+      'type Wrap<A extends number,B extends number>=Box<A,{value:B}>;']
+  ]){
+    writeFileSync(join(dir,id+'.ts'),source);
+    const rejected=compile(['--emitJs','--noLib','--target','es2015',id+'.ts','minimal.d.ts']);
+    assert.equal(rejected.status,1,id+': '+rejected.stdout+rejected.stderr);
+    assert.match(rejected.stdout+rejected.stderr,/TSCS1001/,id);
+    assert.equal(existsSync(join(dir,id+'.js')),false,id+' must not emit');
+  }
+
   // A2.3: shared members whose generic union arms or object fields appear
   // in a different order must survive checking, multi-module emit and Node
   // execution. These are real ES2015 modules, not just declaration tests.
