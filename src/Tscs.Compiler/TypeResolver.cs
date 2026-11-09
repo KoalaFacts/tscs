@@ -27,6 +27,12 @@ internal sealed class TypeBinding(string file,Token name,TypeSyntax syntax,Scope
     // upper bound. Its semantic value stays unknown: e.g. keyof T cannot
     // assume that keyof an instantiation equals keyof the constraint.
     public TypeSymbol? ConstraintBound { get; init; }
+    // An opaque parameter has its own identity, independent of its upper bound.
+    // Forwarded parameters retain their original identity through instantiations.
+    public bool IsOpaqueParameter { get; init; }
+    public TypeBinding? OpaqueOrigin { get; init; }
+    // A parameter declared as U extends T is related to T, not merely to T's bound.
+    public TypeBinding? ConstraintParameter { get; init; }
     // A parameter shadows an outer homonym even before its own default is
     // validated. Only earlier parameters may be read by that default.
     public bool PendingDefaultParameter { get; init; }
@@ -139,6 +145,40 @@ internal static class TypeResolver
         return new ObjectTypeSymbol(members,readonlyKeys,numericKeys,optionalKeys);
     }
 
+    // Return the original opaque parameter across any number of generic
+    // forwarding instantiations. Concrete arguments are never opaque.
+    private static TypeBinding? OpaqueParameter(TypeSyntax syntax,Scope scope)
+    {
+        if(syntax is not NamedTypeSyntax { TypeArguments: null } named ||
+           scope.FindType(named.Name.Text) is not { IsOpaqueParameter: true } binding)
+            return null;
+        return binding.OpaqueOrigin ?? binding;
+    }
+
+    // An upper bound alone cannot prove assignability to an *arbitrary*
+    // instantiation of another type parameter. For U extends T, require
+    // U's identity to be T or to inherit a constraint from T. This also
+    // keeps independent A/B parameters distinct when both extend string.
+    private static bool SatisfiesConstraint(TypeSyntax argument,Scope argumentScope,
+        TypeSymbol actual,TypeSyntax constraint,Scope constraintScope,TypeSymbol bound)
+    {
+        var candidate=OpaqueParameter(argument,argumentScope);
+        var required=OpaqueParameter(constraint,constraintScope);
+        if(required is not null)
+        {
+            for(var current=candidate,steps=0;current is not null && steps<64;steps++)
+            {
+                if(ReferenceEquals(current,required))return true;
+                current=current.ConstraintParameter;
+            }
+            // any and never satisfy every constraint; a concrete upper bound
+            // such as string never proves that it is a subtype of arbitrary T.
+            return candidate is null &&
+                (actual.Equals(CompilerTypes.Any)||actual.Equals(CompilerTypes.Never));
+        }
+        return CompilerTypes.IsAssignable(candidate?.ConstraintBound??actual,bound);
+    }
+
     // An unreferenced generic alias body is still checked: every name must
     // resolve. Its parameters stand for 'unknown' here, so a body that needs
     // known arguments (keyof T, T["k"]) fails closed as unsupported rather
@@ -163,15 +203,18 @@ internal static class TypeResolver
             {
                 // A default may refer to earlier parameters, never to itself
                 // or a later parameter that is not yet declared.
-                TypeSymbol? bound=null;
-                if(binding.TypeParameterConstraints.Count>i &&
-                   binding.TypeParameterConstraints[i] is { } constraint)
-                    bound=Resolve(constraint,placeholder,binding.File,depth+1);
+                TypeSyntax? constraintSyntax=binding.TypeParameterConstraints.Count>i
+                    ?binding.TypeParameterConstraints[i]:null;
+                var requiredParameter=constraintSyntax is null
+                    ?null:OpaqueParameter(constraintSyntax,placeholder);
+                TypeSymbol? bound=constraintSyntax is null
+                    ?null:Resolve(constraintSyntax,placeholder,binding.File,depth+1);
                 if(binding.TypeParameterDefaults.Count>i &&
                    binding.TypeParameterDefaults[i] is { } fallback)
                 {
                     var defaultType=Resolve(fallback,placeholder,binding.File,depth+1);
-                    if(bound is not null && !CompilerTypes.IsAssignable(defaultType,bound))
+                    if(bound is not null && !SatisfiesConstraint(fallback,placeholder,
+                        defaultType,constraintSyntax!,placeholder,bound))
                         throw new CompilationFailure(Diagnostic.Error(binding.File,Location(fallback),"TS2344",
                             $"Type '{defaultType.DisplayName}' does not satisfy the constraint '{bound.DisplayName}'."));
                 }
@@ -180,7 +223,9 @@ internal static class TypeResolver
                     new PrimitiveTypeSyntax(parameter with {Text="unknown"}),binding.Owner)
                 {
                     Resolved=CompilerTypes.Unknown,
-                    ConstraintBound=bound
+                    IsOpaqueParameter=true,
+                    ConstraintBound=requiredParameter?.ConstraintBound??bound,
+                    ConstraintParameter=requiredParameter
                 };
             }
             _=Resolve(binding.Syntax,placeholder,binding.File,depth+1);
@@ -267,24 +312,24 @@ internal static class TypeResolver
             var argumentScope=explicitArgument?scope:instance;
             var argumentFile=explicitArgument?file:binding.File;
             var actual=Resolve(argument,argumentScope,argumentFile,depth+1);
+            var sourceParameter=OpaqueParameter(argument,argumentScope);
             if(binding.TypeParameterConstraints.Count>i &&
                binding.TypeParameterConstraints[i] is { } constraint)
             {
                 var bound=Resolve(constraint,instance,binding.File,depth+1);
-                // A still-opaque parameter is admissible when its declared
-                // bound proves this constraint. Do not replace the argument's
-                // semantic type with the bound or admit keyof/inference shortcuts.
-                var provenActual=argument is NamedTypeSyntax { TypeArguments:null } named &&
-                    argumentScope.FindType(named.Name.Text) is { ConstraintBound:{ } candidate }
-                    ?candidate:actual;
-                if(!CompilerTypes.IsAssignable(provenActual,bound))
+                if(!SatisfiesConstraint(argument,argumentScope,actual,
+                    constraint,instance,bound))
                     throw new CompilationFailure(Diagnostic.Error(argumentFile,Location(argument),"TS2344",
                         $"Type '{actual.DisplayName}' does not satisfy the constraint '{bound.DisplayName}'."));
             }
             instance.Types[binding.TypeParameters[i].Text]=
                 new TypeBinding(argumentFile,binding.TypeParameters[i],argument,argumentScope)
                 {
-                    Resolved=actual
+                    Resolved=actual,
+                    IsOpaqueParameter=sourceParameter is not null,
+                    OpaqueOrigin=sourceParameter,
+                    ConstraintBound=sourceParameter?.ConstraintBound,
+                    ConstraintParameter=sourceParameter?.ConstraintParameter
                 };
         }
         return instance;
