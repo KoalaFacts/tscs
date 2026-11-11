@@ -472,7 +472,13 @@ internal static class Binder
     {
         // Validate all declarations even when nothing references their aliases.
         // The scope is complete before any named type is resolved.
-        foreach(var binding in scope.Types.Values.Distinct())_ = TypeResolver.ResolveBinding(binding);
+        foreach(var binding in scope.Types.Values.Distinct())
+        {
+            // A non-generic intrinsic declaration is checked, not resolved:
+            // only a use of it fails closed.
+            if(binding is { Syntax:IntrinsicTypeSyntax,TypeParameters.Count:0 })TypeResolver.ValidateIntrinsic(binding);
+            else _ = TypeResolver.ResolveBinding(binding);
+        }
         // TypeScript permits multiple ambient var declarations only when their
         // resolved types agree. Check every saved source position after aliases
         // have been bound; never silently use the first or last annotation.
