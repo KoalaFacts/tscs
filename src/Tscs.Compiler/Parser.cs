@@ -804,7 +804,12 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 if(alias)
                 {
                     if(!Eat(TokenKind.Equal))Unsupported(Current,"Expected '=' in a type alias.");
-                    statements.Add(new TypeAliasDeclaration(name,ReadTypeAnnotation(),exported,
+                    // Contextual `intrinsic` (pinned parseTypeAliasDeclaration):
+                    // the keyword only when it is the whole body, not `intrinsic.X`.
+                    TypeSyntax target=Current.Kind==TokenKind.Identifier && Current.Text=="intrinsic" &&
+                        position+1<tokens.Count && tokens[position+1].Kind!=TokenKind.Dot
+                        ?new IntrinsicTypeSyntax(Take()):ReadTypeAnnotation();
+                    statements.Add(new TypeAliasDeclaration(name,target,exported,
                         typeParameters.Count==0?null:typeParameters,
                         typeDefaults.Any(d=>d is not null)?typeDefaults:null,
                         typeConstraints.Any(c=>c is not null)?typeConstraints:null));

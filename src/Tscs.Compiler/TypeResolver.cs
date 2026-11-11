@@ -291,6 +291,19 @@ internal static class TypeResolver
         };
     }
 
+    // Pinned checkTypeAliasDeclaration: `intrinsic` declares only the
+    // compiler-provided types; any other alias with that body is TS2795.
+    internal static void ValidateIntrinsic(TypeBinding binding)
+    {
+        var intrinsic=(IntrinsicTypeSyntax)binding.Syntax;
+        bool known=binding.TypeParameters.Count==0 && binding.Name.Text=="BuiltinIteratorReturn" ||
+            binding.TypeParameters.Count==1 &&
+            binding.Name.Text is "Uppercase" or "Lowercase" or "Capitalize" or "Uncapitalize" or "NoInfer";
+        if(!known)
+            throw new CompilationFailure(Diagnostic.Error(binding.File,intrinsic.Keyword,"TS2795",
+                "The 'intrinsic' keyword can only be used to declare compiler provided intrinsic types."));
+    }
+
     // An unreferenced generic alias body is still checked: every name must
     // resolve. Its parameters stand for 'unknown' here, so a body that needs
     // known arguments (keyof T, T["k"]) fails closed as unsupported rather
@@ -344,7 +357,8 @@ internal static class TypeResolver
                     ConstraintParameter=requiredParameter
                 };
             }
-            _=Resolve(binding.Syntax,placeholder,binding.File,depth+1);
+            if(binding.Syntax is IntrinsicTypeSyntax)ValidateIntrinsic(binding);
+            else _=Resolve(binding.Syntax,placeholder,binding.File,depth+1);
             // A generic interface's heritage is checked with opaque type
             // parameters in the reference (TS2430 / TS2320): 'x:string' does
             // not satisfy a base 'x:T', yet it does for the 'unknown'
@@ -387,7 +401,7 @@ internal static class TypeResolver
             foreach(var merged in binding.MergedInterfaces)
                 _=Resolve(merged.Syntax,placeholder,merged.File,depth+1);
         }
-        catch(CompilationFailure failure) when (failure.Diagnostic.Code is not ("TS2304" or "TS2744" or "TS2344"))
+        catch(CompilationFailure failure) when (failure.Diagnostic.Code is not ("TS2304" or "TS2744" or "TS2344" or "TS2795"))
         {
             throw new CompilationFailure(Diagnostic.Error(binding.File,binding.Name,"TSCS1001",
                 "This generic declaration body is not supported without known type arguments yet."));
@@ -463,6 +477,11 @@ internal static class TypeResolver
         switch(syntax)
         {
             case PrimitiveTypeSyntax primitive: return CompilerTypes.FromAnnotation(primitive.Name.Text);
+            // Declarations are validated by ValidateIntrinsic; any use of the
+            // string-mapping or NoInfer types fails closed until modelled.
+            case IntrinsicTypeSyntax intrinsic:
+                throw new CompilationFailure(Diagnostic.Error(file,intrinsic.Keyword,"TSCS1001",
+                    "Using a compiler-provided intrinsic type is not supported yet."));
             case LiteralTypeSyntax literal: return CompilerTypes.FromLiteralExact(literal.Literal,literal.Negative);
             case FunctionTypeSyntax function:
             {
@@ -885,6 +904,7 @@ internal static class TypeResolver
     internal static Token Location(TypeSyntax syntax)=>syntax switch
     {
         PrimitiveTypeSyntax value=>value.Name,
+        IntrinsicTypeSyntax value=>value.Keyword,
         LiteralTypeSyntax value=>value.Literal,
         FunctionTypeSyntax value=>value.Open,
         NamedTypeSyntax value=>value.Name,
