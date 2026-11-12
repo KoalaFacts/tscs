@@ -278,7 +278,8 @@ internal static class TypeResolver
             PrimitiveTypeSyntax or LiteralTypeSyntax or TypeQuerySyntax=>false,
             NamedTypeSyntax named=>scope.FindType(named.Name.Text) is { IsOpaqueParameter: true } ||
                 named.TypeArguments is { } arguments && Any(arguments),
-            ObjectTypeSyntax shape=>Any(shape.Properties.Select(p=>p.Type)),
+            ObjectTypeSyntax shape=>Any(shape.Properties.Select(p=>p.Type).Concat(
+                (shape.IndexSignatures??[]).SelectMany(i=>new[]{i.KeyType,i.ValueType}))),
             ArrayTypeSyntax array=>MentionsOpaqueParameter(array.Element,scope,depth+1),
             TupleTypeSyntax tuple=>Any(tuple.Elements),
             TupleRestTypeSyntax rest=>MentionsOpaqueParameter(rest.Target,scope,depth+1),
@@ -302,6 +303,91 @@ internal static class TypeResolver
         if(!known)
             throw new CompilationFailure(Diagnostic.Error(binding.File,intrinsic.Keyword,"TS2795",
                 "The 'intrinsic' keyword can only be used to declare compiler provided intrinsic types."));
+    }
+
+    // Pinned checkGrammarIndexSignature: the key must be string, number,
+    // symbol, a template literal or a union of these (TS1268), never a
+    // literal or generic type (TS1337). Only string/number keys are modelled;
+    // other key forms fail closed. Members are checked in source order so the
+    // first diagnostic matches the reference. Properties an index signature
+    // applies to need the TS2411 relation, which is not modelled: fail closed.
+    internal static void ValidateIndexSignatures(ObjectTypeSyntax shape,Scope scope,string file,int depth)
+    {
+        var signatures=shape.IndexSignatures??[];
+        var members=shape.Properties.Select(p=>(Start:p.Name.Start,Property:(ObjectTypeProperty?)p,Signature:(IndexSignatureSyntax?)null))
+            .Concat(signatures.Select(i=>(Start:i.Open.Start,Property:(ObjectTypeProperty?)null,Signature:(IndexSignatureSyntax?)i)))
+            .OrderBy(m=>m.Start);
+        bool stringIndex=false,numberIndex=false;
+        foreach(var (_,property,signature) in members)
+        {
+            if(property is not null){_=Resolve(property.Type,scope,file,depth+1);continue;}
+            var key=ValidateIndexKey(signature!,scope,file,depth);
+            stringIndex|=key.Any(part=>part.Equals(CompilerTypes.String));
+            numberIndex|=key.Any(part=>part.Equals(CompilerTypes.Number));
+            _=Resolve(signature!.ValueType,scope,file,depth+1);
+        }
+        static bool NumericName(string name)=>name is "NaN" or "Infinity" or "-Infinity" ||
+            double.TryParse(name,System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out _);
+        foreach(var property in shape.Properties)
+            if(stringIndex || numberIndex && NumericName(Parser.PropertyName(property.Name)))
+                throw new CompilationFailure(Diagnostic.Error(file,property.Name,"TSCS1001",
+                    "Checking a property against an index signature is not supported yet."));
+    }
+
+    private static IReadOnlyList<TypeSymbol> ValidateIndexKey(IndexSignatureSyntax signature,Scope scope,string file,int depth)
+    {
+        const string invalid="An index signature parameter type must be 'string', 'number', 'symbol', or a template literal type.";
+        if(signature.KeyType is PrimitiveTypeSyntax { Name.Text: not ("string" or "number") })
+            throw new CompilationFailure(Diagnostic.Error(file,signature.Parameter,"TS1268",invalid));
+        // symbol, bigint, object and unresolved keys: the reference reports
+        // TS1268 or accepts them; neither is modelled here.
+        if(signature.KeyType is NamedTypeSyntax { Name.Text: "symbol" or "bigint" or "object" } ||
+           MentionsOpaqueParameter(signature.KeyType,scope,depth+1))
+            throw new CompilationFailure(Diagnostic.Error(file,signature.Parameter,"TSCS1001",
+                "This index signature key type is not supported yet."));
+        TypeSymbol key;
+        try {key=Resolve(signature.KeyType,scope,file,depth+1);}
+        catch(CompilationFailure failure) when (failure.Diagnostic.Code=="TS2304")
+        {
+            throw new CompilationFailure(Diagnostic.Error(file,signature.Parameter,"TSCS1001",
+                "This index signature key type is not supported yet."));
+        }
+        IReadOnlyList<TypeSymbol> parts=key is UnionTypeSymbol union?union.Alternatives:[key];
+        if(parts.Any(part=>part is LiteralTypeSymbol { Kind:PrimitiveKind.String or PrimitiveKind.Number }))
+            throw new CompilationFailure(Diagnostic.Error(file,signature.Parameter,"TS1337",
+                "An index signature parameter type cannot be a literal type or generic type. Consider using a mapped object type instead."));
+        if(!parts.All(part=>part.Equals(CompilerTypes.String) || part.Equals(CompilerTypes.Number)))
+            throw new CompilationFailure(Diagnostic.Error(file,signature.Parameter,"TSCS1001",
+                "This index signature key type is not supported yet."));
+        return parts;
+    }
+
+    // A declaration body is checked, not resolved, when it has an index
+    // signature: only a use of the declared type fails closed.
+    internal static void ValidateDeclarationBody(TypeSyntax syntax,Scope scope,string file,int depth)
+    {
+        if(syntax is ObjectTypeSyntax { HasIndexSignatures:true } indexed)
+            ValidateIndexSignatures(indexed,scope,file,depth);
+        else _=Resolve(syntax,scope,file,depth);
+    }
+
+    // Reopened interfaces (TS2374, TS2411, TS2717 across declarations) and
+    // inherited index signatures are not modelled: fail closed.
+    internal static void RejectUnmodelledIndexSignatures(TypeBinding binding)
+    {
+        var declarations=binding.MergedInterfaces.Select(m=>(m.File,m.Name,m.Syntax))
+            .Prepend((binding.File,binding.Name,binding.Syntax)).ToList();
+        bool Indexed(TypeSyntax syntax)=>syntax switch
+        {
+            ObjectTypeSyntax shape=>shape.HasIndexSignatures,
+            InterfaceExtensionTypeSyntax inherited=>inherited.Body.HasIndexSignatures,
+            _=>false
+        };
+        var indexed=declarations.Where(d=>Indexed(d.Syntax)).ToList();
+        if(indexed.Count==0)return;
+        if(declarations.Count>1 || declarations.Any(d=>d.Syntax is InterfaceExtensionTypeSyntax))
+            throw new CompilationFailure(Diagnostic.Error(indexed[^1].File,indexed[^1].Name,"TSCS1001",
+                "Index signatures in reopened or inheriting interfaces are not supported yet."));
     }
 
     // An unreferenced generic alias body is still checked: every name must
@@ -357,8 +443,9 @@ internal static class TypeResolver
                     ConstraintParameter=requiredParameter
                 };
             }
+            RejectUnmodelledIndexSignatures(binding);
             if(binding.Syntax is IntrinsicTypeSyntax)ValidateIntrinsic(binding);
-            else _=Resolve(binding.Syntax,placeholder,binding.File,depth+1);
+            else ValidateDeclarationBody(binding.Syntax,placeholder,binding.File,depth+1);
             // A generic interface's heritage is checked with opaque type
             // parameters in the reference (TS2430 / TS2320): 'x:string' does
             // not satisfy a base 'x:T', yet it does for the 'unknown'
@@ -399,9 +486,10 @@ internal static class TypeResolver
                             "Redeclaring a member of a merged generic interface is not supported yet."));
             }
             foreach(var merged in binding.MergedInterfaces)
-                _=Resolve(merged.Syntax,placeholder,merged.File,depth+1);
+                ValidateDeclarationBody(merged.Syntax,placeholder,merged.File,depth+1);
         }
-        catch(CompilationFailure failure) when (failure.Diagnostic.Code is not ("TS2304" or "TS2744" or "TS2344" or "TS2795"))
+        catch(CompilationFailure failure) when (failure.Diagnostic.Code is not
+            ("TS2304" or "TS2744" or "TS2344" or "TS2795" or "TS1268" or "TS1337"))
         {
             throw new CompilationFailure(Diagnostic.Error(binding.File,binding.Name,"TSCS1001",
                 "This generic declaration body is not supported without known type arguments yet."));
@@ -745,6 +833,9 @@ internal static class TypeResolver
                     throw new CompilationFailure(Diagnostic.Error(file,genericName,"TS2315",
                         $"Type '{genericName.Text}' is not generic in the supported subset."));
                 return new ArrayTypeSymbol(Resolve(array.Element,scope,file,depth+1),array.Readonly);
+            case InterfaceExtensionTypeSyntax { Body.HasIndexSignatures:true } indexedHeritage:
+                throw new CompilationFailure(Diagnostic.Error(file,indexedHeritage.Body.IndexSignatures![0].Open,"TSCS1001",
+                    "Using a type with an index signature is not supported yet."));
             case InterfaceExtensionTypeSyntax inherited:
             {
                 // Never erase missing or incompatible inherited members. Each
@@ -817,6 +908,10 @@ internal static class TypeResolver
                 }
                 return new ObjectTypeSymbol(members,readonlyKeys,numericKeys,optionalKeys);
             }
+            case ObjectTypeSyntax { HasIndexSignatures:true } indexed:
+                ValidateIndexSignatures(indexed,scope,file,depth+1);
+                throw new CompilationFailure(Diagnostic.Error(file,indexed.IndexSignatures![0].Open,"TSCS1001",
+                    "Using a type with an index signature is not supported yet."));
             case ObjectTypeSyntax shape:return new ObjectTypeSymbol(shape.Properties.Select(p=>
                 new KeyValuePair<string,TypeSymbol>(Parser.PropertyName(p.Name),Resolve(p.Type,scope,file,depth+1))),
                 shape.Properties.Where(p=>p.Readonly).Select(p=>Parser.PropertyName(p.Name)),

@@ -1802,6 +1802,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
         {
             var open=Take();
             var properties=new List<ObjectTypeProperty>();
+            var indexSignatures=new List<IndexSignatureSyntax>();
             var names=new HashSet<string>(StringComparer.Ordinal);
             while(Current.Kind!=TokenKind.Close)
             {
@@ -1811,6 +1812,27 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     Current.Text=="readonly" && position+1<tokens.Count &&
                     tokens[position+1].Kind is not (TokenKind.Colon or TokenKind.OpenParen);
                 if(readonlyMember)Take();
+                // Pinned isIndexSignature: '[' identifier ':' starts an index signature.
+                if(Current.Kind==TokenKind.OpenBracket && position+2<tokens.Count &&
+                   tokens[position+1].Kind==TokenKind.Identifier && tokens[position+2].Kind==TokenKind.Colon)
+                {
+                    if(indexSignatures.Count!=0)
+                        Unsupported(Current,"Multiple index signatures are not supported yet.");
+                    var bracket=Take();
+                    var parameter=Take();
+                    Take();
+                    var keyType=ReadTypeAnnotation(depth+1);
+                    if(Current.Kind!=TokenKind.CloseBracket)
+                        Unsupported(Current,"Index signatures with other than one typed parameter are not supported yet.");
+                    Take();
+                    if(!Eat(TokenKind.Colon))
+                        Unsupported(Current,"Index signatures without a type annotation are not supported yet.");
+                    indexSignatures.Add(new IndexSignatureSyntax(bracket,parameter,keyType,ReadTypeAnnotation(depth+1),readonlyMember));
+                    if(Eat(TokenKind.Semi)||Eat(TokenKind.Comma))continue;
+                    if(Current.Kind==TokenKind.Close)break;
+                    if(!Current.LineBreak)Unsupported(Current,"Expected a separator between object type members.");
+                    continue;
+                }
                 var name=ReadPropertyName(allowString:true,allowNumber:true);
                 bool optionalMember=Eat(TokenKind.Question);
                 if(!names.Add(PropertyName(name)))
@@ -1832,7 +1854,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 if(Current.Kind==TokenKind.Close)break;
                 if(!Current.LineBreak)Unsupported(Current,"Expected a separator between object type members.");
             }
-            type=new ObjectTypeSyntax(open,properties,Take());
+            type=new ObjectTypeSyntax(open,properties,Take(),indexSignatures);
         }
         else
         {

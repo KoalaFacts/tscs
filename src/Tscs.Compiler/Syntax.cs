@@ -15,7 +15,13 @@ internal sealed record IntrinsicTypeSyntax(Token Keyword) : TypeSyntax;
 // Literal annotations retain decoded source values independently from widened expressions.
 internal sealed record LiteralTypeSyntax(Token Literal,bool Negative=false) : TypeSyntax;
 internal sealed record ObjectTypeProperty(Token Name,TypeSyntax Type,bool Readonly=false,bool Optional=false);
-internal sealed record ObjectTypeSyntax(Token Open,IReadOnlyList<ObjectTypeProperty> Properties,Token Close) : TypeSyntax;
+// `[name: Key]: Value` member. Declarations are checked; any use of a type
+// with an index signature fails closed until index signatures are modelled.
+internal sealed record IndexSignatureSyntax(Token Open,Token Parameter,TypeSyntax KeyType,TypeSyntax ValueType,bool Readonly);
+internal sealed record ObjectTypeSyntax(Token Open,IReadOnlyList<ObjectTypeProperty> Properties,Token Close,IReadOnlyList<IndexSignatureSyntax>? IndexSignatures=null) : TypeSyntax
+{
+    public bool HasIndexSignatures=>IndexSignatures is { Count:>0 };
+}
 // Array<T>/ReadonlyArray<T> share the normal checked array AST, retaining the generic name for shadowing diagnostics.
 internal sealed record ArrayTypeSyntax(TypeSyntax Element,Token Open,Token Close,bool Readonly=false,Token? GenericName=null) : TypeSyntax;
 // Bounded fixed tuples share the array semantic model, retaining per-position types.
