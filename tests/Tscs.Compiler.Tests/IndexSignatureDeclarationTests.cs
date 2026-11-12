@@ -13,9 +13,10 @@ public sealed class IndexSignatureDeclarationTests
     [InlineData("interface ImportAttributes {\n    [key: string]: string;\n}")]
     [InlineData("interface ArrayLike<T> {\n    readonly length: number;\n    readonly [n: number]: T;\n}")]
     [InlineData("interface ConcatArray<T> {\n    readonly length: number;\n    readonly [n: number]: T;\n    join(separator?: string): string;\n    slice(start?: number, end?: number): T[];\n}")]
-    [InlineData("type A = { [k: string]: number, b: number };")]
     [InlineData("type K = string | number;\ninterface A { [k: K]: boolean }")]
     [InlineData("interface A { readonly: string; [readonly: number]: string }")]
+    [InlineData("type S = string;\ninterface A { [k: S | number]: string }")]
+    [InlineData("type R<T> = { [k: string]: T };")]
     public void DeclarationsCheck(string source)=>
         Assert.Empty(Compilation.Check("index.ts",source));
 
@@ -31,6 +32,12 @@ public sealed class IndexSignatureDeclarationTests
     [InlineData("interface A { [k: string]: Missing }","TS2304",27,"Cannot find name 'Missing'.")]
     [InlineData("interface G<T> { [n: number]: Missing }","TS2304",30,"Cannot find name 'Missing'.")]
     [InlineData("interface G<T> { [k: boolean]: T }","TS1268",18,
+        "An index signature parameter type must be 'string', 'number', 'symbol', or a template literal type.")]
+    // Members are checked in source order: the first diagnostic is the reference's.
+    [InlineData("interface A { [k: boolean]: string; x: Missing }","TS1268",15,
+        "An index signature parameter type must be 'string', 'number', 'symbol', or a template literal type.")]
+    [InlineData("interface A { x: Missing; [k: boolean]: string }","TS2304",17,"Cannot find name 'Missing'.")]
+    [InlineData("interface A { [k: never]: string }","TS1268",15,
         "An index signature parameter type must be 'string', 'number', 'symbol', or a template literal type.")]
     public void InvalidDeclarationsMatchThePinnedChecker(string source,string code,int start,string message)
     {
@@ -50,6 +57,19 @@ public sealed class IndexSignatureDeclarationTests
     [InlineData("interface A { [k: string]: string; [n: number]: string }")]
     [InlineData("interface G<K extends string> { [k: K]: number }")]
     [InlineData("let a: { [k: string]: number } = {};")]
+    // TS2411 (property against index type) is not modelled.
+    [InlineData("interface A { [k: string]: number; x: string }")]
+    [InlineData("type A = { [k: string]: number, b: number };")]
+    [InlineData("interface A { [n: number]: number; 0: string }")]
+    [InlineData("interface A { [n: number]: number; \"1\": string }")]
+    [InlineData("interface G<T> { [k: string]: T; x: number }")]
+    [InlineData("interface A { [k: string]: string }\ninterface A { x: number }")]
+    [InlineData("interface G<T> { [k: string]: T }\ninterface G<T> { x: number }")]
+    // symbol, bigint, object and unresolved keys are not modelled.
+    [InlineData("interface A { [k: symbol]: number }")]
+    [InlineData("interface A { [k: bigint]: number }")]
+    [InlineData("interface A { [k: object]: number }")]
+    [InlineData("interface A { [k: Date]: number }")]
     public void UnmodelledFormsFailClosed(string source)=>
         Assert.Contains(Compilation.Check("index-use.ts",source),d=>d.Code=="TSCS1001");
 }
