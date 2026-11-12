@@ -477,6 +477,15 @@ internal static class Binder
             // A non-generic intrinsic declaration is checked, not resolved:
             // only a use of it fails closed.
             if(binding is { Syntax:IntrinsicTypeSyntax,TypeParameters.Count:0 })TypeResolver.ValidateIntrinsic(binding);
+            else if(binding is { TypeParameters.Count:0 } && HasIndexSignature(binding))
+            {
+                // Like intrinsic: an indexed declaration is checked, and only
+                // a use of it fails closed.
+                TypeResolver.RejectUnmodelledIndexSignatures(binding);
+                TypeResolver.ValidateDeclarationBody(binding.Syntax,binding.Owner,binding.File,1);
+                foreach(var merged in binding.MergedInterfaces)
+                    TypeResolver.ValidateDeclarationBody(merged.Syntax,merged.Owner,merged.File,1);
+            }
             else _ = TypeResolver.ResolveBinding(binding);
         }
         // TypeScript permits multiple ambient var declarations only when their
@@ -549,4 +558,12 @@ internal static class Binder
         throw new CompilationFailure(Diagnostic.Error(file,name,"TSCS1001",
             "Redeclaration diagnostics and declaration merging are not supported yet."));
     }
+
+    private static bool HasIndexSignature(TypeBinding binding)=>
+        binding.MergedInterfaces.Select(m=>m.Syntax).Prepend(binding.Syntax).Any(syntax=>syntax switch
+        {
+            ObjectTypeSyntax shape=>shape.HasIndexSignatures,
+            InterfaceExtensionTypeSyntax inherited=>inherited.Body.HasIndexSignatures,
+            _=>false
+        });
 }

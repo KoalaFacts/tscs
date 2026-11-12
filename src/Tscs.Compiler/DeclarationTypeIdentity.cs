@@ -148,6 +148,10 @@ internal static class DeclarationTypeIdentity
                 return Unordered(a.Members,leftScope,leftFile,
                     b.Members,rightScope,rightFile,depth+1);
             case (ObjectTypeSyntax a,ObjectTypeSyntax b):
+                // Index signature identity is not modelled: never TS2403 on it.
+                if(a.HasIndexSignatures || b.HasIndexSignatures)
+                    throw new CompilationFailure(Diagnostic.Error(leftFile,a.Open,"TSCS1001",
+                        "Comparing declarations with index signatures is not supported yet."));
                 if(a.Properties.Count!=b.Properties.Count)return false;
                 foreach(var p in a.Properties)
                 {
@@ -339,6 +343,8 @@ internal static class DeclarationTypeIdentity
                 return Each(a.Members,b.Members);
             case (ObjectTypeSyntax a,ObjectTypeSyntax b):
             {
+                // Not proven identical; callers fail closed (TSCS1001).
+                if(a.HasIndexSignatures || b.HasIndexSignatures)return false;
                 if(a.Properties.Count!=b.Properties.Count)return false;
                 var remaining=b.Properties.ToList();
                 foreach(var property in a.Properties)
@@ -600,6 +606,8 @@ internal static class DeclarationTypeIdentity
                     : Select(binding.Syntax,BodyScope(binding,named,scope,file),binding.File,key,depth+1);
             case TypeQuerySyntax when Unwrap(syntax,scope,file,depth) is { } denoted:
                 return Select(denoted.Syntax,denoted.Scope,denoted.File,key,depth+1);
+            case ObjectTypeSyntax { HasIndexSignatures:true }:
+                return Selection.Unknown;
             case ObjectTypeSyntax shape:
             {
                 var matches=shape.Properties.Where(p=>
