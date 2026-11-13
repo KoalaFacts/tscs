@@ -52,6 +52,9 @@ public sealed class CallSignatureDeclarationTests
     [InlineData("interface S { (x: number): typeof x }")]
     [InlineData("interface S { new (x: number, y: typeof x): number }")]
     [InlineData("interface S { m(x: number): typeof x }")]
+    [InlineData("let x = \"s\";\nlet f: (x: number) => typeof x = (x: number) => x;")]
+    [InlineData("let x = 1;\nlet f: (x: string) => typeof x = (x: string) => 1;")]
+    [InlineData("let x = 1;\ninterface I { m(x: string): typeof x }\nlet i: I = { m: (x: string) => 1 };")]
     // Generic signatures and duplicate parameters (TS2300) are not modelled.
     [InlineData("interface S { <T>(v: T): T }")]
     [InlineData("interface S { new <T>(v: T): number }")]

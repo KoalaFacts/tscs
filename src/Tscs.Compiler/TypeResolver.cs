@@ -293,6 +293,37 @@ internal static class TypeResolver
         };
     }
 
+    // Whether a `typeof` root names a parameter of this or an enclosing
+    // function type. Conservative: an unrecognized type form counts.
+    private static bool QueriesParameter(TypeSyntax syntax,HashSet<string> parameters,int depth)
+    {
+        if(depth>64)return true;
+        bool Any(IEnumerable<TypeSyntax> types,HashSet<string> names)=>types.Any(t=>QueriesParameter(t,names,depth+1));
+        switch(syntax)
+        {
+            case PrimitiveTypeSyntax or LiteralTypeSyntax or IntrinsicTypeSyntax:return false;
+            case TypeQuerySyntax query:return parameters.Contains(query.Root.Text);
+            case FunctionTypeSyntax function:
+            {
+                var names=new HashSet<string>(parameters,StringComparer.Ordinal);
+                names.UnionWith(function.Parameters.Select(p=>p.Name.Text));
+                return Any(function.Parameters.Select(p=>p.Type).Append(function.ReturnType),names);
+            }
+            case NamedTypeSyntax named:return named.TypeArguments is { } arguments && Any(arguments,parameters);
+            case ObjectTypeSyntax shape:return Any(shape.Properties.Select(p=>p.Type)
+                .Concat((shape.IndexSignatures??[]).SelectMany(i=>new[]{i.KeyType,i.ValueType}))
+                .Concat((shape.CallSignatures??[]).Select(c=>(TypeSyntax)c.Type)),parameters);
+            case ArrayTypeSyntax array:return QueriesParameter(array.Element,parameters,depth+1);
+            case TupleTypeSyntax tuple:return Any(tuple.Elements,parameters);
+            case TupleRestTypeSyntax rest:return QueriesParameter(rest.Target,parameters,depth+1);
+            case KeyofTypeSyntax keyof:return QueriesParameter(keyof.Target,parameters,depth+1);
+            case IndexedAccessTypeSyntax access:return Any([access.Target,access.Index],parameters);
+            case IntersectionTypeSyntax intersection:return Any(intersection.Members,parameters);
+            case UnionTypeSyntax union:return Any(union.Members,parameters);
+            default:return true;
+        }
+    }
+
     // Pinned checkTypeAliasDeclaration: `intrinsic` declares only the
     // compiler-provided types; any other alias with that body is TS2795.
     internal static void ValidateIntrinsic(TypeBinding binding)
@@ -593,6 +624,11 @@ internal static class TypeResolver
                 // Signature parameters are in scope for `typeof x` in the
                 // reference; they are not bound here, so a missing name that
                 // is one of the parameters fails closed instead of TS2304.
+                // A `typeof` of a parameter fails closed even when an outer
+                // value of that name exists: the reference means the parameter.
+                if(QueriesParameter(function,new HashSet<string>(StringComparer.Ordinal),0))
+                    throw new CompilationFailure(Diagnostic.Error(file,function.Open,"TSCS1001",
+                        "Referring to a signature parameter from its own types is not supported yet."));
                 try
                 {
                     var parameters=function.Parameters.Select(p=>Resolve(p.Type,scope,file,depth+1)).ToArray();
