@@ -44,6 +44,10 @@ public sealed class CallSignatureDeclarationTests
     [InlineData("interface S { new (): number }\ninterface B extends S { b: string }")]
     [InlineData("interface S { new (v: number): number }\ninterface S { (): void }")]
     [InlineData("interface S { x: number }\ninterface S { (): void }")]
+    // Recursive references are legal in the reference but not modelled (never TS2456).
+    [InlineData("interface C { new (s: string): C }")]
+    [InlineData("interface D { c: number }\ninterface C { (): C; d: D }")]
+    [InlineData("type F = { (): F };")]
     // Generic signatures and duplicate parameters (TS2300) are not modelled.
     [InlineData("interface S { <T>(v: T): T }")]
     [InlineData("interface S { new <T>(v: T): number }")]

@@ -325,8 +325,19 @@ internal static class TypeResolver
         {
             if(property is not null){_=Resolve(property.Type,scope,file,depth+1);continue;}
             // A call or construct signature checks its parameter and return
-            // types exactly as a method signature does.
-            if(call is not null){_=Resolve(call.Type,scope,file,depth+1);continue;}
+            // types exactly as a method signature does. A signature that
+            // refers back to its own declaration is legal in the reference,
+            // but resolving it reaches the TS2456 cycle check: fail closed.
+            if(call is not null)
+            {
+                try {_=Resolve(call.Type,scope,file,depth+1);}
+                catch(CompilationFailure failure) when (failure.Diagnostic.Code=="TS2456")
+                {
+                    throw new CompilationFailure(Diagnostic.Error(file,call.Start,"TSCS1001",
+                        "Recursive references in call or construct signatures are not supported yet."));
+                }
+                continue;
+            }
             var key=ValidateIndexKey(signature!,scope,file,depth);
             stringIndex|=key.Any(part=>part.Equals(CompilerTypes.String));
             numberIndex|=key.Any(part=>part.Equals(CompilerTypes.Number));
