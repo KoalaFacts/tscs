@@ -279,7 +279,8 @@ internal static class TypeResolver
             NamedTypeSyntax named=>scope.FindType(named.Name.Text) is { IsOpaqueParameter: true } ||
                 named.TypeArguments is { } arguments && Any(arguments),
             ObjectTypeSyntax shape=>Any(shape.Properties.Select(p=>p.Type).Concat(
-                (shape.IndexSignatures??[]).SelectMany(i=>new[]{i.KeyType,i.ValueType}))),
+                (shape.IndexSignatures??[]).SelectMany(i=>new[]{i.KeyType,i.ValueType}))
+                .Concat((shape.CallSignatures??[]).Select(c=>(TypeSyntax)c.Type))),
             ArrayTypeSyntax array=>MentionsOpaqueParameter(array.Element,scope,depth+1),
             TupleTypeSyntax tuple=>Any(tuple.Elements),
             TupleRestTypeSyntax rest=>MentionsOpaqueParameter(rest.Target,scope,depth+1),
@@ -290,6 +291,37 @@ internal static class TypeResolver
             UnionTypeSyntax union=>Any(union.Members),
             _=>true
         };
+    }
+
+    // Whether a `typeof` root names a parameter of this or an enclosing
+    // function type. Conservative: an unrecognized type form counts.
+    private static bool QueriesParameter(TypeSyntax syntax,HashSet<string> parameters,int depth)
+    {
+        if(depth>64)return true;
+        bool Any(IEnumerable<TypeSyntax> types,HashSet<string> names)=>types.Any(t=>QueriesParameter(t,names,depth+1));
+        switch(syntax)
+        {
+            case PrimitiveTypeSyntax or LiteralTypeSyntax or IntrinsicTypeSyntax:return false;
+            case TypeQuerySyntax query:return parameters.Contains(query.Root.Text);
+            case FunctionTypeSyntax function:
+            {
+                var names=new HashSet<string>(parameters,StringComparer.Ordinal);
+                names.UnionWith(function.Parameters.Select(p=>p.Name.Text));
+                return Any(function.Parameters.Select(p=>p.Type).Append(function.ReturnType),names);
+            }
+            case NamedTypeSyntax named:return named.TypeArguments is { } arguments && Any(arguments,parameters);
+            case ObjectTypeSyntax shape:return Any(shape.Properties.Select(p=>p.Type)
+                .Concat((shape.IndexSignatures??[]).SelectMany(i=>new[]{i.KeyType,i.ValueType}))
+                .Concat((shape.CallSignatures??[]).Select(c=>(TypeSyntax)c.Type)),parameters);
+            case ArrayTypeSyntax array:return QueriesParameter(array.Element,parameters,depth+1);
+            case TupleTypeSyntax tuple:return Any(tuple.Elements,parameters);
+            case TupleRestTypeSyntax rest:return QueriesParameter(rest.Target,parameters,depth+1);
+            case KeyofTypeSyntax keyof:return QueriesParameter(keyof.Target,parameters,depth+1);
+            case IndexedAccessTypeSyntax access:return Any([access.Target,access.Index],parameters);
+            case IntersectionTypeSyntax intersection:return Any(intersection.Members,parameters);
+            case UnionTypeSyntax union:return Any(union.Members,parameters);
+            default:return true;
+        }
     }
 
     // Pinned checkTypeAliasDeclaration: `intrinsic` declares only the
@@ -311,16 +343,32 @@ internal static class TypeResolver
     // other key forms fail closed. Members are checked in source order so the
     // first diagnostic matches the reference. Properties an index signature
     // applies to need the TS2411 relation, which is not modelled: fail closed.
-    internal static void ValidateIndexSignatures(ObjectTypeSyntax shape,Scope scope,string file,int depth)
+    // Call and construct signatures are checked in the same source order.
+    internal static void ValidateSignatureMembers(ObjectTypeSyntax shape,Scope scope,string file,int depth)
     {
         var signatures=shape.IndexSignatures??[];
-        var members=shape.Properties.Select(p=>(Start:p.Name.Start,Property:(ObjectTypeProperty?)p,Signature:(IndexSignatureSyntax?)null))
-            .Concat(signatures.Select(i=>(Start:i.Open.Start,Property:(ObjectTypeProperty?)null,Signature:(IndexSignatureSyntax?)i)))
+        var members=shape.Properties.Select(p=>(Start:p.Name.Start,Property:(ObjectTypeProperty?)p,Signature:(IndexSignatureSyntax?)null,Call:(CallSignatureSyntax?)null))
+            .Concat(signatures.Select(i=>(Start:i.Open.Start,Property:(ObjectTypeProperty?)null,Signature:(IndexSignatureSyntax?)i,Call:(CallSignatureSyntax?)null)))
+            .Concat((shape.CallSignatures??[]).Select(c=>(Start:c.Start.Start,Property:(ObjectTypeProperty?)null,Signature:(IndexSignatureSyntax?)null,Call:(CallSignatureSyntax?)c)))
             .OrderBy(m=>m.Start);
         bool stringIndex=false,numberIndex=false;
-        foreach(var (_,property,signature) in members)
+        foreach(var (_,property,signature,call) in members)
         {
             if(property is not null){_=Resolve(property.Type,scope,file,depth+1);continue;}
+            // A call or construct signature checks its parameter and return
+            // types exactly as a method signature does. A signature that
+            // refers back to its own declaration is legal in the reference,
+            // but resolving it reaches the TS2456 cycle check: fail closed.
+            if(call is not null)
+            {
+                try {_=Resolve(call.Type,scope,file,depth+1);}
+                catch(CompilationFailure failure) when (failure.Diagnostic.Code=="TS2456")
+                {
+                    throw new CompilationFailure(Diagnostic.Error(file,call.Start,"TSCS1001",
+                        "Recursive references in call or construct signatures are not supported yet."));
+                }
+                continue;
+            }
             var key=ValidateIndexKey(signature!,scope,file,depth);
             stringIndex|=key.Any(part=>part.Equals(CompilerTypes.String));
             numberIndex|=key.Any(part=>part.Equals(CompilerTypes.Number));
@@ -362,32 +410,32 @@ internal static class TypeResolver
         return parts;
     }
 
-    // A declaration body is checked, not resolved, when it has an index
-    // signature: only a use of the declared type fails closed.
+    // A declaration body is checked, not resolved, when it has an index, call
+    // or construct signature: only a use of the declared type fails closed.
     internal static void ValidateDeclarationBody(TypeSyntax syntax,Scope scope,string file,int depth)
     {
-        if(syntax is ObjectTypeSyntax { HasIndexSignatures:true } indexed)
-            ValidateIndexSignatures(indexed,scope,file,depth);
+        if(syntax is ObjectTypeSyntax { HasSignatures:true } indexed)
+            ValidateSignatureMembers(indexed,scope,file,depth);
         else _=Resolve(syntax,scope,file,depth);
     }
 
     // Reopened interfaces (TS2374, TS2411, TS2717 across declarations) and
-    // inherited index signatures are not modelled: fail closed.
+    // inherited index, call or construct signatures are not modelled: fail closed.
     internal static void RejectUnmodelledIndexSignatures(TypeBinding binding)
     {
         var declarations=binding.MergedInterfaces.Select(m=>(m.File,m.Name,m.Syntax))
             .Prepend((binding.File,binding.Name,binding.Syntax)).ToList();
         bool Indexed(TypeSyntax syntax)=>syntax switch
         {
-            ObjectTypeSyntax shape=>shape.HasIndexSignatures,
-            InterfaceExtensionTypeSyntax inherited=>inherited.Body.HasIndexSignatures,
+            ObjectTypeSyntax shape=>shape.HasSignatures,
+            InterfaceExtensionTypeSyntax inherited=>inherited.Body.HasSignatures,
             _=>false
         };
         var indexed=declarations.Where(d=>Indexed(d.Syntax)).ToList();
         if(indexed.Count==0)return;
         if(declarations.Count>1 || declarations.Any(d=>d.Syntax is InterfaceExtensionTypeSyntax))
             throw new CompilationFailure(Diagnostic.Error(indexed[^1].File,indexed[^1].Name,"TSCS1001",
-                "Index signatures in reopened or inheriting interfaces are not supported yet."));
+                "Index, call or construct signatures in reopened or inheriting interfaces are not supported yet."));
     }
 
     // An unreferenced generic alias body is still checked: every name must
@@ -573,13 +621,30 @@ internal static class TypeResolver
             case LiteralTypeSyntax literal: return CompilerTypes.FromLiteralExact(literal.Literal,literal.Negative);
             case FunctionTypeSyntax function:
             {
-                var parameters=function.Parameters.Select(p=>Resolve(p.Type,scope,file,depth+1)).ToArray();
-                var last=function.Parameters.LastOrDefault();
-                return new FunctionTypeSymbol(parameters,
-                    Resolve(function.ReturnType,scope,file,depth+1),
-                    function.Parameters.TakeWhile(p=>!p.Optional && !p.Rest).Count(),
-                    last is { Rest:true,Type:ArrayTypeSyntax array }
-                        ?Resolve(array.Element,scope,file,depth+1):null);
+                // Signature parameters are in scope for `typeof x` in the
+                // reference; they are not bound here, so a missing name that
+                // is one of the parameters fails closed instead of TS2304.
+                // A `typeof` of a parameter fails closed even when an outer
+                // value of that name exists: the reference means the parameter.
+                if(QueriesParameter(function,new HashSet<string>(StringComparer.Ordinal),0))
+                    throw new CompilationFailure(Diagnostic.Error(file,function.Open,"TSCS1001",
+                        "Referring to a signature parameter from its own types is not supported yet."));
+                try
+                {
+                    var parameters=function.Parameters.Select(p=>Resolve(p.Type,scope,file,depth+1)).ToArray();
+                    var last=function.Parameters.LastOrDefault();
+                    return new FunctionTypeSymbol(parameters,
+                        Resolve(function.ReturnType,scope,file,depth+1),
+                        function.Parameters.TakeWhile(p=>!p.Optional && !p.Rest).Count(),
+                        last is { Rest:true,Type:ArrayTypeSyntax array }
+                            ?Resolve(array.Element,scope,file,depth+1):null);
+                }
+                catch(CompilationFailure failure) when (failure.Diagnostic.Code=="TS2304" &&
+                    function.Parameters.Any(p=>failure.Diagnostic.Message==$"Cannot find name '{p.Name.Text}'."))
+                {
+                    throw new CompilationFailure(Diagnostic.Error(file,function.Open,"TSCS1001",
+                        "Referring to a signature parameter from its own types is not supported yet."));
+                }
             }
             case NamedTypeSyntax named:
             {
@@ -833,9 +898,9 @@ internal static class TypeResolver
                     throw new CompilationFailure(Diagnostic.Error(file,genericName,"TS2315",
                         $"Type '{genericName.Text}' is not generic in the supported subset."));
                 return new ArrayTypeSymbol(Resolve(array.Element,scope,file,depth+1),array.Readonly);
-            case InterfaceExtensionTypeSyntax { Body.HasIndexSignatures:true } indexedHeritage:
-                throw new CompilationFailure(Diagnostic.Error(file,indexedHeritage.Body.IndexSignatures![0].Open,"TSCS1001",
-                    "Using a type with an index signature is not supported yet."));
+            case InterfaceExtensionTypeSyntax { Body.HasSignatures:true } indexedHeritage:
+                throw new CompilationFailure(Diagnostic.Error(file,indexedHeritage.Body.FirstSignature,"TSCS1001",
+                    $"Using a type with {indexedHeritage.Body.SignatureKind} is not supported yet."));
             case InterfaceExtensionTypeSyntax inherited:
             {
                 // Never erase missing or incompatible inherited members. Each
@@ -908,10 +973,10 @@ internal static class TypeResolver
                 }
                 return new ObjectTypeSymbol(members,readonlyKeys,numericKeys,optionalKeys);
             }
-            case ObjectTypeSyntax { HasIndexSignatures:true } indexed:
-                ValidateIndexSignatures(indexed,scope,file,depth+1);
-                throw new CompilationFailure(Diagnostic.Error(file,indexed.IndexSignatures![0].Open,"TSCS1001",
-                    "Using a type with an index signature is not supported yet."));
+            case ObjectTypeSyntax { HasSignatures:true } indexed:
+                ValidateSignatureMembers(indexed,scope,file,depth+1);
+                throw new CompilationFailure(Diagnostic.Error(file,indexed.FirstSignature,"TSCS1001",
+                    $"Using a type with {indexed.SignatureKind} is not supported yet."));
             case ObjectTypeSyntax shape:return new ObjectTypeSymbol(shape.Properties.Select(p=>
                 new KeyValuePair<string,TypeSymbol>(Parser.PropertyName(p.Name),Resolve(p.Type,scope,file,depth+1))),
                 shape.Properties.Where(p=>p.Readonly).Select(p=>Parser.PropertyName(p.Name)),

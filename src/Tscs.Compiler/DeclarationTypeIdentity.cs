@@ -148,10 +148,10 @@ internal static class DeclarationTypeIdentity
                 return Unordered(a.Members,leftScope,leftFile,
                     b.Members,rightScope,rightFile,depth+1);
             case (ObjectTypeSyntax a,ObjectTypeSyntax b):
-                // Index signature identity is not modelled: never TS2403 on it.
-                if(a.HasIndexSignatures || b.HasIndexSignatures)
+                // Signature identity is not modelled: never TS2403 on it.
+                if(a.HasSignatures || b.HasSignatures)
                     throw new CompilationFailure(Diagnostic.Error(leftFile,a.Open,"TSCS1001",
-                        "Comparing declarations with index signatures is not supported yet."));
+                        "Comparing declarations with index, call or construct signatures is not supported yet."));
                 if(a.Properties.Count!=b.Properties.Count)return false;
                 foreach(var p in a.Properties)
                 {
@@ -344,7 +344,7 @@ internal static class DeclarationTypeIdentity
             case (ObjectTypeSyntax a,ObjectTypeSyntax b):
             {
                 // Not proven identical; callers fail closed (TSCS1001).
-                if(a.HasIndexSignatures || b.HasIndexSignatures)return false;
+                if(a.HasSignatures || b.HasSignatures)return false;
                 if(a.Properties.Count!=b.Properties.Count)return false;
                 var remaining=b.Properties.ToList();
                 foreach(var property in a.Properties)
@@ -606,7 +606,7 @@ internal static class DeclarationTypeIdentity
                     : Select(binding.Syntax,BodyScope(binding,named,scope,file),binding.File,key,depth+1);
             case TypeQuerySyntax when Unwrap(syntax,scope,file,depth) is { } denoted:
                 return Select(denoted.Syntax,denoted.Scope,denoted.File,key,depth+1);
-            case ObjectTypeSyntax { HasIndexSignatures:true }:
+            case ObjectTypeSyntax { HasSignatures:true }:
                 return Selection.Unknown;
             case ObjectTypeSyntax shape:
             {

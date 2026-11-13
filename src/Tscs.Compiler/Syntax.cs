@@ -18,9 +18,18 @@ internal sealed record ObjectTypeProperty(Token Name,TypeSyntax Type,bool Readon
 // `[name: Key]: Value` member. Declarations are checked; any use of a type
 // with an index signature fails closed until index signatures are modelled.
 internal sealed record IndexSignatureSyntax(Token Open,Token Parameter,TypeSyntax KeyType,TypeSyntax ValueType,bool Readonly);
-internal sealed record ObjectTypeSyntax(Token Open,IReadOnlyList<ObjectTypeProperty> Properties,Token Close,IReadOnlyList<IndexSignatureSyntax>? IndexSignatures=null) : TypeSyntax
+// `(params): R` call or `new (params): R` construct signature member. Like
+// index signatures, declarations are checked and any use fails closed.
+internal sealed record CallSignatureSyntax(Token Start,FunctionTypeSyntax Type,bool Construct);
+internal sealed record ObjectTypeSyntax(Token Open,IReadOnlyList<ObjectTypeProperty> Properties,Token Close,
+    IReadOnlyList<IndexSignatureSyntax>? IndexSignatures=null,IReadOnlyList<CallSignatureSyntax>? CallSignatures=null) : TypeSyntax
 {
     public bool HasIndexSignatures=>IndexSignatures is { Count:>0 };
+    // Index, call or construct signatures: members the type model does not represent.
+    public bool HasSignatures=>HasIndexSignatures || CallSignatures is { Count:>0 };
+    public Token FirstSignature=>(IndexSignatures??[]).Select(i=>i.Open)
+        .Concat((CallSignatures??[]).Select(c=>c.Start)).MinBy(t=>t.Start);
+    public string SignatureKind=>HasIndexSignatures?"an index signature":"a call or construct signature";
 }
 // Array<T>/ReadonlyArray<T> share the normal checked array AST, retaining the generic name for shadowing diagnostics.
 internal sealed record ArrayTypeSyntax(TypeSyntax Element,Token Open,Token Close,bool Readonly=false,Token? GenericName=null) : TypeSyntax;
