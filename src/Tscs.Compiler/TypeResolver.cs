@@ -590,13 +590,25 @@ internal static class TypeResolver
             case LiteralTypeSyntax literal: return CompilerTypes.FromLiteralExact(literal.Literal,literal.Negative);
             case FunctionTypeSyntax function:
             {
-                var parameters=function.Parameters.Select(p=>Resolve(p.Type,scope,file,depth+1)).ToArray();
-                var last=function.Parameters.LastOrDefault();
-                return new FunctionTypeSymbol(parameters,
-                    Resolve(function.ReturnType,scope,file,depth+1),
-                    function.Parameters.TakeWhile(p=>!p.Optional && !p.Rest).Count(),
-                    last is { Rest:true,Type:ArrayTypeSyntax array }
-                        ?Resolve(array.Element,scope,file,depth+1):null);
+                // Signature parameters are in scope for `typeof x` in the
+                // reference; they are not bound here, so a missing name that
+                // is one of the parameters fails closed instead of TS2304.
+                try
+                {
+                    var parameters=function.Parameters.Select(p=>Resolve(p.Type,scope,file,depth+1)).ToArray();
+                    var last=function.Parameters.LastOrDefault();
+                    return new FunctionTypeSymbol(parameters,
+                        Resolve(function.ReturnType,scope,file,depth+1),
+                        function.Parameters.TakeWhile(p=>!p.Optional && !p.Rest).Count(),
+                        last is { Rest:true,Type:ArrayTypeSyntax array }
+                            ?Resolve(array.Element,scope,file,depth+1):null);
+                }
+                catch(CompilationFailure failure) when (failure.Diagnostic.Code=="TS2304" &&
+                    function.Parameters.Any(p=>failure.Diagnostic.Message==$"Cannot find name '{p.Name.Text}'."))
+                {
+                    throw new CompilationFailure(Diagnostic.Error(file,function.Open,"TSCS1001",
+                        "Referring to a signature parameter from its own types is not supported yet."));
+                }
             }
             case NamedTypeSyntax named:
             {

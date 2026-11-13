@@ -48,6 +48,10 @@ public sealed class CallSignatureDeclarationTests
     [InlineData("interface C { new (s: string): C }")]
     [InlineData("interface D { c: number }\ninterface C { (): C; d: D }")]
     [InlineData("type F = { (): F };")]
+    // Parameters are in scope for `typeof` in the reference; not bound here (never TS2304).
+    [InlineData("interface S { (x: number): typeof x }")]
+    [InlineData("interface S { new (x: number, y: typeof x): number }")]
+    [InlineData("interface S { m(x: number): typeof x }")]
     // Generic signatures and duplicate parameters (TS2300) are not modelled.
     [InlineData("interface S { <T>(v: T): T }")]
     [InlineData("interface S { new <T>(v: T): number }")]
