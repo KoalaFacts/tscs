@@ -1803,6 +1803,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             var open=Take();
             var properties=new List<ObjectTypeProperty>();
             var indexSignatures=new List<IndexSignatureSyntax>();
+            var callSignatures=new List<CallSignatureSyntax>();
             var names=new HashSet<string>(StringComparer.Ordinal);
             while(Current.Kind!=TokenKind.Close)
             {
@@ -1812,6 +1813,23 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     Current.Text=="readonly" && position+1<tokens.Count &&
                     tokens[position+1].Kind is not (TokenKind.Colon or TokenKind.OpenParen);
                 if(readonlyMember)Take();
+                // Pinned parseTypeMemberSemicolon: '(' or '<' starts a call
+                // signature, 'new' followed by '(' or '<' a construct signature.
+                bool construct=Current.Kind==TokenKind.Unsupported && Current.Text=="new" &&
+                    position+1<tokens.Count && tokens[position+1].Kind is TokenKind.OpenParen or TokenKind.LessThan;
+                if(construct || Current.Kind is TokenKind.OpenParen or TokenKind.LessThan)
+                {
+                    if(readonlyMember)
+                        Unsupported(Current,"Readonly modifiers on call or construct signatures are not supported.");
+                    var start=construct?Take():Current;
+                    if(Current.Kind==TokenKind.LessThan)
+                        Unsupported(Current,"Generic call or construct signatures are not supported yet.");
+                    callSignatures.Add(new CallSignatureSyntax(start,(FunctionTypeSyntax)ReadObjectMethodType(depth+1),construct));
+                    if(Eat(TokenKind.Semi)||Eat(TokenKind.Comma))continue;
+                    if(Current.Kind==TokenKind.Close)break;
+                    if(!Current.LineBreak)Unsupported(Current,"Expected a separator between object type members.");
+                    continue;
+                }
                 // Pinned isIndexSignature: '[' identifier ':' starts an index signature.
                 if(Current.Kind==TokenKind.OpenBracket && position+2<tokens.Count &&
                    tokens[position+1].Kind==TokenKind.Identifier && tokens[position+2].Kind==TokenKind.Colon)
@@ -1854,7 +1872,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 if(Current.Kind==TokenKind.Close)break;
                 if(!Current.LineBreak)Unsupported(Current,"Expected a separator between object type members.");
             }
-            type=new ObjectTypeSyntax(open,properties,Take(),indexSignatures);
+            type=new ObjectTypeSyntax(open,properties,Take(),indexSignatures,callSignatures);
         }
         else
         {
@@ -1896,6 +1914,9 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             if(Current.Kind!=TokenKind.Identifier)
                 Unsupported(Current,"Method parameters require named explicit types.");
             var name=Take();
+            // The reference reports TS2300 on every duplicate; not modelled here.
+            if(parameters.Any(p=>p.Name.Text==name.Text))
+                Unsupported(name,"Duplicate method parameter names are not supported yet.");
             bool optional=Eat(TokenKind.Question);
             if(rest && optional)
                 Unsupported(name,"Rest method parameters cannot be optional.");

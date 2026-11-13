@@ -477,9 +477,10 @@ internal static class Binder
             // A non-generic intrinsic declaration is checked, not resolved:
             // only a use of it fails closed.
             if(binding is { Syntax:IntrinsicTypeSyntax,TypeParameters.Count:0 })TypeResolver.ValidateIntrinsic(binding);
-            else if(binding is { TypeParameters.Count:0 } && HasIndexSignature(binding))
+            else if(binding is { TypeParameters.Count:0 } && HasSignatures(binding))
             {
-                // Like intrinsic: an indexed declaration is checked, and only
+                // Like intrinsic: a declaration with index, call or construct
+                // signatures is checked, and only
                 // a use of it fails closed.
                 TypeResolver.RejectUnmodelledIndexSignatures(binding);
                 TypeResolver.ValidateDeclarationBody(binding.Syntax,binding.Owner,binding.File,1);
@@ -559,11 +560,11 @@ internal static class Binder
             "Redeclaration diagnostics and declaration merging are not supported yet."));
     }
 
-    private static bool HasIndexSignature(TypeBinding binding)=>
+    private static bool HasSignatures(TypeBinding binding)=>
         binding.MergedInterfaces.Select(m=>m.Syntax).Prepend(binding.Syntax).Any(syntax=>syntax switch
         {
-            ObjectTypeSyntax shape=>shape.HasIndexSignatures,
-            InterfaceExtensionTypeSyntax inherited=>inherited.Body.HasIndexSignatures,
+            ObjectTypeSyntax shape=>shape.HasSignatures,
+            InterfaceExtensionTypeSyntax inherited=>inherited.Body.HasSignatures,
             _=>false
         });
 }

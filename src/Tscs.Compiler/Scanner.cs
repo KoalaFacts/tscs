@@ -360,7 +360,14 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false, boo
                     tokens.Count>0 &&
                     tokens[^1].Kind is (TokenKind.OpenBracket or TokenKind.Comma) &&
                     next<text.Length && text[next]==':';
-                if(!potentialReservedTupleLabel)
+                // `new (` or `new <` after '{', ';' or ',' (or on a new line) may start
+                // a construct signature member of an object type; the parser
+                // still rejects the token in every other position.
+                bool potentialConstructSignature=!jsonMode && token.Text=="new" &&
+                    tokens.Count>0 &&
+                    (lineBreak || tokens[^1].Kind is (TokenKind.Open or TokenKind.Semi or TokenKind.Comma)) &&
+                    next<text.Length && text[next] is '(' or '<';
+                if(!potentialReservedTupleLabel && !potentialConstructSignature)
                     throw Error(token,"TSCS1001",$"Unsupported syntax '{token.Text}'.");
             }
             tokens.Add(token);DiagnosticCounts.Add(Diagnostics.Count);
