@@ -19,7 +19,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     private Token Take() => tokens[position++];
     // Plain type parameters of a generic type alias or interface, or an
     // empty list when the declaration is not generic.
-    private (List<Token> Names,List<TypeSyntax?> Defaults,List<TypeSyntax?> Constraints) ReadPlainTypeParameters(string declaration)
+    private (List<Token> Names,List<TypeSyntax?> Defaults,List<TypeSyntax?> Constraints) ReadPlainTypeParameters(string declaration,int depth=0)
     {
         var typeParameters=new List<Token>();
         var defaults=new List<TypeSyntax?>();
@@ -36,12 +36,12 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             if(typeParameters.Any(p=>p.Text==parameter.Text))
                 Unsupported(parameter,$"Duplicate {declaration} type parameters are not supported.");
             TypeSyntax? constraint=null;
-            if(Eat(TokenKind.Extends))constraint=ReadTypeAnnotation();
+            if(Eat(TokenKind.Extends))constraint=ReadTypeAnnotation(depth);
             TypeSyntax? defaultType=null;
             if(Eat(TokenKind.Equal))
             {
                 defaultSeen=true;
-                defaultType=ReadTypeAnnotation();
+                defaultType=ReadTypeAnnotation(depth);
             }
             else if(defaultSeen)
                 Unsupported(parameter,"A required type parameter may not follow a default.");
@@ -1822,9 +1822,10 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     if(readonlyMember)
                         Unsupported(Current,"Readonly modifiers on call or construct signatures are not supported.");
                     var start=construct?Take():Current;
-                    if(Current.Kind==TokenKind.LessThan)
-                        Unsupported(Current,"Generic call or construct signatures are not supported yet.");
-                    callSignatures.Add(new CallSignatureSyntax(start,(FunctionTypeSyntax)ReadObjectMethodType(depth+1),construct));
+                    var (signatureParameters,signatureDefaults,signatureConstraints)=ReadPlainTypeParameters("call or construct signature",depth+1);
+                    if(Current.Kind!=TokenKind.OpenParen)Unsupported(Current,"Expected '(' in a call or construct signature.");
+                    callSignatures.Add(new CallSignatureSyntax(start,(FunctionTypeSyntax)ReadObjectMethodType(depth+1),construct,
+                        signatureParameters,signatureConstraints,signatureDefaults));
                     if(Eat(TokenKind.Semi)||Eat(TokenKind.Comma))continue;
                     if(Current.Kind==TokenKind.Close)break;
                     if(!Current.LineBreak)Unsupported(Current,"Expected a separator between object type members.");
