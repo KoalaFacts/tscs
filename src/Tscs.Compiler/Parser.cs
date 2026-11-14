@@ -1822,9 +1822,10 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     if(readonlyMember)
                         Unsupported(Current,"Readonly modifiers on call or construct signatures are not supported.");
                     var start=construct?Take():Current;
-                    if(Current.Kind==TokenKind.LessThan)
-                        Unsupported(Current,"Generic call or construct signatures are not supported yet.");
-                    callSignatures.Add(new CallSignatureSyntax(start,(FunctionTypeSyntax)ReadObjectMethodType(depth+1),construct));
+                    var (signatureParameters,signatureDefaults,signatureConstraints)=ReadPlainTypeParameters("call or construct signature");
+                    if(Current.Kind!=TokenKind.OpenParen)Unsupported(Current,"Expected '(' in a call or construct signature.");
+                    callSignatures.Add(new CallSignatureSyntax(start,(FunctionTypeSyntax)ReadObjectMethodType(depth+1),construct,
+                        signatureParameters,signatureConstraints,signatureDefaults));
                     if(Eat(TokenKind.Semi)||Eat(TokenKind.Comma))continue;
                     if(Current.Kind==TokenKind.Close)break;
                     if(!Current.LineBreak)Unsupported(Current,"Expected a separator between object type members.");

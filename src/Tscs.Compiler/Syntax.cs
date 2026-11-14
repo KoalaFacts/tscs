@@ -18,9 +18,12 @@ internal sealed record ObjectTypeProperty(Token Name,TypeSyntax Type,bool Readon
 // `[name: Key]: Value` member. Declarations are checked; any use of a type
 // with an index signature fails closed until index signatures are modelled.
 internal sealed record IndexSignatureSyntax(Token Open,Token Parameter,TypeSyntax KeyType,TypeSyntax ValueType,bool Readonly);
-// `(params): R` call or `new (params): R` construct signature member. Like
-// index signatures, declarations are checked and any use fails closed.
-internal sealed record CallSignatureSyntax(Token Start,FunctionTypeSyntax Type,bool Construct);
+// `<T>(params): R` call or `new <T>(params): R` construct signature member.
+// Like index signatures, declarations are checked and any use fails closed.
+// Type parameters (with optional constraints and defaults) are opaque while checking.
+internal sealed record CallSignatureSyntax(Token Start,FunctionTypeSyntax Type,bool Construct,
+    IReadOnlyList<Token>? TypeParameters=null,IReadOnlyList<TypeSyntax?>? TypeParameterConstraints=null,
+    IReadOnlyList<TypeSyntax?>? TypeParameterDefaults=null);
 internal sealed record ObjectTypeSyntax(Token Open,IReadOnlyList<ObjectTypeProperty> Properties,Token Close,
     IReadOnlyList<IndexSignatureSyntax>? IndexSignatures=null,IReadOnlyList<CallSignatureSyntax>? CallSignatures=null) : TypeSyntax
 {

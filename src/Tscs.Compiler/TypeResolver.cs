@@ -361,7 +361,7 @@ internal static class TypeResolver
             // but resolving it reaches the TS2456 cycle check: fail closed.
             if(call is not null)
             {
-                try {_=Resolve(call.Type,scope,file,depth+1);}
+                try {_=Resolve(call.Type,SignatureScope(call,scope,file,depth+1),file,depth+1);}
                 catch(CompilationFailure failure) when (failure.Diagnostic.Code=="TS2456")
                 {
                     throw new CompilationFailure(Diagnostic.Error(file,call.Start,"TSCS1001",
@@ -408,6 +408,72 @@ internal static class TypeResolver
             throw new CompilationFailure(Diagnostic.Error(file,signature.Parameter,"TSCS1001",
                 "This index signature key type is not supported yet."));
         return parts;
+    }
+
+    // A generic call or construct signature checks its constraints and then
+    // its parameter and return types with each type parameter opaque, as a
+    // generic declaration body is checked. A constraint naming the parameter
+    // it constrains or a later one (TS2313 / forward references) fails closed;
+    // defaults are checked against their constraints in declaration order.
+    private static Scope SignatureScope(CallSignatureSyntax call,Scope scope,string file,int depth)
+    {
+        if(call.TypeParameters is not { Count:>0 } parameters)return scope;
+        var placeholder=new Scope(scope);
+        foreach(var parameter in parameters)
+            placeholder.Types[parameter.Text]=new TypeBinding(file,parameter,
+                new PrimitiveTypeSyntax(parameter with {Text="unknown"}),placeholder)
+            {
+                PendingDefaultParameter=true
+            };
+        for(int i=0;i<parameters.Count;i++)
+        {
+            // Predefined type names are not valid type parameter names (TS2368),
+            // reported before the parameter's constraint is checked.
+            if(parameters[i].Text is "number" or "string" or "boolean" or "any" or "unknown" or
+               "undefined" or "never" or "object" or "bigint" or "symbol")
+                throw new CompilationFailure(Diagnostic.Error(file,parameters[i],"TS2368",
+                    $"Type parameter name cannot be '{parameters[i].Text}'."));
+            var constraintSyntax=call.TypeParameterConstraints is { } constraints && constraints.Count>i
+                ?constraints[i]:null;
+            TypeBinding? requiredParameter=null;
+            TypeSymbol? bound=null;
+            if(constraintSyntax is not null)
+            {
+                try
+                {
+                    requiredParameter=OpaqueParameter(constraintSyntax,placeholder);
+                    bound=Resolve(constraintSyntax,placeholder,file,depth+1);
+                }
+                catch(CompilationFailure failure) when (failure.Diagnostic.Code=="TS2744")
+                {
+                    throw new CompilationFailure(Diagnostic.Error(file,parameters[i],"TSCS1001",
+                        "Signature type parameter constraints that refer to themselves or later parameters are not supported yet."));
+                }
+            }
+            // As for generic declarations: a default may refer only to earlier
+            // parameters (TS2744) and must satisfy its constraint (TS2344).
+            if(call.TypeParameterDefaults is { } defaults && defaults.Count>i && defaults[i] is { } fallback)
+            {
+                var defaultType=Resolve(fallback,placeholder,file,depth+1);
+                bool? satisfied=bound is null?true:SatisfiesConstraint(fallback,placeholder,
+                    defaultType,constraintSyntax!,placeholder,bound);
+                if(satisfied is null)
+                    throw new CompilationFailure(Diagnostic.Error(file,Location(fallback),"TSCS1001",
+                        "Checking a default against a constraint with a nested type parameter dependency is not supported yet."));
+                if(satisfied==false)
+                    throw new CompilationFailure(Diagnostic.Error(file,Location(fallback),"TS2344",
+                        $"Type '{defaultType.DisplayName}' does not satisfy the constraint '{bound!.DisplayName}'."));
+            }
+            placeholder.Types[parameters[i].Text]=new TypeBinding(file,parameters[i],
+                new PrimitiveTypeSyntax(parameters[i] with {Text="unknown"}),scope)
+            {
+                Resolved=CompilerTypes.Unknown,
+                IsOpaqueParameter=true,
+                ConstraintBound=requiredParameter?.ConstraintBound??bound,
+                ConstraintParameter=requiredParameter
+            };
+        }
+        return placeholder;
     }
 
     // A declaration body is checked, not resolved, when it has an index, call
