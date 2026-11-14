@@ -114,4 +114,17 @@ public sealed class CallSignatureDeclarationTests
     [InlineData("interface S { readonly <T>(v: T): T }")]
     public void UnmodelledGenericFormsFailClosed(string source)=>
         Assert.Contains(Compilation.Check("generic-call-use.ts",source),d=>d.Code=="TSCS1001");
+
+    // Constraints and defaults keep the parser's nesting budget: a deeply
+    // nested generic signature reports TSCS1001 instead of exhausting the stack.
+    [Theory]
+    [InlineData("{ <T = ",">(): void }")]
+    [InlineData("{ <T extends ",">(): void }")]
+    public void DeeplyNestedSignatureTypeParametersFailClosed(string open,string close)
+    {
+        const int nesting=20000;
+        var source="type F = "+string.Concat(Enumerable.Repeat(open,nesting))+"number"+
+            string.Concat(Enumerable.Repeat(close,nesting))+";";
+        Assert.Contains(Compilation.Check("deep-signature.ts",source),d=>d.Code=="TSCS1001");
+    }
 }
