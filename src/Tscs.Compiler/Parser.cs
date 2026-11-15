@@ -1805,6 +1805,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             var indexSignatures=new List<IndexSignatureSyntax>();
             var callSignatures=new List<CallSignatureSyntax>();
             var names=new HashSet<string>(StringComparer.Ordinal);
+            var methodNames=new HashSet<string>(StringComparer.Ordinal);
             while(Current.Kind!=TokenKind.Close)
             {
                 if(Current.Kind==TokenKind.End)Unsupported(Current,"Expected '}' in object type.");
@@ -1854,21 +1855,33 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 }
                 var name=ReadPropertyName(allowString:true,allowNumber:true);
                 bool optionalMember=Eat(TokenKind.Question);
+                bool methodMember=Current.Kind is TokenKind.OpenParen or TokenKind.LessThan;
+                // Repeated method signatures are overloads in the reference, not
+                // TS2300 (pinned checker): overloads are not modelled, fail closed.
+                if(methodMember && methodNames.Contains(PropertyName(name)))
+                    Unsupported(name,"Method signature overloads are not supported yet.");
+                if(methodMember)methodNames.Add(PropertyName(name));
                 if(!names.Add(PropertyName(name)))
                     Diagnostics.Add(Diagnostic.Error(file,name,"TS2300",$"Duplicate identifier '{PropertyName(name)}'."));
                 // Unsupported(...) throws; seed definite assignment for C# flow analysis.
                 TypeSyntax memberType = null!;
+                CallSignatureSyntax? genericSignature=null;
                 if(Eat(TokenKind.Colon))
                     memberType=ReadTypeAnnotation(depth+1);
-                else if(Current.Kind==TokenKind.OpenParen)
+                else if(Current.Kind is TokenKind.OpenParen or TokenKind.LessThan)
                 {
                     if(readonlyMember)
                         Unsupported(name,"Readonly modifiers on method signatures are not supported.");
+                    var (methodParameters,methodDefaults,methodConstraints)=ReadPlainTypeParameters("method signature",depth+1);
+                    if(Current.Kind!=TokenKind.OpenParen)Unsupported(Current,"Expected '(' in a method signature.");
                     memberType=ReadObjectMethodType(depth+1);
+                    if(methodParameters.Count>0)
+                        genericSignature=new CallSignatureSyntax(name,(FunctionTypeSyntax)memberType,false,
+                            methodParameters,methodConstraints,methodDefaults);
                 }
                 else
                     Unsupported(Current,"Object type members require ':' or a typed method signature.");
-                properties.Add(new ObjectTypeProperty(name,memberType,readonlyMember,optionalMember));
+                properties.Add(new ObjectTypeProperty(name,memberType,readonlyMember,optionalMember,genericSignature));
                 if(Eat(TokenKind.Semi)||Eat(TokenKind.Comma))continue;
                 if(Current.Kind==TokenKind.Close)break;
                 if(!Current.LineBreak)Unsupported(Current,"Expected a separator between object type members.");
