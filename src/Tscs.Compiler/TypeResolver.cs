@@ -352,9 +352,12 @@ internal static class TypeResolver
             .Concat((shape.CallSignatures??[]).Select(c=>(Start:c.Start.Start,Property:(ObjectTypeProperty?)null,Signature:(IndexSignatureSyntax?)null,Call:(CallSignatureSyntax?)c)))
             .OrderBy(m=>m.Start);
         bool stringIndex=false,numberIndex=false;
-        foreach(var (_,property,signature,call) in members)
+        foreach(var (_,property,signature,member) in members)
         {
-            if(property is not null){_=Resolve(property.Type,scope,file,depth+1);continue;}
+            var call=member;
+            // A generic method signature is checked like a generic call signature.
+            if(property is { GenericSignature: { } method })call=method;
+            else if(property is not null){_=Resolve(property.Type,scope,file,depth+1);continue;}
             // A call or construct signature checks its parameter and return
             // types exactly as a method signature does. A signature that
             // refers back to its own declaration is legal in the reference,
