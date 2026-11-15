@@ -357,25 +357,29 @@ internal static class TypeResolver
             var call=member;
             // A generic method signature is checked like a generic call signature.
             if(property is { GenericSignature: { } method })call=method;
-            else if(property is not null){_=Resolve(property.Type,scope,file,depth+1);continue;}
-            // A call or construct signature checks its parameter and return
-            // types exactly as a method signature does. A signature that
-            // refers back to its own declaration is legal in the reference,
-            // but resolving it reaches the TS2456 cycle check: fail closed.
-            if(call is not null)
+            // Any member that refers back to its own declaration is legal in
+            // the reference, but resolving it re-enters this declaration and
+            // reaches the TS2456 cycle check: fail closed.
+            try
             {
-                try {_=Resolve(call.Type,SignatureScope(call,scope,file,depth+1),file,depth+1);}
-                catch(CompilationFailure failure) when (failure.Diagnostic.Code=="TS2456")
+                // A call or construct signature checks its parameter and return
+                // types exactly as a method signature does.
+                if(call is not null)_=Resolve(call.Type,SignatureScope(call,scope,file,depth+1),file,depth+1);
+                else if(property is not null)_=Resolve(property.Type,scope,file,depth+1);
+                else
                 {
-                    throw new CompilationFailure(Diagnostic.Error(file,call.Start,"TSCS1001",
-                        "Recursive references in call or construct signatures are not supported yet."));
+                    var key=ValidateIndexKey(signature!,scope,file,depth);
+                    stringIndex|=key.Any(part=>part.Equals(CompilerTypes.String));
+                    numberIndex|=key.Any(part=>part.Equals(CompilerTypes.Number));
+                    _=Resolve(signature!.ValueType,scope,file,depth+1);
                 }
-                continue;
             }
-            var key=ValidateIndexKey(signature!,scope,file,depth);
-            stringIndex|=key.Any(part=>part.Equals(CompilerTypes.String));
-            numberIndex|=key.Any(part=>part.Equals(CompilerTypes.Number));
-            _=Resolve(signature!.ValueType,scope,file,depth+1);
+            catch(CompilationFailure failure) when (failure.Diagnostic.Code=="TS2456")
+            {
+                var start=call?.Start??property?.Name??signature!.Open;
+                throw new CompilationFailure(Diagnostic.Error(file,start,"TSCS1001",
+                    "Recursive references in a type with index, call, construct or generic method signatures are not supported yet."));
+            }
         }
         static bool NumericName(string name)=>name is "NaN" or "Infinity" or "-Infinity" ||
             double.TryParse(name,System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out _);

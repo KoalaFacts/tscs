@@ -47,6 +47,11 @@ public sealed class GenericMethodSignatureTests
     [InlineData("let x: { m<T>(v: T): T };")]
     [InlineData("interface S { m<T>(v: T): T }\ninterface S { n(): void }")]
     [InlineData("interface S { m<T>(): S }")]
+    // A recursive sibling member is legal in the reference (never TS2456).
+    [InlineData("interface S { m<T>(): T; next: S }")]
+    [InlineData("interface C { (): void; next: C }")]
+    [InlineData("interface I { [k: string]: I }")]
+    [InlineData("interface S { n(): S; m<T>(): T }")]
     [InlineData("interface S { m<T, T>(v: T): T }")]
     [InlineData("interface S { readonly m<T>(): T }")]
     [InlineData("interface S { m(): void; m<T>(v: T): T }")]
