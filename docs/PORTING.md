@@ -23,7 +23,7 @@ module resolution, declaration merging, full Unicode identifier support, full
 numeric/string syntax and all checker branches require further upstream porting.
 Unsupported behavior cannot be interpreted as a conformance pass.
 
-## Shared global-script compilation (2026-10-27; PR #8)
+## Shared global-script compilation
 
 The C# compiler routes both one-file and multiple-file inputs through
 `Compilation.AnalyzeFiles`: lex and parse separate source texts into
@@ -42,7 +42,7 @@ JavaScript emission are not silently accepted. It creates the dependency
 for later CompilerHost/VFS, module resolution and multi-file emit work.
 No full original upstream configuration target has yet been accepted.
 
-## CompilerHost and program snapshots (2026-10-27; PR #8)
+## CompilerHost and program snapshots
 
 `ICompilerHost` owns source text acquisition and canonical file identities;
 `FileSystemCompilerHost` is the CLI adapter, and alternate in-memory hosts
@@ -60,7 +60,7 @@ Next dependencies: typed options/project host, proper module/source-file graph,
 per-source resilient binding, then unified emit. The pinned full original
 acceptance ledger remains separate from these local architecture checks.
 
-## Host-backed path-reference source graph (2026-10-27; PR #8)
+## Host-backed path-reference source graph
 
 `CompilerProgram.Load` expands a bounded, transitive set of **leading**
 `/// <reference path="./other.ts" />` source dependencies through
@@ -76,7 +76,7 @@ semantics, symlink identity, project references or full TS7 resolution rules.
 General virtual hosts can override relative dependency resolution. Root aliases
 remain errors, and missing referenced files are not silently skipped.
 
-## Bounded ES named-module symbols (2026-10-27; PR #8)
+## Bounded ES named-module symbols
 
 The host-backed loader discovers relative `import { name as alias } from "./module"`
 source edges using the real Scanner/Parser AST, with explicit `.ts` and bounded
@@ -93,7 +93,7 @@ ambient modules, type-only imports, mutable live bindings, circular runtime
 initialization, or full TypeScript module semantics. No upstream acceptance is
 credited without the independent reference and complete original assertions.
 
-## Shared source syntax snapshots (2026-10-27; PR #8)
+## Shared source syntax snapshots
 
 The host-backed dependency loader and `Compilation.AnalyzeFiles` share
 one scanner/parser result per canonical source, preserving either its AST or its
@@ -103,7 +103,7 @@ existing basename contract for unambiguous inputs, using unique relative paths
 when loaded source basenames collide. Full TS7 module semantics are still
 unimplemented; these changes do not award upstream acceptance.
 
-## Bound local module exports (2026-10-27; PR #8)
+## Bound local module exports
 
 The shared Program AST feeds a separate module export table in Binder.
 Local exports retain their declaring symbol across public aliases and source
@@ -116,7 +116,7 @@ full module resolution and emit still fail closed. CLI source identities
 normalize only actual host-platform separators: Unix literal backslashes
 remain distinct source characters.
 
-## Deferred named value module linking (2026-10-27; PR #8)
+## Deferred named value module linking
 
 `ModuleLinker` prebinds every module's lexical scope, then resolves named
 value exports through the host's source graph. An exported name may map to a
@@ -131,7 +131,7 @@ or type-only exports, package resolution, type imports, full TS7 module
 semantics, runtime initialization, or JavaScript emit. Original upstream
 acceptance remains independent from these internal architecture checks.
 
-## Host-canonical module diagnostic provenance (2026-10-27; PR #8)
+## Host-canonical module diagnostic provenance
 
 Module graph edges retain their host-resolved target paths, which can differ in
 case from the single loaded SourceInput identity on case-insensitive hosts.
@@ -142,7 +142,7 @@ This avoids attributing module-cycle diagnostics to an edge spelling while
 formatting UTF-16 offsets against another source. It does not add module
 resolution beyond the bounded relative paths or release acceptance.
 
-## Shared semantic type identity (2026-10-27; PR #8)
+## Shared semantic type identity
 
 `TypeSymbol` is the single semantic representation of the implemented
 `number`, `string`, `boolean` and bounded `any` types. Parser and AST
@@ -154,7 +154,7 @@ not promoted to `any`. This is a reusable architecture change, not support
 for functions, unions, generics or full TypeScript type relations.
 
 
-## Explicit function signatures and calls (2026-10-27; PR #8)
+## Explicit function signatures and calls
 
 The scanner/parser admit named source-level functions with required parameter
 and return primitive annotations, a bounded statement body ending in a direct
@@ -168,7 +168,7 @@ small real working function family, not TypeScript's full callable type system,
 closures, overloads, defaults, recursion analysis, hoisting runtime semantics
 or JavaScript emit. The frozen upstream original test ledger remains separate.
 
-## Function return-flow boundary (2026-10-27; PR #8)
+## Function return-flow boundary
 
 The Parser retains the exact Scanner line-break flag on the token following
 `return`. Under the current value-return-only subset, a line terminator after
@@ -182,7 +182,7 @@ with no returning path as implemented. There are no branches/loops, void
 returns, full ASI semantics or generalized TypeScript control-flow checks yet;
 the complete original TS7 acceptance registry is unchanged.
 
-## Braced conditional flow (2026-10-27; PR #8)
+## Braced conditional flow
 
 The shared parser retains braced `if / else if / else` conditions as
 `ConditionalStatement` nodes. `FunctionControlFlow` recognizes a definite
@@ -197,7 +197,7 @@ narrowing, loops and the general TypeScript function model remain unsupported.
 No fixed TS7 upstream acceptance SKIP is removed without genuine product
 assertions and pinned reference results.
 
-## Shared primitive expression precedence (2026-10-27; PR #8)
+## Shared primitive expression precedence
 
 The same Scanner and AST expression pipeline supports parenthesized groups,
 boolean unary negation, strict/loose equality and inequality, numeric relational
@@ -216,7 +216,7 @@ operator overloading, optional chaining, nullish coalescing and generalized
 TypeScript expression inference remain unsupported and fail closed. No new
 upstream full-original acceptance target is credited by this local feature.
 
-## AST-backed bounded ES2015 global-script output (2026-10-27)
+## AST-backed bounded ES2015 global-script output
 
 `CompilerProgram.EmitJavaScript` consumes the existing immutable parsed
 `SourceFile` snapshots **after** one `Analyze()` check; it does not create
@@ -236,7 +236,7 @@ product/reference acceptance run matches all original expectations.
 Next dependency: typed emit options and full module-aware lowering with
 preserved module identities, before declaration/map generation.
 
-## Bounded named ES module output (2026-10-27)
+## Bounded named ES module output
 
 The shared cached module graph resolves relative `.js` module specifiers to
 corresponding `.ts` sources for type checking, while the emitter preserves
@@ -248,7 +248,7 @@ passes as original TS7 acceptance. CLI preflight/rollback remains shared with
 script output. No commonjs, extension rewriting for arbitrary specifiers,
 non-named syntax, package resolution, source maps or declaration emission.
 
-## Project ES2015 module option through the shared emit path (2026-10-28)
+## Project ES2015 module option through the shared emit path
 
 The bounded `tsconfig.json` `compilerOptions.module` adapter uses the frozen
 TS7 enum declaration and reports its diagnostics for invalid values. `es2015`
@@ -264,7 +264,7 @@ source maps, declarations and general TS7 compiler options remain unsupported.
 A Node24 runtime smoke compiles from a project config and executes the output;
 this is not a full original upstream TS7 acceptance PASS.
 
-## Typed effective compiler settings in the Program (2026-10-28)
+## Typed effective compiler settings in the Program
 
 `CompilerOptions` is an immutable effective option snapshot carrying the
 implemented `NoEmit`, `NoLib`, ES2015 target and named ES2015 module mode.
@@ -279,7 +279,7 @@ actual checked and emitted graph, negative module boundaries and noEmit.
 This is a bounded module/options dependency cleanup, not general TS7 defaults,
 extended config expansion, module mode support or upstream conformance.
 
-## Explicit project source discovery (2026-10-28)
+## Explicit project source discovery
 
 `Options.ReadConfig` reuses the C# JSON syntax and pinned option conversion,
 then passes explicit `files`, `include`, and `exclude` source selectors to
@@ -295,7 +295,7 @@ The next dependency is a host-aware project filesystem enumeration abstraction
 and a complete, reference-verified TS7 effective-config lifecycle.
 
 
-## Project source host enumeration (2026-10-28)
+## Project source host enumeration
 
 `IProjectSourceHost` extends the existing `ICompilerHost` with immediate,
 canonical directory entries carrying directory and symbolic-link metadata.
