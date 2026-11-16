@@ -21,8 +21,9 @@ public sealed class InterfaceMethodSignatureTests
     [InlineData("""interface Op{twice(n:number):number}const op:Op={twice:(n:number):string=>"bad"};""","TS2322")]
     [InlineData("""interface Op{twice(n:number):number}const op:Op={twice:(n:number)=>n+n};const cb:(n:number)=>number=op.twice;cb("bad");""","TS2345")]
     [InlineData("""interface Op{twice(n:number):number}const op:Op={twice:(n:number)=>n+n};const cb:(n:number)=>number=op.twice;cb();""","TS2554")]
-    // Repeated method signatures are overloads in the pinned checker (no TS2300); not modelled.
-    [InlineData("""interface Op{twice(n:number):number;twice(n:number):number}""","TSCS1001")]
+    // Repeated method signatures are overloads in the pinned checker (no TS2300): the
+    // declaration checks (MethodOverloadSignatureTests), a use of the type fails closed.
+    [InlineData("""interface Op{twice(n:number):number;twice(n:number):number}declare let op:Op;""","TSCS1001")]
     [InlineData("""interface Op{twice(n?:number,required:number):number}""","TSCS1001")]
     [InlineData("""interface Op{twice(...numbers:number):number}""","TSCS1001")]
     [InlineData("""interface Op{readonly twice(n:number):number}""","TSCS1001")]

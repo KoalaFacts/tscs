@@ -31,7 +31,7 @@ public sealed class GenericMethodSignatureTests
     [InlineData("interface S { m<string>(): void }","TS2368",16)]
     // Members are checked in source order.
     [InlineData("interface S { x: Missing; m<T>(v: Other): T }","TS2304",17)]
-    // A property and a method of one name stay TS2300; only method overloads fail closed.
+    // A property and a method of one name stay TS2300 (method overloads: MethodOverloadSignatureTests).
     [InlineData("interface S { m: number; m<T>(): T }","TS2300",25)]
     public void DiagnosticsMatchThePinnedChecker(string source,string code,int start)
     {
@@ -42,7 +42,7 @@ public sealed class GenericMethodSignatureTests
 
     [Theory]
     // Uses, reopening, recursion, duplicate parameters (TS2300), `readonly`
-    // and overloads are legal or differently reported in the reference.
+    // and uses of overloaded methods are legal or differently reported in the reference.
     [InlineData("interface S { m<T>(v: T): T }\ndeclare let s: S;")]
     [InlineData("let x: { m<T>(v: T): T };")]
     [InlineData("interface S { m<T>(v: T): T }\ninterface S { n(): void }")]
@@ -54,8 +54,7 @@ public sealed class GenericMethodSignatureTests
     [InlineData("interface S { n(): S; m<T>(): T }")]
     [InlineData("interface S { m<T, T>(v: T): T }")]
     [InlineData("interface S { readonly m<T>(): T }")]
-    [InlineData("interface S { m(): void; m<T>(v: T): T }")]
-    [InlineData("interface S { m(): void; m(v: number): void }")]
+    [InlineData("interface S { m(): void; m<T>(v: T): T }\ndeclare let s: S;")]
     [InlineData("interface S { m<T>(x: T): typeof x }")]
     public void UnmodelledFormsFailClosed(string source)=>
         Assert.Contains(Compilation.Check("generic-method-use.ts",source),d=>d.Code=="TSCS1001");

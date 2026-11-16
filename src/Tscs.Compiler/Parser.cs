@@ -1857,9 +1857,25 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 bool optionalMember=Eat(TokenKind.Question);
                 bool methodMember=Current.Kind is TokenKind.OpenParen or TokenKind.LessThan;
                 // Repeated method signatures are overloads in the reference, not
-                // TS2300 (pinned checker): overloads are not modelled, fail closed.
+                // TS2300 (pinned checker): the signature is appended to the first
+                // declaration's Overloads; every use of the type fails closed.
                 if(methodMember && methodNames.Contains(PropertyName(name)))
-                    Unsupported(name,"Method signature overloads are not supported yet.");
+                {
+                    int first=properties.FindIndex(p=>PropertyName(p.Name)==PropertyName(name));
+                    var declared=properties[first];
+                    // TS2386 (optionality) and readonly overloads are not modelled.
+                    if(declared.Optional!=optionalMember || readonlyMember || declared.Readonly)
+                        Unsupported(name,"Method overloads that differ in optionality or are readonly are not supported yet.");
+                    var (overloadParameters,overloadDefaults,overloadConstraints)=ReadPlainTypeParameters("method signature",depth+1);
+                    if(Current.Kind!=TokenKind.OpenParen)Unsupported(Current,"Expected '(' in a method signature.");
+                    var overload=new CallSignatureSyntax(name,(FunctionTypeSyntax)ReadObjectMethodType(depth+1),false,
+                        overloadParameters,overloadConstraints,overloadDefaults);
+                    properties[first]=declared with { Overloads=[..declared.Overloads??[],overload] };
+                    if(Eat(TokenKind.Semi)||Eat(TokenKind.Comma))continue;
+                    if(Current.Kind==TokenKind.Close)break;
+                    if(!Current.LineBreak)Unsupported(Current,"Expected a separator between object type members.");
+                    continue;
+                }
                 if(methodMember)methodNames.Add(PropertyName(name));
                 if(!names.Add(PropertyName(name)))
                     Diagnostics.Add(Diagnostic.Error(file,name,"TS2300",$"Duplicate identifier '{PropertyName(name)}'."));
