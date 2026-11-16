@@ -350,6 +350,8 @@ internal static class TypeResolver
         var members=shape.Properties.Select(p=>(Start:p.Name.Start,Property:(ObjectTypeProperty?)p,Signature:(IndexSignatureSyntax?)null,Call:(CallSignatureSyntax?)null))
             .Concat(signatures.Select(i=>(Start:i.Open.Start,Property:(ObjectTypeProperty?)null,Signature:(IndexSignatureSyntax?)i,Call:(CallSignatureSyntax?)null)))
             .Concat((shape.CallSignatures??[]).Select(c=>(Start:c.Start.Start,Property:(ObjectTypeProperty?)null,Signature:(IndexSignatureSyntax?)null,Call:(CallSignatureSyntax?)c)))
+            // Method overloads are checked like call signatures, at their own position.
+            .Concat(shape.Properties.SelectMany(p=>p.Overloads??[]).Select(c=>(Start:c.Start.Start,Property:(ObjectTypeProperty?)null,Signature:(IndexSignatureSyntax?)null,Call:(CallSignatureSyntax?)c)))
             .OrderBy(m=>m.Start);
         bool stringIndex=false,numberIndex=false;
         foreach(var (_,property,signature,member) in members)
@@ -378,7 +380,7 @@ internal static class TypeResolver
             {
                 var start=call?.Start??property?.Name??signature!.Open;
                 throw new CompilationFailure(Diagnostic.Error(file,start,"TSCS1001",
-                    "Recursive references in a type with index, call, construct or generic method signatures are not supported yet."));
+                    "Recursive references in a type with index, call, construct, generic or overloaded method signatures are not supported yet."));
             }
         }
         static bool NumericName(string name)=>name is "NaN" or "Infinity" or "-Infinity" ||

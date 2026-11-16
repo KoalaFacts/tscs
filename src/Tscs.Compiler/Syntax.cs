@@ -17,8 +17,11 @@ internal sealed record LiteralTypeSyntax(Token Literal,bool Negative=false) : Ty
 // A generic method signature `m<T>(params): R` keeps its type parameters in
 // GenericSignature (whose Type is this property's Type); like call signatures,
 // the declaration is checked and any use of the containing type fails closed.
+// Repeated method signatures of one name are overloads (pinned checker): the
+// later signatures are kept in Overloads, each checked like a call signature,
+// and any use of the containing type fails closed.
 internal sealed record ObjectTypeProperty(Token Name,TypeSyntax Type,bool Readonly=false,bool Optional=false,
-    CallSignatureSyntax? GenericSignature=null);
+    CallSignatureSyntax? GenericSignature=null,IReadOnlyList<CallSignatureSyntax>? Overloads=null);
 // `[name: Key]: Value` member. Declarations are checked; any use of a type
 // with an index signature fails closed until index signatures are modelled.
 internal sealed record IndexSignatureSyntax(Token Open,Token Parameter,TypeSyntax KeyType,TypeSyntax ValueType,bool Readonly);
@@ -33,13 +36,15 @@ internal sealed record ObjectTypeSyntax(Token Open,IReadOnlyList<ObjectTypePrope
 {
     public bool HasIndexSignatures=>IndexSignatures is { Count:>0 };
     public bool HasGenericMethods=>Properties.Any(p=>p.GenericSignature is not null);
-    // Index, call, construct or generic method signatures: members the type model does not represent.
-    public bool HasSignatures=>HasIndexSignatures || CallSignatures is { Count:>0 } || HasGenericMethods;
+    public bool HasOverloadedMethods=>Properties.Any(p=>p.Overloads is { Count:>0 });
+    // Index, call, construct, generic or overloaded method signatures: members the type model does not represent.
+    public bool HasSignatures=>HasIndexSignatures || CallSignatures is { Count:>0 } || HasGenericMethods || HasOverloadedMethods;
     public Token FirstSignature=>(IndexSignatures??[]).Select(i=>i.Open)
         .Concat((CallSignatures??[]).Select(c=>c.Start))
-        .Concat(Properties.Where(p=>p.GenericSignature is not null).Select(p=>p.Name)).MinBy(t=>t.Start);
+        .Concat(Properties.Where(p=>p.GenericSignature is not null || p.Overloads is { Count:>0 }).Select(p=>p.Name)).MinBy(t=>t.Start);
     public string SignatureKind=>HasIndexSignatures?"an index signature":
-        CallSignatures is { Count:>0 }?"a call or construct signature":"a generic method signature";
+        CallSignatures is { Count:>0 }?"a call or construct signature":
+        HasGenericMethods?"a generic method signature":"an overloaded method signature";
 }
 // Array<T>/ReadonlyArray<T> share the normal checked array AST, retaining the generic name for shadowing diagnostics.
 internal sealed record ArrayTypeSyntax(TypeSyntax Element,Token Open,Token Close,bool Readonly=false,Token? GenericName=null) : TypeSyntax;
