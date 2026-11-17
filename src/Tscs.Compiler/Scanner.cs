@@ -367,7 +367,12 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false, boo
                     tokens.Count>0 &&
                     (lineBreak || tokens[^1].Kind is (TokenKind.Open or TokenKind.Semi or TokenKind.Comma)) &&
                     next<text.Length && text[next] is '(' or '<';
-                if(!potentialReservedTupleLabel && !potentialConstructSignature)
+                // `(this:` may start the `this` parameter of a function type or
+                // method signature; the parser rejects it everywhere else.
+                bool potentialThisParameter=!jsonMode && token.Text=="this" &&
+                    tokens.Count>0 && tokens[^1].Kind==TokenKind.OpenParen &&
+                    next<text.Length && text[next]==':';
+                if(!potentialReservedTupleLabel && !potentialConstructSignature && !potentialThisParameter)
                     throw Error(token,"TSCS1001",$"Unsupported syntax '{token.Text}'.");
             }
             tokens.Add(token);DiagnosticCounts.Add(Diagnostics.Count);

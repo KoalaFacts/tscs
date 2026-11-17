@@ -71,6 +71,7 @@ internal static class DeclarationTypeIdentity
             TupleTypeSyntax tuple=>tuple.Elements.Any(p=>HasIntersection(p,scope,depth+1)),
             TupleRestTypeSyntax rest=>HasIntersection(rest.Target,scope,depth+1),
             FunctionTypeSyntax function=>
+                function.ThisType is { } thisType && HasIntersection(thisType,scope,depth+1) ||
                 function.Parameters.Any(p=>HasIntersection(p.Type,scope,depth+1)) ||
                 HasIntersection(function.ReturnType,scope,depth+1),
             UnionTypeSyntax union=>union.Members.Any(p=>HasIntersection(p,scope,depth+1)),
@@ -178,7 +179,9 @@ internal static class DeclarationTypeIdentity
                 return SameSyntax(a.Target,leftScope,leftFile,
                     b.Target,rightScope,rightFile,depth+1);
             case (FunctionTypeSyntax a,FunctionTypeSyntax b):
-                return a.Parameters.Count==b.Parameters.Count &&
+                // `this` parameters are not modelled: no proof of identity.
+                return a.ThisType is null && b.ThisType is null &&
+                    a.Parameters.Count==b.Parameters.Count &&
                     a.Parameters.Zip(b.Parameters).All(pair=>
                         pair.First.Optional==pair.Second.Optional &&
                         pair.First.Rest==pair.Second.Rest &&
@@ -360,7 +363,8 @@ internal static class DeclarationTypeIdentity
                 return true;
             }
             case (FunctionTypeSyntax a,FunctionTypeSyntax b):
-                return a.Parameters.Count==b.Parameters.Count && a.Parameters.Zip(b.Parameters).All(pair=>
+                return a.ThisType is null && b.ThisType is null &&
+                    a.Parameters.Count==b.Parameters.Count && a.Parameters.Zip(b.Parameters).All(pair=>
                         pair.First.Optional==pair.Second.Optional && pair.First.Rest==pair.Second.Rest &&
                         SameDeclared(pair.First.Type,l,pair.Second.Type,r,depth+1)) &&
                     SameDeclared(a.ReturnType,l,b.ReturnType,r,depth+1);

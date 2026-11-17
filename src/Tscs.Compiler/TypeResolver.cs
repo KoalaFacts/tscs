@@ -284,7 +284,8 @@ internal static class TypeResolver
             ArrayTypeSyntax array=>MentionsOpaqueParameter(array.Element,scope,depth+1),
             TupleTypeSyntax tuple=>Any(tuple.Elements),
             TupleRestTypeSyntax rest=>MentionsOpaqueParameter(rest.Target,scope,depth+1),
-            FunctionTypeSyntax function=>Any(function.Parameters.Select(p=>p.Type).Append(function.ReturnType)),
+            FunctionTypeSyntax function=>Any(function.Parameters.Select(p=>p.Type).Append(function.ReturnType)
+                .Concat(function.ThisType is { } thisType?[thisType]:[])),
             KeyofTypeSyntax keyof=>MentionsOpaqueParameter(keyof.Target,scope,depth+1),
             IndexedAccessTypeSyntax access=>Any([access.Target,access.Index]),
             IntersectionTypeSyntax intersection=>Any(intersection.Members),
@@ -307,7 +308,8 @@ internal static class TypeResolver
             {
                 var names=new HashSet<string>(parameters,StringComparer.Ordinal);
                 names.UnionWith(function.Parameters.Select(p=>p.Name.Text));
-                return Any(function.Parameters.Select(p=>p.Type).Append(function.ReturnType),names);
+                return Any(function.Parameters.Select(p=>p.Type).Append(function.ReturnType)
+                    .Concat(function.ThisType is { } thisType?[thisType]:[]),names);
             }
             case NamedTypeSyntax named:return named.TypeArguments is { } arguments && Any(arguments,parameters);
             case ObjectTypeSyntax shape:return Any(shape.Properties.Select(p=>p.Type)
@@ -362,6 +364,7 @@ internal static class TypeResolver
             // Any member that refers back to its own declaration is legal in
             // the reference, but resolving it re-enters this declaration and
             // reaches the TS2456 cycle check: fail closed.
+            checkingSignatureMembers++;
             try
             {
                 // A call or construct signature checks its parameter and return
@@ -382,6 +385,7 @@ internal static class TypeResolver
                 throw new CompilationFailure(Diagnostic.Error(file,start,"TSCS1001",
                     "Recursive references in a type with index, call, construct, generic or overloaded method signatures are not supported yet."));
             }
+            finally {checkingSignatureMembers--;}
         }
         static bool NumericName(string name)=>name is "NaN" or "Infinity" or "-Infinity" ||
             double.TryParse(name,System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out _);
@@ -680,7 +684,25 @@ internal static class TypeResolver
         return instance;
     }
 
+    // Greater than zero only while ValidateSignatureMembers checks the members
+    // of one declaration with signatures: there a `this` parameter's type is
+    // checked and the resolved member type is discarded. Cleared whenever a
+    // named type is resolved, so no cached or used type ever ignores one.
+    [ThreadStatic] private static int checkingSignatureMembers;
+
     public static TypeSymbol Resolve(TypeSyntax syntax,Scope scope,string file,int depth=0)
+    {
+        if(checkingSignatureMembers>0 && syntax is NamedTypeSyntax)
+        {
+            int saved=checkingSignatureMembers;
+            checkingSignatureMembers=0;
+            try {return ResolveCore(syntax,scope,file,depth);}
+            finally {checkingSignatureMembers=saved;}
+        }
+        return ResolveCore(syntax,scope,file,depth);
+    }
+
+    private static TypeSymbol ResolveCore(TypeSyntax syntax,Scope scope,string file,int depth)
     {
         if(depth>64)
             throw new CompilationFailure(Diagnostic.Error(file,Location(syntax),"TSCS1001",
@@ -704,6 +726,13 @@ internal static class TypeResolver
                 if(QueriesParameter(function,new HashSet<string>(StringComparer.Ordinal),0))
                     throw new CompilationFailure(Diagnostic.Error(file,function.Open,"TSCS1001",
                         "Referring to a signature parameter from its own types is not supported yet."));
+                if(function.ThisType is { } thisType)
+                {
+                    if(checkingSignatureMembers==0)
+                        throw new CompilationFailure(Diagnostic.Error(file,function.Open,"TSCS1001",
+                            "Using a function type with a 'this' parameter is not supported yet."));
+                    _=Resolve(thisType,scope,file,depth+1);
+                }
                 try
                 {
                     var parameters=function.Parameters.Select(p=>Resolve(p.Type,scope,file,depth+1)).ToArray();

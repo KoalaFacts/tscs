@@ -32,19 +32,25 @@ internal sealed record CallSignatureSyntax(Token Start,FunctionTypeSyntax Type,b
     IReadOnlyList<Token>? TypeParameters=null,IReadOnlyList<TypeSyntax?>? TypeParameterConstraints=null,
     IReadOnlyList<TypeSyntax?>? TypeParameterDefaults=null);
 internal sealed record ObjectTypeSyntax(Token Open,IReadOnlyList<ObjectTypeProperty> Properties,Token Close,
-    IReadOnlyList<IndexSignatureSyntax>? IndexSignatures=null,IReadOnlyList<CallSignatureSyntax>? CallSignatures=null) : TypeSyntax
+    IReadOnlyList<IndexSignatureSyntax>? IndexSignatures=null,IReadOnlyList<CallSignatureSyntax>? CallSignatures=null,
+    Token? FirstThisParameter=null) : TypeSyntax
 {
+    // A member whose type (at any depth) declares a `this` parameter.
+    public bool HasThisParameters=>FirstThisParameter is not null;
     public bool HasIndexSignatures=>IndexSignatures is { Count:>0 };
     public bool HasGenericMethods=>Properties.Any(p=>p.GenericSignature is not null);
     public bool HasOverloadedMethods=>Properties.Any(p=>p.Overloads is { Count:>0 });
     // Index, call, construct, generic or overloaded method signatures: members the type model does not represent.
-    public bool HasSignatures=>HasIndexSignatures || CallSignatures is { Count:>0 } || HasGenericMethods || HasOverloadedMethods;
+    public bool HasSignatures=>HasIndexSignatures || CallSignatures is { Count:>0 } || HasGenericMethods || HasOverloadedMethods ||
+        HasThisParameters;
     public Token FirstSignature=>(IndexSignatures??[]).Select(i=>i.Open)
         .Concat((CallSignatures??[]).Select(c=>c.Start))
-        .Concat(Properties.Where(p=>p.GenericSignature is not null || p.Overloads is { Count:>0 }).Select(p=>p.Name)).MinBy(t=>t.Start);
+        .Concat(Properties.Where(p=>p.GenericSignature is not null || p.Overloads is { Count:>0 }).Select(p=>p.Name))
+        .Concat(FirstThisParameter is { } first?[first]:[]).MinBy(t=>t.Start);
     public string SignatureKind=>HasIndexSignatures?"an index signature":
         CallSignatures is { Count:>0 }?"a call or construct signature":
-        HasGenericMethods?"a generic method signature":"an overloaded method signature";
+        HasGenericMethods?"a generic method signature":
+        HasOverloadedMethods?"an overloaded method signature":"a 'this' parameter";
 }
 // Array<T>/ReadonlyArray<T> share the normal checked array AST, retaining the generic name for shadowing diagnostics.
 internal sealed record ArrayTypeSyntax(TypeSyntax Element,Token Open,Token Close,bool Readonly=false,Token? GenericName=null) : TypeSyntax;
@@ -55,7 +61,11 @@ internal sealed record TupleRestTypeSyntax(Token Ellipsis,TypeSyntax Target) : T
 internal sealed record NamedTypeSyntax(Token Name,IReadOnlyList<TypeSyntax>? TypeArguments=null) : TypeSyntax;
 // Named callback signatures are type-only; typed expression arrows are checked value expressions.
 internal sealed record FunctionTypeParameter(Token Name,TypeSyntax Type,bool Optional=false,bool Rest=false);
-internal sealed record FunctionTypeSyntax(Token Open,IReadOnlyList<FunctionTypeParameter> Parameters,TypeSyntax ReturnType) : TypeSyntax;
+// `(this: T, ...) => R`: ThisType is the declared `this` parameter, which is
+// not a positional parameter. Declarations are checked; any use of a type
+// containing one fails closed until `this` parameters are modelled.
+internal sealed record FunctionTypeSyntax(Token Open,IReadOnlyList<FunctionTypeParameter> Parameters,TypeSyntax ReturnType,
+    TypeSyntax? ThisType=null) : TypeSyntax;
 // Contextual type operator: `keyof` remains an ordinary value identifier.
 internal sealed record KeyofTypeSyntax(Token Keyword,TypeSyntax Target) : TypeSyntax;
 // A type-only value query retains the declaring value identity; there is no JS emit.
