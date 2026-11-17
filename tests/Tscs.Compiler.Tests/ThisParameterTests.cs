@@ -48,6 +48,9 @@ public sealed class ThisParameterTests
     [InlineData("interface S { m<T extends (this: string) => void = (this: number) => void>(): void }")]
     [InlineData("interface S { m<T extends (this: string) => void>(): void }")]
     [InlineData("interface S { <T = (this: number) => void>(): void }")]
+    // Indexed access prints its target (reference TS2493 names the `this` type).
+    [InlineData("interface S { m(): void; p: [(this: string) => void][1]; }")]
+    [InlineData("interface S { m(): void; p: keyof [(this: string) => void]; }")]
     [InlineData("interface S { m(this: S): void }\ndeclare let s: S;")]
     [InlineData("declare let f: (this: number) => void;")]
     [InlineData("let x: { m(this: number): void };")]

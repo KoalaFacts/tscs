@@ -698,13 +698,17 @@ internal static class TypeResolver
 
     // Greater than zero only while ValidateSignatureMembers checks the members
     // of one declaration with signatures: there a `this` parameter's type is
-    // checked and the resolved member type is discarded. Cleared whenever a
-    // named type is resolved, so no cached or used type ever ignores one.
+    // checked and the resolved member type is discarded. It reaches only
+    // through type forms that neither relate nor print their constituents;
+    // every other form (named types, indexed access, keyof, typeof,
+    // intersections, ...) is resolved with it cleared, so no cached, related
+    // or printed type ever ignores a `this` parameter.
     [ThreadStatic] private static int checkingSignatureMembers;
 
     public static TypeSymbol Resolve(TypeSyntax syntax,Scope scope,string file,int depth=0)
     {
-        if(checkingSignatureMembers>0 && syntax is NamedTypeSyntax)
+        if(checkingSignatureMembers>0 && syntax is not (FunctionTypeSyntax or UnionTypeSyntax or ArrayTypeSyntax or
+               TupleTypeSyntax or TupleRestTypeSyntax or ObjectTypeSyntax or PrimitiveTypeSyntax or LiteralTypeSyntax))
         {
             int saved=checkingSignatureMembers;
             checkingSignatureMembers=0;
