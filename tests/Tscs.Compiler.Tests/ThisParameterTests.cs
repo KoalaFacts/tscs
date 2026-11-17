@@ -19,6 +19,7 @@ public sealed class ThisParameterTests
     [InlineData("type T = { f: (this: string) => void };")]
     [InlineData("interface S { f(cb: (this: number, ...rest: string[]) => void): void }")]
     [InlineData("interface S { m(this: number): void; m(v: number): void }")]
+    [InlineData("interface S { (this: any, x: number): void }")]
     public void DeclarationsCheck(string source)=>
         Assert.Empty(Compilation.Check("index.ts",source));
 
@@ -38,6 +39,10 @@ public sealed class ThisParameterTests
     // reference's TS2300/TS2680 for misplaced or repeated `this` parameters
     // are not modelled.
     [InlineData("interface S { m(this: S): void }")]
+    // The reference reports TS2681 for `this` on a construct signature.
+    [InlineData("interface J { new (this: any): string; }")]
+    [InlineData("type T = { new (this: any, x: number): {} };")]
+    [InlineData("interface J { new <T>(this: T): string; }")]
     [InlineData("interface S { m(this: S): void }\ndeclare let s: S;")]
     [InlineData("declare let f: (this: number) => void;")]
     [InlineData("let x: { m(this: number): void };")]

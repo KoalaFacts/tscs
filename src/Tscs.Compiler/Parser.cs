@@ -1827,7 +1827,11 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     var start=construct?Take():Current;
                     var (signatureParameters,signatureDefaults,signatureConstraints)=ReadPlainTypeParameters("call or construct signature",depth+1);
                     if(Current.Kind!=TokenKind.OpenParen)Unsupported(Current,"Expected '(' in a call or construct signature.");
-                    callSignatures.Add(new CallSignatureSyntax(start,(FunctionTypeSyntax)ReadObjectMethodType(depth+1),construct,
+                    var signatureType=(FunctionTypeSyntax)ReadObjectMethodType(depth+1);
+                    // The reference reports TS2681 for a `this` parameter on a construct signature.
+                    if(construct && signatureType.ThisType is not null)
+                        Unsupported(start,"A 'this' parameter on a construct signature is not supported.");
+                    callSignatures.Add(new CallSignatureSyntax(start,signatureType,construct,
                         signatureParameters,signatureConstraints,signatureDefaults));
                     if(Eat(TokenKind.Semi)||Eat(TokenKind.Comma))continue;
                     if(Current.Kind==TokenKind.Close)break;
