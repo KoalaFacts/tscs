@@ -364,13 +364,19 @@ internal static class TypeResolver
             // Any member that refers back to its own declaration is legal in
             // the reference, but resolving it re-enters this declaration and
             // reaches the TS2456 cycle check: fail closed.
-            checkingSignatureMembers++;
             try
             {
                 // A call or construct signature checks its parameter and return
-                // types exactly as a method signature does.
-                if(call is not null)_=Resolve(call.Type,SignatureScope(call,scope,file,depth+1),file,depth+1);
-                else if(property is not null)_=Resolve(property.Type,scope,file,depth+1);
+                // types exactly as a method signature does. Only these member
+                // types, whose resolved symbols are discarded, may contain a
+                // `this` parameter: type parameter constraints, defaults and
+                // index keys take part in relations and are resolved outside.
+                if(call is not null)
+                {
+                    var signatureScope=SignatureScope(call,scope,file,depth+1);
+                    CheckingSignatureMember(()=>Resolve(call.Type,signatureScope,file,depth+1));
+                }
+                else if(property is not null)CheckingSignatureMember(()=>Resolve(property.Type,scope,file,depth+1));
                 else
                 {
                     var key=ValidateIndexKey(signature!,scope,file,depth);
@@ -385,7 +391,6 @@ internal static class TypeResolver
                 throw new CompilationFailure(Diagnostic.Error(file,start,"TSCS1001",
                     "Recursive references in a type with index, call, construct, generic or overloaded method signatures are not supported yet."));
             }
-            finally {checkingSignatureMembers--;}
         }
         static bool NumericName(string name)=>name is "NaN" or "Infinity" or "-Infinity" ||
             double.TryParse(name,System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out _);
@@ -428,6 +433,13 @@ internal static class TypeResolver
     // generic declaration body is checked. A constraint naming the parameter
     // it constrains or a later one (TS2313 / forward references) fails closed;
     // defaults are checked against their constraints in declaration order.
+    private static void CheckingSignatureMember(Func<TypeSymbol> resolve)
+    {
+        checkingSignatureMembers++;
+        try {_=resolve();}
+        finally {checkingSignatureMembers--;}
+    }
+
     private static Scope SignatureScope(CallSignatureSyntax call,Scope scope,string file,int depth)
     {
         if(call.TypeParameters is not { Count:>0 } parameters)return scope;

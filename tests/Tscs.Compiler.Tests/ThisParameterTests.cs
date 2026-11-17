@@ -43,6 +43,11 @@ public sealed class ThisParameterTests
     [InlineData("interface J { new (this: any): string; }")]
     [InlineData("type T = { new (this: any, x: number): {} };")]
     [InlineData("interface J { new <T>(this: T): string; }")]
+    // Constraints and defaults are related (reference: TS2344 for an
+    // incompatible `this` type), so their `this` parameters are not erased.
+    [InlineData("interface S { m<T extends (this: string) => void = (this: number) => void>(): void }")]
+    [InlineData("interface S { m<T extends (this: string) => void>(): void }")]
+    [InlineData("interface S { <T = (this: number) => void>(): void }")]
     [InlineData("interface S { m(this: S): void }\ndeclare let s: S;")]
     [InlineData("declare let f: (this: number) => void;")]
     [InlineData("let x: { m(this: number): void };")]
