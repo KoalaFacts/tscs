@@ -284,7 +284,8 @@ internal static class TypeResolver
             ArrayTypeSyntax array=>MentionsOpaqueParameter(array.Element,scope,depth+1),
             TupleTypeSyntax tuple=>Any(tuple.Elements),
             TupleRestTypeSyntax rest=>MentionsOpaqueParameter(rest.Target,scope,depth+1),
-            FunctionTypeSyntax function=>Any(function.Parameters.Select(p=>p.Type).Append(function.ReturnType)),
+            FunctionTypeSyntax function=>Any(function.Parameters.Select(p=>p.Type).Append(function.ReturnType)
+                .Concat(function.ThisType is { } thisType?[thisType]:[])),
             KeyofTypeSyntax keyof=>MentionsOpaqueParameter(keyof.Target,scope,depth+1),
             IndexedAccessTypeSyntax access=>Any([access.Target,access.Index]),
             IntersectionTypeSyntax intersection=>Any(intersection.Members),
@@ -307,7 +308,8 @@ internal static class TypeResolver
             {
                 var names=new HashSet<string>(parameters,StringComparer.Ordinal);
                 names.UnionWith(function.Parameters.Select(p=>p.Name.Text));
-                return Any(function.Parameters.Select(p=>p.Type).Append(function.ReturnType),names);
+                return Any(function.Parameters.Select(p=>p.Type).Append(function.ReturnType)
+                    .Concat(function.ThisType is { } thisType?[thisType]:[]),names);
             }
             case NamedTypeSyntax named:return named.TypeArguments is { } arguments && Any(arguments,parameters);
             case ObjectTypeSyntax shape:return Any(shape.Properties.Select(p=>p.Type)
@@ -365,9 +367,16 @@ internal static class TypeResolver
             try
             {
                 // A call or construct signature checks its parameter and return
-                // types exactly as a method signature does.
-                if(call is not null)_=Resolve(call.Type,SignatureScope(call,scope,file,depth+1),file,depth+1);
-                else if(property is not null)_=Resolve(property.Type,scope,file,depth+1);
+                // types exactly as a method signature does. Only these member
+                // types, whose resolved symbols are discarded, may contain a
+                // `this` parameter: type parameter constraints, defaults and
+                // index keys take part in relations and are resolved outside.
+                if(call is not null)
+                {
+                    var signatureScope=SignatureScope(call,scope,file,depth+1);
+                    CheckingSignatureMember(()=>Resolve(call.Type,signatureScope,file,depth+1));
+                }
+                else if(property is not null)CheckingSignatureMember(()=>Resolve(property.Type,scope,file,depth+1));
                 else
                 {
                     var key=ValidateIndexKey(signature!,scope,file,depth);
@@ -424,6 +433,13 @@ internal static class TypeResolver
     // generic declaration body is checked. A constraint naming the parameter
     // it constrains or a later one (TS2313 / forward references) fails closed;
     // defaults are checked against their constraints in declaration order.
+    private static void CheckingSignatureMember(Func<TypeSymbol> resolve)
+    {
+        checkingSignatureMembers++;
+        try {_=resolve();}
+        finally {checkingSignatureMembers--;}
+    }
+
     private static Scope SignatureScope(CallSignatureSyntax call,Scope scope,string file,int depth)
     {
         if(call.TypeParameters is not { Count:>0 } parameters)return scope;
@@ -680,7 +696,29 @@ internal static class TypeResolver
         return instance;
     }
 
+    // Greater than zero only while ValidateSignatureMembers checks the members
+    // of one declaration with signatures: there a `this` parameter's type is
+    // checked and the resolved member type is discarded. It reaches only
+    // through type forms that neither relate nor print their constituents;
+    // every other form (named types, indexed access, keyof, typeof,
+    // intersections, ...) is resolved with it cleared, so no cached, related
+    // or printed type ever ignores a `this` parameter.
+    [ThreadStatic] private static int checkingSignatureMembers;
+
     public static TypeSymbol Resolve(TypeSyntax syntax,Scope scope,string file,int depth=0)
+    {
+        if(checkingSignatureMembers>0 && syntax is not (FunctionTypeSyntax or UnionTypeSyntax or ArrayTypeSyntax or
+               TupleTypeSyntax or TupleRestTypeSyntax or ObjectTypeSyntax or PrimitiveTypeSyntax or LiteralTypeSyntax))
+        {
+            int saved=checkingSignatureMembers;
+            checkingSignatureMembers=0;
+            try {return ResolveCore(syntax,scope,file,depth);}
+            finally {checkingSignatureMembers=saved;}
+        }
+        return ResolveCore(syntax,scope,file,depth);
+    }
+
+    private static TypeSymbol ResolveCore(TypeSyntax syntax,Scope scope,string file,int depth)
     {
         if(depth>64)
             throw new CompilationFailure(Diagnostic.Error(file,Location(syntax),"TSCS1001",
@@ -704,6 +742,13 @@ internal static class TypeResolver
                 if(QueriesParameter(function,new HashSet<string>(StringComparer.Ordinal),0))
                     throw new CompilationFailure(Diagnostic.Error(file,function.Open,"TSCS1001",
                         "Referring to a signature parameter from its own types is not supported yet."));
+                if(function.ThisType is { } thisType)
+                {
+                    if(checkingSignatureMembers==0)
+                        throw new CompilationFailure(Diagnostic.Error(file,function.Open,"TSCS1001",
+                            "Using a function type with a 'this' parameter is not supported yet."));
+                    _=Resolve(thisType,scope,file,depth+1);
+                }
                 try
                 {
                     var parameters=function.Parameters.Select(p=>Resolve(p.Type,scope,file,depth+1)).ToArray();

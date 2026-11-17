@@ -1672,6 +1672,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             var open=Take();
             var parameters=new List<FunctionTypeParameter>();
             bool optionalSeen=false;
+            var thisType=ReadThisParameter(depth);
             while(Current.Kind!=TokenKind.CloseParen)
             {
                 if(parameters.Count>=32)Unsupported(Current,"Function types with over 32 parameters are not supported yet.");
@@ -1696,7 +1697,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             }
             if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' after function type parameters.");
             if(!Eat(TokenKind.Arrow))Unsupported(Current,"Expected '=>' in function type.");
-            type=new FunctionTypeSyntax(open,parameters,ReadTypeAnnotation(depth+1));
+            type=new FunctionTypeSyntax(open,parameters,ReadTypeAnnotation(depth+1),thisType);
         }
         else if(Eat(TokenKind.OpenParen))
         {
@@ -1806,6 +1807,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             var callSignatures=new List<CallSignatureSyntax>();
             var names=new HashSet<string>(StringComparer.Ordinal);
             var methodNames=new HashSet<string>(StringComparer.Ordinal);
+            int thisParametersBefore=thisParameters.Count;
             while(Current.Kind!=TokenKind.Close)
             {
                 if(Current.Kind==TokenKind.End)Unsupported(Current,"Expected '}' in object type.");
@@ -1825,7 +1827,11 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     var start=construct?Take():Current;
                     var (signatureParameters,signatureDefaults,signatureConstraints)=ReadPlainTypeParameters("call or construct signature",depth+1);
                     if(Current.Kind!=TokenKind.OpenParen)Unsupported(Current,"Expected '(' in a call or construct signature.");
-                    callSignatures.Add(new CallSignatureSyntax(start,(FunctionTypeSyntax)ReadObjectMethodType(depth+1),construct,
+                    var signatureType=(FunctionTypeSyntax)ReadObjectMethodType(depth+1);
+                    // The reference reports TS2681 for a `this` parameter on a construct signature.
+                    if(construct && signatureType.ThisType is not null)
+                        Unsupported(start,"A 'this' parameter on a construct signature is not supported.");
+                    callSignatures.Add(new CallSignatureSyntax(start,signatureType,construct,
                         signatureParameters,signatureConstraints,signatureDefaults));
                     if(Eat(TokenKind.Semi)||Eat(TokenKind.Comma))continue;
                     if(Current.Kind==TokenKind.Close)break;
@@ -1902,7 +1908,8 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 if(Current.Kind==TokenKind.Close)break;
                 if(!Current.LineBreak)Unsupported(Current,"Expected a separator between object type members.");
             }
-            type=new ObjectTypeSyntax(open,properties,Take(),indexSignatures,callSignatures);
+            type=new ObjectTypeSyntax(open,properties,Take(),indexSignatures,callSignatures,
+                thisParameters.Count>thisParametersBefore?thisParameters[thisParametersBefore]:null);
         }
         else
         {
@@ -1937,6 +1944,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
         var open=Take();
         var parameters=new List<FunctionTypeParameter>();
         bool sawOptional=false;
+        var thisType=ReadThisParameter(depth);
         while(Current.Kind!=TokenKind.CloseParen)
         {
             if(parameters.Count>=32)Unsupported(Current,"Method signatures with over 32 parameters are unsupported.");
@@ -1965,7 +1973,26 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
         }
         if(!Eat(TokenKind.CloseParen))Unsupported(Current,"Expected ')' in method signature.");
         if(!Eat(TokenKind.Colon))Unsupported(Current,"Method signature requires a return type.");
-        return new FunctionTypeSyntax(open,parameters,ReadTypeAnnotation(depth+1));
+        return new FunctionTypeSyntax(open,parameters,ReadTypeAnnotation(depth+1),thisType);
+    }
+
+    // `this` keywords of the `this` parameters read so far, in source order:
+    // an object type records the first one among its members so that, like
+    // signatures, its declaration is checked and any use fails closed.
+    private readonly List<Token> thisParameters=[];
+
+    // Pinned parser: `this: T` may only be the first parameter of a signature
+    // and is not a positional parameter. It cannot be optional or rest.
+    private TypeSyntax? ReadThisParameter(int depth)
+    {
+        if(Current.Kind!=TokenKind.Unsupported || Current.Text!="this")return null;
+        var keyword=Take();
+        if(!Eat(TokenKind.Colon))Unsupported(Current,"A 'this' parameter requires a type annotation.");
+        var type=ReadTypeAnnotation(depth+1);
+        thisParameters.Add(keyword);
+        if(Current.Kind!=TokenKind.CloseParen && !Eat(TokenKind.Comma))
+            Unsupported(Current,"Expected ',' or ')' after a 'this' parameter.");
+        return type;
     }
 
     internal static string PropertyName(Token token)=>token.Kind is TokenKind.String or TokenKind.Number
