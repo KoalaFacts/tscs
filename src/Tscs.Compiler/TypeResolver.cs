@@ -707,6 +707,16 @@ internal static class TypeResolver
 
     public static TypeSymbol Resolve(TypeSyntax syntax,Scope scope,string file,int depth=0)
     {
+        // `symbol` and `object` are keyword types, never names (TS2304 here
+        // was wrong). Neither is modelled: only a declaration member check,
+        // which discards the resolved type, accepts them; any other use fails closed.
+        if(syntax is NamedTypeSyntax { Name.Kind:TokenKind.Identifier, Name.Text:"symbol" or "object" } keyword &&
+           scope.FindType(keyword.Name.Text) is null)
+        {
+            if(checkingSignatureMembers>0 && keyword.TypeArguments is null)return CompilerTypes.Unknown;
+            throw new CompilationFailure(Diagnostic.Error(file,keyword.Name,"TSCS1001",
+                $"The '{keyword.Name.Text}' type is not supported yet."));
+        }
         if(checkingSignatureMembers>0 && syntax is not (FunctionTypeSyntax or UnionTypeSyntax or ArrayTypeSyntax or
                TupleTypeSyntax or TupleRestTypeSyntax or ObjectTypeSyntax or PrimitiveTypeSyntax or LiteralTypeSyntax))
         {

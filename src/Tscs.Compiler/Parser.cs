@@ -1653,8 +1653,11 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 type=new NamedTypeSyntax(name,arguments);
             }
             else
+            {
                 type=name.Text is "number" or "string" or "boolean" or "any" or "unknown" or "never" or "void" or "undefined" or "null"
                     ?new PrimitiveTypeSyntax(name):new NamedTypeSyntax(name);
+                if(name.Kind==TokenKind.Identifier && name.Text is "symbol" or "object")symbolOrObjectTypes.Add(name);
+            }
         }
         else if(Current.Kind is TokenKind.String or TokenKind.Number or TokenKind.True or TokenKind.False)
         {
@@ -1808,6 +1811,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             var names=new HashSet<string>(StringComparer.Ordinal);
             var methodNames=new HashSet<string>(StringComparer.Ordinal);
             int thisParametersBefore=thisParameters.Count;
+            int symbolOrObjectTypesBefore=symbolOrObjectTypes.Count;
             while(Current.Kind!=TokenKind.Close)
             {
                 if(Current.Kind==TokenKind.End)Unsupported(Current,"Expected '}' in object type.");
@@ -1909,7 +1913,8 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 if(!Current.LineBreak)Unsupported(Current,"Expected a separator between object type members.");
             }
             type=new ObjectTypeSyntax(open,properties,Take(),indexSignatures,callSignatures,
-                thisParameters.Count>thisParametersBefore?thisParameters[thisParametersBefore]:null);
+                thisParameters.Count>thisParametersBefore?thisParameters[thisParametersBefore]:null,
+                symbolOrObjectTypes.Count>symbolOrObjectTypesBefore?symbolOrObjectTypes[symbolOrObjectTypesBefore]:null);
         }
         else
         {
@@ -1980,6 +1985,12 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     // an object type records the first one among its members so that, like
     // signatures, its declaration is checked and any use fails closed.
     private readonly List<Token> thisParameters=[];
+
+    // `symbol` and `object` keyword type references read so far, in source
+    // order. Like `this` parameters, an object type records the first one
+    // among its members: its declaration is checked and any use fails closed,
+    // because neither primitive is part of the type model yet.
+    private readonly List<Token> symbolOrObjectTypes=[];
 
     // Pinned parser: `this: T` may only be the first parameter of a signature
     // and is not a positional parameter. It cannot be optional or rest.
