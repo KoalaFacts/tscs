@@ -372,7 +372,13 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false, boo
                 bool potentialThisParameter=!jsonMode && token.Text=="this" &&
                     tokens.Count>0 && tokens[^1].Kind==TokenKind.OpenParen &&
                     next<text.Length && text[next]==':';
-                if(!potentialReservedTupleLabel && !potentialConstructSignature && !potentialThisParameter)
+                // `: this` followed by ';', ',', ')' or '|' may be a `this` type
+                // (`reverse(): this;`, `(array: this) => void`); the parser
+                // rejects it outside type annotations.
+                bool potentialThisType=!jsonMode && token.Text=="this" &&
+                    tokens.Count>0 && tokens[^1].Kind==TokenKind.Colon &&
+                    next<text.Length && text[next] is ';' or ',' or ')' or '|';
+                if(!potentialReservedTupleLabel && !potentialConstructSignature && !potentialThisParameter && !potentialThisType)
                     throw Error(token,"TSCS1001",$"Unsupported syntax '{token.Text}'.");
             }
             tokens.Add(token);DiagnosticCounts.Add(Diagnostics.Count);
