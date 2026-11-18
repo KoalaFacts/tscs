@@ -346,7 +346,7 @@ internal static class TypeResolver
     // first diagnostic matches the reference. Properties an index signature
     // applies to need the TS2411 relation, which is not modelled: fail closed.
     // Call and construct signatures are checked in the same source order.
-    internal static void ValidateSignatureMembers(ObjectTypeSyntax shape,Scope scope,string file,int depth)
+    internal static void ValidateSignatureMembers(ObjectTypeSyntax shape,Scope scope,string file,int depth,bool interfaceBody=false)
     {
         var signatures=shape.IndexSignatures??[];
         var members=shape.Properties.Select(p=>(Start:p.Name.Start,Property:(ObjectTypeProperty?)p,Signature:(IndexSignatureSyntax?)null,Call:(CallSignatureSyntax?)null))
@@ -374,9 +374,9 @@ internal static class TypeResolver
                 if(call is not null)
                 {
                     var signatureScope=SignatureScope(call,scope,file,depth+1);
-                    CheckingSignatureMember(()=>Resolve(call.Type,signatureScope,file,depth+1));
+                    CheckingSignatureMember(()=>Resolve(call.Type,signatureScope,file,depth+1),interfaceBody);
                 }
-                else if(property is not null)CheckingSignatureMember(()=>Resolve(property.Type,scope,file,depth+1));
+                else if(property is not null)CheckingSignatureMember(()=>Resolve(property.Type,scope,file,depth+1),interfaceBody);
                 else
                 {
                     var key=ValidateIndexKey(signature!,scope,file,depth);
@@ -433,11 +433,15 @@ internal static class TypeResolver
     // generic declaration body is checked. A constraint naming the parameter
     // it constrains or a later one (TS2313 / forward references) fails closed;
     // defaults are checked against their constraints in declaration order.
-    private static void CheckingSignatureMember(Func<TypeSymbol> resolve)
+    private static void CheckingSignatureMember(Func<TypeSymbol> resolve,bool interfaceBody)
     {
+        // A nested member check (an object type inside a member) never
+        // inherits the interface's `this` type: the reference reports TS2526.
+        int savedInterface=checkingInterfaceMembers;
         checkingSignatureMembers++;
+        checkingInterfaceMembers=interfaceBody?checkingSignatureMembers:0;
         try {_=resolve();}
-        finally {checkingSignatureMembers--;}
+        finally {checkingSignatureMembers--;checkingInterfaceMembers=savedInterface;}
     }
 
     private static Scope SignatureScope(CallSignatureSyntax call,Scope scope,string file,int depth)
@@ -503,10 +507,10 @@ internal static class TypeResolver
 
     // A declaration body is checked, not resolved, when it has an index, call
     // or construct signature: only a use of the declared type fails closed.
-    internal static void ValidateDeclarationBody(TypeSyntax syntax,Scope scope,string file,int depth)
+    internal static void ValidateDeclarationBody(TypeSyntax syntax,Scope scope,string file,int depth,bool interfaceBody=false)
     {
         if(syntax is ObjectTypeSyntax { HasSignatures:true } indexed)
-            ValidateSignatureMembers(indexed,scope,file,depth);
+            ValidateSignatureMembers(indexed,scope,file,depth,interfaceBody);
         else _=Resolve(syntax,scope,file,depth);
     }
 
@@ -584,7 +588,7 @@ internal static class TypeResolver
             }
             RejectUnmodelledIndexSignatures(binding);
             if(binding.Syntax is IntrinsicTypeSyntax)ValidateIntrinsic(binding);
-            else ValidateDeclarationBody(binding.Syntax,placeholder,binding.File,depth+1);
+            else ValidateDeclarationBody(binding.Syntax,placeholder,binding.File,depth+1,binding.IsInterface);
             // A generic interface's heritage is checked with opaque type
             // parameters in the reference (TS2430 / TS2320): 'x:string' does
             // not satisfy a base 'x:T', yet it does for the 'unknown'
@@ -625,7 +629,7 @@ internal static class TypeResolver
                             "Redeclaring a member of a merged generic interface is not supported yet."));
             }
             foreach(var merged in binding.MergedInterfaces)
-                ValidateDeclarationBody(merged.Syntax,placeholder,merged.File,depth+1);
+                ValidateDeclarationBody(merged.Syntax,placeholder,merged.File,depth+1,interfaceBody:true);
         }
         catch(CompilationFailure failure) when (failure.Diagnostic.Code is not
             ("TS2304" or "TS2744" or "TS2344" or "TS2795" or "TS1268" or "TS1337"))
@@ -704,16 +708,23 @@ internal static class TypeResolver
     // intersections, ...) is resolved with it cleared, so no cached, related
     // or printed type ever ignores a `this` parameter.
     [ThreadStatic] private static int checkingSignatureMembers;
+    // Equal to checkingSignatureMembers only while the innermost member check
+    // is a member of an interface declaration, where a `this` type is valid.
+    [ThreadStatic] private static int checkingInterfaceMembers;
 
     public static TypeSymbol Resolve(TypeSyntax syntax,Scope scope,string file,int depth=0)
     {
         // `symbol` and `object` are keyword types, never names (TS2304 here
-        // was wrong). Neither is modelled: only a declaration member check,
-        // which discards the resolved type, accepts them; any other use fails closed.
-        if(syntax is NamedTypeSyntax { Name.Kind:TokenKind.Identifier, Name.Text:"symbol" or "object" } keyword &&
-           scope.FindType(keyword.Name.Text) is null)
+        // was wrong), and `this` (parsed as an unbindable name) is the
+        // polymorphic `this` type. None is modelled: only a declaration member
+        // check, which discards the resolved type, accepts them; any other use
+        // fails closed (the reference reports TS2526 for some `this` types).
+        if(syntax is NamedTypeSyntax keyword &&
+           (keyword.Name is { Kind:TokenKind.Identifier, Text:"symbol" or "object" } && scope.FindType(keyword.Name.Text) is null ||
+            keyword.Name is { Kind:TokenKind.Unsupported, Text:"this" }))
         {
-            if(checkingSignatureMembers>0 && keyword.TypeArguments is null)return CompilerTypes.Unknown;
+            if(checkingSignatureMembers>0 && keyword.TypeArguments is null &&
+               (keyword.Name.Text!="this" || checkingInterfaceMembers==checkingSignatureMembers))return CompilerTypes.Unknown;
             throw new CompilationFailure(Diagnostic.Error(file,keyword.Name,"TSCS1001",
                 $"The '{keyword.Name.Text}' type is not supported yet."));
         }

@@ -33,28 +33,28 @@ internal sealed record CallSignatureSyntax(Token Start,FunctionTypeSyntax Type,b
     IReadOnlyList<TypeSyntax?>? TypeParameterDefaults=null);
 internal sealed record ObjectTypeSyntax(Token Open,IReadOnlyList<ObjectTypeProperty> Properties,Token Close,
     IReadOnlyList<IndexSignatureSyntax>? IndexSignatures=null,IReadOnlyList<CallSignatureSyntax>? CallSignatures=null,
-    Token? FirstThisParameter=null,Token? FirstSymbolOrObjectType=null) : TypeSyntax
+    Token? FirstThisParameter=null,Token? FirstKeywordType=null) : TypeSyntax
 {
     // A member whose type (at any depth) declares a `this` parameter.
     public bool HasThisParameters=>FirstThisParameter is not null;
-    // A member whose type (at any depth) refers to the `symbol` or `object` keyword type.
-    public bool HasSymbolOrObjectTypes=>FirstSymbolOrObjectType is not null;
+    // A member whose type (at any depth) refers to the `symbol`, `object` or `this` type.
+    public bool HasKeywordTypes=>FirstKeywordType is not null;
     public bool HasIndexSignatures=>IndexSignatures is { Count:>0 };
     public bool HasGenericMethods=>Properties.Any(p=>p.GenericSignature is not null);
     public bool HasOverloadedMethods=>Properties.Any(p=>p.Overloads is { Count:>0 });
     // Index, call, construct, generic or overloaded method signatures: members the type model does not represent.
     public bool HasSignatures=>HasIndexSignatures || CallSignatures is { Count:>0 } || HasGenericMethods || HasOverloadedMethods ||
-        HasThisParameters || HasSymbolOrObjectTypes;
+        HasThisParameters || HasKeywordTypes;
     public Token FirstSignature=>(IndexSignatures??[]).Select(i=>i.Open)
         .Concat((CallSignatures??[]).Select(c=>c.Start))
         .Concat(Properties.Where(p=>p.GenericSignature is not null || p.Overloads is { Count:>0 }).Select(p=>p.Name))
         .Concat(FirstThisParameter is { } first?[first]:[])
-        .Concat(FirstSymbolOrObjectType is { } keyword?[keyword]:[]).MinBy(t=>t.Start);
+        .Concat(FirstKeywordType is { } keyword?[keyword]:[]).MinBy(t=>t.Start);
     public string SignatureKind=>HasIndexSignatures?"an index signature":
         CallSignatures is { Count:>0 }?"a call or construct signature":
         HasGenericMethods?"a generic method signature":
         HasOverloadedMethods?"an overloaded method signature":
-        HasThisParameters?"a 'this' parameter":"a 'symbol' or 'object' type";
+        HasThisParameters?"a 'this' parameter":"a 'symbol', 'object' or 'this' type";
 }
 // Array<T>/ReadonlyArray<T> share the normal checked array AST, retaining the generic name for shadowing diagnostics.
 internal sealed record ArrayTypeSyntax(TypeSyntax Element,Token Open,Token Close,bool Readonly=false,Token? GenericName=null) : TypeSyntax;

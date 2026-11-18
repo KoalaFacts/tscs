@@ -1621,6 +1621,14 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             }
             type=new TypeQuerySyntax(keyword,root,members);
         }
+        else if(Current.Kind==TokenKind.Unsupported && Current.Text=="this")
+        {
+            // A `this` type is a named reference that never binds; the
+            // resolver accepts it only in declaration member checks.
+            var keyword=Take();
+            keywordTypes.Add(keyword);
+            type=new NamedTypeSyntax(keyword);
+        }
         else if(Current.Kind is TokenKind.Identifier or TokenKind.Void or TokenKind.Null)
         {
             var name=Take();
@@ -1656,7 +1664,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             {
                 type=name.Text is "number" or "string" or "boolean" or "any" or "unknown" or "never" or "void" or "undefined" or "null"
                     ?new PrimitiveTypeSyntax(name):new NamedTypeSyntax(name);
-                if(name.Kind==TokenKind.Identifier && name.Text is "symbol" or "object")symbolOrObjectTypes.Add(name);
+                if(name.Kind==TokenKind.Identifier && name.Text is "symbol" or "object")keywordTypes.Add(name);
             }
         }
         else if(Current.Kind is TokenKind.String or TokenKind.Number or TokenKind.True or TokenKind.False)
@@ -1811,7 +1819,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             var names=new HashSet<string>(StringComparer.Ordinal);
             var methodNames=new HashSet<string>(StringComparer.Ordinal);
             int thisParametersBefore=thisParameters.Count;
-            int symbolOrObjectTypesBefore=symbolOrObjectTypes.Count;
+            int keywordTypesBefore=keywordTypes.Count;
             while(Current.Kind!=TokenKind.Close)
             {
                 if(Current.Kind==TokenKind.End)Unsupported(Current,"Expected '}' in object type.");
@@ -1914,7 +1922,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             }
             type=new ObjectTypeSyntax(open,properties,Take(),indexSignatures,callSignatures,
                 thisParameters.Count>thisParametersBefore?thisParameters[thisParametersBefore]:null,
-                symbolOrObjectTypes.Count>symbolOrObjectTypesBefore?symbolOrObjectTypes[symbolOrObjectTypesBefore]:null);
+                keywordTypes.Count>keywordTypesBefore?keywordTypes[keywordTypesBefore]:null);
         }
         else
         {
@@ -1986,11 +1994,11 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     // signatures, its declaration is checked and any use fails closed.
     private readonly List<Token> thisParameters=[];
 
-    // `symbol` and `object` keyword type references read so far, in source
-    // order. Like `this` parameters, an object type records the first one
-    // among its members: its declaration is checked and any use fails closed,
-    // because neither primitive is part of the type model yet.
-    private readonly List<Token> symbolOrObjectTypes=[];
+    // `symbol`, `object` and `this` keyword type references read so far, in
+    // source order. Like `this` parameters, an object type records the first
+    // one among its members: its declaration is checked and any use fails
+    // closed, because none of them is part of the type model yet.
+    private readonly List<Token> keywordTypes=[];
 
     // Pinned parser: `this: T` may only be the first parameter of a signature
     // and is not a positional parameter. It cannot be optional or rest.

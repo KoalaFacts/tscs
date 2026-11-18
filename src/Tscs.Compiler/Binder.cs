@@ -483,9 +483,9 @@ internal static class Binder
                 // signatures is checked, and only
                 // a use of it fails closed.
                 TypeResolver.RejectUnmodelledIndexSignatures(binding);
-                TypeResolver.ValidateDeclarationBody(binding.Syntax,binding.Owner,binding.File,1);
+                TypeResolver.ValidateDeclarationBody(binding.Syntax,binding.Owner,binding.File,1,binding.IsInterface);
                 foreach(var merged in binding.MergedInterfaces)
-                    TypeResolver.ValidateDeclarationBody(merged.Syntax,merged.Owner,merged.File,1);
+                    TypeResolver.ValidateDeclarationBody(merged.Syntax,merged.Owner,merged.File,1,interfaceBody:true);
             }
             else _ = TypeResolver.ResolveBinding(binding);
         }
