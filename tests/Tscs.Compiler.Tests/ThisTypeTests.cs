@@ -5,11 +5,11 @@ namespace Tscs.Tests;
 
 // A2.3: the polymorphic `this` type (typed arrays' `reverse(): this`,
 // `(value: number, index: number, array: this) => unknown`) first failed in
-// the pinned lib.es5.d.ts as `Unsupported syntax 'this'` (9 statements). It is
-// valid only in the members of a class or interface. An interface whose
-// members use it is checked like one with signatures, and any use of it, or
-// of a `this` type anywhere else, fails closed. Expected results match the
-// pinned Go CLI.
+// the pinned lib.es5.d.ts as `Unsupported syntax 'this'` (9 statements). The
+// reference accepts it only in class and interface members (tscs does not
+// support classes). An interface whose members use it is checked like one
+// with signatures, and any use of it, or of a `this` type anywhere else,
+// fails closed. Expected results match the pinned Go CLI.
 public sealed class ThisTypeTests
 {
     [Theory]
