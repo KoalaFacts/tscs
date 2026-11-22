@@ -808,7 +808,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                     // the keyword only when it is the whole body, not `intrinsic.X`.
                     TypeSyntax target=Current.Kind==TokenKind.Identifier && Current.Text=="intrinsic" &&
                         position+1<tokens.Count && tokens[position+1].Kind!=TokenKind.Dot
-                        ?new IntrinsicTypeSyntax(Take()):ReadTypeAnnotation();
+                        ?new IntrinsicTypeSyntax(Take()):ReadAliasBody(0);
                     statements.Add(new TypeAliasDeclaration(name,target,exported,
                         typeParameters.Count==0?null:typeParameters,
                         typeDefaults.Any(d=>d is not null)?typeDefaults:null,
@@ -1549,6 +1549,28 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             else if(tokens[i].Kind==TokenKind.End)break;
         }
         return false;
+    }
+
+    // A type alias body, or a branch of a conditional one (pinned parseType):
+    // `extends` on the same line after a union starts a conditional type
+    // whose extends type cannot itself be conditional. Conditional types are
+    // parsed nowhere else yet, so every other position keeps failing closed.
+    private TypeSyntax ReadAliasBody(int depth)
+    {
+        if(depth>64)Unsupported(Current,"Type nesting exceeds the compiler subset limit.");
+        var check=ReadTypeAnnotation(depth+1);
+        if(Current.Kind!=TokenKind.Extends || Current.LineBreak)return check;
+        // An unparenthesized function type's return type would own the
+        // conditional; parentheses are not recorded, so fail closed for both.
+        if(check is FunctionTypeSyntax)
+            Unsupported(Current,"A conditional type whose check type is a function type is not supported yet.");
+        var keyword=Take();
+        var extendsType=ReadTypeAnnotation(depth+1);
+        if(!Eat(TokenKind.Question))Unsupported(Current,"Expected '?' in a conditional type.");
+        var whenTrue=ReadAliasBody(depth+1);
+        if(!Eat(TokenKind.Colon))Unsupported(Current,"Expected ':' in a conditional type.");
+        var whenFalse=ReadAliasBody(depth+1);
+        return new ConditionalTypeSyntax(check,keyword,extendsType,whenTrue,whenFalse);
     }
 
     private TypeSyntax ReadTypeAnnotation(int depth=0)

@@ -588,6 +588,8 @@ internal static class TypeResolver
             }
             RejectUnmodelledIndexSignatures(binding);
             if(binding.Syntax is IntrinsicTypeSyntax)ValidateIntrinsic(binding);
+            else if(binding.Syntax is ConditionalTypeSyntax conditional)
+                ValidateConditional(conditional,placeholder,binding.File,depth+1);
             else ValidateDeclarationBody(binding.Syntax,placeholder,binding.File,depth+1,binding.IsInterface);
             // A generic interface's heritage is checked with opaque type
             // parameters in the reference (TS2430 / TS2320): 'x:string' does
@@ -638,6 +640,28 @@ internal static class TypeResolver
                 "This generic declaration body is not supported without known type arguments yet."));
         }
         finally {binding.Resolving=false;}
+    }
+
+    // A generic alias whose body is a conditional type: every operand must
+    // resolve with the parameters opaque. The reference narrows the check
+    // type in the true branch and binds `infer` names, so only TS2304 from an
+    // operand is reported as is; any other failure (a constraint the
+    // narrowing might satisfy, a recursive reference, ...) fails closed.
+    private static void ValidateConditional(ConditionalTypeSyntax conditional,Scope scope,string file,int depth)
+    {
+        if(depth>64)
+            throw new CompilationFailure(Diagnostic.Error(file,conditional.Keyword,"TSCS1001",
+                "Conditional type nesting exceeds the supported depth."));
+        foreach(var operand in new[]{conditional.Check,conditional.Extends,conditional.WhenTrue,conditional.WhenFalse})
+        {
+            if(operand is ConditionalTypeSyntax nested){ValidateConditional(nested,scope,file,depth+1);continue;}
+            try {ValidateDeclarationBody(operand,scope,file,depth+1);}
+            catch(CompilationFailure failure) when (failure.Diagnostic.Code!="TS2304")
+            {
+                throw new CompilationFailure(Diagnostic.Error(file,conditional.Keyword,"TSCS1001",
+                    "This conditional type operand is not supported yet."));
+            }
+        }
     }
 
     // The scope in which a generic alias body denotes one instantiation: each
@@ -1198,6 +1222,11 @@ internal static class TypeResolver
                 {
                     throw new CompilationFailure(Diagnostic.Error(file,Location(union),"TSCS1001",failure.Message));
                 }
+            case ConditionalTypeSyntax conditional:
+                // Not modelled: only the generic alias declaration check
+                // (ValidateConditional) accepts one; every use fails closed.
+                throw new CompilationFailure(Diagnostic.Error(file,conditional.Keyword,"TSCS1001",
+                    "Conditional types are checked only in generic type alias declarations; their uses are not supported yet."));
             default:throw new InvalidOperationException("Unknown type annotation AST.");
         }
     }
@@ -1219,6 +1248,7 @@ internal static class TypeResolver
         TupleRestTypeSyntax value=>value.Ellipsis,
         IntersectionTypeSyntax value=>Location(value.Members[0]),
         UnionTypeSyntax value=>Location(value.Members[0]),
+        ConditionalTypeSyntax value=>Location(value.Check),
         _=>default
     };
 }
