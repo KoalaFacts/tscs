@@ -656,12 +656,42 @@ internal static class TypeResolver
         {
             if(operand is ConditionalTypeSyntax nested){ValidateConditional(nested,scope,file,depth+1);continue;}
             try {ValidateDeclarationBody(operand,scope,file,depth+1);}
-            catch(CompilationFailure failure) when (failure.Diagnostic.Code!="TS2304")
+            // TS2304 for a `typeof` query or a bare Array/ReadonlyArray name
+            // is not the reference's diagnostic (TS2693, TS2314) there.
+            catch(CompilationFailure failure) when (failure.Diagnostic.Code!="TS2304" ||
+                failure.Diagnostic.Message.Contains("'Array'",StringComparison.Ordinal) ||
+                failure.Diagnostic.Message.Contains("'ReadonlyArray'",StringComparison.Ordinal) ||
+                MayQuery(operand,0))
             {
                 throw new CompilationFailure(Diagnostic.Error(file,conditional.Keyword,"TSCS1001",
                     "This conditional type operand is not supported yet."));
             }
         }
+    }
+
+    // Whether a type may contain a `typeof` query; unknown forms count.
+    private static bool MayQuery(TypeSyntax syntax,int depth)
+    {
+        bool Any(IEnumerable<TypeSyntax> types)=>types.Any(t=>MayQuery(t,depth+1));
+        return depth>64 || syntax switch
+        {
+            PrimitiveTypeSyntax or LiteralTypeSyntax=>false,
+            TypeQuerySyntax=>true,
+            NamedTypeSyntax named=>named.TypeArguments is { } arguments && Any(arguments),
+            ObjectTypeSyntax shape=>Any(shape.Properties.Select(p=>p.Type).Concat(
+                (shape.IndexSignatures??[]).SelectMany(i=>new[]{i.KeyType,i.ValueType}))
+                .Concat((shape.CallSignatures??[]).Select(c=>(TypeSyntax)c.Type))),
+            ArrayTypeSyntax array=>MayQuery(array.Element,depth+1),
+            TupleTypeSyntax tuple=>Any(tuple.Elements),
+            TupleRestTypeSyntax rest=>MayQuery(rest.Target,depth+1),
+            FunctionTypeSyntax function=>Any(function.Parameters.Select(p=>p.Type).Append(function.ReturnType)
+                .Concat(function.ThisType is { } thisType?[thisType]:[])),
+            KeyofTypeSyntax keyof=>MayQuery(keyof.Target,depth+1),
+            IndexedAccessTypeSyntax access=>Any([access.Target,access.Index]),
+            IntersectionTypeSyntax intersection=>Any(intersection.Members),
+            UnionTypeSyntax union=>Any(union.Members),
+            _=>true
+        };
     }
 
     // The scope in which a generic alias body denotes one instantiation: each

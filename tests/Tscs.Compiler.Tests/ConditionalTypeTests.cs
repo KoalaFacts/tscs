@@ -50,6 +50,10 @@ public sealed class ConditionalTypeTests
     [InlineData("type B<S extends string> = S;\ntype X<T> = T extends string ? B<T> : never;")]
     // The reference reports TS2344 for `number & T`; tscs cannot tell the two apart.
     [InlineData("type B<S extends string> = S;\ntype X<T> = T extends number ? B<T> : never;")]
+    // TS2304 would be wrong here (reference TS2693, TS2314).
+    [InlineData("type X<T> = T extends string ? 1 : typeof T;")]
+    [InlineData("type X<T> = T extends string ? 1 : Array;")]
+    [InlineData("type X<T> = T extends string ? 1 : { a: ReadonlyArray };")]
     // A conditional extends type cannot itself be conditional (reference TS1005).
     [InlineData("type X<T> = T extends string extends T ? 1 : 2 ? 3 : 4;")]
     public void UnmodelledFormsFailClosed(string source)=>
