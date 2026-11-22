@@ -588,6 +588,8 @@ internal static class TypeResolver
             }
             RejectUnmodelledIndexSignatures(binding);
             if(binding.Syntax is IntrinsicTypeSyntax)ValidateIntrinsic(binding);
+            else if(binding.Syntax is ConditionalTypeSyntax conditional)
+                ValidateConditional(conditional,placeholder,binding.File,depth+1);
             else ValidateDeclarationBody(binding.Syntax,placeholder,binding.File,depth+1,binding.IsInterface);
             // A generic interface's heritage is checked with opaque type
             // parameters in the reference (TS2430 / TS2320): 'x:string' does
@@ -638,6 +640,58 @@ internal static class TypeResolver
                 "This generic declaration body is not supported without known type arguments yet."));
         }
         finally {binding.Resolving=false;}
+    }
+
+    // A generic alias whose body is a conditional type: every operand must
+    // resolve with the parameters opaque. The reference narrows the check
+    // type in the true branch and binds `infer` names, so only TS2304 from an
+    // operand is reported as is; any other failure (a constraint the
+    // narrowing might satisfy, a recursive reference, ...) fails closed.
+    private static void ValidateConditional(ConditionalTypeSyntax conditional,Scope scope,string file,int depth)
+    {
+        if(depth>64)
+            throw new CompilationFailure(Diagnostic.Error(file,conditional.Keyword,"TSCS1001",
+                "Conditional type nesting exceeds the supported depth."));
+        foreach(var operand in new[]{conditional.Check,conditional.Extends,conditional.WhenTrue,conditional.WhenFalse})
+        {
+            if(operand is ConditionalTypeSyntax nested){ValidateConditional(nested,scope,file,depth+1);continue;}
+            try {ValidateDeclarationBody(operand,scope,file,depth+1);}
+            // TS2304 for a `typeof` query or a bare Array/ReadonlyArray name
+            // is not the reference's diagnostic (TS2693, TS2314) there.
+            catch(CompilationFailure failure) when (failure.Diagnostic.Code!="TS2304" ||
+                failure.Diagnostic.Message.Contains("'Array'",StringComparison.Ordinal) ||
+                failure.Diagnostic.Message.Contains("'ReadonlyArray'",StringComparison.Ordinal) ||
+                MayQuery(operand,0))
+            {
+                throw new CompilationFailure(Diagnostic.Error(file,conditional.Keyword,"TSCS1001",
+                    "This conditional type operand is not supported yet."));
+            }
+        }
+    }
+
+    // Whether a type may contain a `typeof` query; unknown forms count.
+    private static bool MayQuery(TypeSyntax syntax,int depth)
+    {
+        bool Any(IEnumerable<TypeSyntax> types)=>types.Any(t=>MayQuery(t,depth+1));
+        return depth>64 || syntax switch
+        {
+            PrimitiveTypeSyntax or LiteralTypeSyntax=>false,
+            TypeQuerySyntax=>true,
+            NamedTypeSyntax named=>named.TypeArguments is { } arguments && Any(arguments),
+            ObjectTypeSyntax shape=>Any(shape.Properties.Select(p=>p.Type).Concat(
+                (shape.IndexSignatures??[]).SelectMany(i=>new[]{i.KeyType,i.ValueType}))
+                .Concat((shape.CallSignatures??[]).Select(c=>(TypeSyntax)c.Type))),
+            ArrayTypeSyntax array=>MayQuery(array.Element,depth+1),
+            TupleTypeSyntax tuple=>Any(tuple.Elements),
+            TupleRestTypeSyntax rest=>MayQuery(rest.Target,depth+1),
+            FunctionTypeSyntax function=>Any(function.Parameters.Select(p=>p.Type).Append(function.ReturnType)
+                .Concat(function.ThisType is { } thisType?[thisType]:[])),
+            KeyofTypeSyntax keyof=>MayQuery(keyof.Target,depth+1),
+            IndexedAccessTypeSyntax access=>Any([access.Target,access.Index]),
+            IntersectionTypeSyntax intersection=>Any(intersection.Members),
+            UnionTypeSyntax union=>Any(union.Members),
+            _=>true
+        };
     }
 
     // The scope in which a generic alias body denotes one instantiation: each
@@ -1198,6 +1252,11 @@ internal static class TypeResolver
                 {
                     throw new CompilationFailure(Diagnostic.Error(file,Location(union),"TSCS1001",failure.Message));
                 }
+            case ConditionalTypeSyntax conditional:
+                // Not modelled: only the generic alias declaration check
+                // (ValidateConditional) accepts one; every use fails closed.
+                throw new CompilationFailure(Diagnostic.Error(file,conditional.Keyword,"TSCS1001",
+                    "Conditional types are checked only in generic type alias declarations; their uses are not supported yet."));
             default:throw new InvalidOperationException("Unknown type annotation AST.");
         }
     }
@@ -1219,6 +1278,7 @@ internal static class TypeResolver
         TupleRestTypeSyntax value=>value.Ellipsis,
         IntersectionTypeSyntax value=>Location(value.Members[0]),
         UnionTypeSyntax value=>Location(value.Members[0]),
+        ConditionalTypeSyntax value=>Location(value.Check),
         _=>default
     };
 }

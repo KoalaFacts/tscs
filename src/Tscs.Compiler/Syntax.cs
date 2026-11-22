@@ -79,6 +79,9 @@ internal sealed record IndexedAccessTypeSyntax(TypeSyntax Target,Token Open,Type
 // An intersection is resolved into one finite structural object; no runtime syntax remains.
 internal sealed record IntersectionTypeSyntax(IReadOnlyList<TypeSyntax> Members) : TypeSyntax;
 internal sealed record UnionTypeSyntax(IReadOnlyList<TypeSyntax> Members) : TypeSyntax;
+// `Check extends Extends ? WhenTrue : WhenFalse`, parsed only as a whole type
+// alias body or a branch of one; checked only in generic alias declarations.
+internal sealed record ConditionalTypeSyntax(TypeSyntax Check,Token Keyword,TypeSyntax Extends,TypeSyntax WhenTrue,TypeSyntax WhenFalse) : TypeSyntax;
 internal sealed record TypeAliasDeclaration(Token Name,TypeSyntax Target,bool Exported=false,IReadOnlyList<Token>? TypeParameters=null,IReadOnlyList<TypeSyntax?>? TypeParameterDefaults=null,IReadOnlyList<TypeSyntax?>? TypeParameterConstraints=null) : Statement;
 // Interface heritage is type-only and retains its declaring type namespace.
 internal sealed record InterfaceExtensionTypeSyntax(Token Name,IReadOnlyList<NamedTypeSyntax> Bases,ObjectTypeSyntax Body) : TypeSyntax;
