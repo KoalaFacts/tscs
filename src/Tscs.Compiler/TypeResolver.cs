@@ -564,9 +564,11 @@ internal static class TypeResolver
                 // needs no computed bound; a default against it fails closed.
                 if(binding.Syntax is MappedTypeSyntax && constraintSyntax is KeyofTypeSyntax keyConstraint)
                 {
-                    if(binding.TypeParameterDefaults.Count>i && binding.TypeParameterDefaults[i] is not null)
+                    // The bound is erased, so no default of this alias may be
+                    // checked against it (a later default may name it).
+                    if(binding.TypeParameterDefaults.Any(d=>d is not null))
                         throw new CompilationFailure(Diagnostic.Error(binding.File,binding.TypeParameters[i],"TSCS1001",
-                            "A default for a 'keyof' constrained mapped type parameter is not supported yet."));
+                            "Defaults in a mapped alias with a 'keyof' constrained parameter are not supported yet."));
                     ValidateKeyofOperand(keyConstraint,placeholder,binding.File,depth+1);
                     var keyParameter=binding.TypeParameters[i];
                     placeholder.Types[keyParameter.Text]=new TypeBinding(binding.File,keyParameter,
@@ -737,6 +739,10 @@ internal static class TypeResolver
         var source=KeySource(mapped.Constraint)
             ?? throw Closed("Mapped type constraints other than 'keyof' are not supported yet.");
         var parameter=mapped.Parameter;
+        // Predefined type names are TS2368 in the reference; not modelled here.
+        if(parameter.Text is "number" or "string" or "boolean" or "any" or "unknown" or
+           "undefined" or "never" or "object" or "bigint" or "symbol")
+            throw Closed("A mapped type parameter named after a predefined type is not supported yet.");
         if(binding.TypeParameters.Any(p=>p.Text==parameter.Text))
             throw Closed("A mapped type parameter that shadows a type parameter is not supported yet.");
         if(mapped.Template is IndexedAccessTypeSyntax
