@@ -60,6 +60,10 @@ public sealed class MappedTypeTests
     // The mapped parameter is in scope in its own constraint (reference: accepted, or TS2313).
     [InlineData("type X<T> = { [P in keyof P]: T };")]
     [InlineData("type X<T> = { [P in P]: T };")]
+    // Review findings: a later default against an erased `keyof` bound (reference: valid),
+    // and a predefined type name as the mapped parameter (reference TS2368).
+    [InlineData("type X<K extends keyof { a: number }, V extends string = K> = { [P in K]: V };")]
+    [InlineData("type X<T> = { [string in keyof T]: number };")]
     // Shadowing a type parameter is not modelled.
     [InlineData("type X<T> = { [T in keyof T]: T };")]
     public void UnmodelledFormsFailClosed(string source)=>
