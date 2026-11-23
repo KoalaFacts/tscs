@@ -57,10 +57,20 @@ public sealed class MappedTypeTests
     [InlineData("type X<T, U> = { [P in keyof T]: U[P]; };")]
     [InlineData("type X<T> = { [P in keyof T]: T[P]; x: number };")]
     [InlineData("type X<T> = { [P in keyof T]: Array };")]
+    // The mapped parameter is in scope in its own constraint (reference: accepted, or TS2313).
+    [InlineData("type X<T> = { [P in keyof P]: T };")]
+    [InlineData("type X<T> = { [P in P]: T };")]
     // Shadowing a type parameter is not modelled.
     [InlineData("type X<T> = { [T in keyof T]: T };")]
     public void UnmodelledFormsFailClosed(string source)=>
         Assert.Contains(Compilation.Check("mapped-type-use.ts",source),d=>d.Code=="TSCS1001");
+
+    // Only `;` ends the member: the reference reports TS1005 / TS1131 for `,`.
+    [Theory]
+    [InlineData("type X<T> = { [P in keyof T]: T[P], };")]
+    [InlineData("type X<T> = { [P in keyof T]: T[P]\n, };")]
+    public void ATrailingCommaIsNotAccepted(string source)=>
+        Assert.NotEmpty(Compilation.Check("mapped-type-comma.ts",source));
 
     // A `keyof` constraint without a mapped body keeps the existing behaviour.
     [Fact]

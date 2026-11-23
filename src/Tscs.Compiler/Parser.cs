@@ -1615,7 +1615,8 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
         if(Current.Kind==TokenKind.Question)questionToken=Take();
         if(!Eat(TokenKind.Colon))Unsupported(Current,"Mapped types without a type annotation are not supported yet.");
         var template=ReadTypeAnnotation(depth+1);
-        if(!Eat(TokenKind.Semi))Eat(TokenKind.Comma);
+        // Only `;` (or a line break / `}`) ends the member (reference TS1005 for `,`).
+        Eat(TokenKind.Semi);
         if(Current.Kind!=TokenKind.Close)Unsupported(Current,"This mapped type member is not supported yet.");
         Take();
         return new MappedTypeSyntax(open,readonlyModifier,readonlyToken,parameter,constraint,

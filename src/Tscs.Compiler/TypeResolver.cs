@@ -723,6 +723,10 @@ internal static class TypeResolver
                 ConstraintOf(named.Name.Text) is KeyofTypeSyntax keyof=>keyof.Target,
             _=>null
         };
+        // The mapped parameter is in scope in its own constraint (reference
+        // TS2313 or a self-reference); not modelled.
+        if(MayName(mapped.Constraint,mapped.Parameter.Text,0))
+            throw Closed("A mapped type constraint that refers to its own parameter is not supported yet.");
         if(mapped.Constraint is KeyofTypeSyntax keyof)ValidateKeyofOperand(keyof,scope,file,depth+1);
         else
             try {ValidateDeclarationBody(mapped.Constraint,scope,file,depth+1);}
@@ -772,6 +776,25 @@ internal static class TypeResolver
             throw new CompilationFailure(Diagnostic.Error(file,keyof.Keyword,"TSCS1001",
                 "This 'keyof' operand is not supported yet."));
         }
+    }
+
+    // Whether a type may refer to `name` as a type or `typeof` root; unknown forms count.
+    private static bool MayName(TypeSyntax syntax,string name,int depth)
+    {
+        bool Any(IEnumerable<TypeSyntax> types)=>types.Any(t=>MayName(t,name,depth+1));
+        return depth>64 || syntax switch
+        {
+            PrimitiveTypeSyntax or LiteralTypeSyntax=>false,
+            TypeQuerySyntax query=>query.Root.Text==name,
+            NamedTypeSyntax named=>named.Name.Text==name || named.TypeArguments is { } arguments && Any(arguments),
+            ArrayTypeSyntax array=>MayName(array.Element,name,depth+1),
+            TupleTypeSyntax tuple=>Any(tuple.Elements),
+            KeyofTypeSyntax keyof=>MayName(keyof.Target,name,depth+1),
+            IndexedAccessTypeSyntax access=>Any([access.Target,access.Index]),
+            IntersectionTypeSyntax intersection=>Any(intersection.Members),
+            UnionTypeSyntax union=>Any(union.Members),
+            _=>true
+        };
     }
 
     // Whether a type may contain a `typeof` query; unknown forms count.
