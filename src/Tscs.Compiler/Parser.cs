@@ -1558,6 +1558,7 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     private TypeSyntax ReadAliasBody(int depth)
     {
         if(depth>64)Unsupported(Current,"Type nesting exceeds the compiler subset limit.");
+        if(IsMappedTypeStart())return ReadMappedType(depth+1);
         var check=ReadTypeAnnotation(depth+1);
         if(Current.Kind!=TokenKind.Extends || Current.LineBreak)return check;
         // An unparenthesized function type's return type would own the
@@ -1571,6 +1572,55 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
         if(!Eat(TokenKind.Colon))Unsupported(Current,"Expected ':' in a conditional type.");
         var whenFalse=ReadAliasBody(depth+1);
         return new ConditionalTypeSyntax(check,keyword,extendsType,whenTrue,whenFalse);
+    }
+
+    // `{ [P in K]: T }` with optional `readonly`/`?` modifiers (pinned
+    // isStartOfMappedType): `{` then an optional `+`/`-`, `readonly`, then
+    // `[`, an identifier and `in`.
+    private bool IsMappedTypeStart()
+    {
+        if(Current.Kind!=TokenKind.Open)return false;
+        int i=position+1;
+        TokenKind At(int index)=>index<tokens.Count?tokens[index].Kind:TokenKind.End;
+        if(At(i) is TokenKind.Plus or TokenKind.Minus)
+        {
+            if(At(i+1)!=TokenKind.Identifier || tokens[i+1].Text!="readonly")return false;
+            i+=2;
+        }
+        else if(At(i)==TokenKind.Identifier && tokens[i].Text=="readonly")i++;
+        return At(i)==TokenKind.OpenBracket && At(i+1)==TokenKind.Identifier && At(i+2)==TokenKind.In;
+    }
+
+    // A mapped type as a whole type alias body only; `as` clauses fail closed.
+    private TypeSyntax ReadMappedType(int depth)
+    {
+        var open=Take();
+        Token? readonlyModifier=null,readonlyToken=null;
+        if(Current.Kind is TokenKind.Plus or TokenKind.Minus)readonlyModifier=Take();
+        if(Current.Kind==TokenKind.Identifier && Current.Text=="readonly")readonlyToken=Take();
+        Take();
+        var parameter=Take();
+        Take();
+        var constraint=ReadTypeAnnotation(depth+1);
+        if(Current.Kind==TokenKind.Identifier && Current.Text=="as")
+            Unsupported(Current,"Mapped type 'as' clauses are not supported yet.");
+        if(Current.Kind!=TokenKind.CloseBracket)Unsupported(Current,"Expected ']' in a mapped type.");
+        Take();
+        Token? optionalModifier=null,questionToken=null;
+        if(Current.Kind is TokenKind.Plus or TokenKind.Minus)
+        {
+            optionalModifier=Take();
+            if(Current.Kind!=TokenKind.Question)Unsupported(Current,"Expected '?' after a mapped type modifier.");
+        }
+        if(Current.Kind==TokenKind.Question)questionToken=Take();
+        if(!Eat(TokenKind.Colon))Unsupported(Current,"Mapped types without a type annotation are not supported yet.");
+        var template=ReadTypeAnnotation(depth+1);
+        // Only `;` (or a line break / `}`) ends the member (reference TS1005 for `,`).
+        Eat(TokenKind.Semi);
+        if(Current.Kind!=TokenKind.Close)Unsupported(Current,"This mapped type member is not supported yet.");
+        Take();
+        return new MappedTypeSyntax(open,readonlyModifier,readonlyToken,parameter,constraint,
+            optionalModifier,questionToken,template);
     }
 
     private TypeSyntax ReadTypeAnnotation(int depth=0)

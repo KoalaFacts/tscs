@@ -82,6 +82,9 @@ internal sealed record UnionTypeSyntax(IReadOnlyList<TypeSyntax> Members) : Type
 // `Check extends Extends ? WhenTrue : WhenFalse`, parsed only as a whole type
 // alias body or a branch of one; checked only in generic alias declarations.
 internal sealed record ConditionalTypeSyntax(TypeSyntax Check,Token Keyword,TypeSyntax Extends,TypeSyntax WhenTrue,TypeSyntax WhenFalse) : TypeSyntax;
+// `{ readonly [P in Constraint]?: Template }`, parsed only as a whole type
+// alias body; checked only in generic alias declarations.
+internal sealed record MappedTypeSyntax(Token Open,Token? ReadonlyModifier,Token? Readonly,Token Parameter,TypeSyntax Constraint,Token? OptionalModifier,Token? Question,TypeSyntax Template) : TypeSyntax;
 internal sealed record TypeAliasDeclaration(Token Name,TypeSyntax Target,bool Exported=false,IReadOnlyList<Token>? TypeParameters=null,IReadOnlyList<TypeSyntax?>? TypeParameterDefaults=null,IReadOnlyList<TypeSyntax?>? TypeParameterConstraints=null) : Statement;
 // Interface heritage is type-only and retains its declaring type namespace.
 internal sealed record InterfaceExtensionTypeSyntax(Token Name,IReadOnlyList<NamedTypeSyntax> Bases,ObjectTypeSyntax Body) : TypeSyntax;

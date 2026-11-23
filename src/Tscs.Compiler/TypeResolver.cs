@@ -559,6 +559,24 @@ internal static class TypeResolver
                 // or a later parameter that is not yet declared.
                 TypeSyntax? constraintSyntax=binding.TypeParameterConstraints.Count>i
                     ?binding.TypeParameterConstraints[i]:null;
+                // Every use of a mapped alias fails closed, so a `keyof X`
+                // constraint (valid for any X) is checked through X alone and
+                // needs no computed bound; a default against it fails closed.
+                if(binding.Syntax is MappedTypeSyntax && constraintSyntax is KeyofTypeSyntax keyConstraint)
+                {
+                    if(binding.TypeParameterDefaults.Count>i && binding.TypeParameterDefaults[i] is not null)
+                        throw new CompilationFailure(Diagnostic.Error(binding.File,binding.TypeParameters[i],"TSCS1001",
+                            "A default for a 'keyof' constrained mapped type parameter is not supported yet."));
+                    ValidateKeyofOperand(keyConstraint,placeholder,binding.File,depth+1);
+                    var keyParameter=binding.TypeParameters[i];
+                    placeholder.Types[keyParameter.Text]=new TypeBinding(binding.File,keyParameter,
+                        new PrimitiveTypeSyntax(keyParameter with {Text="unknown"}),binding.Owner)
+                    {
+                        Resolved=CompilerTypes.Unknown,
+                        IsOpaqueParameter=true
+                    };
+                    continue;
+                }
                 var requiredParameter=constraintSyntax is null
                     ?null:OpaqueParameter(constraintSyntax,placeholder);
                 TypeSymbol? bound=constraintSyntax is null
@@ -590,6 +608,8 @@ internal static class TypeResolver
             if(binding.Syntax is IntrinsicTypeSyntax)ValidateIntrinsic(binding);
             else if(binding.Syntax is ConditionalTypeSyntax conditional)
                 ValidateConditional(conditional,placeholder,binding.File,depth+1);
+            else if(binding.Syntax is MappedTypeSyntax mapped)
+                ValidateMapped(mapped,binding,placeholder,depth+1);
             else ValidateDeclarationBody(binding.Syntax,placeholder,binding.File,depth+1,binding.IsInterface);
             // A generic interface's heritage is checked with opaque type
             // parameters in the reference (TS2430 / TS2320): 'x:string' does
@@ -656,17 +676,125 @@ internal static class TypeResolver
         {
             if(operand is ConditionalTypeSyntax nested){ValidateConditional(nested,scope,file,depth+1);continue;}
             try {ValidateDeclarationBody(operand,scope,file,depth+1);}
-            // TS2304 for a `typeof` query or a bare Array/ReadonlyArray name
-            // is not the reference's diagnostic (TS2693, TS2314) there.
-            catch(CompilationFailure failure) when (failure.Diagnostic.Code!="TS2304" ||
-                failure.Diagnostic.Message.Contains("'Array'",StringComparison.Ordinal) ||
-                failure.Diagnostic.Message.Contains("'ReadonlyArray'",StringComparison.Ordinal) ||
-                MayQuery(operand,0))
+            catch(CompilationFailure failure) when (!IsReferenceNameFailure(failure,operand))
             {
                 throw new CompilationFailure(Diagnostic.Error(file,conditional.Keyword,"TSCS1001",
                     "This conditional type operand is not supported yet."));
             }
         }
+    }
+
+    // TS2304 that the reference reports as is for an opaque-parameter operand.
+    // TS2304 for a `typeof` query or a bare Array/ReadonlyArray name is not
+    // the reference's diagnostic (TS2693, TS2314) there.
+    private static bool IsReferenceNameFailure(CompilationFailure failure,TypeSyntax operand)=>
+        failure.Diagnostic.Code=="TS2304" &&
+        !failure.Diagnostic.Message.Contains("'Array'",StringComparison.Ordinal) &&
+        !failure.Diagnostic.Message.Contains("'ReadonlyArray'",StringComparison.Ordinal) &&
+        !MayQuery(operand,0);
+
+    // A generic alias whose body is a mapped type `{ [P in K]: X }`. The
+    // reference requires K to be assignable to `string | number | symbol`
+    // (TS2322): only `keyof X`, or a parameter constrained to `keyof X`, is
+    // accepted as proven, anything else fails closed. The template is checked
+    // with P opaque; `T[P]` is valid when K is `keyof T` (or a parameter
+    // constrained to `keyof T`) for a type parameter T. As for conditional
+    // types, only TS2304 from an operand is reported as is.
+    private static void ValidateMapped(MappedTypeSyntax mapped,TypeBinding binding,Scope scope,int depth)
+    {
+        var file=binding.File;
+        CompilationFailure Closed(string message)=>
+            new(Diagnostic.Error(file,mapped.Parameter,"TSCS1001",message));
+        if(depth>64)throw Closed("Mapped type nesting exceeds the supported depth.");
+        TypeSyntax? ConstraintOf(string name)
+        {
+            int index=-1;
+            for(int i=0;i<binding.TypeParameters.Count;i++)
+                if(binding.TypeParameters[i].Text==name)index=i;
+            return index>=0 && binding.TypeParameterConstraints.Count>index
+                ?binding.TypeParameterConstraints[index]:null;
+        }
+        // The `keyof` operand K's keys come from, or null when unproven.
+        TypeSyntax? KeySource(TypeSyntax constraint)=>constraint switch
+        {
+            KeyofTypeSyntax keyof=>keyof.Target,
+            NamedTypeSyntax { TypeArguments:null } named when
+                scope.FindType(named.Name.Text) is { IsOpaqueParameter:true } &&
+                ConstraintOf(named.Name.Text) is KeyofTypeSyntax keyof=>keyof.Target,
+            _=>null
+        };
+        // The mapped parameter is in scope in its own constraint (reference
+        // TS2313 or a self-reference); not modelled.
+        if(MayName(mapped.Constraint,mapped.Parameter.Text,0))
+            throw Closed("A mapped type constraint that refers to its own parameter is not supported yet.");
+        if(mapped.Constraint is KeyofTypeSyntax keyof)ValidateKeyofOperand(keyof,scope,file,depth+1);
+        else
+            try {ValidateDeclarationBody(mapped.Constraint,scope,file,depth+1);}
+            catch(CompilationFailure failure) when (!IsReferenceNameFailure(failure,mapped.Constraint))
+            {
+                throw Closed("This mapped type constraint is not supported yet.");
+            }
+        var source=KeySource(mapped.Constraint)
+            ?? throw Closed("Mapped type constraints other than 'keyof' are not supported yet.");
+        var parameter=mapped.Parameter;
+        if(binding.TypeParameters.Any(p=>p.Text==parameter.Text))
+            throw Closed("A mapped type parameter that shadows a type parameter is not supported yet.");
+        if(mapped.Template is IndexedAccessTypeSyntax
+            {
+                Target:NamedTypeSyntax { TypeArguments:null } target,
+                Index:NamedTypeSyntax { TypeArguments:null } index
+            } &&
+           index.Name.Text==parameter.Text &&
+           source is NamedTypeSyntax { TypeArguments:null } keys && keys.Name.Text==target.Name.Text &&
+           scope.FindType(target.Name.Text) is { IsOpaqueParameter:true })
+            return;
+        var inner=new Scope(scope);
+        inner.Types.Add(parameter.Text,new TypeBinding(file,parameter,
+            new PrimitiveTypeSyntax(parameter with {Text="unknown"}),scope)
+        {
+            Resolved=CompilerTypes.Unknown,
+            IsOpaqueParameter=true
+        });
+        try {ValidateDeclarationBody(mapped.Template,inner,file,depth+1);}
+        catch(CompilationFailure failure) when (!IsReferenceNameFailure(failure,mapped.Template))
+        {
+            throw Closed("This mapped type template is not supported yet.");
+        }
+    }
+
+    // `keyof X` is valid for every valid X: `any` and opaque parameters are
+    // accepted, any other operand must resolve (only TS2304 as is).
+    private static void ValidateKeyofOperand(KeyofTypeSyntax keyof,Scope scope,string file,int depth)
+    {
+        if(keyof.Target is PrimitiveTypeSyntax { Name.Text:"any" } ||
+           keyof.Target is NamedTypeSyntax { TypeArguments:null } named &&
+           scope.FindType(named.Name.Text) is { IsOpaqueParameter:true })
+            return;
+        try {ValidateDeclarationBody(keyof.Target,scope,file,depth+1);}
+        catch(CompilationFailure failure) when (!IsReferenceNameFailure(failure,keyof.Target))
+        {
+            throw new CompilationFailure(Diagnostic.Error(file,keyof.Keyword,"TSCS1001",
+                "This 'keyof' operand is not supported yet."));
+        }
+    }
+
+    // Whether a type may refer to `name` as a type or `typeof` root; unknown forms count.
+    private static bool MayName(TypeSyntax syntax,string name,int depth)
+    {
+        bool Any(IEnumerable<TypeSyntax> types)=>types.Any(t=>MayName(t,name,depth+1));
+        return depth>64 || syntax switch
+        {
+            PrimitiveTypeSyntax or LiteralTypeSyntax=>false,
+            TypeQuerySyntax query=>query.Root.Text==name,
+            NamedTypeSyntax named=>named.Name.Text==name || named.TypeArguments is { } arguments && Any(arguments),
+            ArrayTypeSyntax array=>MayName(array.Element,name,depth+1),
+            TupleTypeSyntax tuple=>Any(tuple.Elements),
+            KeyofTypeSyntax keyof=>MayName(keyof.Target,name,depth+1),
+            IndexedAccessTypeSyntax access=>Any([access.Target,access.Index]),
+            IntersectionTypeSyntax intersection=>Any(intersection.Members),
+            UnionTypeSyntax union=>Any(union.Members),
+            _=>true
+        };
     }
 
     // Whether a type may contain a `typeof` query; unknown forms count.
@@ -1257,6 +1385,11 @@ internal static class TypeResolver
                 // (ValidateConditional) accepts one; every use fails closed.
                 throw new CompilationFailure(Diagnostic.Error(file,conditional.Keyword,"TSCS1001",
                     "Conditional types are checked only in generic type alias declarations; their uses are not supported yet."));
+            case MappedTypeSyntax mapped:
+                // Not modelled: only the generic alias declaration check
+                // (ValidateMapped) accepts one; every use fails closed.
+                throw new CompilationFailure(Diagnostic.Error(file,mapped.Open,"TSCS1001",
+                    "Mapped types are checked only in generic type alias declarations; their uses are not supported yet."));
             default:throw new InvalidOperationException("Unknown type annotation AST.");
         }
     }
@@ -1279,6 +1412,7 @@ internal static class TypeResolver
         IntersectionTypeSyntax value=>Location(value.Members[0]),
         UnionTypeSyntax value=>Location(value.Members[0]),
         ConditionalTypeSyntax value=>Location(value.Check),
+        MappedTypeSyntax value=>value.Open,
         _=>default
     };
 }
