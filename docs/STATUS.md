@@ -55,7 +55,7 @@ full case denominator is unknown. No release is claimed.
 
 Separate from that headline:
 
-- Internal regressions: 20,387 xUnit tests on `0aaba70` (`./scripts/verify.sh`, Microsoft Testing Platform,
+- Internal regressions: 20,477 xUnit tests on `1beb879` (`./scripts/verify.sh`, Microsoft Testing Platform,
   `--fail-skips on`) plus about 200 Node tool tests and 78 executed-output
   checks (`tools/verify-*-emit.ts`) that run the emitted ES2015 modules.
 - A frozen, separate 29-case isolated cohort (`tests/conformance`) is
@@ -119,8 +119,9 @@ diagnostic and exit 1; they are intended never to be compiled silently.
 - `type` aliases and interfaces, including generic ones with plain type
   parameters and trailing defaults, which may refer to earlier parameters
   and resolve in the declaring scope (instantiated by substitution; arity
-  errors TS2314/TS2315; reopening a defaulted generic interface,
-  constraints, bodies that need known arguments such as `keyof T`,
+  errors TS2314/TS2315; constraints are checked, unproven nested relations
+  fail closed; reopening a defaulted generic interface,
+  bodies that need known arguments such as `keyof T`,
   generic reopening with a different parameter list or a redeclared member,
   and generic heritage that shares a member with a base fail closed unless
   both declare it identically after substituting the heritage arguments);
@@ -283,12 +284,13 @@ arguments only; newer methods such as `padStart` are emitted unpolyfilled);
 
 Generics beyond the `Array<T>` spelling and plain generic aliases and
 interfaces (heritage on reopened generic interfaces, TS2428,
-generic functions and classes, constraints), classes, enums, namespaces,
+generic functions and classes), classes, enums, namespaces,
 declaration-file inputs beyond the bounded ambient shapes above, declaration emit, source
 maps, JSX/TSX, JavaScript inputs, regular expression literals, decorators,
 async/await, generators,
-iterators beyond arrays and strings, `this` typing, overloads, mapped and
-conditional types, index, call and construct signature uses, module resolution through packages,
+iterators beyond arrays and strings, mapped types, and uses of `this`
+types, overloads, conditional types and index, call and construct signatures
+(their declarations are checked), module resolution through packages,
 `extends` in `tsconfig.json`, default implicit includes, targets other than
 ES2015, incremental and watch modes. Within the supported areas: no general
 contextual typing or inference for untyped parameters, no overloaded
@@ -324,7 +326,7 @@ records the original case IDs it moves.
 | A2.2a | Bind the parsed declarations into one global symbol table (cross-file merging, TS2300/TS2451 exclusions); the library check binds the default-lib closure | Library symbols become available | done (PR #220, 7b34604; review fixes PR #221, b5bd8e9) | pinned closure: 20 files, 2,250 global symbols (791 with more than one declaration), 0 diagnostics; 14 xUnit + 1 node test at merge, 16 with the review fixes |
 | A2.2b | Resolve every name the bound library uses (type, value and namespace meanings, scoped type parameters and `infer`); the library check fails on any unresolved name | Every library reference has a target, the input to computing library types | done (PR #222, 61dfa09) | pinned closure: 0 unresolved names (6 `globalThis` references before modelling it); 18 resolver xUnit + 1 node test; review fixes: postfix/operator type nesting limit, parameters do not shadow namespaces |
 | A2.2c | Compare the library syntax trees with the reference parser | Parser fidelity on the real libs, not only zero diagnostics | todo | — |
-| A2.3 | Check enough of es5/es2015 to load default libs | Unblocks 5,667 library-only targets | in progress | Merged (#235–#271, this PR): ambient declarations, generic aliases/interfaces, shared-type identity, defaults, constraints (unproven nested relations fail closed), `intrinsic` aliases; index, call/construct, generic and overloaded method signatures, `this` parameters, `symbol`/`object` keyword types (no longer a wrong TS2304) and `this` types in interface members are checked in declaration members (as are generic aliases whose body is a conditional type; `infer` and narrowing fail closed), but their uses fail closed. Default libs cannot load yet; `tools/check-library-statements.ts` (CI): 34 of 147 top-level es5 statements pass alone, first blockers `ArrayBufferLike` TS2304 11 (the typed arrays, checked alone), ambient-global member contracts 10, `Error` TS2304 7; original acceptance 3 PASS / 0 FAIL / 15,520 SKIP |
+| A2.3 | Check enough of es5/es2015 to load default libs | Unblocks 5,667 library-only targets | in progress | Merged #235–#272: ambient declarations, generic aliases/interfaces, identity, defaults, constraints, `intrinsic` aliases, `symbol`/`object` keywords; index, call/construct, generic and overloaded method signatures, `this` parameters/types and conditional alias bodies are checked as declarations, their uses fail closed. Default libs cannot load yet; `tools/check-library-statements.ts` (CI): 34 of 147 top-level es5 statements pass alone, first blockers `ArrayBufferLike` TS2304 11 (the typed arrays, checked alone), ambient-global member contracts 10, `Error` TS2304 7; original acceptance 3 PASS / 0 FAIL / 15,520 SKIP |
 | A3.1 | `compiler/noCrashOnNoLib.ts` to PASS: four-space block indentation and no added grouping around spread operands in emit | The only executed original FAIL; every original `.js` baseline with a block depends on the indentation | done (PR #219, 28053fa) | 1 PASS / 1 FAIL → 2 PASS / 0 FAIL / 15,521 SKIP (CI original-acceptance on main); `JavaScriptEmitTests` 22 (+1) |
 | A3.2 | `compiler/arrayIterationLibES5TargetDifferent.ts` (`nolib=true,target=es2015`) to PASS: runner passes `@lib`; CLI `--lib` with `--noLib` reports TS5053; ambient `declare let/const`; TS2495 for non-iterable `for..of` sources; script `"use strict";` prologue and strict script parameters; emit when only TS5053/TS2318 are printed | The only target whose sole gap was `@lib`; the prologue applies to every original script `.js` baseline | done (PR #224, cd1dea6) | 2 PASS / 0 FAIL / 15,521 SKIP → 3 PASS / 0 FAIL / 15,520 SKIP; standard-library-only 5,459 → 5,583 (the `@lib` targets now need only the library) |
 | A3 | Close the cheapest family of failing original cases from A1's histogram, one family per PR | Moves original cases to PASS | todo | — |
@@ -335,4 +337,4 @@ records the original case IDs it moves.
 | C1.3 | Delete the unused scope-free `FromAnnotation(TypeSyntax)` converter beside `TypeResolver` | One annotation resolver | done (PR #257) | 43 lines removed; acceptance unchanged |
 | H1 | Agent verification skills (`.claude/skills/verification-first`, `.claude/skills/verify-tscs`) with a feature map run against the pinned reference | Every later PR is checked at the real boundary, not only by unit tests | done (PR #223, 2cfd095) | feature map rows run on 61dfa09: 2 PASS / 0 FAIL / 15,521 SKIP, library 0 unresolved names |
 
-Last docs housekeeping: 2026-11-16 (Sydney date).
+Last docs housekeeping: 2026-11-23 (Sydney date).
