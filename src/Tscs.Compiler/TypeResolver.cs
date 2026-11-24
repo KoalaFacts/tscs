@@ -15,6 +15,9 @@ internal sealed class TypeBinding(string file,Token name,TypeSyntax syntax,Scope
     public bool IsInterface { get; init; }
     // A declared alias is not an opaque instantiated type parameter.
     public bool IsTypeAlias { get; init; }
+    // An `infer` name declared as a rest parameter's type in a conditional
+    // extends type: the reference constrains it to an array (TS2370 otherwise).
+    public bool RestInfer { get; init; }
     // Whether the first declaration carries 'export' (merging requires agreement, TS2395).
     public bool ExportedDeclaration { get; init; }
     // Plain type parameters of a generic alias or interface. Each reference instantiates
@@ -302,7 +305,7 @@ internal static class TypeResolver
         bool Any(IEnumerable<TypeSyntax> types,HashSet<string> names)=>types.Any(t=>QueriesParameter(t,names,depth+1));
         switch(syntax)
         {
-            case PrimitiveTypeSyntax or LiteralTypeSyntax or IntrinsicTypeSyntax:return false;
+            case PrimitiveTypeSyntax or LiteralTypeSyntax or IntrinsicTypeSyntax or InferTypeSyntax:return false;
             case TypeQuerySyntax query:return parameters.Contains(query.Root.Text);
             case FunctionTypeSyntax function:
             {
@@ -581,8 +584,19 @@ internal static class TypeResolver
                 }
                 var requiredParameter=constraintSyntax is null
                     ?null:OpaqueParameter(constraintSyntax,placeholder);
-                TypeSymbol? bound=constraintSyntax is null
-                    ?null:Resolve(constraintSyntax,placeholder,binding.File,depth+1);
+                // A conditional alias without defaults uses its bounds only in
+                // its operands (every use fails closed), so the constraint's
+                // function types take the operand rules (`...args: any`).
+                var savedNodes=conditionalOperandNodes;
+                if(constraintSyntax is not null && binding.Syntax is ConditionalTypeSyntax &&
+                   binding.TypeParameterDefaults.All(d=>d is null))
+                {
+                    conditionalOperandNodes=new HashSet<TypeSyntax>(savedNodes??[],ReferenceEqualityComparer.Instance);
+                    CollectOperandNodes(constraintSyntax,conditionalOperandNodes,false,0);
+                }
+                TypeSymbol? bound;
+                try {bound=constraintSyntax is null?null:Resolve(constraintSyntax,placeholder,binding.File,depth+1);}
+                finally {conditionalOperandNodes=savedNodes;}
                 if(binding.TypeParameterDefaults.Count>i &&
                    binding.TypeParameterDefaults[i] is { } fallback)
                 {
@@ -674,16 +688,90 @@ internal static class TypeResolver
         if(depth>64)
             throw new CompilationFailure(Diagnostic.Error(file,conditional.Keyword,"TSCS1001",
                 "Conditional type nesting exceeds the supported depth."));
-        foreach(var operand in new[]{conditional.Check,conditional.Extends,conditional.WhenTrue,conditional.WhenFalse})
+        // `infer` names declared in the extends type are opaque parameters of
+        // the true branch only (pinned: TS2304 in the extends type itself and
+        // the false branch). Repeated names merge in the reference: fail closed.
+        var infers=new List<(Token Name,bool AtRest)>();
+        CollectInfers(conditional.Extends,infers,false,0);
+        var trueScope=scope;
+        if(infers.Count!=0)
         {
-            if(operand is ConditionalTypeSyntax nested){ValidateConditional(nested,scope,file,depth+1);continue;}
-            try {ValidateDeclarationBody(operand,scope,file,depth+1);}
+            if(infers.Select(i=>i.Name.Text).Distinct(StringComparer.Ordinal).Count()!=infers.Count)
+                throw new CompilationFailure(Diagnostic.Error(file,conditional.Keyword,"TSCS1001",
+                    "Repeated 'infer' names in one conditional type are not supported yet."));
+            trueScope=new Scope(scope);
+            foreach(var (name,rest) in infers)
+                trueScope.Types[name.Text]=new TypeBinding(file,name,new PrimitiveTypeSyntax(name with {Text="unknown"}),scope)
+                {
+                    Resolved=CompilerTypes.Unknown,
+                    IsOpaqueParameter=true,
+                    RestInfer=rest
+                };
+        }
+        foreach(var (operand,operandScope) in new[]{(conditional.Check,scope),(conditional.Extends,scope),
+                    (conditional.WhenTrue,trueScope),(conditional.WhenFalse,scope)})
+        {
+            if(operand is ConditionalTypeSyntax nested){ValidateConditional(nested,operandScope,file,depth+1);continue;}
+            // Function types written in an operand may carry a `this`
+            // parameter or the rest forms the reference accepts there; the
+            // nodes are recorded by identity so another alias's body (resolved
+            // on the way) is never checked under these rules.
+            var saved=conditionalOperandNodes;
+            conditionalOperandNodes=new HashSet<TypeSyntax>(saved??[],ReferenceEqualityComparer.Instance);
+            CollectOperandNodes(operand,conditionalOperandNodes,ReferenceEquals(operand,conditional.Extends),0);
+            try {ValidateDeclarationBody(operand,operandScope,file,depth+1);}
             catch(CompilationFailure failure) when (!IsReferenceNameFailure(failure,operand))
             {
                 throw new CompilationFailure(Diagnostic.Error(file,conditional.Keyword,"TSCS1001",
                     "This conditional type operand is not supported yet."));
             }
+            finally {conditionalOperandNodes=saved;}
         }
+    }
+
+    // Function types (and, in the extends type, `infer` declarations) of one
+    // conditional operand, by node identity.
+    [ThreadStatic] private static HashSet<TypeSyntax>? conditionalOperandNodes;
+
+    private static IEnumerable<TypeSyntax> Children(TypeSyntax syntax)=>syntax switch
+    {
+        NamedTypeSyntax named=>named.TypeArguments??[],
+        ObjectTypeSyntax shape=>shape.Properties.Select(p=>p.Type)
+            .Concat((shape.IndexSignatures??[]).SelectMany(i=>new[]{i.KeyType,i.ValueType}))
+            .Concat((shape.CallSignatures??[]).Select(c=>(TypeSyntax)c.Type)),
+        ArrayTypeSyntax array=>[array.Element],
+        TupleTypeSyntax tuple=>tuple.Elements,
+        TupleRestTypeSyntax rest=>[rest.Target],
+        FunctionTypeSyntax function=>function.Parameters.Select(p=>p.Type).Append(function.ReturnType)
+            .Concat(function.ThisType is { } thisType?[thisType]:[]),
+        KeyofTypeSyntax keyof=>[keyof.Target],
+        IndexedAccessTypeSyntax access=>[access.Target,access.Index],
+        IntersectionTypeSyntax intersection=>intersection.Members,
+        UnionTypeSyntax union=>union.Members,
+        _=>[]
+    };
+
+    private static void CollectOperandNodes(TypeSyntax syntax,HashSet<TypeSyntax> nodes,bool extendsType,int depth)
+    {
+        if(depth>64)return;
+        if(syntax is FunctionTypeSyntax || extendsType && syntax is InferTypeSyntax)nodes.Add(syntax);
+        foreach(var child in Children(syntax))CollectOperandNodes(child,nodes,extendsType,depth+1);
+    }
+
+    // `infer` declarations of an extends type; Rest when the declaration is
+    // the whole type of a rest parameter.
+    private static void CollectInfers(TypeSyntax syntax,List<(Token Name,bool AtRest)> infers,bool rest,int depth)
+    {
+        if(depth>64)return;
+        if(syntax is InferTypeSyntax infer){infers.Add((infer.Name,rest));return;}
+        if(syntax is FunctionTypeSyntax function)
+        {
+            foreach(var parameter in function.Parameters)CollectInfers(parameter.Type,infers,parameter.Rest,depth+1);
+            if(function.ThisType is { } thisType)CollectInfers(thisType,infers,false,depth+1);
+            CollectInfers(function.ReturnType,infers,false,depth+1);
+            return;
+        }
+        foreach(var child in Children(syntax))CollectInfers(child,infers,false,depth+1);
     }
 
     // TS2304 that the reference reports as is for an opaque-parameter operand.
@@ -809,7 +897,7 @@ internal static class TypeResolver
         bool Any(IEnumerable<TypeSyntax> types)=>types.Any(t=>MayQuery(t,depth+1));
         return depth>64 || syntax switch
         {
-            PrimitiveTypeSyntax or LiteralTypeSyntax=>false,
+            PrimitiveTypeSyntax or LiteralTypeSyntax or InferTypeSyntax=>false,
             TypeQuerySyntax=>true,
             NamedTypeSyntax named=>named.TypeArguments is { } arguments && Any(arguments),
             ObjectTypeSyntax shape=>Any(shape.Properties.Select(p=>p.Type).Concat(
@@ -951,9 +1039,10 @@ internal static class TypeResolver
                 if(QueriesParameter(function,new HashSet<string>(StringComparer.Ordinal),0))
                     throw new CompilationFailure(Diagnostic.Error(file,function.Open,"TSCS1001",
                         "Referring to a signature parameter from its own types is not supported yet."));
+                bool inOperand=conditionalOperandNodes?.Contains(function)==true;
                 if(function.ThisType is { } thisType)
                 {
-                    if(checkingSignatureMembers==0)
+                    if(checkingSignatureMembers==0 && !inOperand)
                         throw new CompilationFailure(Diagnostic.Error(file,function.Open,"TSCS1001",
                             "Using a function type with a 'this' parameter is not supported yet."));
                     _=Resolve(thisType,scope,file,depth+1);
@@ -962,11 +1051,27 @@ internal static class TypeResolver
                 {
                     var parameters=function.Parameters.Select(p=>Resolve(p.Type,scope,file,depth+1)).ToArray();
                     var last=function.Parameters.LastOrDefault();
+                    // Pinned TS2370: a rest type must be an array type. `any`
+                    // and `never`, an `infer` declaration and a name inferred
+                    // at a rest position are accepted only in a checked
+                    // conditional alias (operands and constraints), whose
+                    // result is never used: `...args: any` is not `any[]` in
+                    // the reference (it accepts any parameter list).
+                    TypeSymbol? restElement=last switch
+                    {
+                        null or { Rest:false }=>null,
+                        { Type:ArrayTypeSyntax array }=>Resolve(array.Element,scope,file,depth+1),
+                        { Type:PrimitiveTypeSyntax { Name.Text:"any" or "never" } } when inOperand=>CompilerTypes.Unknown,
+                        { Type:InferTypeSyntax } when inOperand=>CompilerTypes.Unknown,
+                        { Type:NamedTypeSyntax { TypeArguments:null } named } when inOperand &&
+                            scope.FindType(named.Name.Text) is { RestInfer:true }=>CompilerTypes.Unknown,
+                        _=>throw new CompilationFailure(Diagnostic.Error(file,last.Name,"TSCS1001",
+                            "This rest parameter type is not supported yet."))
+                    };
                     return new FunctionTypeSymbol(parameters,
                         Resolve(function.ReturnType,scope,file,depth+1),
                         function.Parameters.TakeWhile(p=>!p.Optional && !p.Rest).Count(),
-                        last is { Rest:true,Type:ArrayTypeSyntax array }
-                            ?Resolve(array.Element,scope,file,depth+1):null);
+                        restElement);
                 }
                 catch(CompilationFailure failure) when (failure.Diagnostic.Code=="TS2304" &&
                     function.Parameters.Any(p=>failure.Diagnostic.Message==$"Cannot find name '{p.Name.Text}'."))
@@ -1391,6 +1496,10 @@ internal static class TypeResolver
                 // (ValidateConditional) accepts one; every use fails closed.
                 throw new CompilationFailure(Diagnostic.Error(file,conditional.Keyword,"TSCS1001",
                     "Conditional types are checked only in generic type alias declarations; their uses are not supported yet."));
+            case InferTypeSyntax infer:
+                if(conditionalOperandNodes?.Contains(infer)==true)return CompilerTypes.Unknown;
+                throw new CompilationFailure(Diagnostic.Error(file,infer.Keyword,"TSCS1001",
+                    "'infer' declarations are checked only in conditional type alias declarations."));
             case MappedTypeSyntax mapped:
                 // Not modelled: only the generic alias declaration check
                 // (ValidateMapped) accepts one; every use fails closed.
@@ -1419,6 +1528,7 @@ internal static class TypeResolver
         UnionTypeSyntax value=>Location(value.Members[0]),
         ConditionalTypeSyntax value=>Location(value.Check),
         MappedTypeSyntax value=>value.Open,
+        InferTypeSyntax value=>value.Keyword,
         _=>default
     };
 }
