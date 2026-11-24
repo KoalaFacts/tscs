@@ -66,6 +66,9 @@ public sealed class InferTypeTests
     [InlineData("type F = (...args: unknown) => void;")]
     [InlineData("type F<A> = (...args: A) => void;")]
     [InlineData("type X<T> = T extends (...args: unknown) => void ? 1 : 2;")]
+    // Reference TS2344: an inferred argument is not checked as `unknown`.
+    [InlineData("type Need<F extends (x: number) => void> = F;\ntype X<T> = T extends Need<(x: infer U) => void> ? U : never;")]
+    [InlineData("type Need<F extends string> = F;\ntype X<T> = T extends Need<infer U> ? U : never;")]
     // Reference TS2368 (predefined name), TS1005 (`infer A?` in a tuple) and
     // TS1003 (a bare `infer` type name).
     [InlineData("type X<T> = T extends infer string ? 1 : 2;")]
