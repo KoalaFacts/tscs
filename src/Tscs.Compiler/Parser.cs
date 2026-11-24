@@ -1566,7 +1566,11 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
         if(check is FunctionTypeSyntax)
             Unsupported(Current,"A conditional type whose check type is a function type is not supported yet.");
         var keyword=Take();
-        var extendsType=ReadTypeAnnotation(depth+1);
+        bool savedInfer=inferAllowed;
+        inferAllowed=true;
+        TypeSyntax extendsType;
+        try {extendsType=ReadTypeAnnotation(depth+1);}
+        finally {inferAllowed=savedInfer;}
         if(!Eat(TokenKind.Question))Unsupported(Current,"Expected '?' in a conditional type.");
         var whenTrue=ReadAliasBody(depth+1);
         if(!Eat(TokenKind.Colon))Unsupported(Current,"Expected ':' in a conditional type.");
@@ -1679,6 +1683,25 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
             var keyword=Take();
             type=new KeyofTypeSyntax(keyword,ReadTypePart(depth+1));
         }
+        else if(Current.Kind==TokenKind.Identifier && Current.Text=="infer")
+        {
+            // Pinned parseInferType: `infer` in a type is always an infer
+            // type (a bare one is TS1003), binds no postfix and is valid only
+            // in a conditional extends type (TS1338 elsewhere).
+            if(position+1>=tokens.Count || tokens[position+1].Kind!=TokenKind.Identifier)
+                Unsupported(Current,"'infer' requires a type parameter name.");
+            if(!inferAllowed)
+                Unsupported(Current,"'infer' declarations are supported only in the extends type of a conditional type alias.");
+            var keyword=Take();
+            var name=Take();
+            // Predefined type names are not valid type parameter names (TS2368).
+            if(name.Text is "number" or "string" or "boolean" or "any" or "unknown" or
+               "undefined" or "never" or "object" or "bigint" or "symbol")
+                Unsupported(name,"A predefined type name as an 'infer' name is not supported.");
+            if(Current.Kind is TokenKind.Extends or TokenKind.OpenBracket or TokenKind.Dot or TokenKind.LessThan)
+                Unsupported(Current,"Constrained or postfixed 'infer' declarations are not supported yet.");
+            return new InferTypeSyntax(keyword,name);
+        }
         else if(Current.Kind==TokenKind.Typeof)
         {
             var keyword=Take();
@@ -1770,7 +1793,9 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                 if(!Eat(TokenKind.Colon))
                     Unsupported(Current,"Function type parameters require ':'.");
                 var parameterType=ReadTypeAnnotation(depth+1);
-                if(rest && parameterType is not ArrayTypeSyntax)
+                // Other rest types are checked by the resolver (array, `any`,
+                // and the conditional-alias forms it models).
+                if(rest && parameterType is not (ArrayTypeSyntax or PrimitiveTypeSyntax or InferTypeSyntax or NamedTypeSyntax { TypeArguments:null }))
                     Unsupported(name,"Rest function type parameters require an array element type.");
                 parameters.Add(new FunctionTypeParameter(name,parameterType,optional,rest));
                 if(optional)optionalSeen=true;
@@ -1863,6 +1888,10 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
                         }
                     }
                 }
+                // Pinned parser: `infer A?` in a tuple reads `?` as part of the
+                // infer type's constraint lookahead (TS1005); fail closed.
+                if(!hasLabel && Current.Kind==TokenKind.Question && !wholeTypeGrouped && slotType is InferTypeSyntax)
+                    Unsupported(Current,"An optional unparenthesized 'infer' tuple element is not supported.");
                 if(!hasLabel && Current.Kind==TokenKind.Question && !wholeTypeGrouped &&
                    slotType is UnionTypeSyntax or IntersectionTypeSyntax or FunctionTypeSyntax)
                     throw new CompilationFailure(Diagnostic.Error(file,Current,"TS17019",
@@ -2065,6 +2094,9 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     // an object type records the first one among its members so that, like
     // signatures, its declaration is checked and any use fails closed.
     private readonly List<Token> thisParameters=[];
+
+    // Set while reading the extends type of a conditional alias body.
+    private bool inferAllowed;
 
     // `symbol`, `object` and `this` keyword type references read so far, in
     // source order. Like `this` parameters, an object type records the first

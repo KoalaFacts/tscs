@@ -8,8 +8,9 @@ namespace Tscs.Tests;
 // supported yet`. A generic type alias whose whole body is a conditional type
 // (branches may nest further conditionals) is checked: every operand must
 // resolve with opaque parameters, and only TS2304 is reported as is. Any use
-// of such an alias, a conditional type anywhere else, `infer`, and operands
-// the reference may accept through true-branch narrowing fail closed.
+// of such an alias, a conditional type anywhere else, and operands the
+// reference may accept through true-branch narrowing fail closed. `infer` is
+// covered by InferTypeTests.
 // Expected results match the pinned Go CLI.
 public sealed class ConditionalTypeTests
 {
@@ -42,7 +43,6 @@ public sealed class ConditionalTypeTests
     [InlineData("type X<T> = T extends string ? 1 : 2;\nlet x: X<string> = 1;")]
     [InlineData("let y: string extends string ? 1 : 2 = 1;")]
     [InlineData("type X<T> = { a: T extends string ? 1 : 2 };")]
-    [InlineData("type X<T> = T extends (infer U)[] ? U : never;")]
     [InlineData("type X<T> = () => T extends string ? 1 : 2;")]
     [InlineData("type X<T> = (() => T) extends string ? 1 : 2;")]
     [InlineData("type X<T> = T extends string ? X<T> : never;")]

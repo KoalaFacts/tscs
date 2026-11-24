@@ -81,6 +81,9 @@ internal sealed record IntersectionTypeSyntax(IReadOnlyList<TypeSyntax> Members)
 internal sealed record UnionTypeSyntax(IReadOnlyList<TypeSyntax> Members) : TypeSyntax;
 // `Check extends Extends ? WhenTrue : WhenFalse`, parsed only as a whole type
 // alias body or a branch of one; checked only in generic alias declarations.
+// `infer Name`, parsed only inside the extends type of a conditional alias
+// body; it declares an opaque type parameter visible in the true branch.
+internal sealed record InferTypeSyntax(Token Keyword,Token Name) : TypeSyntax;
 internal sealed record ConditionalTypeSyntax(TypeSyntax Check,Token Keyword,TypeSyntax Extends,TypeSyntax WhenTrue,TypeSyntax WhenFalse) : TypeSyntax;
 // `{ readonly [P in Constraint]?: Template }`, parsed only as a whole type
 // alias body; checked only in generic alias declarations.
