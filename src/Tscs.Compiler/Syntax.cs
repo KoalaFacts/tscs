@@ -68,8 +68,12 @@ internal sealed record FunctionTypeParameter(Token Name,TypeSyntax Type,bool Opt
 // `(this: T, ...) => R`: ThisType is the declared `this` parameter, which is
 // not a positional parameter. Declarations are checked; any use of a type
 // containing one fails closed until `this` parameters are modelled.
+// `new (...) => R` / `abstract new (...) => R`: New is the `new` keyword of
+// a constructor type. Constructor types are checked only inside conditional
+// alias operands and constraints (whose result is never used); every other
+// position fails closed until construct types are modelled.
 internal sealed record FunctionTypeSyntax(Token Open,IReadOnlyList<FunctionTypeParameter> Parameters,TypeSyntax ReturnType,
-    TypeSyntax? ThisType=null) : TypeSyntax;
+    TypeSyntax? ThisType=null,Token? New=null,bool Abstract=false) : TypeSyntax;
 // Contextual type operator: `keyof` remains an ordinary value identifier.
 internal sealed record KeyofTypeSyntax(Token Keyword,TypeSyntax Target) : TypeSyntax;
 // A type-only value query retains the declaring value identity; there is no JS emit.

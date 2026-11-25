@@ -363,9 +363,15 @@ internal sealed class Scanner(string file, string text, bool jsonMode=false, boo
                 // `new (` or `new <` after '{', ';' or ',' (or on a new line) may start
                 // a construct signature member of an object type; the parser
                 // still rejects the token in every other position.
+                // `new (` or `new <` after a type-position token (or the
+                // contextual `abstract`) may start a constructor type.
                 bool potentialConstructSignature=!jsonMode && token.Text=="new" &&
                     tokens.Count>0 &&
-                    (lineBreak || tokens[^1].Kind is (TokenKind.Open or TokenKind.Semi or TokenKind.Comma)) &&
+                    (lineBreak || tokens[^1].Kind is (TokenKind.Open or TokenKind.Semi or TokenKind.Comma or
+                        TokenKind.Extends or TokenKind.Colon or TokenKind.Equal or TokenKind.Bar or TokenKind.Amp or
+                        TokenKind.Arrow or TokenKind.OpenParen or TokenKind.LessThan or TokenKind.Question or
+                        TokenKind.OpenBracket) ||
+                     tokens[^1] is {Kind:TokenKind.Identifier,Text:"abstract"}) &&
                     next<text.Length && text[next] is '(' or '<';
                 // `(this:` may start the `this` parameter of a function type or
                 // method signature; the parser rejects it everywhere else.
