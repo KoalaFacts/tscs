@@ -1054,6 +1054,11 @@ internal static class TypeResolver
                     throw new CompilationFailure(Diagnostic.Error(file,function.Open,"TSCS1001",
                         "Referring to a signature parameter from its own types is not supported yet."));
                 bool inOperand=conditionalOperandNodes?.Contains(function)==true;
+                // Constructor types are checked only where the result is never
+                // used: conditional alias operands and constraints.
+                if(function.New is { } newKeyword && !inOperand)
+                    throw new CompilationFailure(Diagnostic.Error(file,newKeyword,"TSCS1001",
+                        "Using a constructor type is not supported yet."));
                 if(function.ThisType is { } thisType)
                 {
                     if(checkingSignatureMembers==0 && !inOperand)

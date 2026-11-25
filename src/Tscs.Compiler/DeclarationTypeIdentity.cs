@@ -180,7 +180,7 @@ internal static class DeclarationTypeIdentity
                     b.Target,rightScope,rightFile,depth+1);
             case (FunctionTypeSyntax a,FunctionTypeSyntax b):
                 // `this` parameters are not modelled: no proof of identity.
-                return a.ThisType is null && b.ThisType is null &&
+                return a.ThisType is null && b.ThisType is null && a.New is null && b.New is null &&
                     a.Parameters.Count==b.Parameters.Count &&
                     a.Parameters.Zip(b.Parameters).All(pair=>
                         pair.First.Optional==pair.Second.Optional &&
@@ -363,7 +363,7 @@ internal static class DeclarationTypeIdentity
                 return true;
             }
             case (FunctionTypeSyntax a,FunctionTypeSyntax b):
-                return a.ThisType is null && b.ThisType is null &&
+                return a.ThisType is null && b.ThisType is null && a.New is null && b.New is null &&
                     a.Parameters.Count==b.Parameters.Count && a.Parameters.Zip(b.Parameters).All(pair=>
                         pair.First.Optional==pair.Second.Optional && pair.First.Rest==pair.Second.Rest &&
                         SameDeclared(pair.First.Type,l,pair.Second.Type,r,depth+1)) &&

@@ -1538,6 +1538,15 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     // The same bounded grammar handles aliases, interfaces, variables, function
     // signatures and nested members: postfix [] binds tighter than union |.
     // Disambiguate typed call signatures from parenthesized types.
+    // `new (` / `new <`, or the contextual `abstract new (` / `abstract new <`.
+    private bool IsConstructorTypeStart()
+    {
+        int i=position;
+        if(tokens[i].Kind==TokenKind.Identifier && tokens[i].Text=="abstract" && i+1<tokens.Count)i++;
+        return tokens[i].Kind==TokenKind.Unsupported && tokens[i].Text=="new" &&
+            i+1<tokens.Count && tokens[i+1].Kind is TokenKind.OpenParen or TokenKind.LessThan &&
+            (i==position || !tokens[i].LineBreak);
+    }
     private bool IsFunctionTypeStart()
     {
         int parentheses=0;
@@ -1655,8 +1664,27 @@ internal sealed class Parser(string file, List<Token> tokens, Scanner? sourceSca
     {
         if(depth>64)Unsupported(Current,"Type nesting exceeds the compiler subset limit.");
         TypeSyntax type;
+        if(IsConstructorTypeStart())
+        {
+            // Pinned parseFunctionOrConstructorType: `abstract new` or `new`.
+            bool isAbstract=Current.Kind==TokenKind.Identifier;
+            if(isAbstract)Take();
+            var keyword=Take();
+            if(Current.Kind==TokenKind.LessThan)
+                Unsupported(Current,"Generic constructor types are not supported yet.");
+            if(Current.Kind!=TokenKind.OpenParen || !IsFunctionTypeStart())
+                Unsupported(Current,"Expected '(' and '=>' in a constructor type.");
+            if(ReadTypePart(depth+1) is not FunctionTypeSyntax function)
+            {
+                Unsupported(keyword,"Expected a constructor type.");
+                return default!;
+            }
+            if(function.ThisType is not null)
+                Unsupported(keyword,"A 'this' parameter on a constructor type is not supported.");
+            type=function with {New=keyword,Abstract=isAbstract};
+        }
         // A prefix readonly modifier applies only to arrays and fixed tuples.
-        if(Current.Kind==TokenKind.Identifier && Current.Text=="readonly")
+        else if(Current.Kind==TokenKind.Identifier && Current.Text=="readonly")
         {
             var keyword=Take();
             var operand=ReadTypePart(depth+1);
