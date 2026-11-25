@@ -693,6 +693,12 @@ internal static class TypeResolver
         // the false branch). Repeated names merge in the reference: fail closed.
         var infers=new List<(Token Name,bool AtRest)>();
         CollectInfers(conditional.Extends,infers,false,0);
+        // An `infer` inside a generic type's arguments would be checked
+        // against that parameter's constraint as `unknown`, but the reference
+        // keeps it an arbitrary parameter (TS2344): fail closed.
+        if(InferInTypeArguments(conditional.Extends,false,0))
+            throw new CompilationFailure(Diagnostic.Error(file,conditional.Keyword,"TSCS1001",
+                "An 'infer' declaration inside generic type arguments is not supported yet."));
         var trueScope=scope;
         if(infers.Count!=0)
         {
@@ -757,6 +763,14 @@ internal static class TypeResolver
         if(syntax is FunctionTypeSyntax || extendsType && syntax is InferTypeSyntax)nodes.Add(syntax);
         foreach(var child in Children(syntax))CollectOperandNodes(child,nodes,extendsType,depth+1);
     }
+
+    private static bool InferInTypeArguments(TypeSyntax syntax,bool inArguments,int depth)=>
+        depth>64 || syntax switch
+        {
+            InferTypeSyntax=>inArguments,
+            NamedTypeSyntax { TypeArguments:{ } arguments }=>arguments.Any(a=>InferInTypeArguments(a,true,depth+1)),
+            _=>Children(syntax).Any(c=>InferInTypeArguments(c,inArguments,depth+1))
+        };
 
     // `infer` declarations of an extends type; Rest when the declaration is
     // the whole type of a rest parameter.
