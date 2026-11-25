@@ -1,6 +1,7 @@
 ---
 name: advance-tscs
 description: How the scheduled task advances tscs — original-upstream acceptance metric, toolchain and gate, ledger in docs/STATUS.md, work order, anti-sprawl and lock rules. Read with agent-harness/autonomous-dev at the start of every run.
+ledger: docs/STATUS.md#roadmap
 ---
 
 # Advance tscs
