@@ -757,11 +757,17 @@ internal static class TypeResolver
         _=>[]
     };
 
-    private static void CollectOperandNodes(TypeSyntax syntax,HashSet<TypeSyntax> nodes,bool extendsType,int depth)
+    // A constructor type inside a generic type's arguments would be checked
+    // against that parameter's constraint as a call type (the reference
+    // reports TS2344): it is not collected, so it fails closed.
+    private static void CollectOperandNodes(TypeSyntax syntax,HashSet<TypeSyntax> nodes,bool extendsType,int depth,
+        bool inArguments=false)
     {
         if(depth>64)return;
-        if(syntax is FunctionTypeSyntax || extendsType && syntax is InferTypeSyntax)nodes.Add(syntax);
-        foreach(var child in Children(syntax))CollectOperandNodes(child,nodes,extendsType,depth+1);
+        if(syntax is FunctionTypeSyntax function && (function.New is null || !inArguments) ||
+           extendsType && syntax is InferTypeSyntax)nodes.Add(syntax);
+        bool childArguments=inArguments || syntax is NamedTypeSyntax { TypeArguments:not null };
+        foreach(var child in Children(syntax))CollectOperandNodes(child,nodes,extendsType,depth+1,childArguments);
     }
 
     private static bool InferInTypeArguments(TypeSyntax syntax,bool inArguments,int depth)=>

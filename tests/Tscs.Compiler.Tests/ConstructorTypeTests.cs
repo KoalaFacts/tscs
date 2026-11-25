@@ -39,6 +39,10 @@ public sealed class ConstructorTypeTests
     [InlineData("type G<T> = T extends new <U>(x: U) => infer R ? R : never;")]
     [InlineData("type InstanceType<T extends abstract new (...args: any) => any> = T extends abstract new (...args: any) => infer R ? R : any;\nlet x: InstanceType<new () => string>;")]
     [InlineData("type X<T> = T extends abstract\n  new () => infer R ? R : never;")]
+    // Reference TS2344: a constructor type has no call signature (Codex on #278).
+    [InlineData("type Need<F extends () => number> = F;\ntype X<T> = T extends Need<new () => number> ? 1 : 2;")]
+    [InlineData("type Need<F extends () => number> = F;\ntype X<T extends Need<new () => number>> = T extends string ? 1 : 2;")]
+    [InlineData("type Need<F> = F;\ntype X<T> = T extends { a: Need<[new () => number]> } ? 1 : 2;")]
     // Reference TS2681: a constructor cannot have a `this` parameter.
     [InlineData("type X<T> = T extends new (this: string) => any ? 1 : 2;")]
     public void UnmodelledFormsFailClosed(string source)=>
