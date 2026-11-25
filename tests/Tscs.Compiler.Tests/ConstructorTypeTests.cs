@@ -43,6 +43,10 @@ public sealed class ConstructorTypeTests
     [InlineData("type Need<F extends () => number> = F;\ntype X<T> = T extends Need<new () => number> ? 1 : 2;")]
     [InlineData("type Need<F extends () => number> = F;\ntype X<T extends Need<new () => number>> = T extends string ? 1 : 2;")]
     [InlineData("type Need<F> = F;\ntype X<T> = T extends { a: Need<[new () => number]> } ? 1 : 2;")]
+    // Reference TS2344: a constructor-type bound passed to a call-type constraint (review on #278).
+    [InlineData("interface I<U extends () => string> { x: U }\ntype A<T extends new () => string> = T extends I<T> ? 1 : 0;")]
+    [InlineData("interface I<U extends () => string> { x: U }\ntype A<T, K extends new () => string> = T extends 1 ? I<K> : 0;")]
+    [InlineData("interface I<U extends () => string> { x: U }\ntype A<K extends new () => string, T extends I<K>> = T extends 1 ? 1 : 0;")]
     // Reference TS2681: a constructor cannot have a `this` parameter.
     [InlineData("type X<T> = T extends new (this: string) => any ? 1 : 2;")]
     public void UnmodelledFormsFailClosed(string source)=>

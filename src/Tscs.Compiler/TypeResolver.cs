@@ -587,6 +587,15 @@ internal static class TypeResolver
                 // A conditional alias without defaults uses its bounds only in
                 // its operands (every use fails closed), so the constraint's
                 // function types take the operand rules (`...args: any`).
+                // A constructor-type bound resolves like a call type, so a
+                // parameter bounded by one must never reach a constraint
+                // check (reference TS2344): with any generic type reference
+                // in the body or the constraints, fail closed.
+                if(constraintSyntax is not null && ContainsConstructorType(constraintSyntax,0) &&
+                   (ContainsGenericReference(binding.Syntax,0) ||
+                    binding.TypeParameterConstraints.Any(c=>c is not null && ContainsGenericReference(c,0))))
+                    throw new CompilationFailure(Diagnostic.Error(binding.File,binding.TypeParameters[i],"TSCS1001",
+                        "A constructor-type bound with generic type references in its alias is not supported yet."));
                 var savedNodes=conditionalOperandNodes;
                 if(constraintSyntax is not null && binding.Syntax is ConditionalTypeSyntax &&
                    binding.TypeParameterDefaults.All(d=>d is null))
@@ -769,6 +778,21 @@ internal static class TypeResolver
         bool childArguments=inArguments || syntax is NamedTypeSyntax { TypeArguments:not null };
         foreach(var child in Children(syntax))CollectOperandNodes(child,nodes,extendsType,depth+1,childArguments);
     }
+
+    private static bool ContainsConstructorType(TypeSyntax syntax,int depth)=>
+        depth>64 || syntax is FunctionTypeSyntax { New:not null } ||
+        Children(syntax).Any(c=>ContainsConstructorType(c,depth+1));
+
+    private static bool ContainsGenericReference(TypeSyntax syntax,int depth)=>
+        depth>64 || syntax switch
+        {
+            NamedTypeSyntax { TypeArguments:not null }=>true,
+            ConditionalTypeSyntax conditional=>new[]{conditional.Check,conditional.Extends,conditional.WhenTrue,conditional.WhenFalse}
+                .Any(c=>ContainsGenericReference(c,depth+1)),
+            MappedTypeSyntax mapped=>ContainsGenericReference(mapped.Constraint,depth+1) ||
+                ContainsGenericReference(mapped.Template,depth+1),
+            _=>Children(syntax).Any(c=>ContainsGenericReference(c,depth+1))
+        };
 
     private static bool InferInTypeArguments(TypeSyntax syntax,bool inArguments,int depth)=>
         depth>64 || syntax switch
